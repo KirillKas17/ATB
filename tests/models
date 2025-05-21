@@ -1,0 +1,313 @@
+import pytest
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from core.models import MarketData, Order, Position, Trade, Account
+
+@pytest.fixture
+def market_data():
+    """Фикстура с тестовыми рыночными данными"""
+    return MarketData(
+        timestamp=datetime.now(),
+        open=100.0,
+        high=101.0,
+        low=99.0,
+        close=100.5,
+        volume=1000.0,
+        pair='BTC/USDT'
+    )
+
+@pytest.fixture
+def order():
+    """Фикстура с тестовым ордером"""
+    return Order(
+        id='order_1',
+        pair='BTC/USDT',
+        type='market',
+        side='buy',
+        price=50000.0,
+        size=0.1,
+        status='filled',
+        timestamp=datetime.now(),
+        filled_price=50000.0,
+        filled_size=0.1,
+        filled_timestamp=datetime.now()
+    )
+
+@pytest.fixture
+def position():
+    """Фикстура с тестовой позицией"""
+    return Position(
+        pair='BTC/USDT',
+        side='long',
+        size=0.1,
+        entry_price=50000.0,
+        entry_time=datetime.now(),
+        current_price=51000.0,
+        pnl=100.0,
+        stop_loss=49000.0,
+        take_profit=51000.0
+    )
+
+@pytest.fixture
+def trade():
+    """Фикстура с тестовой сделкой"""
+    return Trade(
+        id='trade_1',
+        pair='BTC/USDT',
+        side='buy',
+        size=0.1,
+        price=50000.0,
+        timestamp=datetime.now(),
+        fee=5.0,
+        pnl=100.0
+    )
+
+@pytest.fixture
+def account():
+    """Фикстура с тестовым аккаунтом"""
+    return Account(
+        balance=10000.0,
+        equity=10100.0,
+        margin=1000.0,
+        free_margin=9000.0,
+        margin_level=1000.0,
+        positions=[Position(
+            pair='BTC/USDT',
+            side='long',
+            size=0.1,
+            entry_price=50000.0,
+            entry_time=datetime.now(),
+            current_price=51000.0,
+            pnl=100.0
+        )],
+        orders=[Order(
+            id='order_1',
+            pair='BTC/USDT',
+            type='market',
+            side='buy',
+            price=50000.0,
+            size=0.1,
+            status='filled',
+            timestamp=datetime.now()
+        )],
+        trades=[Trade(
+            id='trade_1',
+            pair='BTC/USDT',
+            side='buy',
+            size=0.1,
+            price=50000.0,
+            timestamp=datetime.now(),
+            fee=5.0,
+            pnl=100.0
+        )]
+    )
+
+def test_market_data_creation(market_data):
+    """Тест создания рыночных данных"""
+    assert market_data.pair == 'BTC/USDT'
+    assert market_data.open == 100.0
+    assert market_data.high == 101.0
+    assert market_data.low == 99.0
+    assert market_data.close == 100.5
+    assert market_data.volume == 1000.0
+    assert isinstance(market_data.timestamp, datetime)
+
+def test_market_data_to_dict(market_data):
+    """Тест преобразования рыночных данных в словарь"""
+    data_dict = market_data.to_dict()
+    assert isinstance(data_dict, dict)
+    assert data_dict['pair'] == 'BTC/USDT'
+    assert data_dict['open'] == 100.0
+    assert data_dict['high'] == 101.0
+    assert data_dict['low'] == 99.0
+    assert data_dict['close'] == 100.5
+    assert data_dict['volume'] == 1000.0
+
+def test_order_creation(order):
+    """Тест создания ордера"""
+    assert order.id == 'order_1'
+    assert order.pair == 'BTC/USDT'
+    assert order.type == 'market'
+    assert order.side == 'buy'
+    assert order.price == 50000.0
+    assert order.size == 0.1
+    assert order.status == 'filled'
+    assert isinstance(order.timestamp, datetime)
+    assert order.filled_price == 50000.0
+    assert order.filled_size == 0.1
+    assert isinstance(order.filled_timestamp, datetime)
+
+def test_order_to_dict(order):
+    """Тест преобразования ордера в словарь"""
+    order_dict = order.to_dict()
+    assert isinstance(order_dict, dict)
+    assert order_dict['id'] == 'order_1'
+    assert order_dict['pair'] == 'BTC/USDT'
+    assert order_dict['type'] == 'market'
+    assert order_dict['side'] == 'buy'
+    assert order_dict['price'] == 50000.0
+    assert order_dict['size'] == 0.1
+    assert order_dict['status'] == 'filled'
+
+def test_position_creation(position):
+    """Тест создания позиции"""
+    assert position.pair == 'BTC/USDT'
+    assert position.side == 'long'
+    assert position.size == 0.1
+    assert position.entry_price == 50000.0
+    assert isinstance(position.entry_time, datetime)
+    assert position.current_price == 51000.0
+    assert position.pnl == 100.0
+    assert position.stop_loss == 49000.0
+    assert position.take_profit == 51000.0
+
+def test_position_to_dict(position):
+    """Тест преобразования позиции в словарь"""
+    position_dict = position.to_dict()
+    assert isinstance(position_dict, dict)
+    assert position_dict['pair'] == 'BTC/USDT'
+    assert position_dict['side'] == 'long'
+    assert position_dict['size'] == 0.1
+    assert position_dict['entry_price'] == 50000.0
+    assert position_dict['current_price'] == 51000.0
+    assert position_dict['pnl'] == 100.0
+    assert position_dict['stop_loss'] == 49000.0
+    assert position_dict['take_profit'] == 51000.0
+
+def test_trade_creation(trade):
+    """Тест создания сделки"""
+    assert trade.id == 'trade_1'
+    assert trade.pair == 'BTC/USDT'
+    assert trade.side == 'buy'
+    assert trade.size == 0.1
+    assert trade.price == 50000.0
+    assert isinstance(trade.timestamp, datetime)
+    assert trade.fee == 5.0
+    assert trade.pnl == 100.0
+
+def test_trade_to_dict(trade):
+    """Тест преобразования сделки в словарь"""
+    trade_dict = trade.to_dict()
+    assert isinstance(trade_dict, dict)
+    assert trade_dict['id'] == 'trade_1'
+    assert trade_dict['pair'] == 'BTC/USDT'
+    assert trade_dict['side'] == 'buy'
+    assert trade_dict['size'] == 0.1
+    assert trade_dict['price'] == 50000.0
+    assert trade_dict['fee'] == 5.0
+    assert trade_dict['pnl'] == 100.0
+
+def test_account_creation(account):
+    """Тест создания аккаунта"""
+    assert account.balance == 10000.0
+    assert account.equity == 10100.0
+    assert account.margin == 1000.0
+    assert account.free_margin == 9000.0
+    assert account.margin_level == 1000.0
+    assert len(account.positions) == 1
+    assert len(account.orders) == 1
+    assert len(account.trades) == 1
+
+def test_account_to_dict(account):
+    """Тест преобразования аккаунта в словарь"""
+    account_dict = account.to_dict()
+    assert isinstance(account_dict, dict)
+    assert account_dict['balance'] == 10000.0
+    assert account_dict['equity'] == 10100.0
+    assert account_dict['margin'] == 1000.0
+    assert account_dict['free_margin'] == 9000.0
+    assert account_dict['margin_level'] == 1000.0
+    assert len(account_dict['positions']) == 1
+    assert len(account_dict['orders']) == 1
+    assert len(account_dict['trades']) == 1
+
+def test_market_data_from_dict():
+    """Тест создания рыночных данных из словаря"""
+    data_dict = {
+        'timestamp': datetime.now(),
+        'open': 100.0,
+        'high': 101.0,
+        'low': 99.0,
+        'close': 100.5,
+        'volume': 1000.0,
+        'pair': 'BTC/USDT'
+    }
+    market_data = MarketData.from_dict(data_dict)
+    assert market_data.pair == 'BTC/USDT'
+    assert market_data.open == 100.0
+    assert market_data.high == 101.0
+    assert market_data.low == 99.0
+    assert market_data.close == 100.5
+    assert market_data.volume == 1000.0
+
+def test_position_from_dict():
+    """Тест создания позиции из словаря"""
+    position_dict = {
+        'pair': 'BTC/USDT',
+        'side': 'long',
+        'size': 0.1,
+        'entry_price': 50000.0,
+        'entry_time': datetime.now(),
+        'current_price': 51000.0,
+        'pnl': 100.0,
+        'stop_loss': 49000.0,
+        'take_profit': 51000.0
+    }
+    position = Position.from_dict(position_dict)
+    assert position.pair == 'BTC/USDT'
+    assert position.side == 'long'
+    assert position.size == 0.1
+    assert position.entry_price == 50000.0
+    assert position.current_price == 51000.0
+    assert position.pnl == 100.0
+    assert position.stop_loss == 49000.0
+    assert position.take_profit == 51000.0
+
+def test_account_from_dict():
+    """Тест создания аккаунта из словаря"""
+    account_dict = {
+        'balance': 10000.0,
+        'equity': 10100.0,
+        'margin': 1000.0,
+        'free_margin': 9000.0,
+        'margin_level': 1000.0,
+        'positions': [{
+            'pair': 'BTC/USDT',
+            'side': 'long',
+            'size': 0.1,
+            'entry_price': 50000.0,
+            'entry_time': datetime.now(),
+            'current_price': 51000.0,
+            'pnl': 100.0
+        }],
+        'orders': [{
+            'id': 'order_1',
+            'pair': 'BTC/USDT',
+            'type': 'market',
+            'side': 'buy',
+            'price': 50000.0,
+            'size': 0.1,
+            'status': 'filled',
+            'timestamp': datetime.now()
+        }],
+        'trades': [{
+            'id': 'trade_1',
+            'pair': 'BTC/USDT',
+            'side': 'buy',
+            'size': 0.1,
+            'price': 50000.0,
+            'timestamp': datetime.now(),
+            'fee': 5.0,
+            'pnl': 100.0
+        }]
+    }
+    account = Account.from_dict(account_dict)
+    assert account.balance == 10000.0
+    assert account.equity == 10100.0
+    assert account.margin == 1000.0
+    assert account.free_margin == 9000.0
+    assert account.margin_level == 1000.0
+    assert len(account.positions) == 1
+    assert len(account.orders) == 1
+    assert len(account.trades) == 1 

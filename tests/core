@@ -1,0 +1,271 @@
+import pytest
+import numpy as np
+import pandas as pd
+from unittest.mock import Mock, patch, AsyncMock
+from datetime import datetime, timedelta
+
+from core.signal_processor import SignalProcessor
+from core.market_state import MarketState
+from core.controller import Controller
+from core.correlation_chain import CorrelationChain
+from core.market_regime_detector import MarketRegimeDetector
+from core.buffer_manager import BufferManager
+from core.ml_integration import MLIntegration
+from core.market_state import MarketStateManager
+
+# Фикстуры
+@pytest.fixture
+def mock_market_data():
+    """Фикстура с тестовыми рыночными данными"""
+    dates = pd.date_range(start='2024-01-01', periods=100, freq='1H')
+    data = pd.DataFrame({
+        'open': np.random.normal(100, 1, 100),
+        'high': np.random.normal(101, 1, 100),
+        'low': np.random.normal(99, 1, 100),
+        'close': np.random.normal(100, 1, 100),
+        'volume': np.random.normal(1000, 100, 100)
+    }, index=dates)
+    return data
+
+@pytest.fixture
+def mock_strategy():
+    """Фикстура с тестовой стратегией"""
+    strategy = Mock()
+    strategy.generate_signal.return_value = {
+        'action': 'buy',
+        'confidence': 0.8,
+        'stop_loss': 95,
+        'take_profit': 105
+    }
+    return strategy
+
+@pytest.fixture
+def signal_processor():
+    """Фикстура с процессором сигналов"""
+    return SignalProcessor(
+        min_confidence=0.7,
+        signal_threshold=0.5
+    )
+
+@pytest.fixture
+def market_state():
+    """Фикстура с состоянием рынка"""
+    return MarketState(
+        window_size=20,
+        update_interval=60
+    )
+
+@pytest.fixture
+def controller():
+    """Фикстура с контроллером"""
+    return Controller(
+        max_positions=3,
+        min_interval=60
+    )
+
+@pytest.fixture
+def correlation_chain():
+    """Фикстура с цепочкой корреляций"""
+    return CorrelationChain(
+        min_correlation=0.7,
+        max_chain_length=3
+    )
+
+# Тесты для SignalProcessor
+class TestSignalProcessor:
+    def test_process_signal(self, signal_processor, mock_strategy):
+        """Тест обработки сигнала"""
+        signal = mock_strategy.generate_signal()
+        market_data = pd.DataFrame({
+            'close': np.random.normal(100, 1, 100)
+        })
+        
+        processed_signal = signal_processor.process_signal(
+            signal=signal,
+            market_data=market_data
+        )
+        
+        assert isinstance(processed_signal, dict)
+        assert 'action' in processed_signal
+        assert 'confidence' in processed_signal
+        assert 'stop_loss' in processed_signal
+        assert 'take_profit' in processed_signal
+
+    def test_validate_signal(self, signal_processor, mock_strategy):
+        """Тест валидации сигнала"""
+        signal = mock_strategy.generate_signal()
+        
+        is_valid = signal_processor.validate_signal(signal)
+        
+        assert isinstance(is_valid, bool)
+
+# Тесты для MarketState
+class TestMarketState:
+    def test_update_state(self, market_state, mock_market_data):
+        """Тест обновления состояния рынка"""
+        state = market_state.update_state(mock_market_data)
+        
+        assert isinstance(state, dict)
+        assert 'trend' in state
+        assert 'volatility' in state
+        assert 'volume' in state
+
+    def test_get_market_conditions(self, market_state, mock_market_data):
+        """Тест получения рыночных условий"""
+        conditions = market_state.get_market_conditions(mock_market_data)
+        
+        assert isinstance(conditions, dict)
+        assert 'trend_strength' in conditions
+        assert 'volatility_level' in conditions
+        assert 'volume_profile' in conditions
+
+# Тесты для Controller
+class TestController:
+    def test_execute_strategy(self, controller, mock_strategy, mock_market_data):
+        """Тест выполнения стратегии"""
+        result = controller.execute_strategy(
+            strategy=mock_strategy,
+            market_data=mock_market_data
+        )
+        
+        assert isinstance(result, dict)
+        assert 'success' in result
+        assert 'message' in result
+
+    def test_validate_execution(self, controller, mock_strategy):
+        """Тест валидации выполнения"""
+        signal = mock_strategy.generate_signal()
+        market_state = {
+            'trend': 'up',
+            'volatility': 0.02
+        }
+        
+        is_valid = controller.validate_execution(
+            signal=signal,
+            market_state=market_state
+        )
+        
+        assert isinstance(is_valid, bool)
+
+# Тесты для CorrelationChain
+class TestCorrelationChain:
+    def test_build_correlation_chain(self, correlation_chain, mock_market_data):
+        """Тест построения цепочки корреляций"""
+        symbols = ['BTC/USDT', 'ETH/USDT', 'BNB/USDT']
+        chain = correlation_chain.build_correlation_chain(
+            symbols=symbols,
+            market_data=mock_market_data
+        )
+        
+        assert isinstance(chain, list)
+        assert len(chain) <= 3
+
+    def test_validate_chain(self, correlation_chain):
+        """Тест валидации цепочки"""
+        chain = [
+            {'symbol': 'BTC/USDT', 'correlation': 0.8},
+            {'symbol': 'ETH/USDT', 'correlation': 0.75}
+        ]
+        
+        is_valid = correlation_chain.validate_chain(chain)
+        
+        assert isinstance(is_valid, bool)
+
+    def test_get_chain_impact(self, correlation_chain, mock_market_data):
+        """Тест получения влияния цепочки"""
+        chain = [
+            {'symbol': 'BTC/USDT', 'correlation': 0.8},
+            {'symbol': 'ETH/USDT', 'correlation': 0.75}
+        ]
+        
+        impact = correlation_chain.get_chain_impact(
+            chain=chain,
+            market_data=mock_market_data
+        )
+        
+        assert isinstance(impact, dict)
+        assert 'total_correlation' in impact
+        assert 'risk_factor' in impact
+
+def test_market_regime_detector():
+    config = {"atr_period": 14}
+    detector = MarketRegimeDetector(config)
+    df = pd.DataFrame({
+        "open": [1,2,3,4,5],
+        "high": [2,3,4,5,6],
+        "low": [0,1,2,3,4],
+        "close": [1.5,2.5,3.5,4.5,5.5],
+        "volume": [100,110,120,130,140]
+    })
+    regime = detector.detect_regime(df)
+    assert regime is not None
+    assert "regime_type" in regime
+    assert "features" in regime
+
+def test_buffer_manager():
+    bm = BufferManager(max_size=3)
+    bm.add("BTCUSDT", {"open":1,"high":2,"low":0,"close":1.5,"volume":100})
+    bm.add("BTCUSDT", {"open":2,"high":3,"low":1,"close":2.5,"volume":110})
+    bm.add("BTCUSDT", {"open":3,"high":4,"low":2,"close":3.5,"volume":120})
+    bm.add("BTCUSDT", {"open":4,"high":5,"low":3,"close":4.5,"volume":130})
+    df = bm.get_data("BTCUSDT")
+    assert len(df) == 3
+    bm.clear("BTCUSDT")
+    assert bm.get_data("BTCUSDT").empty
+
+def test_ml_integration():
+    ml = MLIntegration()
+    df = pd.DataFrame({
+        "open": [1,2,3,4,5],
+        "high": [2,3,4,5,6],
+        "low": [0,1,2,3,4],
+        "close": [1.5,2.5,3.5,4.5,5.5],
+        "volume": [100,110,120,130,140],
+        "atr": [1,1,1,1,1],
+        "adx": [10,10,10,10,10],
+        "rsi": [50,50,50,50,50],
+        "bb_upper": [2,3,4,5,6],
+        "bb_lower": [0,1,2,3,4]
+    })
+    meta = {"volatility":0.1, "trend_strength":0.5, "regime":"trend"}
+    window = ml.get_optimal_window(df, meta)
+    assert isinstance(window, int)
+    assert 150 <= window <= 2000
+
+def test_ml_integration_predict_with_wavelet_and_transformer():
+    ml = MLIntegration()
+    features = {
+        "open": 1.5,
+        "high": 2.0,
+        "low": 1.0,
+        "close": 1.7,
+        "volume": 100,
+        "atr": 1.0,
+        "adx": 10.0,
+        "rsi": 50.0,
+        "bb_upper": 2.0,
+        "bb_lower": 1.0
+    }
+    result = ml.predict(features, pair="BTCUSDT")
+    assert isinstance(result, dict)
+    assert "prediction" in result
+    assert "confidence" in result
+    assert "model_source" in result
+    assert result["model_source"] in ["transformer", "window_optimizer", "none"]
+
+def test_market_state_manager_integration():
+    config = {"atr_period": 14, "buffer_size": 5, "min_candles": 3}
+    msm = MarketStateManager(config)
+    candles = [
+        {"open":1,"high":2,"low":0,"close":1.5,"volume":100},
+        {"open":2,"high":3,"low":1,"close":2.5,"volume":110},
+        {"open":3,"high":4,"low":2,"close":3.5,"volume":120},
+        {"open":4,"high":5,"low":3,"close":4.5,"volume":130},
+        {"open":5,"high":6,"low":4,"close":5.5,"volume":140}
+    ]
+    for c in candles:
+        snap = msm.update("BTCUSDT", c)
+    snapshot = msm.get_snapshot("BTCUSDT")
+    assert snapshot is not None
+    assert "regime" in snapshot
+    assert "optimal_window" in snapshot

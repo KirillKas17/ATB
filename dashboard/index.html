@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Продвинутый дашборд для торгового бота с AI">
+    <meta name="theme-color" content="#0c0c0c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>Торговый Бот — Дашборд</title>
+    
+    <!-- Предзагрузка критических ресурсов -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="dashboard.js" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" as="style">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icons/favicon.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- Manifest для PWA -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+            <div class="profile-card">
+                <img src="avatar.png" alt="User" class="avatar" width="64" height="64">
+                <div class="profile-info">
+                    <div class="profile-name">Трейдер</div>
+                    <div class="profile-role">AI Trading System</div>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li class="active" data-section="analytics">Аналитика</li>
+                    <li data-section="pairs">Пары</li>
+                    <li data-section="settings">Настройки</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Заголовок -->
+            <header class="main-header">
+                <div class="header-title">Дашборд торгового бота</div>
+                <div class="header-controls">
+                    <button class="btn" id="uploadBtn">Загрузить</button>
+                    <button class="btn" id="settingsBtn">Настройки</button>
+                </div>
+            </header>
+
+            <!-- Контейнер для уведомлений -->
+            <div id="notificationContainer"></div>
+
+            <!-- Секции контента -->
+            <section class="content-section" id="analyticsSection">
+                <!-- Статус системы -->
+                <div class="status-panel">
+                    <div class="status-card">
+                        <h3>Статус системы</h3>
+                        <div class="status-content" id="systemStatus"></div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Производительность</h3>
+                        <div class="status-content" id="performanceMetrics"></div>
+                    </div>
+                </div>
+
+                <!-- Графики -->
+                <section class="charts-row">
+                    <div class="chart-card" id="mainChart">
+                        <h3>Основной график</h3>
+                        <div class="chart-container"></div>
+                    </div>
+                    <div class="chart-card" id="whaleChart">
+                        <h3>Активность китов</h3>
+                        <div class="chart-container"></div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="content-section hidden" id="pairsSection">
+                <div class="pairs-grid" id="pairStatusContainer">
+                    <!-- Карточки пар будут добавляться JS -->
+                </div>
+            </section>
+
+            <section class="content-section hidden" id="settingsSection">
+                <div class="settings-panel">
+                    <h3>Настройки системы</h3>
+                    <form id="settingsForm">
+                        <!-- Настройки будут добавляться JS -->
+                    </form>
+                </div>
+            </section>
+
+            <!-- Логи -->
+            <section class="log-section">
+                <div class="log-header">
+                    <h3>Логи системы</h3>
+                    <div class="log-controls">
+                        <button class="btn" id="clearLogsBtn">Очистить</button>
+                        <button class="btn" id="exportLogsBtn">Экспорт</button>
+                    </div>
+                </div>
+                <div class="log-content" id="logContent"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Настройки</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Содержимое модального окна будет добавляться JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="dashboard.js" defer></script>
+    
+    <!-- Service Worker для PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker зарегистрирован:', registration);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка регистрации ServiceWorker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

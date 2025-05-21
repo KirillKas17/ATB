@@ -1,0 +1,16 @@
+{
+    "signal_type": "long",
+    "confidence": 0.85,
+    "timestamp": "2025-05-17T12:28:34.360334",
+    "features_importance": {
+        "rsi": 0.3
+    },
+    "technical_indicators": {
+        "rsi": 65.0
+    },
+    "market_context": {
+        "trend": "up"
+    },
+    "explanation": "Test explanation",
+    "visualization_path": "test.png"
+}

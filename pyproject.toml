@@ -1,0 +1,46 @@
+[tool.ruff]
+# Включаем линтер и форматтер
+extend-select = [
+  "F",    # flake8-builtins
+  "E",    # pycodestyle
+  "W",    # pycodestyle
+  "I",    # isort
+  "B",    # flake8-bugbear
+  "C",    # flake8-comprehensions
+  "N",    # pep8-naming
+  "S",    # flake8-bandit
+  "PL",   # pylint
+]
+
+# Игнорируемые правила
+ignore = [
+  "E501",  # Слишком длинные строки — игнорируем, если используешь Black
+  "F401",  # Неиспользуемые импорты
+]
+
+# Удаляем неиспользуемые импорты автоматически
+remove-unused-imports = true
+
+# Автофиксы
+fixable = [
+  "F", "E", "W", "I", "B", "C", "N", "S", "PL"
+]
+
+unfixable = []
+
+# Директории, которые нужно игнорировать
+exclude = [
+  "venv",
+  "__pycache__",
+  ".git",
+  ".mypy_cache",
+  "datasets",
+  "models"
+]
+
+# Настройки форматирования
+[tool.ruff.format]
+docstring-code-line-length = 88
+line-length = 88
+indent-width = 4
+quote-style = "double"

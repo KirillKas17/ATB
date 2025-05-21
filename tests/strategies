@@ -1,0 +1,140 @@
+import pytest
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from core.strategy import Signal, Strategy, MovingAverageCrossover, RSIStrategy, MACDStrategy
+
+@pytest.fixture
+def sample_data():
+    """Фикстура с тестовыми данными"""
+    dates = pd.date_range(start='2023-01-01', end='2023-01-10', freq='1H')
+    data = pd.DataFrame({
+        'open': np.random.normal(100, 1, len(dates)),
+        'high': np.random.normal(101, 1, len(dates)),
+        'low': np.random.normal(99, 1, len(dates)),
+        'close': np.random.normal(100, 1, len(dates)),
+        'volume': np.random.normal(1000, 100, len(dates))
+    }, index=dates)
+    return data
+
+@pytest.fixture
+def signal():
+    """Фикстура с тестовым сигналом"""
+    return Signal(
+        pair='BTC/USDT',
+        action='buy',
+        price=50000.0,
+        size=0.1,
+        stop_loss=49000.0,
+        take_profit=51000.0,
+        metadata={'confidence': 0.8}
+    )
+
+def test_signal_creation(signal):
+    """Тест создания сигнала"""
+    assert signal.pair == 'BTC/USDT'
+    assert signal.action == 'buy'
+    assert signal.price == 50000.0
+    assert signal.size == 0.1
+    assert signal.stop_loss == 49000.0
+    assert signal.take_profit == 51000.0
+    assert signal.metadata['confidence'] == 0.8
+
+def test_signal_to_dict(signal):
+    """Тест преобразования сигнала в словарь"""
+    signal_dict = signal.to_dict()
+    assert isinstance(signal_dict, dict)
+    assert signal_dict['pair'] == 'BTC/USDT'
+    assert signal_dict['action'] == 'buy'
+    assert signal_dict['price'] == 50000.0
+    assert signal_dict['size'] == 0.1
+    assert signal_dict['stop_loss'] == 49000.0
+    assert signal_dict['take_profit'] == 51000.0
+    assert signal_dict['metadata']['confidence'] == 0.8
+
+def test_strategy_initialization():
+    """Тест инициализации базовой стратегии"""
+    strategy = Strategy()
+    assert strategy.parameters == {}
+    assert strategy.state == {}
+
+def test_strategy_parameter_management():
+    """Тест управления параметрами стратегии"""
+    strategy = Strategy()
+    
+    # Установка параметров
+    strategy.set_parameters({'fast_period': 10, 'slow_period': 20})
+    assert strategy.parameters['fast_period'] == 10
+    assert strategy.parameters['slow_period'] == 20
+    
+    # Получение параметров
+    params = strategy.get_parameters()
+    assert params['fast_period'] == 10
+    assert params['slow_period'] == 20
+
+def test_moving_average_crossover(sample_data):
+    """Тест стратегии пересечения скользящих средних"""
+    strategy = MovingAverageCrossover(fast_period=5, slow_period=10)
+    signals = strategy.generate_signals(sample_data)
+    
+    assert isinstance(signals, list)
+    if signals:
+        assert isinstance(signals[0], Signal)
+        assert signals[0].pair == 'BTC/USDT'
+        assert signals[0].action in ['buy', 'sell']
+
+def test_rsi_strategy(sample_data):
+    """Тест RSI стратегии"""
+    strategy = RSIStrategy(period=14, overbought=70, oversold=30)
+    signals = strategy.generate_signals(sample_data)
+    
+    assert isinstance(signals, list)
+    if signals:
+        assert isinstance(signals[0], Signal)
+        assert signals[0].pair == 'BTC/USDT'
+        assert signals[0].action in ['buy', 'sell']
+
+def test_macd_strategy(sample_data):
+    """Тест MACD стратегии"""
+    strategy = MACDStrategy(fast_period=12, slow_period=26, signal_period=9)
+    signals = strategy.generate_signals(sample_data)
+    
+    assert isinstance(signals, list)
+    if signals:
+        assert isinstance(signals[0], Signal)
+        assert signals[0].pair == 'BTC/USDT'
+        assert signals[0].action in ['buy', 'sell']
+
+def test_strategy_state_management():
+    """Тест управления состоянием стратегии"""
+    strategy = Strategy()
+    
+    # Сохранение состояния
+    strategy.state = {'last_signal': 'buy', 'last_price': 50000.0}
+    state = strategy.save_state()
+    assert isinstance(state, dict)
+    assert state['last_signal'] == 'buy'
+    assert state['last_price'] == 50000.0
+    
+    # Загрузка состояния
+    strategy.load_state(state)
+    assert strategy.state['last_signal'] == 'buy'
+    assert strategy.state['last_price'] == 50000.0
+
+def test_strategy_error_handling(sample_data):
+    """Тест обработки ошибок в стратегии"""
+    strategy = Strategy()
+    
+    # Тест с некорректными данными
+    with pytest.raises(Exception):
+        strategy.generate_signals(None)
+    
+    # Тест с пустыми данными
+    empty_data = pd.DataFrame()
+    with pytest.raises(Exception):
+        strategy.generate_signals(empty_data)
+    
+    # Тест с отсутствующими колонками
+    invalid_data = sample_data.drop('close', axis=1)
+    with pytest.raises(Exception):
+        strategy.generate_signals(invalid_data) 

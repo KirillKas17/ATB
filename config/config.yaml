@@ -1,0 +1,34 @@
+# Strategy Configuration
+strategy:
+  default_timeframe: 5m
+  max_active_strategies: 3
+  slippage_model: realistic
+  regime_detection_window: 240
+
+# Trading Parameters
+trading:
+  max_risk_per_trade: 0.01
+  position_sizing: dynamic
+  leverage: 3x
+
+# Exchange Settings
+exchange:
+  use_testnet: true
+  reconnect_interval: 5
+
+# Simulation Parameters
+simulation:
+  latency_model: realistic
+  slippage_model: average
+  capital: 10000
+
+# Machine Learning Settings
+ml:
+  model_update_interval: 6h
+  validation_window: 30d
+  use_transformer: true
+
+# Dashboard Configuration
+dashboard:
+  refresh_interval: 5s
+  theme: dark

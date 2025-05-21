@@ -1,0 +1,94 @@
+{
+    "name": "Торговый Бот — Дашборд",
+    "short_name": "Торговый Бот",
+    "description": "Продвинутый дашборд для торгового бота с AI",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0c0c0c",
+    "theme_color": "#0c0c0c",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Аналитика",
+            "short_name": "Аналитика",
+            "description": "Открыть аналитику",
+            "url": "/#analytics",
+            "icons": [{ "src": "icons/analytics.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Пары",
+            "short_name": "Пары",
+            "description": "Открыть список пар",
+            "url": "/#pairs",
+            "icons": [{ "src": "icons/pairs.png", "sizes": "192x192" }]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/analytics.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "platform": "wide",
+            "label": "Аналитика"
+        },
+        {
+            "src": "screenshots/pairs.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "platform": "wide",
+            "label": "Торговые пары"
+        }
+    ],
+    "categories": ["finance", "business", "productivity"],
+    "prefer_related_applications": false
+} 

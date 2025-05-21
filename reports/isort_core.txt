@@ -1,0 +1,5 @@
+Fixing C:\Users\Лариса\AdvancedTradingBot\core\database.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\core\analysis\correlation_chain.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\core\controllers\position_controller.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\core\controllers\trading_controller.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\core\ml\ml_integration.py
