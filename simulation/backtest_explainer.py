@@ -1,38 +1,27 @@
 import asyncio
 import json
-import signal
 import warnings
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 import aiofiles
-import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import psutil
 import seaborn as sns
-import shap
-import talib
 import yaml
 from loguru import logger
-from plotly.subplots import make_subplots
-from scipy import stats
-from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")
 
 from ml.live_adaptation import LiveAdaptation
 from ml.model_selector import ModelSelector
 from ml.pattern_discovery import PatternDiscovery
-from utils.market_regime import MarketRegime
 
 
 @dataclass
@@ -69,7 +58,9 @@ class ExplainerConfig:
 
             return cls(
                 data_dir=Path(config["explainer"].get("data_dir", "data/backtest")),
-                models_dir=Path(config["explainer"].get("models_dir", "models/backtest")),
+                models_dir=Path(
+                    config["explainer"].get("models_dir", "models/backtest")
+                ),
                 log_dir=config["explainer"].get("log_dir", "logs/backtest"),
                 backup_dir=config["explainer"].get("backup_dir", "backups/backtest"),
                 metrics_window=config["explainer"].get("metrics_window", 100),
@@ -82,7 +73,9 @@ class ExplainerConfig:
                 random_seed=config["explainer"].get("random_seed", 42),
                 use_patterns=config["explainer"].get("use_patterns", True),
                 use_adaptation=config["explainer"].get("use_adaptation", True),
-                use_regime_detection=config["explainer"].get("use_regime_detection", True),
+                use_regime_detection=config["explainer"].get(
+                    "use_regime_detection", True
+                ),
                 use_shap=config["explainer"].get("use_shap", True),
                 use_lime=config["explainer"].get("use_lime", True),
                 use_permutation=config["explainer"].get("use_permutation", True),
@@ -136,7 +129,9 @@ class TradeAnalyzer:
         self.shap_values = None
         self.explainer = None
 
-    def analyze_trade(self, trade: Dict, market_data: pd.DataFrame, indicators: Dict) -> Dict:
+    def analyze_trade(
+        self, trade: Dict, market_data: pd.DataFrame, indicators: Dict
+    ) -> Dict:
         """
         Анализ отдельной сделки.
 
@@ -165,7 +160,9 @@ class TradeAnalyzer:
 
             # Анализ факторов успеха/неудачи
             success_factors = self._analyze_success_factors(
-                trade=trade, entry_conditions=entry_conditions, regime_analysis=regime_analysis
+                trade=trade,
+                entry_conditions=entry_conditions,
+                regime_analysis=regime_analysis,
             )
 
             return {
@@ -182,7 +179,12 @@ class TradeAnalyzer:
         self, trade: Dict, market_data: pd.Series, indicators: Dict
     ) -> Dict:
         """Анализ условий входа"""
-        conditions = {"price_action": {}, "indicators": {}, "volume": {}, "volatility": {}}
+        conditions = {
+            "price_action": {},
+            "indicators": {},
+            "volume": {},
+            "volatility": {},
+        }
 
         # Анализ price action
         conditions["price_action"] = {
@@ -212,7 +214,9 @@ class TradeAnalyzer:
 
         return conditions
 
-    def _analyze_market_regime(self, market_data: pd.DataFrame, entry_time: datetime) -> Dict:
+    def _analyze_market_regime(
+        self, market_data: pd.DataFrame, entry_time: datetime
+    ) -> Dict:
         """Анализ рыночного режима"""
         # Получение данных до входа
         pre_entry_data = market_data[market_data.index < entry_time]
@@ -388,12 +392,16 @@ class BacktestExplainer:
             total_profit = sum(t["profit"] for t in trades if t["profit"] > 0)
             total_loss = sum(t["profit"] for t in trades if t["profit"] < 0)
             net_profit = total_profit + total_loss
-            profit_factor = abs(total_profit / total_loss) if total_loss != 0 else float("inf")
+            profit_factor = (
+                abs(total_profit / total_loss) if total_loss != 0 else float("inf")
+            )
 
             # Риск
             returns = [t["profit"] / t["entry_price"] for t in trades]
             sharpe_ratio = (
-                np.mean(returns) / np.std(returns) * np.sqrt(252) if len(returns) > 1 else 0
+                np.mean(returns) / np.std(returns) * np.sqrt(252)
+                if len(returns) > 1
+                else 0
             )
 
             # Просадка
@@ -476,7 +484,9 @@ class BacktestExplainer:
                 if "accuracy" in pattern:
                     if pattern_type not in pattern_stats["pattern_accuracy"]:
                         pattern_stats["pattern_accuracy"][pattern_type] = []
-                    pattern_stats["pattern_accuracy"][pattern_type].append(pattern["accuracy"])
+                    pattern_stats["pattern_accuracy"][pattern_type].append(
+                        pattern["accuracy"]
+                    )
 
                 if "profitability" in pattern:
                     if pattern_type not in pattern_stats["pattern_profitability"]:
@@ -537,7 +547,9 @@ class BacktestExplainer:
             shap_stats = {
                 "feature_importance": shap_values.get("feature_importance", {}),
                 "feature_interactions": shap_values.get("feature_interactions", {}),
-                "prediction_contributions": shap_values.get("prediction_contributions", {}),
+                "prediction_contributions": shap_values.get(
+                    "prediction_contributions", {}
+                ),
             }
 
             return shap_stats
@@ -580,8 +592,12 @@ class BacktestExplainer:
             # Статистика по перестановочному тесту
             permutation_stats = {
                 "feature_importance": permutation_values.get("feature_importance", {}),
-                "feature_interactions": permutation_values.get("feature_interactions", {}),
-                "prediction_contributions": permutation_values.get("prediction_contributions", {}),
+                "feature_interactions": permutation_values.get(
+                    "feature_interactions", {}
+                ),
+                "prediction_contributions": permutation_values.get(
+                    "prediction_contributions", {}
+                ),
             }
 
             return permutation_stats
@@ -613,8 +629,12 @@ class BacktestExplainer:
                 for col2 in data.columns:
                     if col1 < col2:
                         interaction = data[col1] * data[col2]
-                        correlation = interaction.corr(data["profit"]) if "profit" in data else 0
-                        correlation_stats["feature_interactions"][f"{col1}_{col2}"] = correlation
+                        correlation = (
+                            interaction.corr(data["profit"]) if "profit" in data else 0
+                        )
+                        correlation_stats["feature_interactions"][
+                            f"{col1}_{col2}"
+                        ] = correlation
 
             return correlation_stats
 
@@ -634,8 +654,12 @@ class BacktestExplainer:
             # Статистика по причинности
             causality_stats = {
                 "feature_causality": causality_values.get("feature_causality", {}),
-                "feature_interactions": causality_values.get("feature_interactions", {}),
-                "prediction_contributions": causality_values.get("prediction_contributions", {}),
+                "feature_interactions": causality_values.get(
+                    "feature_interactions", {}
+                ),
+                "prediction_contributions": causality_values.get(
+                    "prediction_contributions", {}
+                ),
             }
 
             return causality_stats
@@ -726,7 +750,9 @@ class BacktestExplainer:
             }
 
             # Построение анализа
-            self._plot_analysis(data, metrics, self.config.data_dir / "backtest_analysis.png")
+            self._plot_analysis(
+                data, metrics, self.config.data_dir / "backtest_analysis.png"
+            )
 
             # Сохранение метрик
             metrics_file = self.config.data_dir / "backtest_metrics.json"
@@ -751,12 +777,14 @@ async def main():
 
         # Загрузка данных
         data = pd.read_csv(
-            explainer.config.data_dir / "backtest_data.csv", index_col=0, parse_dates=True
+            explainer.config.data_dir / "backtest_data.csv",
+            index_col=0,
+            parse_dates=True,
         )
         trades = json.load(open(explainer.config.data_dir / "backtest_trades.json"))
 
         # Анализ бэктеста
-        metrics = await explainer.analyze_backtest(data, trades)
+        await explainer.analyze_backtest(data, trades)
 
         logger.info("Анализ успешно завершен")
 
@@ -767,7 +795,9 @@ async def main():
 
 if __name__ == "__main__":
     # Настройка логирования
-    logger.add("logs/backtest_{time}.log", rotation="1 day", retention="7 days", level="INFO")
+    logger.add(
+        "logs/backtest_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+    )
 
     # Запуск асинхронного main
     asyncio.run(main())

@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
@@ -33,7 +32,9 @@ def mock_strategy():
     """Фикстура с тестовой стратегией"""
     strategy = Mock()
     strategy.generate_signals = Mock(
-        return_value=[{"symbol": "BTCUSDT", "side": "long", "quantity": 1.0, "confidence": 0.8}]
+        return_value=[
+            {"symbol": "BTCUSDT", "side": "long", "quantity": 1.0, "confidence": 0.8}
+        ]
     )
     return strategy
 
@@ -132,7 +133,8 @@ class TestMarketSimulator:
         assert isinstance(simulated_data, pd.DataFrame)
         assert len(simulated_data) == 100
         assert all(
-            col in simulated_data.columns for col in ["open", "high", "low", "close", "volume"]
+            col in simulated_data.columns
+            for col in ["open", "high", "low", "close", "volume"]
         )
 
 

@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -156,7 +155,11 @@ class MartingaleStrategy(BaseStrategy):
             return None
 
     def _check_basic_conditions(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> bool:
         """
         Проверка базовых условий для торговли.
@@ -265,7 +268,11 @@ class MartingaleStrategy(BaseStrategy):
             return {}
 
     def _generate_trading_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация торгового сигнала.
@@ -280,7 +287,7 @@ class MartingaleStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             if self.position is None:
                 return self._generate_entry_signal(data, volatility, spread, liquidity)
@@ -292,7 +299,11 @@ class MartingaleStrategy(BaseStrategy):
             return None
 
     def _generate_entry_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на вход в позицию.
@@ -322,7 +333,9 @@ class MartingaleStrategy(BaseStrategy):
                 take_profit = current_price * (1 + self.config.take_profit)
 
                 return Signal(
-                    direction="long" if current_price > data["close"].iloc[-2] else "short",
+                    direction=(
+                        "long" if current_price > data["close"].iloc[-2] else "short"
+                    ),
                     entry_price=current_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
@@ -345,7 +358,11 @@ class MartingaleStrategy(BaseStrategy):
             return None
 
     def _generate_exit_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на выход из позиции.
@@ -462,7 +479,8 @@ class MartingaleStrategy(BaseStrategy):
                     self.step += 1
                     if self.step < self.config.max_steps:
                         self.current_bet = min(
-                            self.current_bet * self.config.multiplier, self.config.max_bet
+                            self.current_bet * self.config.multiplier,
+                            self.config.max_bet,
                         )
                 else:
                     self.consecutive_losses = 0

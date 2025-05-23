@@ -1,13 +1,9 @@
 import json
-import shutil
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from core.controllers.base import BaseController
 from core.controllers.market_controller import MarketController
 from core.controllers.order_controller import OrderController
 from core.controllers.position_controller import PositionController
@@ -22,8 +18,16 @@ logger = setup_logger(__name__)
 @pytest.fixture
 def mock_config():
     return {
-        "exchange": {"name": "binance", "api_key": "test_key", "api_secret": "test_secret"},
-        "trading": {"pairs": ["BTC/USDT", "ETH/USDT"], "update_interval": 1, "signal_interval": 1},
+        "exchange": {
+            "name": "binance",
+            "api_key": "test_key",
+            "api_secret": "test_secret",
+        },
+        "trading": {
+            "pairs": ["BTC/USDT", "ETH/USDT"],
+            "update_interval": 1,
+            "signal_interval": 1,
+        },
         "min_confidence": 0.6,
         "high_confidence": 0.85,
         "min_volume": 0.01,
@@ -113,7 +117,8 @@ class TestTradingController:
 @pytest.fixture
 def controller(mock_config):
     with patch(
-        "core.controllers.trading_controller.ConfigLoader.load_config", return_value=mock_config
+        "core.controllers.trading_controller.ConfigLoader.load_config",
+        return_value=mock_config,
     ):
         return TradingController()
 
@@ -139,7 +144,9 @@ async def test_start(controller):
 async def test_stop(controller):
     """Тест остановки контроллера"""
     controller.is_running = True
-    with patch("core.controllers.trading_controller.Exchange.disconnect") as mock_disconnect:
+    with patch(
+        "core.controllers.trading_controller.Exchange.disconnect"
+    ) as mock_disconnect:
         await controller.stop()
         assert not controller.is_running
         mock_disconnect.assert_called_once()
@@ -171,7 +178,9 @@ def test_load_trading_pairs(controller):
 async def test_monitor_market(controller):
     """Тест мониторинга рынка"""
     controller.is_running = True
-    with patch("core.controllers.trading_controller.Exchange.get_market_data") as mock_data:
+    with patch(
+        "core.controllers.trading_controller.Exchange.get_market_data"
+    ) as mock_data:
         mock_data.return_value = {"price": 50000}
         await controller._monitor_market()
         mock_data.assert_called()
@@ -198,7 +207,10 @@ def test_calculate_levels(controller):
     confidence = 0.8
 
     stop_loss, take_profit = controller._calculate_levels(
-        symbol=symbol, direction=direction, entry_price=entry_price, confidence=confidence
+        symbol=symbol,
+        direction=direction,
+        entry_price=entry_price,
+        confidence=confidence,
     )
 
     assert isinstance(stop_loss, float)
@@ -278,7 +290,9 @@ class TestTradingController:
     ):
         """Тест принятия решения при высокой уверенности"""
         decision = await controller.decide_action(
-            symbol="BTCUSDT", signal=high_confidence_signal, market_context=market_context
+            symbol="BTCUSDT",
+            signal=high_confidence_signal,
+            market_context=market_context,
         )
 
         assert decision.action == "open"
@@ -294,7 +308,9 @@ class TestTradingController:
     ):
         """Тест принятия решения при низкой уверенности"""
         decision = await controller.decide_action(
-            symbol="BTCUSDT", signal=low_confidence_signal, market_context=market_context
+            symbol="BTCUSDT",
+            signal=low_confidence_signal,
+            market_context=market_context,
         )
 
         assert decision.action == "hold"
@@ -306,7 +322,9 @@ class TestTradingController:
     ):
         """Тест принятия решения при средней уверенности"""
         decision = await controller.decide_action(
-            symbol="BTCUSDT", signal=normal_confidence_signal, market_context=market_context
+            symbol="BTCUSDT",
+            signal=normal_confidence_signal,
+            market_context=market_context,
         )
 
         assert decision.action == "open"
@@ -346,7 +364,9 @@ class TestTradingController:
 
         # Принятие решения
         decision = await controller.decide_action(
-            symbol="BTCUSDT", signal=high_confidence_signal, market_context=market_context
+            symbol="BTCUSDT",
+            signal=high_confidence_signal,
+            market_context=market_context,
         )
 
         # Проверка наличия файла лога
@@ -367,15 +387,21 @@ class TestTradingController:
             assert "market_context" in log_entry
             assert "metadata" in log_entry
 
-    async def test_decision_history(self, controller, high_confidence_signal, market_context):
+    async def test_decision_history(
+        self, controller, high_confidence_signal, market_context
+    ):
         """Тест истории решений"""
         # Принятие нескольких решений
         decision1 = await controller.decide_action(
-            symbol="BTCUSDT", signal=high_confidence_signal, market_context=market_context
+            symbol="BTCUSDT",
+            signal=high_confidence_signal,
+            market_context=market_context,
         )
 
         decision2 = await controller.decide_action(
-            symbol="ETHUSDT", signal=high_confidence_signal, market_context=market_context
+            symbol="ETHUSDT",
+            signal=high_confidence_signal,
+            market_context=market_context,
         )
 
         # Проверка получения всей истории

@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
 import pytest
-
 from backtest.backtest import Backtest, Trade
+
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -86,7 +86,9 @@ class TestBacktest:
         trade = backtest._open_position(
             price=100.0, size=0.1, direction="long", timestamp=datetime.now()
         )
-        closed_trade = backtest._close_position(trade=trade, price=105.0, timestamp=datetime.now())
+        closed_trade = backtest._close_position(
+            trade=trade, price=105.0, timestamp=datetime.now()
+        )
         assert closed_trade.exit_price == 105.0
         assert closed_trade.status == "closed"
         assert closed_trade.pnl == 0.5  # (105 - 100) * 0.1

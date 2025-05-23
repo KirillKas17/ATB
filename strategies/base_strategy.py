@@ -1,4 +1,3 @@
-import json
 import pickle
 import threading
 from abc import ABC, abstractmethod
@@ -7,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from queue import Queue
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -120,7 +119,9 @@ class BaseStrategy(ABC):
         self.use_stop_loss = self.config.get("use_stop_loss", True)
         self.use_take_profit = self.config.get("use_take_profit", True)
         self.trailing_stop = self.config.get("trailing_stop", False)
-        self.trailing_stop_activation = self.config.get("trailing_stop_activation", 0.02)
+        self.trailing_stop_activation = self.config.get(
+            "trailing_stop_activation", 0.02
+        )
         self.trailing_stop_distance = self.config.get("trailing_stop_distance", 0.01)
 
     def save_state(self):
@@ -155,7 +156,6 @@ class BaseStrategy(ABC):
         Returns:
             Dict с результатами анализа
         """
-        pass
 
     @abstractmethod
     def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:
@@ -168,7 +168,6 @@ class BaseStrategy(ABC):
         Returns:
             Optional[Signal] с сигналом или None
         """
-        pass
 
     def validate_data(self, data: pd.DataFrame) -> Tuple[bool, Optional[str]]:
         """
@@ -183,7 +182,9 @@ class BaseStrategy(ABC):
         try:
             if data.empty:
                 return False, "Empty dataset"
-            missing_columns = [col for col in self.required_columns if col not in data.columns]
+            missing_columns = [
+                col for col in self.required_columns if col not in data.columns
+            ]
             if missing_columns:
                 return False, f"Missing columns: {missing_columns}"
             if data.isnull().any().any():
@@ -197,7 +198,10 @@ class BaseStrategy(ABC):
                 or not (data["high"] >= data["close"]).all()
             ):
                 return False, "High price is less than open or close"
-            if not (data["low"] <= data["open"]).all() or not (data["low"] <= data["close"]).all():
+            if (
+                not (data["low"] <= data["open"]).all()
+                or not (data["low"] <= data["close"]).all()
+            ):
                 return False, "Low price is greater than open or close"
             return True, None
         except Exception as e:
@@ -324,7 +328,9 @@ class BaseStrategy(ABC):
         except:
             return 0.0
 
-    def _calculate_information_ratio(self, returns: pd.Series, data: pd.DataFrame) -> float:
+    def _calculate_information_ratio(
+        self, returns: pd.Series, data: pd.DataFrame
+    ) -> float:
         """Расчет Information Ratio"""
         try:
             market_returns = data["close"].pct_change()

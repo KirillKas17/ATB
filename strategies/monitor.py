@@ -1,14 +1,12 @@
 import json
-import os
 import queue
 import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from threading import Thread
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 import psutil
 from loguru import logger
@@ -37,7 +35,11 @@ class MonitorConfig:
             ]
 
         if self.alert_threshold is None:
-            self.alert_threshold = {"cpu_percent": 80.0, "memory_percent": 80.0, "disk_usage": 80.0}
+            self.alert_threshold = {
+                "cpu_percent": 80.0,
+                "memory_percent": 80.0,
+                "disk_usage": 80.0,
+            }
 
 
 class Monitor:
@@ -261,10 +263,14 @@ class Monitor:
                 "memory_percent": process.memory_percent(),
                 "memory_info": process.memory_info()._asdict(),
                 "io_counters": (
-                    process.io_counters()._asdict() if hasattr(process, "io_counters") else None
+                    process.io_counters()._asdict()
+                    if hasattr(process, "io_counters")
+                    else None
                 ),
                 "num_threads": process.num_threads(),
-                "create_time": datetime.fromtimestamp(process.create_time()).isoformat(),
+                "create_time": datetime.fromtimestamp(
+                    process.create_time()
+                ).isoformat(),
             }
 
         except Exception as e:
@@ -321,4 +327,3 @@ class Monitor:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Контекстный менеджер: выход"""
-        pass

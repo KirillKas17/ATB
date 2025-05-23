@@ -1,8 +1,6 @@
 import json
 import os
-import shutil
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -83,8 +81,17 @@ def market_data():
     return {
         "strategy": {"name": "trend_following", "confirmations": 3},
         "regime": "uptrend",
-        "indicators": {"RSI": {"value": 65.0}, "MACD": {"value": 0.5}, "BB": {"value": -0.2}},
-        "whale_activity": {"active": True, "volume": 100.0, "side": "buy", "price": 50000.0},
+        "indicators": {
+            "RSI": {"value": 65.0},
+            "MACD": {"value": 0.5},
+            "BB": {"value": -0.2},
+        },
+        "whale_activity": {
+            "active": True,
+            "volume": 100.0,
+            "side": "buy",
+            "price": 50000.0,
+        },
         "volume_data": {"current": 1000.0, "change": 0.2},
     }
 
@@ -104,7 +111,11 @@ def test_explain_decision(decision_reasoner, sample_data, sample_model):
     signal = {"type": "long", "confidence": 0.85}
 
     report = decision_reasoner.explain_decision(
-        pair="BTC/USD", timeframe="1h", data=sample_data, model=sample_model, signal=signal
+        pair="BTC/USD",
+        timeframe="1h",
+        data=sample_data,
+        model=sample_model,
+        signal=signal,
     )
 
     assert isinstance(report, DecisionReport)
@@ -194,7 +205,10 @@ def test_visualization_creation(decision_reasoner):
     indicators = {"rsi": 65.0, "macd": 0.5, "macd_signal": 0.3}
 
     viz_path = decision_reasoner._create_visualization(
-        pair="BTC/USD", timeframe="1h", feature_importance=feature_importance, indicators=indicators
+        pair="BTC/USD",
+        timeframe="1h",
+        feature_importance=feature_importance,
+        indicators=indicators,
     )
 
     assert isinstance(viz_path, str)
@@ -374,7 +388,7 @@ class TestDecisionReasoner:
     def test_log_explanation(self, reasoner, trade_decision, market_data, tmp_path):
         """Тест логирования объяснения"""
         # Генерация объяснения
-        explanation = reasoner.explain(trade_decision, market_data)
+        reasoner.explain(trade_decision, market_data)
 
         # Проверка наличия файла лога
         log_file = tmp_path / "decision_reason.log"

@@ -1,17 +1,12 @@
-import asyncio
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-import talib
 
 from agents.agent_market_regime import MarketRegime, MarketRegimeAgent
 from core.correlation_chain import CorrelationChain
-from utils.indicators import calculate_atr, calculate_volatility
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -62,7 +57,7 @@ class PortfolioCorrelationChain(CorrelationChain):
     def __init__(self):
         super().__init__()
         self.correlations: Dict[str, Dict[str, float]] = {}
-        
+
     def update_correlations(self, market_data: Dict[str, pd.DataFrame]) -> None:
         """Обновление корреляций между активами."""
         try:
@@ -71,11 +66,17 @@ class PortfolioCorrelationChain(CorrelationChain):
                     self.correlations[symbol1] = {}
                 for symbol2, data2 in market_data.items():
                     if symbol1 != symbol2:
-                        corr = data1['close'].corr(data2['close'])
+                        s1 = data1["close"]
+                        if isinstance(s1, pd.DataFrame):
+                            s1 = pd.Series(s1.squeeze())
+                        s2 = data2["close"]
+                        if isinstance(s2, pd.DataFrame):
+                            s2 = pd.Series(s2.squeeze())
+                        corr = s1.corr(s2)
                         self.correlations[symbol1][symbol2] = float(corr)
         except Exception as e:
             logger.error(f"Error updating correlations: {str(e)}")
-            
+
     def get_correlation(self, symbol1: str, symbol2: str) -> float:
         """Получение корреляции между двумя активами."""
         try:
@@ -172,7 +173,9 @@ class PortfolioAgent:
             metrics = self.cache.metrics[symbol]
 
             # Update metrics
-            metrics.expected_return = backtest_results[symbol].get("expected_return", 0.0)
+            metrics.expected_return = backtest_results[symbol].get(
+                "expected_return", 0.0
+            )
             metrics.risk_score = risk_data[symbol].get("risk_score", 1.0)
             metrics.liquidity_score = self._calculate_liquidity_score(data)
             metrics.trend_strength = self._calculate_trend_strength(data)
@@ -260,7 +263,9 @@ class PortfolioAgent:
 
         return weights
 
-    def _get_regime_multiplier(self, regime: MarketRegime, metrics: AssetMetrics) -> float:
+    def _get_regime_multiplier(
+        self, regime: MarketRegime, metrics: AssetMetrics
+    ) -> float:
         """Get multiplier based on market regime and asset characteristics"""
         multipliers = {
             MarketRegime.TREND: 1.0 + metrics.trend_strength * 0.5,
@@ -273,11 +278,16 @@ class PortfolioAgent:
 
         return multipliers.get(regime, 1.0)
 
-    def _apply_portfolio_constraints(self, weights: Dict[str, float]) -> Dict[str, float]:
+    def _apply_portfolio_constraints(
+        self, weights: Dict[str, float]
+    ) -> Dict[str, float]:
         """Apply portfolio constraints to weights"""
         # Apply position size limits
         weights = {
-            k: max(min(v, self.config["max_position_size"]), self.config["min_position_size"])
+            k: max(
+                min(v, self.config["max_position_size"]),
+                self.config["min_position_size"],
+            )
             for k, v in weights.items()
         }
 

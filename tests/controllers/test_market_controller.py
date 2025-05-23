@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -43,7 +43,9 @@ async def test_get_ticker(market_controller, mock_exchange):
 @pytest.mark.asyncio
 async def test_get_ohlcv(market_controller, mock_exchange):
     """Тест получения OHLCV данных"""
-    ohlcv_data = [[datetime.now().timestamp() * 1000, 50000.0, 50100.0, 49900.0, 50050.0, 100.0]]
+    ohlcv_data = [
+        [datetime.now().timestamp() * 1000, 50000.0, 50100.0, 49900.0, 50050.0, 100.0]
+    ]
     mock_exchange.fetch_ohlcv.return_value = ohlcv_data
 
     result = await market_controller.get_ohlcv("BTC/USDT")

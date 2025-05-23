@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-import numpy as np
 from loguru import logger
 
 
@@ -133,7 +132,9 @@ class ProcessedSignal:
             "expected_impact": self.expected_impact,
             "correlation_impact": self.correlation_impact,
             "market_impact": self.market_impact,
-            "execution_time": self.execution_time.isoformat() if self.execution_time else None,
+            "execution_time": (
+                self.execution_time.isoformat() if self.execution_time else None
+            ),
             "execution_price": self.execution_price,
             "execution_status": self.execution_status,
         }
@@ -180,7 +181,9 @@ class SignalProcessor:
         # Additional initialization logic if needed
         pass
 
-    def process_signal(self, signal: Signal, context: MarketContext) -> Optional[ProcessedSignal]:
+    def process_signal(
+        self, signal: Signal, context: MarketContext
+    ) -> Optional[ProcessedSignal]:
         """Обработка сигнала с расширенной логикой"""
         try:
             # Расчет базовой уверенности
@@ -188,7 +191,9 @@ class SignalProcessor:
 
             # Проверка минимальной уверенности
             if confidence < self.min_confidence:
-                logger.debug(f"Signal rejected: confidence {confidence} < {self.min_confidence}")
+                logger.debug(
+                    f"Signal rejected: confidence {confidence} < {self.min_confidence}"
+                )
                 return None
 
             # Расчет размера позиции
@@ -198,16 +203,22 @@ class SignalProcessor:
             risk_metrics = self._calculate_risk_metrics(signal, context, position_size)
 
             # Расчет приоритета исполнения
-            execution_priority = self._calculate_execution_priority(signal, context, confidence)
+            execution_priority = self._calculate_execution_priority(
+                signal, context, confidence
+            )
 
             # Расчет ожидаемого влияния
-            expected_impact = self._calculate_expected_impact(signal, context, position_size)
+            expected_impact = self._calculate_expected_impact(
+                signal, context, position_size
+            )
 
             # Расчет влияния на коррелированные инструменты
             correlation_impact = self._calculate_correlation_impact(signal, context)
 
             # Расчет влияния на рынок
-            market_impact = self._calculate_market_impact(signal, context, position_size)
+            market_impact = self._calculate_market_impact(
+                signal, context, position_size
+            )
 
             # Создание обработанного сигнала
             return ProcessedSignal(
@@ -238,7 +249,9 @@ class SignalProcessor:
         regime_factor = self._get_regime_factor(signal.direction, context.market_regime)
 
         # Корректировка на основе ликвидности
-        liquidity_factor = min(context.liquidity / 1000000, 1.0)  # нормализация ликвидности
+        liquidity_factor = min(
+            context.liquidity / 1000000, 1.0
+        )  # нормализация ликвидности
 
         # Корректировка на основе волатильности
         volatility_factor = 1.0 - min(context.volatility, 1.0)
@@ -286,7 +299,9 @@ class SignalProcessor:
         strength_factor = abs(signal.strength)
 
         # Итоговый размер
-        position_size = base_size * volatility_factor * liquidity_factor * strength_factor
+        position_size = (
+            base_size * volatility_factor * liquidity_factor * strength_factor
+        )
 
         return min(position_size, self.max_position_size)
 
@@ -299,8 +314,12 @@ class SignalProcessor:
             "expected_drawdown": self._calculate_expected_drawdown(
                 context.volatility, position_size
             ),
-            "sharpe_ratio": self._calculate_sharpe_ratio(context.momentum, context.volatility),
-            "sortino_ratio": self._calculate_sortino_ratio(context.momentum, context.volatility),
+            "sharpe_ratio": self._calculate_sharpe_ratio(
+                context.momentum, context.volatility
+            ),
+            "sortino_ratio": self._calculate_sortino_ratio(
+                context.momentum, context.volatility
+            ),
             "max_position_risk": position_size * context.volatility,
             "correlation_risk": self._calculate_correlation_risk(signal, context),
         }
@@ -309,7 +328,9 @@ class SignalProcessor:
         """Расчет Value at Risk"""
         return position_size * volatility * 1.645  # 95% VaR
 
-    def _calculate_expected_drawdown(self, volatility: float, position_size: float) -> float:
+    def _calculate_expected_drawdown(
+        self, volatility: float, position_size: float
+    ) -> float:
         """Расчет ожидаемой просадки"""
         return position_size * volatility * 2.0  # примерная оценка
 
@@ -323,9 +344,13 @@ class SignalProcessor:
         """Расчет коэффициента Сортино"""
         if volatility == 0:
             return 0.0
-        return momentum / (volatility * 0.5)  # используем только отрицательную волатильность
+        return momentum / (
+            volatility * 0.5
+        )  # используем только отрицательную волатильность
 
-    def _calculate_correlation_risk(self, signal: Signal, context: MarketContext) -> float:
+    def _calculate_correlation_risk(
+        self, signal: Signal, context: MarketContext
+    ) -> float:
         """Расчет риска корреляции"""
         if not context.correlation_matrix:
             return 0.0

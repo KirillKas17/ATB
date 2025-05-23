@@ -1,10 +1,8 @@
-from typing import Dict, Optional, Tuple, Any, List
+from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy
 from utils.indicators import (
     calculate_adx,
     calculate_atr,
@@ -16,6 +14,8 @@ from utils.indicators import (
     detect_impulse_candle,
     detect_inner_bar,
 )
+
+from .base_strategy import BaseStrategy
 
 
 class TrendStrategy(BaseStrategy):
@@ -71,7 +71,9 @@ class TrendStrategy(BaseStrategy):
 
         return data
 
-    def _calculate_macd(self, prices: pd.Series) -> Tuple[pd.Series, pd.Series, pd.Series]:
+    def _calculate_macd(
+        self, prices: pd.Series
+    ) -> Tuple[pd.Series, pd.Series, pd.Series]:
         """Расчет MACD"""
         exp1 = prices.ewm(span=self.config["macd_fast"], adjust=False).mean()
         exp2 = prices.ewm(span=self.config["macd_slow"], adjust=False).mean()
@@ -93,8 +95,12 @@ class TrendStrategy(BaseStrategy):
                 return False
 
             return (
-                macd_values[-2] < signal_values[-2] and macd_values[-1] > signal_values[-1]
-            ) or (macd_values[-2] > signal_values[-2] and macd_values[-1] < signal_values[-1])
+                macd_values[-2] < signal_values[-2]
+                and macd_values[-1] > signal_values[-1]
+            ) or (
+                macd_values[-2] > signal_values[-2]
+                and macd_values[-1] < signal_values[-1]
+            )
         except Exception as e:
             logger.error(f"Error checking trend strength: {str(e)}")
             return False
@@ -120,8 +126,12 @@ class TrendStrategy(BaseStrategy):
             volatility = float(data["close"].pct_change().rolling(20).std().iloc[-1])
 
             # Расчет структуры рынка
-            support_resistance = [float(level) for level in calculate_market_structure(data)]
-            liquidity_zones = [float(level) for level in calculate_liquidity_zones(data)]
+            support_resistance = [
+                float(level) for level in calculate_market_structure(data)
+            ]
+            liquidity_zones = [
+                float(level) for level in calculate_liquidity_zones(data)
+            ]
 
             # Расчет импульса
             rsi = float(calculate_rsi(data["close"], 14).iloc[-1])
@@ -130,7 +140,9 @@ class TrendStrategy(BaseStrategy):
             # Расчет тренда
             ema_20 = calculate_ema(data["close"], 20)
             ema_50 = calculate_ema(data["close"], 50)
-            trend_strength = float(abs(ema_20.iloc[-1] - ema_50.iloc[-1]) / ema_50.iloc[-1])
+            trend_strength = float(
+                abs(ema_20.iloc[-1] - ema_50.iloc[-1]) / ema_50.iloc[-1]
+            )
 
             # Расчет объема
             volume_ma = float(data["volume"].rolling(20).mean().iloc[-1])
@@ -153,7 +165,10 @@ class TrendStrategy(BaseStrategy):
 
             # Расчет финального множителя
             final_multiplier = float(
-                volatility_multiplier * trend_multiplier * volume_multiplier * momentum_multiplier
+                volatility_multiplier
+                * trend_multiplier
+                * volume_multiplier
+                * momentum_multiplier
             )
 
             # Расчет стопа
@@ -162,13 +177,17 @@ class TrendStrategy(BaseStrategy):
             # Поиск ближайшего уровня поддержки/сопротивления
             if position_type == "long":
                 # Для длинной позиции ищем ближайший уровень поддержки
-                support_levels = [level for level in support_resistance if level < entry_price]
+                support_levels = [
+                    level for level in support_resistance if level < entry_price
+                ]
                 if support_levels:
                     nearest_support = max(support_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_support)
 
                 # Проверка ликвидности
-                liquidity_levels = [level for level in liquidity_zones if level < entry_price]
+                liquidity_levels = [
+                    level for level in liquidity_zones if level < entry_price
+                ]
                 if liquidity_levels:
                     nearest_liquidity = max(liquidity_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_liquidity)
@@ -177,13 +196,17 @@ class TrendStrategy(BaseStrategy):
 
             else:
                 # Для короткой позиции ищем ближайший уровень сопротивления
-                resistance_levels = [level for level in support_resistance if level > entry_price]
+                resistance_levels = [
+                    level for level in support_resistance if level > entry_price
+                ]
                 if resistance_levels:
                     nearest_resistance = min(resistance_levels)
                     stop_distance = min(stop_distance, nearest_resistance - entry_price)
 
                 # Проверка ликвидности
-                liquidity_levels = [level for level in liquidity_zones if level > entry_price]
+                liquidity_levels = [
+                    level for level in liquidity_zones if level > entry_price
+                ]
                 if liquidity_levels:
                     nearest_liquidity = min(liquidity_levels)
                     stop_distance = min(stop_distance, nearest_liquidity - entry_price)
@@ -192,22 +215,32 @@ class TrendStrategy(BaseStrategy):
 
         except Exception as e:
             logger.error(f"Error calculating stop loss: {str(e)}")
-            return float(entry_price * 0.99 if position_type == "long" else entry_price * 1.01)
+            return float(
+                entry_price * 0.99 if position_type == "long" else entry_price * 1.01
+            )
 
     def _calculate_take_profit(
-        self, data: pd.DataFrame, entry_price: float, stop_loss: float, position_type: str
+        self,
+        data: pd.DataFrame,
+        entry_price: float,
+        stop_loss: float,
+        position_type: str,
     ) -> float:
         """Расчет тейк-профита"""
         try:
             # Расчет ATR
-            atr = float(calculate_atr(data, self.atr_period).iloc[-1])
+            float(calculate_atr(data, self.atr_period).iloc[-1])
 
             # Расчет волатильности
             volatility = float(data["close"].pct_change().rolling(20).std().iloc[-1])
 
             # Расчет структуры рынка
-            support_resistance = [float(level) for level in calculate_market_structure(data)]
-            liquidity_zones = [float(level) for level in calculate_liquidity_zones(data)]
+            support_resistance = [
+                float(level) for level in calculate_market_structure(data)
+            ]
+            liquidity_zones = [
+                float(level) for level in calculate_liquidity_zones(data)
+            ]
 
             # Расчет импульса
             rsi = float(calculate_rsi(data["close"], 14).iloc[-1])
@@ -242,7 +275,10 @@ class TrendStrategy(BaseStrategy):
 
             # Расчет финального множителя
             final_multiplier = float(
-                volatility_multiplier * range_multiplier * volume_multiplier * momentum_multiplier
+                volatility_multiplier
+                * range_multiplier
+                * volume_multiplier
+                * momentum_multiplier
             )
 
             # Расчет тейка
@@ -264,7 +300,9 @@ class TrendStrategy(BaseStrategy):
 
                 # Проверка ликвидности
                 liquidity_levels = [
-                    float(level) for level in liquidity_zones if float(level) > float(entry_price)
+                    float(level)
+                    for level in liquidity_zones
+                    if float(level) > float(entry_price)
                 ]
                 if liquidity_levels:
                     nearest_liquidity = min(liquidity_levels)
@@ -289,7 +327,9 @@ class TrendStrategy(BaseStrategy):
 
                 # Проверка ликвидности
                 liquidity_levels = [
-                    float(level) for level in liquidity_zones if float(level) < float(entry_price)
+                    float(level)
+                    for level in liquidity_zones
+                    if float(level) < float(entry_price)
                 ]
                 if liquidity_levels:
                     nearest_liquidity = max(liquidity_levels)
@@ -301,7 +341,9 @@ class TrendStrategy(BaseStrategy):
 
         except Exception as e:
             logger.error(f"Error calculating take profit: {str(e)}")
-            return float(entry_price * 1.02 if position_type == "long" else entry_price * 0.98)
+            return float(
+                entry_price * 1.02 if position_type == "long" else entry_price * 0.98
+            )
 
     def analyze(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -326,7 +368,9 @@ class TrendStrategy(BaseStrategy):
             df = self._calculate_indicators(df)
 
             # Определяем тренд
-            trend = "up" if df["ema_fast"].iloc[-1] > df["ema_slow"].iloc[-1] else "down"
+            trend = (
+                "up" if df["ema_fast"].iloc[-1] > df["ema_slow"].iloc[-1] else "down"
+            )
 
             # Анализируем силу тренда
             trend_strength = self._check_trend_strength(df)
@@ -343,7 +387,10 @@ class TrendStrategy(BaseStrategy):
                                 df, float(df["close"].iloc[-1]), "long"
                             ),
                             "take_profit": self._calculate_take_profit(
-                                df, float(df["close"].iloc[-1]), float(df["close"].iloc[-1]), "long"
+                                df,
+                                float(df["close"].iloc[-1]),
+                                float(df["close"].iloc[-1]),
+                                "long",
                             ),
                         }
                     )
@@ -401,7 +448,9 @@ def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
 
         # Определение тренда по EMA
         ema_trend = (
-            data["ema_fast"].iloc[-1] > data["ema_medium"].iloc[-1] > data["ema_slow"].iloc[-1]
+            data["ema_fast"].iloc[-1]
+            > data["ema_medium"].iloc[-1]
+            > data["ema_slow"].iloc[-1]
         )
 
         # Проверка кроссовера MACD
@@ -424,7 +473,9 @@ def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
 
         # Расчет стоп-лосса и тейк-профита
         stop_loss = strategy._calculate_stop_loss(data, data["close"].iloc[-1], side)
-        take_profit = strategy._calculate_take_profit(data, data["close"].iloc[-1], stop_loss, side)
+        take_profit = strategy._calculate_take_profit(
+            data, data["close"].iloc[-1], stop_loss, side
+        )
 
         return {
             "side": side,
@@ -458,7 +509,9 @@ def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict]:
             return None
 
         # Определение тренда
-        trend = "up" if data["ema_fast"].iloc[-1] > data["ema_slow"].iloc[-1] else "down"
+        trend = (
+            "up" if data["ema_fast"].iloc[-1] > data["ema_slow"].iloc[-1] else "down"
+        )
 
         # Проверка паттернов
         last_candle = data.iloc[-1]
@@ -491,7 +544,9 @@ def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict]:
 
         # Расчет стоп-лосса и тейк-профита
         stop_loss = strategy._calculate_stop_loss(data, data["close"].iloc[-1], side)
-        take_profit = strategy._calculate_take_profit(data, data["close"].iloc[-1], stop_loss, side)
+        take_profit = strategy._calculate_take_profit(
+            data, data["close"].iloc[-1], stop_loss, side
+        )
 
         return {
             "side": side,

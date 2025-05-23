@@ -1,27 +1,20 @@
-import asyncio
 import json
-import os
-import warnings
-from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
-from functools import lru_cache
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
-import joblib
 import numpy as np
 import optuna
 import pandas as pd
 import talib
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from loguru import logger
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler
-from torch.utils.data import DataLoader, Dataset, TensorDataset
+from torch.utils.data import DataLoader, Dataset
 
 
 class PositionalEncoding(nn.Module):
@@ -33,7 +26,9 @@ class PositionalEncoding(nn.Module):
         super().__init__()
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-np.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-np.log(10000.0) / d_model)
+        )
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)
@@ -63,9 +58,15 @@ class PriceTransformer(nn.Module):
         self.input_proj = nn.Linear(input_size, hidden_dim)
         self.pos_encoder = PositionalEncoding(hidden_dim, max_len=max_len)
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=hidden_dim, nhead=num_heads, dropout=dropout, batch_first=True, norm_first=True
+            d_model=hidden_dim,
+            nhead=num_heads,
+            dropout=dropout,
+            batch_first=True,
+            norm_first=True,
         )
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.transformer_encoder = nn.TransformerEncoder(
+            encoder_layer, num_layers=num_layers
+        )
         self.norm = nn.LayerNorm(hidden_dim)
         self.head = nn.Linear(hidden_dim, output_size)
 
@@ -151,7 +152,9 @@ def train_model(
     return history
 
 
-def evaluate_model(model: PriceTransformer, loader: DataLoader, device: str = "cpu") -> float:
+def evaluate_model(
+    model: PriceTransformer, loader: DataLoader, device: str = "cpu"
+) -> float:
     """
     Оценка модели на валидационном наборе.
     """
@@ -257,7 +260,9 @@ class TransformerMetrics:
 class TimeSeriesDataset(Dataset):
     """Датасет для временных рядов"""
 
-    def __init__(self, data: pd.DataFrame, sequence_length: int, prediction_horizon: int):
+    def __init__(
+        self, data: pd.DataFrame, sequence_length: int, prediction_horizon: int
+    ):
         self.data = data
         self.sequence_length = sequence_length
         self.prediction_horizon = prediction_horizon
@@ -270,7 +275,9 @@ class TimeSeriesDataset(Dataset):
         sequence = self.data.iloc[idx : idx + self.sequence_length]
 
         # Получение целевой переменной
-        target = self.data.iloc[idx + self.sequence_length + self.prediction_horizon - 1]
+        target = self.data.iloc[
+            idx + self.sequence_length + self.prediction_horizon - 1
+        ]
 
         return torch.FloatTensor(sequence.values), torch.FloatTensor(target.values)
 
@@ -383,8 +390,8 @@ class TransformerPredictor:
             # Технические индикаторы
             features["rsi"] = talib.RSI(df["close"])
             features["macd"], features["macd_signal"], _ = talib.MACD(df["close"])
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = talib.BBANDS(
-                df["close"]
+            features["bb_upper"], features["bb_middle"], features["bb_lower"] = (
+                talib.BBANDS(df["close"])
             )
             features["atr"] = talib.ATR(df["high"], df["low"], df["close"])
             features["adx"] = talib.ADX(df["high"], df["low"], df["close"])
@@ -453,7 +460,9 @@ class TransformerPredictor:
 
             # Фильтрация по порогу
             importance = {
-                k: v for k, v in importance.items() if v >= self.config.feature_importance_threshold
+                k: v
+                for k, v in importance.items()
+                if v >= self.config.feature_importance_threshold
             }
 
             return importance
@@ -478,7 +487,9 @@ class TransformerPredictor:
                 }
 
                 # Создание модели
-                model = TransformerModel(TransformerConfig(**params), input_size=X.shape[1])
+                model = TransformerModel(
+                    TransformerConfig(**params), input_size=X.shape[1]
+                )
 
                 # Кросс-валидация
                 scores = []
@@ -495,7 +506,9 @@ class TransformerPredictor:
 
                     # Обучение и оценка
                     model.train()
-                    optimizer = torch.optim.Adam(model.parameters(), lr=params["learning_rate"])
+                    optimizer = torch.optim.Adam(
+                        model.parameters(), lr=params["learning_rate"]
+                    )
                     criterion = nn.MSELoss()
 
                     for epoch in range(10):  # 10 эпох для каждой fold
@@ -510,7 +523,9 @@ class TransformerPredictor:
                     with torch.no_grad():
                         val_output = model(torch.FloatTensor(X_val))
                         val_loss = criterion(val_output, torch.FloatTensor(y_val))
-                        scores.append(-val_loss.item())  # Отрицательный loss для максимизации
+                        scores.append(
+                            -val_loss.item()
+                        )  # Отрицательный loss для максимизации
 
                 return np.mean(scores)
 
@@ -528,7 +543,9 @@ class TransformerPredictor:
         """Обновление модели"""
         try:
             # Добавление данных в буфер
-            self.data_buffer = pd.concat([self.data_buffer, df]).tail(self.config.max_samples)
+            self.data_buffer = pd.concat([self.data_buffer, df]).tail(
+                self.config.max_samples
+            )
 
             if len(self.data_buffer) < self.config.min_samples:
                 return
@@ -538,8 +555,12 @@ class TransformerPredictor:
 
             # Подготовка данных
             X = features.values
-            y = (self.data_buffer["close"].shift(-1) > self.data_buffer["close"]).values[:-1]
-            X = X[:-1]  # Убираем последнюю строку, так как для нее нет целевой переменной
+            y = (
+                self.data_buffer["close"].shift(-1) > self.data_buffer["close"]
+            ).values[:-1]
+            X = X[
+                :-1
+            ]  # Убираем последнюю строку, так как для нее нет целевой переменной
 
             # Нормализация
             if model_id not in self.scalers:
@@ -550,11 +571,15 @@ class TransformerPredictor:
             best_params = self._optimize_hyperparameters(X_scaled, y)
 
             # Создание модели
-            model = TransformerModel(TransformerConfig(**best_params), input_size=X_scaled.shape[1])
+            model = TransformerModel(
+                TransformerConfig(**best_params), input_size=X_scaled.shape[1]
+            )
 
             # Обучение модели
             model.train()
-            optimizer = torch.optim.Adam(model.parameters(), lr=best_params["learning_rate"])
+            optimizer = torch.optim.Adam(
+                model.parameters(), lr=best_params["learning_rate"]
+            )
             criterion = nn.MSELoss()
 
             # Ранний останов

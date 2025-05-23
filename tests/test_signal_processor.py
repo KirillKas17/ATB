@@ -1,11 +1,15 @@
 from datetime import datetime
-from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from core.signal_processor import MarketContext, ProcessedSignal, Signal, SignalProcessor
+from core.signal_processor import (
+    MarketContext,
+    ProcessedSignal,
+    Signal,
+    SignalProcessor,
+)
 
 
 @pytest.fixture
@@ -113,11 +117,19 @@ def test_signals():
     return [
         {
             "source": "market_maker",
-            "signal": {"direction": "LONG", "confidence": 0.8, "timeframes": ["1h", "4h"]},
+            "signal": {
+                "direction": "LONG",
+                "confidence": 0.8,
+                "timeframes": ["1h", "4h"],
+            },
         },
         {
             "source": "meta_controller",
-            "signal": {"direction": "SHORT", "confidence": 0.7, "timeframes": ["1h", "4h"]},
+            "signal": {
+                "direction": "SHORT",
+                "confidence": 0.7,
+                "timeframes": ["1h", "4h"],
+            },
         },
     ]
 
@@ -158,7 +170,9 @@ class TestSignalProcessor:
         assert 0 <= confidence <= 1
         assert confidence >= signal_processor.min_confidence
 
-    def test_calculate_position_size(self, signal_processor, buy_signal, market_context):
+    def test_calculate_position_size(
+        self, signal_processor, buy_signal, market_context
+    ):
         """Тест расчета размера позиции"""
         confidence = 0.8
         position_size = signal_processor._calculate_position_size(
@@ -181,7 +195,9 @@ class TestSignalProcessor:
         assert "max_position_risk" in risk_metrics
         assert "correlation_risk" in risk_metrics
 
-    def test_calculate_execution_priority(self, signal_processor, buy_signal, market_context):
+    def test_calculate_execution_priority(
+        self, signal_processor, buy_signal, market_context
+    ):
         """Тест расчета приоритета исполнения"""
         confidence = 0.8
         priority = signal_processor._calculate_execution_priority(
@@ -190,7 +206,9 @@ class TestSignalProcessor:
 
         assert priority > 0
 
-    def test_calculate_expected_impact(self, signal_processor, buy_signal, market_context):
+    def test_calculate_expected_impact(
+        self, signal_processor, buy_signal, market_context
+    ):
         """Тест расчета ожидаемого влияния"""
         position_size = 0.5
         impact = signal_processor._calculate_expected_impact(
@@ -199,15 +217,21 @@ class TestSignalProcessor:
 
         assert impact >= 0
 
-    def test_calculate_correlation_impact(self, signal_processor, buy_signal, market_context):
+    def test_calculate_correlation_impact(
+        self, signal_processor, buy_signal, market_context
+    ):
         """Тест расчета влияния на коррелированные инструменты"""
-        impact = signal_processor._calculate_correlation_impact(buy_signal, market_context)
+        impact = signal_processor._calculate_correlation_impact(
+            buy_signal, market_context
+        )
 
         assert isinstance(impact, dict)
         if impact:
             assert all(0 <= v <= 1 for v in impact.values())
 
-    def test_calculate_market_impact(self, signal_processor, buy_signal, market_context):
+    def test_calculate_market_impact(
+        self, signal_processor, buy_signal, market_context
+    ):
         """Тест расчета влияния на рынок"""
         position_size = 0.5
         impact = signal_processor._calculate_market_impact(
@@ -340,7 +364,11 @@ def test_adjust_confidence_limits(signal_processor, buy_signal, market_context):
     """Тест ограничений confidence"""
     # Создание сигнала с очень высоким confidence
     high_confidence_signal = Signal(
-        symbol="BTCUSDT", direction="buy", confidence=0.99, timestamp=datetime.now(), source="test"
+        symbol="BTCUSDT",
+        direction="buy",
+        confidence=0.99,
+        timestamp=datetime.now(),
+        source="test",
     )
 
     # Корректировка confidence
@@ -353,7 +381,11 @@ def test_adjust_confidence_limits(signal_processor, buy_signal, market_context):
 
     # Создание сигнала с очень низким confidence
     low_confidence_signal = Signal(
-        symbol="BTCUSDT", direction="buy", confidence=0.1, timestamp=datetime.now(), source="test"
+        symbol="BTCUSDT",
+        direction="buy",
+        confidence=0.1,
+        timestamp=datetime.now(),
+        source="test",
     )
 
     # Корректировка confidence
@@ -368,7 +400,9 @@ def test_adjust_confidence_limits(signal_processor, buy_signal, market_context):
 def test_signal_history(signal_processor, buy_signal, market_context):
     """Тест истории сигналов"""
     # Обработка сигналов
-    signal_processor.process_signals(signals=[buy_signal], market_context=market_context)
+    signal_processor.process_signals(
+        signals=[buy_signal], market_context=market_context
+    )
 
     # Получение истории
     history = signal_processor.get_signal_history(buy_signal.symbol)

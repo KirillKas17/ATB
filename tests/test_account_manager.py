@@ -1,6 +1,3 @@
-import asyncio
-from datetime import datetime
-
 import pytest
 
 from exchange.account_manager import AccountManager, AccountMetrics
@@ -74,7 +71,9 @@ async def account_manager(bybit_client, order_manager, risk_config):
 
 
 @pytest.mark.asyncio
-async def test_initialization(account_manager, bybit_client, order_manager, risk_config):
+async def test_initialization(
+    account_manager, bybit_client, order_manager, risk_config
+):
     """Тест инициализации"""
     assert account_manager.client == bybit_client
     assert account_manager.order_manager == order_manager
@@ -122,7 +121,10 @@ async def test_get_available_margin(account_manager):
         if metrics.leverage_usage >= account_manager.risk_config["max_leverage_usage"]:
             assert margin == 0
 
-        if metrics.free_margin / metrics.equity < account_manager.risk_config["min_free_margin"]:
+        if (
+            metrics.free_margin / metrics.equity
+            < account_manager.risk_config["min_free_margin"]
+        ):
             assert margin == 0
 
         if metrics.total_positions >= account_manager.risk_config["max_positions"]:
@@ -145,7 +147,9 @@ async def test_can_open_position(account_manager):
 
         # Тест с превышением лимитов
         can_open = await account_manager.can_open_position(
-            symbol="BTCUSDT", amount=1000.0, leverage=100.0  # Большой объем  # Высокое плечо
+            symbol="BTCUSDT",
+            amount=1000.0,
+            leverage=100.0,  # Большой объем  # Высокое плечо
         )
 
         assert not can_open
@@ -203,5 +207,7 @@ async def test_error_handling(account_manager):
     # Тест с неверными параметрами позиции
     with pytest.raises(Exception):
         await account_manager.can_open_position(
-            symbol="BTCUSDT", amount=-0.001, leverage=0.0  # Отрицательный объем  # Нулевое плечо
+            symbol="BTCUSDT",
+            amount=-0.001,
+            leverage=0.0,  # Отрицательный объем  # Нулевое плечо
         )

@@ -3,8 +3,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-import pandas as pd
-from loguru import logger
 
 
 @dataclass
@@ -94,7 +92,7 @@ class MarketStateManager:
         if not self.states:
             return "unknown"
 
-        latest = self.states[-1]
+        self.states[-1]
         prices = [s.price for s in self.states[-self.volatility_window :]]
 
         # Расчет тренда
@@ -141,7 +139,9 @@ class MarketStateManager:
         self.states[-1].support_levels = support_levels
         self.states[-1].resistance_levels = resistance_levels
 
-    def _cluster_levels(self, levels: List[float], threshold: float = 0.01) -> List[float]:
+    def _cluster_levels(
+        self, levels: List[float], threshold: float = 0.01
+    ) -> List[float]:
         """Кластеризация ценовых уровней"""
         if not levels:
             return []
@@ -187,7 +187,10 @@ class MarketStateManager:
         prices2 = []
 
         for state in self.states:
-            if pair1 in state.correlation_matrix and pair2 in state.correlation_matrix[pair1]:
+            if (
+                pair1 in state.correlation_matrix
+                and pair2 in state.correlation_matrix[pair1]
+            ):
                 prices1.append(state.price)
                 prices2.append(state.correlation_matrix[pair1][pair2])
 

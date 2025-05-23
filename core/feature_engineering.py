@@ -1,8 +1,5 @@
 from typing import Any, Dict
 
-import numpy as np
-import pandas as pd
-
 
 def generate_features(data: Dict[str, Any]) -> Dict[str, float]:
     """

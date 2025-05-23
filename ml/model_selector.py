@@ -3,7 +3,7 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import catboost as cb
 import joblib
@@ -16,8 +16,8 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import TimeSeriesSplit
 from statsmodels.tsa.arima.model import ARIMA
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.layers import LSTM, Conv1D, Dense, Dropout, MaxPooling1D
-from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import LSTM, Conv1D, Dense, MaxPooling1D
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -67,7 +67,14 @@ class ModelSelector:
             "model_dir": "models",  # директория для сохранения моделей
             "feature_importance_threshold": 0.05,  # порог важности фич
             "timeframes": ["1m", "5m", "15m", "1h", "4h", "1d"],  # таймфреймы
-            "market_regimes": ["trend", "range", "reversal", "manipulation", "volatile", "panic"],
+            "market_regimes": [
+                "trend",
+                "range",
+                "reversal",
+                "manipulation",
+                "volatile",
+                "panic",
+            ],
         }
 
         # Создание директории для моделей
@@ -175,7 +182,9 @@ class ModelSelector:
 
                 # Проверка необходимости переобучения
                 if self._need_retraining(metrics, market_regime):
-                    return self._retrain_model(pair, timeframe, market_regime, features, target)
+                    return self._retrain_model(
+                        pair, timeframe, market_regime, features, target
+                    )
 
                 # Выбор лучшей модели
                 best_model = self._select_best_model(metrics)
@@ -183,13 +192,17 @@ class ModelSelector:
                     return best_model
 
             # Обучение новой модели
-            return self._train_new_model(pair, timeframe, market_regime, features, target)
+            return self._train_new_model(
+                pair, timeframe, market_regime, features, target
+            )
 
         except Exception as e:
             logger.error(f"Error selecting model: {str(e)}")
             return None
 
-    def _need_retraining(self, metrics: Dict[str, ModelMetrics], market_regime: str) -> bool:
+    def _need_retraining(
+        self, metrics: Dict[str, ModelMetrics], market_regime: str
+    ) -> bool:
         """Проверка необходимости переобучения"""
         try:
             for model_metrics in metrics.values():
@@ -224,7 +237,9 @@ class ModelSelector:
 
             for model_type, model_metrics in metrics.items():
                 if not isinstance(model_metrics, ModelMetrics):
-                    logger.warning(f"Некорректный формат метрик для модели {model_type}")
+                    logger.warning(
+                        f"Некорректный формат метрик для модели {model_type}"
+                    )
                     continue
 
                 # Расчет общего скора
@@ -312,7 +327,9 @@ class ModelSelector:
             logger.error(f"Error selecting model type: {str(e)}")
             return "catboost"
 
-    def _train_catboost(self, features: pd.DataFrame, target: pd.Series) -> cb.CatBoostClassifier:
+    def _train_catboost(
+        self, features: pd.DataFrame, target: pd.Series
+    ) -> cb.CatBoostClassifier:
         """Обучение CatBoost"""
         try:
             model = cb.CatBoostClassifier(**self.catboost_params)
@@ -323,7 +340,9 @@ class ModelSelector:
             logger.error(f"Error training CatBoost: {str(e)}")
             return None
 
-    def _train_xgboost(self, features: pd.DataFrame, target: pd.Series) -> xgb.XGBClassifier:
+    def _train_xgboost(
+        self, features: pd.DataFrame, target: pd.Series
+    ) -> xgb.XGBClassifier:
         """Обучение XGBoost"""
         try:
             model = xgb.XGBClassifier(**self.xgboost_params)
@@ -360,7 +379,9 @@ class ModelSelector:
             )
 
             # Компиляция
-            model.compile(optimizer=Adam(), loss="binary_crossentropy", metrics=["accuracy"])
+            model.compile(
+                optimizer=Adam(), loss="binary_crossentropy", metrics=["accuracy"]
+            )
 
             # Обучение
             early_stopping = EarlyStopping(
@@ -410,10 +431,14 @@ class ModelSelector:
             )
 
             # Компиляция
-            model.compile(optimizer=Adam(), loss="binary_crossentropy", metrics=["accuracy"])
+            model.compile(
+                optimizer=Adam(), loss="binary_crossentropy", metrics=["accuracy"]
+            )
 
             # Обучение
-            early_stopping = EarlyStopping(monitor="val_loss", patience=self.cnn_params["patience"])
+            early_stopping = EarlyStopping(
+                monitor="val_loss", patience=self.cnn_params["patience"]
+            )
 
             model.fit(
                 X,
@@ -434,7 +459,9 @@ class ModelSelector:
         """Обучение Transformer"""
         try:
             # Подготовка данных
-            tokenizer = AutoTokenizer.from_pretrained(self.transformer_params["model_name"])
+            tokenizer = AutoTokenizer.from_pretrained(
+                self.transformer_params["model_name"]
+            )
 
             # Создание модели
             model = AutoModelForSequenceClassification.from_pretrained(
@@ -539,7 +566,12 @@ class ModelSelector:
                 raise ValueError(f"Ожидался словарь, получен {type(metadata)}")
 
             # Проверка обязательных полей
-            required_fields = ["model_type", "last_update", "metrics", "feature_importance"]
+            required_fields = [
+                "model_type",
+                "last_update",
+                "metrics",
+                "feature_importance",
+            ]
             for field in required_fields:
                 if field not in metadata:
                     raise ValueError(f"Отсутствует обязательное поле: {field}")
@@ -627,7 +659,9 @@ class ModelSelector:
         self._update_metadata(pair, timeframe, len(dataset), time.time() - t0)
         logger.info(f"Модель для {pair} переобучена по {len(dataset)} примерам")
 
-    def _update_metadata(self, pair: str, timeframe: str, dataset_size: int, train_time: float):
+    def _update_metadata(
+        self, pair: str, timeframe: str, dataset_size: int, train_time: float
+    ):
         """Обновляет метаданные обучения."""
         stats = DatasetManager.get_statistics(pair)
         wr = stats.get("win", 0) / stats.get("total", 1) if stats else 0
@@ -646,17 +680,30 @@ class ModelSelector:
         """Возвращает качество обучения: confidence, pattern complexity, diversity, estimated profitability."""
         dataset = DatasetManager.load_dataset(pair)
         if not dataset:
-            return {"confidence": 0, "pattern_complexity": 0, "diversity": 0, "profitability": 0}
+            return {
+                "confidence": 0,
+                "pattern_complexity": 0,
+                "diversity": 0,
+                "profitability": 0,
+            }
         # Confidence: средний accuracy по последней модели
         metrics = self.metrics.get(pair, {}).get(timeframe, {})
         confidence = getattr(metrics, "accuracy", 0) if metrics else 0
         # Pattern complexity: среднее число уникальных паттернов на 100 примеров
-        patterns = [x["features"].get("pattern") for x in dataset if x["features"].get("pattern")]
+        patterns = [
+            x["features"].get("pattern")
+            for x in dataset
+            if x["features"].get("pattern")
+        ]
         pattern_complexity = len(set(patterns)) / (len(dataset) / 100) if dataset else 0
         # Diversity: число уникальных режимов
-        diversity = len(set(x.get("market_regime") for x in dataset if x.get("market_regime")))
+        diversity = len(
+            set(x.get("market_regime") for x in dataset if x.get("market_regime"))
+        )
         # Profitability: средний PnL
-        profitability = sum(x.get("result", {}).get("PnL", 0) for x in dataset) / len(dataset)
+        profitability = sum(x.get("result", {}).get("PnL", 0) for x in dataset) / len(
+            dataset
+        )
         return {
             "confidence": confidence,
             "pattern_complexity": pattern_complexity,

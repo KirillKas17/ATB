@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -55,7 +55,9 @@ class CorrelationChain:
         self.stability_window = self.config.get("stability_window", 50)
         self.metrics: Dict[str, Dict[str, CorrelationMetrics]] = {}
 
-    def calculate_correlation(self, array1: np.ndarray, array2: np.ndarray) -> CorrelationMetrics:
+    def calculate_correlation(
+        self, array1: np.ndarray, array2: np.ndarray
+    ) -> CorrelationMetrics:
         """Расчет корреляции между массивами."""
         try:
             # Преобразуем массивы в pd.Series
@@ -65,7 +67,9 @@ class CorrelationChain:
             # Проверяем на достаточное количество данных
             if len(series1) < 2 or len(series2) < 2:
                 logger.warning("Insufficient data for correlation calculation")
-                return CorrelationMetrics(correlation=0.0, p_value=1.0, lag=0, strength=0.0)
+                return CorrelationMetrics(
+                    correlation=0.0, p_value=1.0, lag=0, strength=0.0
+                )
 
             # Рассчитываем корреляцию
             corr = float(series1.corr(series2))
@@ -134,7 +138,9 @@ class CorrelationChain:
         """Получение матрицы корреляций."""
         try:
             pairs = list(data.keys())
-            matrix = pd.DataFrame(index=pd.Index(pairs), columns=pd.Index(pairs), dtype=float)
+            matrix = pd.DataFrame(
+                index=pd.Index(pairs), columns=pd.Index(pairs), dtype=float
+            )
 
             for i, pair1 in enumerate(pairs):
                 for j, pair2 in enumerate(pairs):
@@ -161,7 +167,9 @@ class CorrelationChain:
             logger.warning(f"Error calculating cointegration: {str(e)}")
             return 0.0
 
-    def _calculate_granger_causality(self, series1: pd.Series, series2: pd.Series) -> float:
+    def _calculate_granger_causality(
+        self, series1: pd.Series, series2: pd.Series
+    ) -> float:
         """Расчет причинности по Грейнджеру"""
         try:
             from statsmodels.tsa.stattools import grangercausalitytests
@@ -176,7 +184,9 @@ class CorrelationChain:
             logger.warning(f"Error calculating Granger causality: {str(e)}")
             return 0.0
 
-    def _calculate_lead_lag_relationship(self, series1: pd.Series, series2: pd.Series) -> str:
+    def _calculate_lead_lag_relationship(
+        self, series1: pd.Series, series2: pd.Series
+    ) -> str:
         """Расчет лидирующего ряда"""
         try:
             # Расчет лага
@@ -201,7 +211,7 @@ class CorrelationChain:
             acf2 = stats.acf(series2, nlags=self.max_lag)
 
             # Поиск максимального значения автокорреляции
-            max_acf = max(acf1, acf2)
+            max(acf1, acf2)
 
             # Определение лага
             lag = np.argmax(acf1) - np.argmax(acf2)
@@ -228,7 +238,9 @@ class CorrelationChain:
             # Разделение на режимы
             bull_mask = (returns1 > 0) & (returns2 > 0)
             bear_mask = (returns1 < 0) & (returns2 < 0)
-            volatile_mask = (returns1.abs() > returns1.std()) | (returns2.abs() > returns2.std())
+            volatile_mask = (returns1.abs() > returns1.std()) | (
+                returns2.abs() > returns2.std()
+            )
 
             # Проверка на наличие данных в каждом режиме
             if not any(bull_mask) or not any(bear_mask) or not any(volatile_mask):
@@ -249,7 +261,9 @@ class CorrelationChain:
             logger.warning(f"Error analyzing regime dependency: {str(e)}")
             return {"bull": 0.0, "bear": 0.0, "volatile": 0.0}
 
-    def _calculate_stability_score(self, series1: pd.Series, series2: pd.Series) -> float:
+    def _calculate_stability_score(
+        self, series1: pd.Series, series2: pd.Series
+    ) -> float:
         """Расчет оценки стабильности корреляции"""
         try:
             window_size = min(self.stability_window, len(series1) // 2)

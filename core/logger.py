@@ -39,7 +39,9 @@ class Logger:
         self.logger.setLevel(getattr(logging, self.config["level"]))
 
         # Форматтер
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
         # Хендлер для файла
         file_handler = RotatingFileHandler(

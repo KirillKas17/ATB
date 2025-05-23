@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 from loguru import logger
@@ -53,7 +52,10 @@ class Visualizer:
         plt.style.use(self.config.style)
 
     def plot_price_and_trades(
-        self, data: pd.DataFrame, trades: List[Dict[str, Any]], title: str = "Price and Trades"
+        self,
+        data: pd.DataFrame,
+        trades: List[Dict[str, Any]],
+        title: str = "Price and Trades",
     ):
         """
         Построение графика цены и сделок.
@@ -172,7 +174,9 @@ class Visualizer:
         except Exception as e:
             logger.error(f"Error plotting drawdown: {str(e)}")
 
-    def plot_monthly_returns(self, trades: List[Dict[str, Any]], title: str = "Monthly Returns"):
+    def plot_monthly_returns(
+        self, trades: List[Dict[str, Any]], title: str = "Monthly Returns"
+    ):
         """
         Построение графика месячной доходности.
 
@@ -321,7 +325,9 @@ class Visualizer:
             self.plot_all(data, trades, equity_curve, results)
 
             # Сохраняем результаты
-            pd.DataFrame([results]).to_csv(f"{self.config.log_dir}/{filename}.csv", index=False)
+            pd.DataFrame([results]).to_csv(
+                f"{self.config.log_dir}/{filename}.csv", index=False
+            )
 
         except Exception as e:
             logger.error(f"Error creating report: {str(e)}")

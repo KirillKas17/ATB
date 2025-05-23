@@ -1,6 +1,5 @@
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -139,11 +138,18 @@ class ManipulationStrategy(BaseStrategy):
                 "current_spread": float(spread.iloc[-1]),
                 "spread_ma": float(spread_ma.iloc[-1]),
                 "spread_std": float(spread_std.iloc[-1]),
-                "is_anomaly": bool(spread.iloc[-1] > spread_ma.iloc[-1] + 2 * spread_std.iloc[-1]),
+                "is_anomaly": bool(
+                    spread.iloc[-1] > spread_ma.iloc[-1] + 2 * spread_std.iloc[-1]
+                ),
             }
         except Exception as e:
             logger.error(f"Error analyzing spread: {str(e)}")
-            return {"current_spread": 0.0, "spread_ma": 0.0, "spread_std": 0.0, "is_anomaly": False}
+            return {
+                "current_spread": 0.0,
+                "spread_ma": 0.0,
+                "spread_std": 0.0,
+                "is_anomaly": False,
+            }
 
     def _analyze_patterns(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Анализ паттернов"""
@@ -178,8 +184,12 @@ class ManipulationStrategy(BaseStrategy):
             volume_std = data["volume"].rolling(20).std()
 
             # Определение аномалий
-            price_anomaly = abs(data["close"].pct_change().iloc[-1]) > 2 * volatility.iloc[-1]
-            volume_anomaly = data["volume"].iloc[-1] > volume_ma.iloc[-1] + 2 * volume_std.iloc[-1]
+            price_anomaly = (
+                abs(data["close"].pct_change().iloc[-1]) > 2 * volatility.iloc[-1]
+            )
+            volume_anomaly = (
+                data["volume"].iloc[-1] > volume_ma.iloc[-1] + 2 * volume_std.iloc[-1]
+            )
 
             return {
                 "price_anomaly": bool(price_anomaly),
@@ -276,8 +286,14 @@ class ManipulationStrategy(BaseStrategy):
                 volume_spike
                 and imbalance
                 and (
-                    (price < lower_fractal and volume_delta > self.volume_delta_threshold)
-                    or (price > upper_fractal and volume_delta < -self.volume_delta_threshold)
+                    (
+                        price < lower_fractal
+                        and volume_delta > self.volume_delta_threshold
+                    )
+                    or (
+                        price > upper_fractal
+                        and volume_delta < -self.volume_delta_threshold
+                    )
                 )
             )
 
@@ -305,7 +321,9 @@ class ManipulationStrategy(BaseStrategy):
 
             # Анализ тренда объема
             volume_ma = data["volume"].rolling(window=20).mean()
-            volume_trend = "up" if data["volume"].iloc[-1] > volume_ma.iloc[-1] else "down"
+            volume_trend = (
+                "up" if data["volume"].iloc[-1] > volume_ma.iloc[-1] else "down"
+            )
 
             # Поиск аномалий
             volume_std = data["volume"].rolling(window=20).std()
@@ -349,13 +367,15 @@ class ManipulationStrategy(BaseStrategy):
 
             # Проверка резкого роста цены
             price_change = float(
-                (data["close"].iloc[-1] - data["close"].iloc[-20]) / data["close"].iloc[-20]
+                (data["close"].iloc[-1] - data["close"].iloc[-20])
+                / data["close"].iloc[-20]
             )
             sharp_price_increase = price_change > 0.1  # 10% рост
 
             # Проверка последующего падения
             price_drop = float(
-                (data["close"].iloc[-1] - data["close"].iloc[-5]) / data["close"].iloc[-5]
+                (data["close"].iloc[-1] - data["close"].iloc[-5])
+                / data["close"].iloc[-5]
             )
             sharp_price_drop = price_drop < -0.05  # 5% падение
 
@@ -445,7 +465,7 @@ def manipulation_strategy_fake_breakout(data: pd.DataFrame) -> Optional[Dict]:
 
         # Проверка ложного пробоя
         price = data["close"].iloc[-1]
-        vwap = data["vwap"].iloc[-1]
+        data["vwap"].iloc[-1]
         upper_fractal = data["upper_fractals"].iloc[-1]
         lower_fractal = data["lower_fractals"].iloc[-1]
 

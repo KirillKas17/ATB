@@ -1,15 +1,14 @@
 import warnings
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
 import talib
 from loguru import logger
-from scipy import stats
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 warnings.filterwarnings("ignore")
 
@@ -102,15 +101,23 @@ class HedgingStrategy(BaseStrategy):
             "sma": lambda x: talib.SMA(x, timeperiod=self.hedge_config.lookback_period),
             "ema": lambda x: talib.EMA(x, timeperiod=self.hedge_config.lookback_period),
             "rsi": lambda x: talib.RSI(x, timeperiod=self.hedge_config.lookback_period),
-            "macd": lambda x: talib.MACD(x, fastperiod=12, slowperiod=26, signalperiod=9),
+            "macd": lambda x: talib.MACD(
+                x, fastperiod=12, slowperiod=26, signalperiod=9
+            ),
             "bollinger": lambda x: talib.BBANDS(
                 x, timeperiod=self.hedge_config.lookback_period, nbdevup=2, nbdevdn=2
             ),
             "atr": lambda x: talib.ATR(
-                x["high"], x["low"], x["close"], timeperiod=self.hedge_config.lookback_period
+                x["high"],
+                x["low"],
+                x["close"],
+                timeperiod=self.hedge_config.lookback_period,
             ),
             "adx": lambda x: talib.ADX(
-                x["high"], x["low"], x["close"], timeperiod=self.hedge_config.lookback_period
+                x["high"],
+                x["low"],
+                x["close"],
+                timeperiod=self.hedge_config.lookback_period,
             ),
         }
 
@@ -121,7 +128,12 @@ class HedgingStrategy(BaseStrategy):
 
     def _setup_monitoring(self):
         """Настройка мониторинга"""
-        self.monitoring_data = {"positions": [], "trades": [], "metrics": {}, "alerts": []}
+        self.monitoring_data = {
+            "positions": [],
+            "trades": [],
+            "metrics": {},
+            "alerts": [],
+        }
 
     def analyze(self, data: pd.DataFrame) -> Dict[str, Any]:
         """
@@ -166,7 +178,11 @@ class HedgingStrategy(BaseStrategy):
             regime = self._determine_market_regime(data, indicators)
 
             # Анализ настроений
-            sentiment = self._analyze_sentiment(data) if self.hedge_config.use_sentiment else None
+            sentiment = (
+                self._analyze_sentiment(data)
+                if self.hedge_config.use_sentiment
+                else None
+            )
 
             # Расчет метрик риска
             risk_metrics = self.calculate_risk_metrics(data)
@@ -266,7 +282,10 @@ class HedgingStrategy(BaseStrategy):
 
             # Проверка спреда
             spread = analysis["spread"]
-            if spread < self.hedge_config.min_spread or spread > self.hedge_config.max_spread:
+            if (
+                spread < self.hedge_config.min_spread
+                or spread > self.hedge_config.max_spread
+            ):
                 return False
 
             # Проверка режима рынка
@@ -358,7 +377,7 @@ class HedgingStrategy(BaseStrategy):
         """
         try:
             # Получаем ATR
-            atr = analysis["indicators"]["atr"].iloc[-1]
+            analysis["indicators"]["atr"].iloc[-1]
 
             # Базовый стоп-лосс
             if direction == "long":
@@ -425,7 +444,9 @@ class HedgingStrategy(BaseStrategy):
         """
         try:
             # Базовый размер позиции
-            risk_amount = self.hedge_config.test_balance * self.hedge_config.risk_per_trade
+            risk_amount = (
+                self.hedge_config.test_balance * self.hedge_config.risk_per_trade
+            )
             risk_per_unit = abs(entry_price - stop_loss)
             position_size = risk_amount / risk_per_unit
 
@@ -435,7 +456,8 @@ class HedgingStrategy(BaseStrategy):
 
             # Ограничение размера позиции
             position_size = min(
-                position_size, self.hedge_config.test_balance * self.hedge_config.max_position_size
+                position_size,
+                self.hedge_config.test_balance * self.hedge_config.max_position_size,
             )
 
             return position_size
@@ -515,16 +537,28 @@ class HedgingStrategy(BaseStrategy):
 
             # Проверка стоп-лосса
             if signal.stop_loss:
-                if signal.direction == "long" and signal.stop_loss >= signal.entry_price:
+                if (
+                    signal.direction == "long"
+                    and signal.stop_loss >= signal.entry_price
+                ):
                     return False
-                if signal.direction == "short" and signal.stop_loss <= signal.entry_price:
+                if (
+                    signal.direction == "short"
+                    and signal.stop_loss <= signal.entry_price
+                ):
                     return False
 
             # Проверка тейк-профита
             if signal.take_profit:
-                if signal.direction == "long" and signal.take_profit <= signal.entry_price:
+                if (
+                    signal.direction == "long"
+                    and signal.take_profit <= signal.entry_price
+                ):
                     return False
-                if signal.direction == "short" and signal.take_profit >= signal.entry_price:
+                if (
+                    signal.direction == "short"
+                    and signal.take_profit >= signal.entry_price
+                ):
                     return False
 
             return True
@@ -591,7 +625,9 @@ class HedgingStrategy(BaseStrategy):
             logger.error(f"Error in _analyze_spread: {str(e)}")
             return 0.0
 
-    def _determine_market_regime(self, data: pd.DataFrame, indicators: Dict[str, Any]) -> str:
+    def _determine_market_regime(
+        self, data: pd.DataFrame, indicators: Dict[str, Any]
+    ) -> str:
         """
         Определение режима рынка.
 
@@ -695,7 +731,9 @@ class HedgingStrategy(BaseStrategy):
 
                                 # Тестируем параметры
                                 results = self._test_parameters(data)
-                                metric = results.get(self.hedge_config.optimization_metric, 0)
+                                metric = results.get(
+                                    self.hedge_config.optimization_metric, 0
+                                )
 
                                 # Обновляем лучшие параметры
                                 if metric > best_metric:
@@ -749,20 +787,28 @@ class HedgingStrategy(BaseStrategy):
             profits = []
             for signal in signals:
                 if signal.direction == "long":
-                    profit = (signal.take_profit - signal.entry_price) / signal.entry_price
+                    profit = (
+                        signal.take_profit - signal.entry_price
+                    ) / signal.entry_price
                 else:
-                    profit = (signal.entry_price - signal.take_profit) / signal.entry_price
+                    profit = (
+                        signal.entry_price - signal.take_profit
+                    ) / signal.entry_price
                 profits.append(profit)
 
             # Расчет метрик
             returns = pd.Series(profits)
-            sharpe_ratio = returns.mean() / returns.std() * (252**0.5) if len(returns) > 1 else 0
+            sharpe_ratio = (
+                returns.mean() / returns.std() * (252**0.5) if len(returns) > 1 else 0
+            )
             sortino_ratio = (
                 returns.mean() / returns[returns < 0].std() * (252**0.5)
                 if len(returns[returns < 0]) > 0
                 else 0
             )
-            win_rate = len(returns[returns > 0]) / len(returns) if len(returns) > 0 else 0
+            win_rate = (
+                len(returns[returns > 0]) / len(returns) if len(returns) > 0 else 0
+            )
 
             return {
                 "sharpe_ratio": sharpe_ratio,

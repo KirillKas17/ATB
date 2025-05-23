@@ -1,7 +1,4 @@
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -113,7 +110,9 @@ class TestPatternDiscovery:
         """Тест валидации паттерна"""
         pattern = mock_market_data.iloc[:10]
 
-        is_valid = pattern_discovery.validate_pattern(pattern=pattern, data=mock_market_data)
+        is_valid = pattern_discovery.validate_pattern(
+            pattern=pattern, data=mock_market_data
+        )
 
         assert isinstance(is_valid, bool)
 
@@ -147,7 +146,9 @@ class TestLiveAdaptation:
 
     def test_adapt_model(self, live_adaptation, mock_model, mock_market_data):
         """Тест адаптации модели"""
-        adapted_model = live_adaptation.adapt_model(model=mock_model, new_data=mock_market_data)
+        adapted_model = live_adaptation.adapt_model(
+            model=mock_model, new_data=mock_market_data
+        )
 
         assert adapted_model is not None
 
@@ -156,7 +157,9 @@ class TestLiveAdaptation:
 class TestDecisionReasoner:
     def test_explain_decision(self, decision_reasoner, mock_model, mock_market_data):
         """Тест объяснения решения"""
-        explanation = decision_reasoner.explain_decision(model=mock_model, data=mock_market_data)
+        explanation = decision_reasoner.explain_decision(
+            model=mock_model, data=mock_market_data
+        )
 
         assert isinstance(explanation, dict)
         assert "confidence" in explanation
@@ -335,7 +338,9 @@ def test_adaptation_with_market_regime(live_adaptation, mock_market_data):
     model.predict.return_value = np.random.normal(0, 1, len(mock_market_data))
 
     # Мокаем состояние рынка
-    with patch.object(live_adaptation.market_state, "get_current_regime") as mock_regime:
+    with patch.object(
+        live_adaptation.market_state, "get_current_regime"
+    ) as mock_regime:
         mock_regime.return_value = "trend"
 
         # Тестируем адаптацию
@@ -352,7 +357,9 @@ def test_adaptation_with_low_accuracy(live_adaptation, mock_market_data):
     """Тест адаптации при низкой точности"""
     # Создаем тестовую модель с низкой точностью
     model = Mock()
-    model.predict.return_value = np.random.normal(0, 10, len(mock_market_data))  # Большой разброс
+    model.predict.return_value = np.random.normal(
+        0, 10, len(mock_market_data)
+    )  # Большой разброс
 
     # Тестируем адаптацию
     adapted_model, confidence = live_adaptation.adapt(

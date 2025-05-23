@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta
-
 import numpy as np
 import pandas as pd
 import pytest
 
-from utils.visualization import plot_cvd_and_delta_volume, plot_fuzzy_zones, plot_whale_activity
+from utils.visualization import (
+    plot_cvd_and_delta_volume,
+    plot_fuzzy_zones,
+    plot_whale_activity,
+)
 
 
 @pytest.fixture
@@ -26,7 +28,10 @@ def price_data():
 @pytest.fixture
 def zones():
     """Фикстура для зон поддержки/сопротивления"""
-    return {"support": [(49000, 0.8), (48500, 0.6)], "resistance": [(51000, 0.7), (51500, 0.5)]}
+    return {
+        "support": [(49000, 0.8), (48500, 0.6)],
+        "resistance": [(51000, 0.7), (51500, 0.5)],
+    }
 
 
 @pytest.fixture
@@ -147,7 +152,9 @@ class TestVisualization:
         assert isinstance(fig.data[1], go.Scatter)
 
         # Проверка маркеров китов
-        whale_trades = trade_data[trade_data["volume"] > trade_data["volume"].quantile(0.95)]
+        whale_trades = trade_data[
+            trade_data["volume"] > trade_data["volume"].quantile(0.95)
+        ]
         assert len(fig.data[1].x) == len(whale_trades)
 
         # Проверка layout

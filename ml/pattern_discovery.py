@@ -1,12 +1,9 @@
-import asyncio
 import json
 import os
-import warnings
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from functools import lru_cache
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import joblib
 import numpy as np
@@ -20,22 +17,11 @@ from mlxtend.preprocessing import TransactionEncoder
 from scipy import stats
 from scipy.signal import find_peaks
 from scipy.spatial.distance import cdist
-from scipy.stats import zscore
 from sklearn.cluster import DBSCAN, KMeans
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import mutual_info_regression
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
-
-from utils.indicators import (
-    calculate_atr,
-    calculate_bollinger_bands,
-    calculate_ema,
-    calculate_rsi,
-    calculate_volume_acceleration,
-    calculate_vwap,
-)
 
 
 @dataclass
@@ -122,7 +108,10 @@ class PatternDiscovery:
         """Сохранение паттернов"""
         try:
             file_path = self.patterns_dir / f"{pattern_type}.json"
-            data = {"patterns": self.patterns[pattern_type], "metrics": self.metrics[pattern_type]}
+            data = {
+                "patterns": self.patterns[pattern_type],
+                "metrics": self.metrics[pattern_type],
+            }
             with open(file_path, "w") as f:
                 json.dump(data, f, indent=2, default=str)
         except Exception as e:
@@ -141,8 +130,8 @@ class PatternDiscovery:
             # Технические индикаторы
             features["rsi"] = talib.RSI(df["close"])
             features["macd"], features["macd_signal"], _ = talib.MACD(df["close"])
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = talib.BBANDS(
-                df["close"]
+            features["bb_upper"], features["bb_middle"], features["bb_lower"] = (
+                talib.BBANDS(df["close"])
             )
             features["atr"] = talib.ATR(df["high"], df["low"], df["close"])
             features["adx"] = talib.ADX(df["high"], df["low"], df["close"])
@@ -251,7 +240,9 @@ class PatternDiscovery:
             for match in matches:
                 if match + pattern_length < len(df):
                     future_return = (
-                        df["close"].iloc[match + pattern_length] / df["close"].iloc[match] - 1
+                        df["close"].iloc[match + pattern_length]
+                        / df["close"].iloc[match]
+                        - 1
                     )
                     returns.append(future_return)
 
@@ -262,7 +253,11 @@ class PatternDiscovery:
                 "mean_return": float(np.mean(returns)),
                 "std_return": float(np.std(returns)),
                 "win_rate": float(np.mean(returns > 0)),
-                "sharpe": float(np.mean(returns) / np.std(returns)) if np.std(returns) > 0 else 0,
+                "sharpe": (
+                    float(np.mean(returns) / np.std(returns))
+                    if np.std(returns) > 0
+                    else 0
+                ),
                 "max_drawdown": float(np.min(returns)),
             }
 
@@ -273,7 +268,7 @@ class PatternDiscovery:
     def discover_patterns(self, df: pd.DataFrame):
         """Обнаружение паттернов"""
         try:
-            start_time = datetime.now()
+            datetime.now()
 
             # Извлечение признаков
             features = self._extract_features(df)
@@ -289,7 +284,11 @@ class PatternDiscovery:
                 patterns = []
                 for i in range(len(peaks) - 1):
                     pattern = series.iloc[peaks[i] : peaks[i + 1]].values
-                    if self.min_pattern_length <= len(pattern) <= self.max_pattern_length:
+                    if (
+                        self.min_pattern_length
+                        <= len(pattern)
+                        <= self.max_pattern_length
+                    ):
                         patterns.append(pattern)
 
                 # Кластеризация паттернов
@@ -340,14 +339,18 @@ class PatternDiscovery:
                         k: v["metrics"]["frequency"] for k, v in sorted_patterns.items()
                     },
                     pattern_returns={
-                        k: v["metrics"]["mean_return"] for k, v in sorted_patterns.items()
+                        k: v["metrics"]["mean_return"]
+                        for k, v in sorted_patterns.items()
                     },
                     pattern_win_rates={
                         k: v["metrics"]["win_rate"] for k, v in sorted_patterns.items()
                     },
-                    pattern_sharpe={k: v["metrics"]["sharpe"] for k, v in sorted_patterns.items()},
+                    pattern_sharpe={
+                        k: v["metrics"]["sharpe"] for k, v in sorted_patterns.items()
+                    },
                     pattern_drawdown={
-                        k: v["metrics"]["max_drawdown"] for k, v in sorted_patterns.items()
+                        k: v["metrics"]["max_drawdown"]
+                        for k, v in sorted_patterns.items()
                     },
                     last_update=datetime.now(),
                     confidence=1.0,
@@ -386,7 +389,8 @@ class PatternDiscovery:
                                     "pattern_id": pattern_id,
                                     "start_index": i,
                                     "end_index": i + pattern_length,
-                                    "confidence": 1.0 - np.mean(np.abs(window - pattern) / pattern),
+                                    "confidence": 1.0
+                                    - np.mean(np.abs(window - pattern) / pattern),
                                     "metrics": pattern_data["metrics"],
                                 }
                             )
@@ -449,7 +453,9 @@ class PatternDiscovery:
         except Exception as e:
             logger.error(f"Error initializing models: {str(e)}")
 
-    def discover_patterns(self, pair: str, timeframe: str, data: pd.DataFrame) -> List[Pattern]:
+    def discover_patterns(
+        self, pair: str, timeframe: str, data: pd.DataFrame
+    ) -> List[Pattern]:
         """
         Обнаружение паттернов.
 
@@ -494,14 +500,16 @@ class PatternDiscovery:
             # Технические индикаторы
             features["rsi"] = ta.rsi(data["close"])
             features["macd"], features["macd_signal"], _ = ta.macd(data["close"])
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = ta.bbands(
-                data["close"]
+            features["bb_upper"], features["bb_middle"], features["bb_lower"] = (
+                ta.bbands(data["close"])
             )
             features["atr"] = ta.atr(data["high"], data["low"], data["close"])
 
             # Свечные характеристики
             features["body_size"] = abs(data["close"] - data["open"])
-            features["upper_shadow"] = data["high"] - data[["open", "close"]].max(axis=1)
+            features["upper_shadow"] = data["high"] - data[["open", "close"]].max(
+                axis=1
+            )
             features["lower_shadow"] = data[["open", "close"]].min(axis=1) - data["low"]
             features["is_bullish"] = (data["close"] > data["open"]).astype(int)
 
@@ -517,7 +525,9 @@ class PatternDiscovery:
 
             # Нормализация
             features = pd.DataFrame(
-                self.scaler.fit_transform(features), columns=features.columns, index=features.index
+                self.scaler.fit_transform(features),
+                columns=features.columns,
+                index=features.index,
             )
 
             return features
@@ -616,7 +626,9 @@ class PatternDiscovery:
                 pattern_func = getattr(ta, pattern)
 
                 # Поиск паттернов
-                result = pattern_func(data["open"], data["high"], data["low"], data["close"])
+                result = pattern_func(
+                    data["open"], data["high"], data["low"], data["close"]
+                )
 
                 if result is not None:
                     patterns[pattern] = {
@@ -739,7 +751,7 @@ class PatternDiscovery:
         try:
             # Проверка условий
             antecedents = pattern.conditions["antecedents"]
-            consequents = pattern.conditions["consequents"]
+            pattern.conditions["consequents"]
 
             # Расчет поддержки
             support = 0.0
@@ -763,7 +775,9 @@ class PatternDiscovery:
 
             # Расчет расстояний
             distances = cdist(
-                features[pattern.features], [center[pattern.features]], metric="euclidean"
+                features[pattern.features],
+                [center[pattern.features]],
+                metric="euclidean",
             )
 
             # Нормализация расстояний
@@ -800,7 +814,11 @@ class PatternDiscovery:
             return 0.0
 
     def generate_multi_tf_features(
-        self, symbol: str, base_timeframe: str = "1h", higher_tf: str = "4h", lower_tf: str = "15m"
+        self,
+        symbol: str,
+        base_timeframe: str = "1h",
+        higher_tf: str = "4h",
+        lower_tf: str = "15m",
     ) -> pd.DataFrame:
         """Generate features across multiple timeframes.
 
@@ -815,7 +833,9 @@ class PatternDiscovery:
         """
         try:
             # Load data for all timeframes
-            data = self._load_multi_tf_data(symbol, [lower_tf, base_timeframe, higher_tf])
+            data = self._load_multi_tf_data(
+                symbol, [lower_tf, base_timeframe, higher_tf]
+            )
 
             # Generate features for each timeframe
             features = {}
@@ -869,12 +889,16 @@ class PatternDiscovery:
             if method in ["mutual_info", "all"]:
                 # Mutual Information
                 mi_scores = mutual_info_regression(features, target)
-                importance_scores["mutual_info"] = dict(zip(features.columns, mi_scores))
+                importance_scores["mutual_info"] = dict(
+                    zip(features.columns, mi_scores)
+                )
 
             if method in ["permutation", "all"]:
                 # Permutation Importance
                 model = self._get_base_model()  # Implement this method
-                perm_scores = permutation_importance(model, features, target, n_repeats=10)
+                perm_scores = permutation_importance(
+                    model, features, target, n_repeats=10
+                )
                 importance_scores["permutation"] = dict(
                     zip(features.columns, perm_scores.importances_mean)
                 )
@@ -888,7 +912,9 @@ class PatternDiscovery:
             logger.error(f"Error ranking features: {str(e)}")
             return {}
 
-    def _load_multi_tf_data(self, symbol: str, timeframes: List[str]) -> Dict[str, pd.DataFrame]:
+    def _load_multi_tf_data(
+        self, symbol: str, timeframes: List[str]
+    ) -> Dict[str, pd.DataFrame]:
         """Load market data for multiple timeframes.
 
         Args:
@@ -927,7 +953,9 @@ class PatternDiscovery:
             features[f"rsi_{timeframe}"] = ta.rsi(data["close"])
             features[f"ema_50_{timeframe}"] = ta.sma(data["close"], timeperiod=50)
             features[f"ema_200_{timeframe}"] = ta.sma(data["close"], timeperiod=200)
-            features[f"atr_{timeframe}"] = ta.atr(data["high"], data["low"], data["close"])
+            features[f"atr_{timeframe}"] = ta.atr(
+                data["high"], data["low"], data["close"]
+            )
 
             # Bollinger Bands
             bb_upper, bb_middle, bb_lower = ta.bbands(data["close"])
@@ -989,4 +1017,3 @@ class PatternDiscovery:
         """Get base model for permutation importance calculation."""
         # Implement this method to return your base model
         # This could be a simple model like RandomForest or your custom model
-        pass

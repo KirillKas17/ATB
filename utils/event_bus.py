@@ -1,9 +1,9 @@
 import asyncio
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
-from typing import Any, Callable, Coroutine, Dict, Generic, List, Optional, Protocol, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Protocol, TypeVar
 
 from loguru import logger
 
@@ -117,10 +117,15 @@ class EventBus:
                     logger.warning(f"Callback not found for event: {event_type}")
 
     async def publish(
-        self, event_type: str, data: Any = None, priority: EventPriority = EventPriority.NORMAL
+        self,
+        event_type: str,
+        data: Any = None,
+        priority: EventPriority = EventPriority.NORMAL,
     ) -> None:
         """Публикация события с обработкой переполнения очереди"""
-        event = Event(type=event_type, data=data, timestamp=datetime.now(), priority=priority)
+        event = Event(
+            type=event_type, data=data, timestamp=datetime.now(), priority=priority
+        )
 
         try:
             await self._queue.put(event)
@@ -163,7 +168,9 @@ class EventBus:
                             self._metrics.processed_events += 1
                         except Exception as e:
                             self._metrics.failed_events += 1
-                            logger.error(f"Error processing event {event.type}: {str(e)}")
+                            logger.error(
+                                f"Error processing event {event.type}: {str(e)}"
+                            )
 
                     self._queue.task_done()
 

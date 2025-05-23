@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 
-import numpy as np
-import pandas as pd
 import pytest
 
 from core.market_state import MarketState, MarketStateManager
@@ -169,7 +167,6 @@ def test_support_resistance_levels(market_state_manager):
 def test_correlation_matrix(market_state_manager):
     """Тест расчета матрицы корреляций"""
     # Создаем состояния с коррелированными ценами
-    pairs = ["BTC/USD", "ETH/USD"]
     for i in range(5):
         state = MarketState(
             timestamp=datetime.now(),

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 import numpy as np
 from loguru import logger
@@ -88,7 +88,10 @@ def calculate_risk_metrics(
 
 
 def calculate_stop_loss(
-    entry_price: float, atr: float, risk_multiplier: float = 2.0, direction: str = "long"
+    entry_price: float,
+    atr: float,
+    risk_multiplier: float = 2.0,
+    direction: str = "long",
 ) -> float:
     """
     Расчет стоп-лосса на основе ATR

@@ -1,5 +1,4 @@
 import unittest
-from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -93,7 +92,11 @@ class TestStrategy(unittest.TestCase):
 
         # Создаем отчет
         self.visualizer.create_report(
-            self.data, self.backtest.trades, self.backtest.equity_curve, results, "test_report"
+            self.data,
+            self.backtest.trades,
+            self.backtest.equity_curve,
+            results,
+            "test_report",
         )
 
     def test_strategy_parameters(self):
@@ -177,7 +180,11 @@ class TestStrategy(unittest.TestCase):
 
         # Создаем отчет
         self.visualizer.create_report(
-            self.data, self.backtest.trades, self.backtest.equity_curve, results, "test_report"
+            self.data,
+            self.backtest.trades,
+            self.backtest.equity_curve,
+            results,
+            "test_report",
         )
 
         # Проверяем наличие файлов

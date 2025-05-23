@@ -1,12 +1,10 @@
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
 
-import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 st.set_page_config(page_title="Бектестинг", page_icon="📊", layout="wide")
@@ -60,15 +58,21 @@ def main():
     with col1:
         pair = st.selectbox("Торговая пара", options=["BTCUSDT", "ETHUSDT", "BNBUSDT"])
 
-        timeframe = st.selectbox("Таймфрейм", options=["1m", "5m", "15m", "1h", "4h", "1d"])
+        timeframe = st.selectbox(
+            "Таймфрейм", options=["1m", "5m", "15m", "1h", "4h", "1d"]
+        )
 
     with col2:
-        start_date = st.date_input("Начало периода", value=datetime.now() - timedelta(days=30))
+        start_date = st.date_input(
+            "Начало периода", value=datetime.now() - timedelta(days=30)
+        )
 
         end_date = st.date_input("Конец периода", value=datetime.now())
 
     with col3:
-        strategy = st.selectbox("Стратегия", options=["trend", "mean_reversion", "breakout"])
+        strategy = st.selectbox(
+            "Стратегия", options=["trend", "mean_reversion", "breakout"]
+        )
 
         initial_balance = st.number_input(
             "Начальный баланс", min_value=100.0, max_value=1000000.0, value=10000.0
@@ -128,7 +132,9 @@ def main():
             st.markdown("### Распределение PNL")
             if "pnl_distribution" in results:
                 fig = px.histogram(
-                    x=results["pnl_distribution"], nbins=50, title="Распределение прибыли/убытков"
+                    x=results["pnl_distribution"],
+                    nbins=50,
+                    title="Распределение прибыли/убытков",
                 )
                 fig.update_layout(
                     showlegend=False,
@@ -143,7 +149,9 @@ def main():
 
         if not trades_df.empty:
             # Статистика по месяцам
-            trades_df["month"] = pd.to_datetime(trades_df["timestamp"]).dt.strftime("%Y-%m")
+            trades_df["month"] = pd.to_datetime(trades_df["timestamp"]).dt.strftime(
+                "%Y-%m"
+            )
             monthly_stats = (
                 trades_df.groupby("month")
                 .agg({"pnl": ["count", "mean", "sum"], "timestamp": "count"})
@@ -161,7 +169,8 @@ def main():
             # История сделок
             st.markdown("### История сделок")
             st.dataframe(
-                trades_df.sort_values("timestamp", ascending=False), use_container_width=True
+                trades_df.sort_values("timestamp", ascending=False),
+                use_container_width=True,
             )
         else:
             st.info("Нет данных о сделках")

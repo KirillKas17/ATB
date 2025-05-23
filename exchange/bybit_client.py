@@ -6,16 +6,12 @@ import time
 from asyncio import Lock
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from functools import lru_cache
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-import aiohttp
 import backoff
 import ccxt
-import numpy as np
 import websockets
-from aiohttp import ClientTimeout
 from loguru import logger
 
 
@@ -224,7 +220,10 @@ class BybitClient:
             timestamp = int(time.time() * 1000)
             signature = self._generate_signature(timestamp)
 
-            auth_message = {"op": "auth", "args": [self.config.api_key, timestamp, signature]}
+            auth_message = {
+                "op": "auth",
+                "args": [self.config.api_key, timestamp, signature],
+            }
 
             await self.ws.send(json.dumps(auth_message))
 
@@ -263,7 +262,7 @@ class BybitClient:
     async def _handle_messages(self):
         """Обработка WebSocket сообщений"""
         try:
-            while self.is_connected:
+            while self.is_connected and self.ws is not None:
                 try:
                     message = await self.ws.recv()
                     data = json.loads(message)
@@ -303,7 +302,8 @@ class BybitClient:
         """Обработка пинга"""
         try:
             self.last_ping = datetime.now()
-            await self.ws.send(json.dumps({"op": "pong"}))
+            if self.ws is not None:
+                await self.ws.send(json.dumps({"op": "pong"}))
         except Exception as e:
             logger.error(f"Error handling ping: {str(e)}")
             self.metrics["last_error"] = str(e)
@@ -348,22 +348,13 @@ class BybitClient:
                     ):
                         await self._handle_ping()
 
-                    # Проверка понга
-                    if (
-                        self.last_pong
-                        and (datetime.now() - self.last_pong).total_seconds()
-                        > self.config.ws_pong_timeout
-                    ):
-                        logger.warning("Pong timeout")
-                        await self._reconnect()
-
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(self.config.ping_interval)
 
                 except Exception as e:
                     logger.error(f"Error in connection monitor: {str(e)}")
                     self.metrics["last_error"] = str(e)
                     self.metrics["total_errors"] += 1
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(self.config.reconnect_interval)
 
         except asyncio.CancelledError:
             pass
@@ -418,7 +409,9 @@ class BybitClient:
             raise
 
     @backoff.on_exception(backoff.expo, (ConnectionError, TimeoutError), max_tries=3)
-    async def get_klines(self, symbol: str, interval: str, limit: int = 100) -> List[Dict]:
+    async def get_klines(
+        self, symbol: str, interval: str, limit: int = 100
+    ) -> List[Dict]:
         """Получение свечей с кэшированием"""
         try:
             # Проверка кэша
@@ -438,7 +431,8 @@ class BybitClient:
             self.metrics["total_requests"] += 1
             self.metrics["successful_requests"] += 1
             self.metrics["average_latency"] = (
-                self.metrics["average_latency"] * (self.metrics["successful_requests"] - 1)
+                self.metrics["average_latency"]
+                * (self.metrics["successful_requests"] - 1)
                 + latency
             ) / self.metrics["successful_requests"]
 
@@ -469,7 +463,12 @@ class BybitClient:
         try:
             start_time = time.time()
             order = await self.exchange.create_order(
-                symbol=symbol, type=order_type, side=side, amount=amount, price=price, params=params
+                symbol=symbol,
+                type=order_type,
+                side=side,
+                amount=amount,
+                price=price,
+                params=params,
             )
             latency = time.time() - start_time
 
@@ -477,7 +476,8 @@ class BybitClient:
             self.metrics["total_requests"] += 1
             self.metrics["successful_requests"] += 1
             self.metrics["average_latency"] = (
-                self.metrics["average_latency"] * (self.metrics["successful_requests"] - 1)
+                self.metrics["average_latency"]
+                * (self.metrics["successful_requests"] - 1)
                 + latency
             ) / self.metrics["successful_requests"]
 
@@ -502,7 +502,8 @@ class BybitClient:
             self.metrics["total_requests"] += 1
             self.metrics["successful_requests"] += 1
             self.metrics["average_latency"] = (
-                self.metrics["average_latency"] * (self.metrics["successful_requests"] - 1)
+                self.metrics["average_latency"]
+                * (self.metrics["successful_requests"] - 1)
                 + latency
             ) / self.metrics["successful_requests"]
 
@@ -527,7 +528,8 @@ class BybitClient:
             self.metrics["total_requests"] += 1
             self.metrics["successful_requests"] += 1
             self.metrics["average_latency"] = (
-                self.metrics["average_latency"] * (self.metrics["successful_requests"] - 1)
+                self.metrics["average_latency"]
+                * (self.metrics["successful_requests"] - 1)
                 + latency
             ) / self.metrics["successful_requests"]
 
@@ -552,7 +554,8 @@ class BybitClient:
             self.metrics["total_requests"] += 1
             self.metrics["successful_requests"] += 1
             self.metrics["average_latency"] = (
-                self.metrics["average_latency"] * (self.metrics["successful_requests"] - 1)
+                self.metrics["average_latency"]
+                * (self.metrics["successful_requests"] - 1)
                 + latency
             ) / self.metrics["successful_requests"]
 
@@ -577,7 +580,8 @@ class BybitClient:
             self.metrics["total_requests"] += 1
             self.metrics["successful_requests"] += 1
             self.metrics["average_latency"] = (
-                self.metrics["average_latency"] * (self.metrics["successful_requests"] - 1)
+                self.metrics["average_latency"]
+                * (self.metrics["successful_requests"] - 1)
                 + latency
             ) / self.metrics["successful_requests"]
 

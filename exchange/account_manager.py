@@ -4,7 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Optional
 
 import backoff
 import numpy as np
@@ -124,7 +124,8 @@ class AccountManager:
                 if (
                     self.metrics_cache
                     and self.last_update
-                    and (datetime.now() - self.last_update).total_seconds() < self.cache_ttl
+                    and (datetime.now() - self.last_update).total_seconds()
+                    < self.cache_ttl
                 ):
                     return self.metrics_cache
 
@@ -144,7 +145,9 @@ class AccountManager:
 
                 # Расчет рисков
                 leverage_usage = used_margin / equity if equity > 0 else 0
-                margin_ratio = free_margin / used_margin if used_margin > 0 else float("inf")
+                margin_ratio = (
+                    free_margin / used_margin if used_margin > 0 else float("inf")
+                )
                 risk_score = await self._calculate_risk_score()
 
                 # Подсчет позиций и ордеров
@@ -212,7 +215,9 @@ class AccountManager:
             logger.error(f"Error calculating available margin: {str(e)}")
             raise
 
-    async def can_open_position(self, symbol: str, amount: float, leverage: float) -> bool:
+    async def can_open_position(
+        self, symbol: str, amount: float, leverage: float
+    ) -> bool:
         """Проверка возможности открытия позиции с расширенными проверками"""
         try:
             # Получение текущей цены
@@ -251,7 +256,7 @@ class AccountManager:
             while True:
                 try:
                     # Обновление метрик
-                    metrics = await self.get_metrics()
+                    await self.get_metrics()
 
                     # Проверка ограничений
                     await self._check_risk_limits()
@@ -308,7 +313,9 @@ class AccountManager:
         """Расчет прибыли за период"""
         try:
             start_time = datetime.now() - period
-            return sum(pnl for timestamp, pnl in self.pnl_history if timestamp >= start_time)
+            return sum(
+                pnl for timestamp, pnl in self.pnl_history if timestamp >= start_time
+            )
         except Exception as e:
             logger.error(f"Error calculating period PnL: {str(e)}")
             raise
@@ -322,11 +329,16 @@ class AccountManager:
             leverage_risk = metrics.leverage_usage / self.risk_config.max_leverage_usage
             margin_risk = 1 - (metrics.free_margin / metrics.equity)
             position_risk = metrics.total_positions / self.risk_config.max_positions
-            drawdown_risk = self.performance_metrics["max_drawdown"] / self.risk_config.max_drawdown
+            drawdown_risk = (
+                self.performance_metrics["max_drawdown"] / self.risk_config.max_drawdown
+            )
 
             # Взвешенная оценка
             risk_score = (
-                leverage_risk * 0.3 + margin_risk * 0.3 + position_risk * 0.2 + drawdown_risk * 0.2
+                leverage_risk * 0.3
+                + margin_risk * 0.3
+                + position_risk * 0.2
+                + drawdown_risk * 0.2
             )
 
             return min(1.0, max(0.0, risk_score))

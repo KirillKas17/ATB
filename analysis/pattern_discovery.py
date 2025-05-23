@@ -1,9 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -135,12 +133,16 @@ class PatternDiscovery:
 
         # Нормализация данных
         features = pd.DataFrame(
-            self.scaler.fit_transform(features), columns=features.columns, index=features.index
+            self.scaler.fit_transform(features),
+            columns=features.columns,
+            index=features.index,
         )
 
         return features
 
-    def _add_technical_indicators(self, features: pd.DataFrame, data: pd.DataFrame) -> pd.DataFrame:
+    def _add_technical_indicators(
+        self, features: pd.DataFrame, data: pd.DataFrame
+    ) -> pd.DataFrame:
         """Добавление технических индикаторов"""
         if "RSI" in self.config.technical_indicators:
             features["RSI"] = talib.RSI(data["close"])
@@ -166,7 +168,9 @@ class PatternDiscovery:
         features = self.scaler.fit_transform(features)
 
         # Применение DBSCAN
-        clustering = DBSCAN(eps=0.3, min_samples=self.config.min_cluster_size).fit(features)
+        clustering = DBSCAN(eps=0.3, min_samples=self.config.min_cluster_size).fit(
+            features
+        )
 
         # Группировка паттернов по кластерам
         clusters = {}
@@ -184,7 +188,9 @@ class PatternDiscovery:
         # Поиск стандартных свечных паттернов
         for pattern_name in talib.get_function_groups()["Pattern Recognition"]:
             pattern_func = getattr(talib, pattern_name)
-            result = pattern_func(data["open"], data["high"], data["low"], data["close"])
+            result = pattern_func(
+                data["open"], data["high"], data["low"], data["close"]
+            )
 
             # Находим индексы, где паттерн обнаружен
             pattern_indices = np.where(result != 0)[0]
@@ -195,7 +201,9 @@ class PatternDiscovery:
                         pattern_type="candle",
                         start_idx=idx,
                         end_idx=idx + self.config.min_pattern_length,
-                        features=data.iloc[idx : idx + self.config.min_pattern_length].values,
+                        features=data.iloc[
+                            idx : idx + self.config.min_pattern_length
+                        ].values,
                         confidence=abs(result[idx]) / 100,
                         support=self._calculate_support(
                             data, idx, idx + self.config.min_pattern_length
@@ -211,8 +219,12 @@ class PatternDiscovery:
         patterns = []
 
         # Поиск локальных максимумов и минимумов
-        peaks, _ = find_peaks(data["close"].values, distance=self.config.min_pattern_length)
-        troughs, _ = find_peaks(-data["close"].values, distance=self.config.min_pattern_length)
+        peaks, _ = find_peaks(
+            data["close"].values, distance=self.config.min_pattern_length
+        )
+        troughs, _ = find_peaks(
+            -data["close"].values, distance=self.config.min_pattern_length
+        )
 
         # Анализ трендов
         for i in range(len(peaks) - 1):
@@ -231,11 +243,15 @@ class PatternDiscovery:
         avg_volume = data["volume"].rolling(window=self.config.trend_window).mean()
 
         # Поиск аномальных объемов
-        volume_peaks = data[data["volume"] > avg_volume * self.config.volume_threshold].index
+        volume_peaks = data[
+            data["volume"] > avg_volume * self.config.volume_threshold
+        ].index
 
         for i in range(len(volume_peaks) - 1):
             if volume_peaks[i + 1] - volume_peaks[i] <= self.config.max_pattern_length:
-                pattern = self._analyze_volume_pattern(data, volume_peaks[i], volume_peaks[i + 1])
+                pattern = self._analyze_volume_pattern(
+                    data, volume_peaks[i], volume_peaks[i + 1]
+                )
                 if pattern:
                     patterns.append(pattern)
 
@@ -245,9 +261,9 @@ class PatternDiscovery:
         self, data: pd.DataFrame, start_idx: int, end_idx: int
     ) -> Optional[Pattern]:
         """Анализ ценового паттерна"""
-        price_change = (data["close"].iloc[end_idx] - data["close"].iloc[start_idx]) / data[
-            "close"
-        ].iloc[start_idx]
+        price_change = (
+            data["close"].iloc[end_idx] - data["close"].iloc[start_idx]
+        ) / data["close"].iloc[start_idx]
 
         if abs(price_change) >= self.config.price_threshold:
             return Pattern(
@@ -265,9 +281,9 @@ class PatternDiscovery:
         self, data: pd.DataFrame, start_idx: int, end_idx: int
     ) -> Optional[Pattern]:
         """Анализ паттерна объема"""
-        volume_change = (data["volume"].iloc[end_idx] - data["volume"].iloc[start_idx]) / data[
-            "volume"
-        ].iloc[start_idx]
+        volume_change = (
+            data["volume"].iloc[end_idx] - data["volume"].iloc[start_idx]
+        ) / data["volume"].iloc[start_idx]
 
         if volume_change >= self.config.volume_threshold:
             return Pattern(
@@ -281,7 +297,9 @@ class PatternDiscovery:
             )
         return None
 
-    def _calculate_support(self, data: pd.DataFrame, start_idx: int, end_idx: int) -> float:
+    def _calculate_support(
+        self, data: pd.DataFrame, start_idx: int, end_idx: int
+    ) -> float:
         """Расчет поддержки паттерна"""
         pattern_data = data.iloc[start_idx:end_idx]
         return len(pattern_data) / len(data)
@@ -291,7 +309,8 @@ class PatternDiscovery:
         return [
             p
             for p in patterns
-            if p.confidence >= self.config.min_confidence and p.support >= self.config.min_support
+            if p.confidence >= self.config.min_confidence
+            and p.support >= self.config.min_support
         ]
 
     def _rank_patterns(self, patterns: List[Pattern]) -> List[Pattern]:
@@ -346,7 +365,9 @@ class PatternDiscovery:
             indicators["MACD_signal"] = signal[-1]
         if "BB" in self.config.technical_indicators:
             upper, middle, lower = talib.BBANDS(data["close"])
-            indicators["BB_position"] = (data["close"][-1] - lower[-1]) / (upper[-1] - lower[-1])
+            indicators["BB_position"] = (data["close"][-1] - lower[-1]) / (
+                upper[-1] - lower[-1]
+            )
 
         return indicators
 

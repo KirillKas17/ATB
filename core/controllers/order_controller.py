@@ -1,12 +1,10 @@
-import asyncio
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from loguru import logger
 
 from ..models import Order
-from ..order_utils import clear_invalid_orders, is_valid_order
-from .base import BaseController
+from ..order_utils import is_valid_order
 
 
 class OrderController:
@@ -45,7 +43,11 @@ class OrderController:
                     logger.warning(f"Invalid size value for order {order.id}")
 
             result = await self.exchange.create_order(
-                symbol=order.pair, type=order.type, side=order.side, amount=size, price=price
+                symbol=order.pair,
+                type=order.type,
+                side=order.side,
+                amount=size,
+                price=price,
             )
 
             if result is None:
@@ -58,7 +60,9 @@ class OrderController:
                 try:
                     filled_price = float(result["average"])
                 except (ValueError, TypeError):
-                    logger.warning(f"Invalid average value for order {result.get('id')}")
+                    logger.warning(
+                        f"Invalid average value for order {result.get('id')}"
+                    )
             if result.get("filled") is not None:
                 try:
                     filled_size = float(result["filled"])
@@ -205,7 +209,9 @@ class OrderController:
                     try:
                         price = float(order_data["price"])
                     except (ValueError, TypeError):
-                        logger.warning(f"Invalid price value for order {order_data.get('id')}")
+                        logger.warning(
+                            f"Invalid price value for order {order_data.get('id')}"
+                        )
 
                 # Безопасное получение размера
                 size = 0.0
@@ -213,7 +219,9 @@ class OrderController:
                     try:
                         size = float(order_data["amount"])
                     except (ValueError, TypeError):
-                        logger.warning(f"Invalid amount value for order {order_data.get('id')}")
+                        logger.warning(
+                            f"Invalid amount value for order {order_data.get('id')}"
+                        )
 
                 # Безопасное получение filled_price и filled_size
                 filled_price = None
@@ -222,12 +230,16 @@ class OrderController:
                     try:
                         filled_price = float(order_data["average"])
                     except (ValueError, TypeError):
-                        logger.warning(f"Invalid average value for order {order_data.get('id')}")
+                        logger.warning(
+                            f"Invalid average value for order {order_data.get('id')}"
+                        )
                 if order_data.get("filled") is not None:
                     try:
                         filled_size = float(order_data["filled"])
                     except (ValueError, TypeError):
-                        logger.warning(f"Invalid filled value for order {order_data.get('id')}")
+                        logger.warning(
+                            f"Invalid filled value for order {order_data.get('id')}"
+                        )
 
                 order = Order(
                     id=str(order_data.get("id", "")),
@@ -245,7 +257,9 @@ class OrderController:
                     filled_price=filled_price,
                     filled_size=filled_size,
                     filled_timestamp=(
-                        datetime.fromtimestamp(order_data.get("lastTradeTimestamp", 0) / 1000)
+                        datetime.fromtimestamp(
+                            order_data.get("lastTradeTimestamp", 0) / 1000
+                        )
                         if order_data.get("lastTradeTimestamp")
                         else None
                     ),

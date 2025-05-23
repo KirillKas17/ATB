@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -142,11 +141,15 @@ class ArbitrageStrategy(BaseStrategy):
             execution = analysis["execution"]
 
             # Проверяем базовые условия
-            if not self._check_basic_conditions(data, spread, spread_stats, liquidity, execution):
+            if not self._check_basic_conditions(
+                data, spread, spread_stats, liquidity, execution
+            ):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, spread, spread_stats, liquidity, execution)
+            signal = self._generate_trading_signal(
+                data, spread, spread_stats, liquidity, execution
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -247,14 +250,20 @@ class ArbitrageStrategy(BaseStrategy):
         """
         try:
             # Расчет скользящего среднего и стандартного отклонения
-            spread_ma = pd.Series(spread).rolling(window=self.config.spread_window).mean()
-            spread_std = pd.Series(spread).rolling(window=self.config.spread_window).std()
+            spread_ma = (
+                pd.Series(spread).rolling(window=self.config.spread_window).mean()
+            )
+            spread_std = (
+                pd.Series(spread).rolling(window=self.config.spread_window).std()
+            )
 
             return {
                 "mean": spread_ma.iloc[-1],
                 "std": spread_std.iloc[-1],
-                "min": spread_ma.iloc[-1] - spread_std.iloc[-1] * self.config.spread_std_multiplier,
-                "max": spread_ma.iloc[-1] + spread_std.iloc[-1] * self.config.spread_std_multiplier,
+                "min": spread_ma.iloc[-1]
+                - spread_std.iloc[-1] * self.config.spread_std_multiplier,
+                "max": spread_ma.iloc[-1]
+                + spread_std.iloc[-1] * self.config.spread_std_multiplier,
             }
 
         except Exception as e:
@@ -299,13 +308,17 @@ class ArbitrageStrategy(BaseStrategy):
         """
         try:
             # Расчет проскальзывания
-            slippage = abs(data["close"] - data["vwap"]).iloc[-1] / data["vwap"].iloc[-1]
+            slippage = (
+                abs(data["close"] - data["vwap"]).iloc[-1] / data["vwap"].iloc[-1]
+            )
 
             # Расчет соотношения исполнения
             fill_ratio = data["filled_volume"].iloc[-1] / data["volume"].iloc[-1]
 
             # Расчет времени исполнения
-            execution_time = (data["execution_time"] - data["order_time"]).iloc[-1].total_seconds()
+            execution_time = (
+                (data["execution_time"] - data["order_time"]).iloc[-1].total_seconds()
+            )
 
             return {
                 "slippage": slippage,
@@ -339,12 +352,16 @@ class ArbitrageStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             if self.position is None:
-                return self._generate_entry_signal(data, spread, spread_stats, liquidity, execution)
+                return self._generate_entry_signal(
+                    data, spread, spread_stats, liquidity, execution
+                )
             else:
-                return self._generate_exit_signal(data, spread, spread_stats, liquidity, execution)
+                return self._generate_exit_signal(
+                    data, spread, spread_stats, liquidity, execution
+                )
 
         except Exception as e:
             logger.error(f"Error generating trading signal: {str(e)}")
@@ -414,7 +431,9 @@ class ArbitrageStrategy(BaseStrategy):
                     stop_loss=stop_loss,
                     take_profit=take_profit,
                     volume=volume,
-                    confidence=min(1.0, abs(spread - spread_stats["min"]) / spread_stats["std"]),
+                    confidence=min(
+                        1.0, abs(spread - spread_stats["min"]) / spread_stats["std"]
+                    ),
                     timestamp=data.index[-1],
                     metadata={
                         "spread": spread,

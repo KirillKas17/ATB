@@ -1,22 +1,17 @@
 import asyncio
 import json
-import os
-import pickle
-import platform
 import signal
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import aiofiles
 import joblib
-import numpy as np
 import pandas as pd
 import psutil
 import yaml
-from simulation.backtester import Backtester, BacktestConfig
 from data_loader import DataLoader
 from dotenv import load_dotenv
 from loguru import logger
@@ -25,7 +20,7 @@ from tqdm import tqdm
 from ml.adaptive_strategy_generator import AdaptiveStrategyGenerator
 from ml.meta_learning import MetaLearning
 from ml.pattern_discovery import PatternDiscovery
-from utils.market_regime import MarketRegime
+from simulation.backtester import BacktestConfig, Backtester
 
 
 @dataclass
@@ -61,7 +56,9 @@ class TrainingConfig:
                 validation_interval=config["training"]["validation_interval"],
                 batch_size=config["training"].get("batch_size", 1000),
                 num_workers=config["training"].get("num_workers", -1),
-                early_stopping_rounds=config["training"].get("early_stopping_rounds", 10),
+                early_stopping_rounds=config["training"].get(
+                    "early_stopping_rounds", 10
+                ),
                 min_samples=config["training"].get("min_samples", 100),
                 max_samples=config["training"].get("max_samples", 10000),
                 metrics_window=config["training"].get("metrics_window", 24),
@@ -101,7 +98,11 @@ class ModelTrainer:
         self._executor = ThreadPoolExecutor(max_workers=self.config.num_workers)
 
         # Создание директорий
-        for dir_path in [self.config.models_dir, self.config.backup_dir, self.config.log_dir]:
+        for dir_path in [
+            self.config.models_dir,
+            self.config.backup_dir,
+            self.config.log_dir,
+        ]:
             Path(dir_path).mkdir(parents=True, exist_ok=True)
 
     def _get_system_metrics(self) -> Dict:
@@ -117,7 +118,9 @@ class ModelTrainer:
         logger.info("Получен сигнал завершения")
         self._executor.shutdown(wait=False)
 
-    async def train_regime(self, regime: str, market_data: pd.DataFrame) -> TrainingMetrics:
+    async def train_regime(
+        self, regime: str, market_data: pd.DataFrame
+    ) -> TrainingMetrics:
         """Обучение для конкретного режима"""
         try:
             start_time = datetime.now()
@@ -133,7 +136,9 @@ class ModelTrainer:
 
             # Ограничение размера выборки
             if len(regime_data) > self.config.max_samples:
-                regime_data = regime_data.sample(n=self.config.max_samples, random_state=42)
+                regime_data = regime_data.sample(
+                    n=self.config.max_samples, random_state=42
+                )
 
             # Инициализация компонентов
             pattern_discovery = PatternDiscovery()
@@ -166,7 +171,9 @@ class ModelTrainer:
             )
 
             # Обучение паттернов
-            patterns = await pattern_discovery.discover_patterns(data=regime_data, regime=regime)
+            patterns = await pattern_discovery.discover_patterns(
+                data=regime_data, regime=regime
+            )
 
             # Обучение мета-модели
             meta_model = await meta_learning.train(
@@ -175,7 +182,10 @@ class ModelTrainer:
 
             # Генерация стратегий
             strategies = await strategy_generator.generate_strategies(
-                data=regime_data, patterns=patterns, meta_model=meta_model, regime=regime
+                data=regime_data,
+                patterns=patterns,
+                meta_model=meta_model,
+                regime=regime,
             )
 
             # Валидация стратегий
@@ -202,7 +212,8 @@ class ModelTrainer:
                 start_time=start_time,
                 end_time=end_time,
                 training_time=training_time,
-                memory_usage=end_metrics["memory_usage"] - start_metrics["memory_usage"],
+                memory_usage=end_metrics["memory_usage"]
+                - start_metrics["memory_usage"],
                 cpu_usage=end_metrics["cpu_usage"],
                 patterns_count=len(patterns),
                 strategies_count=len(strategies),
@@ -274,7 +285,9 @@ class ModelTrainer:
                 validation_path = regime_dir / "validation_results.json"
                 async with aiofiles.open(validation_path, "w") as f:
                     await f.write(json.dumps(validation_results, indent=2))
-                async with aiofiles.open(backup_dir / "validation_results.json", "w") as f:
+                async with aiofiles.open(
+                    backup_dir / "validation_results.json", "w"
+                ) as f:
                     await f.write(json.dumps(validation_results, indent=2))
 
                 logger.info(f"Результаты сохранены для режима {regime}")
@@ -292,7 +305,9 @@ class ModelTrainer:
         print(f"Лучший винрейт: {validation_results['best_win_rate']:.2%}")
         print(f"Лучший профит-фактор: {validation_results['best_profit_factor']:.2f}")
         print(f"Всего сделок: {validation_results['total_trades']}")
-        print(f"Средняя длительность сделки: {validation_results['avg_trade_duration']}")
+        print(
+            f"Средняя длительность сделки: {validation_results['avg_trade_duration']}"
+        )
 
     async def train(self):
         """Основная функция обучения"""
@@ -309,14 +324,20 @@ class ModelTrainer:
             market_data = await data_loader.load_all_data()
 
             # Обучение для каждого режима
-            for regime in tqdm(self.config.market_regimes, desc="Обучение для рыночных режимов"):
+            for regime in tqdm(
+                self.config.market_regimes, desc="Обучение для рыночных режимов"
+            ):
                 await self.train_regime(regime, market_data)
 
             # Сохранение метрик
             metrics_file = Path(f"{self.config.log_dir}/training_metrics.json")
             async with aiofiles.open(metrics_file, "w") as f:
                 await f.write(
-                    json.dumps([m.__dict__ for m in self.metrics_history], indent=2, default=str)
+                    json.dumps(
+                        [m.__dict__ for m in self.metrics_history],
+                        indent=2,
+                        default=str,
+                    )
                 )
 
             logger.info("Обучение успешно завершено")
@@ -347,7 +368,9 @@ async def main():
 
 if __name__ == "__main__":
     # Настройка логирования
-    logger.add("logs/training_{time}.log", rotation="1 day", retention="7 days", level="INFO")
+    logger.add(
+        "logs/training_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+    )
 
     # Запуск асинхронного main
     asyncio.run(main())

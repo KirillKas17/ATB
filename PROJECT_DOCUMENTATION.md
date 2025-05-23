@@ -14,7 +14,9 @@ AdvancedTradingBot/
 │   ├── ml_integration.py   # Интеграция с ML моделями
 │   ├── position_manager.py # Управление позициями
 │   ├── exchange.py         # Работа с биржей
-│   └── database.py         # Работа с БД
+│   ├── database.py         # Работа с БД
+│   ├── market_mode.py      # Определение режимов рынка
+│   └── pair_profile.py     # Профили валютных пар
 ├── strategies/             # Реализации стратегий
 ├── simulation/            # Симуляция и бэктестинг
 ├── utils/                 # Утилиты
@@ -31,20 +33,26 @@ AdvancedTradingBot/
 - PostgreSQL для хранения данных
 - Redis для кэширования
 - Docker для развертывания
+- Apache Kafka для потоковой обработки данных
+- Elasticsearch для анализа логов
 
 ### Машинное обучение
 - Scikit-learn для классических ML моделей
 - TensorFlow/PyTorch для глубокого обучения
 - Pandas для обработки данных
 - NumPy для численных вычислений
+- XGBoost/LightGBM для градиентного бустинга
+- Prophet для прогнозирования временных рядов
 
 ### Технические индикаторы
 1. Трендовые:
-   - Moving Averages (SMA, EMA, WMA)
+   - Moving Averages (SMA, EMA, WMA, VWMA)
    - MACD
    - ADX/DMI
    - Bollinger Bands
    - Parabolic SAR
+   - Ichimoku Cloud
+   - SuperTrend
 
 2. Моментум:
    - RSI
@@ -52,40 +60,81 @@ AdvancedTradingBot/
    - CCI
    - ROC
    - Williams %R
+   - MFI
+   - Awesome Oscillator
 
 3. Объемные:
    - OBV
    - Volume Profile
    - Money Flow Index
    - Chaikin Money Flow
+   - Volume Delta
+   - Cumulative Volume Delta
+   - Volume Weighted Average Price (VWAP)
 
 4. Волатильность:
    - ATR
    - Bollinger Bands Width
    - Keltner Channels
+   - Donchian Channels
+   - Standard Deviation
+   - Historical Volatility
 
 5. Циклические:
    - Wavelet Analysis
    - Fourier Transform
    - Cycle Indicators
+   - Elliott Wave
+   - Harmonic Patterns
 
-### Инструменты анализа
-1. Технический анализ:
-   - Паттерны свечей
-   - Фигуры разворота
-   - Уровни Фибоначчи
-   - Волны Эллиота
+### Режимы рынка
+1. Трендовый режим:
+   - Определение силы тренда
+   - Направление тренда
+   - Длительность тренда
+   - Волатильность тренда
 
-2. Статистический анализ:
-   - Корреляционный анализ
-   - Регрессионный анализ
-   - Временные ряды
-   - Кластерный анализ
+2. Боковой режим:
+   - Определение диапазона
+   - Уровни поддержки/сопротивления
+   - Волатильность диапазона
+   - Пробои диапазона
 
-3. Фундаментальный анализ:
-   - Анализ новостей
-   - Анализ настроений
-   - Анализ объемов
+3. Волатильный режим:
+   - Уровень волатильности
+   - Направление движения
+   - Длительность волатильности
+   - Паттерны волатильности
+
+4. Низковолатильный режим:
+   - Уровень активности
+   - Потенциальные пробои
+   - Накопление позиций
+   - Консолидация
+
+### Профили валютных пар
+1. Характеристики профиля:
+   - Историческая волатильность
+   - Средний объем торгов
+   - Спред
+   - Ликвидность
+   - Корреляции с другими парами
+   - Время активности
+
+2. Настройки торговли:
+   - Оптимальные таймфреймы
+   - Размер позиции
+   - Уровни риска
+   - Стоп-лоссы
+   - Тейк-профиты
+   - Максимальная просадка
+
+3. Адаптация стратегий:
+   - Подбор индикаторов
+   - Параметры индикаторов
+   - Условия входа/выхода
+   - Управление рисками
+   - Оптимизация параметров
 
 ## Основные преимущества
 
@@ -93,38 +142,51 @@ AdvancedTradingBot/
    - Поддержка множества торговых стратегий
    - Возможность комбинирования стратегий
    - Автоматическая оптимизация параметров
+   - Адаптация к режимам рынка
+   - Индивидуальные профили для пар
 
 2. **Машинное обучение**
    - Предсказание движения цены
    - Классификация рыночных состояний
    - Оптимизация параметров стратегий
    - Адаптация к рыночным условиям
+   - Определение режимов рынка
+   - Анализ паттернов
 
 3. **Управление рисками**
    - Динамический расчет позиции
    - Трейлинг-стопы
    - Частичное закрытие позиций
    - Защита от проскальзывания
+   - Контроль просадки
+   - Хеджирование рисков
+   - Диверсификация
 
 4. **Высокая производительность**
    - Асинхронная обработка данных
    - Оптимизированные алгоритмы
    - Эффективное использование ресурсов
+   - Распределенная обработка
+   - Кэширование данных
+   - Потоковая обработка
 
 5. **Гибкость и масштабируемость**
    - Модульная архитектура
    - Легкое добавление новых стратегий
    - Поддержка множества бирж
    - Распределенная обработка
+   - Горизонтальное масштабирование
+   - Микросервисная архитектура
 
 ## Логика работы бота
 
 ### Общий алгоритм
 1. Сбор и обработка данных
-2. Анализ рыночного состояния
-3. Генерация сигналов
-4. Управление позициями
-5. Мониторинг и оптимизация
+2. Определение режима рынка
+3. Анализ профиля валютной пары
+4. Генерация сигналов
+5. Управление позициями
+6. Мониторинг и оптимизация
 
 ### Пример работы на паре BTC/USDT
 
@@ -136,55 +198,77 @@ AdvancedTradingBot/
        timeframe="1h",
        limit=1000
    )
+   
+   # Получение профиля пары
+   pair_profile = pair_manager.get_profile("BTC/USDT")
+   
+   # Определение режима рынка
+   market_mode = market_analyzer.detect_mode(market_data)
    ```
 
 2. **Анализ рынка**
    ```python
-   # Расчет индикаторов
+   # Расчет индикаторов с учетом режима
    indicators = {
        "rsi": calculate_rsi(market_data),
        "macd": calculate_macd(market_data),
-       "bollinger": calculate_bollinger_bands(market_data)
+       "bollinger": calculate_bollinger_bands(market_data),
+       "volume": calculate_volume_indicators(market_data)
    }
    
-   # ML предсказание
-   prediction = ml_model.predict(market_data)
+   # ML предсказание с учетом режима
+   prediction = ml_model.predict(market_data, market_mode)
+   
+   # Анализ профиля
+   profile_analysis = pair_profile.analyze(market_data)
    ```
 
 3. **Генерация сигнала**
    ```python
-   # Анализ условий
-   if (indicators["rsi"] < 30 and 
+   # Анализ условий с учетом режима и профиля
+   if (market_mode == "trend" and
+       indicators["rsi"] < 30 and 
        indicators["macd"]["histogram"] > 0 and
-       prediction["probability"] > 0.7):
+       prediction["probability"] > 0.7 and
+       profile_analysis["volatility"] < pair_profile.max_volatility):
+       
        signal = Signal(
            action="buy",
            price=market_data["close"][-1],
-           stop_loss=calculate_stop_loss(market_data),
-           take_profit=calculate_take_profit(market_data)
+           stop_loss=calculate_stop_loss(market_data, pair_profile),
+           take_profit=calculate_take_profit(market_data, pair_profile),
+           size=calculate_position_size(market_mode, pair_profile)
        )
    ```
 
 4. **Исполнение сделки**
    ```python
-   # Открытие позиции
+   # Открытие позиции с учетом профиля
    position = position_manager.open_position(
        symbol="BTC/USDT",
        side="long",
-       size=calculate_position_size(),
+       size=signal.size,
        stop_loss=signal.stop_loss,
-       take_profit=signal.take_profit
+       take_profit=signal.take_profit,
+       profile=pair_profile
    )
    ```
 
 5. **Мониторинг**
    ```python
-   # Отслеживание позиции
+   # Отслеживание позиции с учетом режима
    while position.is_open:
        current_price = exchange.get_current_price("BTC/USDT")
-       position_manager.update_position(position, current_price)
+       market_mode = market_analyzer.update_mode(current_price)
        
-       if position_manager.check_exit_conditions(position):
+       position_manager.update_position(
+           position, 
+           current_price,
+           market_mode,
+           pair_profile
+       )
+       
+       if position_manager.check_exit_conditions(position, market_mode):
            position_manager.close_position(position)
    ```
 
@@ -196,6 +280,8 @@ AdvancedTradingBot/
 - Очистка и нормализация данных
 - Кэширование данных
 - Экспорт/импорт данных
+- Потоковая обработка данных
+- Агрегация данных
 
 ### 2. Анализ рынка
 - Технический анализ
@@ -203,6 +289,8 @@ AdvancedTradingBot/
 - Фундаментальный анализ
 - Анализ объемов
 - Анализ настроений
+- Определение режимов рынка
+- Анализ профилей пар
 
 ### 3. Торговые стратегии
 - Трендовые стратегии
@@ -211,6 +299,8 @@ AdvancedTradingBot/
 - Арбитраж
 - Статистический арбитраж
 - ML-стратегии
+- Адаптивные стратегии
+- Комбинированные стратегии
 
 ### 4. Управление позициями
 - Открытие позиций
@@ -218,6 +308,8 @@ AdvancedTradingBot/
 - Трейлинг-стопы
 - Частичное закрытие
 - Хеджирование
+- Ребалансировка
+- Управление портфелем
 
 ### 5. Управление рисками
 - Расчет размера позиции
@@ -225,6 +317,9 @@ AdvancedTradingBot/
 - Тейк-профиты
 - Защита от проскальзывания
 - Контроль просадки
+- Управление рисками по профилю
+- Диверсификация
+- Хеджирование
 
 ### 6. Оптимизация
 - Оптимизация параметров
@@ -232,6 +327,8 @@ AdvancedTradingBot/
 - Форвард-тестинг
 - Анализ результатов
 - Автоматическая оптимизация
+- Адаптация к режимам
+- Оптимизация по профилю
 
 ### 7. Машинное обучение
 - Предсказание цены
@@ -239,6 +336,9 @@ AdvancedTradingBot/
 - Кластеризация
 - Оптимизация параметров
 - Адаптация стратегий
+- Определение режимов
+- Анализ паттернов
+- Прогнозирование волатильности
 
 ### 8. Мониторинг и отчетность
 - Мониторинг позиций
@@ -246,6 +346,8 @@ AdvancedTradingBot/
 - Генерация отчетов
 - Визуализация данных
 - Алерты и уведомления
+- Анализ эффективности
+- Управление ресурсами
 
 ### 9. Интеграция
 - Поддержка множества бирж
@@ -253,10 +355,14 @@ AdvancedTradingBot/
 - WebSocket подключения
 - REST API
 - Web интерфейс
+- Мобильное приложение
+- Telegram бот
 
 ### 10. Безопасность
 - Шифрование данных
 - Защита API ключей
-- Логирование действий
-- Контроль доступа
-- Резервное копирование 
+- Аутентификация
+- Авторизация
+- Аудит действий
+- Резервное копирование
+- Мониторинг безопасности 

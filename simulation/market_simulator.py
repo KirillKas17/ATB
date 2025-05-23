@@ -1,5 +1,4 @@
 import asyncio
-import json
 import random
 import signal
 import warnings
@@ -8,9 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 
-import aiofiles
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,10 +23,6 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")
-
-from exchange.bybit_client import BybitClient
-from exchange.order_manager import OrderManager
-from utils.market_regime import MarketRegime
 
 
 @dataclass
@@ -83,7 +77,9 @@ class SimulationConfig:
                 regime_probability=config["simulation"].get("regime_probability", 0.1),
                 regime_duration=config["simulation"].get("regime_duration", 100),
                 data_dir=Path(config["simulation"].get("data_dir", "data/simulation")),
-                models_dir=Path(config["simulation"].get("models_dir", "models/simulation")),
+                models_dir=Path(
+                    config["simulation"].get("models_dir", "models/simulation")
+                ),
                 log_dir=config["simulation"].get("log_dir", "logs/simulation"),
                 backup_dir=config["simulation"].get("backup_dir", "backups/simulation"),
                 metrics_window=config["simulation"].get("metrics_window", 100),
@@ -139,7 +135,9 @@ class MarketImpact:
         self.volume_factor = volume_factor
         self.volatility_factor = volatility_factor
 
-    def calculate_impact(self, order_size: float, market_volume: float, volatility: float) -> float:
+    def calculate_impact(
+        self, order_size: float, market_volume: float, volatility: float
+    ) -> float:
         """
         Расчет влияния на рынок.
 
@@ -168,7 +166,10 @@ class LatencyModel:
     """Модель задержек"""
 
     def __init__(
-        self, base_latency: float = 0.1, jitter: float = 0.05, network_factor: float = 0.2
+        self,
+        base_latency: float = 0.1,
+        jitter: float = 0.05,
+        network_factor: float = 0.2,
     ):
         self.base_latency = base_latency
         self.jitter = jitter
@@ -371,24 +372,32 @@ class MarketSimulator:
             data["SMA_200"] = talib.SMA(data["close"], timeperiod=200)
 
             data["RSI"] = talib.RSI(data["close"], timeperiod=14)
-            data["MACD"], data["MACD_SIGNAL"], data["MACD_HIST"] = talib.MACD(data["close"])
-
-            data["BBANDS_UPPER"], data["BBANDS_MIDDLE"], data["BBANDS_LOWER"] = talib.BBANDS(
+            data["MACD"], data["MACD_SIGNAL"], data["MACD_HIST"] = talib.MACD(
                 data["close"]
             )
 
-            data["ATR"] = talib.ATR(data["high"], data["low"], data["close"], timeperiod=14)
+            data["BBANDS_UPPER"], data["BBANDS_MIDDLE"], data["BBANDS_LOWER"] = (
+                talib.BBANDS(data["close"])
+            )
+
+            data["ATR"] = talib.ATR(
+                data["high"], data["low"], data["close"], timeperiod=14
+            )
 
             # Объемные индикаторы
             data["OBV"] = talib.OBV(data["close"], data["volume"])
-            data["AD"] = talib.AD(data["high"], data["low"], data["close"], data["volume"])
+            data["AD"] = talib.AD(
+                data["high"], data["low"], data["close"], data["volume"]
+            )
 
             # Моментум индикаторы
             data["MOM"] = talib.MOM(data["close"], timeperiod=10)
             data["ROC"] = talib.ROC(data["close"], timeperiod=10)
 
             # Волатильность
-            data["NATR"] = talib.NATR(data["high"], data["low"], data["close"], timeperiod=14)
+            data["NATR"] = talib.NATR(
+                data["high"], data["low"], data["close"], timeperiod=14
+            )
             data["TRANGE"] = talib.TRANGE(data["high"], data["low"], data["close"])
 
             return data
@@ -402,14 +411,19 @@ class MarketSimulator:
         try:
             # Признаки режима
             data["volatility"] = data["close"].pct_change().rolling(window=20).std()
-            data["trend"] = (data["close"] - data["close"].shift(20)) / data["close"].shift(20)
+            data["trend"] = (data["close"] - data["close"].shift(20)) / data[
+                "close"
+            ].shift(20)
             data["mean_reversion"] = (data["close"] - data["SMA_20"]) / data["SMA_20"]
 
             # Классификация режима
             conditions = [
                 (data["volatility"] > data["volatility"].quantile(0.8)),
                 (data["trend"].abs() > data["trend"].abs().quantile(0.8)),
-                (data["mean_reversion"].abs() > data["mean_reversion"].abs().quantile(0.8)),
+                (
+                    data["mean_reversion"].abs()
+                    > data["mean_reversion"].abs().quantile(0.8)
+                ),
             ]
             choices = ["volatile", "trend", "mean_reversion"]
             data["regime"] = np.select(conditions, choices, default="normal")
@@ -431,7 +445,9 @@ class MarketSimulator:
             data["volatility"] = data["close"].pct_change().rolling(window=20).std()
 
             # Тренд
-            data["trend"] = (data["close"] - data["close"].shift(20)) / data["close"].shift(20)
+            data["trend"] = (data["close"] - data["close"].shift(20)) / data[
+                "close"
+            ].shift(20)
 
             # Качество рынка
             data["market_quality"] = (
@@ -441,9 +457,9 @@ class MarketSimulator:
             )
 
             # Нормализация
-            data["market_quality"] = (data["market_quality"] - data["market_quality"].min()) / (
-                data["market_quality"].max() - data["market_quality"].min()
-            )
+            data["market_quality"] = (
+                data["market_quality"] - data["market_quality"].min()
+            ) / (data["market_quality"].max() - data["market_quality"].min())
 
             return data
 
@@ -458,16 +474,21 @@ class MarketSimulator:
             data["base_impact"] = data["volume"] * data["close"] / data["liquidity"]
 
             # Модификация по режиму
-            regime_impact = {"normal": 1.0, "trend": 1.5, "mean_reversion": 0.8, "volatile": 2.0}
+            regime_impact = {
+                "normal": 1.0,
+                "trend": 1.5,
+                "mean_reversion": 0.8,
+                "volatile": 2.0,
+            }
             data["regime_impact"] = data["regime"].map(regime_impact)
 
             # Общее воздействие
             data["market_impact"] = data["base_impact"] * data["regime_impact"]
 
             # Нормализация
-            data["market_impact"] = (data["market_impact"] - data["market_impact"].min()) / (
-                data["market_impact"].max() - data["market_impact"].min()
-            )
+            data["market_impact"] = (
+                data["market_impact"] - data["market_impact"].min()
+            ) / (data["market_impact"].max() - data["market_impact"].min())
 
             return data
 
@@ -480,7 +501,10 @@ class MarketSimulator:
         try:
             # Автокорреляция
             data["autocorr"] = (
-                data["close"].pct_change().rolling(window=20).apply(lambda x: x.autocorr())
+                data["close"]
+                .pct_change()
+                .rolling(window=20)
+                .apply(lambda x: x.autocorr())
             )
 
             # Тест на случайное блуждание
@@ -516,14 +540,19 @@ class MarketSimulator:
             data["volatility"] = data["close"].pct_change().rolling(window=20).std()
 
             # Тренд
-            data["trend"] = (data["close"] - data["close"].shift(20)) / data["close"].shift(20)
+            data["trend"] = (data["close"] - data["close"].shift(20)) / data[
+                "close"
+            ].shift(20)
 
             # Среднее возвращение
             data["mean_reversion"] = (data["close"] - data["SMA_20"]) / data["SMA_20"]
 
             # Шум
             data["noise"] = (
-                data["close"].pct_change().rolling(window=20).apply(lambda x: x.std() / x.mean())
+                data["close"]
+                .pct_change()
+                .rolling(window=20)
+                .apply(lambda x: x.std() / x.mean())
             )
 
             # Ликвидность
@@ -541,7 +570,9 @@ class MarketSimulator:
                 "liquidity",
                 "market_impact",
             ]:
-                data[col] = (data[col] - data[col].min()) / (data[col].max() - data[col].min())
+                data[col] = (data[col] - data[col].min()) / (
+                    data[col].max() - data[col].min()
+                )
 
             return data
 
@@ -576,7 +607,9 @@ class MarketSimulator:
             self.regime_model.fit(X)
 
             # Сохранение модели
-            joblib.dump(self.regime_model, self.config.models_dir / "regime_model.joblib")
+            joblib.dump(
+                self.regime_model, self.config.models_dir / "regime_model.joblib"
+            )
             joblib.dump(self.scaler, self.config.models_dir / "scaler.joblib")
             joblib.dump(self.pca, self.config.models_dir / "pca.joblib")
 
@@ -625,15 +658,24 @@ class MarketSimulator:
             metrics = {
                 "price_range": (data["close"].min(), data["close"].max()),
                 "volume_range": (data["volume"].min(), data["volume"].max()),
-                "volatility_range": (data["volatility"].min(), data["volatility"].max()),
+                "volatility_range": (
+                    data["volatility"].min(),
+                    data["volatility"].max(),
+                ),
                 "trend_strength_range": (data["trend"].min(), data["trend"].max()),
                 "mean_reversion_range": (
                     data["mean_reversion"].min(),
                     data["mean_reversion"].max(),
                 ),
                 "noise_level_range": (data["noise"].min(), data["noise"].max()),
-                "market_impact_range": (data["market_impact"].min(), data["market_impact"].max()),
-                "liquidity_factor_range": (data["liquidity"].min(), data["liquidity"].max()),
+                "market_impact_range": (
+                    data["market_impact"].min(),
+                    data["market_impact"].max(),
+                ),
+                "liquidity_factor_range": (
+                    data["liquidity"].min(),
+                    data["liquidity"].max(),
+                ),
             }
 
             return metrics
@@ -799,7 +841,7 @@ async def main():
         simulator = MarketSimulator()
 
         # Генерация данных
-        data = await simulator.generate_market_data()
+        await simulator.generate_market_data()
 
         logger.info("Симуляция успешно завершена")
 
@@ -810,7 +852,9 @@ async def main():
 
 if __name__ == "__main__":
     # Настройка логирования
-    logger.add("logs/simulation_{time}.log", rotation="1 day", retention="7 days", level="INFO")
+    logger.add(
+        "logs/simulation_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+    )
 
     # Запуск асинхронного main
     asyncio.run(main())

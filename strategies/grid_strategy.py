@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -155,7 +154,11 @@ class GridStrategy(BaseStrategy):
             return None
 
     def _check_basic_conditions(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> bool:
         """
         Проверка базовых условий для торговли.
@@ -261,7 +264,11 @@ class GridStrategy(BaseStrategy):
             return {}
 
     def _generate_trading_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация торгового сигнала.
@@ -285,9 +292,11 @@ class GridStrategy(BaseStrategy):
             for level, order in self.grid_levels.items():
                 if not order["active"]:
                     if (
-                        self.config.grid_direction in ["up", "both"] and current_price <= level
+                        self.config.grid_direction in ["up", "both"]
+                        and current_price <= level
                     ) or (
-                        self.config.grid_direction in ["down", "both"] and current_price >= level
+                        self.config.grid_direction in ["down", "both"]
+                        and current_price >= level
                     ):
                         return self._generate_entry_signal(
                             current_price, level, volatility, spread, liquidity
@@ -313,7 +322,9 @@ class GridStrategy(BaseStrategy):
         try:
             # Очищаем неактивные уровни
             self.grid_levels = {
-                level: order for level, order in self.grid_levels.items() if order["active"]
+                level: order
+                for level, order in self.grid_levels.items()
+                if order["active"]
             }
 
             # Добавляем новые уровни
@@ -327,7 +338,9 @@ class GridStrategy(BaseStrategy):
                             "active": True,
                             "volume": self.config.grid_volume,
                             "direction": (
-                                "buy" if self.config.grid_direction in ["up", "both"] else "sell"
+                                "buy"
+                                if self.config.grid_direction in ["up", "both"]
+                                else "sell"
                             ),
                         }
 
@@ -367,7 +380,9 @@ class GridStrategy(BaseStrategy):
             self.grid_levels[level]["active"] = False
 
             return Signal(
-                direction="long" if self.grid_levels[level]["direction"] == "buy" else "short",
+                direction=(
+                    "long" if self.grid_levels[level]["direction"] == "buy" else "short"
+                ),
                 entry_price=current_price,
                 stop_loss=stop_loss,
                 take_profit=take_profit,
@@ -387,7 +402,11 @@ class GridStrategy(BaseStrategy):
             return None
 
     def _generate_exit_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на выход из позиции.
@@ -518,7 +537,9 @@ class GridStrategy(BaseStrategy):
 
             # Корректировка на максимальный размер
             position_size = base_size * volatility_factor
-            position_size = min(position_size, self.config.max_position_size - self.total_position)
+            position_size = min(
+                position_size, self.config.max_position_size - self.total_position
+            )
 
             return position_size
 

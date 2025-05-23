@@ -1,9 +1,7 @@
 import json
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
@@ -12,14 +10,17 @@ import pytest_asyncio
 import yaml
 
 from agents.agent_market_regime import MarketRegime, MarketRegimeAgent
-from agents.agent_meta_controller import BayesianMetaController, MetaControllerAgent, PairManager
+from agents.agent_meta_controller import (
+    BayesianMetaController,
+    MetaControllerAgent,
+    PairManager,
+)
 from agents.agent_order_executor import OrderExecutorAgent
 from agents.agent_portfolio import PortfolioAgent
 from agents.agent_risk import RiskAgent
-from core.types import StrategyMetrics, TradeDecision
+from core.types import TradeDecision
 from exchange.bybit_client import BybitClient, BybitConfig
 from exchange.market_data import MarketData
-from utils.data_loader import load_market_data
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -203,7 +204,9 @@ class TestRiskAgent:
         volatility = 0.02
 
         position_size = risk_agent.calculate_position_size(
-            account_balance=account_balance, current_price=current_price, volatility=volatility
+            account_balance=account_balance,
+            current_price=current_price,
+            volatility=volatility,
         )
 
         assert 0 < position_size <= 1.0
@@ -241,7 +244,10 @@ class TestRiskAgent:
 class TestPortfolioAgent:
     def test_get_portfolio_allocation(self, portfolio_agent, mock_market_data):
         """Тест получения распределения портфеля"""
-        positions = {"BTC/USDT": {"size": 0.5, "pnl": 0.1}, "ETH/USDT": {"size": 0.3, "pnl": -0.05}}
+        positions = {
+            "BTC/USDT": {"size": 0.5, "pnl": 0.1},
+            "ETH/USDT": {"size": 0.3, "pnl": -0.05},
+        }
 
         allocation = portfolio_agent.get_portfolio_allocation(positions)
 
@@ -295,7 +301,9 @@ class TestOrderExecutorAgent:
 
     def test_cancel_order(self, order_executor_agent):
         """Тест отмены ордера"""
-        result = order_executor_agent.cancel_order(symbol="BTC/USDT", order_id="test_order_id")
+        result = order_executor_agent.cancel_order(
+            symbol="BTC/USDT", order_id="test_order_id"
+        )
         assert isinstance(result, bool)
 
 
@@ -490,8 +498,18 @@ def test_bayesian_meta_controller_initialization(bayesian_meta_controller):
 def test_aggregate_signals(bayesian_meta_controller):
     """Тест агрегации сигналов"""
     signals = [
-        {"action": "buy", "confidence": 0.8, "source": "strategy1", "timestamp": datetime.now()},
-        {"action": "buy", "confidence": 0.7, "source": "strategy2", "timestamp": datetime.now()},
+        {
+            "action": "buy",
+            "confidence": 0.8,
+            "source": "strategy1",
+            "timestamp": datetime.now(),
+        },
+        {
+            "action": "buy",
+            "confidence": 0.7,
+            "source": "strategy2",
+            "timestamp": datetime.now(),
+        },
     ]
     decision = bayesian_meta_controller.aggregate_signals(signals)
     assert isinstance(decision, TradeDecision)

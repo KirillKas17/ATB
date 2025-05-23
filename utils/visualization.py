@@ -1,5 +1,4 @@
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -47,10 +46,14 @@ def create_candlestick_chart(
     )
 
     # Add volume bars
-    colors = ["red" if row["close"] < row["open"] else "green" for _, row in df.iterrows()]
+    colors = [
+        "red" if row["close"] < row["open"] else "green" for _, row in df.iterrows()
+    ]
 
     fig.add_trace(
-        go.Bar(x=df.index, y=df["volume"], name="Volume", marker_color=colors), row=2, col=1
+        go.Bar(x=df.index, y=df["volume"], name="Volume", marker_color=colors),
+        row=2,
+        col=1,
     )
 
     # Add signals if provided
@@ -79,7 +82,9 @@ def create_candlestick_chart(
     if indicators:
         for name, values in indicators.items():
             fig.add_trace(
-                go.Scatter(x=df.index, y=values, name=name, line=dict(width=1)), row=1, col=1
+                go.Scatter(x=df.index, y=values, name=name, line=dict(width=1)),
+                row=1,
+                col=1,
             )
 
     # Update layout
@@ -94,7 +99,9 @@ def create_candlestick_chart(
     return fig
 
 
-def plot_pnl_curves(returns: Dict[str, pd.Series], title: str = "Strategy Comparison") -> go.Figure:
+def plot_pnl_curves(
+    returns: Dict[str, pd.Series], title: str = "Strategy Comparison"
+) -> go.Figure:
     """
     Plot PnL curves for multiple strategies
 
@@ -110,10 +117,17 @@ def plot_pnl_curves(returns: Dict[str, pd.Series], title: str = "Strategy Compar
     for name, rets in returns.items():
         cumulative_returns = (1 + rets).cumprod()
         fig.add_trace(
-            go.Scatter(x=cumulative_returns.index, y=cumulative_returns, name=name, mode="lines")
+            go.Scatter(
+                x=cumulative_returns.index,
+                y=cumulative_returns,
+                name=name,
+                mode="lines",
+            )
         )
 
-    fig.update_layout(title=title, yaxis_title="Cumulative Returns", xaxis_title="Date", height=600)
+    fig.update_layout(
+        title=title, yaxis_title="Cumulative Returns", xaxis_title="Date", height=600
+    )
 
     return fig
 
@@ -143,27 +157,38 @@ def plot_volatility_drawdown(
 
     # Add volatility
     fig.add_trace(
-        go.Scatter(x=volatility.index, y=volatility, name="Volatility", line=dict(color="blue")),
+        go.Scatter(
+            x=volatility.index, y=volatility, name="Volatility", line=dict(color="blue")
+        ),
         row=1,
         col=1,
     )
 
     # Add drawdown
     fig.add_trace(
-        go.Scatter(x=drawdown.index, y=drawdown, name="Drawdown", line=dict(color="red")),
+        go.Scatter(
+            x=drawdown.index, y=drawdown, name="Drawdown", line=dict(color="red")
+        ),
         row=2,
         col=1,
     )
 
     fig.update_layout(
-        title=title, yaxis_title="Annualized Volatility", yaxis2_title="Drawdown", height=800
+        title=title,
+        yaxis_title="Annualized Volatility",
+        yaxis2_title="Drawdown",
+        height=800,
     )
 
     return fig
 
 
 def export_chart(
-    fig: go.Figure, filename: str, format: str = "html", width: int = 1200, height: int = 800
+    fig: go.Figure,
+    filename: str,
+    format: str = "html",
+    width: int = 1200,
+    height: int = 800,
 ) -> None:
     """
     Export chart to file
@@ -200,14 +225,23 @@ def plot_strategy_comparison(
         Plotly figure object
     """
     fig = make_subplots(
-        rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.05, row_heights=[0.5, 0.25, 0.25]
+        rows=3,
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.05,
+        row_heights=[0.5, 0.25, 0.25],
     )
 
     # Plot cumulative returns
     for name, returns in strategies.items():
         cumulative_returns = (1 + returns).cumprod()
         fig.add_trace(
-            go.Scatter(x=cumulative_returns.index, y=cumulative_returns, name=name, mode="lines"),
+            go.Scatter(
+                x=cumulative_returns.index,
+                y=cumulative_returns,
+                name=name,
+                mode="lines",
+            ),
             row=1,
             col=1,
         )
@@ -231,7 +265,10 @@ def plot_strategy_comparison(
             correlation = returns.rolling(20).corr(benchmark)
             fig.add_trace(
                 go.Scatter(
-                    x=correlation.index, y=correlation, name=f"{name} Correlation", mode="lines"
+                    x=correlation.index,
+                    y=correlation,
+                    name=f"{name} Correlation",
+                    mode="lines",
                 ),
                 row=2,
                 col=1,
@@ -241,7 +278,9 @@ def plot_strategy_comparison(
     for name, returns in strategies.items():
         sharpe = returns.rolling(20).mean() / returns.rolling(20).std() * np.sqrt(252)
         fig.add_trace(
-            go.Scatter(x=sharpe.index, y=sharpe, name=f"{name} Sharpe", mode="lines"), row=3, col=1
+            go.Scatter(x=sharpe.index, y=sharpe, name=f"{name} Sharpe", mode="lines"),
+            row=3,
+            col=1,
         )
 
     fig.update_layout(
@@ -285,7 +324,10 @@ def plot_fuzzy_zones(
         )
 
         # Добавление зон
-        colors = {"support": "rgba(0, 255, 0, 0.2)", "resistance": "rgba(255, 0, 0, 0.2)"}
+        colors = {
+            "support": "rgba(0, 255, 0, 0.2)",
+            "resistance": "rgba(255, 0, 0, 0.2)",
+        }
 
         for zone_type, zone_list in zones.items():
             for price, strength in zone_list:
@@ -345,7 +387,9 @@ def plot_whale_activity(trade_data: pd.DataFrame) -> go.Figure:
         )
 
         # Добавление крупных сделок
-        whale_trades = trade_data[trade_data["volume"] > trade_data["volume"].quantile(0.95)]
+        whale_trades = trade_data[
+            trade_data["volume"] > trade_data["volume"].quantile(0.95)
+        ]
 
         fig.add_trace(
             go.Scatter(
@@ -363,7 +407,10 @@ def plot_whale_activity(trade_data: pd.DataFrame) -> go.Figure:
 
         # Настройка layout
         fig.update_layout(
-            title="Whale Activity", yaxis_title="Price", xaxis_title="Time", template="plotly_dark"
+            title="Whale Activity",
+            yaxis_title="Price",
+            xaxis_title="Time",
+            template="plotly_dark",
         )
 
         return fig
@@ -390,7 +437,11 @@ def plot_cvd_and_delta_volume(
     try:
         # Создание графика с двумя подграфиками
         fig = make_subplots(
-            rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05, row_heights=[0.7, 0.3]
+            rows=2,
+            cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.05,
+            row_heights=[0.7, 0.3],
         )
 
         # Добавление свечей
@@ -409,7 +460,9 @@ def plot_cvd_and_delta_volume(
 
         # Добавление CVD
         fig.add_trace(
-            go.Scatter(x=cvd.index, y=cvd.values, name="CVD", line=dict(color="blue")), row=2, col=1
+            go.Scatter(x=cvd.index, y=cvd.values, name="CVD", line=dict(color="blue")),
+            row=2,
+            col=1,
         )
 
         # Добавление дельты объема
@@ -440,13 +493,17 @@ def plot_cvd_and_delta_volume(
         raise
 
 
-def plot_equity_curve(equity: pd.Series, trades: List[Dict[str, Any]] = None) -> go.Figure:
+def plot_equity_curve(
+    equity: pd.Series, trades: List[Dict[str, Any]] = None
+) -> go.Figure:
     """Построение графика эквити"""
     fig = go.Figure()
 
     # Добавляем линию эквити
     fig.add_trace(
-        go.Scatter(x=equity.index, y=equity.values, name="Equity", line=dict(color="blue"))
+        go.Scatter(
+            x=equity.index, y=equity.values, name="Equity", line=dict(color="blue")
+        )
     )
 
     # Добавляем точки входа/выхода
@@ -485,7 +542,11 @@ def plot_equity_curve(equity: pd.Series, trades: List[Dict[str, Any]] = None) ->
 def plot_trades(data: pd.DataFrame, trades: List[Dict[str, Any]]) -> go.Figure:
     """Построение графика сделок"""
     fig = make_subplots(
-        rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, subplot_titles=("Price", "Volume")
+        rows=2,
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.03,
+        subplot_titles=("Price", "Volume"),
     )
 
     # График цены
@@ -543,7 +604,9 @@ def plot_trades(data: pd.DataFrame, trades: List[Dict[str, Any]]) -> go.Figure:
 
 def plot_indicators(data: pd.DataFrame, indicators: Dict[str, pd.Series]) -> go.Figure:
     """Построение графика индикаторов"""
-    fig = make_subplots(rows=len(indicators) + 1, cols=1, shared_xaxes=True, vertical_spacing=0.03)
+    fig = make_subplots(
+        rows=len(indicators) + 1, cols=1, shared_xaxes=True, vertical_spacing=0.03
+    )
 
     # График цены
     fig.add_trace(

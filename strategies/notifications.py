@@ -1,6 +1,4 @@
 import asyncio
-import json
-import os
 import queue
 import smtplib
 from dataclasses import dataclass
@@ -9,10 +7,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 from threading import Thread
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
-import pandas as pd
 import requests
 import telegram
 from loguru import logger
@@ -84,7 +80,9 @@ class NotificationSystem:
             self.notification_queue = queue.Queue()
 
             # Запускаем поток обработки уведомлений
-            self.notification_thread = Thread(target=self._notification_loop, daemon=True)
+            self.notification_thread = Thread(
+                target=self._notification_loop, daemon=True
+            )
             self.notification_thread.start()
 
         except Exception as e:
@@ -195,7 +193,9 @@ class NotificationSystem:
             # Отправляем сообщение
             asyncio.run(
                 bot.send_message(
-                    chat_id=self.config.telegram_chat_id, text=message, parse_mode="Markdown"
+                    chat_id=self.config.telegram_chat_id,
+                    text=message,
+                    parse_mode="Markdown",
                 )
             )
 
@@ -293,4 +293,3 @@ class NotificationSystem:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Контекстный менеджер: выход"""
-        pass

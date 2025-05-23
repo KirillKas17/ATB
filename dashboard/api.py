@@ -2,16 +2,14 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
-from functools import lru_cache
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 
 import aiohttp
-import pandas as pd
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, WebSocket
+from fastapi import BackgroundTasks, FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
@@ -21,6 +19,11 @@ from redis import asyncio as aioredis
 
 from core.correlation_chain import CorrelationChain
 from ml.meta_learning import MetaLearning
+
+from .status import (
+    broadcast_status,  # и другие необходимые функции
+    get_all_pairs_status,
+)
 
 # Конфигурация логгера
 logging.basicConfig(
@@ -118,7 +121,9 @@ correlation_chain = CorrelationChain()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Инициализация Redis для кэширования
-    redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
+    redis = aioredis.from_url(
+        "redis://localhost", encoding="utf8", decode_responses=True
+    )
     FastAPICache.init(RedisBackend(redis), prefix="trading_bot_cache")
 
     # Запуск фоновых задач
@@ -230,7 +235,9 @@ async def start_training(request: TradingRequest) -> Dict:
     """Start training for specified symbol and timeframe"""
     try:
         if bot_state["training"]:
-            raise HTTPException(status_code=400, detail="Training is already in progress")
+            raise HTTPException(
+                status_code=400, detail="Training is already in progress"
+            )
 
         bot_state["training"] = True
 

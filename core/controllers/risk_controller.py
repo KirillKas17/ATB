@@ -1,10 +1,8 @@
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from core.logger import Logger
 
-from ..models import Order, Position
-from .base import BaseController
+from ..models import Position
 
 logger = Logger()
 
@@ -16,7 +14,9 @@ class RiskController:
         self.config = config
         self.risk_metrics: Dict[str, float] = {}
 
-    def calculate_position_size(self, pair: str, price: float, risk_per_trade: float) -> float:
+    def calculate_position_size(
+        self, pair: str, price: float, risk_per_trade: float
+    ) -> float:
         """
         Расчет размера позиции.
 
@@ -141,11 +141,19 @@ class RiskController:
         try:
             # Расчет метрик
             total_pnl = sum(p.pnl for p in positions)
-            win_rate = sum(1 for p in positions if p.pnl > 0) / len(positions) if positions else 0.0
+            win_rate = (
+                sum(1 for p in positions if p.pnl > 0) / len(positions)
+                if positions
+                else 0.0
+            )
 
             # Обновление
             self.risk_metrics.update(
-                {"total_pnl": total_pnl, "win_rate": win_rate, "position_count": len(positions)}
+                {
+                    "total_pnl": total_pnl,
+                    "win_rate": win_rate,
+                    "position_count": len(positions),
+                }
             )
 
         except Exception as e:
@@ -164,7 +172,9 @@ class RiskController:
         """
         try:
             # Проверка лимитов
-            if self.risk_metrics.get("position_count", 0) >= self.config.get("max_positions", 10):
+            if self.risk_metrics.get("position_count", 0) >= self.config.get(
+                "max_positions", 10
+            ):
                 logger.warning("Maximum number of positions reached")
                 return False
 

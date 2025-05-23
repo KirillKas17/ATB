@@ -1,12 +1,10 @@
-import asyncio
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from core.logger import Logger
 
 from ..models import Order, Position
-from .base import BaseController
 
 logger = Logger()
 
@@ -43,7 +41,7 @@ class PositionController:
             )
 
             # Размещение ордера
-            placed_order = await self.order_controller.place_order(order)
+            await self.order_controller.place_order(order)
 
             # Обновление позиции
             position.entry_time = datetime.now()

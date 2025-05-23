@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 
 import joblib
 import numpy as np
@@ -12,9 +12,8 @@ import pandas as pd
 from loguru import logger
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.model_selection import GridSearchCV, TimeSeriesSplit, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import RobustScaler, StandardScaler
+from sklearn.model_selection import TimeSeriesSplit, train_test_split
+from sklearn.preprocessing import RobustScaler
 
 warnings.filterwarnings("ignore")
 
@@ -94,7 +93,9 @@ class WindowSizeOptimizer:
 
                 try:
                     if not model_path.exists() or not scaler_path.exists():
-                        logger.warning(f"Файлы модели {i} не найдены: {model_path}, {scaler_path}")
+                        logger.warning(
+                            f"Файлы модели {i} не найдены: {model_path}, {scaler_path}"
+                        )
                         continue
 
                     model = joblib.load(model_path)
@@ -131,11 +132,15 @@ class WindowSizeOptimizer:
             for _ in range(self.config.ensemble_size):
                 if self.config.model_type == "rf":
                     model = RandomForestRegressor(
-                        n_estimators=100, max_depth=10, random_state=self.config.random_state
+                        n_estimators=100,
+                        max_depth=10,
+                        random_state=self.config.random_state,
                     )
                 else:
                     model = GradientBoostingRegressor(
-                        n_estimators=100, max_depth=5, random_state=self.config.random_state
+                        n_estimators=100,
+                        max_depth=5,
+                        random_state=self.config.random_state,
                     )
 
                 scaler = RobustScaler()
@@ -220,7 +225,9 @@ class WindowSizeOptimizer:
                     "min_samples_split": trial.suggest_int("min_samples_split", 2, 20),
                     "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 10),
                 }
-                model = RandomForestRegressor(**params, random_state=self.config.random_state)
+                model = RandomForestRegressor(
+                    **params, random_state=self.config.random_state
+                )
             else:
                 params = {
                     "n_estimators": trial.suggest_int("n_estimators", 50, 500),
@@ -228,7 +235,9 @@ class WindowSizeOptimizer:
                     "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
                     "subsample": trial.suggest_float("subsample", 0.6, 1.0),
                 }
-                model = GradientBoostingRegressor(**params, random_state=self.config.random_state)
+                model = GradientBoostingRegressor(
+                    **params, random_state=self.config.random_state
+                )
 
             cv = TimeSeriesSplit(n_splits=self.config.cv_splits)
             scores = []
@@ -257,7 +266,10 @@ class WindowSizeOptimizer:
 
             # Разделение данных
             X_train, X_val, y_train, y_val = train_test_split(
-                X, y, test_size=self.config.test_size, random_state=self.config.random_state
+                X,
+                y,
+                test_size=self.config.test_size,
+                random_state=self.config.random_state,
             )
 
             # Обучение ансамбля
@@ -319,7 +331,8 @@ class WindowSizeOptimizer:
                 prediction_time=0.0,
                 last_update=datetime.now(),
                 window_size=int(np.mean(ensemble_pred)),
-                confidence=1.0 - np.std(predictions, axis=0).mean() / np.mean(ensemble_pred),
+                confidence=1.0
+                - np.std(predictions, axis=0).mean() / np.mean(ensemble_pred),
             )
 
         except Exception as e:
@@ -331,7 +344,9 @@ class WindowSizeOptimizer:
             importance = {}
             for model in self.models:
                 if hasattr(model, "feature_importances_"):
-                    for name, imp in zip(self.feature_names, model.feature_importances_):
+                    for name, imp in zip(
+                        self.feature_names, model.feature_importances_
+                    ):
                         importance[name] = importance.get(name, 0) + imp
 
             # Нормализация
@@ -341,7 +356,9 @@ class WindowSizeOptimizer:
 
             # Фильтрация по порогу
             importance = {
-                k: v for k, v in importance.items() if v >= self.config.feature_importance_threshold
+                k: v
+                for k, v in importance.items()
+                if v >= self.config.feature_importance_threshold
             }
 
             return dict(sorted(importance.items(), key=lambda x: x[1], reverse=True))
@@ -354,7 +371,9 @@ class WindowSizeOptimizer:
         """Предсказание размера окна"""
         try:
             if not self.models:
-                logger.warning("Модели не загружены, используем размер окна по умолчанию")
+                logger.warning(
+                    "Модели не загружены, используем размер окна по умолчанию"
+                )
                 return self.config.default_window, 0.0
 
             # Преобразование признаков в DataFrame
@@ -392,7 +411,9 @@ class WindowSizeOptimizer:
                     continue
 
             if not predictions:
-                logger.warning("Нет валидных предсказаний, используем размер окна по умолчанию")
+                logger.warning(
+                    "Нет валидных предсказаний, используем размер окна по умолчанию"
+                )
                 return self.config.default_window, 0.0
 
             # Усреднение предсказаний
@@ -400,7 +421,9 @@ class WindowSizeOptimizer:
             confidence = np.mean(confidences) if confidences else 0.0
 
             # Ограничение размера окна
-            window_size = max(self.config.min_window, min(window_size, self.config.max_window))
+            window_size = max(
+                self.config.min_window, min(window_size, self.config.max_window)
+            )
 
             return window_size, confidence
 

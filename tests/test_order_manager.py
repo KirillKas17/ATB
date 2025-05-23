@@ -1,6 +1,3 @@
-import asyncio
-from datetime import datetime
-
 import pytest
 
 from exchange.bybit_client import BybitClient, BybitConfig
@@ -85,7 +82,9 @@ async def test_create_entry_order(order_manager):
         assert order.trailing_stop
         assert order.break_even_price is not None
         assert order.take_profit_levels == order_manager.config.take_profit_levels
-        assert order.take_profit_quantities == order_manager.config.take_profit_quantities
+        assert (
+            order.take_profit_quantities == order_manager.config.take_profit_quantities
+        )
 
         # Проверка наличия в активных ордерах
         assert order.id in order_manager.active_orders

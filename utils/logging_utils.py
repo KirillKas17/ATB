@@ -3,10 +3,8 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import aiofiles
-from loguru import logger
 
 # Создание директории для логов
 Path("logs").mkdir(exist_ok=True)
@@ -19,7 +17,12 @@ async def _write_log(message: str, level: str, context: str = ""):
     """Асинхронная запись лога в файл"""
     try:
         timestamp = datetime.now().isoformat()
-        log_entry = {"timestamp": timestamp, "level": level, "context": context, "message": message}
+        log_entry = {
+            "timestamp": timestamp,
+            "level": level,
+            "context": context,
+            "message": message,
+        }
 
         # Запись в соответствующий файл
         filename = f"logs/{level.lower()}.log"

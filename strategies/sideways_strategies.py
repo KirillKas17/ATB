@@ -1,6 +1,5 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -50,7 +49,9 @@ class SidewaysStrategy(BaseStrategy):
     def _calculate_indicators(self, data: pd.DataFrame) -> Dict:
         """Расчет индикаторов"""
         # Bollinger Bands
-        upper, middle, lower = calculate_bollinger_bands(data["close"], self.bb_period, self.bb_std)
+        upper, middle, lower = calculate_bollinger_bands(
+            data["close"], self.bb_period, self.bb_std
+        )
         data["bb_upper"] = upper
         data["bb_middle"] = middle
         data["bb_lower"] = lower
@@ -129,7 +130,10 @@ class SidewaysStrategy(BaseStrategy):
 
             # Расчет финального множителя
             final_multiplier = (
-                volatility_multiplier * range_multiplier * volume_multiplier * momentum_multiplier
+                volatility_multiplier
+                * range_multiplier
+                * volume_multiplier
+                * momentum_multiplier
             )
 
             # Расчет стопа
@@ -138,13 +142,17 @@ class SidewaysStrategy(BaseStrategy):
             # Поиск ближайшего уровня поддержки/сопротивления
             if position_type == "long":
                 # Для длинной позиции ищем ближайший уровень поддержки
-                support_levels = [level for level in support_resistance if level < entry_price]
+                support_levels = [
+                    level for level in support_resistance if level < entry_price
+                ]
                 if support_levels:
                     nearest_support = max(support_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_support)
 
                 # Проверка ликвидности
-                liquidity_levels = [level for level in liquidity_zones if level < entry_price]
+                liquidity_levels = [
+                    level for level in liquidity_zones if level < entry_price
+                ]
                 if liquidity_levels:
                     nearest_liquidity = max(liquidity_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_liquidity)
@@ -153,13 +161,17 @@ class SidewaysStrategy(BaseStrategy):
 
             else:
                 # Для короткой позиции ищем ближайший уровень сопротивления
-                resistance_levels = [level for level in support_resistance if level > entry_price]
+                resistance_levels = [
+                    level for level in support_resistance if level > entry_price
+                ]
                 if resistance_levels:
                     nearest_resistance = min(resistance_levels)
                     stop_distance = min(stop_distance, nearest_resistance - entry_price)
 
                 # Проверка ликвидности
-                liquidity_levels = [level for level in liquidity_zones if level > entry_price]
+                liquidity_levels = [
+                    level for level in liquidity_zones if level > entry_price
+                ]
                 if liquidity_levels:
                     nearest_liquidity = min(liquidity_levels)
                     stop_distance = min(stop_distance, nearest_liquidity - entry_price)
@@ -171,7 +183,11 @@ class SidewaysStrategy(BaseStrategy):
             return entry_price * 0.99 if position_type == "long" else entry_price * 1.01
 
     def _calculate_take_profit(
-        self, data: pd.DataFrame, entry_price: float, stop_loss: float, position_type: str
+        self,
+        data: pd.DataFrame,
+        entry_price: float,
+        stop_loss: float,
+        position_type: str,
     ) -> float:
         """Расширенный расчет уровня тейк-профита.
 
@@ -186,14 +202,18 @@ class SidewaysStrategy(BaseStrategy):
         """
         try:
             # Расчет ATR
-            atr = float(calculate_atr(data, 14).iloc[-1])
+            float(calculate_atr(data, 14).iloc[-1])
 
             # Расчет волатильности
             volatility = float(data["close"].pct_change().rolling(20).std().iloc[-1])
 
             # Расчет структуры рынка
-            support_resistance = [float(level) for level in calculate_market_structure(data)]
-            liquidity_zones = [float(level) for level in calculate_liquidity_zones(data)]
+            support_resistance = [
+                float(level) for level in calculate_market_structure(data)
+            ]
+            liquidity_zones = [
+                float(level) for level in calculate_liquidity_zones(data)
+            ]
 
             # Расчет импульса
             rsi = float(calculate_rsi(data["close"], 14).iloc[-1])
@@ -228,7 +248,10 @@ class SidewaysStrategy(BaseStrategy):
 
             # Расчет финального множителя
             final_multiplier = float(
-                volatility_multiplier * range_multiplier * volume_multiplier * momentum_multiplier
+                volatility_multiplier
+                * range_multiplier
+                * volume_multiplier
+                * momentum_multiplier
             )
 
             # Расчет тейка
@@ -250,7 +273,9 @@ class SidewaysStrategy(BaseStrategy):
 
                 # Проверка ликвидности
                 liquidity_levels = [
-                    float(level) for level in liquidity_zones if float(level) > float(entry_price)
+                    float(level)
+                    for level in liquidity_zones
+                    if float(level) > float(entry_price)
                 ]
                 if liquidity_levels:
                     nearest_liquidity = min(liquidity_levels)
@@ -275,7 +300,9 @@ class SidewaysStrategy(BaseStrategy):
 
                 # Проверка ликвидности
                 liquidity_levels = [
-                    float(level) for level in liquidity_zones if float(level) < float(entry_price)
+                    float(level)
+                    for level in liquidity_zones
+                    if float(level) < float(entry_price)
                 ]
                 if liquidity_levels:
                     nearest_liquidity = max(liquidity_levels)
@@ -287,7 +314,9 @@ class SidewaysStrategy(BaseStrategy):
 
         except Exception as e:
             logger.error(f"Error calculating take profit: {str(e)}")
-            return float(entry_price * 1.01 if position_type == "long" else entry_price * 0.99)
+            return float(
+                entry_price * 1.01 if position_type == "long" else entry_price * 0.99
+            )
 
 
 def sideways_strategy_bb_rsi(data: pd.DataFrame) -> Optional[Dict]:
@@ -384,7 +413,9 @@ def sideways_strategy_stoch_obv(data: pd.DataFrame) -> Optional[Dict]:
 
         # Расчет стоп-лосса и тейк-профита
         stop_loss = strategy._calculate_stop_loss(data, data["close"].iloc[-1], side)
-        take_profit = strategy._calculate_take_profit(data, data["close"].iloc[-1], stop_loss, side)
+        take_profit = strategy._calculate_take_profit(
+            data, data["close"].iloc[-1], stop_loss, side
+        )
 
         return {
             "side": side,

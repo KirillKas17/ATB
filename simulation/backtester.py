@@ -4,38 +4,24 @@ import signal
 import warnings
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
-import aiofiles
-import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import psutil
 import seaborn as sns
-import talib
 import yaml
-from scipy import stats
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")
 
-from core.controllers.trading_controller import TradingController
-from core.models import MarketData, Order, Position, Trade
-from core.strategy import Signal
-from exchange.bybit_client import BybitClient
-from ml.dataset_manager import DatasetManager
 from ml.live_adaptation import LiveAdaptation
 from ml.model_selector import ModelSelector
 from ml.pattern_discovery import PatternDiscovery
-from strategies.base_strategy import BaseStrategy
-from utils.data_loader import DataLoader
 from utils.logger import setup_logger
-from utils.market_regime import MarketRegime
 
 logger = setup_logger(__name__)
 
@@ -87,7 +73,9 @@ class BacktestConfig:
                 commission=config["backtest"]["commission"],
                 slippage=config["backtest"]["slippage"],
                 data_dir=Path(config["backtest"].get("data_dir", "data/backtest")),
-                models_dir=Path(config["backtest"].get("models_dir", "models/backtest")),
+                models_dir=Path(
+                    config["backtest"].get("models_dir", "models/backtest")
+                ),
                 log_dir=config["backtest"].get("log_dir", "logs/backtest"),
                 backup_dir=config["backtest"].get("backup_dir", "backups/backtest"),
                 metrics_window=config["backtest"].get("metrics_window", 100),
@@ -100,7 +88,9 @@ class BacktestConfig:
                 random_seed=config["backtest"].get("random_seed", 42),
                 use_patterns=config["backtest"].get("use_patterns", True),
                 use_adaptation=config["backtest"].get("use_adaptation", True),
-                use_regime_detection=config["backtest"].get("use_regime_detection", True),
+                use_regime_detection=config["backtest"].get(
+                    "use_regime_detection", True
+                ),
             )
         except Exception as e:
             logger.error(f"Ошибка загрузки конфигурации: {str(e)}")
@@ -250,12 +240,16 @@ class Backtester:
 
             # Модификация по паттернам
             if self.config.use_patterns and self.state["patterns"]:
-                pattern_confidence = max(p["confidence"] for p in self.state["patterns"])
+                pattern_confidence = max(
+                    p["confidence"] for p in self.state["patterns"]
+                )
                 size *= 1 + pattern_confidence
 
             # Модификация по адаптации
             if self.config.use_adaptation and self.state["adaptation_state"]:
-                adaptation_factor = self.state["adaptation_state"].get("position_size_factor", 1.0)
+                adaptation_factor = self.state["adaptation_state"].get(
+                    "position_size_factor", 1.0
+                )
                 size *= adaptation_factor
 
             # Ограничение размера
@@ -283,12 +277,16 @@ class Backtester:
 
             # Модификация по паттернам
             if self.config.use_patterns and self.state["patterns"]:
-                pattern_volatility = max(p["volatility"] for p in self.state["patterns"])
+                pattern_volatility = max(
+                    p["volatility"] for p in self.state["patterns"]
+                )
                 stop_loss *= 1 + pattern_volatility
 
             # Модификация по адаптации
             if self.config.use_adaptation and self.state["adaptation_state"]:
-                adaptation_factor = self.state["adaptation_state"].get("stop_loss_factor", 1.0)
+                adaptation_factor = self.state["adaptation_state"].get(
+                    "stop_loss_factor", 1.0
+                )
                 stop_loss *= adaptation_factor
 
             # Применение к цене
@@ -326,7 +324,9 @@ class Backtester:
 
             # Модификация по адаптации
             if self.config.use_adaptation and self.state["adaptation_state"]:
-                adaptation_factor = self.state["adaptation_state"].get("take_profit_factor", 1.0)
+                adaptation_factor = self.state["adaptation_state"].get(
+                    "take_profit_factor", 1.0
+                )
                 take_profit *= adaptation_factor
 
             # Применение к цене
@@ -355,7 +355,9 @@ class Backtester:
 
             # Модификация по адаптации
             if self.config.use_adaptation and self.state["adaptation_state"]:
-                adaptation_factor = self.state["adaptation_state"].get("commission_factor", 1.0)
+                adaptation_factor = self.state["adaptation_state"].get(
+                    "commission_factor", 1.0
+                )
                 commission *= adaptation_factor
 
             return commission
@@ -378,7 +380,9 @@ class Backtester:
 
             # Модификация по адаптации
             if self.config.use_adaptation and self.state["adaptation_state"]:
-                adaptation_factor = self.state["adaptation_state"].get("slippage_factor", 1.0)
+                adaptation_factor = self.state["adaptation_state"].get(
+                    "slippage_factor", 1.0
+                )
                 slippage *= adaptation_factor
 
             return slippage
@@ -396,7 +400,9 @@ class Backtester:
 
             # Обновление паттернов
             if self.config.use_patterns:
-                self.state["patterns"] = self.pattern_discovery.find_patterns(data.iloc[: i + 1])
+                self.state["patterns"] = self.pattern_discovery.find_patterns(
+                    data.iloc[: i + 1]
+                )
 
             # Обновление адаптации
             if self.config.use_adaptation:
@@ -413,8 +419,12 @@ class Backtester:
             # Расчет метрик
             metrics = {
                 "total_trades": len(self.state["trades"]),
-                "winning_trades": len([t for t in self.state["trades"] if t["profit"] > 0]),
-                "losing_trades": len([t for t in self.state["trades"] if t["profit"] < 0]),
+                "winning_trades": len(
+                    [t for t in self.state["trades"] if t["profit"] > 0]
+                ),
+                "losing_trades": len(
+                    [t for t in self.state["trades"] if t["profit"] < 0]
+                ),
                 "win_rate": (
                     len([t for t in self.state["trades"] if t["profit"] > 0])
                     / len(self.state["trades"])
@@ -423,16 +433,24 @@ class Backtester:
                 ),
                 "profit_factor": (
                     abs(
-                        sum(t["profit"] for t in self.state["trades"] if t["profit"] > 0)
-                        / sum(t["profit"] for t in self.state["trades"] if t["profit"] < 0)
+                        sum(
+                            t["profit"] for t in self.state["trades"] if t["profit"] > 0
+                        )
+                        / sum(
+                            t["profit"] for t in self.state["trades"] if t["profit"] < 0
+                        )
                     )
                     if any(t["profit"] < 0 for t in self.state["trades"])
                     else float("inf")
                 ),
                 "sharpe_ratio": self._calculate_sharpe_ratio(),
                 "max_drawdown": max(self.state["drawdown"]),
-                "total_profit": sum(t["profit"] for t in self.state["trades"] if t["profit"] > 0),
-                "total_loss": sum(t["profit"] for t in self.state["trades"] if t["profit"] < 0),
+                "total_profit": sum(
+                    t["profit"] for t in self.state["trades"] if t["profit"] > 0
+                ),
+                "total_loss": sum(
+                    t["profit"] for t in self.state["trades"] if t["profit"] < 0
+                ),
                 "net_profit": sum(t["profit"] for t in self.state["trades"]),
             }
 
@@ -496,12 +514,27 @@ class Backtester:
             for trade in self.state["trades"]:
                 if trade["side"] == "long":
                     ax4.scatter(
-                        trade["entry_time"], trade["entry_price"], color="green", marker="^"
+                        trade["entry_time"],
+                        trade["entry_price"],
+                        color="green",
+                        marker="^",
                     )
-                    ax4.scatter(trade["exit_time"], trade["exit_price"], color="red", marker="v")
+                    ax4.scatter(
+                        trade["exit_time"], trade["exit_price"], color="red", marker="v"
+                    )
                 else:
-                    ax4.scatter(trade["entry_time"], trade["entry_price"], color="red", marker="v")
-                    ax4.scatter(trade["exit_time"], trade["exit_price"], color="green", marker="^")
+                    ax4.scatter(
+                        trade["entry_time"],
+                        trade["entry_price"],
+                        color="red",
+                        marker="v",
+                    )
+                    ax4.scatter(
+                        trade["exit_time"],
+                        trade["exit_price"],
+                        color="green",
+                        marker="^",
+                    )
             ax4.set_title("Trades")
             ax4.grid(True)
 
@@ -537,7 +570,9 @@ class Backtester:
 
             # Проверка наличия необходимых колонок
             required_columns = ["open", "high", "low", "close", "volume"]
-            missing_columns = [col for col in required_columns if col not in data.columns]
+            missing_columns = [
+                col for col in required_columns if col not in data.columns
+            ]
             if missing_columns:
                 raise ValueError(f"Отсутствуют необходимые колонки: {missing_columns}")
 
@@ -588,7 +623,9 @@ async def main():
 
         # Загрузка данных
         data = pd.read_csv(
-            backtester.config.data_dir / "market_data.csv", index_col=0, parse_dates=True
+            backtester.config.data_dir / "market_data.csv",
+            index_col=0,
+            parse_dates=True,
         )
 
         # Запуск бэктеста
@@ -603,7 +640,9 @@ async def main():
 
 if __name__ == "__main__":
     # Настройка логирования
-    logger.add("logs/backtest_{time}.log", rotation="1 day", retention="7 days", level="INFO")
+    logger.add(
+        "logs/backtest_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+    )
 
     # Запуск асинхронного main
     asyncio.run(main())

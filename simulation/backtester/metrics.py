@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 
@@ -51,7 +50,9 @@ class MetricsCalculator:
     """Калькулятор метрик бэктеста (расширенный)"""
 
     @staticmethod
-    def calculate_metrics(trades: List[Trade], equity_curve: List[float]) -> Dict[str, float]:
+    def calculate_metrics(
+        trades: List[Trade], equity_curve: List[float]
+    ) -> Dict[str, float]:
         """
         Расчет расширенных метрик бэктеста
         """
@@ -70,7 +71,9 @@ class MetricsCalculator:
         sharpe_ratio = float(mean_return / std_return) if std_return > 0 else 0
         downside_returns = returns[returns < 0]
         sortino_ratio = (
-            float(mean_return / np.std(downside_returns)) if len(downside_returns) > 0 else 0
+            float(mean_return / np.std(downside_returns))
+            if len(downside_returns) > 0
+            else 0
         )
         peak = np.maximum.accumulate(equity_curve)
         drawdown = (peak - equity_curve) / peak
@@ -83,7 +86,10 @@ class MetricsCalculator:
         # Omega Ratio
         threshold = 0
         omega_ratio = (
-            float(np.sum(returns[returns > threshold]) / abs(np.sum(returns[returns < threshold])))
+            float(
+                np.sum(returns[returns > threshold])
+                / abs(np.sum(returns[returns < threshold]))
+            )
             if np.sum(returns[returns < threshold]) != 0
             else 0
         )
@@ -92,7 +98,11 @@ class MetricsCalculator:
         n = len(sorted_returns)
         gini = (
             float(
-                (2 * np.sum((np.arange(1, n + 1) * sorted_returns)) / (n * np.sum(sorted_returns)))
+                (
+                    2
+                    * np.sum((np.arange(1, n + 1) * sorted_returns))
+                    / (n * np.sum(sorted_returns))
+                )
                 - (n + 1) / n
             )
             if n > 0 and np.sum(sorted_returns) != 0
@@ -119,7 +129,9 @@ class MetricsCalculator:
         var_95 = float(np.percentile(returns, 5))
         # Conditional VaR (CVaR) 95%
         cvar_95 = (
-            float(np.mean(returns[returns <= var_95])) if len(returns[returns <= var_95]) > 0 else 0
+            float(np.mean(returns[returns <= var_95]))
+            if len(returns[returns <= var_95]) > 0
+            else 0
         )
         # Drawdown duration
         drawdown_duration = float(np.argmax(drawdown)) if len(drawdown) > 0 else 0
@@ -172,7 +184,9 @@ class MetricsCalculator:
                 consecutive_wins = 0
                 max_consecutive_losses = max(max_consecutive_losses, consecutive_losses)
         avg_profit = (
-            float(np.mean([t.pnl for t in trades if t.pnl > 0])) if winning_trades > 0 else 0
+            float(np.mean([t.pnl for t in trades if t.pnl > 0]))
+            if winning_trades > 0
+            else 0
         )
         avg_loss = (
             float(np.mean([t.pnl for t in trades if t.pnl < 0]))
@@ -183,7 +197,9 @@ class MetricsCalculator:
         recovery_factor = total_profit / max_drawdown if max_drawdown > 0 else 0
         risk_reward_ratio = abs(avg_profit / avg_loss) if avg_loss != 0 else 0
         kelly_criterion = (
-            (win_rate * (profit_factor + 1) - 1) / profit_factor if profit_factor > 0 else 0
+            (win_rate * (profit_factor + 1) - 1) / profit_factor
+            if profit_factor > 0
+            else 0
         )
         metrics = ExtendedMetrics(
             win_rate=win_rate,
@@ -248,7 +264,9 @@ class MetricsCalculator:
             if trade.entry_price and trade.volume
             else 0
         )
-        duration = (trade.timestamp - trade.timestamp).total_seconds() / 3600  # в часах (заглушка)
+        duration = (
+            trade.timestamp - trade.timestamp
+        ).total_seconds() / 3600  # в часах (заглушка)
         risk = abs(trade.entry_price - trade.stop_loss) if trade.stop_loss else 0
         reward = abs(trade.take_profit - trade.entry_price) if trade.take_profit else 0
         risk_reward = reward / risk if risk > 0 else 0

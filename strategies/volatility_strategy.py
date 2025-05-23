@@ -1,22 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 from loguru import logger
 
-from utils.market_regime import MarketRegime
-from utils.indicators import (
-    calculate_atr,
-    calculate_bollinger_bands,
-    calculate_keltner_channels,
-    calculate_rsi,
-    calculate_stochastic,
-    calculate_volatility,
-)
-
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -148,7 +138,9 @@ class VolatilityStrategy(BaseStrategy):
             logger.error(f"Error generating signal: {str(e)}")
             return None
 
-    def _check_basic_conditions(self, data: pd.DataFrame, indicators: Dict[str, float]) -> bool:
+    def _check_basic_conditions(
+        self, data: pd.DataFrame, indicators: Dict[str, float]
+    ) -> bool:
         """
         Проверка базовых условий для торговли.
 
@@ -169,7 +161,9 @@ class VolatilityStrategy(BaseStrategy):
                 return False
 
             # Проверка спреда
-            spread = (data["high"].iloc[-1] - data["low"].iloc[-1]) / data["close"].iloc[-1]
+            spread = (data["high"].iloc[-1] - data["low"].iloc[-1]) / data[
+                "close"
+            ].iloc[-1]
             if spread > self.config.max_spread:
                 return False
 
@@ -180,7 +174,10 @@ class VolatilityStrategy(BaseStrategy):
             return False
 
     def _generate_trading_signal(
-        self, data: pd.DataFrame, indicators: Dict[str, float], market_state: Dict[str, Any]
+        self,
+        data: pd.DataFrame,
+        indicators: Dict[str, float],
+        market_state: Dict[str, Any],
     ) -> Optional[Signal]:
         """
         Генерация торгового сигнала.
@@ -204,7 +201,10 @@ class VolatilityStrategy(BaseStrategy):
             return None
 
     def _generate_entry_signal(
-        self, data: pd.DataFrame, indicators: Dict[str, float], market_state: Dict[str, Any]
+        self,
+        data: pd.DataFrame,
+        indicators: Dict[str, float],
+        market_state: Dict[str, Any],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на вход в позицию.
@@ -247,7 +247,10 @@ class VolatilityStrategy(BaseStrategy):
                         volume=volume,
                         confidence=confidence,
                         timestamp=data.index[-1],
-                        metadata={"indicators": indicators, "market_state": market_state},
+                        metadata={
+                            "indicators": indicators,
+                            "market_state": market_state,
+                        },
                     )
 
             # Проверяем условия для входа в короткую позицию
@@ -277,7 +280,10 @@ class VolatilityStrategy(BaseStrategy):
                         volume=volume,
                         confidence=confidence,
                         timestamp=data.index[-1],
-                        metadata={"indicators": indicators, "market_state": market_state},
+                        metadata={
+                            "indicators": indicators,
+                            "market_state": market_state,
+                        },
                     )
 
             return None
@@ -287,7 +293,10 @@ class VolatilityStrategy(BaseStrategy):
             return None
 
     def _generate_exit_signal(
-        self, data: pd.DataFrame, indicators: Dict[str, float], market_state: Dict[str, Any]
+        self,
+        data: pd.DataFrame,
+        indicators: Dict[str, float],
+        market_state: Dict[str, Any],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на выход из позиции.
@@ -343,9 +352,9 @@ class VolatilityStrategy(BaseStrategy):
                         current_price + indicators["atr"] * self.config.trailing_step
                     )
 
-                if (self.position == "long" and current_price <= self.trailing_stop) or (
-                    self.position == "short" and current_price >= self.trailing_stop
-                ):
+                if (
+                    self.position == "long" and current_price <= self.trailing_stop
+                ) or (self.position == "short" and current_price >= self.trailing_stop):
                     return Signal(
                         direction="close",
                         entry_price=current_price,
@@ -363,7 +372,10 @@ class VolatilityStrategy(BaseStrategy):
                 for level, size in zip(
                     self.config.partial_close_levels, self.config.partial_close_sizes
                 ):
-                    if self.position == "long" and current_price >= self.take_profit * level:
+                    if (
+                        self.position == "long"
+                        and current_price >= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -378,7 +390,10 @@ class VolatilityStrategy(BaseStrategy):
                                 "market_state": market_state,
                             },
                         )
-                    elif self.position == "short" and current_price <= self.take_profit * level:
+                    elif (
+                        self.position == "short"
+                        and current_price <= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -457,25 +472,45 @@ class VolatilityStrategy(BaseStrategy):
             atr = true_range.rolling(window=self.config.atr_period).mean()
 
             # Keltner Channels
-            keltner_middle = data["close"].rolling(window=self.config.keltner_period).mean()
+            keltner_middle = (
+                data["close"].rolling(window=self.config.keltner_period).mean()
+            )
             keltner_atr = atr.rolling(window=self.config.keltner_period).mean()
-            keltner_upper = keltner_middle + (keltner_atr * self.config.keltner_multiplier)
-            keltner_lower = keltner_middle - (keltner_atr * self.config.keltner_multiplier)
+            keltner_upper = keltner_middle + (
+                keltner_atr * self.config.keltner_multiplier
+            )
+            keltner_lower = keltner_middle - (
+                keltner_atr * self.config.keltner_multiplier
+            )
 
             # Donchian Channels
-            donchian_upper = data["high"].rolling(window=self.config.donchian_period).max()
-            donchian_lower = data["low"].rolling(window=self.config.donchian_period).min()
+            donchian_upper = (
+                data["high"].rolling(window=self.config.donchian_period).max()
+            )
+            donchian_lower = (
+                data["low"].rolling(window=self.config.donchian_period).min()
+            )
             donchian_middle = (donchian_upper + donchian_lower) / 2
 
             # RSI
             delta = data["close"].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=self.config.rsi_period).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=self.config.rsi_period).mean()
+            gain = (
+                (delta.where(delta > 0, 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
+            loss = (
+                (-delta.where(delta < 0, 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
             rs = gain / loss
             rsi = 100 - (100 / (1 + rs))
 
             # Volume MA
-            volume_ma = data["volume"].rolling(window=self.config.volume_ma_period).mean()
+            volume_ma = (
+                data["volume"].rolling(window=self.config.volume_ma_period).mean()
+            )
 
             return {
                 "volatility": volatility.iloc[-1],
@@ -513,34 +548,48 @@ class VolatilityStrategy(BaseStrategy):
         try:
             # Волатильность
             volatility_state = (
-                "high" if indicators["volatility"] > self.config.max_volatility else "low"
+                "high"
+                if indicators["volatility"] > self.config.max_volatility
+                else "low"
             )
 
             # Bollinger Bands
-            bb_width = (indicators["bb_upper"] - indicators["bb_lower"]) / indicators["bb_middle"]
+            bb_width = (indicators["bb_upper"] - indicators["bb_lower"]) / indicators[
+                "bb_middle"
+            ]
             bb_state = "expanding" if bb_width > bb_width * 1.1 else "contracting"
 
             # Keltner Channels
             keltner_width = (
                 indicators["keltner_upper"] - indicators["keltner_lower"]
             ) / indicators["keltner_middle"]
-            keltner_state = "expanding" if keltner_width > keltner_width * 1.1 else "contracting"
+            keltner_state = (
+                "expanding" if keltner_width > keltner_width * 1.1 else "contracting"
+            )
 
             # Donchian Channels
             donchian_width = (
                 indicators["donchian_upper"] - indicators["donchian_lower"]
             ) / indicators["donchian_middle"]
-            donchian_state = "expanding" if donchian_width > donchian_width * 1.1 else "contracting"
+            donchian_state = (
+                "expanding" if donchian_width > donchian_width * 1.1 else "contracting"
+            )
 
             # RSI
             rsi_state = (
                 "overbought"
                 if indicators["rsi"] > self.config.rsi_overbought
-                else "oversold" if indicators["rsi"] < self.config.rsi_oversold else "neutral"
+                else (
+                    "oversold"
+                    if indicators["rsi"] < self.config.rsi_oversold
+                    else "neutral"
+                )
             )
 
             # Объем
-            volume_state = "high" if data["volume"].iloc[-1] > indicators["volume_ma"] else "low"
+            volume_state = (
+                "high" if data["volume"].iloc[-1] > indicators["volume_ma"] else "low"
+            )
 
             return {
                 "volatility_state": volatility_state,
@@ -596,7 +645,9 @@ class VolatilityStrategy(BaseStrategy):
         try:
             # Нормализация индикаторов
             bb_conf = (
-                1 - abs(indicators["bb_middle"] - indicators["bb_lower"]) / indicators["bb_middle"]
+                1
+                - abs(indicators["bb_middle"] - indicators["bb_lower"])
+                / indicators["bb_middle"]
             )
             keltner_conf = (
                 1

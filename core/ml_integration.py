@@ -1,6 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -161,8 +161,16 @@ class MLIntegration:
 
             # RSI
             delta = df["close"].diff()
-            gain = (delta.where(delta.gt(0), 0)).rolling(window=self.config.rsi_period).mean()
-            loss = (-delta.where(delta.lt(0), 0)).rolling(window=self.config.rsi_period).mean()
+            gain = (
+                (delta.where(delta.gt(0), 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
+            loss = (
+                (-delta.where(delta.lt(0), 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
             rs = gain / loss
             rsi = 100 - (100 / (1 + rs))
 
@@ -260,7 +268,6 @@ class MLIntegration:
             # Здесь будет сохранение модели
             # save_model(self.models[model_name], path)
             # save_scaler(self.scalers[model_name], f"{path}_scaler")
-            pass
         except Exception as e:
             logger.error(f"Error saving model {model_name}: {str(e)}")
             raise
@@ -287,7 +294,7 @@ class MLIntegration:
             # Масштабирование признаков
             scaler = StandardScaler()
             X_train_scaled = scaler.fit_transform(X_train)
-            X_test_scaled = scaler.transform(X_test)
+            scaler.transform(X_test)
 
             # Создание и обучение модели
             if self.config.model_type == "random_forest":

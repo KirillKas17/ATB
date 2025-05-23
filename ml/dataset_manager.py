@@ -1,16 +1,13 @@
 import asyncio
 import json
-import os
 import warnings
-from collections import Counter
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import aiofiles
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -201,7 +198,9 @@ class DatasetManager:
                     }
 
             # Пропущенные значения
-            self.metrics["missing_values"] = {col: int(df[col].isna().sum()) for col in df.columns}
+            self.metrics["missing_values"] = {
+                col: int(df[col].isna().sum()) for col in df.columns
+            }
 
             # Коэффициент сжатия
             if self.config.compression:
@@ -217,11 +216,15 @@ class DatasetManager:
         try:
             # Проверка данных
             if len(df) < self.config.min_samples:
-                raise ValueError(f"Недостаточно данных: {len(df)} < {self.config.min_samples}")
+                raise ValueError(
+                    f"Недостаточно данных: {len(df)} < {self.config.min_samples}"
+                )
 
             # Обработка временной колонки
             if self.config.time_column in df.columns:
-                df[self.config.time_column] = pd.to_datetime(df[self.config.time_column])
+                df[self.config.time_column] = pd.to_datetime(
+                    df[self.config.time_column]
+                )
 
             # Обновление метрик
             self._update_metrics(df)
@@ -229,7 +232,9 @@ class DatasetManager:
             # Сохранение
             file_path = self.datasets_path / f"{name}.parquet"
             df.to_parquet(
-                file_path, compression="gzip" if self.config.compression else None, index=False
+                file_path,
+                compression="gzip" if self.config.compression else None,
+                index=False,
             )
 
             # Кэширование
@@ -285,7 +290,9 @@ class DatasetManager:
             logger.error(f"Ошибка получения информации о датасете {name}: {e}")
             return {}
 
-    def split_dataset(self, name: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    def split_dataset(
+        self, name: str
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Разделение датасета на обучающую, валидационную и тестовую выборки"""
         try:
             df = self.load_dataset(name)
@@ -363,7 +370,9 @@ class DatasetManager:
         win = sum(1 for x in data if x.get("result", {}).get("win"))
         loss = total - win
         avg_pnl = sum(x.get("result", {}).get("PnL", 0) for x in data) / total
-        avg_drawdown = sum(x.get("result", {}).get("drawdown", 0) or 0 for x in data) / total
+        avg_drawdown = (
+            sum(x.get("result", {}).get("drawdown", 0) or 0 for x in data) / total
+        )
         return {
             "total": total,
             "win": win,
@@ -414,7 +423,9 @@ class DatasetManager:
 
         parser = argparse.ArgumentParser(description="DatasetManager CLI")
         parser.add_argument(
-            "action", choices=["purge", "export", "stats", "clear_invalid"], help="Действие"
+            "action",
+            choices=["purge", "export", "stats", "clear_invalid"],
+            help="Действие",
         )
         parser.add_argument("pair", nargs="?", help="Пара (например, BTCUSDT)")
         args = parser.parse_args()

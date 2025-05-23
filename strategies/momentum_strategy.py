@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -146,11 +145,15 @@ class MomentumStrategy(BaseStrategy):
             momentum = analysis["momentum"]
 
             # Проверяем базовые условия
-            if not self._check_basic_conditions(data, volatility, spread, liquidity, momentum):
+            if not self._check_basic_conditions(
+                data, volatility, spread, liquidity, momentum
+            ):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, volatility, spread, liquidity, momentum)
+            signal = self._generate_trading_signal(
+                data, volatility, spread, liquidity, momentum
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -344,14 +347,18 @@ class MomentumStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             # Проверяем вход в позицию
             if not self.position:
-                return self._generate_entry_signal(data, volatility, spread, liquidity, momentum)
+                return self._generate_entry_signal(
+                    data, volatility, spread, liquidity, momentum
+                )
 
             # Проверяем выход из позиции
-            return self._generate_exit_signal(data, volatility, spread, liquidity, momentum)
+            return self._generate_exit_signal(
+                data, volatility, spread, liquidity, momentum
+            )
 
         except Exception as e:
             logger.error(f"Error generating trading signal: {str(e)}")
@@ -658,7 +665,9 @@ class MomentumStrategy(BaseStrategy):
 
             # Корректировка на максимальный размер
             position_size = base_size * volatility_factor
-            position_size = min(position_size, self.config.max_position_size - self.total_position)
+            position_size = min(
+                position_size, self.config.max_position_size - self.total_position
+            )
 
             return position_size
 

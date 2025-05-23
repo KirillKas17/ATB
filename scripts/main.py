@@ -1,48 +1,21 @@
 import asyncio
-import json
-import os
-import platform
-import signal
-import subprocess
-import sys
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict
 
-import aiofiles
-import psutil
-import uvicorn
-import websockets
+import pandas as pd
 import yaml
-from dotenv import load_dotenv
-from fastapi import FastAPI
 from loguru import logger
 
-import numpy as np
-import pandas as pd
 from agents.agent_market_maker_model import MarketMakerAgent
-from agents.agent_meta_learning import MetaLearningAgent
 from agents.agent_market_regime import MarketRegimeAgent
+from agents.agent_meta_learning import MetaLearningAgent
 from agents.agent_transformer_predictor import TransformerPredictor
+from ml.transformer_predictor import TransformerPredictor
 from strategies.adaptive_strategy_generator import AdaptiveStrategyGenerator
 from strategies.manipulation_strategies import ManipulationStrategy
 from strategies.trend_strategies import TrendStrategy
-from utils.data_loader import load_market_data
 from utils.feature_engineering import generate_features
-from utils.indicators import calculate_atr, calculate_rsi, calculate_volatility
-
-from exchange.exchange import Exchange
-from exchange.order_manager import OrderManager
-from ml.dataset_manager import DatasetManager
-from ml.decision_reasoner import DecisionReasoner
-from ml.live_adaptation import LiveAdaptation
-from ml.meta_learning import MetaLearning
-from ml.model_selector import ModelSelector
-from ml.pattern_discovery import PatternDiscovery
-from ml.state_manager import StateManager
-from ml.transformer_predictor import TransformerPredictor
-from ml.window_optimizer import WindowOptimizer
 
 
 @dataclass
@@ -144,7 +117,9 @@ class TradingMetrics:
 
             self.win_rate = float(self.winning_trades / self.total_trades)
             self.profit_factor = float(
-                abs(self.total_profit) / abs(self.losing_trades) if self.losing_trades > 0 else 0
+                abs(self.total_profit) / abs(self.losing_trades)
+                if self.losing_trades > 0
+                else 0
             )
 
         except Exception as e:
@@ -258,16 +233,22 @@ class TradingEngine:
             regime = await self.market_regime.predict(features)
 
             # Получаем предсказания
-            predictions = await self.transformer_predictor.predict(features, self.window_size)
+            predictions = await self.transformer_predictor.predict(
+                features, self.window_size
+            )
 
             # Обновляем мета-обучение
             await self.meta_learning.update(features, predictions, regime)
 
             # Выбираем стратегию
-            self.current_strategy = self.strategy_generator.get_best_strategy(self.market_data)
+            self.current_strategy = self.strategy_generator.get_best_strategy(
+                self.market_data
+            )
 
             # Проверяем на манипуляции
-            manipulation = self.manipulation_strategy.detect_manipulation(self.market_data)
+            manipulation = self.manipulation_strategy.detect_manipulation(
+                self.market_data
+            )
             if manipulation:
                 logger.warning("Market manipulation detected!")
 
@@ -341,7 +322,9 @@ class TradingEngine:
 
             while self.is_running:
                 # Получаем данные
-                data = await self.exchange.fetch_ohlcv("BTC/USDT", "1m", limit=self.window_size)
+                data = await self.exchange.fetch_ohlcv(
+                    "BTC/USDT", "1m", limit=self.window_size
+                )
                 await self._process_market_data(data)
 
         except Exception as e:

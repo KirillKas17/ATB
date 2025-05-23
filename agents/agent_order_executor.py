@@ -1,11 +1,9 @@
 import asyncio
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 from agents.agent_market_regime import MarketRegime, MarketRegimeAgent
@@ -155,7 +153,13 @@ class OrderExecutorAgent:
         self.client = self.broker.client
 
     async def place_limit_order(
-        self, pair: str, direction: str, amount: float, entry: float, stop: float, take: float
+        self,
+        pair: str,
+        direction: str,
+        amount: float,
+        entry: float,
+        stop: float,
+        take: float,
     ) -> Optional[str]:
         """
         Размещение лимитного ордера с учетом рыночных условий.
@@ -273,23 +277,29 @@ class OrderExecutorAgent:
         """Расчет оптимальных уровней для ордера"""
         try:
             # Получение уровней Фибоначчи
-            fib_levels = calculate_fibonacci_levels(market_data, low=market_data['low'])
+            fib_levels = calculate_fibonacci_levels(market_data, low=market_data["low"])
 
             # Получение уровней поддержки и сопротивления
-            sr_levels = calculate_support_resistance(market_data['close'].tolist())
+            sr_levels = calculate_support_resistance(market_data["close"].tolist())
 
             # Получение зон ликвидности
             liquidity_zones = calculate_liquidity_zones(market_data)
 
             # Получение фракталов
-            fractals = calculate_fractals(market_data)
+            calculate_fractals(market_data)
 
             # Корректировка уровней в зависимости от режима рынка
             if regime == MarketRegime.MANIPULATION:
                 # Использование зон ликвидности для манипуляций
-                entry = self._adjust_to_liquidity_zone(entry, dict_to_list_of_dicts(liquidity_zones))
-                stop = self._adjust_to_liquidity_zone(stop, dict_to_list_of_dicts(liquidity_zones))
-                take = self._adjust_to_liquidity_zone(take, dict_to_list_of_dicts(liquidity_zones))
+                entry = self._adjust_to_liquidity_zone(
+                    entry, dict_to_list_of_dicts(liquidity_zones)
+                )
+                stop = self._adjust_to_liquidity_zone(
+                    stop, dict_to_list_of_dicts(liquidity_zones)
+                )
+                take = self._adjust_to_liquidity_zone(
+                    take, dict_to_list_of_dicts(liquidity_zones)
+                )
             else:
                 # Использование технических уровней
                 entry = self._adjust_to_technical_levels(entry, fib_levels, sr_levels)
@@ -311,21 +321,30 @@ class OrderExecutorAgent:
         return closest_zone["price"]
 
     def _adjust_to_technical_levels(
-        self, price: float, fib_levels: Dict[str, float], sr_levels: Dict[str, List[float]]
+        self,
+        price: float,
+        fib_levels: Dict[str, float],
+        sr_levels: Dict[str, List[float]],
     ) -> float:
         """Корректировка цены к ближайшему техническому уровню"""
-        all_levels = list(fib_levels.values()) + sr_levels["support"] + sr_levels["resistance"]
+        all_levels = (
+            list(fib_levels.values()) + sr_levels["support"] + sr_levels["resistance"]
+        )
         if not all_levels:
             return price
 
         closest_level = min(all_levels, key=lambda x: abs(x - price))
         return closest_level
 
-    def _validate_order_conditions(self, params: OrderParams, market_data: pd.DataFrame) -> bool:
+    def _validate_order_conditions(
+        self, params: OrderParams, market_data: pd.DataFrame
+    ) -> bool:
         """Проверка условий для размещения ордера"""
         try:
             # Проверка спреда
-            current_spread = abs(market_data["ask"].iloc[-1] - market_data["bid"].iloc[-1])
+            current_spread = abs(
+                market_data["ask"].iloc[-1] - market_data["bid"].iloc[-1]
+            )
             if current_spread > self.config["min_spread"]:
                 return False
 
@@ -401,7 +420,9 @@ class OrderExecutorAgent:
 
                 if new_order_id:
                     self.active_orders[new_order_id] = params
-                    logger.info(f"Successfully updated order {order_id} to {new_order_id}")
+                    logger.info(
+                        f"Successfully updated order {order_id} to {new_order_id}"
+                    )
 
         except Exception as e:
             logger.error(f"Error updating order {order_id}: {str(e)}")
@@ -469,7 +490,9 @@ class OrderExecutorAgent:
             logger.error(f"Error calculating stop loss: {str(e)}")
             return 0.0
 
-    def calculate_take_profit(self, entry_price: float, atr: float, high: float) -> float:
+    def calculate_take_profit(
+        self, entry_price: float, atr: float, high: float
+    ) -> float:
         """Расчет уровня тейк-профита."""
         try:
             return float(max(entry_price + atr * 3, high))
@@ -481,10 +504,13 @@ class OrderExecutorAgent:
         """Получение текущей цены."""
         try:
             value = self.client.get_ticker(symbol)
-            return float(value) if isinstance(value, (float, int)) else float(value.item())
+            return (
+                float(value) if isinstance(value, (float, int)) else float(value.item())
+            )
         except Exception as e:
             logger.error(f"Error getting current price: {str(e)}")
             return 0.0
+
 
 def dict_to_list_of_dicts(d: dict) -> list:
     keys = list(d.keys())

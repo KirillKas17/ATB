@@ -1,21 +1,15 @@
-import asyncio
 import json
-import warnings
-from collections import deque
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from functools import lru_cache
+from datetime import datetime
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
-import joblib
 import numpy as np
 import optuna
 import pandas as pd
 import talib
 from loguru import logger
-from sklearn.base import BaseEstimator
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler
@@ -138,12 +132,18 @@ class MetaLearner:
 
             # Технические индикаторы
             features["rsi"] = talib.RSI(df["close"].values)
-            features["macd"], features["macd_signal"], _ = talib.MACD(df["close"].values)
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = talib.BBANDS(
+            features["macd"], features["macd_signal"], _ = talib.MACD(
                 df["close"].values
             )
-            features["atr"] = talib.ATR(df["high"].values, df["low"].values, df["close"].values)
-            features["adx"] = talib.ADX(df["high"].values, df["low"].values, df["close"].values)
+            features["bb_upper"], features["bb_middle"], features["bb_lower"] = (
+                talib.BBANDS(df["close"].values)
+            )
+            features["atr"] = talib.ATR(
+                df["high"].values, df["low"].values, df["close"].values
+            )
+            features["adx"] = talib.ADX(
+                df["high"].values, df["low"].values, df["close"].values
+            )
 
             # Объемные признаки
             features["volume_ma"] = df["volume"].rolling(20).mean()
@@ -159,7 +159,9 @@ class MetaLearner:
             features["close_open_ratio"] = df["close"] / df["open"]
 
             # Тренд
-            features["trend"] = talib.ADX(df["high"].values, df["low"].values, df["close"].values)
+            features["trend"] = talib.ADX(
+                df["high"].values, df["low"].values, df["close"].values
+            )
             features["trend_strength"] = abs(features["trend"])
 
             # Нормализация
@@ -201,7 +203,9 @@ class MetaLearner:
 
             return {
                 feature: float(importance)
-                for feature, importance in zip(model.feature_names_in_, model.feature_importances_)
+                for feature, importance in zip(
+                    model.feature_names_in_, model.feature_importances_
+                )
             }
         except Exception as e:
             logger.error(f"Ошибка получения важности признаков: {e}")
@@ -263,11 +267,17 @@ class MetaLearner:
                 logger.error(f"Пустой датасет для update, model_id={model_id}")
                 return
             # Проверка на NaN/None
-            if df.isnull().values.any() or (df.applymap(lambda x: x is None).values.any()):
-                logger.error(f"Датасет содержит NaN или None для update, model_id={model_id}")
+            if df.isnull().values.any() or (
+                df.applymap(lambda x: x is None).values.any()
+            ):
+                logger.error(
+                    f"Датасет содержит NaN или None для update, model_id={model_id}"
+                )
                 return
             # Добавление данных в буфер
-            self.data_buffer = pd.concat([self.data_buffer, df]).tail(self.config.max_samples)
+            self.data_buffer = pd.concat([self.data_buffer, df]).tail(
+                self.config.max_samples
+            )
             if len(self.data_buffer) < self.config.min_samples:
                 return
             # Извлечение признаков
@@ -284,8 +294,12 @@ class MetaLearner:
                 return
             # Подготовка данных
             X = features.values
-            y = (self.data_buffer["close"].shift(-1) > self.data_buffer["close"]).values[:-1]
-            X = X[:-1]  # Убираем последнюю строку, так как для нее нет целевой переменной
+            y = (
+                self.data_buffer["close"].shift(-1) > self.data_buffer["close"]
+            ).values[:-1]
+            X = X[
+                :-1
+            ]  # Убираем последнюю строку, так как для нее нет целевой переменной
             # Проверка целевой переменной
             if len(y) == 0 or np.any(pd.isna(y)) or np.any([v is None for v in y]):
                 logger.error(
@@ -346,8 +360,12 @@ class MetaLearner:
                 logger.error(f"Пустой датасет для predict, model_id={model_id}")
                 return np.array([]), 0.0
             # Проверка на NaN/None
-            if df.isnull().values.any() or (df.applymap(lambda x: x is None).values.any()):
-                logger.error(f"Датасет содержит NaN или None для predict, model_id={model_id}")
+            if df.isnull().values.any() or (
+                df.applymap(lambda x: x is None).values.any()
+            ):
+                logger.error(
+                    f"Датасет содержит NaN или None для predict, model_id={model_id}"
+                )
                 return np.array([]), 0.0
             # Извлечение признаков
             features = self._extract_features(df)
@@ -481,7 +499,9 @@ class MetaLearning:
                 self._meta_learn(pair, timeframe, data, models)
 
             # Выбор модели
-            model_name, confidence = self._select_best_model(pair, timeframe, context, models)
+            model_name, confidence = self._select_best_model(
+                pair, timeframe, context, models
+            )
 
             # Обновление метрик
             self._update_metrics(pair, timeframe, model_name, confidence)
@@ -492,7 +512,9 @@ class MetaLearning:
             logger.error(f"Error selecting model: {str(e)}")
             return list(models.keys())[0], 0.0
 
-    def _get_context(self, pair: str, timeframe: str, data: pd.DataFrame) -> ModelContext:
+    def _get_context(
+        self, pair: str, timeframe: str, data: pd.DataFrame
+    ) -> ModelContext:
         """Получение расширенного контекста для модели.
 
         Args:
@@ -506,7 +528,9 @@ class MetaLearning:
         try:
             if data is None or data.empty:
                 return None
-            volatility = data["close"].pct_change().std() if not data["close"].empty else 0.0
+            volatility = (
+                data["close"].pct_change().std() if not data["close"].empty else 0.0
+            )
             volume = data["volume"].mean() if "volume" in data else 0.0
             trend = self._get_trend(data)
             atr = calculate_atr(data, 14)
@@ -526,37 +550,54 @@ class MetaLearning:
             }
             volume_profile = {
                 "current": volume,
-                "trend": data["volume"].pct_change(20).mean() if "volume" in data else 0.0,
+                "trend": (
+                    data["volume"].pct_change(20).mean() if "volume" in data else 0.0
+                ),
                 "relative": (
                     volume / data["volume"].rolling(50, min_periods=5).mean().iloc[-1]
                     if "volume" in data
                     and data["volume"].rolling(50, min_periods=5).mean().iloc[-1] != 0
                     else 0.0
                 ),
-                "distribution": calculate_volume_profile(data) if not data.empty else {},
+                "distribution": (
+                    calculate_volume_profile(data) if not data.empty else {}
+                ),
             }
             trend_profile = {
                 "direction": trend,
                 "strength": (
-                    abs(data["close"].iloc[-1] - data["close"].iloc[-20]) / data["close"].iloc[-20]
+                    abs(data["close"].iloc[-1] - data["close"].iloc[-20])
+                    / data["close"].iloc[-20]
                     if len(data) > 20 and data["close"].iloc[-20] != 0
                     else 0.0
                 ),
-                "acceleration": data["close"].pct_change(5).mean() if len(data) > 5 else 0.0,
-                "consistency": self._calculate_trend_consistency(data) if not data.empty else 0.0,
+                "acceleration": (
+                    data["close"].pct_change(5).mean() if len(data) > 5 else 0.0
+                ),
+                "consistency": (
+                    self._calculate_trend_consistency(data) if not data.empty else 0.0
+                ),
             }
             structure_profile = {
-                "support_resistance": calculate_market_structure(data) if not data.empty else [],
-                "liquidity_zones": calculate_liquidity_zones(data) if not data.empty else [],
+                "support_resistance": (
+                    calculate_market_structure(data) if not data.empty else []
+                ),
+                "liquidity_zones": (
+                    calculate_liquidity_zones(data) if not data.empty else []
+                ),
                 "fractals": calculate_fractals(data) if not data.empty else [],
                 "imbalance": calculate_imbalance(data) if not data.empty else 0.0,
             }
             manipulation_profile = {
                 "fakeouts": self._identify_fakeouts(data) if not data.empty else [],
                 "stop_hunts": self._identify_stop_hunts(data) if not data.empty else [],
-                "liquidity_hunts": self._identify_liquidity_hunts(data) if not data.empty else [],
+                "liquidity_hunts": (
+                    self._identify_liquidity_hunts(data) if not data.empty else []
+                ),
             }
-            correlation_profile = self._calculate_correlations(data) if not data.empty else {}
+            correlation_profile = (
+                self._calculate_correlations(data) if not data.empty else {}
+            )
             context = ModelContext(
                 market_regime=self._get_market_regime(data),
                 volatility=volatility_profile,
@@ -591,9 +632,9 @@ class MetaLearning:
                 return "unknown"
             returns = data["close"].pct_change()
             volatility = returns.std() if not returns.isna().all() else 0.0
-            volume = data["volume"].mean() if "volume" in data else 0.0
+            data["volume"].mean() if "volume" in data else 0.0
             ema_20 = calculate_ema(data["close"], 20)
-            ema_50 = calculate_ema(data["close"], 50)
+            calculate_ema(data["close"], 50)
             ema_200 = calculate_ema(data["close"], 200)
             trend_strength = (
                 abs(ema_20.iloc[-1] - ema_200.iloc[-1]) / ema_200.iloc[-1]
@@ -603,14 +644,18 @@ class MetaLearning:
             trend_direction = "up" if ema_20.iloc[-1] > ema_200.iloc[-1] else "down"
             atr = calculate_atr(data, 14)
             volatility_ratio = (
-                atr.iloc[-1] / data["close"].iloc[-1] if data["close"].iloc[-1] != 0 else 0.0
+                atr.iloc[-1] / data["close"].iloc[-1]
+                if data["close"].iloc[-1] != 0
+                else 0.0
             )
             volume_ma = data["volume"].rolling(20, min_periods=5).mean()
             volume_trend = (
-                data["volume"].iloc[-1] / volume_ma.iloc[-1] if volume_ma.iloc[-1] != 0 else 0.0
+                data["volume"].iloc[-1] / volume_ma.iloc[-1]
+                if volume_ma.iloc[-1] != 0
+                else 0.0
             )
-            rsi = calculate_rsi(data["close"], 14)
-            momentum = data["close"].pct_change(10)
+            calculate_rsi(data["close"], 14)
+            data["close"].pct_change(10)
             support_resistance = calculate_market_structure(data)
             if not support_resistance:
                 support_resistance = [data["close"].iloc[-1]]
@@ -692,7 +737,9 @@ class MetaLearning:
             logger.error(f"Error getting features: {str(e)}")
             return []
 
-    def _need_meta_learning(self, pair: str, timeframe: str, context: ModelContext) -> bool:
+    def _need_meta_learning(
+        self, pair: str, timeframe: str, context: ModelContext
+    ) -> bool:
         """Проверка необходимости мета-обучения"""
         try:
             # Проверка метрик
@@ -718,7 +765,9 @@ class MetaLearning:
             logger.error(f"Error checking meta learning need: {str(e)}")
             return True
 
-    def _meta_learn(self, pair: str, timeframe: str, data: pd.DataFrame, models: Dict[str, Any]):
+    def _meta_learn(
+        self, pair: str, timeframe: str, data: pd.DataFrame, models: Dict[str, Any]
+    ):
         """Мета-обучение"""
         try:
             # Подготовка данных
@@ -762,7 +811,9 @@ class MetaLearning:
         """Оценка модели"""
         try:
             predictions = (
-                model.predict(context.features) if context and hasattr(model, "predict") else []
+                model.predict(context.features)
+                if context and hasattr(model, "predict")
+                else []
             )
             if (
                 not hasattr(context, "target")
@@ -781,7 +832,9 @@ class MetaLearning:
             logger.error(f"Error evaluating model: {str(e)}")
             return 0.0
 
-    def _update_metrics(self, pair: str, timeframe: str, model_name: str, confidence: float):
+    def _update_metrics(
+        self, pair: str, timeframe: str, model_name: str, confidence: float
+    ):
         """Обновление метрик"""
         try:
             # Создание метрик
@@ -815,14 +868,16 @@ class MetaLearning:
             # Технические индикаторы
             features["rsi"] = talib.RSI(data["close"])
             features["macd"], features["macd_signal"], _ = talib.MACD(data["close"])
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = talib.BBANDS(
-                data["close"]
+            features["bb_upper"], features["bb_middle"], features["bb_lower"] = (
+                talib.BBANDS(data["close"])
             )
             features["atr"] = talib.ATR(data["high"], data["low"], data["close"])
 
             # Свечные характеристики
             features["body_size"] = abs(data["close"] - data["open"])
-            features["upper_shadow"] = data["high"] - data[["open", "close"]].max(axis=1)
+            features["upper_shadow"] = data["high"] - data[["open", "close"]].max(
+                axis=1
+            )
             features["lower_shadow"] = data[["open", "close"]].min(axis=1) - data["low"]
             features["is_bullish"] = (data["close"] > data["open"]).astype(int)
 
@@ -949,16 +1004,24 @@ class MetaLearning:
         stats = DatasetManager.get_statistics(pair)
         if not stats or stats.get("total", 0) < min_samples:
             self.pair_statuses[pair] = {"ready": False, "reason": "Недостаточно данных"}
-            logger.info(f"Пара {pair} НЕ готова к лайв: мало данных ({stats.get('total', 0)})")
+            logger.info(
+                f"Пара {pair} НЕ готова к лайв: мало данных ({stats.get('total', 0)})"
+            )
             return False
         wr = stats.get("win", 0) / stats.get("total", 1)
         regimes = self._get_regimes_variety(pair)
         if wr < wr_threshold:
-            self.pair_statuses[pair] = {"ready": False, "reason": f"WR ниже порога: {wr:.2f}"}
+            self.pair_statuses[pair] = {
+                "ready": False,
+                "reason": f"WR ниже порога: {wr:.2f}",
+            }
             logger.info(f"Пара {pair} НЕ готова к лайв: winrate={wr:.2f}")
             return False
         if regimes < 3:
-            self.pair_statuses[pair] = {"ready": False, "reason": f"Мало режимов: {regimes}"}
+            self.pair_statuses[pair] = {
+                "ready": False,
+                "reason": f"Мало режимов: {regimes}",
+            }
             logger.info(f"Пара {pair} НЕ готова к лайв: мало режимов ({regimes})")
             return False
         self.pair_statuses[pair] = {"ready": True, "reason": "OK"}
@@ -994,7 +1057,9 @@ class MetaLearning:
             return []
         pattern_counter = {}
         for x in data:
-            pattern = x["features"].get("pattern") if x["features"].get("pattern") else None
+            pattern = (
+                x["features"].get("pattern") if x["features"].get("pattern") else None
+            )
             if not pattern:
                 continue
             if pattern not in pattern_counter:
@@ -1041,12 +1106,14 @@ class MetaLearning:
             for i in range(1, len(data)):
                 # Проверка резкого движения
                 price_spike = (
-                    abs(data["close"].iloc[i] - data["open"].iloc[i]) > data["atr"].iloc[i] * 2
+                    abs(data["close"].iloc[i] - data["open"].iloc[i])
+                    > data["atr"].iloc[i] * 2
                 )
 
                 # Проверка объема
                 volume_spike = (
-                    data["volume"].iloc[i] > data["volume"].rolling(20).mean().iloc[i] * 1.5
+                    data["volume"].iloc[i]
+                    > data["volume"].rolling(20).mean().iloc[i] * 1.5
                 )
 
                 # Проверка возврата
@@ -1080,16 +1147,20 @@ class MetaLearning:
             for i in range(1, len(data)):
                 # Проверка объема
                 volume_spike = (
-                    data["volume"].iloc[i] > data["volume"].rolling(20).mean().iloc[i] * 2
+                    data["volume"].iloc[i]
+                    > data["volume"].rolling(20).mean().iloc[i] * 2
                 )
 
                 # Проверка движения цены
                 price_move = (
-                    abs(data["close"].iloc[i] - data["open"].iloc[i]) < data["atr"].iloc[i] * 0.5
+                    abs(data["close"].iloc[i] - data["open"].iloc[i])
+                    < data["atr"].iloc[i] * 0.5
                 )
 
                 # Проверка спреда
-                spread_increase = data["high"].iloc[i] - data["low"].iloc[i] > data["atr"].iloc[i]
+                spread_increase = (
+                    data["high"].iloc[i] - data["low"].iloc[i] > data["atr"].iloc[i]
+                )
 
                 if volume_spike and price_move and spread_increase:
                     liquidity_hunts.append(

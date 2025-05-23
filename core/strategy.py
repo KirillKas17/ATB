@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from core.models import Account, MarketData, Order, Position, Trade
+from core.models import MarketData
 
 
 @dataclass
@@ -82,7 +82,6 @@ class Strategy:
         Args:
             market_data: Рыночные данные
         """
-        pass
 
     def get_parameters(self) -> Dict[str, Any]:
         """Получение параметров стратегии."""
@@ -175,7 +174,9 @@ class Strategy:
         self.parameters = {str(k): v for k, v in params_dict.items()}
         logger.info(f"Updated strategy parameters: {self.parameters}")
 
-    def _calculate_ema(self, prices: List[float], period: Optional[int] = None) -> float:
+    def _calculate_ema(
+        self, prices: List[float], period: Optional[int] = None
+    ) -> float:
         if not prices:
             return 0.0
         period = period or 14
@@ -253,7 +254,10 @@ class MovingAverageCrossover(Strategy):
             self.signal_ma.pop(0)
 
         # Расчет значений
-        if len(self.fast_ma) == self.fast_period and len(self.slow_ma) == self.slow_period:
+        if (
+            len(self.fast_ma) == self.fast_period
+            and len(self.slow_ma) == self.slow_period
+        ):
             fast_value = np.mean(self.fast_ma)
             slow_value = np.mean(self.slow_ma)
 
@@ -417,7 +421,9 @@ class MACDStrategy(Strategy):
 
         logger.info("MACD strategy initialized")
 
-    def _calculate_ema(self, prices: List[float], period: Optional[int] = None) -> float:
+    def _calculate_ema(
+        self, prices: List[float], period: Optional[int] = None
+    ) -> float:
         """Расчет EMA."""
         if not prices:
             return 0.0
@@ -485,7 +491,11 @@ class MACDStrategy(Strategy):
             macd, signal, histogram = self._calculate_macd(self.prices)
 
             # Генерация сигналов
-            if histogram > 0 and len(self.signal_values) > 0 and self.signal_values[-1] <= 0:
+            if (
+                histogram > 0
+                and len(self.signal_values) > 0
+                and self.signal_values[-1] <= 0
+            ):
                 signals.append(
                     Signal(
                         pair=market_data.pair,
@@ -496,7 +506,11 @@ class MACDStrategy(Strategy):
                         take_profit=market_data.close * 1.05,
                     )
                 )
-            elif histogram < 0 and len(self.signal_values) > 0 and self.signal_values[-1] >= 0:
+            elif (
+                histogram < 0
+                and len(self.signal_values) > 0
+                and self.signal_values[-1] >= 0
+            ):
                 signals.append(
                     Signal(
                         pair=market_data.pair,

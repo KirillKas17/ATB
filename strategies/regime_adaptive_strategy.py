@@ -1,14 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 from loguru import logger
 
-from utils.indicators import calculate_bollinger_bands, calculate_macd, calculate_rsi
-
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -99,7 +97,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
         """
         if config is None:
             config = {}
-        self.config = RegimeConfig(**config) if not isinstance(config, RegimeConfig) else config
+        self.config = (
+            RegimeConfig(**config) if not isinstance(config, RegimeConfig) else config
+        )
         super().__init__(self.config.__dict__)
         self.position = None
         self.stop_loss = None
@@ -173,7 +173,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, indicators, market_state, regime)
+            signal = self._generate_trading_signal(
+                data, indicators, market_state, regime
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -183,7 +185,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             logger.error(f"Error generating signal: {str(e)}")
             return None
 
-    def _check_basic_conditions(self, data: pd.DataFrame, indicators: Dict[str, float]) -> bool:
+    def _check_basic_conditions(
+        self, data: pd.DataFrame, indicators: Dict[str, float]
+    ) -> bool:
         """
         Проверка базовых условий для торговли.
 
@@ -204,7 +208,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 return False
 
             # Проверка спреда
-            spread = (data["high"].iloc[-1] - data["low"].iloc[-1]) / data["close"].iloc[-1]
+            spread = (data["high"].iloc[-1] - data["low"].iloc[-1]) / data[
+                "close"
+            ].iloc[-1]
             if spread > self.config.max_spread:
                 return False
 
@@ -235,9 +241,13 @@ class RegimeAdaptiveStrategy(BaseStrategy):
         """
         try:
             if self.position is None:
-                return self._generate_entry_signal(data, indicators, market_state, regime)
+                return self._generate_entry_signal(
+                    data, indicators, market_state, regime
+                )
             else:
-                return self._generate_exit_signal(data, indicators, market_state, regime)
+                return self._generate_exit_signal(
+                    data, indicators, market_state, regime
+                )
 
         except Exception as e:
             logger.error(f"Error generating trading signal: {str(e)}")
@@ -278,8 +288,12 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 volume = self._calculate_position_size(current_price, indicators["atr"])
 
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price - indicators["atr"] * self.config.atr_multiplier
-                take_profit = current_price + indicators["atr"] * self.config.atr_multiplier * 2
+                stop_loss = (
+                    current_price - indicators["atr"] * self.config.atr_multiplier
+                )
+                take_profit = (
+                    current_price + indicators["atr"] * self.config.atr_multiplier * 2
+                )
 
                 return Signal(
                     direction="long",
@@ -308,8 +322,12 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 volume = self._calculate_position_size(current_price, indicators["atr"])
 
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price + indicators["atr"] * self.config.atr_multiplier
-                take_profit = current_price - indicators["atr"] * self.config.atr_multiplier * 2
+                stop_loss = (
+                    current_price + indicators["atr"] * self.config.atr_multiplier
+                )
+                take_profit = (
+                    current_price - indicators["atr"] * self.config.atr_multiplier * 2
+                )
 
                 return Signal(
                     direction="short",
@@ -396,9 +414,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                         current_price + indicators["atr"] * self.config.trailing_step
                     )
 
-                if (self.position == "long" and current_price <= self.trailing_stop) or (
-                    self.position == "short" and current_price >= self.trailing_stop
-                ):
+                if (
+                    self.position == "long" and current_price <= self.trailing_stop
+                ) or (self.position == "short" and current_price >= self.trailing_stop):
                     return Signal(
                         direction="close",
                         entry_price=current_price,
@@ -417,7 +435,10 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 for level, size in zip(
                     self.config.partial_close_levels, self.config.partial_close_sizes
                 ):
-                    if self.position == "long" and current_price >= self.take_profit * level:
+                    if (
+                        self.position == "long"
+                        and current_price >= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -433,7 +454,10 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                                 "market_state": market_state,
                             },
                         )
-                    elif self.position == "short" and current_price <= self.take_profit * level:
+                    elif (
+                        self.position == "short"
+                        and current_price <= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -514,8 +538,12 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             plus_dm[plus_dm < 0] = 0
             minus_dm[minus_dm > 0] = 0
             tr = true_range
-            plus_di = 100 * (plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean())
-            minus_di = 100 * (minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean())
+            plus_di = 100 * (
+                plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+            )
+            minus_di = 100 * (
+                minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+            )
             dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
             adx = dx.rolling(window=14).mean()
 
@@ -553,7 +581,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             logger.error(f"Error getting regime parameters: {str(e)}")
             return self.config.sideways_params
 
-    def _calculate_indicators(self, data: pd.DataFrame, params: Dict[str, Any]) -> Dict[str, float]:
+    def _calculate_indicators(
+        self, data: pd.DataFrame, params: Dict[str, Any]
+    ) -> Dict[str, float]:
         """
         Расчет индикаторов.
 
@@ -567,8 +597,12 @@ class RegimeAdaptiveStrategy(BaseStrategy):
         try:
             # RSI
             delta = data["close"].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=params["rsi_period"]).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=params["rsi_period"]).mean()
+            gain = (
+                (delta.where(delta > 0, 0)).rolling(window=params["rsi_period"]).mean()
+            )
+            loss = (
+                (-delta.where(delta < 0, 0)).rolling(window=params["rsi_period"]).mean()
+            )
             rs = gain / loss
             rsi = 100 - (100 / (1 + rs))
 
@@ -614,7 +648,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             volatility = returns.rolling(window=20).std()
 
             # Volume MA
-            volume_ma = data["volume"].rolling(window=self.config.volume_ma_period).mean()
+            volume_ma = (
+                data["volume"].rolling(window=self.config.volume_ma_period).mean()
+            )
 
             return {
                 "rsi": rsi.iloc[-1],
@@ -660,7 +696,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             volatility = "high" if indicators["volatility"] > 0.015 else "low"
 
             # Объем
-            volume = "high" if data["volume"].iloc[-1] > indicators["volume_ma"] else "low"
+            volume = (
+                "high" if data["volume"].iloc[-1] > indicators["volume_ma"] else "low"
+            )
 
             # Перекупленность/перепроданность
             overbought = indicators["rsi"] > 70
@@ -727,16 +765,24 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             )
             adx_conf = indicators["adx"] / 100
             bb_conf = (
-                1 - abs(indicators["bb_middle"] - indicators["bb_lower"]) / indicators["bb_middle"]
+                1
+                - abs(indicators["bb_middle"] - indicators["bb_lower"])
+                / indicators["bb_middle"]
             )
 
             # Взвешенная сумма в зависимости от режима
             if regime == "trend":
-                confidence = 0.3 * macd_conf + 0.3 * adx_conf + 0.2 * rsi_conf + 0.2 * bb_conf
+                confidence = (
+                    0.3 * macd_conf + 0.3 * adx_conf + 0.2 * rsi_conf + 0.2 * bb_conf
+                )
             elif regime == "volatility":
-                confidence = 0.3 * bb_conf + 0.3 * rsi_conf + 0.2 * macd_conf + 0.2 * adx_conf
+                confidence = (
+                    0.3 * bb_conf + 0.3 * rsi_conf + 0.2 * macd_conf + 0.2 * adx_conf
+                )
             else:  # sideways
-                confidence = 0.3 * rsi_conf + 0.3 * bb_conf + 0.2 * macd_conf + 0.2 * adx_conf
+                confidence = (
+                    0.3 * rsi_conf + 0.3 * bb_conf + 0.2 * macd_conf + 0.2 * adx_conf
+                )
 
             return min(max(confidence, 0), 1)
 

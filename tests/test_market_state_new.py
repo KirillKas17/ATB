@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 
-import numpy as np
-import pandas as pd
 import pytest
 
 from core.market_state import MarketState, MarketStateManager

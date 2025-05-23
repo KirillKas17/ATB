@@ -1,10 +1,8 @@
 import json
-from unittest.mock import Mock
 
 import pandas as pd
 import pytest
 
-from core.feature_engineering import generate_features
 from core.market_state import MarketStateManager
 from core.ml_integration import MLIntegration
 
@@ -52,7 +50,9 @@ def mock_dashboard():
     return Dashboard()
 
 
-def test_e2e_trading_pipeline(sample_candles, market_state_manager, ml_integration, mock_dashboard):
+def test_e2e_trading_pipeline(
+    sample_candles, market_state_manager, ml_integration, mock_dashboard
+):
     pair = "BTCUSDT"
     # 1. Прогоняем свечи через MarketStateManager
     snapshot = None
@@ -70,7 +70,11 @@ def test_e2e_trading_pipeline(sample_candles, market_state_manager, ml_integrati
     assert "confidence" in pred_result
     assert pred_result["model_source"] in ["transformer", "window_optimizer", "none"]
     # 4. Генерируем сигнал (мокаем)
-    signal = {"side": "buy", "confidence": pred_result["confidence"], "price": features["close"]}
+    signal = {
+        "side": "buy",
+        "confidence": pred_result["confidence"],
+        "price": features["close"],
+    }
     assert signal["side"] in ["buy", "sell"]
     # 5. Передаём результат на dashboard/api
     mock_dashboard.update({"pair": pair, "signal": signal, "snapshot": snapshot})

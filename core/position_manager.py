@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -192,8 +192,10 @@ class PositionManager:
                 side=side,
                 size=size,
                 entry_price=entry_price,
-                stop_loss=stop_loss or self._calculate_default_stop_loss(entry_price, side),
-                take_profit=take_profit or self._calculate_default_take_profit(entry_price, side),
+                stop_loss=stop_loss
+                or self._calculate_default_stop_loss(entry_price, side),
+                take_profit=take_profit
+                or self._calculate_default_take_profit(entry_price, side),
                 entry_time=datetime.now(),
                 leverage=leverage or self.config["default_leverage"],
                 tags=tags or [],
@@ -215,7 +217,11 @@ class PositionManager:
             return None
 
     def close_position(
-        self, position_id: str, exit_price: float, fees: float = 0.0, reason: Optional[str] = None
+        self,
+        position_id: str,
+        exit_price: float,
+        fees: float = 0.0,
+        reason: Optional[str] = None,
     ) -> Optional[Position]:
         """
         Закрытие позиции
@@ -259,7 +265,9 @@ class PositionManager:
             logger.error(f"Error closing position: {str(e)}")
             return None
 
-    def update_position(self, position_id: str, current_price: float) -> Optional[Position]:
+    def update_position(
+        self, position_id: str, current_price: float
+    ) -> Optional[Position]:
         """
         Обновление состояния позиции
 
@@ -278,9 +286,13 @@ class PositionManager:
 
             # Проверка стоп-лосса и тейк-профита
             if self._check_stop_loss(position, current_price):
-                return self.close_position(position_id, current_price, reason="stop_loss")
+                return self.close_position(
+                    position_id, current_price, reason="stop_loss"
+                )
             elif self._check_take_profit(position, current_price):
-                return self.close_position(position_id, current_price, reason="take_profit")
+                return self.close_position(
+                    position_id, current_price, reason="take_profit"
+                )
 
             # Обновление P&L
             position.pnl = position.calculate_pnl(current_price)
@@ -311,25 +323,37 @@ class PositionManager:
 
     def get_open_pnl(self) -> float:
         """Получение P&L открытых позиций"""
-        return sum(p.pnl or 0 for p in self.positions.values() if p.status == PositionStatus.OPEN)
+        return sum(
+            p.pnl or 0
+            for p in self.positions.values()
+            if p.status == PositionStatus.OPEN
+        )
 
     def get_closed_pnl(self) -> float:
         """Получение P&L закрытых позиций"""
-        return sum(p.pnl or 0 for p in self.position_history if p.status == PositionStatus.CLOSED)
+        return sum(
+            p.pnl or 0
+            for p in self.position_history
+            if p.status == PositionStatus.CLOSED
+        )
 
     def get_win_rate(self) -> float:
         """Получение процента прибыльных сделок"""
         closed_positions = self.get_closed_positions()
         if not closed_positions:
             return 0.0
-        return sum(1 for p in closed_positions if p.is_profitable()) / len(closed_positions)
+        return sum(1 for p in closed_positions if p.is_profitable()) / len(
+            closed_positions
+        )
 
     def get_average_roi(self) -> float:
         """Получение среднего ROI"""
         closed_positions = self.get_closed_positions()
         if not closed_positions:
             return 0.0
-        rois = [p.calculate_roi() for p in closed_positions if p.calculate_roi() is not None]
+        rois = [
+            p.calculate_roi() for p in closed_positions if p.calculate_roi() is not None
+        ]
         return float(np.mean(rois)) if rois else 0.0
 
     def get_max_drawdown(self) -> float:
@@ -365,31 +389,46 @@ class PositionManager:
     def _check_position_limits(self, symbol: str, size: float) -> bool:
         """Проверка лимитов позиции"""
         if len(self.positions) >= self.max_positions:
-            logger.warning(f"Maximum number of positions reached ({self.max_positions})")
+            logger.warning(
+                f"Maximum number of positions reached ({self.max_positions})"
+            )
             return False
 
         if size > self.max_position_size:
-            logger.warning(f"Position size {size} exceeds maximum {self.max_position_size}")
+            logger.warning(
+                f"Position size {size} exceeds maximum {self.max_position_size}"
+            )
             return False
 
         if size < self.min_position_size:
-            logger.warning(f"Position size {size} below minimum {self.min_position_size}")
+            logger.warning(
+                f"Position size {size} below minimum {self.min_position_size}"
+            )
             return False
 
         return True
 
-    def _check_risk_limits(self, symbol: str, size: float, price: float, leverage: float) -> bool:
+    def _check_risk_limits(
+        self, symbol: str, size: float, price: float, leverage: float
+    ) -> bool:
         """Проверка лимитов риска"""
         if leverage > self.config["max_leverage"]:
-            logger.warning(f"Leverage {leverage} exceeds maximum {self.config['max_leverage']}")
+            logger.warning(
+                f"Leverage {leverage} exceeds maximum {self.config['max_leverage']}"
+            )
             return False
 
         if leverage < self.config["min_leverage"]:
-            logger.warning(f"Leverage {leverage} below minimum {self.config['min_leverage']}")
+            logger.warning(
+                f"Leverage {leverage} below minimum {self.config['min_leverage']}"
+            )
             return False
 
         # Проверка диверсификации
-        if len(self.get_positions_by_symbol(symbol)) >= self.config["min_diversification"]:
+        if (
+            len(self.get_positions_by_symbol(symbol))
+            >= self.config["min_diversification"]
+        ):
             logger.warning(f"Maximum positions for {symbol} reached")
             return False
 
@@ -405,13 +444,17 @@ class PositionManager:
 
         return True
 
-    def _calculate_default_stop_loss(self, entry_price: float, side: PositionSide) -> float:
+    def _calculate_default_stop_loss(
+        self, entry_price: float, side: PositionSide
+    ) -> float:
         """Расчет стоп-лосса по умолчанию"""
         if side == PositionSide.LONG:
             return entry_price * (1 - self.stop_loss)
         return entry_price * (1 + self.stop_loss)
 
-    def _calculate_default_take_profit(self, entry_price: float, side: PositionSide) -> float:
+    def _calculate_default_take_profit(
+        self, entry_price: float, side: PositionSide
+    ) -> float:
         """Расчет тейк-профита по умолчанию"""
         if side == PositionSide.LONG:
             return entry_price * (1 + self.take_profit)

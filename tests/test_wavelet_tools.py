@@ -1,7 +1,11 @@
 import numpy as np
-import pytest
 
-from utils.wavelet_tools import extract_wavelet_features, perform_cwt, perform_dwt, reconstruct_dwt
+from utils.wavelet_tools import (
+    extract_wavelet_features,
+    perform_cwt,
+    perform_dwt,
+    reconstruct_dwt,
+)
 
 
 def test_perform_dwt_and_reconstruct():

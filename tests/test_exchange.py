@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import numpy as np
 import pandas as pd
@@ -7,9 +6,7 @@ import pytest
 import pytest_asyncio
 
 from core.exchange import Exchange
-from core.models import Account
-from core.models import MarketData as CoreMarketData
-from core.models import Order, Position, Trade
+from core.models import Order
 from exchange.account_manager import AccountManager
 from exchange.bybit_client import BybitClient, BybitConfig
 from exchange.market_data import MarketData
@@ -86,7 +83,11 @@ class TestBybitClient:
         with patch("ccxt.bybit") as mock_exchange:
             mock_exchange.create_order = AsyncMock(return_value={"id": "123"})
             result = await bybit_client.create_order(
-                symbol="BTC/USDT", order_type="limit", side="buy", amount=0.1, price=50000
+                symbol="BTC/USDT",
+                order_type="limit",
+                side="buy",
+                amount=0.1,
+                price=50000,
             )
 
             assert isinstance(result, dict)
@@ -142,7 +143,9 @@ class TestOrderManager:
     async def test_cancel_order(self, order_manager):
         """Тест отмены ордера"""
         with patch.object(
-            order_manager.client, "cancel_order", AsyncMock(return_value={"status": "cancelled"})
+            order_manager.client,
+            "cancel_order",
+            AsyncMock(return_value={"status": "cancelled"}),
         ):
             result = await order_manager.cancel_order("test_order_id")
             assert result is True
@@ -178,7 +181,9 @@ class TestMarketData:
                 ]
             ),
         ):
-            data = await market_data.get_klines(symbol="BTC/USDT", interval="1m", limit=100)
+            data = await market_data.get_klines(
+                symbol="BTC/USDT", interval="1m", limit=100
+            )
             assert isinstance(data, list)
             assert len(data) > 0
 
@@ -245,7 +250,13 @@ def test_data_validation(bybit_client):
     # Тест с некорректным типом ордера
     with pytest.raises(ValueError):
         bybit_client.place_order(
-            {"symbol": "BTC/USDT", "side": "buy", "type": "invalid", "amount": 0.1, "price": 50000}
+            {
+                "symbol": "BTC/USDT",
+                "side": "buy",
+                "type": "invalid",
+                "amount": 0.1,
+                "price": 50000,
+            }
         )
 
     # Тест с некорректной стороной ордера
@@ -263,7 +274,13 @@ def test_data_validation(bybit_client):
     # Тест с некорректным размером ордера
     with pytest.raises(ValueError):
         bybit_client.place_order(
-            {"symbol": "BTC/USDT", "side": "buy", "type": "limit", "amount": -0.1, "price": 50000}
+            {
+                "symbol": "BTC/USDT",
+                "side": "buy",
+                "type": "limit",
+                "amount": -0.1,
+                "price": 50000,
+            }
         )
 
 
@@ -271,7 +288,9 @@ def test_rate_limiting(bybit_client):
     """Тест ограничения частоты запросов"""
     # Имитация превышения лимита запросов
     with patch("ccxt.bybit") as mock_exchange:
-        mock_exchange.fetch_ohlcv = AsyncMock(side_effect=Exception("Too many requests"))
+        mock_exchange.fetch_ohlcv = AsyncMock(
+            side_effect=Exception("Too many requests")
+        )
 
         # Проверка повторных попыток
         with pytest.raises(Exception):

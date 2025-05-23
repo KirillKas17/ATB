@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import pandas as pd
 import streamlit as st
@@ -125,7 +125,8 @@ def main():
             st.markdown(f"##### {strategy.title()}")
             strategies[strategy] = {
                 "enabled": st.checkbox(
-                    f"Включить {strategy}", value=strategies.get(strategy, {}).get("enabled", False)
+                    f"Включить {strategy}",
+                    value=strategies.get(strategy, {}).get("enabled", False),
                 ),
                 "weight": st.slider(
                     f"Вес {strategy}",

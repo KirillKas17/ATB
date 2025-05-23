@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -6,17 +5,17 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from utils.technical import (
-    calculate_adx,
-    calculate_rsi,
-    calculate_atr,
-    calculate_obv,
-    calculate_fractals,
-    calculate_wave_clusters
-)
 
 from core.strategy import Signal
 from utils.logger import setup_logger
+from utils.technical import (
+    calculate_adx,
+    calculate_atr,
+    calculate_fractals,
+    calculate_obv,
+    calculate_rsi,
+    calculate_wave_clusters,
+)
 
 logger = setup_logger(__name__)
 
@@ -119,25 +118,22 @@ class MarketRegimeAgent:
                 pd.Series(dataframe["high"]),
                 pd.Series(dataframe["low"]),
                 pd.Series(dataframe["close"]),
-                period=self.config["adx_period"]
+                period=self.config["adx_period"],
             )
             self.indicators["rsi"]["value"] = calculate_rsi(
-                pd.Series(dataframe["close"]),
-                period=self.config["rsi_period"]
+                pd.Series(dataframe["close"]), period=self.config["rsi_period"]
             )
             self.indicators["atr"]["value"] = calculate_atr(
                 pd.Series(dataframe["high"]),
                 pd.Series(dataframe["low"]),
                 pd.Series(dataframe["close"]),
-                period=self.config["atr_period"]
+                period=self.config["atr_period"],
             )
             self.indicators["obv"]["value"] = calculate_obv(
-                pd.Series(dataframe["close"]),
-                pd.Series(dataframe["volume"])
+                pd.Series(dataframe["close"]), pd.Series(dataframe["volume"])
             )
             self.indicators["fractals"]["value"] = calculate_fractals(
-                pd.Series(dataframe["high"]),
-                pd.Series(dataframe["low"])
+                pd.Series(dataframe["high"]), pd.Series(dataframe["low"])
             )
             self.indicators["wave_clusters"]["value"] = calculate_wave_clusters(
                 np.asarray(dataframe["close"].values)
@@ -173,7 +169,9 @@ class MarketRegimeAgent:
         if adx is None or rsi is None:
             return 0.0
         trend_strength = min(1.0, adx / 100.0)
-        momentum_alignment = 1.0 if (rsi > 50 and adx > self.config["adx_threshold"]) else 0.5
+        momentum_alignment = (
+            1.0 if (rsi > 50 and adx > self.config["adx_threshold"]) else 0.5
+        )
         return trend_strength * momentum_alignment
 
     def _calculate_sideways_score(self) -> float:
@@ -192,7 +190,9 @@ class MarketRegimeAgent:
             return 0.0
         extreme_rsi = (
             1.0
-            if (rsi > self.config["rsi_overbought"] or rsi < self.config["rsi_oversold"])
+            if (
+                rsi > self.config["rsi_overbought"] or rsi < self.config["rsi_oversold"]
+            )
             else 0.0
         )
         fractal_pattern = 1.0 if fractals.get("reversal_pattern") else 0.0
@@ -262,8 +262,8 @@ class MarketRegimeAgent:
                     "strength": min(1.0, self.regime_confidence * 1.5),
                     "confidence": self.regime_confidence,
                     "timestamp": datetime.now().isoformat(),
-                    "source": "market_regime"
-                }
+                    "source": "market_regime",
+                },
             )
             return [signal]
         except Exception as e:

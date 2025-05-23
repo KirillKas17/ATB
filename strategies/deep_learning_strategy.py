@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -9,9 +9,9 @@ from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.optimizers import Adam, RMSprop, SGD
+from tensorflow.keras.optimizers import Adam
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -156,7 +156,9 @@ class DeepLearningStrategy(BaseStrategy):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, features, indicators, market_state)
+            signal = self._generate_trading_signal(
+                data, features, indicators, market_state
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -167,7 +169,10 @@ class DeepLearningStrategy(BaseStrategy):
             return None
 
     def _check_basic_conditions(
-        self, data: pd.DataFrame, features: Dict[str, float], indicators: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        features: Dict[str, float],
+        indicators: Dict[str, float],
     ) -> bool:
         """
         Проверка базовых условий для торговли.
@@ -212,8 +217,12 @@ class DeepLearningStrategy(BaseStrategy):
             volatility = returns.rolling(window=self.config.sequence_length).std()
 
             # Объемные признаки
-            volume_ma = data["volume"].rolling(window=self.config.sequence_length).mean()
-            volume_std = data["volume"].rolling(window=self.config.sequence_length).std()
+            volume_ma = (
+                data["volume"].rolling(window=self.config.sequence_length).mean()
+            )
+            volume_std = (
+                data["volume"].rolling(window=self.config.sequence_length).std()
+            )
             volume_ratio = data["volume"] / volume_ma
 
             # Технические индикаторы
@@ -223,10 +232,12 @@ class DeepLearningStrategy(BaseStrategy):
             atr = self._calculate_atr(data)
 
             # Моментум признаки
-            momentum = data["close"] / data["close"].shift(self.config.sequence_length) - 1
-            roc = (data["close"] - data["close"].shift(self.config.sequence_length)) / data[
-                "close"
-            ].shift(self.config.sequence_length)
+            momentum = (
+                data["close"] / data["close"].shift(self.config.sequence_length) - 1
+            )
+            roc = (
+                data["close"] - data["close"].shift(self.config.sequence_length)
+            ) / data["close"].shift(self.config.sequence_length)
 
             # Волатильностные признаки
             high_low_ratio = data["high"] / data["low"]
@@ -268,8 +279,16 @@ class DeepLearningStrategy(BaseStrategy):
         """
         try:
             delta = data["close"].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=self.config.rsi_period).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=self.config.rsi_period).mean()
+            gain = (
+                (delta.where(delta > 0, 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
+            loss = (
+                (-delta.where(delta < 0, 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
             rs = gain / loss
             return 100 - (100 / (1 + rs))
 
@@ -277,7 +296,9 @@ class DeepLearningStrategy(BaseStrategy):
             logger.error(f"Error calculating RSI: {str(e)}")
             return pd.Series()
 
-    def _calculate_macd(self, data: pd.DataFrame) -> Tuple[pd.Series, pd.Series, pd.Series]:
+    def _calculate_macd(
+        self, data: pd.DataFrame
+    ) -> Tuple[pd.Series, pd.Series, pd.Series]:
         """
         Расчет MACD.
 
@@ -299,7 +320,9 @@ class DeepLearningStrategy(BaseStrategy):
             logger.error(f"Error calculating MACD: {str(e)}")
             return pd.Series(), pd.Series(), pd.Series()
 
-    def _calculate_bollinger_bands(self, data: pd.DataFrame) -> Tuple[pd.Series, pd.Series]:
+    def _calculate_bollinger_bands(
+        self, data: pd.DataFrame
+    ) -> Tuple[pd.Series, pd.Series]:
         """
         Расчет полос Боллинджера.
 
@@ -362,12 +385,16 @@ class DeepLearningStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             if self.position is None:
-                return self._generate_entry_signal(data, features, indicators, market_state)
+                return self._generate_entry_signal(
+                    data, features, indicators, market_state
+                )
             else:
-                return self._generate_exit_signal(data, features, indicators, market_state)
+                return self._generate_exit_signal(
+                    data, features, indicators, market_state
+                )
 
         except Exception as e:
             logger.error(f"Error generating trading signal: {str(e)}")
@@ -547,9 +574,9 @@ class DeepLearningStrategy(BaseStrategy):
                         current_price + indicators["atr"] * self.config.trailing_step
                     )
 
-                if (self.position == "long" and current_price <= self.trailing_stop) or (
-                    self.position == "short" and current_price >= self.trailing_stop
-                ):
+                if (
+                    self.position == "long" and current_price <= self.trailing_stop
+                ) or (self.position == "short" and current_price >= self.trailing_stop):
                     return Signal(
                         direction="close",
                         entry_price=current_price,
@@ -568,7 +595,10 @@ class DeepLearningStrategy(BaseStrategy):
                 for level, size in zip(
                     self.config.partial_close_levels, self.config.partial_close_sizes
                 ):
-                    if self.position == "long" and current_price >= self.take_profit * level:
+                    if (
+                        self.position == "long"
+                        and current_price >= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -584,7 +614,10 @@ class DeepLearningStrategy(BaseStrategy):
                                 "market_state": market_state,
                             },
                         )
-                    elif self.position == "short" and current_price <= self.take_profit * level:
+                    elif (
+                        self.position == "short"
+                        and current_price <= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -722,12 +755,15 @@ class DeepLearningStrategy(BaseStrategy):
             trend_direction = "up" if indicators["macd_hist"] > 0 else "down"
 
             # Волатильность
-            volatility = "high" if indicators["atr"] > data["close"].iloc[-1] * 0.01 else "low"
+            volatility = (
+                "high" if indicators["atr"] > data["close"].iloc[-1] * 0.01 else "low"
+            )
 
             # Объем
             volume_state = (
                 "high"
-                if data["volume"].iloc[-1] > data["volume"].rolling(window=20).mean().iloc[-1]
+                if data["volume"].iloc[-1]
+                > data["volume"].rolling(window=20).mean().iloc[-1]
                 else "low"
             )
 
@@ -785,7 +821,9 @@ class DeepLearningStrategy(BaseStrategy):
             # LSTM слои
             for i, units in enumerate(self.config.lstm_units):
                 if i == 0:
-                    model.add(LSTM(units, return_sequences=True, input_shape=input_shape))
+                    model.add(
+                        LSTM(units, return_sequences=True, input_shape=input_shape)
+                    )
                 else:
                     model.add(LSTM(units, return_sequences=True))
                 model.add(Dropout(self.config.dropout_rate))
@@ -856,16 +894,22 @@ class DeepLearningStrategy(BaseStrategy):
             )
 
             # Построение модели
-            self.model = self._build_model((self.config.sequence_length, X_scaled.shape[2]))
+            self.model = self._build_model(
+                (self.config.sequence_length, X_scaled.shape[2])
+            )
 
             if self.model is None:
                 raise ValueError("Failed to build model")
 
             # Callbacks
             callbacks = [
-                EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True),
+                EarlyStopping(
+                    monitor="val_loss", patience=10, restore_best_weights=True
+                ),
                 ModelCheckpoint(
-                    f"{self.config.log_dir}/best_model.h5", monitor="val_loss", save_best_only=True
+                    f"{self.config.log_dir}/best_model.h5",
+                    monitor="val_loss",
+                    save_best_only=True,
                 ),
             ]
 

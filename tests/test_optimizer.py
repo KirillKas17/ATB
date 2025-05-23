@@ -1,10 +1,7 @@
-from datetime import datetime
-
 import numpy as np
 import pandas as pd
 import pytest
 
-from core.backtest import Backtest, BacktestResult, Trade
 from core.optimizer import OptimizationResult, Optimizer
 
 
@@ -92,7 +89,9 @@ def test_get_optimization_statistics(config, sample_data, param_grid):
 def test_evaluate_parameters(config, sample_data):
     optimizer = Optimizer(config)
     strategy = MockStrategy({"param1": 1, "param2": "a"})
-    result = optimizer._evaluate_parameters(sample_data, strategy, {"param1": 1, "param2": "a"})
+    result = optimizer._evaluate_parameters(
+        sample_data, strategy, {"param1": 1, "param2": "a"}
+    )
     assert isinstance(result, OptimizationResult)
     assert result.parameters == {"param1": 1, "param2": "a"}
     assert isinstance(result.metrics, dict)
@@ -104,13 +103,20 @@ def test_sort_results(config):
     # Add some mock results
     optimizer.results = [
         OptimizationResult(
-            parameters={"param1": 1}, metrics={"sharpe_ratio": 0.5}, trades=[], metadata={}
+            parameters={"param1": 1},
+            metrics={"sharpe_ratio": 0.5},
+            trades=[],
+            metadata={},
         ),
         OptimizationResult(
-            parameters={"param1": 2}, metrics={"sharpe_ratio": 1.5}, trades=[], metadata={}
+            parameters={"param1": 2},
+            metrics={"sharpe_ratio": 1.5},
+            trades=[],
+            metadata={},
         ),
     ]
     optimizer._sort_results()
     assert (
-        optimizer.results[0].metrics["sharpe_ratio"] > optimizer.results[1].metrics["sharpe_ratio"]
+        optimizer.results[0].metrics["sharpe_ratio"]
+        > optimizer.results[1].metrics["sharpe_ratio"]
     )

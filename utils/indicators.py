@@ -1,4 +1,3 @@
-import warnings
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from functools import lru_cache
@@ -8,7 +7,6 @@ import numpy as np
 import pandas as pd
 import talib
 from loguru import logger
-from scipy import stats
 from scipy.signal import find_peaks
 from sklearn.preprocessing import StandardScaler
 
@@ -19,7 +17,6 @@ from .technical import (
     adx,
     atr,
     bollinger_bands,
-    cci,
     ema,
     fractals,
     get_significant_levels,
@@ -31,7 +28,6 @@ from .technical import (
     stoch_rsi,
     volume_delta,
     vwap,
-    wma,
 )
 
 logger = setup_logger(__name__)
@@ -82,16 +78,24 @@ class IndicatorCalculator:
                 futures = []
 
                 # Трендовые индикаторы
-                futures.append(self._executor.submit(self._calculate_trend_indicators, df))
+                futures.append(
+                    self._executor.submit(self._calculate_trend_indicators, df)
+                )
 
                 # Волатильность и моментум
-                futures.append(self._executor.submit(self._calculate_volatility_momentum, df))
+                futures.append(
+                    self._executor.submit(self._calculate_volatility_momentum, df)
+                )
 
                 # Объемные индикаторы
-                futures.append(self._executor.submit(self._calculate_volume_indicators, df))
+                futures.append(
+                    self._executor.submit(self._calculate_volume_indicators, df)
+                )
 
                 # Уровни и структура
-                futures.append(self._executor.submit(self._calculate_structure_indicators, df))
+                futures.append(
+                    self._executor.submit(self._calculate_structure_indicators, df)
+                )
 
                 # Собираем результаты
                 for future in futures:
@@ -125,7 +129,10 @@ class IndicatorCalculator:
 
         # MACD
         macd_result = macd(
-            df["close"], self.config.macd_fast, self.config.macd_slow, self.config.macd_signal
+            df["close"],
+            self.config.macd_fast,
+            self.config.macd_slow,
+            self.config.macd_signal,
         )
         result["macd"] = macd_result.macd
         result["macd_signal"] = macd_result.signal
@@ -176,7 +183,9 @@ class IndicatorCalculator:
 
         # Order Imbalance
         if "bid_volume" in df.columns and "ask_volume" in df.columns:
-            result["order_imbalance"] = order_imbalance(df["bid_volume"], df["ask_volume"])
+            result["order_imbalance"] = order_imbalance(
+                df["bid_volume"], df["ask_volume"]
+            )
 
         # Volume Profile
         volume_profile = self.calculate_volume_profile(df)
@@ -215,7 +224,9 @@ class IndicatorCalculator:
 
             # Создание гистограммы
             hist, bins = np.histogram(
-                normalized_prices, bins=self.config.volume_profile_bins, weights=data["volume"]
+                normalized_prices,
+                bins=self.config.volume_profile_bins,
+                weights=data["volume"],
             )
 
             # Поиск POC (Point of Control)
@@ -331,7 +342,12 @@ class IndicatorCalculator:
 
             # Определение кластеров
             clusters = []
-            current_cluster = {"start": None, "end": None, "direction": 0, "strength": 0}
+            current_cluster = {
+                "start": None,
+                "end": None,
+                "direction": 0,
+                "strength": 0,
+            }
 
             for i in range(len(waves)):
                 if waves[i] != 0:
@@ -373,7 +389,9 @@ class IndicatorCalculator:
             # Определение значимых уровней
             mean_volume = volume_profile.mean()
             std_volume = volume_profile.std()
-            significant_levels = volume_profile[volume_profile > mean_volume + std_volume]
+            significant_levels = volume_profile[
+                volume_profile > mean_volume + std_volume
+            ]
 
             # Конвертация обратно в цены
             support_levels = []
@@ -386,7 +404,10 @@ class IndicatorCalculator:
                 else:
                     resistance_levels.append(price)
 
-            return {"support": sorted(support_levels), "resistance": sorted(resistance_levels)}
+            return {
+                "support": sorted(support_levels),
+                "resistance": sorted(resistance_levels),
+            }
 
         except Exception as e:
             logger.error(f"Error calculating liquidity zones: {str(e)}")
@@ -438,7 +459,10 @@ def calculate_rsi(data: ArrayLike, period: int = 14) -> pd.Series:
 
 
 def calculate_macd(
-    data: ArrayLike, fast_period: int = 12, slow_period: int = 26, signal_period: int = 9
+    data: ArrayLike,
+    fast_period: int = 12,
+    slow_period: int = 26,
+    signal_period: int = 9,
 ) -> MACD:
     """Moving Average Convergence Divergence"""
     return macd(data, fast_period, slow_period, signal_period)
@@ -456,12 +480,16 @@ def calculate_ema(data: pd.Series, period: int = 20) -> pd.Series:
     return talib.EMA(data, timeperiod=period)
 
 
-def calculate_atr(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
+def calculate_atr(
+    high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14
+) -> pd.Series:
     """Расчет ATR"""
     return talib.ATR(high, low, close, timeperiod=period)
 
 
-def calculate_fractals(high: pd.Series, low: pd.Series, period: int = 2) -> Dict[str, Any]:
+def calculate_fractals(
+    high: pd.Series, low: pd.Series, period: int = 2
+) -> Dict[str, Any]:
     """Расчет фракталов"""
     # Верхние фракталы
     upper_fractals = pd.Series(False, index=high.index)
@@ -482,8 +510,12 @@ def calculate_fractals(high: pd.Series, low: pd.Series, period: int = 2) -> Dict
     # Определение паттерна разворота
     reversal_pattern = False
     if len(upper_fractals) > 0 and len(lower_fractals) > 0:
-        last_upper = upper_fractals[upper_fractals].index[-1] if any(upper_fractals) else None
-        last_lower = lower_fractals[lower_fractals].index[-1] if any(lower_fractals) else None
+        last_upper = (
+            upper_fractals[upper_fractals].index[-1] if any(upper_fractals) else None
+        )
+        last_lower = (
+            lower_fractals[lower_fractals].index[-1] if any(lower_fractals) else None
+        )
 
         if last_upper and last_lower:
             reversal_pattern = last_lower > last_upper
@@ -623,7 +655,9 @@ def calculate_volume_profile(data: pd.DataFrame, bins: int = 24) -> Dict[str, An
         # Считаем объем в каждом бине
         volume_profile = np.zeros(bins - 1)
         for i in range(len(price_bins) - 1):
-            mask = (data["close"] >= price_bins[i]) & (data["close"] < price_bins[i + 1])
+            mask = (data["close"] >= price_bins[i]) & (
+                data["close"] < price_bins[i + 1]
+            )
             volume_profile[i] = data.loc[mask, "volume"].sum()
 
         # Находим POC (Point of Control)
@@ -634,7 +668,10 @@ def calculate_volume_profile(data: pd.DataFrame, bins: int = 24) -> Dict[str, An
             "price_levels": price_bins,
             "volume_profile": volume_profile,
             "poc_price": poc_price,
-            "value_area": {"high": price_bins[poc_index + 1], "low": price_bins[poc_index]},
+            "value_area": {
+                "high": price_bins[poc_index + 1],
+                "low": price_bins[poc_index],
+            },
         }
 
     except Exception as e:
@@ -664,7 +701,9 @@ def calculate_imbalance(data: pd.DataFrame) -> pd.Series:
         return pd.Series(0, index=data.index)
 
 
-def calculate_liquidity_zones(df: pd.DataFrame, window: int = 20) -> Dict[str, List[float]]:
+def calculate_liquidity_zones(
+    df: pd.DataFrame, window: int = 20
+) -> Dict[str, List[float]]:
     """Расчет зон ликвидности"""
     try:
         # Расчет объемного профиля

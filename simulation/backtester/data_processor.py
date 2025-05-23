@@ -1,13 +1,12 @@
 from dataclasses import dataclass, field
-from datetime import datetime
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .types import MarketData, Signal
+from .types import MarketData
 
 
 @dataclass
@@ -39,7 +38,9 @@ class DataProcessor:
 
     def __init__(self, config: Dict):
         self.config = (
-            DataProcessorConfig(**config) if not isinstance(config, DataProcessorConfig) else config
+            DataProcessorConfig(**config)
+            if not isinstance(config, DataProcessorConfig)
+            else config
         )
         self.metrics = DataProcessorMetrics()
         self._setup_logger()
@@ -55,7 +56,10 @@ class DataProcessor:
         )
 
     def process_market_data(
-        self, data: pd.DataFrame, symbol: Optional[str] = None, timeframe: Optional[str] = None
+        self,
+        data: pd.DataFrame,
+        symbol: Optional[str] = None,
+        timeframe: Optional[str] = None,
     ) -> List[MarketData]:
         """
         Обработка рыночных данных (поддержка мульти-символов и таймфреймов)
@@ -95,7 +99,9 @@ class DataProcessor:
             if data.empty:
                 return False, "Empty dataset"
             required_columns = ["open", "high", "low", "close", "volume"]
-            missing_columns = [col for col in required_columns if col not in data.columns]
+            missing_columns = [
+                col for col in required_columns if col not in data.columns
+            ]
             if missing_columns:
                 return False, f"Missing columns: {missing_columns}"
             for col in required_columns:
@@ -113,7 +119,10 @@ class DataProcessor:
                 or not (data["high"] >= data["close"]).all()
             ):
                 return False, "High price is less than open or close price"
-            if not (data["low"] <= data["open"]).all() or not (data["low"] <= data["close"]).all():
+            if (
+                not (data["low"] <= data["open"]).all()
+                or not (data["low"] <= data["close"]).all()
+            ):
                 return False, "Low price is less than open or close price"
             return True, None
         except Exception as e:
@@ -193,18 +202,26 @@ class DataProcessor:
             minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0)
             tr = data["tr"]
             plus_di = (
-                100 * pd.Series(plus_dm).rolling(window=14).sum() / tr.rolling(window=14).sum()
+                100
+                * pd.Series(plus_dm).rolling(window=14).sum()
+                / tr.rolling(window=14).sum()
             )
             minus_di = (
-                100 * pd.Series(minus_dm).rolling(window=14).sum() / tr.rolling(window=14).sum()
+                100
+                * pd.Series(minus_dm).rolling(window=14).sum()
+                / tr.rolling(window=14).sum()
             )
             dx = 100 * abs(plus_di - minus_di) / (plus_di + minus_di)
             data["adx_14"] = dx.rolling(window=14).mean()
             # OBV
-            data["obv"] = (np.sign(data["close"].diff()) * data["volume"]).fillna(0).cumsum()
+            data["obv"] = (
+                (np.sign(data["close"].diff()) * data["volume"]).fillna(0).cumsum()
+            )
             # CCI
             tp = (data["high"] + data["low"] + data["close"]) / 3
-            data["cci_20"] = (tp - tp.rolling(20).mean()) / (0.015 * tp.rolling(20).std())
+            data["cci_20"] = (tp - tp.rolling(20).mean()) / (
+                0.015 * tp.rolling(20).std()
+            )
             # Stochastic
             data["stoch_k"] = (
                 100
@@ -213,7 +230,9 @@ class DataProcessor:
             )
             data["stoch_d"] = data["stoch_k"].rolling(3).mean()
             # VWAP
-            data["vwap"] = (data["close"] * data["volume"]).cumsum() / data["volume"].cumsum()
+            data["vwap"] = (data["close"] * data["volume"]).cumsum() / data[
+                "volume"
+            ].cumsum()
             # Momentum
             data["momentum_10"] = data["close"].diff(10)
             self.metrics.features = list(data.columns)
@@ -246,7 +265,9 @@ class DataProcessor:
             logger.error(f"Error scaling data: {str(e)}")
             return data
 
-    def prepare_training_data(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def prepare_training_data(
+        self, data: pd.DataFrame
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Подготовка данных для обучения: генерация фичей, удаление пропусков, разделение на признаки и метки
         """

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -28,10 +28,14 @@ def sample_series():
     np.random.seed(42)
 
     # Первый ряд
-    series1 = pd.Series(np.random.normal(0, 1, 100).cumsum() + 100, index=dates, name="BTC/USD")
+    series1 = pd.Series(
+        np.random.normal(0, 1, 100).cumsum() + 100, index=dates, name="BTC/USD"
+    )
 
     # Второй ряд с лагом и корреляцией
-    series2 = pd.Series(np.random.normal(0, 1, 100).cumsum() + 100, index=dates, name="ETH/USD")
+    series2 = pd.Series(
+        np.random.normal(0, 1, 100).cumsum() + 100, index=dates, name="ETH/USD"
+    )
     series2 = series2.shift(2)  # Добавляем лаг
     series2 = series2.bfill()
 

@@ -1,20 +1,13 @@
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Tuple
-from unittest.mock import AsyncMock, Mock, patch
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from strategies.manipulation_strategies import (
-    ManipulationStrategy,
-    manipulation_strategy_fake_breakout,
-    manipulation_strategy_stop_hunt,
-)
+from strategies.manipulation_strategies import ManipulationStrategy
 from strategies.regime_adaptive_strategy import RegimeAdaptiveStrategy
 from strategies.trend_strategy import TrendStrategy
 from strategies.volatility_strategy import VolatilityStrategy
-from utils.data_loader import load_market_data
 
 
 # Фикстуры
@@ -179,7 +172,11 @@ def volatility_strategy():
 @pytest.fixture
 def manipulation_strategy():
     """Фикстура для тестирования ManipulationStrategy"""
-    config = {"volume_threshold": 1.5, "imbalance_threshold": 0.7, "log_dir": "logs/manipulation"}
+    config = {
+        "volume_threshold": 1.5,
+        "imbalance_threshold": 0.7,
+        "log_dir": "logs/manipulation",
+    }
     return ManipulationStrategy(config)
 
 
@@ -209,14 +206,18 @@ def regime_adaptive_strategy():
         ("regime_adaptive", "regime_adaptive_strategy", "mock_market_data"),
     ],
 )
-def test_strategy_generate_signal(strategy_name, strategy_fixture, data_fixture, request):
+def test_strategy_generate_signal(
+    strategy_name, strategy_fixture, data_fixture, request
+):
     """Параметризованный тест генерации сигнала"""
     strategy = request.getfixturevalue(strategy_fixture)
     data = request.getfixturevalue(data_fixture)
 
     # Проверяем наличие необходимых колонок
     required_columns = ["open", "high", "low", "close", "volume"]
-    assert all(col in data.columns for col in required_columns), "Missing required columns"
+    assert all(
+        col in data.columns for col in required_columns
+    ), "Missing required columns"
 
     # Генерируем сигнал
     signal = strategy.generate_signal(data)
@@ -227,7 +228,9 @@ def test_strategy_generate_signal(strategy_name, strategy_fixture, data_fixture,
     assert signal.direction in ["long", "short"], "Invalid signal direction"
     assert 0 <= signal.confidence <= 1, "Invalid confidence value"
     assert signal.stop_loss is not None and signal.stop_loss > 0, "Invalid stop loss"
-    assert signal.take_profit is not None and signal.take_profit > 0, "Invalid take profit"
+    assert (
+        signal.take_profit is not None and signal.take_profit > 0
+    ), "Invalid take profit"
     assert signal.volume is not None and signal.volume > 0, "Invalid volume"
     assert isinstance(signal.timestamp, datetime), "Invalid timestamp"
     assert isinstance(signal.metadata, dict), "Invalid metadata"
@@ -237,7 +240,11 @@ def test_strategy_generate_signal(strategy_name, strategy_fixture, data_fixture,
 class TestTrendStrategy:
     @pytest.mark.parametrize(
         "data_fixture",
-        ["mock_market_data", "mock_market_data_with_trend", "mock_market_data_with_volatility"],
+        [
+            "mock_market_data",
+            "mock_market_data_with_trend",
+            "mock_market_data_with_volatility",
+        ],
     )
     def test_calculate_indicators(self, trend_strategy, data_fixture, request):
         """Тест расчета индикаторов с разными наборами данных"""
@@ -245,7 +252,9 @@ class TestTrendStrategy:
 
         # Проверяем наличие необходимых колонок
         required_columns = ["open", "high", "low", "close", "volume"]
-        assert all(col in data.columns for col in required_columns), "Missing required columns"
+        assert all(
+            col in data.columns for col in required_columns
+        ), "Missing required columns"
 
         indicators = trend_strategy.calculate_indicators(data)
 
@@ -258,21 +267,35 @@ class TestTrendStrategy:
         assert "correlation" in indicators, "Missing correlation indicator"
 
         # Проверка значений
-        assert all(not np.isnan(x) for x in indicators["ma_fast"]), "Invalid ma_fast values"
-        assert all(not np.isnan(x) for x in indicators["ma_slow"]), "Invalid ma_slow values"
+        assert all(
+            not np.isnan(x) for x in indicators["ma_fast"]
+        ), "Invalid ma_fast values"
+        assert all(
+            not np.isnan(x) for x in indicators["ma_slow"]
+        ), "Invalid ma_slow values"
         assert all(not np.isnan(x) for x in indicators["rsi"]), "Invalid rsi values"
         assert all(0 <= x <= 100 for x in indicators["rsi"]), "Invalid rsi range"
 
     def test_validate_signal(self, trend_strategy, mock_market_data):
         """Тест валидации сигнала"""
-        signal = {"action": "buy", "confidence": 0.8, "stop_loss": 95, "take_profit": 105}
+        signal = {
+            "action": "buy",
+            "confidence": 0.8,
+            "stop_loss": 95,
+            "take_profit": 105,
+        }
 
         is_valid = trend_strategy.validate_signal(signal, mock_market_data)
         assert isinstance(is_valid, bool)
 
     def test_calculate_position_size(self, trend_strategy, mock_market_data):
         """Тест расчета размера позиции"""
-        signal = {"action": "buy", "confidence": 0.8, "stop_loss": 95, "take_profit": 105}
+        signal = {
+            "action": "buy",
+            "confidence": 0.8,
+            "stop_loss": 95,
+            "take_profit": 105,
+        }
 
         position_size = trend_strategy.calculate_position_size(signal, mock_market_data)
         assert isinstance(position_size, float)
@@ -293,9 +316,13 @@ class TestVolatilityStrategy:
         assert isinstance(volatility, float)
         assert volatility >= 0
 
-    def test_detect_volatility_regime(self, volatility_strategy, mock_market_data_with_volatility):
+    def test_detect_volatility_regime(
+        self, volatility_strategy, mock_market_data_with_volatility
+    ):
         """Тест определения режима волатильности"""
-        regime = volatility_strategy.detect_volatility_regime(mock_market_data_with_volatility)
+        regime = volatility_strategy.detect_volatility_regime(
+            mock_market_data_with_volatility
+        )
 
         assert isinstance(regime, str)
         assert regime in ["high", "low", "normal"]
@@ -327,7 +354,9 @@ class TestManipulationStrategy:
         self, manipulation_strategy, mock_market_data_with_manipulation
     ):
         """Тест анализа профиля объема"""
-        profile = manipulation_strategy.analyze_volume_profile(mock_market_data_with_manipulation)
+        profile = manipulation_strategy.analyze_volume_profile(
+            mock_market_data_with_manipulation
+        )
 
         assert isinstance(profile, dict)
         assert "volume_imbalance" in profile
@@ -335,7 +364,9 @@ class TestManipulationStrategy:
         assert "volume_anomalies" in profile
         assert "volume_delta" in profile
 
-    def test_detect_pump_and_dump(self, manipulation_strategy, mock_market_data_with_manipulation):
+    def test_detect_pump_and_dump(
+        self, manipulation_strategy, mock_market_data_with_manipulation
+    ):
         """Тест обнаружения памп-энд-дампа"""
         is_pump_and_dump = manipulation_strategy.detect_pump_and_dump(
             mock_market_data_with_manipulation
@@ -377,7 +408,9 @@ class TestRegimeAdaptiveStrategy:
     ):
         """Тест адаптации к разным режимам"""
         adaptation = regime_adaptive_strategy.adapt_to_regime(
-            current_regime=current_regime, new_regime=new_regime, market_data=mock_market_data
+            current_regime=current_regime,
+            new_regime=new_regime,
+            market_data=mock_market_data,
         )
 
         assert isinstance(adaptation, dict)
@@ -388,7 +421,12 @@ class TestRegimeAdaptiveStrategy:
     def test_validate_adaptation(self, regime_adaptive_strategy, mock_market_data):
         """Тест валидации адаптации"""
         adaptation = {
-            "parameters": {"ma_fast": 5, "ma_slow": 10, "rsi_period": 14, "atr_period": 14},
+            "parameters": {
+                "ma_fast": 5,
+                "ma_slow": 10,
+                "rsi_period": 14,
+                "atr_period": 14,
+            },
             "confidence": 0.8,
         }
 

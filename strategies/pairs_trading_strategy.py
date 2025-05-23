@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -141,7 +141,9 @@ class PairsTradingStrategy(BaseStrategy):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, indicators, market_state, spread_stats)
+            signal = self._generate_trading_signal(
+                data, indicators, market_state, spread_stats
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -152,7 +154,10 @@ class PairsTradingStrategy(BaseStrategy):
             return None
 
     def _check_basic_conditions(
-        self, data: pd.DataFrame, indicators: Dict[str, float], spread_stats: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        indicators: Dict[str, float],
+        spread_stats: Dict[str, float],
     ) -> bool:
         """
         Проверка базовых условий для торговли.
@@ -172,7 +177,9 @@ class PairsTradingStrategy(BaseStrategy):
 
             # Проверка времени полураспада
             if not (
-                self.config.min_half_life <= spread_stats["half_life"] <= self.config.max_half_life
+                self.config.min_half_life
+                <= spread_stats["half_life"]
+                <= self.config.max_half_life
             ):
                 return False
 
@@ -201,7 +208,10 @@ class PairsTradingStrategy(BaseStrategy):
                 return {}
 
             # Расчет спреда
-            spread = data[self.config.symbols[0]]["close"] - data[self.config.symbols[1]]["close"]
+            spread = (
+                data[self.config.symbols[0]]["close"]
+                - data[self.config.symbols[1]]["close"]
+            )
 
             # Расчет статистик
             mean = spread.rolling(window=self.config.lookback_period).mean()
@@ -344,12 +354,16 @@ class PairsTradingStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             if self.position is None:
-                return self._generate_entry_signal(data, indicators, market_state, spread_stats)
+                return self._generate_entry_signal(
+                    data, indicators, market_state, spread_stats
+                )
             else:
-                return self._generate_exit_signal(data, indicators, market_state, spread_stats)
+                return self._generate_exit_signal(
+                    data, indicators, market_state, spread_stats
+                )
 
         except Exception as e:
             logger.error(f"Error generating trading signal: {str(e)}")
@@ -383,7 +397,9 @@ class PairsTradingStrategy(BaseStrategy):
                 volume = self._calculate_position_size(current_price, indicators["atr"])
 
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price - indicators["atr"] * self.config.atr_multiplier
+                stop_loss = (
+                    current_price - indicators["atr"] * self.config.atr_multiplier
+                )
                 take_profit = current_price + (current_price - stop_loss) * 2
 
                 return Signal(
@@ -407,7 +423,9 @@ class PairsTradingStrategy(BaseStrategy):
                 volume = self._calculate_position_size(current_price, indicators["atr"])
 
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price + indicators["atr"] * self.config.atr_multiplier
+                stop_loss = (
+                    current_price + indicators["atr"] * self.config.atr_multiplier
+                )
                 take_profit = current_price - (stop_loss - current_price) * 2
 
                 return Signal(
@@ -521,9 +539,9 @@ class PairsTradingStrategy(BaseStrategy):
                         current_price + indicators["atr"] * self.config.trailing_step
                     )
 
-                if (self.position == "long" and current_price <= self.trailing_stop) or (
-                    self.position == "short" and current_price >= self.trailing_stop
-                ):
+                if (
+                    self.position == "long" and current_price <= self.trailing_stop
+                ) or (self.position == "short" and current_price >= self.trailing_stop):
                     return Signal(
                         direction="close",
                         entry_price=current_price,
@@ -542,7 +560,10 @@ class PairsTradingStrategy(BaseStrategy):
                 for level, size in zip(
                     self.config.partial_close_levels, self.config.partial_close_sizes
                 ):
-                    if self.position == "long" and current_price >= self.take_profit * level:
+                    if (
+                        self.position == "long"
+                        and current_price >= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -558,7 +579,10 @@ class PairsTradingStrategy(BaseStrategy):
                                 "spread_stats": spread_stats,
                             },
                         )
-                    elif self.position == "short" and current_price <= self.take_profit * level:
+                    elif (
+                        self.position == "short"
+                        and current_price <= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -686,8 +710,16 @@ class PairsTradingStrategy(BaseStrategy):
         try:
             # RSI
             delta = data["close"].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=self.config.rsi_period).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=self.config.rsi_period).mean()
+            gain = (
+                (delta.where(delta > 0, 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
+            loss = (
+                (-delta.where(delta < 0, 0))
+                .rolling(window=self.config.rsi_period)
+                .mean()
+            )
             rs = gain / loss
             rsi = 100 - (100 / (1 + rs))
 
@@ -744,12 +776,15 @@ class PairsTradingStrategy(BaseStrategy):
             trend_direction = "up" if indicators["macd_hist"] > 0 else "down"
 
             # Волатильность
-            volatility = "high" if indicators["atr"] > data["close"].iloc[-1] * 0.01 else "low"
+            volatility = (
+                "high" if indicators["atr"] > data["close"].iloc[-1] * 0.01 else "low"
+            )
 
             # Объем
             volume_state = (
                 "high"
-                if data["volume"].iloc[-1] > data["volume"].rolling(window=20).mean().iloc[-1]
+                if data["volume"].iloc[-1]
+                > data["volume"].rolling(window=20).mean().iloc[-1]
                 else "low"
             )
 
@@ -815,7 +850,9 @@ class PairsTradingStrategy(BaseStrategy):
             )
 
             # Нормализация статистик спреда
-            z_score_conf = 1 - abs(spread_stats["z_score"]) / self.config.z_score_threshold
+            z_score_conf = (
+                1 - abs(spread_stats["z_score"]) / self.config.z_score_threshold
+            )
             cointegration_conf = spread_stats["cointegration"]
             half_life_conf = 1 - abs(
                 spread_stats["half_life"]

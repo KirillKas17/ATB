@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import StandardScaler
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -171,7 +171,9 @@ class RandomForestStrategy(BaseStrategy):
             logger.error(f"Error generating signal: {str(e)}")
             return None
 
-    def _check_basic_conditions(self, data: pd.DataFrame, features: pd.DataFrame) -> bool:
+    def _check_basic_conditions(
+        self, data: pd.DataFrame, features: pd.DataFrame
+    ) -> bool:
         """
         Проверка базовых условий для торговли.
 
@@ -192,7 +194,9 @@ class RandomForestStrategy(BaseStrategy):
                 return False
 
             # Проверка спреда
-            spread = (data["high"].iloc[-1] - data["low"].iloc[-1]) / data["close"].iloc[-1]
+            spread = (data["high"].iloc[-1] - data["low"].iloc[-1]) / data[
+                "close"
+            ].iloc[-1]
             if spread > self.config.max_spread:
                 return False
 
@@ -250,7 +254,9 @@ class RandomForestStrategy(BaseStrategy):
             ):
 
                 # Рассчитываем размер позиции
-                volume = self._calculate_position_size(current_price, features["atr"].iloc[-1])
+                volume = self._calculate_position_size(
+                    current_price, features["atr"].iloc[-1]
+                )
 
                 # Устанавливаем стоп-лосс и тейк-профит
                 stop_loss = current_price - features["atr"].iloc[-1] * 2
@@ -264,7 +270,10 @@ class RandomForestStrategy(BaseStrategy):
                     volume=volume,
                     confidence=prediction["probability"],
                     timestamp=data.index[-1],
-                    metadata={"prediction": prediction, "features": features.iloc[-1].to_dict()},
+                    metadata={
+                        "prediction": prediction,
+                        "features": features.iloc[-1].to_dict(),
+                    },
                 )
 
             # Проверяем условия для короткой позиции
@@ -274,7 +283,9 @@ class RandomForestStrategy(BaseStrategy):
             ):
 
                 # Рассчитываем размер позиции
-                volume = self._calculate_position_size(current_price, features["atr"].iloc[-1])
+                volume = self._calculate_position_size(
+                    current_price, features["atr"].iloc[-1]
+                )
 
                 # Устанавливаем стоп-лосс и тейк-профит
                 stop_loss = current_price + features["atr"].iloc[-1] * 2
@@ -288,7 +299,10 @@ class RandomForestStrategy(BaseStrategy):
                     volume=volume,
                     confidence=prediction["probability"],
                     timestamp=data.index[-1],
-                    metadata={"prediction": prediction, "features": features.iloc[-1].to_dict()},
+                    metadata={
+                        "prediction": prediction,
+                        "features": features.iloc[-1].to_dict(),
+                    },
                 )
 
             return None
@@ -347,16 +361,18 @@ class RandomForestStrategy(BaseStrategy):
             if self.config.trailing_stop and self.trailing_stop:
                 if self.position == "long" and current_price > self.trailing_stop:
                     self.trailing_stop = (
-                        current_price - features["atr"].iloc[-1] * self.config.trailing_step
+                        current_price
+                        - features["atr"].iloc[-1] * self.config.trailing_step
                     )
                 elif self.position == "short" and current_price < self.trailing_stop:
                     self.trailing_stop = (
-                        current_price + features["atr"].iloc[-1] * self.config.trailing_step
+                        current_price
+                        + features["atr"].iloc[-1] * self.config.trailing_step
                     )
 
-                if (self.position == "long" and current_price <= self.trailing_stop) or (
-                    self.position == "short" and current_price >= self.trailing_stop
-                ):
+                if (
+                    self.position == "long" and current_price <= self.trailing_stop
+                ) or (self.position == "short" and current_price >= self.trailing_stop):
                     return Signal(
                         direction="close",
                         entry_price=current_price,
@@ -374,7 +390,10 @@ class RandomForestStrategy(BaseStrategy):
                 for level, size in zip(
                     self.config.partial_close_levels, self.config.partial_close_sizes
                 ):
-                    if self.position == "long" and current_price >= self.take_profit * level:
+                    if (
+                        self.position == "long"
+                        and current_price >= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -389,7 +408,10 @@ class RandomForestStrategy(BaseStrategy):
                                 "features": features.iloc[-1].to_dict(),
                             },
                         )
-                    elif self.position == "short" and current_price <= self.take_profit * level:
+                    elif (
+                        self.position == "short"
+                        and current_price <= self.take_profit * level
+                    ):
                         return Signal(
                             direction="partial_close",
                             entry_price=current_price,
@@ -492,8 +514,12 @@ class RandomForestStrategy(BaseStrategy):
             plus_dm[plus_dm < 0] = 0
             minus_dm[minus_dm > 0] = 0
             tr = true_range
-            plus_di = 100 * (plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean())
-            minus_di = 100 * (minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean())
+            plus_di = 100 * (
+                plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+            )
+            minus_di = 100 * (
+                minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+            )
             dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
             features["adx"] = dx.rolling(window=14).mean()
             features["plus_di"] = plus_di
@@ -615,7 +641,10 @@ class RandomForestStrategy(BaseStrategy):
             prediction = self.model.predict(X_scaled)[0]
             probability = self.model.predict_proba(X_scaled)[0][1]
 
-            return {"direction": "up" if prediction == 1 else "down", "probability": probability}
+            return {
+                "direction": "up" if prediction == 1 else "down",
+                "probability": probability,
+            }
 
         except Exception as e:
             logger.error(f"Error getting prediction: {str(e)}")

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Tuple, Callable, Iterable
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -9,6 +9,7 @@ from agents.market_regime import MarketRegimeAgent
 from ml.decision_reasoner import DecisionReasoner
 from ml.meta_learning import MetaLearning
 from ml.pattern_discovery import PatternDiscovery
+from strategies.base_strategy import BaseStrategy
 from strategies.manipulation_strategies import (
     manipulation_strategy_fake_breakout,
     manipulation_strategy_stop_hunt,
@@ -17,14 +18,19 @@ from strategies.reversal_strategies import (
     reversal_strategy_fibo_pinbar,
     reversal_strategy_rsi_divergence,
 )
-from strategies.sideways_strategies import sideways_strategy_bb_rsi, sideways_strategy_stoch_obv
-from strategies.trend_strategies import trend_strategy_ema_macd, trend_strategy_price_action
+from strategies.sideways_strategies import (
+    sideways_strategy_bb_rsi,
+    sideways_strategy_stoch_obv,
+)
+from strategies.trend_strategies import (
+    trend_strategy_ema_macd,
+    trend_strategy_price_action,
+)
 from strategies.volatility_strategies import (
     volatility_strategy_atr_breakout,
     volatility_strategy_ema_keltner,
 )
 from utils.feature_engineering import generate_features
-from strategies.base_strategy import BaseStrategy, Signal
 from utils.indicators import calculate_atr, calculate_rsi, calculate_volatility
 
 
@@ -60,15 +66,26 @@ class AdaptiveStrategyGenerator(BaseStrategy):
         self.base_strategies = base_strategies or []
         self.meta_learning_rate = meta_learning_rate
         self.adaptation_threshold = adaptation_threshold
-        self.strategy_weights = {strategy.__name__: 1.0 for strategy in self.base_strategies}
+        self.strategy_weights = {
+            strategy.__name__: 1.0 for strategy in self.base_strategies
+        }
 
         # Маппинг режимов на стратегии
         self.regime_strategies = {
             "trend": [trend_strategy_ema_macd, trend_strategy_price_action],
             "sideways": [sideways_strategy_bb_rsi, sideways_strategy_stoch_obv],
-            "reversal": [reversal_strategy_rsi_divergence, reversal_strategy_fibo_pinbar],
-            "volatility": [volatility_strategy_atr_breakout, volatility_strategy_ema_keltner],
-            "manipulation": [manipulation_strategy_stop_hunt, manipulation_strategy_fake_breakout],
+            "reversal": [
+                reversal_strategy_rsi_divergence,
+                reversal_strategy_fibo_pinbar,
+            ],
+            "volatility": [
+                volatility_strategy_atr_breakout,
+                volatility_strategy_ema_keltner,
+            ],
+            "manipulation": [
+                manipulation_strategy_stop_hunt,
+                manipulation_strategy_fake_breakout,
+            ],
         }
 
         self.pattern_discovery = PatternDiscovery()
@@ -97,13 +114,18 @@ class AdaptiveStrategyGenerator(BaseStrategy):
                 raise ValueError(f"No strategies found for regime: {regime}")
 
             # Анализ результатов бэктеста
-            best_strategy = self._select_best_strategy(base_strategies, symbol, timeframe)
+            best_strategy = self._select_best_strategy(
+                base_strategies, symbol, timeframe
+            )
             if best_strategy is None:
                 raise ValueError("No best strategy found for regime")
 
             # Получение мета-предсказаний
             meta_predictions = (
-                self.meta_learner.predict(symbol=symbol, timeframe=timeframe, regime=regime) or {}
+                self.meta_learner.predict(
+                    symbol=symbol, timeframe=timeframe, regime=regime
+                )
+                or {}
             )
 
             # Модификация параметров
@@ -253,7 +275,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             params["entry_threshold"] = 0.7
         return params
 
-    def _adapt_parameter(self, param: str, base_value: Any, prediction: float, regime: str) -> Any:
+    def _adapt_parameter(
+        self, param: str, base_value: Any, prediction: float, regime: str
+    ) -> Any:
         """Адаптация параметра на основе предсказания"""
         # Коэффициенты адаптации для разных параметров
         adaptation_factors = {
@@ -283,7 +307,11 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             return 0.0
 
         # Веса для разных компонентов
-        weights = {"backtest_score": 0.4, "meta_prediction": 0.3, "regime_strength": 0.3}
+        weights = {
+            "backtest_score": 0.4,
+            "meta_prediction": 0.3,
+            "regime_strength": 0.3,
+        }
 
         # Оценка на основе бэктеста
         backtest_score = self._calculate_strategy_score(
@@ -291,7 +319,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
         )
 
         # Оценка на основе мета-предсказаний
-        meta_score = np.mean(list(meta_predictions.values())) if meta_predictions else 0.0
+        meta_score = (
+            np.mean(list(meta_predictions.values())) if meta_predictions else 0.0
+        )
 
         # Оценка силы режима
         regime_strength = (
@@ -309,7 +339,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
 
         return min(max(confidence, 0.0), 1.0)  # Нормализация в [0, 1]
 
-    def generate_hybrid_strategy(self, pair: str, timeframe: str, regime: str) -> Dict[str, Any]:
+    def generate_hybrid_strategy(
+        self, pair: str, timeframe: str, regime: str
+    ) -> Dict[str, Any]:
         """Generate hybrid strategy combining ML and rule-based signals.
 
         Args:
@@ -358,7 +390,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             logger.error(f"Error getting ML signals: {str(e)}")
             return {}
 
-    def _get_rule_signals(self, pair: str, timeframe: str, regime: str) -> Dict[str, Any]:
+    def _get_rule_signals(
+        self, pair: str, timeframe: str, regime: str
+    ) -> Dict[str, Any]:
         """Get rule-based signals for the current regime.
 
         Args:
@@ -372,7 +406,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
         try:
             # Get base strategy for regime
             base_strategy = (
-                self.meta_learning.get_strategy_for_regime(regime) if self.meta_learning else None
+                self.meta_learning.get_strategy_for_regime(regime)
+                if self.meta_learning
+                else None
             )
             if not base_strategy:
                 return {}
@@ -413,10 +449,14 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             # Combine signals
             combined = {
                 "entry_signal": self._combine_entry_signals(
-                    ml_signals.get("direction"), rule_signals.get("entry_signal"), weights
+                    ml_signals.get("direction"),
+                    rule_signals.get("entry_signal"),
+                    weights,
                 ),
                 "exit_signal": self._combine_exit_signals(
-                    ml_signals.get("confidence"), rule_signals.get("exit_signal"), weights
+                    ml_signals.get("confidence"),
+                    rule_signals.get("exit_signal"),
+                    weights,
                 ),
                 "stop_loss": self._combine_stop_loss(
                     ml_signals.get("features"), rule_signals.get("stop_loss"), weights
@@ -425,7 +465,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
                     ml_signals.get("features"), rule_signals.get("take_profit"), weights
                 ),
                 "position_size": self._calculate_position_size(
-                    ml_signals.get("confidence"), rule_signals.get("position_size"), weights
+                    ml_signals.get("confidence"),
+                    rule_signals.get("position_size"),
+                    weights,
                 ),
             }
 
@@ -453,7 +495,10 @@ class AdaptiveStrategyGenerator(BaseStrategy):
         return weights.get(regime, {"ml": 0.5, "rule": 0.5})
 
     def _combine_entry_signals(
-        self, ml_direction: Optional[str], rule_signal: Optional[str], weights: Dict[str, float]
+        self,
+        ml_direction: Optional[str],
+        rule_signal: Optional[str],
+        weights: Dict[str, float],
     ) -> str:
         """Combine entry signals from ML and rules.
 
@@ -487,7 +532,10 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             return rule_signal or "hold"
 
     def _combine_exit_signals(
-        self, ml_confidence: Optional[float], rule_signal: Optional[str], weights: Dict[str, float]
+        self,
+        ml_confidence: Optional[float],
+        rule_signal: Optional[str],
+        weights: Dict[str, float],
     ) -> str:
         """Combine exit signals from ML and rules.
 
@@ -538,7 +586,10 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             return rule_stop or "atr_trailing"
 
     def _combine_take_profit(
-        self, ml_features: Optional[pd.DataFrame], rule_tp: Optional[str], weights: Dict[str, float]
+        self,
+        ml_features: Optional[pd.DataFrame],
+        rule_tp: Optional[str],
+        weights: Dict[str, float],
     ) -> str:
         """Combine take profit levels from ML and rules.
 
@@ -562,7 +613,10 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             return rule_tp or "risk_reward_ratio: 2.0"
 
     def _calculate_position_size(
-        self, ml_confidence: Optional[float], rule_size: Optional[float], weights: Dict[str, float]
+        self,
+        ml_confidence: Optional[float],
+        rule_size: Optional[float],
+        weights: Dict[str, float],
     ) -> float:
         """Calculate position size based on ML confidence and rules.
 
@@ -606,7 +660,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
                 return pd.DataFrame()
 
             order_book = (
-                self.market_data.get_order_book(pair) if hasattr(self, "market_data") else None
+                self.market_data.get_order_book(pair)
+                if hasattr(self, "market_data")
+                else None
             )
 
             # Расчет расширенных метрик
@@ -640,15 +696,17 @@ class AdaptiveStrategyGenerator(BaseStrategy):
 
             # Ликвидность и спред
             if order_book:
-                df["spread"] = (order_book["asks"][0] - order_book["bids"][0]) / order_book["asks"][
-                    0
-                ]
+                df["spread"] = (
+                    order_book["asks"][0] - order_book["bids"][0]
+                ) / order_book["asks"][0]
                 df["liquidity_ratio"] = (
                     order_book["bids_volume"].sum() / order_book["asks_volume"].sum()
                 )
 
             # Паттерны и формации
-            df["doji"] = (abs(df["close"] - df["open"]) <= 0.1 * df["high_low_range"]).astype(int)
+            df["doji"] = (
+                abs(df["close"] - df["open"]) <= 0.1 * df["high_low_range"]
+            ).astype(int)
             df["hammer"] = (
                 (df["close"] > df["open"])
                 & (df["low"] < df["open"] - 2 * (df["open"] - df["close"]))
@@ -668,7 +726,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
 
             # Нормализация
             numeric_cols = df.select_dtypes(include=[np.number]).columns
-            df[numeric_cols] = (df[numeric_cols] - df[numeric_cols].mean()) / df[numeric_cols].std()
+            df[numeric_cols] = (df[numeric_cols] - df[numeric_cols].mean()) / df[
+                numeric_cols
+            ].std()
             # Обработка NaN
             df = df.fillna(0)
             return df
@@ -764,7 +824,8 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             if entry_conditions:
                 # Выбор по максимальному тренду или объему
                 best_entry = max(
-                    entry_conditions, key=lambda cond: abs(trend_strength) + abs(volume_trend)
+                    entry_conditions,
+                    key=lambda cond: abs(trend_strength) + abs(volume_trend),
                 )
                 atr_multiplier = 2.0 if volatility > 0.02 else 1.5
                 risk_reward = 2.0 if trend_strength > 0.7 else 1.5
@@ -840,7 +901,9 @@ class AdaptiveStrategyGenerator(BaseStrategy):
 
             for strategy_name, perf in performance.items():
                 if strategy_name in self.strategy_weights:
-                    self.strategy_weights[strategy_name] = float(perf / total_performance)
+                    self.strategy_weights[strategy_name] = float(
+                        perf / total_performance
+                    )
 
         except Exception as e:
             logger.error(f"Error updating strategy weights: {str(e)}")

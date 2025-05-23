@@ -1,7 +1,6 @@
 import asyncio
-import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -48,7 +47,9 @@ class TradingController(BaseController):
 
         # Интервалы обновления
         self.market_update_interval: int = int(config.get("market_update_interval", 60))
-        self.position_update_interval: int = int(config.get("position_update_interval", 60))
+        self.position_update_interval: int = int(
+            config.get("position_update_interval", 60)
+        )
         self.order_update_interval: int = int(config.get("order_update_interval", 60))
 
         # Мониторинг
@@ -321,7 +322,9 @@ class TradingController(BaseController):
         try:
             for pair in self.config["trading_pairs"]:
                 base, quote = pair.split("/")
-                trading_pair = TradingPair(base=base, quote=quote, symbol=pair, active=True)
+                trading_pair = TradingPair(
+                    base=base, quote=quote, symbol=pair, active=True
+                )
                 self.trading_pairs[pair] = trading_pair
         except Exception as e:
             logger.error(f"Error loading trading pairs: {e}")
@@ -444,7 +447,9 @@ class TradingController(BaseController):
             if signal.type == "buy" and not positions:
                 # Открытие длинной позиции
                 volume = self.risk_controller.calculate_position_size(
-                    symbol, market_context[0].close, self.config.get("risk_per_trade", 0.02)
+                    symbol,
+                    market_context[0].close,
+                    self.config.get("risk_per_trade", 0.02),
                 )
                 stop_loss = self.risk_controller.calculate_stop_loss(
                     Position(

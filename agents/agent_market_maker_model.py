@@ -1,20 +1,15 @@
-import asyncio
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Tuple, Union
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 from exchange.market_data import MarketData
 from utils.indicators import (
     calculate_atr,
     calculate_fractals,
-    calculate_imbalance,
     calculate_liquidity_zones,
-    calculate_market_structure,
     calculate_volume_profile,
 )
 from utils.logger import setup_logger
@@ -61,7 +56,11 @@ class DefaultDataProvider(IDataProvider):
         self.market_data = None  # Инициализируем как None
 
     async def get_market_data(self, pair: str, interval: str = "1m") -> pd.DataFrame:
-        if self.market_data is None or self.market_data.symbol != pair or self.market_data.interval != interval:
+        if (
+            self.market_data is None
+            or self.market_data.symbol != pair
+            or self.market_data.interval != interval
+        ):
             self.market_data = MarketData(symbol=pair, interval=interval)
             await self.market_data.start()
         return self.market_data.df
@@ -74,7 +73,7 @@ class DefaultDataProvider(IDataProvider):
             "bids": self.market_data.df["close"].tail(depth).tolist(),
             "asks": self.market_data.df["close"].tail(depth).tolist(),
             "bids_volume": self.market_data.df["volume"].tail(depth).tolist(),
-            "asks_volume": self.market_data.df["volume"].tail(depth).tolist()
+            "asks_volume": self.market_data.df["volume"].tail(depth).tolist(),
         }
 
 
@@ -196,19 +195,24 @@ class MarketMakerModelAgent:
             df["volume_change"] = df["volume"].pct_change()
             df["atr"] = calculate_atr(df["high"], df["low"], df["close"], 14)
             df["volatility"] = df["close"].pct_change().rolling(20).std()
-            volume_profile = calculate_volume_profile(df)
-            liquidity_zones = calculate_liquidity_zones(df)
-            
+            calculate_volume_profile(df)
+            calculate_liquidity_zones(df)
+
             for i in range(1, len(df)):
-                price_spike = abs(df["price_change"].iloc[i]) > df["volatility"].iloc[i] * 2
+                price_spike = (
+                    abs(df["price_change"].iloc[i]) > df["volatility"].iloc[i] * 2
+                )
                 volume_spike = df["volume_change"].iloc[i] > 2.0
-                price_return = abs(df["close"].iloc[i] - df["close"].iloc[i - 1]) < df["atr"].iloc[i] * 0.5
+                price_return = (
+                    abs(df["close"].iloc[i] - df["close"].iloc[i - 1])
+                    < df["atr"].iloc[i] * 0.5
+                )
                 liquidity_drop = (
                     order_book["bids_volume"][i] + order_book["asks_volume"][i]
                 ) < (
                     order_book["bids_volume"][i - 1] + order_book["asks_volume"][i - 1]
                 ) * 0.7
-                
+
                 if price_spike and volume_spike and price_return and liquidity_drop:
                     fakeout = {
                         "timestamp": df.index[i],
@@ -220,8 +224,8 @@ class MarketMakerModelAgent:
                             "price_spike": bool(price_spike),
                             "volume_spike": bool(volume_spike),
                             "price_return": bool(price_return),
-                            "liquidity_drop": bool(liquidity_drop)
-                        }
+                            "liquidity_drop": bool(liquidity_drop),
+                        },
                     }
                     fakeouts.append(fakeout)
             return fakeouts
@@ -243,60 +247,68 @@ class MarketMakerModelAgent:
             return {
                 "spread": float(spread),
                 "imbalance": float(imbalance),
-                "confidence": float(min(abs(imbalance), 1.0))
+                "confidence": float(min(abs(imbalance), 1.0)),
             }
         except Exception as e:
             logger.error(f"Error analyzing spread: {str(e)}")
             return {"spread": 0.0, "imbalance": 0.0, "confidence": 0.0}
 
-    def _analyze_liquidity(self, market_data: pd.DataFrame, order_book: Dict[str, Any]) -> Dict[str, float]:
+    def _analyze_liquidity(
+        self, market_data: pd.DataFrame, order_book: Dict[str, Any]
+    ) -> Dict[str, float]:
         """Анализ ликвидности"""
         try:
             df = pd.DataFrame(market_data)
             volume = float(df["volume"].iloc[-1])
-            price = float(df["close"].iloc[-1])
-            
+            float(df["close"].iloc[-1])
+
             bid_volume = sum(float(order) for order in order_book["bids_volume"])
             ask_volume = sum(float(order) for order in order_book["asks_volume"])
-            
+
             liquidity_ratio = min(bid_volume, ask_volume) / max(bid_volume, ask_volume)
             volume_ratio = volume / (bid_volume + ask_volume)
-            
+
             return {
                 "liquidity_ratio": float(liquidity_ratio),
                 "volume_ratio": float(volume_ratio),
-                "confidence": float(min(liquidity_ratio * volume_ratio, 1.0))
+                "confidence": float(min(liquidity_ratio * volume_ratio, 1.0)),
             }
         except Exception as e:
             logger.error(f"Error analyzing liquidity: {str(e)}")
             return {"liquidity_ratio": 0.0, "volume_ratio": 0.0, "confidence": 0.0}
 
     def _calculate_prediction(
-        self, 
-        spread: Dict[str, float], 
-        liquidity: Dict[str, float], 
-        fakeouts: List[Dict[str, Any]]
+        self,
+        spread: Dict[str, float],
+        liquidity: Dict[str, float],
+        fakeouts: List[Dict[str, Any]],
     ) -> Dict[str, float]:
         """Расчет прогноза"""
         try:
             # Базовые факторы
-            spread_factor = spread["confidence"] * (1 if spread["imbalance"] > 0 else -1)
-            liquidity_factor = liquidity["confidence"] * (1 if liquidity["liquidity_ratio"] > 0.5 else -1)
-            
+            spread_factor = spread["confidence"] * (
+                1 if spread["imbalance"] > 0 else -1
+            )
+            liquidity_factor = liquidity["confidence"] * (
+                1 if liquidity["liquidity_ratio"] > 0.5 else -1
+            )
+
             # Фактор фейкаутов
             fakeout_factor = 0.0
             if fakeouts:
                 latest_fakeout = fakeouts[-1]
-                fakeout_factor = latest_fakeout["confidence"] * (1 if latest_fakeout["type"] == "bullish_fakeout" else -1)
-            
+                fakeout_factor = latest_fakeout["confidence"] * (
+                    1 if latest_fakeout["type"] == "bullish_fakeout" else -1
+                )
+
             # Итоговый прогноз
             direction = (spread_factor + liquidity_factor + fakeout_factor) / 3
             confidence = abs(direction)
-            
+
             return {
                 "direction": float(direction),
                 "confidence": float(confidence),
-                "expected_move": float(direction * spread["spread"] * 100)
+                "expected_move": float(direction * spread["spread"] * 100),
             }
         except Exception as e:
             logger.error(f"Error calculating prediction: {str(e)}")
@@ -306,7 +318,9 @@ class MarketMakerModelAgent:
         """Обновление профиля объема"""
         try:
             market_data = await self.data_provider.get_market_data(pair)
-            self.volume_profiles[pair] = pd.DataFrame(calculate_volume_profile(market_data))
+            self.volume_profiles[pair] = pd.DataFrame(
+                calculate_volume_profile(market_data)
+            )
         except Exception as e:
             logger.error(f"Error updating volume profile for {pair}: {str(e)}")
 
@@ -325,7 +339,7 @@ class MarketMakerModelAgent:
         """Обновление зон ликвидности"""
         try:
             market_data = await self.data_provider.get_market_data(pair)
-            order_book = await self.data_provider.get_order_book(pair)
+            await self.data_provider.get_order_book(pair)
             zones = calculate_liquidity_zones(market_data)
             self.liquidity_zones[pair] = [
                 {"type": k, "levels": v} for k, v in zones.items()
@@ -337,14 +351,16 @@ class MarketMakerModelAgent:
         """Проверка паттернов фейкаута"""
         if len(df) < 5:
             return False
-        
+
         try:
             last_candle = df.iloc[-1]
             prev_candle = df.iloc[-2]
-            
-            price_change = abs(last_candle["close"] - prev_candle["close"]) / prev_candle["close"]
+
+            price_change = (
+                abs(last_candle["close"] - prev_candle["close"]) / prev_candle["close"]
+            )
             volume_change = last_candle["volume"] / prev_candle["volume"]
-            
+
             return bool(price_change > 0.02 and volume_change > 2.0)
         except Exception as e:
             logger.error(f"Error checking fakeout patterns: {str(e)}")
@@ -362,12 +378,17 @@ class MarketMakerModelAgent:
             logger.error(f"Error checking level break: {str(e)}")
             return False
 
-    def _determine_fakeout_type(self, df: pd.DataFrame, volume_profile: Dict[str, Any], liquidity_zones: Dict[str, Any]) -> str:
+    def _determine_fakeout_type(
+        self,
+        df: pd.DataFrame,
+        volume_profile: Dict[str, Any],
+        liquidity_zones: Dict[str, Any],
+    ) -> str:
         """Определение типа фейкаута"""
         try:
             last_candle = df.iloc[-1]
             prev_candle = df.iloc[-2]
-            
+
             if last_candle["close"] > prev_candle["close"]:
                 return "bullish_fakeout"
             else:
@@ -376,15 +397,22 @@ class MarketMakerModelAgent:
             logger.error(f"Error determining fakeout type: {str(e)}")
             return "unknown"
 
-    def _calculate_fakeout_confidence(self, df: pd.DataFrame, volume_profile: Dict[str, Any], liquidity_zones: Dict[str, Any]) -> float:
+    def _calculate_fakeout_confidence(
+        self,
+        df: pd.DataFrame,
+        volume_profile: Dict[str, Any],
+        liquidity_zones: Dict[str, Any],
+    ) -> float:
         """Расчет уверенности в фейкауте"""
         try:
             last_candle = df.iloc[-1]
             prev_candle = df.iloc[-2]
-            
-            price_change = abs(last_candle["close"] - prev_candle["close"]) / prev_candle["close"]
+
+            price_change = (
+                abs(last_candle["close"] - prev_candle["close"]) / prev_candle["close"]
+            )
             volume_change = last_candle["volume"] / prev_candle["volume"]
-            
+
             confidence = min(1.0, (price_change * 10 + volume_change) / 2)
             return float(confidence)
         except Exception as e:
@@ -402,7 +430,9 @@ class MarketMakerModelAgent:
                 strength[key] = float(imbalance)  # Преобразуем в float
         return strength
 
-    def _merge_liquidity_zones(self, levels: Dict[str, List[float]], strength: Dict[str, float]) -> List[Dict[str, Any]]:
+    def _merge_liquidity_zones(
+        self, levels: Dict[str, List[float]], strength: Dict[str, float]
+    ) -> List[Dict[str, Any]]:
         """Объединение зон ликвидности."""
         merged_zones = []
         for level_type, level_list in levels.items():
@@ -411,7 +441,7 @@ class MarketMakerModelAgent:
                 zone = {
                     "type": level_type,
                     "price": float(level),
-                    "strength": float(strength.get(key, 0.0))
+                    "strength": float(strength.get(key, 0.0)),
                 }
                 merged_zones.append(zone)
         return merged_zones

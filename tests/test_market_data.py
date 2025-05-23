@@ -77,7 +77,9 @@ def test_get_trades(market_data):
 
 def test_get_historical_data(market_data):
     """Тест получения исторических данных"""
-    data = market_data.get_historical_data(start_time="2024-01-01", end_time="2024-01-02")
+    data = market_data.get_historical_data(
+        start_time="2024-01-01", end_time="2024-01-02"
+    )
     assert isinstance(data, pd.DataFrame)
     assert not data.empty
 
@@ -108,10 +110,14 @@ async def test_get_candles(market_data):
         assert isinstance(df, pd.DataFrame)
         assert not df.empty
         assert isinstance(df.index, pd.DatetimeIndex)
-        assert all(col in df.columns for col in ["open", "high", "low", "close", "volume"])
+        assert all(
+            col in df.columns for col in ["open", "high", "low", "close", "volume"]
+        )
 
         # Проверка кеширования
-        cached_df = await market_data.get_candles(symbol="BTCUSDT", interval="1h", limit=100)
+        cached_df = await market_data.get_candles(
+            symbol="BTCUSDT", interval="1h", limit=100
+        )
         assert cached_df.equals(df)
 
     except Exception as e:
@@ -174,7 +180,9 @@ async def test_get_historical_data(market_data):
         assert isinstance(df, pd.DataFrame)
         assert not df.empty
         assert isinstance(df.index, pd.DatetimeIndex)
-        assert all(col in df.columns for col in ["open", "high", "low", "close", "volume"])
+        assert all(
+            col in df.columns for col in ["open", "high", "low", "close", "volume"]
+        )
 
         # Проверка временного диапазона
         assert df.index.min() >= start_time

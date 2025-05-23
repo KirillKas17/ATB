@@ -1,0 +1,202 @@
+Requirement already satisfied: pip in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (25.1.1)
+Requirement already satisfied: black in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (25.1.0)
+Collecting isort
+  Using cached isort-6.0.1-py3-none-any.whl.metadata (11 kB)
+Collecting autoflake
+  Downloading autoflake-2.3.1-py3-none-any.whl.metadata (7.6 kB)
+Requirement already satisfied: mypy in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (1.15.0)
+Collecting pyright
+  Downloading pyright-1.1.401-py3-none-any.whl.metadata (6.6 kB)
+Requirement already satisfied: click>=8.0.0 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (8.2.0)
+Requirement already satisfied: mypy-extensions>=0.4.3 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (1.1.0)
+Requirement already satisfied: packaging>=22.0 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (24.2)
+Requirement already satisfied: pathspec>=0.9.0 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (0.12.1)
+Requirement already satisfied: platformdirs>=2 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (4.3.8)
+Requirement already satisfied: tomli>=1.1.0 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (2.2.1)
+Requirement already satisfied: typing-extensions>=4.0.1 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from black) (4.13.2)
+Requirement already satisfied: pyflakes>=3.0.0 in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from autoflake) (3.3.2)
+Collecting nodeenv>=1.6.0 (from pyright)
+  Downloading nodeenv-1.9.1-py2.py3-none-any.whl.metadata (21 kB)
+Requirement already satisfied: colorama in c:\users\лариса\appdata\local\programs\python\python310\lib\site-packages (from click>=8.0.0->black) (0.4.6)
+Using cached isort-6.0.1-py3-none-any.whl (94 kB)
+Downloading autoflake-2.3.1-py3-none-any.whl (32 kB)
+Downloading pyright-1.1.401-py3-none-any.whl (5.6 MB)
+   ---------------------------------------- 5.6/5.6 MB 1.4 MB/s eta 0:00:00
+Downloading nodeenv-1.9.1-py2.py3-none-any.whl (22 kB)
+Installing collected packages: nodeenv, isort, autoflake, pyright
+Successfully installed autoflake-2.3.1 isort-6.0.1 nodeenv-1.9.1 pyright-1.1.401
+Fixing C:\Users\Лариса\AdvancedTradingBot\agents\agent_market_maker_model.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\agents\agent_market_regime.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\agents\agent_meta_controller.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\agents\agent_news.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\agents\agent_order_executor.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\analysis\correlation_chain.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\exchange\exchange.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\exchange\market_data.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\decision_reasoner.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\live_adaptation.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\meta_learning.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\model_selector.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\pattern_discovery.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\transformer_predictor.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\ml\window_optimizer.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\scripts\lint.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\scripts\main.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\scripts\train.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\simulation\backtester\core.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\simulation\backtester\trade_executor.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\adaptive_strategy_generator.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\deep_learning_strategy.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\manipulation_strategies.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\random_forest_strategy.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\regime_adaptive_strategy.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\sideways_strategies.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\trend_strategies.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\strategies\volatility_strategy.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_agents.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_backtest.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_decision_reasoner.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_live_adaptation.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_manipulation_strategy.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_position_manager.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_signal_processor.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_signal_processor_new.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_strategies.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_utils.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_visualization.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\tests\test_wavelet_tools.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\utils\event_bus.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\utils\indicators.py
+Fixing C:\Users\Лариса\AdvancedTradingBot\utils\__init__.py
+Skipped 3 files
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_market_regime.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_market_maker_model.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_meta_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_news.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_order_executor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_risk.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_portfolio.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\analysis\correlation_chain.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\config\config_loader.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\agents\agent_whales.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\config_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\analysis\correlation_chain.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\analysis\pattern_discovery.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\controllers\risk_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\controllers\order_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\logger.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\correlation_chain.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\controllers\trading_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\market_state.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\ml_integration.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\models.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\exchange.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\optimizer.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\position_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\signal_processor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\dashboard\app.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\dashboard\api.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\core\strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\dashboard\pages\backtest.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\dashboard\pages\statistics.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\dashboard\pages\control.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\exchange\account_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\exchange\market_data.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\exchange\exchange.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\exchange\bybit_client.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\exchange\order_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\dataset_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\live_adaptation.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\model_selector.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\meta_learning.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\state_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\decision_reasoner.py
+error: cannot format C:\Users\Лариса\AdvancedTradingBot\models\live_adaptation.py: cannot use --safe with this file; failed to parse source file AST: unexpected indent (<unknown>, line 1)
+This could be caused by running Black with an older Python version that does not support new syntax used in your source file.
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\window_optimizer.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\scripts\lint.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\pattern_discovery.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\ml\transformer_predictor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\scripts\build_executable.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\scripts\run_dashboard.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\scripts\main.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\scripts\train_window_model.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\scripts\train.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\backtester\core.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\backtester\metrics.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\backtester\data_processor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\backtester\trade_executor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\backtest_explainer.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\backtester.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\arbitrage_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\adaptive_strategy_generator.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\simulation\market_simulator.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\backtest.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\cache.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\base_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\breakout_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\grid_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\manipulation_strategies.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\hedging_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\deep_learning_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\martingale_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\monitor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\notifications.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\parallel.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\momentum_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\mean_reversion_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\pairs_trading_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\random_forest_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\reversal_strategies.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\regime_adaptive_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\scalping_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\sideways_strategies.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\tests.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\visualization.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\trend_strategies.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\controllers\test_market_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\controllers\test_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\volatility_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\controllers\test_position_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\controllers\test_trading_controller.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_account_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\strategies\statistical_arbitrage_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_backtest.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_correlation_chain.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_bybit_client.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_correlation_chain_new.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_agents.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_dashboard.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_e2e_pipeline.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_manipulation_strategy.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_market_data.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_exchange.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_live_adaptation.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_decision_reasoner.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_optimizer.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_order_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_ml.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_position_manager.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_pattern_discovery.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_simulation.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_signal_processor_new.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_signal_processor.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_wavelet_tools.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\__init__.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_utils.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_visualization.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\event_bus.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\fibonacci_tools.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\logger.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\tests\test_strategies.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\logging_utils.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\data_loader.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\risk.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\math_utils.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\wavelet_tools.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\visualization.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\indicators.py
+reformatted C:\Users\Лариса\AdvancedTradingBot\utils\technical.py
+
+Oh no! 💥 💔 💥
+126 files reformatted, 31 files left unchanged, 1 file failed to reformat.

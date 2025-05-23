@@ -1,15 +1,14 @@
 import warnings
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
 import talib
 from loguru import logger
-from scipy import stats
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 warnings.filterwarnings("ignore")
 
@@ -118,15 +117,23 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             "sma": lambda x: talib.SMA(x, timeperiod=self.arb_config.lookback_period),
             "ema": lambda x: talib.EMA(x, timeperiod=self.arb_config.lookback_period),
             "rsi": lambda x: talib.RSI(x, timeperiod=self.arb_config.lookback_period),
-            "macd": lambda x: talib.MACD(x, fastperiod=12, slowperiod=26, signalperiod=9),
+            "macd": lambda x: talib.MACD(
+                x, fastperiod=12, slowperiod=26, signalperiod=9
+            ),
             "bollinger": lambda x: talib.BBANDS(
                 x, timeperiod=self.arb_config.lookback_period, nbdevup=2, nbdevdn=2
             ),
             "atr": lambda x: talib.ATR(
-                x["high"], x["low"], x["close"], timeperiod=self.arb_config.lookback_period
+                x["high"],
+                x["low"],
+                x["close"],
+                timeperiod=self.arb_config.lookback_period,
             ),
             "adx": lambda x: talib.ADX(
-                x["high"], x["low"], x["close"], timeperiod=self.arb_config.lookback_period
+                x["high"],
+                x["low"],
+                x["close"],
+                timeperiod=self.arb_config.lookback_period,
             ),
         }
 
@@ -137,7 +144,12 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
     def _setup_monitoring(self):
         """Настройка мониторинга"""
-        self.monitoring_data = {"positions": [], "trades": [], "metrics": {}, "alerts": []}
+        self.monitoring_data = {
+            "positions": [],
+            "trades": [],
+            "metrics": {},
+            "alerts": [],
+        }
 
     def analyze(self, data: pd.DataFrame) -> Dict[str, Any]:
         """
@@ -188,7 +200,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             regime = self._determine_market_regime(data, indicators)
 
             # Анализ настроений
-            sentiment = self._analyze_sentiment(data) if self.arb_config.use_sentiment else None
+            sentiment = (
+                self._analyze_sentiment(data) if self.arb_config.use_sentiment else None
+            )
 
             # Расчет метрик риска
             risk_metrics = self.calculate_risk_metrics(data)
@@ -294,7 +308,10 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
             # Проверка спреда
             spread = analysis["spread"]
-            if spread < self.arb_config.min_spread or spread > self.arb_config.max_spread:
+            if (
+                spread < self.arb_config.min_spread
+                or spread > self.arb_config.max_spread
+            ):
                 return False
 
             # Проверка Z-score
@@ -363,7 +380,7 @@ class StatisticalArbitrageStrategy(BaseStrategy):
         """
         try:
             # Получаем ATR
-            atr = analysis["indicators"]["atr"].iloc[-1]
+            analysis["indicators"]["atr"].iloc[-1]
 
             # Базовый стоп-лосс
             if direction == "long":
@@ -430,7 +447,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
         """
         try:
             # Получаем адаптивные параметры
-            adaptive_params = self._calculate_adaptive_parameters(pd.DataFrame(analysis))
+            adaptive_params = self._calculate_adaptive_parameters(
+                pd.DataFrame(analysis)
+            )
 
             # Базовый размер позиции
             risk_amount = self.arb_config.test_balance * self.arb_config.risk_per_trade
@@ -466,7 +485,8 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
             # Ограничение размера позиции
             position_size = min(
-                position_size, self.arb_config.test_balance * self.arb_config.max_position_size
+                position_size,
+                self.arb_config.test_balance * self.arb_config.max_position_size,
             )
 
             return position_size
@@ -475,7 +495,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             logger.error(f"Error calculating position size: {str(e)}")
             return 0.0
 
-    def _apply_kelly_criterion(self, position_size: float, analysis: Dict[str, Any]) -> float:
+    def _apply_kelly_criterion(
+        self, position_size: float, analysis: Dict[str, Any]
+    ) -> float:
         """
         Применение критерия Келли.
 
@@ -540,7 +562,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             logger.error(f"Error applying optimal f: {str(e)}")
             return position_size * 0.5
 
-    def _apply_risk_parity(self, position_size: float, analysis: Dict[str, Any]) -> float:
+    def _apply_risk_parity(
+        self, position_size: float, analysis: Dict[str, Any]
+    ) -> float:
         """
         Применение риск-парити.
 
@@ -599,7 +623,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
             # Z-score
             z_score = analysis["z_score"]
-            factors.append(min(abs(z_score) / (2 * self.arb_config.z_score_threshold), 1))
+            factors.append(
+                min(abs(z_score) / (2 * self.arb_config.z_score_threshold), 1)
+            )
 
             # Режим рынка
             if self.arb_config.use_regime:
@@ -648,16 +674,28 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
             # Проверка стоп-лосса
             if signal.stop_loss:
-                if signal.direction == "long" and signal.stop_loss >= signal.entry_price:
+                if (
+                    signal.direction == "long"
+                    and signal.stop_loss >= signal.entry_price
+                ):
                     return False
-                if signal.direction == "short" and signal.stop_loss <= signal.entry_price:
+                if (
+                    signal.direction == "short"
+                    and signal.stop_loss <= signal.entry_price
+                ):
                     return False
 
             # Проверка тейк-профита
             if signal.take_profit:
-                if signal.direction == "long" and signal.take_profit <= signal.entry_price:
+                if (
+                    signal.direction == "long"
+                    and signal.take_profit <= signal.entry_price
+                ):
                     return False
-                if signal.direction == "short" and signal.take_profit >= signal.entry_price:
+                if (
+                    signal.direction == "short"
+                    and signal.take_profit >= signal.entry_price
+                ):
                     return False
 
             return True
@@ -697,7 +735,12 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
         except Exception as e:
             logger.error(f"Error in _analyze_cointegration: {str(e)}")
-            return {"p_value": 1.0, "test_statistic": 0.0, "half_life": 0, "is_cointegrated": False}
+            return {
+                "p_value": 1.0,
+                "test_statistic": 0.0,
+                "half_life": 0,
+                "is_cointegrated": False,
+            }
 
     def _calculate_half_life(self, spread: pd.Series) -> int:
         """
@@ -724,7 +767,8 @@ class StatisticalArbitrageStrategy(BaseStrategy):
 
             # Ограничение периода
             half_life = max(
-                min(half_life, self.arb_config.max_half_life), self.arb_config.min_half_life
+                min(half_life, self.arb_config.max_half_life),
+                self.arb_config.min_half_life,
             )
 
             return half_life
@@ -814,7 +858,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             logger.error(f"Error in _calculate_z_score: {str(e)}")
             return 0.0
 
-    def _determine_market_regime(self, data: pd.DataFrame, indicators: Dict[str, Any]) -> str:
+    def _determine_market_regime(
+        self, data: pd.DataFrame, indicators: Dict[str, Any]
+    ) -> str:
         """
         Определение режима рынка.
 
@@ -977,7 +1023,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             # Регистрация операторов
             toolbox.register(
                 "evaluate",
-                lambda ind: self._evaluate_parameters(data, dict(zip(params.keys(), ind))),
+                lambda ind: self._evaluate_parameters(
+                    data, dict(zip(params.keys(), ind))
+                ),
             )
             toolbox.register("mate", tools.cxTwoPoint)
             toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.1, indpb=0.2)
@@ -1056,7 +1104,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             from itertools import product
 
             # Создание сетки параметров
-            param_grid = [dict(zip(params.keys(), v)) for v in product(*params.values())]
+            param_grid = [
+                dict(zip(params.keys(), v)) for v in product(*params.values())
+            ]
 
             # Ограничение размера сетки
             if len(param_grid) > 1000:
@@ -1115,7 +1165,9 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             logger.error(f"Error evaluating parameters: {str(e)}")
             return float("-inf")
 
-    def _select_best_parameters(self, results: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    def _select_best_parameters(
+        self, results: Dict[str, Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Выбор лучших параметров из результатов различных методов оптимизации.
 
@@ -1178,7 +1230,11 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             else:
                 volatility = self._analyze_volatility(data)
 
-            return {"z_score": z_score, "correlation": correlation, "volatility": volatility}
+            return {
+                "z_score": z_score,
+                "correlation": correlation,
+                "volatility": volatility,
+            }
 
         except Exception as e:
             logger.error(f"Error calculating adaptive parameters: {str(e)}")
@@ -1301,13 +1357,17 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             cvar_99 = returns[returns <= var_99].mean()
 
             # Расчет метрик риска
-            sharpe_ratio = returns.mean() / volatility * (252**0.5) if volatility != 0 else 0
+            sharpe_ratio = (
+                returns.mean() / volatility * (252**0.5) if volatility != 0 else 0
+            )
             sortino_ratio = (
                 returns.mean() / returns[returns < 0].std() * (252**0.5)
                 if len(returns[returns < 0]) > 0
                 else 0
             )
-            calmar_ratio = returns.mean() / max_drawdown * (252**0.5) if max_drawdown != 0 else 0
+            calmar_ratio = (
+                returns.mean() / max_drawdown * (252**0.5) if max_drawdown != 0 else 0
+            )
 
             # Расчет метрик распределения
             skewness = returns.skew()
@@ -1409,20 +1469,28 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             profits = []
             for signal in signals:
                 if signal.direction == "long":
-                    profit = (signal.take_profit - signal.entry_price) / signal.entry_price
+                    profit = (
+                        signal.take_profit - signal.entry_price
+                    ) / signal.entry_price
                 else:
-                    profit = (signal.entry_price - signal.take_profit) / signal.entry_price
+                    profit = (
+                        signal.entry_price - signal.take_profit
+                    ) / signal.entry_price
                 profits.append(profit)
 
             # Расчет метрик
             returns = pd.Series(profits)
-            sharpe_ratio = returns.mean() / returns.std() * (252**0.5) if len(returns) > 1 else 0
+            sharpe_ratio = (
+                returns.mean() / returns.std() * (252**0.5) if len(returns) > 1 else 0
+            )
             sortino_ratio = (
                 returns.mean() / returns[returns < 0].std() * (252**0.5)
                 if len(returns[returns < 0]) > 0
                 else 0
             )
-            win_rate = len(returns[returns > 0]) / len(returns) if len(returns) > 0 else 0
+            win_rate = (
+                len(returns[returns > 0]) / len(returns) if len(returns) > 0 else 0
+            )
 
             return {
                 "sharpe_ratio": sharpe_ratio,

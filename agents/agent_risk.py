@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -8,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from core.types import Signal
-from utils.indicators import calculate_atr, calculate_volatility
+from utils.indicators import calculate_atr
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -128,9 +127,9 @@ class RiskAgent:
             if not metrics or not self._validate_ohlcv(market_data):
                 return entry_price * 0.95, entry_price * 1.05
             atr = calculate_atr(
-                high=pd.Series(market_data['high']),
-                low=pd.Series(market_data['low']),
-                close=pd.Series(market_data['close'])
+                high=pd.Series(market_data["high"]),
+                low=pd.Series(market_data["low"]),
+                close=pd.Series(market_data["close"]),
             )
             atr_value = float(atr.iloc[-1]) if not atr.empty else 0.0
             stop_distance = atr_value * 2
@@ -161,10 +160,16 @@ class RiskAgent:
             if not metrics:
                 return self.config["min_leverage"]
             volatility_factor = (
-                1 / (metrics.volatility + 0.01) if metrics.volatility is not None else 1.0
+                1 / (metrics.volatility + 0.01)
+                if metrics.volatility is not None
+                else 1.0
             )
             confidence_factor = strategy_confidence
-            kelly_factor = min(metrics.kelly_criterion, 1.0) if metrics.kelly_criterion > 0 else 0.5
+            kelly_factor = (
+                min(metrics.kelly_criterion, 1.0)
+                if metrics.kelly_criterion > 0
+                else 0.5
+            )
             leverage = (
                 self.config["min_leverage"]
                 + (self.config["max_leverage"] - self.config["min_leverage"])
@@ -172,7 +177,9 @@ class RiskAgent:
                 * confidence_factor
                 * kelly_factor
             )
-            leverage = min(max(leverage, self.config["min_leverage"]), self.config["max_leverage"])
+            leverage = min(
+                max(leverage, self.config["min_leverage"]), self.config["max_leverage"]
+            )
             logger.info(f"Calculated leverage for {symbol}: {leverage:.2f}")
             return leverage
         except Exception as e:
@@ -196,11 +203,21 @@ class RiskAgent:
             drawdowns = (cumulative_returns - rolling_max) / rolling_max
             max_drawdown = float(abs(drawdowns.min()))
             volatility = float(returns.std() * np.sqrt(252))
-            win_rate = len(returns[returns > 0]) / len(returns) if len(returns) > 0 else 0.0
-            avg_win = returns[returns > 0].mean() if len(returns[returns > 0]) > 0 else 0.0
-            avg_loss = abs(returns[returns < 0].mean()) if len(returns[returns < 0]) > 0 else 0.0
+            win_rate = (
+                len(returns[returns > 0]) / len(returns) if len(returns) > 0 else 0.0
+            )
+            avg_win = (
+                returns[returns > 0].mean() if len(returns[returns > 0]) > 0 else 0.0
+            )
+            avg_loss = (
+                abs(returns[returns < 0].mean())
+                if len(returns[returns < 0]) > 0
+                else 0.0
+            )
             kelly = float(
-                (win_rate * avg_win - (1 - win_rate) * avg_loss) / avg_win if avg_win != 0 else 0
+                (win_rate * avg_win - (1 - win_rate) * avg_loss) / avg_win
+                if avg_win != 0
+                else 0
             )
             self.risk_metrics[symbol] = RiskMetrics(
                 var_95=var_95,
@@ -233,7 +250,9 @@ class RiskAgent:
         """Расчет общего скор риска для актива"""
         try:
             var_score = 1 - min(metrics.var_95 / 0.1, 1.0)
-            drawdown_score = 1 - min(metrics.max_drawdown / self.config["drawdown_threshold"], 1.0)
+            drawdown_score = 1 - min(
+                metrics.max_drawdown / self.config["drawdown_threshold"], 1.0
+            )
             volatility_score = 1 - min(metrics.volatility / 0.5, 1.0)
             risk_score = var_score * 0.4 + drawdown_score * 0.3 + volatility_score * 0.3
             return risk_score * confidence
@@ -257,10 +276,7 @@ class RiskAgent:
                 if metrics.max_drawdown > self.config["drawdown_threshold"]:
                     signals.append(
                         Signal(
-                            pair=symbol,
-                            action="reduce_position",
-                            price=0.0,
-                            size=0.0
+                            pair=symbol, action="reduce_position", price=0.0, size=0.0
                         )
                     )
             return signals
@@ -273,7 +289,9 @@ class RiskAgent:
         required = {"open", "high", "low", "close", "volume"}
         return isinstance(df, pd.DataFrame) and required.issubset(df.columns)
 
-    def calculate_position_size(self, price: float, risk_per_trade: float, low: float, close: float) -> float:
+    def calculate_position_size(
+        self, price: float, risk_per_trade: float, low: float, close: float
+    ) -> float:
         """Расчет размера позиции."""
         try:
             # Используем фиксированный баланс для примера
@@ -284,7 +302,9 @@ class RiskAgent:
             logger.error(f"Error calculating position size: {str(e)}")
             return 0.0
 
-    def create_signal(self, pair: str, action: str, price: float, size: float) -> Dict[str, Any]:
+    def create_signal(
+        self, pair: str, action: str, price: float, size: float
+    ) -> Dict[str, Any]:
         """Создание сигнала."""
         try:
             return {
@@ -293,7 +313,7 @@ class RiskAgent:
                 "price": price,
                 "size": size,
                 "timestamp": datetime.now(),
-                "source": "risk_agent"
+                "source": "risk_agent",
             }
         except Exception as e:
             logger.error(f"Error creating signal: {str(e)}")

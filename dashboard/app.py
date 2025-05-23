@@ -1,13 +1,9 @@
 import json
-import os
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 # Настройка страницы
@@ -108,7 +104,8 @@ def main():
         # Выбор пары
         pairs_stats = dashboard.load_pairs_stats()
         selected_pair = st.selectbox(
-            "Торговая пара", options=list(pairs_stats.keys()) if pairs_stats else ["BTCUSDT"]
+            "Торговая пара",
+            options=list(pairs_stats.keys()) if pairs_stats else ["BTCUSDT"],
         )
 
         # Кнопки управления
@@ -155,9 +152,13 @@ def main():
             delta=f"{stats.get('win_rate_change', 0):.2f}%",
         )
     with col3:
-        st.metric("Торгов", stats.get("total_trades", 0), delta=stats.get("trades_24h", 0))
+        st.metric(
+            "Торгов", stats.get("total_trades", 0), delta=stats.get("trades_24h", 0)
+        )
     with col4:
-        st.metric("Активных позиций", len(positions), delta=stats.get("positions_change", 0))
+        st.metric(
+            "Активных позиций", len(positions), delta=stats.get("positions_change", 0)
+        )
 
     # Графики
     col1, col2 = st.columns(2)
@@ -188,7 +189,9 @@ def main():
         st.markdown("### Распределение прибыли")
         if "pnl_distribution" in stats:
             fig = px.histogram(
-                x=stats["pnl_distribution"], nbins=50, color_discrete_sequence=["#1E88E5"]
+                x=stats["pnl_distribution"],
+                nbins=50,
+                color_discrete_sequence=["#1E88E5"],
             )
             fig.update_layout(
                 showlegend=False,
@@ -203,7 +206,8 @@ def main():
     if positions:
         df = pd.DataFrame(positions)
         st.dataframe(
-            df.style.background_gradient(subset=["pnl"], cmap="RdYlGn"), use_container_width=True
+            df.style.background_gradient(subset=["pnl"], cmap="RdYlGn"),
+            use_container_width=True,
         )
     else:
         st.info("Нет открытых позиций")

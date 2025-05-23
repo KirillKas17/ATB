@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,9 @@ class FibonacciLevels:
     low_idx: int
 
 
-def find_swing_points(high: np.ndarray, low: np.ndarray, window: int = 5) -> Tuple[int, int]:
+def find_swing_points(
+    high: np.ndarray, low: np.ndarray, window: int = 5
+) -> Tuple[int, int]:
     """
     Find swing high and low points
 
@@ -35,9 +37,9 @@ def find_swing_points(high: np.ndarray, low: np.ndarray, window: int = 5) -> Tup
 
     # Find swing high
     for i in range(window, len(high) - window):
-        if all(float(high[i]) > float(high[i - j]) for j in range(1, window + 1)) and all(
-            float(high[i]) > float(high[i + j]) for j in range(1, window + 1)
-        ):
+        if all(
+            float(high[i]) > float(high[i - j]) for j in range(1, window + 1)
+        ) and all(float(high[i]) > float(high[i + j]) for j in range(1, window + 1)):
             high_idx = i
             break
 
@@ -99,7 +101,10 @@ def calculate_fibonacci_levels(
 
 
 def get_fibonacci_levels(
-    df: pd.DataFrame, from_idx: Optional[int] = None, to_idx: Optional[int] = None, window: int = 5
+    df: pd.DataFrame,
+    from_idx: Optional[int] = None,
+    to_idx: Optional[int] = None,
+    window: int = 5,
 ) -> FibonacciLevels:
     """
     Get Fibonacci levels for a price series
@@ -127,11 +132,16 @@ def get_fibonacci_levels(
 
     # Calculate levels
     return calculate_fibonacci_levels(
-        high=float(high[high_idx]), low=float(low[low_idx]), high_idx=high_idx, low_idx=low_idx
+        high=float(high[high_idx]),
+        low=float(low[low_idx]),
+        high_idx=high_idx,
+        low_idx=low_idx,
     )
 
 
-def get_fibonacci_levels_manual(df: pd.DataFrame, high_idx: int, low_idx: int) -> FibonacciLevels:
+def get_fibonacci_levels_manual(
+    df: pd.DataFrame, high_idx: int, low_idx: int
+) -> FibonacciLevels:
     """
     Get Fibonacci levels using manually specified high/low points
 
@@ -151,7 +161,9 @@ def get_fibonacci_levels_manual(df: pd.DataFrame, high_idx: int, low_idx: int) -
     )
 
 
-def plot_fibonacci_levels(fig: go.Figure, levels: FibonacciLevels, df: pd.DataFrame) -> go.Figure:
+def plot_fibonacci_levels(
+    fig: go.Figure, levels: FibonacciLevels, df: pd.DataFrame
+) -> go.Figure:
     """
     Add Fibonacci levels to a Plotly figure
 

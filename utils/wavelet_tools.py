@@ -29,7 +29,9 @@ def perform_dwt(
 
 
 def perform_cwt(
-    series: np.ndarray, wavelet: str = "morl", scales: Union[np.ndarray, List[float]] = None
+    series: np.ndarray,
+    wavelet: str = "morl",
+    scales: Union[np.ndarray, List[float]] = None,
 ) -> np.ndarray:
     """
     Выполняет непрерывное вейвлет-преобразование (CWT) для временного ряда.

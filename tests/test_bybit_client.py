@@ -1,6 +1,4 @@
-import asyncio
-from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -78,7 +76,11 @@ class TestBybitClient:
         with patch("exchange.bybit_client.aiohttp.ClientSession") as mock_session:
             mock_response = {
                 "ret_code": 0,
-                "result": {"list": [["1625097600000", "35000", "35100", "34900", "35050", "100"]]},
+                "result": {
+                    "list": [
+                        ["1625097600000", "35000", "35100", "34900", "35050", "100"]
+                    ]
+                },
             }
             mock_session.return_value.__aenter__.return_value.get = AsyncMock()
             mock_session.return_value.__aenter__.return_value.get.return_value.__aenter__.return_value.json = AsyncMock(
@@ -246,7 +248,11 @@ async def test_error_handling(client):
     # Тест с неверным типом ордера
     with pytest.raises(Exception):
         await client.create_order(
-            symbol="BTCUSDT", order_type="invalid", side="buy", amount=0.001, price=30000
+            symbol="BTCUSDT",
+            order_type="invalid",
+            side="buy",
+            amount=0.001,
+            price=30000,
         )
 
     # Тест с неверным ID ордера

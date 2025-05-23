@@ -1,10 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
-from loguru import logger
 from pydantic import BaseModel, Field
 
 
@@ -128,13 +126,23 @@ class Position:
             entry_time=datetime.fromisoformat(data["entry_time"]),
             current_price=float(data["current_price"]),
             pnl=float(data["pnl"]) if data.get("pnl") is not None else 0.0,
-            stop_loss=float(data["stop_loss"]) if data.get("stop_loss") is not None else None,
-            take_profit=float(data["take_profit"]) if data.get("take_profit") is not None else None,
+            stop_loss=(
+                float(data["stop_loss"]) if data.get("stop_loss") is not None else None
+            ),
+            take_profit=(
+                float(data["take_profit"])
+                if data.get("take_profit") is not None
+                else None
+            ),
             unrealized_pnl=(
-                float(data["unrealized_pnl"]) if data.get("unrealized_pnl") is not None else 0.0
+                float(data["unrealized_pnl"])
+                if data.get("unrealized_pnl") is not None
+                else 0.0
             ),
             realized_pnl=(
-                float(data["realized_pnl"]) if data.get("realized_pnl") is not None else 0.0
+                float(data["realized_pnl"])
+                if data.get("realized_pnl") is not None
+                else 0.0
             ),
             timestamp=(
                 datetime.fromisoformat(data["timestamp"])
@@ -231,7 +239,9 @@ class Order:
             size=float(data.get("amount", 0.0)),
             status=str(data.get("status", "new")),
             timestamp=parsed_timestamp,
-            filled_price=float(data.get("average", 0.0)) if data.get("average") else None,
+            filled_price=(
+                float(data.get("average", 0.0)) if data.get("average") else None
+            ),
             filled_size=float(data.get("filled", 0.0)) if data.get("filled") else None,
             filled_timestamp=parsed_filled_timestamp,
         )

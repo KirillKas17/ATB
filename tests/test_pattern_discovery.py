@@ -1,9 +1,3 @@
-import json
-import os
-from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import Mock, patch
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -66,7 +60,9 @@ class TestPatternDiscovery:
         assert isinstance(patterns, list)
         assert len(patterns) > 0
         assert all(isinstance(p, Pattern) for p in patterns)
-        assert all(p.confidence >= pattern_discovery.config.min_confidence for p in patterns)
+        assert all(
+            p.confidence >= pattern_discovery.config.min_confidence for p in patterns
+        )
         assert all(p.support >= pattern_discovery.config.min_support for p in patterns)
 
     def test_prepare_features(self, pattern_discovery, mock_market_data):
@@ -74,7 +70,9 @@ class TestPatternDiscovery:
         features = pattern_discovery.prepare_features(mock_market_data)
         assert isinstance(features, pd.DataFrame)
         assert len(features) == 100
-        assert all(col in features.columns for col in pattern_discovery.config.feature_columns)
+        assert all(
+            col in features.columns for col in pattern_discovery.config.feature_columns
+        )
         assert "RSI" in features.columns
         assert "MACD" in features.columns
         assert "MACD_signal" in features.columns
@@ -96,7 +94,9 @@ class TestPatternDiscovery:
         assert isinstance(clusters, dict)
         assert len(clusters) > 0
         assert all(isinstance(cluster, list) for cluster in clusters.values())
-        assert all(isinstance(p, Pattern) for cluster in clusters.values() for p in cluster)
+        assert all(
+            isinstance(p, Pattern) for cluster in clusters.values() for p in cluster
+        )
 
     def test_find_candle_patterns(self, pattern_discovery, mock_market_data):
         """Тест поиска свечных паттернов"""
@@ -168,7 +168,9 @@ class TestPatternDiscovery:
             pattern_type="candle",
             start_idx=0,
             end_idx=pattern_discovery.config.min_pattern_length,
-            features=mock_market_data.iloc[0 : pattern_discovery.config.min_pattern_length].values,
+            features=mock_market_data.iloc[
+                0 : pattern_discovery.config.min_pattern_length
+            ].values,
             confidence=0.7,
             support=0.1,
             metadata={"pattern_name": "test_pattern"},
@@ -182,7 +184,9 @@ class TestPatternDiscovery:
             pattern_type="candle",
             start_idx=0,
             end_idx=pattern_discovery.config.max_pattern_length,
-            features=mock_market_data.iloc[0 : pattern_discovery.config.max_pattern_length].values,
+            features=mock_market_data.iloc[
+                0 : pattern_discovery.config.max_pattern_length
+            ].values,
             confidence=1.0,
             support=1.0,
             metadata={"pattern_name": "test_pattern"},
@@ -190,15 +194,21 @@ class TestPatternDiscovery:
         max_score = pattern_discovery.evaluate_pattern(max_pattern, mock_market_data)
         assert isinstance(max_score, float)
         assert 0 <= max_score <= 1
-        assert max_score >= min_score  # Максимальный паттерн должен иметь не меньшую оценку
+        assert (
+            max_score >= min_score
+        )  # Максимальный паттерн должен иметь не меньшую оценку
 
         # Проверка обновления атрибутов паттерна
         assert max_pattern.trend is not None
         assert max_pattern.volume_profile is not None
         assert isinstance(max_pattern.technical_indicators, dict)
-        assert all(isinstance(v, float) for v in max_pattern.technical_indicators.values())
+        assert all(
+            isinstance(v, float) for v in max_pattern.technical_indicators.values()
+        )
 
-    def test_save_and_load_patterns(self, pattern_discovery, mock_market_data, tmp_path):
+    def test_save_and_load_patterns(
+        self, pattern_discovery, mock_market_data, tmp_path
+    ):
         """Тест сохранения и загрузки паттернов"""
         patterns = pattern_discovery.discover_patterns(mock_market_data)
         # Оцениваем паттерны перед сохранением
@@ -375,12 +385,16 @@ class TestPatternDiscovery:
         # Тест с возрастающим объемом
         up_data = pd.DataFrame({"volume": np.linspace(1000, 2000, 100)})
         up_profile = pattern_discovery._calculate_volume_profile(up_data)
-        assert up_profile > flat_profile  # Профиль должен быть выше при возрастающем объеме
+        assert (
+            up_profile > flat_profile
+        )  # Профиль должен быть выше при возрастающем объеме
 
         # Тест с убывающим объемом
         down_data = pd.DataFrame({"volume": np.linspace(2000, 1000, 100)})
         down_profile = pattern_discovery._calculate_volume_profile(down_data)
-        assert down_profile > flat_profile  # Профиль должен быть выше при убывающем объеме
+        assert (
+            down_profile > flat_profile
+        )  # Профиль должен быть выше при убывающем объеме
 
     def test_pattern_ranking(self, pattern_discovery, mock_market_data):
         """Тест ранжирования паттернов"""
@@ -410,9 +424,12 @@ class TestPatternDiscovery:
         patterns = pattern_discovery.discover_patterns(mock_market_data)
         filtered_patterns = pattern_discovery._filter_patterns(patterns)
         assert all(
-            p.confidence >= pattern_discovery.config.min_confidence for p in filtered_patterns
+            p.confidence >= pattern_discovery.config.min_confidence
+            for p in filtered_patterns
         )
-        assert all(p.support >= pattern_discovery.config.min_support for p in filtered_patterns)
+        assert all(
+            p.support >= pattern_discovery.config.min_support for p in filtered_patterns
+        )
 
         # Тест с паттернами ниже порога
         low_confidence_patterns = [

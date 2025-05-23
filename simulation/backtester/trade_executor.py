@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from loguru import logger
 
@@ -12,7 +11,6 @@ from .types import (
     Trade,
     TradeAction,
     TradeDirection,
-    TradeError,
     TradeEvent,
 )
 
@@ -46,7 +44,9 @@ class TradeExecutor:
 
     def __init__(self, config: Dict):
         self.config = (
-            TradeExecutorConfig(**config) if not isinstance(config, TradeExecutorConfig) else config
+            TradeExecutorConfig(**config)
+            if not isinstance(config, TradeExecutorConfig)
+            else config
         )
         self.metrics = TradeExecutorMetrics()
         self._setup_logger()
@@ -255,11 +255,15 @@ class TradeExecutor:
             if not self.config.trailing_stop or not position.stop_loss:
                 return
             if position.direction == TradeDirection.LONG:
-                new_stop = max(position.stop_loss, market_data.close - self.config.trailing_step)
+                new_stop = max(
+                    position.stop_loss, market_data.close - self.config.trailing_step
+                )
                 if new_stop > position.stop_loss:
                     position.stop_loss = new_stop
             else:
-                new_stop = min(position.stop_loss, market_data.close + self.config.trailing_step)
+                new_stop = min(
+                    position.stop_loss, market_data.close + self.config.trailing_step
+                )
                 if new_stop < position.stop_loss:
                     position.stop_loss = new_stop
             self.metrics.events.append(

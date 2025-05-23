@@ -4,12 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ml.live_adaptation import (
-    AdaptationConfig,
-    AdaptationMetrics,
-    LiveAdaptation,
-    LiveAdaptationModel,
-)
+from ml.live_adaptation import AdaptationConfig, LiveAdaptation, LiveAdaptationModel
 
 
 @pytest.fixture
@@ -26,8 +21,12 @@ def sample_data():
         },
         index=dates,
     )
-    data["high"] = data[["open", "close"]].max(axis=1) + abs(np.random.normal(0, 0.5, 100))
-    data["low"] = data[["open", "close"]].min(axis=1) - abs(np.random.normal(0, 0.5, 100))
+    data["high"] = data[["open", "close"]].max(axis=1) + abs(
+        np.random.normal(0, 0.5, 100)
+    )
+    data["low"] = data[["open", "close"]].min(axis=1) - abs(
+        np.random.normal(0, 0.5, 100)
+    )
     return data
 
 

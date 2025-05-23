@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -112,7 +111,9 @@ class ReversalStrategy(BaseStrategy):
         rs = gain / loss
         return 100 - (100 / (1 + rs))
 
-    def _calculate_macd(self, prices: pd.Series) -> Tuple[pd.Series, pd.Series, pd.Series]:
+    def _calculate_macd(
+        self, prices: pd.Series
+    ) -> Tuple[pd.Series, pd.Series, pd.Series]:
         """Расчет MACD"""
         exp1 = prices.ewm(span=self.config.macd_fast, adjust=False).mean()
         exp2 = prices.ewm(span=self.config.macd_slow, adjust=False).mean()
@@ -203,7 +204,9 @@ class ReversalStrategy(BaseStrategy):
             is_overbought = rsi.iloc[i] > self.config.rsi_overbought
 
             # Проверяем пересечение MACD
-            macd_cross_up = macd.iloc[i - 1] < signal.iloc[i - 1] and macd.iloc[i] > signal.iloc[i]
+            macd_cross_up = (
+                macd.iloc[i - 1] < signal.iloc[i - 1] and macd.iloc[i] > signal.iloc[i]
+            )
             macd_cross_down = (
                 macd.iloc[i - 1] > signal.iloc[i - 1] and macd.iloc[i] < signal.iloc[i]
             )
@@ -222,7 +225,9 @@ class ReversalStrategy(BaseStrategy):
                         "index": i,
                         "type": "bullish",
                         "price": data["close"].iloc[i],
-                        "strength": self._calculate_reversal_strength(data, i, "bullish"),
+                        "strength": self._calculate_reversal_strength(
+                            data, i, "bullish"
+                        ),
                     }
                 )
             elif is_overbought and macd_cross_down and high_volume and is_swing_high:
@@ -231,7 +236,9 @@ class ReversalStrategy(BaseStrategy):
                         "index": i,
                         "type": "bearish",
                         "price": data["close"].iloc[i],
-                        "strength": self._calculate_reversal_strength(data, i, "bearish"),
+                        "strength": self._calculate_reversal_strength(
+                            data, i, "bearish"
+                        ),
                     }
                 )
 
@@ -251,7 +258,8 @@ class ReversalStrategy(BaseStrategy):
                 data["open"].iloc[index], data["close"].iloc[index]
             )
             lower_shadow = (
-                min(data["open"].iloc[index], data["close"].iloc[index]) - data["low"].iloc[index]
+                min(data["open"].iloc[index], data["close"].iloc[index])
+                - data["low"].iloc[index]
             )
 
             # Учитываем размер тела и тени
@@ -266,7 +274,8 @@ class ReversalStrategy(BaseStrategy):
                 data["open"].iloc[index], data["close"].iloc[index]
             )
             lower_shadow = (
-                min(data["open"].iloc[index], data["close"].iloc[index]) - data["low"].iloc[index]
+                min(data["open"].iloc[index], data["close"].iloc[index])
+                - data["low"].iloc[index]
             )
 
             # Учитываем размер тела и тени
@@ -298,12 +307,20 @@ class ReversalStrategy(BaseStrategy):
             atr_value = atr.iloc[index]
 
             if reversal["type"] == "bullish":
-                stop_loss = entry_price - (atr_value * self.config.stop_loss_atr_multiplier)
-                take_profit = entry_price + (atr_value * self.config.take_profit_atr_multiplier)
+                stop_loss = entry_price - (
+                    atr_value * self.config.stop_loss_atr_multiplier
+                )
+                take_profit = entry_price + (
+                    atr_value * self.config.take_profit_atr_multiplier
+                )
                 direction = "long"
             else:
-                stop_loss = entry_price + (atr_value * self.config.stop_loss_atr_multiplier)
-                take_profit = entry_price - (atr_value * self.config.take_profit_atr_multiplier)
+                stop_loss = entry_price + (
+                    atr_value * self.config.stop_loss_atr_multiplier
+                )
+                take_profit = entry_price - (
+                    atr_value * self.config.take_profit_atr_multiplier
+                )
                 direction = "short"
 
             signals.append(
@@ -322,7 +339,9 @@ class ReversalStrategy(BaseStrategy):
 
         return signals
 
-    def _confirm_reversal(self, data: pd.DataFrame, index: int, reversal_type: str) -> bool:
+    def _confirm_reversal(
+        self, data: pd.DataFrame, index: int, reversal_type: str
+    ) -> bool:
         """Подтверждение разворота"""
         # Проверяем последние свечи
         for i in range(index - self.config.confirmation_candles + 1, index + 1):
@@ -350,7 +369,9 @@ class ReversalStrategy(BaseStrategy):
         try:
             # Проверяем наличие необходимых данных
             if len(data) < max(
-                self.config.rsi_period, self.config.macd_slow, self.config.confirmation_candles
+                self.config.rsi_period,
+                self.config.macd_slow,
+                self.config.confirmation_candles,
             ):
                 return None
 

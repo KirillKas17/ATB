@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from loguru import logger
 
 from .base_strategy import BaseStrategy
@@ -95,9 +94,13 @@ class Backtest:
                         if position:
                             exit_price = current_price
                             if position == "long":
-                                profit = (exit_price - entry_price) * self.config.position_size
+                                profit = (
+                                    exit_price - entry_price
+                                ) * self.config.position_size
                             else:
-                                profit = (entry_price - exit_price) * self.config.position_size
+                                profit = (
+                                    entry_price - exit_price
+                                ) * self.config.position_size
 
                             profit -= commission * 2  # Комиссия за вход и выход
                             capital += profit
@@ -124,9 +127,13 @@ class Backtest:
                         # Закрываем позицию
                         exit_price = current_price
                         if position == "long":
-                            profit = (exit_price - entry_price) * self.config.position_size
+                            profit = (
+                                exit_price - entry_price
+                            ) * self.config.position_size
                         else:
-                            profit = (entry_price - exit_price) * self.config.position_size
+                            profit = (
+                                entry_price - exit_price
+                            ) * self.config.position_size
 
                         profit -= commission * 2  # Комиссия за вход и выход
                         capital += profit
@@ -240,7 +247,9 @@ class Backtest:
                     if sum(losing_trades) != 0
                     else float("inf")
                 ),
-                "sharpe_ratio": returns.mean() / returns.std() if returns.std() != 0 else 0.0,
+                "sharpe_ratio": (
+                    returns.mean() / returns.std() if returns.std() != 0 else 0.0
+                ),
                 "sortino_ratio": (
                     returns.mean() / returns[returns < 0].std()
                     if returns[returns < 0].std() != 0
@@ -306,12 +315,27 @@ class Backtest:
             for trade in trades:
                 if trade["position"] == "long":
                     ax1.scatter(
-                        trade["entry_time"], trade["entry_price"], color="green", marker="^"
+                        trade["entry_time"],
+                        trade["entry_price"],
+                        color="green",
+                        marker="^",
                     )
-                    ax1.scatter(trade["exit_time"], trade["exit_price"], color="red", marker="v")
+                    ax1.scatter(
+                        trade["exit_time"], trade["exit_price"], color="red", marker="v"
+                    )
                 else:
-                    ax1.scatter(trade["entry_time"], trade["entry_price"], color="red", marker="v")
-                    ax1.scatter(trade["exit_time"], trade["exit_price"], color="green", marker="^")
+                    ax1.scatter(
+                        trade["entry_time"],
+                        trade["entry_price"],
+                        color="red",
+                        marker="v",
+                    )
+                    ax1.scatter(
+                        trade["exit_time"],
+                        trade["exit_price"],
+                        color="green",
+                        marker="^",
+                    )
 
             ax1.set_title("Price and Trades")
             ax1.legend()
@@ -354,7 +378,9 @@ class Backtest:
         """
         try:
             if self.config.save_results:
-                pd.DataFrame([results]).to_csv(f"{self.config.log_dir}/{filename}.csv", index=False)
+                pd.DataFrame([results]).to_csv(
+                    f"{self.config.log_dir}/{filename}.csv", index=False
+                )
 
         except Exception as e:
             logger.error(f"Error saving results: {str(e)}")

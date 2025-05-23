@@ -1,12 +1,9 @@
 import json
-import logging
-import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 import yaml
 from loguru import logger
@@ -16,9 +13,8 @@ from agents.agent_market_regime import MarketRegimeAgent
 from agents.agent_news import NewsAgent
 from agents.agent_risk import RiskAgent
 from agents.agent_whales import WhalesAgent
-from core.signal_processor import SignalProcessor
-from core.types import StrategyMetrics as CoreStrategyMetrics, TradeDecision as CoreTradeDecision
-from ml.model_selector import ModelSelector
+from core.strategy import Signal
+from core.types import TradeDecision as CoreTradeDecision
 from simulation.backtester import Backtester
 from utils.logger import setup_logger
 
@@ -99,14 +95,19 @@ class MetaControllerAgent:
     def _setup_logger(self) -> None:
         """Настройка логгера"""
         logger.add(
-            "logs/meta_controller_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+            "logs/meta_controller_{time}.log",
+            rotation="1 day",
+            retention="7 days",
+            level="INFO",
         )
 
     async def initialize(self) -> None:
         """Инициализация бэктестера"""
-        from simulation.backtester import Backtester
+        if self.backtester is None:
+            from simulation.backtester import Backtester
 
-        self.backtester = Backtester()
+            self.backtester = Backtester()
+            # Backtester не требует асинхронной инициализации
 
     async def evaluate_strategies(self, symbol: str) -> Optional[Dict[str, Any]]:
         """
@@ -120,14 +121,16 @@ class MetaControllerAgent:
             active_strategy = self.active_strategies.get(symbol)
             if not active_strategy:
                 return None
-            strategy_metrics = self.strategies[symbol][active_strategy]
-            if not self._check_metrics(strategy_metrics):
-                logger.warning(f"Strategy {active_strategy} for {symbol} has poor metrics")
+            strategy_metrics = self.strategies.get(symbol, {}).get(active_strategy)
+            if not strategy_metrics or not self._check_metrics(strategy_metrics):
+                logger.warning(
+                    f"Strategy {active_strategy} for {symbol} has poor metrics"
+                )
                 return None
             signal = await self._get_strategy_signal(symbol, active_strategy)
             if not signal:
                 return None
-            if signal["confidence"] < self.config["confidence_threshold"]:
+            if signal.get("confidence", 0) < self.config["confidence_threshold"]:
                 return None
             return signal
         except Exception as e:
@@ -174,15 +177,60 @@ class MetaControllerAgent:
             logger.error(f"Error checking metrics: {str(e)}")
             return False
 
-    async def _get_strategy_signal(self, symbol: str, strategy: str) -> Optional[Dict[str, Any]]:
+    async def _get_strategy_signal(
+        self, symbol: str, strategy: str
+    ) -> Optional[Dict[str, Any]]:
         """
-        Получить сигнал от стратегии (заглушка, требуется реализация).
+        Получить сигнал от стратегии.
         :param symbol: торговая пара
         :param strategy: стратегия
         :return: сигнал
-        TODO: Реализовать получение сигнала от стратегии.
         """
-        return None
+        try:
+            if self.backtester is None:
+                await self.initialize()
+
+            if self.backtester is None:
+                logger.error("Failed to initialize backtester")
+                return None
+
+            # Получаем сигнал от соответствующего агента
+            if strategy == "market_maker":
+                return await self.market_maker_agent.predict_next_move(symbol)
+            elif strategy == "market_regime":
+                signals = await self.market_regime_agent.get_signals()
+                return self._convert_signals_to_dict(signals)
+            elif strategy == "whales":
+                # Временно возвращаем пустой словарь, пока не реализован метод get_signals
+                return {}
+            elif strategy == "news":
+                # Временно возвращаем пустой словарь, пока не реализован метод get_signals
+                return {}
+            else:
+                logger.warning(f"Unknown strategy type: {strategy}")
+                return None
+        except Exception as e:
+            logger.error(f"Error getting strategy signal for {symbol}: {str(e)}")
+            return None
+
+    def _convert_signals_to_dict(self, signals: List[Signal]) -> Dict[str, Any]:
+        """
+        Конвертирует список сигналов в словарь.
+        :param signals: список сигналов
+        :return: словарь с сигналами
+        """
+        if not signals:
+            return {}
+
+        latest_signal = signals[-1]
+        return {
+            "action": latest_signal.action,
+            "price": latest_signal.price,
+            "size": latest_signal.size,
+            "stop_loss": latest_signal.stop_loss,
+            "take_profit": latest_signal.take_profit,
+            "metadata": latest_signal.metadata,
+        }
 
     async def retrain_if_needed(self, symbol: str) -> None:
         """
@@ -192,7 +240,9 @@ class MetaControllerAgent:
         try:
             last_retrain = self.last_retrain.get(symbol)
             if last_retrain:
-                hours_since_retrain = (datetime.now() - last_retrain).total_seconds() / 3600
+                hours_since_retrain = (
+                    datetime.now() - last_retrain
+                ).total_seconds() / 3600
                 if hours_since_retrain < self.config["retrain_interval"]:
                     return
             await self._retrain_strategies(symbol)
@@ -277,13 +327,17 @@ class MetaControllerAgent:
             return (
                 symbol in self.strategies
                 and symbol in self.active_strategies
-                and self._check_metrics(self.strategies[symbol][self.active_strategies[symbol]])
+                and self._check_metrics(
+                    self.strategies[symbol][self.active_strategies[symbol]]
+                )
             )
         except Exception as e:
             logger.error(f"Error checking pair readiness for {symbol}: {str(e)}")
             return False
 
-    def get_strategy_metrics(self, symbol: str, strategy: str) -> Optional[StrategyMetrics]:
+    def get_strategy_metrics(
+        self, symbol: str, strategy: str
+    ) -> Optional[StrategyMetrics]:
         """
         Получение метрик стратегии.
         :param symbol: торговая пара
@@ -544,13 +598,31 @@ class BayesianMetaController:
         :param config: конфигурация
         """
         self.config = config or {}
-        self.strategy_backend = None
+        self.backtester = None
         self.performance_metrics: Dict[str, Dict[str, float]] = {}
         self.history: List[CoreTradeDecision] = []
-        self.priors: Dict[str, float] = {}
-        self.likelihoods: Dict[str, float] = {}
-        self.posteriors: Dict[str, float] = {}
         self.metadata: Dict[str, Any] = {}
+
+    async def initialize(self) -> None:
+        """Инициализация бэктестера"""
+        if self.backtester is None:
+            from simulation.backtester import Backtester
+
+            self.backtester = Backtester()
+
+    async def _get_historical_data(self, symbol: str) -> Optional[pd.DataFrame]:
+        """
+        Получение исторических данных.
+        :param symbol: торговая пара
+        :return: DataFrame с историческими данными
+        """
+        try:
+            # Здесь должна быть реализация получения исторических данных
+            # Например, через data_provider или другой источник данных
+            return None
+        except Exception as e:
+            logger.error(f"Error getting historical data for {symbol}: {str(e)}")
+            return None
 
     async def run_backtest(self, symbol: str, strategy: str) -> Dict[str, Any]:
         """
@@ -560,11 +632,37 @@ class BayesianMetaController:
         :return: результаты бэктеста
         """
         try:
-            if self.strategy_backend is not None:
-                return await self.strategy_backend.run_backtest(symbol, strategy)
-            return {}
+            if self.backtester is None:
+                await self.initialize()
+
+            if self.backtester is None:
+                raise RuntimeError("Failed to initialize backtester")
+
+            # Получаем исторические данные
+            data = await self._get_historical_data(symbol)
+            if data is None or data.empty:
+                return {}
+
+            # Запускаем бэктест
+            if not hasattr(self.backtester, "run_backtest"):
+                logger.error("Backtester does not have run_backtest method")
+                return {}
+
+            # Создаем конфигурацию для бэктеста
+            config = {
+                "symbol": symbol,
+                "strategy": strategy,
+                "start_date": self.config.get("start_date"),
+                "end_date": self.config.get("end_date"),
+            }
+
+            results = await self.backtester.run_backtest(data, config)
+            if results is None:
+                return {}
+
+            return dict(results) if isinstance(results, dict) else {}
         except Exception as e:
-            logger.error(f"Error running backtest: {str(e)}")
+            logger.error(f"Error running backtest for {symbol}: {str(e)}")
             return {}
 
     def evaluate_strategy_performance(self) -> Dict[str, Dict[str, float]]:
@@ -577,6 +675,6 @@ class BayesianMetaController:
                     performance[strategy] = {
                         "pnl": pnl,
                         "win_rate": float(metrics.get("win_rate", 0.0)),
-                        "sharpe": float(metrics.get("sharpe", 0.0))
+                        "sharpe": float(metrics.get("sharpe", 0.0)),
                     }
         return performance

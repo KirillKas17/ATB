@@ -1,15 +1,12 @@
 import asyncio
 import json
-import os
 import threading
-from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 from loguru import logger
 
 
@@ -64,7 +61,9 @@ class StateManager:
         self.optimal_window = self._load_json(self.optimal_window_path, default={})
         self.regime_history = self._load_json(self.regime_history_path, default={})
         self.confidence = self._load_json(self.confidence_path, default={})
-        self.metrics = self._load_json(self.metrics_path, default=self._create_default_metrics())
+        self.metrics = self._load_json(
+            self.metrics_path, default=self._create_default_metrics()
+        )
 
         # Кэш
         self.cache = {}

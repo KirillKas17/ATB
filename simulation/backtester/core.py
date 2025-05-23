@@ -1,13 +1,11 @@
-import asyncio
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from core.models import MarketData, Order, Position, Trade
 from core.strategy import Signal
 from utils.logger import setup_logger
 
@@ -83,7 +81,9 @@ class Backtester:
             level="INFO",
         )
 
-    async def run_backtest(self, symbol: str, strategy: str, data: Any) -> BacktestResult:
+    async def run_backtest(
+        self, symbol: str, strategy: str, data: Any
+    ) -> BacktestResult:
         """
         Запуск бэктеста (расширенный, поддержка событий, тегов, ошибок, рисков)
         """
@@ -93,7 +93,9 @@ class Backtester:
             if not is_valid:
                 raise ValueError(f"Invalid data: {error}")
             processed_data = self.data_processor.preprocess_data(data)
-            market_data = self.data_processor.process_market_data(processed_data, symbol=symbol)
+            market_data = self.data_processor.process_market_data(
+                processed_data, symbol=symbol
+            )
             balance = self.config.initial_balance
             position = None
             trades = []
@@ -103,7 +105,10 @@ class Backtester:
                 signal = await self._get_signal(symbol, strategy)
                 if signal:
                     trade, new_balance = self.trade_executor.execute_trade(
-                        signal=signal, market_data=market_point, balance=balance, position=position
+                        signal=signal,
+                        market_data=market_point,
+                        balance=balance,
+                        position=position,
                     )
                     if trade:
                         trades.append(trade)
@@ -148,7 +153,9 @@ class Backtester:
                 tags=self.config.tags,
                 errors=[
                     TradeError(code=0, message=e, timestamp=datetime.now())
-                    for e in ([self.metrics.last_error] if self.metrics.last_error else [])
+                    for e in (
+                        [self.metrics.last_error] if self.metrics.last_error else []
+                    )
                 ],
                 events=self.metrics.events,
                 risk=self.metrics.risk,

@@ -1,15 +1,11 @@
 import hashlib
-import json
-import os
 import pickle
 from dataclasses import dataclass
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
-import numpy as np
-import pandas as pd
 from loguru import logger
 
 
@@ -137,7 +133,10 @@ class Cache:
                 return None
 
             # Проверяем время жизни
-            if datetime.now().timestamp() - cache_file.stat().st_mtime > self.config.ttl:
+            if (
+                datetime.now().timestamp() - cache_file.stat().st_mtime
+                > self.config.ttl
+            ):
                 cache_file.unlink()
                 return None
 

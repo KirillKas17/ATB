@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -8,7 +7,11 @@ import pytest
 from utils.data_loader import load_market_data, save_market_data
 from utils.indicators import calculate_bollinger_bands, calculate_macd, calculate_rsi
 from utils.logging import log_error, log_trade, setup_logger
-from utils.math_utils import calculate_drawdown, calculate_sharpe_ratio, calculate_win_rate
+from utils.math_utils import (
+    calculate_drawdown,
+    calculate_sharpe_ratio,
+    calculate_win_rate,
+)
 from utils.visualization import plot_equity_curve, plot_indicators, plot_trades
 
 

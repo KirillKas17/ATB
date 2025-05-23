@@ -1,10 +1,8 @@
 import asyncio
 from asyncio import Lock
-from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from functools import lru_cache
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Set
 
 import backoff
 import numpy as np
@@ -14,7 +12,8 @@ from loguru import logger
 from .account_manager import AccountManager, AccountMetrics, RiskConfig
 from .bybit_client import BybitClient
 from .market_data import DataCache, MarketData
-from .order_manager import Order as OrderManagerOrder, OrderConfig, OrderManager
+from .order_manager import Order as OrderManagerOrder
+from .order_manager import OrderConfig, OrderManager
 
 
 @dataclass
@@ -188,7 +187,8 @@ class Exchange:
 
             if (
                 cached_data
-                and (datetime.now() - cached_data.timestamp).total_seconds() < self.config.cache_ttl
+                and (datetime.now() - cached_data.timestamp).total_seconds()
+                < self.config.cache_ttl
             ):
                 return [cached_data]
 
@@ -409,7 +409,9 @@ class Exchange:
         try:
             # TODO: Реализовать получение данных с биржи
             # Временная заглушка
-            dates = pd.date_range(start=start_time or datetime.now(), periods=limit, freq=interval)
+            dates = pd.date_range(
+                start=start_time or datetime.now(), periods=limit, freq=interval
+            )
             data = pd.DataFrame(
                 {
                     "open": np.random.normal(100, 1, limit),

@@ -1,11 +1,8 @@
 import json
-from datetime import datetime, timedelta
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 st.set_page_config(page_title="Статистика", page_icon="📊", layout="wide")
@@ -58,7 +55,9 @@ def main():
     col1, col2, col3 = st.columns(3)
     with col1:
         pairs = st.multiselect(
-            "Торговые пары", options=trades_df["pair"].unique(), default=trades_df["pair"].unique()
+            "Торговые пары",
+            options=trades_df["pair"].unique(),
+            default=trades_df["pair"].unique(),
         )
     with col2:
         date_range = st.date_input(
@@ -88,7 +87,7 @@ def main():
         st.metric("Win Rate", f"{win_rate:.2f}%")
 
     with col2:
-        total_pnl = filtered_df["pnl"].sum()
+        filtered_df["pnl"].sum()
         avg_pnl = filtered_df["pnl"].mean()
         st.metric("Средний PNL", f"{avg_pnl:.2f}%")
 
@@ -106,7 +105,9 @@ def main():
     with col1:
         st.markdown("### Кривая доходности")
         cumulative_pnl = filtered_df["pnl"].cumsum()
-        fig = px.line(x=filtered_df["timestamp"], y=cumulative_pnl, title="Кумулятивный PNL")
+        fig = px.line(
+            x=filtered_df["timestamp"], y=cumulative_pnl, title="Кумулятивный PNL"
+        )
         fig.update_layout(
             showlegend=False,
             margin=dict(l=0, r=0, t=30, b=0),
@@ -117,7 +118,9 @@ def main():
 
     with col2:
         st.markdown("### Распределение PNL")
-        fig = px.histogram(filtered_df, x="pnl", nbins=50, title="Распределение прибыли/убытков")
+        fig = px.histogram(
+            filtered_df, x="pnl", nbins=50, title="Распределение прибыли/убытков"
+        )
         fig.update_layout(
             showlegend=False,
             margin=dict(l=0, r=0, t=30, b=0),
@@ -136,7 +139,9 @@ def main():
 
     pair_stats.columns = ["Торгов", "Средний PNL", "Общий PNL"]
     st.dataframe(
-        pair_stats.style.background_gradient(subset=["Средний PNL", "Общий PNL"], cmap="RdYlGn"),
+        pair_stats.style.background_gradient(
+            subset=["Средний PNL", "Общий PNL"], cmap="RdYlGn"
+        ),
         use_container_width=True,
     )
 
@@ -158,7 +163,9 @@ def main():
 
     # История сделок
     st.markdown("### История сделок")
-    st.dataframe(filtered_df.sort_values("timestamp", ascending=False), use_container_width=True)
+    st.dataframe(
+        filtered_df.sort_values("timestamp", ascending=False), use_container_width=True
+    )
 
 
 if __name__ == "__main__":

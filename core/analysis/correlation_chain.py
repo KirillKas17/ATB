@@ -3,11 +3,10 @@
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from loguru import logger
 from statsmodels.tsa.stattools import acf
 
 
@@ -25,7 +24,11 @@ class CorrelationPair:
 class CorrelationChain:
     """Класс для анализа цепочек корреляций"""
 
-    def __init__(self, data: Optional[Dict[str, pd.DataFrame]] = None, config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        data: Optional[Dict[str, pd.DataFrame]] = None,
+        config: Optional[Dict[str, Any]] = None,
+    ):
         self.data = data or {}
         self.config = config or {}
         self.min_correlation = float(self.config.get("min_correlation", 0.7))
@@ -34,7 +37,9 @@ class CorrelationChain:
         self.pairs: List[CorrelationPair] = []
         self.chain: List[Tuple[str, str, float]] = []
 
-    def _calculate_correlation(self, x: Union[pd.Series, pd.DataFrame], y: Union[pd.Series, pd.DataFrame]) -> float:
+    def _calculate_correlation(
+        self, x: Union[pd.Series, pd.DataFrame], y: Union[pd.Series, pd.DataFrame]
+    ) -> float:
         """Расчет корреляции между двумя временными рядами."""
         if isinstance(x, pd.DataFrame):
             x = pd.Series(x.squeeze())
@@ -45,10 +50,7 @@ class CorrelationChain:
     def build_correlation_matrix(self, data: pd.DataFrame) -> pd.DataFrame:
         """Построение матрицы корреляций."""
         symbols = data.columns.tolist()
-        corr_matrix = pd.DataFrame(
-            index=pd.Index(symbols),
-            columns=pd.Index(symbols)
-        )
+        corr_matrix = pd.DataFrame(index=pd.Index(symbols), columns=pd.Index(symbols))
 
         for i, symbol1 in enumerate(symbols):
             for j, symbol2 in enumerate(symbols):
@@ -59,7 +61,9 @@ class CorrelationChain:
 
         return corr_matrix
 
-    def find_correlation_chain(self, corr_matrix: pd.DataFrame) -> List[Tuple[str, str, float]]:
+    def find_correlation_chain(
+        self, corr_matrix: pd.DataFrame
+    ) -> List[Tuple[str, str, float]]:
         """Поиск цепочки корреляций."""
         chain = []
         symbols = corr_matrix.index.tolist()
@@ -73,7 +77,9 @@ class CorrelationChain:
 
         return chain
 
-    def get_correlation_groups(self, data: pd.DataFrame) -> List[Tuple[str, str, float]]:
+    def get_correlation_groups(
+        self, data: pd.DataFrame
+    ) -> List[Tuple[str, str, float]]:
         """Получение групп коррелирующих активов."""
         corr_matrix = self.build_correlation_matrix(data)
         self.chain = self.find_correlation_chain(corr_matrix)
@@ -135,10 +141,7 @@ class CorrelationChain:
             return pd.DataFrame()
 
         symbols = list(self.data.keys())
-        matrix = pd.DataFrame(
-            index=pd.Index(symbols),
-            columns=pd.Index(symbols)
-        )
+        matrix = pd.DataFrame(index=pd.Index(symbols), columns=pd.Index(symbols))
 
         for pair in self.pairs:
             matrix.loc[pair.symbol1, pair.symbol2] = float(pair.correlation)

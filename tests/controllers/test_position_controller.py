@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -40,7 +40,9 @@ def sample_position():
 
 
 @pytest.mark.asyncio
-async def test_open_position(position_controller, sample_position, mock_order_controller):
+async def test_open_position(
+    position_controller, sample_position, mock_order_controller
+):
     """Тест открытия позиции"""
     mock_order_controller.place_order.return_value = Order(
         id="123",
@@ -58,7 +60,9 @@ async def test_open_position(position_controller, sample_position, mock_order_co
 
 
 @pytest.mark.asyncio
-async def test_close_position(position_controller, sample_position, mock_order_controller):
+async def test_close_position(
+    position_controller, sample_position, mock_order_controller
+):
     """Тест закрытия позиции"""
     position_controller.positions["BTC/USDT"] = sample_position
     mock_order_controller.place_order.return_value = Order(

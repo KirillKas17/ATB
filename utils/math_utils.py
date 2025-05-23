@@ -142,7 +142,9 @@ class PerformanceMetrics:
     drawdown_duration: int
 
 
-def calculate_performance(returns: ArrayLike, risk_free_rate: float = 0.0) -> PerformanceMetrics:
+def calculate_performance(
+    returns: ArrayLike, risk_free_rate: float = 0.0
+) -> PerformanceMetrics:
     """
     Calculate performance metrics
 
@@ -232,10 +234,16 @@ def calculate_sharpe_ratio(
     if len(excess_returns) == 0:
         return 0.0
 
-    return np.mean(excess_returns) / np.std(excess_returns) if np.std(excess_returns) != 0 else 0.0
+    return (
+        np.mean(excess_returns) / np.std(excess_returns)
+        if np.std(excess_returns) != 0
+        else 0.0
+    )
 
 
-def calculate_drawdown(equity_curve: Union[List[float], np.ndarray, pd.Series]) -> Dict[str, float]:
+def calculate_drawdown(
+    equity_curve: Union[List[float], np.ndarray, pd.Series],
+) -> Dict[str, float]:
     """
     Расчет просадки.
 
@@ -266,7 +274,10 @@ def calculate_drawdown(equity_curve: Union[List[float], np.ndarray, pd.Series]) 
     else:
         max_drawdown_duration = 0
 
-    return {"max_drawdown": max_drawdown, "max_drawdown_duration": max_drawdown_duration}
+    return {
+        "max_drawdown": max_drawdown,
+        "max_drawdown_duration": max_drawdown_duration,
+    }
 
 
 def calculate_win_rate(trades: List[Dict]) -> float:

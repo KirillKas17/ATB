@@ -65,7 +65,9 @@ def load_config(config_path: str = "config/config.yaml") -> Config:
     try:
         config_file = Path(config_path)
         if not config_file.exists():
-            print(f"Config file not found at {config_path}, using default configuration")
+            print(
+                f"Config file not found at {config_path}, using default configuration"
+            )
             return Config()
 
         with open(config_file, "r") as f:

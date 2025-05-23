@@ -1,14 +1,12 @@
 import asyncio
 import json
-import os
-import platform
 import signal
 import sys
 import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import psutil
 import uvicorn
@@ -101,7 +99,9 @@ class DashboardManager:
             # Монтирование статических файлов
             static_dir = Path(self.config.static_dir)
             if static_dir.exists():
-                app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+                app.mount(
+                    "/static", StaticFiles(directory=str(static_dir)), name="static"
+                )
             else:
                 logger.warning(f"Статическая директория {static_dir} не найдена")
 
@@ -116,17 +116,21 @@ class DashboardManager:
             # Добавление обработчиков ошибок
             @app.exception_handler(HTTPException)
             async def http_exception_handler(request, exc):
-                return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+                return JSONResponse(
+                    status_code=exc.status_code, content={"detail": exc.detail}
+                )
 
             @app.exception_handler(Exception)
             async def general_exception_handler(request, exc):
                 logger.error(f"Необработанная ошибка: {str(exc)}")
-                return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+                return JSONResponse(
+                    status_code=500, content={"detail": "Internal server error"}
+                )
 
             # Добавление middleware для метрик
             @app.middleware("http")
             async def metrics_middleware(request, call_next):
-                start_time = datetime.now()
+                datetime.now()
                 try:
                     response = await call_next(request)
                     return response
@@ -233,7 +237,9 @@ class DashboardManager:
             metrics_file.parent.mkdir(parents=True, exist_ok=True)
 
             with open(metrics_file, "w") as f:
-                json.dump([m.__dict__ for m in self.metrics_history], f, indent=2, default=str)
+                json.dump(
+                    [m.__dict__ for m in self.metrics_history], f, indent=2, default=str
+                )
 
             logger.info("Дашборд остановлен")
 
@@ -258,7 +264,9 @@ async def main():
 
 if __name__ == "__main__":
     # Настройка логирования
-    logger.add("logs/dashboard_{time}.log", rotation="1 day", retention="7 days", level="INFO")
+    logger.add(
+        "logs/dashboard_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+    )
 
     # Запуск асинхронного main
     asyncio.run(main())

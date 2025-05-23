@@ -1,7 +1,7 @@
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from loguru import logger
 
@@ -18,8 +18,14 @@ class OrderConfig:
     trailing_stop: bool = False  # использование трейлинг-стопа
     trailing_distance: float = 0.02  # дистанция трейлинг-стопа (2%)
     break_even_threshold: float = 0.01  # порог для брейк-ивен (1%)
-    take_profit_levels: List[float] = None  # уровни тейк-профита
-    take_profit_quantities: List[float] = None  # количества для каждого уровня
+    take_profit_levels: List[float] = field(default_factory=lambda: [0.02, 0.03, 0.05])
+    take_profit_quantities: List[float] = field(default_factory=lambda: [0.4, 0.3, 0.3])
+
+    def __post_init__(self):
+        if self.take_profit_levels is None:
+            self.take_profit_levels = [0.02, 0.03, 0.05]  # 2%, 3%, 5%
+        if self.take_profit_quantities is None:
+            self.take_profit_quantities = [0.4, 0.3, 0.3]  # 40%, 30%, 30%
 
 
 @dataclass
@@ -44,7 +50,7 @@ class Order:
 
 
 class OrderManager:
-    def __init__(self, client: BybitClient, config: OrderConfig = None):
+    def __init__(self, client: BybitClient, config: Optional[OrderConfig] = None):
         """
         Инициализация менеджера ордеров.
 
@@ -60,7 +66,7 @@ class OrderManager:
         self.closed_orders: Dict[str, Order] = {}
 
         # Запуск мониторинга
-        self.monitor_task = None
+        self.monitor_task: Optional[asyncio.Task] = None
 
     async def start(self):
         """Запуск менеджера"""
@@ -203,36 +209,42 @@ class OrderManager:
             List[Order]: Список созданных ордеров
         """
         try:
-            orders = []
+            if len(levels) != len(quantities):
+                raise ValueError("Number of levels must match number of quantities")
 
+            if not all(0 < q <= 1 for q in quantities):
+                raise ValueError("All quantities must be between 0 and 1")
+
+            if sum(quantities) != 1:
+                raise ValueError("Quantities must sum to 1")
+
+            orders: List[Order] = []
             for level, quantity in zip(levels, quantities):
-                # Расчет цены для уровня
+                amount = total_amount * quantity
                 price = base_price * (1 + level if side == "buy" else 1 - level)
 
-                # Создание ордера
                 order = await self.client.create_order(
                     symbol=symbol,
                     order_type="limit",
                     side="sell" if side == "buy" else "buy",
-                    amount=quantity,
+                    amount=amount,
                     price=price,
                 )
 
-                # Создание объекта ордера
                 order_obj = Order(
                     id=order["id"],
                     symbol=symbol,
                     type="limit",
                     side="sell" if side == "buy" else "buy",
-                    amount=quantity,
+                    amount=amount,
                     price=price,
                     status=order["status"],
                     timestamp=datetime.fromtimestamp(order["timestamp"] / 1000),
                     leverage=1.0,  # для тейк-профитов плечо не используется
                 )
 
-                orders.append(order_obj)
                 self.active_orders[order["id"]] = order_obj
+                orders.append(order_obj)
 
             logger.info(f"Created take profit ladder: {orders}")
 
@@ -252,7 +264,7 @@ class OrderManager:
         """
         try:
             order = self.active_orders.get(order_id)
-            if not order or not order.trailing_stop:
+            if not order or not order.trailing_stop or order.stop_loss is None:
                 return
 
             # Расчет нового стоп-лосса
@@ -269,26 +281,18 @@ class OrderManager:
             logger.error(f"Error updating trailing stop: {str(e)}")
             raise
 
-    async def check_break_even(self, order_id: str, current_price: float):
-        """
-        Проверка условий для брейк-ивен.
-
-        Args:
-            order_id: ID ордера
-            current_price: Текущая цена
-        """
+    async def check_break_even(self, order_id: str, current_price: float) -> None:
+        """Проверка достижения брейк-ивен"""
         try:
             order = self.active_orders.get(order_id)
             if not order or not order.break_even_price:
                 return
 
-            # Проверка условий
-            if order.side == "buy":
-                if current_price >= order.break_even_price:
-                    await self._move_stop_to_break_even(order)
-            else:
-                if current_price <= order.break_even_price:
-                    await self._move_stop_to_break_even(order)
+            break_even_price = float(order.break_even_price)
+            if order.side == "buy" and current_price > break_even_price:
+                await self._move_stop_to_break_even(order)
+            elif order.side == "sell" and current_price < break_even_price:
+                await self._move_stop_to_break_even(order)
 
         except Exception as e:
             logger.error(f"Error checking break even: {str(e)}")
@@ -327,7 +331,9 @@ class OrderManager:
                 for order_id, order in list(self.active_orders.items()):
                     try:
                         # Получение текущего состояния
-                        current_order = await self.client.get_order(order_id, order.symbol)
+                        current_order = await self.client.get_order(
+                            order_id, order.symbol
+                        )
 
                         # Обновление статуса
                         if current_order["status"] != order.status:
@@ -380,8 +386,7 @@ class OrderManager:
     async def _set_leverage(self, symbol: str, leverage: float):
         """Установка плеча"""
         try:
-            await self.client.exchange.set_leverage(leverage, symbol)
-
+            await self.client.set_leverage(symbol=symbol, leverage=int(leverage))
         except Exception as e:
             logger.error(f"Error setting leverage: {str(e)}")
             raise
@@ -389,19 +394,23 @@ class OrderManager:
     def _calculate_break_even(self, entry_price: float, stop_loss: float) -> float:
         """Расчет цены брейк-ивен"""
         try:
-            return entry_price + (entry_price - stop_loss) * self.config.break_even_threshold
+            return (
+                entry_price
+                + (entry_price - stop_loss) * self.config.break_even_threshold
+            )
 
         except Exception as e:
             logger.error(f"Error calculating break even: {str(e)}")
             raise
 
-    async def _update_stop_loss(self, order: Order, new_stop: float):
+    async def _update_stop_loss(self, order: Order, new_stop: Optional[float]) -> None:
         """Обновление стоп-лосса"""
         try:
-            # Отмена старого стоп-лосса
-            await self.client.cancel_order(order.id, order.symbol)
+            if new_stop is None:
+                return
 
-            # Создание нового стоп-лосса
+            await self.client.cancel_order(symbol=order.symbol, order_id=order.id)
+
             stop_order = await self.client.create_order(
                 symbol=order.symbol,
                 order_type="stop",
@@ -411,10 +420,8 @@ class OrderManager:
                 params={"stopPrice": new_stop},
             )
 
-            # Обновление информации
             order.stop_loss = new_stop
-
-            logger.info(f"Updated stop loss for order {order.id}: {new_stop}")
+            logger.info(f"Updated stop loss for order {order.id} to {new_stop}")
 
         except Exception as e:
             logger.error(f"Error updating stop loss: {str(e)}")

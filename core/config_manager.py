@@ -1,7 +1,6 @@
 import json
 import os
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from loguru import logger
 
@@ -119,7 +118,12 @@ class ConfigManager:
                 "user": "postgres",
                 "password": "",
             },
-            "api": {"exchange": "binance", "api_key": "", "api_secret": "", "testnet": True},
+            "api": {
+                "exchange": "binance",
+                "api_key": "",
+                "api_secret": "",
+                "testnet": True,
+            },
         }
 
     def validate_config(self) -> bool:

@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from core.position_manager import Position, PositionManager, PositionSide, PositionStatus
+from core.position_manager import (
+    Position,
+    PositionManager,
+    PositionSide,
+    PositionStatus,
+)
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

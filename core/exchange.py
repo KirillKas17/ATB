@@ -1,10 +1,7 @@
-import time
-from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import ccxt
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -70,7 +67,8 @@ class Exchange:
 
             if (
                 cached_data
-                and (datetime.now() - cached_data.timestamp).total_seconds() < self.cache_ttl
+                and (datetime.now() - cached_data.timestamp).total_seconds()
+                < self.cache_ttl
             ):
                 return [cached_data]
 
@@ -128,7 +126,12 @@ class Exchange:
             return None
 
     def create_order(
-        self, pair: str, order_type: str, side: str, amount: float, price: Optional[float] = None
+        self,
+        pair: str,
+        order_type: str,
+        side: str,
+        amount: float,
+        price: Optional[float] = None,
     ) -> Optional[Order]:
         """
         Создание ордера.
@@ -225,7 +228,9 @@ class Exchange:
                 return []
 
             orders = (
-                self.client.get_open_orders(symbol=pair) if pair else self.client.get_open_orders()
+                self.client.get_open_orders(symbol=pair)
+                if pair
+                else self.client.get_open_orders()
             )
             return [Order.from_exchange_data(order) for order in orders]
 
@@ -428,7 +433,10 @@ class Exchange:
             return []
 
     def get_closed_orders(
-        self, symbol: Optional[str] = None, since: Optional[int] = None, limit: Optional[int] = None
+        self,
+        symbol: Optional[str] = None,
+        since: Optional[int] = None,
+        limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """Получение закрытых ордеров."""
         try:
@@ -602,7 +610,12 @@ class BinanceExchange(Exchange):
             return None
 
     def create_order(
-        self, pair: str, order_type: str, side: str, amount: float, price: Optional[float] = None
+        self,
+        pair: str,
+        order_type: str,
+        side: str,
+        amount: float,
+        price: Optional[float] = None,
     ) -> Optional[Order]:
         """
         Создание ордера.
@@ -699,7 +712,9 @@ class BinanceExchange(Exchange):
                 return []
 
             orders = (
-                self.client.get_open_orders(symbol=pair) if pair else self.client.get_open_orders()
+                self.client.get_open_orders(symbol=pair)
+                if pair
+                else self.client.get_open_orders()
             )
             return [Order.from_exchange_data(order) for order in orders]
 
@@ -780,7 +795,11 @@ class BinanceExchange(Exchange):
             return []
         try:
             # Получение сделок
-            trades = self.client.get_my_trades(symbol=pair) if pair else self.client.get_my_trades()
+            trades = (
+                self.client.get_my_trades(symbol=pair)
+                if pair
+                else self.client.get_my_trades()
+            )
 
             # Преобразование в Trade
             return [

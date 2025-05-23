@@ -1,9 +1,14 @@
 # Основные библиотеки
 numpy>=1.21.0
-pandas>=1.3.0
-scipy>=1.7.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
+pandas>=1.5.0
+scikit-learn>=1.0.0
+scikit-optimize>=0.9.0
+statsmodels>=0.13.0
+lime>=0.2.0
+shap>=0.41.0
+psycopg2-binary>=2.9.0
+transformers>=4.30.0
+deap>=1.3.1
 
 # Машинное обучение
 scikit-learn>=1.0.0

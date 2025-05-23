@@ -1,6 +1,3 @@
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -65,7 +62,9 @@ def correlation_chain(correlation_config, mock_market_data):
 class TestCorrelationChain:
     def test_initialization(self, correlation_chain, correlation_config):
         """Тест инициализации"""
-        assert correlation_chain.min_correlation == correlation_config["min_correlation"]
+        assert (
+            correlation_chain.min_correlation == correlation_config["min_correlation"]
+        )
         assert correlation_chain.max_lag == correlation_config["max_lag"]
         assert correlation_chain.window_size == correlation_config["window_size"]
         assert isinstance(correlation_chain.pairs, list)
@@ -75,7 +74,9 @@ class TestCorrelationChain:
         pairs = correlation_chain.find_correlations()
         assert isinstance(pairs, list)
         assert all(isinstance(pair, CorrelationPair) for pair in pairs)
-        assert all(pair.correlation >= correlation_chain.min_correlation for pair in pairs)
+        assert all(
+            pair.correlation >= correlation_chain.min_correlation for pair in pairs
+        )
 
     def test_calculate_correlation(self, correlation_chain):
         """Тест расчета корреляции"""
@@ -108,8 +109,12 @@ class TestCorrelationChain:
         """Тест обновления данных"""
         correlation_chain.update_data(mock_market_data)
         assert not correlation_chain.correlation_matrix.empty
-        assert len(correlation_chain.correlation_matrix) == len(mock_market_data.columns)
-        assert len(correlation_chain.correlation_matrix.columns) == len(mock_market_data.columns)
+        assert len(correlation_chain.correlation_matrix) == len(
+            mock_market_data.columns
+        )
+        assert len(correlation_chain.correlation_matrix.columns) == len(
+            mock_market_data.columns
+        )
 
     def test_get_correlation_metrics(self, correlation_chain, mock_market_data):
         """Тест получения метрик корреляции"""
@@ -124,7 +129,9 @@ class TestCorrelationChain:
     def test_is_confirmed_by_correlation(self, correlation_chain, mock_market_data):
         """Тест подтверждения корреляцией"""
         correlation_chain.update_data(mock_market_data)
-        confirmed = correlation_chain.is_confirmed_by_correlation("BTC/USDT", "ETH/USDT")
+        confirmed = correlation_chain.is_confirmed_by_correlation(
+            "BTC/USDT", "ETH/USDT"
+        )
         assert isinstance(confirmed, bool)
 
     def test_get_leading_indicators(self, correlation_chain, mock_market_data):

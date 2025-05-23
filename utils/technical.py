@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import pandas_ta as ta
 from loguru import logger
-from scipy import stats
 from sklearn.cluster import DBSCAN
 
 # Type aliases
@@ -84,14 +83,19 @@ class MACD:
 
 
 def macd(
-    data: ArrayLike, fast_period: int = 12, slow_period: int = 26, signal_period: int = 9
+    data: ArrayLike,
+    fast_period: int = 12,
+    slow_period: int = 26,
+    signal_period: int = 9,
 ) -> MACD:
     """Calculate MACD"""
     macd = ta.macd(data, fast=fast_period, slow=slow_period, signal=signal_period)
     return MACD(macd["MACD_12_26_9"], macd["MACDs_12_26_9"], macd["MACDh_12_26_9"])
 
 
-def adx(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14) -> pd.Series:
+def adx(
+    high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14
+) -> pd.Series:
     """Average Directional Index"""
     high = pd.Series(high)
     low = pd.Series(low)
@@ -118,7 +122,9 @@ def adx(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14) -> 
     return adx
 
 
-def cci(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 20) -> pd.Series:
+def cci(
+    high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 20
+) -> pd.Series:
     """Commodity Channel Index"""
     tp = (pd.Series(high) + pd.Series(low) + pd.Series(close)) / 3
     tp_ma = sma(tp, period)
@@ -126,19 +132,25 @@ def cci(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 20) -> 
     return (tp - tp_ma) / (0.015 * tp_md)
 
 
-def atr(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14) -> pd.Series:
+def atr(
+    high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14
+) -> pd.Series:
     """Average True Range"""
     return ta.atr(high, low, close, length=period)
 
 
-def vwap(high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike) -> pd.Series:
+def vwap(
+    high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike
+) -> pd.Series:
     """Volume Weighted Average Price"""
     typical_price = (pd.Series(high) + pd.Series(low) + pd.Series(close)) / 3
     volume = pd.Series(volume)
     return (typical_price * volume).cumsum() / volume.cumsum()
 
 
-def fractals(high: ArrayLike, low: ArrayLike, n: int = 2) -> Tuple[pd.Series, pd.Series]:
+def fractals(
+    high: ArrayLike, low: ArrayLike, n: int = 2
+) -> Tuple[pd.Series, pd.Series]:
     """Fractal Patterns"""
     high = pd.Series(high)
     low = pd.Series(low)
@@ -235,7 +247,9 @@ def calculate_fuzzy_support_resistance(
         return {"support": [], "resistance": []}
 
 
-def cluster_price_levels(prices: np.ndarray, eps: float = 0.5, min_samples: int = 3) -> List[Dict]:
+def cluster_price_levels(
+    prices: np.ndarray, eps: float = 0.5, min_samples: int = 3
+) -> List[Dict]:
     """
     Кластеризация ценовых уровней.
 
@@ -281,7 +295,9 @@ def cluster_price_levels(prices: np.ndarray, eps: float = 0.5, min_samples: int 
         return []
 
 
-def merge_overlapping_zones(zones: List[Dict], overlap_threshold: float = 0.5) -> List[Dict]:
+def merge_overlapping_zones(
+    zones: List[Dict], overlap_threshold: float = 0.5
+) -> List[Dict]:
     """
     Объединение перекрывающихся зон.
 
@@ -438,7 +454,10 @@ def calculate_rsi(data: pd.Series, period: int = 14) -> pd.Series:
 
 
 def calculate_macd(
-    data: pd.Series, fast_period: int = 12, slow_period: int = 26, signal_period: int = 9
+    data: pd.Series,
+    fast_period: int = 12,
+    slow_period: int = 26,
+    signal_period: int = 9,
 ) -> Tuple[pd.Series, pd.Series, pd.Series]:
     """Расчет MACD"""
     macd = ta.macd(data, fast=fast_period, slow=slow_period, signal=signal_period)
@@ -453,7 +472,9 @@ def calculate_bollinger_bands(
     return bb["BBL_20_2.0"], bb["BBM_20_2.0"], bb["BBU_20_2.0"]
 
 
-def calculate_atr(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
+def calculate_atr(
+    high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14
+) -> pd.Series:
     """Расчет ATR"""
     return ta.atr(high, low, close, length=period)
 
@@ -523,7 +544,10 @@ def calculate_liquidity_zones(
     high_liquidity = price[volume_norm > (1 + threshold)]
     low_liquidity = price[volume_norm < (1 - threshold)]
 
-    return {"high_liquidity": high_liquidity.tolist(), "low_liquidity": low_liquidity.tolist()}
+    return {
+        "high_liquidity": high_liquidity.tolist(),
+        "low_liquidity": low_liquidity.tolist(),
+    }
 
 
 def calculate_market_structure(
@@ -653,7 +677,9 @@ def calculate_ichimoku(
         # Расчет Senkou Span B (Leading Span B)
         senkou_span_b_high = pd.Series(high).rolling(window=senkou_span_b_period).max()
         senkou_span_b_low = pd.Series(low).rolling(window=senkou_span_b_period).min()
-        senkou_span_b = ((senkou_span_b_high + senkou_span_b_low) / 2).shift(displacement)
+        senkou_span_b = ((senkou_span_b_high + senkou_span_b_low) / 2).shift(
+            displacement
+        )
 
         # Расчет Chikou Span (Lagging Span)
         chikou_span = pd.Series(close).shift(-displacement)
@@ -678,7 +704,11 @@ def calculate_ichimoku(
 
 
 def calculate_stochastic(
-    high: np.ndarray, low: np.ndarray, close: np.ndarray, k_period: int = 14, d_period: int = 3
+    high: np.ndarray,
+    low: np.ndarray,
+    close: np.ndarray,
+    k_period: int = 14,
+    d_period: int = 3,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Расчет стохастического осциллятора
@@ -745,7 +775,9 @@ def calculate_vwap(
         return pd.Series(index=high.index)
 
 
-def calculate_adx(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
+def calculate_adx(
+    high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14
+) -> pd.Series:
     """Расчет Average Directional Index (ADX)"""
     try:
         # Расчет True Range
@@ -763,8 +795,12 @@ def calculate_adx(high: pd.Series, low: pd.Series, close: pd.Series, period: int
 
         # Расчет +DI и -DI
         tr_ema = tr.ewm(span=period, adjust=False).mean()
-        plus_di = 100 * pd.Series(plus_dm).ewm(span=period, adjust=False).mean() / tr_ema
-        minus_di = 100 * pd.Series(minus_dm).ewm(span=period, adjust=False).mean() / tr_ema
+        plus_di = (
+            100 * pd.Series(plus_dm).ewm(span=period, adjust=False).mean() / tr_ema
+        )
+        minus_di = (
+            100 * pd.Series(minus_dm).ewm(span=period, adjust=False).mean() / tr_ema
+        )
 
         # Расчет DX и ADX
         dx = 100 * abs(plus_di - minus_di) / (plus_di + minus_di)

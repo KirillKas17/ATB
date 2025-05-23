@@ -1,38 +1,39 @@
 import asyncio
 import hashlib
-import logging
-from abc import ABC, abstractmethod
-from collections import deque
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
 import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Type,
+    TypedDict,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import feedparser
 import nltk
 import numpy as np
-import pandas as pd
 import requests
-from nltk.sentiment import SentimentIntensityAnalyzer
-from transformers import pipeline
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as VaderSentimentAnalyzer
+from transformers import pipeline as transformers_pipeline
 
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
 
-class NewsSource:
-    """Источник новостей"""
-    def __init__(self, name: str, url: str):
-        self.name = name
-        self.url = url
-
-    def __str__(self) -> str:
-        return self.name
-
-
 class NewsSource(Enum):
+    """Источник новостей"""
+
     NEWS = "news"
     RSS = "rss"
     TWITTER = "twitter"
@@ -49,9 +50,29 @@ class NewsItem:
     content: str
     sentiment: float  # от -1 до 1
     impact_score: float  # от 0 до 1
-    keywords: List[str]
-    url: str
+    keywords: List[str] = field(default_factory=list)
+    url: str = ""
     hash: str = ""
+
+    def __post_init__(self):
+        """Проверка и приведение типов после инициализации"""
+        self.timestamp = (
+            datetime.fromisoformat(self.timestamp)
+            if isinstance(self.timestamp, str)
+            else self.timestamp
+        )
+        self.source = (
+            NewsSource(self.source.value)
+            if isinstance(self.source, str)
+            else self.source
+        )
+        self.title = str(self.title)
+        self.content = str(self.content)
+        self.sentiment = float(self.sentiment)
+        self.impact_score = float(self.impact_score)
+        self.keywords = [str(k) for k in self.keywords]
+        self.url = str(self.url)
+        self.hash = str(self.hash)
 
 
 class INewsProvider(ABC):
@@ -62,35 +83,75 @@ class INewsProvider(ABC):
 
 class NewsApiProvider(INewsProvider):
     def __init__(self, api_key: str):
-        self.api_key = api_key
+        self.api_key = str(api_key)
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
-        # ... реализация асинхронного запроса к NewsAPI ...
-        return []
+        try:
+            # ... реализация асинхронного запроса к NewsAPI ...
+            return []
+        except Exception as e:
+            logger.error(f"Error fetching news from NewsAPI: {str(e)}")
+            return []
 
 
 class TwitterProvider(INewsProvider):
     def __init__(self, api_key: str):
-        self.api_key = api_key
+        self.api_key = str(api_key)
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
-        # ... реализация асинхронного запроса к Twitter API ...
-        return []
+        try:
+            # ... реализация асинхронного запроса к Twitter API ...
+            return []
+        except Exception as e:
+            logger.error(f"Error fetching news from Twitter: {str(e)}")
+            return []
 
 
 class RSSProvider(INewsProvider):
     def __init__(self, feeds: List[str]):
-        self.feeds = feeds
+        self.feeds = [str(feed) for feed in feeds]
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
-        # ... реализация асинхронного парсинга RSS ...
-        return []
+        try:
+            news_items: List[NewsItem] = []
+            for feed_url in self.feeds:
+                feed = feedparser.parse(feed_url)
+                for entry in feed.entries:
+                    try:
+                        # Приведение типов из FeedParserDict
+                        title = str(entry.get("title", ""))
+                        content = str(entry.get("description", ""))
+                        url = str(entry.get("link", ""))
+                        published = entry.get("published_parsed")
+                        timestamp = (
+                            datetime(*published[:6]) if published else datetime.now()
+                        )
+
+                        news_item = NewsItem(
+                            timestamp=timestamp,
+                            source=NewsSource.RSS,
+                            title=title,
+                            content=content,
+                            sentiment=0.0,  # Будет рассчитано позже
+                            impact_score=0.0,  # Будет рассчитано позже
+                            url=url,
+                            keywords=[],  # Будет заполнено позже
+                        )
+                        news_items.append(news_item)
+                    except Exception as e:
+                        logger.error(f"Error processing RSS entry: {str(e)}")
+                        continue
+            return news_items
+        except Exception as e:
+            logger.error(f"Error fetching RSS news: {str(e)}")
+            return []
 
 
 class LRUCache:
     """Кэш с LRU политикой вытеснения"""
+
     def __init__(self, capacity: int):
-        self.capacity = capacity
+        self.capacity = int(capacity)
         self.cache: Dict[str, Any] = {}
         self.order: List[str] = []
 
@@ -102,6 +163,7 @@ class LRUCache:
         return None
 
     def __setitem__(self, key: str, value: Any) -> None:
+        key = str(key)
         if key in self.cache:
             self.order.remove(key)
         elif len(self.cache) >= self.capacity:
@@ -111,33 +173,56 @@ class LRUCache:
         self.order.append(key)
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self.cache.get(key, default)
+        return self.cache.get(str(key), default)
 
 
 class SentimentAnalyzerService:
     def __init__(self):
+        self.nltk_analyzer: Optional[VaderSentimentAnalyzer] = None
+        self.transformer_analyzer: Optional[Callable[[str], List[Dict[str, Any]]]] = (
+            None
+        )
+
         try:
-            nltk.download("vader_lexicon")
-            self.nltk_analyzer = SentimentIntensityAnalyzer()
+            nltk.download("vader_lexicon", quiet=True)
+            self.nltk_analyzer = VaderSentimentAnalyzer()
         except Exception as e:
             logger.error(f"Error initializing NLTK: {str(e)}")
-            self.nltk_analyzer = None
+
         try:
-            self.transformer_analyzer = pipeline(
-                "sentiment-analysis", model="finiteautomata/bertweet-base-sentiment-analysis"
+            self.transformer_analyzer = transformers_pipeline(
+                "sentiment-analysis",
+                model="finiteautomata/bertweet-base-sentiment-analysis",
             )
         except Exception as e:
             logger.error(f"Error initializing transformers: {str(e)}")
-            self.transformer_analyzer = None
 
     def analyze(self, text: str) -> float:
-        # ... ансамбль моделей, возврат среднего/взвешенного результата ...
-        return 0.0
+        try:
+            text = str(text)
+            scores: List[float] = []
+
+            if self.nltk_analyzer:
+                nltk_score = self.nltk_analyzer.polarity_scores(text)
+                scores.append(float(nltk_score["compound"]))
+
+            if self.transformer_analyzer:
+                transformer_score = self.transformer_analyzer(text)[0]
+                # Преобразуем метку в числовой score
+                label_to_score = {"POS": 1.0, "NEU": 0.0, "NEG": -1.0}
+                scores.append(
+                    float(label_to_score.get(transformer_score["label"], 0.0))
+                )
+
+            return float(np.mean(scores)) if scores else 0.0
+        except Exception as e:
+            logger.error(f"Error analyzing sentiment: {str(e)}")
+            return 0.0
 
 
 class NewsAgentObserver(ABC):
     @abstractmethod
-    def notify(self, event: str, data: Any):
+    def notify(self, event: str, data: Any) -> None:
         pass
 
 
@@ -194,11 +279,13 @@ class NewsAgent:
         }
         self.providers = []
         if self.config.get("news_api_key"):
-            self.providers.append(NewsApiProvider(self.config["news_api_key"]))
+            self.providers.append(NewsApiProvider(str(self.config["news_api_key"])))
         if self.config.get("twitter_api_key"):
-            self.providers.append(TwitterProvider(self.config["twitter_api_key"]))
-        self.providers.append(RSSProvider(self.config["rss_feeds"]))
-        self.cache_service = LRUCache(self.config["cache_size"])
+            self.providers.append(TwitterProvider(str(self.config["twitter_api_key"])))
+        self.providers.append(
+            RSSProvider([str(feed) for feed in self.config["rss_feeds"]])
+        )
+        self.cache_service = LRUCache(int(self.config.get("cache_size", 1000)))
         self.sentiment_service = SentimentAnalyzerService()
         self.observers = []
         self.news_history = {}
@@ -210,7 +297,9 @@ class NewsAgent:
         news_items = [item for sublist in all_news for item in sublist]
         for item in news_items:
             item.hash = hashlib.sha256((item.title + item.content).encode()).hexdigest()
-            item.sentiment = self.sentiment_service.analyze(item.title + " " + item.content)
+            item.sentiment = self.sentiment_service.analyze(
+                item.title + " " + item.content
+            )
             self.cache_service[item.hash] = item
         self.news_history.setdefault(pair, []).extend(news_items)
         self._notify_observers("news_update", news_items)
@@ -240,7 +329,11 @@ class NewsAgent:
             avg_sentiment = np.mean(sentiments)
             avg_impact = np.mean(impacts)
             confidence = min(len(sentiments) / 10, 1.0)
-            return {"sentiment": avg_sentiment, "confidence": confidence, "impact": avg_impact}
+            return {
+                "sentiment": avg_sentiment,
+                "confidence": confidence,
+                "impact": avg_impact,
+            }
         except Exception as e:
             logger.error(f"Error analyzing sentiment for {pair}: {str(e)}")
             return {"sentiment": 0.0, "confidence": 0.0, "impact": 0.0}
@@ -331,9 +424,7 @@ class NewsAgent:
 
             # Формирование запроса
             query = f"{pair} OR {pair.replace('USDT', '')}"
-            url = (
-                f"https://newsapi.org/v2/everything?q={query}&apiKey={self.config['news_api_key']}"
-            )
+            url = f"https://newsapi.org/v2/everything?q={query}&apiKey={self.config['news_api_key']}"
 
             response = requests.get(url)
             if response.status_code != 200:
@@ -344,11 +435,15 @@ class NewsAgent:
 
             for article in news_data.get("articles", []):
                 # Анализ настроения
-                sentiment = self._analyze_sentiment(article["title"] + " " + article["description"])
+                sentiment = self._analyze_sentiment(
+                    article["title"] + " " + article["description"]
+                )
 
                 # Создание объекта новости
                 news_item = NewsItem(
-                    timestamp=datetime.fromisoformat(article["publishedAt"].replace("Z", "+00:00")),
+                    timestamp=datetime.fromisoformat(
+                        article["publishedAt"].replace("Z", "+00:00")
+                    ),
                     source="news",
                     title=article["title"],
                     content=article["description"],
@@ -395,21 +490,29 @@ class NewsAgent:
 
                 for entry in feed.entries:
                     # Проверка релевантности
-                    if not self._is_relevant(entry.title + " " + entry.description, pair):
+                    if not self._is_relevant(
+                        entry.title + " " + entry.description, pair
+                    ):
                         continue
 
                     # Анализ настроения
-                    sentiment = self._analyze_sentiment(entry.title + " " + entry.description)
+                    sentiment = self._analyze_sentiment(
+                        entry.title + " " + entry.description
+                    )
 
                     # Создание объекта новости
                     news_item = NewsItem(
-                        timestamp=datetime.fromtimestamp(time.mktime(entry.published_parsed)),
+                        timestamp=datetime.fromtimestamp(
+                            time.mktime(entry.published_parsed)
+                        ),
                         source="rss",
                         title=entry.title,
                         content=entry.description,
                         sentiment=sentiment,
                         impact_score=0.0,  # Будет рассчитано позже
-                        keywords=self._extract_keywords(entry.title + " " + entry.description),
+                        keywords=self._extract_keywords(
+                            entry.title + " " + entry.description
+                        ),
                         url=entry.link,
                     )
 
@@ -453,7 +556,9 @@ class NewsAgent:
         try:
             # Простая реализация через поиск ключевых слов
             text_lower = text.lower()
-            return [keyword for keyword in self.config["keywords"] if keyword in text_lower]
+            return [
+                keyword for keyword in self.config["keywords"] if keyword in text_lower
+            ]
 
         except Exception as e:
             logger.error(f"Error extracting keywords: {str(e)}")
@@ -498,10 +603,7 @@ class NewsAgent:
         try:
             if not news:
                 return ""
-            return " ".join([
-                f"{item.title} {item.content}"
-                for item in news
-            ])
+            return " ".join([f"{item.title} {item.content}" for item in news])
         except Exception as e:
             logger.error(f"Error formatting news: {str(e)}")
             return ""
@@ -511,14 +613,11 @@ class NewsAgent:
         try:
             if not news:
                 return {"sentiment": 0.0, "impact": 0.0}
-            
+
             text = self._format_news(news)
             sentiment = self.sentiment_service.analyze(text)
-            
-            return {
-                "sentiment": sentiment,
-                "impact": abs(sentiment)
-            }
+
+            return {"sentiment": sentiment, "impact": abs(sentiment)}
         except Exception as e:
             logger.error(f"Error analyzing news impact: {str(e)}")
             return {"sentiment": 0.0, "impact": 0.0}
@@ -541,13 +640,13 @@ class NewsAgent:
     async def _process_news(self, news: Dict[str, Any]) -> Dict[str, Any]:
         """Обработка новости."""
         try:
-            text = ' '.join(news.get("text", []))
+            text = " ".join(news.get("text", []))
             sentiment = self._calculate_sentiment_score(text)
             return {
                 "text": text,
                 "sentiment": float(sentiment),
                 "source": NewsSource.NEWS.value,
-                "timestamp": news.get("timestamp", datetime.now())
+                "timestamp": news.get("timestamp", datetime.now()),
             }
         except Exception as e:
             logger.error(f"Error processing news: {str(e)}")
@@ -556,14 +655,23 @@ class NewsAgent:
     async def _process_rss(self, feed: List[Any]) -> Dict[str, Any]:
         """Обработка RSS-ленты."""
         try:
-            text = ' '.join([entry.get("title", "") + " " + entry.get("description", "") for entry in feed])
+            text = " ".join(
+                [
+                    entry.get("title", "") + " " + entry.get("description", "")
+                    for entry in feed
+                ]
+            )
             sentiment = self._calculate_sentiment_score(text)
-            timestamp = datetime.fromtimestamp(time.mktime(feed[0].published_parsed)) if feed else datetime.now()
+            timestamp = (
+                datetime.fromtimestamp(time.mktime(feed[0].published_parsed))
+                if feed
+                else datetime.now()
+            )
             return {
                 "text": text,
                 "sentiment": float(sentiment),
                 "source": NewsSource.RSS.value,
-                "timestamp": timestamp
+                "timestamp": timestamp,
             }
         except Exception as e:
             logger.error(f"Error processing RSS: {str(e)}")
@@ -572,13 +680,13 @@ class NewsAgent:
     async def _process_twitter(self, tweets: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Обработка твитов."""
         try:
-            text = ' '.join([tweet.get("text", "") for tweet in tweets])
+            text = " ".join([tweet.get("text", "") for tweet in tweets])
             sentiment = self._calculate_sentiment_score(text)
             return {
                 "text": text,
                 "sentiment": float(sentiment),
                 "source": NewsSource.TWITTER.value,
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(),
             }
         except Exception as e:
             logger.error(f"Error processing Twitter: {str(e)}")
@@ -587,13 +695,18 @@ class NewsAgent:
     async def _process_reddit(self, posts: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Обработка постов Reddit."""
         try:
-            text = ' '.join([post.get("title", "") + " " + post.get("selftext", "") for post in posts])
+            text = " ".join(
+                [
+                    post.get("title", "") + " " + post.get("selftext", "")
+                    for post in posts
+                ]
+            )
             sentiment = self._calculate_sentiment_score(text)
             return {
                 "text": text,
                 "sentiment": float(sentiment),
                 "source": NewsSource.REDDIT.value,
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(),
             }
         except Exception as e:
             logger.error(f"Error processing Reddit: {str(e)}")

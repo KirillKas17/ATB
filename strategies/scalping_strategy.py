@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -151,7 +150,11 @@ class ScalpingStrategy(BaseStrategy):
             return None
 
     def _check_basic_conditions(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> bool:
         """
         Проверка базовых условий для торговли.
@@ -265,7 +268,11 @@ class ScalpingStrategy(BaseStrategy):
             return {}
 
     def _generate_trading_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация торгового сигнала.
@@ -280,7 +287,7 @@ class ScalpingStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             # Проверяем вход в позицию
             if not self.position:
@@ -294,7 +301,11 @@ class ScalpingStrategy(BaseStrategy):
             return None
 
     def _generate_entry_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на вход в позицию.
@@ -321,7 +332,10 @@ class ScalpingStrategy(BaseStrategy):
 
             # Проверяем отклонение объема
             volume_deviation = (
-                abs(data["volume"].iloc[-1] - data["volume"].rolling(window=20).mean().iloc[-1])
+                abs(
+                    data["volume"].iloc[-1]
+                    - data["volume"].rolling(window=20).mean().iloc[-1]
+                )
                 / data["volume"].iloc[-1]
             )
             if volume_deviation > self.config.volume_deviation_threshold:
@@ -335,7 +349,9 @@ class ScalpingStrategy(BaseStrategy):
             take_profit = current_price * (1 + self.config.take_profit)
 
             # Определяем направление
-            direction = "long" if data["close"].iloc[-1] > data["close"].iloc[-2] else "short"
+            direction = (
+                "long" if data["close"].iloc[-1] > data["close"].iloc[-2] else "short"
+            )
 
             return Signal(
                 direction=direction,
@@ -359,7 +375,11 @@ class ScalpingStrategy(BaseStrategy):
             return None
 
     def _generate_exit_signal(
-        self, data: pd.DataFrame, volatility: float, spread: float, liquidity: Dict[str, float]
+        self,
+        data: pd.DataFrame,
+        volatility: float,
+        spread: float,
+        liquidity: Dict[str, float],
     ) -> Optional[Signal]:
         """
         Генерация сигнала на выход из позиции.
@@ -522,7 +542,9 @@ class ScalpingStrategy(BaseStrategy):
 
             # Корректировка на максимальный размер
             position_size = base_size * volatility_factor
-            position_size = min(position_size, self.config.max_position_size - self.total_position)
+            position_size = min(
+                position_size, self.config.max_position_size - self.total_position
+            )
 
             return position_size
 

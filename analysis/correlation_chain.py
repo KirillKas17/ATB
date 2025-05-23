@@ -3,12 +3,11 @@
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union, Any, Optional, Literal
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from statsmodels.tsa.stattools import acf
-from loguru import logger
 
 
 @dataclass
@@ -100,7 +99,9 @@ class CorrelationChain:
         for i, asset1 in enumerate(assets):
             for j, asset2 in enumerate(assets):
                 if i != j:
-                    lag = self.calculate_lag(self.data[asset1], self.data[asset2], max_lag=max_lag)
+                    lag = self.calculate_lag(
+                        self.data[asset1], self.data[asset2], max_lag=max_lag
+                    )
                     lag_matrix.loc[asset1, asset2] = lag
                 else:
                     lag_matrix.loc[asset1, asset2] = 0
@@ -108,7 +109,9 @@ class CorrelationChain:
         self.lag_matrix = lag_matrix
         return lag_matrix
 
-    def find_correlation_chain(self, threshold: float = 0.7) -> List[Tuple[str, str, float]]:
+    def find_correlation_chain(
+        self, threshold: float = 0.7
+    ) -> List[Tuple[str, str, float]]:
         """Находит цепочки коррелированных активов."""
         if self.correlation_matrix is None:
             self.correlation_matrix = self.build_correlation_matrix()

@@ -1,24 +1,16 @@
 import asyncio
-import hashlib
-import json
 import logging
-import os
 import pickle
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from functools import lru_cache
 from pathlib import Path
-from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
 import aiofiles
-import aiohttp
 import ccxt.async_support as ccxt
-import numpy as np
 import pandas as pd
-import websockets
-import yaml
 import yfinance as yf
 from loguru import logger
 
@@ -95,7 +87,11 @@ class DataLoader:
                 await asyncio.sleep(self.retry_delay * (attempt + 1))
 
     async def _fetch_ohlcv_bybit(
-        self, symbol: str, timeframe: str, since: Optional[int] = None, limit: int = 1000
+        self,
+        symbol: str,
+        timeframe: str,
+        since: Optional[int] = None,
+        limit: int = 1000,
     ) -> pd.DataFrame:
         """Fetch OHLCV data from Bybit with advanced error handling"""
         try:
@@ -143,7 +139,9 @@ class DataLoader:
 
         return df
 
-    async def _save_to_cache(self, data: pd.DataFrame, symbol: str, timeframe: str) -> None:
+    async def _save_to_cache(
+        self, data: pd.DataFrame, symbol: str, timeframe: str
+    ) -> None:
         """Save data to cache with metadata"""
         async with self._cache_lock:
             cache_file = self.cache_dir / f"{symbol}_{timeframe}.pkl"
@@ -159,7 +157,9 @@ class DataLoader:
             async with aiofiles.open(cache_file, "wb") as f:
                 await f.write(pickle.dumps(cache_data))
 
-    async def _load_from_cache(self, symbol: str, timeframe: str) -> Optional[pd.DataFrame]:
+    async def _load_from_cache(
+        self, symbol: str, timeframe: str
+    ) -> Optional[pd.DataFrame]:
         """Load data from cache with validation"""
         async with self._cache_lock:
             cache_file = self.cache_dir / f"{symbol}_{timeframe}.pkl"
@@ -196,7 +196,9 @@ class DataLoader:
             cached_data = await self._load_from_cache(symbol, timeframe)
             if cached_data is not None:
                 if start_time and end_time:
-                    mask = (cached_data.index >= start_time) & (cached_data.index <= end_time)
+                    mask = (cached_data.index >= start_time) & (
+                        cached_data.index <= end_time
+                    )
                     return cached_data[mask]
                 return cached_data
 
@@ -245,7 +247,9 @@ class DataLoader:
         # Check for gaps
         expected_freq = pd.infer_freq(data.index)
         if expected_freq:
-            gaps = len(pd.date_range(data.index[0], data.index[-1], freq=expected_freq)) - len(data)
+            gaps = len(
+                pd.date_range(data.index[0], data.index[-1], freq=expected_freq)
+            ) - len(data)
         else:
             gaps = 0
 
@@ -263,7 +267,9 @@ class DataLoader:
 
         # Calculate overall quality score
         total_points = len(data) * len(data.columns)
-        quality_score = 100 * (1 - (missing + duplicates + gaps + outliers) / total_points)
+        quality_score = 100 * (
+            1 - (missing + duplicates + gaps + outliers) / total_points
+        )
 
         return DataQualityMetrics(
             missing_values=int(missing),
@@ -311,10 +317,14 @@ class DataLoader:
         if not expected_freq:
             return 0.0
 
-        expected_timestamps = pd.date_range(data.index[0], data.index[-1], freq=expected_freq)
+        expected_timestamps = pd.date_range(
+            data.index[0], data.index[-1], freq=expected_freq
+        )
         actual_timestamps = data.index
 
-        return len(set(actual_timestamps) & set(expected_timestamps)) / len(expected_timestamps)
+        return len(set(actual_timestamps) & set(expected_timestamps)) / len(
+            expected_timestamps
+        )
 
     async def close(self):
         """Close all connections and cleanup"""
@@ -328,13 +338,19 @@ class DataLoader:
             return data
 
         resampled = data.resample(timeframe).agg(
-            {"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"}
+            {
+                "open": "first",
+                "high": "max",
+                "low": "min",
+                "close": "last",
+                "volume": "sum",
+            }
         )
 
         # Add additional metrics
-        resampled["vwap"] = (data["close"] * data["volume"]).resample(timeframe).sum() / data[
-            "volume"
-        ].resample(timeframe).sum()
+        resampled["vwap"] = (data["close"] * data["volume"]).resample(
+            timeframe
+        ).sum() / data["volume"].resample(timeframe).sum()
         resampled["trades"] = data["volume"].resample(timeframe).count()
 
         return resampled
@@ -368,7 +384,9 @@ async def load_market_data(
         await loader.close()
 
 
-async def save_market_data(data: pd.DataFrame, symbol: str, directory: str = "data") -> bool:
+async def save_market_data(
+    data: pd.DataFrame, symbol: str, directory: str = "data"
+) -> bool:
     """Сохранение рыночных данных с валидацией"""
     try:
         directory = Path(directory)
@@ -400,7 +418,9 @@ async def save_market_data(data: pd.DataFrame, symbol: str, directory: str = "da
         return False
 
 
-async def load_saved_data(symbol: str, directory: str = "data") -> Optional[pd.DataFrame]:
+async def load_saved_data(
+    symbol: str, directory: str = "data"
+) -> Optional[pd.DataFrame]:
     """Загрузка сохраненных данных с валидацией"""
     try:
         directory = Path(directory)
@@ -481,7 +501,9 @@ async def load_dynamic_window_data(
         data = await load_market_data(symbol, timeframe, start_time, end_time)
 
         if len(data) < min_candles:
-            logger.warning(f"Недостаточно данных для {symbol}: {len(data)} < {min_candles}")
+            logger.warning(
+                f"Недостаточно данных для {symbol}: {len(data)} < {min_candles}"
+            )
             return data
 
         # Рассчитываем волатильность
@@ -492,7 +514,9 @@ async def load_dynamic_window_data(
         if volatility > volatility_threshold:
             window_size = min_candles
         else:
-            window_size = min(max_candles, int(min_candles * (volatility_threshold / volatility)))
+            window_size = min(
+                max_candles, int(min_candles * (volatility_threshold / volatility))
+            )
 
         # Обрезаем данные до нужного размера
         if len(data) > window_size:

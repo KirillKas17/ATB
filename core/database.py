@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, cast
 
 import pandas as pd
 import psycopg2
@@ -8,13 +8,11 @@ import psycopg2.extensions
 import psycopg2.extras
 from loguru import logger
 from psycopg2.extensions import connection as PGConnection
-from psycopg2.extras import DictCursor
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from core.models import MarketData, Order, Position, Trade
+from core.models import MarketData, Trade
 
 
 class Database:

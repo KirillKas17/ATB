@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -147,11 +146,15 @@ class BreakoutStrategy(BaseStrategy):
             trend = analysis["trend"]
 
             # Проверяем базовые условия
-            if not self._check_basic_conditions(data, volatility, spread, liquidity, trend):
+            if not self._check_basic_conditions(
+                data, volatility, spread, liquidity, trend
+            ):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, volatility, spread, liquidity, trend)
+            signal = self._generate_trading_signal(
+                data, volatility, spread, liquidity, trend
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -304,11 +307,17 @@ class BreakoutStrategy(BaseStrategy):
             trend_direction = "up" if sma_short.iloc[-1] > sma_long.iloc[-1] else "down"
 
             # Расчет силы тренда
-            trend_strength = abs(sma_short.iloc[-1] - sma_long.iloc[-1]) / sma_long.iloc[-1]
+            trend_strength = (
+                abs(sma_short.iloc[-1] - sma_long.iloc[-1]) / sma_long.iloc[-1]
+            )
 
             # Расчет уровней поддержки и сопротивления
-            support = data["low"].rolling(window=self.config.breakout_period).min().iloc[-1]
-            resistance = data["high"].rolling(window=self.config.breakout_period).max().iloc[-1]
+            support = (
+                data["low"].rolling(window=self.config.breakout_period).min().iloc[-1]
+            )
+            resistance = (
+                data["high"].rolling(window=self.config.breakout_period).max().iloc[-1]
+            )
 
             return {
                 "direction": trend_direction,
@@ -343,14 +352,18 @@ class BreakoutStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1]
+            data["close"].iloc[-1]
 
             # Проверяем вход в позицию
             if not self.position:
-                return self._generate_entry_signal(data, volatility, spread, liquidity, trend)
+                return self._generate_entry_signal(
+                    data, volatility, spread, liquidity, trend
+                )
 
             # Проверяем выход из позиции
-            return self._generate_exit_signal(data, volatility, spread, liquidity, trend)
+            return self._generate_exit_signal(
+                data, volatility, spread, liquidity, trend
+            )
 
         except Exception as e:
             logger.error(f"Error generating trading signal: {str(e)}")
@@ -391,7 +404,9 @@ class BreakoutStrategy(BaseStrategy):
                     # Проверяем подтверждение
                     if self._check_breakout_confirmation(data, "up"):
                         # Рассчитываем размер позиции
-                        volume = self._calculate_position_size(current_price, volatility)
+                        volume = self._calculate_position_size(
+                            current_price, volatility
+                        )
 
                         # Устанавливаем стоп-лосс и тейк-профит
                         stop_loss = current_price * (1 - self.config.stop_loss)
@@ -426,7 +441,9 @@ class BreakoutStrategy(BaseStrategy):
                     # Проверяем подтверждение
                     if self._check_breakout_confirmation(data, "down"):
                         # Рассчитываем размер позиции
-                        volume = self._calculate_position_size(current_price, volatility)
+                        volume = self._calculate_position_size(
+                            current_price, volatility
+                        )
 
                         # Устанавливаем стоп-лосс и тейк-профит
                         stop_loss = current_price * (1 + self.config.stop_loss)
@@ -616,11 +633,15 @@ class BreakoutStrategy(BaseStrategy):
 
             if self.position == "long":
                 # Проверяем возврат цены ниже уровня пробоя
-                if current_price < self.breakout_level * (1 - self.config.false_breakout_threshold):
+                if current_price < self.breakout_level * (
+                    1 - self.config.false_breakout_threshold
+                ):
                     return True
             else:
                 # Проверяем возврат цены выше уровня пробоя
-                if current_price > self.breakout_level * (1 + self.config.false_breakout_threshold):
+                if current_price > self.breakout_level * (
+                    1 + self.config.false_breakout_threshold
+                ):
                     return True
 
             return False
@@ -687,7 +708,9 @@ class BreakoutStrategy(BaseStrategy):
 
             # Корректировка на максимальный размер
             position_size = base_size * volatility_factor
-            position_size = min(position_size, self.config.max_position_size - self.total_position)
+            position_size = min(
+                position_size, self.config.max_position_size - self.total_position
+            )
 
             return position_size
 

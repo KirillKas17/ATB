@@ -3,7 +3,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from functools import partial
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -60,7 +60,9 @@ class ParallelProcessor:
                 max_workers=self.config.max_workers or multiprocessing.cpu_count() * 2
             )
 
-    def process_data(self, data: pd.DataFrame, func: callable, *args, **kwargs) -> pd.DataFrame:
+    def process_data(
+        self, data: pd.DataFrame, func: callable, *args, **kwargs
+    ) -> pd.DataFrame:
         """
         Параллельная обработка данных.
 
@@ -148,7 +150,10 @@ class ParallelProcessor:
             return {}
 
     def process_with_optimization(
-        self, strategy: BaseStrategy, data: pd.DataFrame, param_grid: Dict[str, List[Any]]
+        self,
+        strategy: BaseStrategy,
+        data: pd.DataFrame,
+        param_grid: Dict[str, List[Any]],
     ) -> Dict[str, Any]:
         """
         Параллельная обработка с оптимизацией.
@@ -170,7 +175,9 @@ class ParallelProcessor:
             futures = []
             for params in param_combinations:
                 param_dict = dict(zip(param_names, params))
-                future = self.executor.submit(self._evaluate_params, strategy, data, param_dict)
+                future = self.executor.submit(
+                    self._evaluate_params, strategy, data, param_dict
+                )
                 futures.append(future)
 
             # Собираем результаты

@@ -1,115 +1,141 @@
 import asyncio
+import glob
 import json
-import warnings
+import logging
+import os
+import pickle
 from abc import ABC, abstractmethod
 from collections import deque
-from dataclasses import dataclass
-from datetime import datetime, timedelta
+from dataclasses import dataclass, field
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from threading import Lock
-from typing import Any, Deque, Dict, List, Optional, Protocol, Tuple, runtime_checkable
+from typing import (Any, Deque, Dict, List, Optional, Protocol, Tuple, Union,
+                    runtime_checkable)
 
-import bayes_opt as bo
-import joblib
+import aiofiles
 import numpy as np
 import pandas as pd
+import ta
 from deap import algorithms, base, creator, tools
 from loguru import logger
-from sklearn.base import BaseEstimator
+from scipy.stats import entropy
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import (accuracy_score, f1_score, precision_score,
+                             recall_score)
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
+from skopt import bayesian_optimization as bo
 
 from ml.model_selector import ModelSelector
 from ml.pattern_discovery import PatternDiscovery
 from utils.logger import setup_logger
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # Интерфейсы для тестирования
-class MarketStateInterface(ABC):
-    """Интерфейс для работы с состоянием рынка"""
+class MarketStateInterface(Protocol):
+    """Интерфейс состояния рынка"""
+    
+    def initialize_ml(self) -> None:
+        """Инициализация ML компонентов"""
+        ...
 
-    @abstractmethod
-    async def get_current_regime(self, pair: str, timeframe: str) -> str:
-        pass
-
-    @abstractmethod
-    async def get_previous_regime(self, pair: str, timeframe: str) -> str:
-        pass
-
-
-class AdaptableModel(ABC):
-    """Базовый класс для адаптивных моделей"""
-
-    @abstractmethod
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        """Предсказание на новых данных"""
-        pass
-
-    @abstractmethod
-    def update(self, X: np.ndarray, y: np.ndarray) -> None:
-        """Обновление модели на новых данных"""
-        pass
-
-    @abstractmethod
-    def get_confidence(self, X: np.ndarray) -> np.ndarray:
-        """Оценка уверенности в предсказаниях"""
-        pass
-
-
-class ModelSelectorInterface(ABC):
-    """Интерфейс для выбора моделей"""
-
-    @abstractmethod
-    def select_model(self, market_regime: str) -> AdaptableModel:
-        pass
-
-
-class PatternDiscoveryInterface(ABC):
-    """Интерфейс для обнаружения паттернов"""
-
-    @abstractmethod
-    def discover_patterns(self, data: pd.DataFrame) -> List[Dict]:
-        pass
+    def get_state(self) -> Dict[str, Any]:
+        """Получение текущего состояния"""
+        ...
 
 
 @runtime_checkable
 class AdaptableModel(Protocol):
     """Протокол для адаптируемых моделей"""
 
-    def predict(self, X: pd.DataFrame) -> np.ndarray: ...
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray: ...
     def partial_fit(
         self, X: np.ndarray, y: np.ndarray, classes: Optional[np.ndarray] = None
     ) -> None: ...
     def fit(self, X: np.ndarray, y: np.ndarray) -> None: ...
+    def predict_proba(self, X: np.ndarray) -> np.ndarray: ...
+    def get_params(self) -> Dict[str, Union[float, int, str]]: ...
+    def set_params(self, **params: Any) -> None: ...
+
+
+class ModelSelectorInterface(Protocol):
+    """Интерфейс выбора моделей"""
+    
+    def select_model(self, state: Dict[str, Any]) -> str:
+        """Выбор модели"""
+        ...
+
+    def update_weights(self, model_id: str, performance: float) -> None:
+        """Обновление весов"""
+        ...
+
+
+class PatternDiscoveryInterface(Protocol):
+    """Интерфейс обнаружения паттернов"""
+    
+    def discover_patterns(self, data: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Обнаружение паттернов"""
+        ...
+
+    def update_patterns(self, new_patterns: List[Dict[str, Any]]) -> None:
+        """Обновление паттернов"""
+        ...
 
 
 @dataclass
 class AdaptationConfig:
     """Конфигурация адаптации"""
 
-    min_samples: int = 100
-    max_samples: int = 1000
-    update_interval: int = 1  # часов
-    retrain_threshold: float = 0.1
-    confidence_threshold: float = 0.7
-    max_retries: int = 3
-    cache_size: int = 1000
-    compression: bool = True
-    metrics_window: int = 24  # часов
-    drift_threshold: float = 0.05
-    ensemble_size: int = 3
-    feature_batch_size: int = 100
     learning_rate: float = 0.01
-    bo_iterations: int = 10
-    max_metrics_age_days: int = 30
-    metrics_dir: str = "metrics"
+    max_iter: int = 1000
+    tol: float = 1e-3
+    min_samples: int = 100
+    max_metrics_age_days: int = 7
+    history_size: int = 1000
+    drift_threshold: float = 0.1
+    confidence_threshold: float = 0.8
+    retrain_interval: int = 1000
+    save_interval: int = 100
+    load_interval: int = 100
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь"""
+        return {
+            "learning_rate": self.learning_rate,
+            "max_iter": self.max_iter,
+            "tol": self.tol,
+            "min_samples": self.min_samples,
+            "max_metrics_age_days": self.max_metrics_age_days,
+            "history_size": self.history_size,
+            "drift_threshold": self.drift_threshold,
+            "confidence_threshold": self.confidence_threshold,
+            "retrain_interval": self.retrain_interval,
+            "save_interval": self.save_interval,
+            "load_interval": self.load_interval,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AdaptationConfig":
+        """Создание из словаря"""
+        return cls(
+            learning_rate=float(data["learning_rate"]),
+            max_iter=int(data["max_iter"]),
+            tol=float(data["tol"]),
+            min_samples=int(data["min_samples"]),
+            max_metrics_age_days=int(data["max_metrics_age_days"]),
+            history_size=int(data["history_size"]),
+            drift_threshold=float(data["drift_threshold"]),
+            confidence_threshold=float(data["confidence_threshold"]),
+            retrain_interval=int(data["retrain_interval"]),
+            save_interval=int(data["save_interval"]),
+            load_interval=int(data["load_interval"]),
+        )
 
 
 @dataclass
@@ -120,62 +146,189 @@ class AdaptationMetrics:
     precision: float
     recall: float
     f1: float
-    confidence: float
     drift_score: float
-    last_update: datetime
-    samples_count: int
-    retrain_count: int
-    error_count: int
+    confidence: float
+    timestamp: datetime
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь"""
+        return {
+            "accuracy": self.accuracy,
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1": self.f1,
+            "drift_score": self.drift_score,
+            "confidence": self.confidence,
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AdaptationMetrics":
+        """Создание из словаря"""
+        return cls(
+            accuracy=float(data["accuracy"]),
+            precision=float(data["precision"]),
+            recall=float(data["recall"]),
+            f1=float(data["f1"]),
+            drift_score=float(data["drift_score"]),
+            confidence=float(data["confidence"]),
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+        )
 
 
 @dataclass
-class AdaptationState:
-    """Состояние адаптации модели"""
+class AdaptationHistory:
+    """История адаптации"""
 
+    metrics: AdaptationMetrics
+    model_id: str
+    parameters: Dict[str, Any]
     timestamp: datetime
-    performance: float
-    parameters: Dict[str, float]
-    market_conditions: Dict[str, float]
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь"""
+        return {
+            "metrics": self.metrics.to_dict(),
+            "model_id": self.model_id,
+            "parameters": self.parameters,
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AdaptationHistory":
+        """Создание из словаря"""
+        return cls(
+            metrics=AdaptationMetrics.from_dict(data["metrics"]),
+            model_id=str(data["model_id"]),
+            parameters=dict(data["parameters"]),
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+        )
+
+
+class MarketState(MarketStateInterface):
+    """Состояние рынка"""
+
+    def __init__(self):
+        """Инициализация"""
+        self.timestamp = datetime.now()
+        self.price = 0.0
+        self.volume = 0.0
+        self.volatility = 0.0
+        self.trend = ""
+        self.indicators = {}
+        self.market_regime = ""
+        self.liquidity = 0.0
+        self.momentum = 0.0
+        self.sentiment = 0.0
+        self.support_levels = []
+        self.resistance_levels = []
+        self.market_depth = {}
+        self.correlation_matrix = np.array([])
+        self.market_impact = 0.0
+        self.volume_profile = {}
+
+    def initialize_ml(self) -> None:
+        """Инициализация ML компонентов"""
+        pass
+
+    def get_state(self) -> Dict[str, Any]:
+        """Получение текущего состояния"""
+        return {
+            "timestamp": self.timestamp,
+            "price": self.price,
+            "volume": self.volume,
+            "volatility": self.volatility,
+            "trend": self.trend,
+            "indicators": self.indicators,
+            "market_regime": self.market_regime,
+            "liquidity": self.liquidity,
+            "momentum": self.momentum,
+            "sentiment": self.sentiment,
+            "support_levels": self.support_levels,
+            "resistance_levels": self.resistance_levels,
+            "market_depth": self.market_depth,
+            "correlation_matrix": self.correlation_matrix.tolist(),
+            "market_impact": self.market_impact,
+            "volume_profile": self.volume_profile,
+        }
 
 
 class LiveAdaptationModel:
-    """Адаптация моделей в реальном времени"""
+    """Модель адаптации в реальном времени"""
 
-    def __init__(self, config: Optional[AdaptationConfig] = None):
-        """Инициализация адаптации"""
-        self.config = config or AdaptationConfig()
-        self.adaptation_dir = Path("adaptation")
-        self.adaptation_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(
+        self,
+        market_state: MarketStateInterface,
+        model_selector: ModelSelectorInterface,
+        pattern_discovery: PatternDiscoveryInterface,
+        config: Optional[Dict[str, Any]] = None,
+    ):
+        """Инициализация"""
+        self.market_state = market_state
+        self.model_selector = model_selector
+        self.pattern_discovery = pattern_discovery
+        self.config = config or {}
 
-        # Данные
-        self.data_buffer = pd.DataFrame()
-        self.metrics_history = []
+        # Инициализация ML компонентов
+        self.market_state.initialize_ml()
 
-        # Модели
-        self.models = {}
-        self.scalers = {}
-        self.metrics = {}
+        # Инициализация моделей
+        self.models: Dict[str, AdaptableModel] = {}
+        self.model_weights: Dict[str, float] = {}
+        self.metrics: Dict[str, AdaptationMetrics] = {}
+        self.adaptation_history: List[AdaptationMetrics] = []
 
-        # Кэш
-        self._prediction_cache = {}
-        self._feature_cache = {}
+        # Инициализация нормализации
+        self.scaler = StandardScaler()
 
-        # Инициализация компонентов
-        self.model: Optional[AdaptableModel] = None
-        self.market_state: Optional[MarketStateInterface] = None
-        self.model_selector: Optional[ModelSelectorInterface] = None
-        self.pattern_discovery: Optional[PatternDiscoveryInterface] = None
+        # Инициализация онлайн-классификатора
+        self.online_classifier = SGDClassifier(
+            learning_rate="constant",
+            eta0=self.config.get("learning_rate", 0.01),
+            max_iter=self.config.get("max_iter", 1000),
+            tol=self.config.get("tol", 1e-3),
+        )
 
-        # Хранение метрик с ограничением размера
-        self.metrics: Dict[str, Dict[str, AdaptationMetrics]] = {}
+        # Инициализация GA
+        if not hasattr(creator, "FitnessMax"):
+            creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        if not hasattr(creator, "Individual"):
+            creator.create("Individual", list, fitness=creator.FitnessMax)
 
-        # История адаптации с ограничением размера
-        self.adaptation_history: Deque[AdaptationState] = deque(maxlen=self.config.max_samples)
+        self.toolbox = base.Toolbox()
+        self.toolbox.register("attr_float", np.random.uniform, -1, 1)
+        self.toolbox.register(
+            "individual",
+            tools.initRepeat,
+            creator.Individual,
+            self.toolbox.attr_float,
+            n=10,
+        )
+        self.toolbox.register(
+            "population", tools.initRepeat, list, self.toolbox.individual
+        )
 
-        # Блокировки для потокобезопасности
-        self._metrics_lock = Lock()
-        self._model_lock = Lock()
-        self._history_lock = Lock()
+        self.toolbox.register("evaluate", self._evaluate_individual)
+        self.toolbox.register("mate", tools.cxTwoPoint)
+        self.toolbox.register(
+            "mutate", tools.mutGaussian, mu=0, sigma=0.2, indpb=0.2
+        )
+        self.toolbox.register("select", tools.selTournament, tournsize=3)
+
+        # Инициализация BO
+        self.bo = bo.BayesianOptimization(
+            f=self._evaluate_bo,
+            pbounds={
+                "learning_rate": (0.001, 0.1),
+                "max_iter": (100, 1000),
+                "tol": (1e-4, 1e-2),
+            },
+        )
+
+        # Инициализация блокировок
+        self.metrics_lock = asyncio.Lock()
+        self.model_lock = asyncio.Lock()
+        self.history_lock = asyncio.Lock()
 
         # Инициализация моделей
         self._init_models()
@@ -197,27 +350,40 @@ class LiveAdaptationModel:
         """Инициализация моделей"""
         try:
             # Инициализация онлайн-классификатора
-            self.online_classifier = SGDClassifier(
-                learning_rate="constant", eta0=self.config.learning_rate
+            self.online_classifier: AdaptableModel = SGDClassifier(
+                learning_rate="constant",
+                eta0=self.config.learning_rate,
+                batch_size=self.config.batch_size,
+                momentum=self.config.momentum,
             )
 
             # Инициализация нормализации
             self.scaler = StandardScaler()
 
             # Инициализация GA
+            if not hasattr(creator, "FitnessMax"):
             creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+            if not hasattr(creator, "Individual"):
             creator.create("Individual", list, fitness=creator.FitnessMax)
 
             self.toolbox = base.Toolbox()
             self.toolbox.register("attr_float", np.random.uniform, -1, 1)
             self.toolbox.register(
-                "individual", tools.initRepeat, creator.Individual, self.toolbox.attr_float, n=10
+                "individual",
+                tools.initRepeat,
+                creator.Individual,
+                self.toolbox.attr_float,
+                n=10,
             )
-            self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
+            self.toolbox.register(
+                "population", tools.initRepeat, list, self.toolbox.individual
+            )
 
             self.toolbox.register("evaluate", self._evaluate_individual)
             self.toolbox.register("mate", tools.cxTwoPoint)
-            self.toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.2, indpb=0.2)
+            self.toolbox.register(
+                "mutate", tools.mutGaussian, mu=0, sigma=0.2, indpb=0.2
+            )
             self.toolbox.register("select", tools.selTournament, tournsize=3)
 
             # Инициализация BO
@@ -301,16 +467,22 @@ class LiveAdaptationModel:
     async def _cleanup_old_metrics(self) -> None:
         """Очистка старых метрик"""
         try:
-            async with self._metrics_lock:
-                current_time = datetime.now()
-                max_age = pd.Timedelta(days=self.config.max_metrics_age_days)
+            # Удаление старых файлов метрик
+            metrics_files = glob.glob(
+                os.path.join(self.config.metrics_dir, "metrics_*.json")
+            )
+            for file in metrics_files:
+                file_time = datetime.fromtimestamp(os.path.getctime(file))
+                if (datetime.now() - file_time).days > self.config.max_metrics_age_days:
+                    os.remove(file)
 
+            # Удаление старых метрик из памяти
+            current_time = datetime.now()
                 for pair in list(self.metrics.keys()):
                     for timeframe in list(self.metrics[pair].keys()):
-                        metric = self.metrics[pair][timeframe]
-                        if current_time - metric.last_update > max_age:
+                    metrics = self.metrics[pair][timeframe]
+                    if (current_time - metrics.timestamp).days > self.config.max_metrics_age_days:
                             del self.metrics[pair][timeframe]
-
                     if not self.metrics[pair]:
                         del self.metrics[pair]
 
@@ -325,24 +497,15 @@ class LiveAdaptationModel:
         features: pd.DataFrame,
         target: pd.Series,
     ) -> None:
-        """
-        Обновление метрик
-
-        Args:
-            pair: Торговая пара
-            timeframe: Таймфрейм
-            model: Адаптированная модель
-            features: Признаки
-            target: Целевая переменная
-        """
+        """Обновление метрик"""
         try:
-            async with self._metrics_lock:
+            async with self.metrics_lock:
                 # Расчет метрик
                 predictions = model.predict(features)
-                accuracy = accuracy_score(target, predictions)
-                precision = precision_score(target, predictions, average="weighted")
-                recall = recall_score(target, predictions, average="weighted")
-                f1 = f1_score(target, predictions, average="weighted")
+                accuracy = float(accuracy_score(target, predictions))
+                precision = float(precision_score(target, predictions, average="weighted"))
+                recall = float(recall_score(target, predictions, average="weighted"))
+                f1 = float(f1_score(target, predictions, average="weighted"))
 
                 # Обновление метрик
                 self.metrics[pair] = self.metrics.get(pair, {})
@@ -351,16 +514,9 @@ class LiveAdaptationModel:
                     precision=precision,
                     recall=recall,
                     f1=f1,
-                    confidence=1.0,  # TODO: Добавить оценку уверенности
                     drift_score=0.0,  # TODO: Добавить оценку дрейфа
-                    last_update=datetime.now(),
-                    samples_count=len(self.data_buffer),
-                    retrain_count=self.metrics.get(pair, {})
-                    .get(timeframe, AdaptationMetrics(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0))
-                    .retrain_count,
-                    error_count=self.metrics.get(pair, {})
-                    .get(timeframe, AdaptationMetrics(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0))
-                    .error_count,
+                    confidence=1.0,  # TODO: Добавить оценку уверенности
+                    timestamp=datetime.now(),
                 )
 
                 # Сохранение метрик
@@ -375,146 +531,186 @@ class LiveAdaptationModel:
     async def _save_metrics(self) -> None:
         """Сохранение метрик"""
         try:
-            metrics_dir = Path(self.config.metrics_dir)
-            metrics_dir.mkdir(parents=True, exist_ok=True)
+            metrics_path = os.path.join(
+                self.config.metrics_dir,
+                f"metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            )
 
-            metrics_file = metrics_dir / f"metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            # Создание директории если не существует
+            os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
 
-            metrics_dict = {
-                pair: {
-                    tf: {
-                        "accuracy": m.accuracy,
-                        "precision": m.precision,
-                        "recall": m.recall,
-                        "f1": m.f1,
-                        "confidence": m.confidence,
-                        "drift_score": m.drift_score,
-                        "last_update": m.last_update.isoformat(),
-                        "samples_count": m.samples_count,
-                        "retrain_count": m.retrain_count,
-                        "error_count": m.error_count,
-                    }
-                    for tf, m in timeframes.items()
-                }
-                for pair, timeframes in self.metrics.items()
-            }
+            # Преобразование метрик в словарь
+            metrics_dict = {}
+            for pair, timeframes in self.metrics.items():
+                metrics_dict[pair] = {}
+                for timeframe, metrics in timeframes.items():
+                    metrics_dict[pair][timeframe] = metrics.to_dict()
 
-            async with asyncio.Lock():
-                with open(metrics_file, "w") as f:
+            # Сохранение метрик
+            with open(metrics_path, "w") as f:
                     json.dump(metrics_dict, f, indent=4)
 
         except Exception as e:
             logger.error(f"Error saving metrics: {str(e)}")
 
-    async def update(self, market_data: pd.DataFrame, performance: float) -> Dict[str, float]:
-        """
-        Обновление состояния адаптации
-
-        Args:
-            market_data: Рыночные данные
-            performance: Производительность
-
-        Returns:
-            Dict[str, float]: Обновленные параметры
-        """
+    async def _load_metrics(self) -> None:
+        """Загрузка метрик"""
         try:
-            # Добавление данных в буфер
-            self.data_buffer = pd.concat([self.data_buffer, market_data]).tail(
-                self.config.max_samples
+            # Поиск последнего файла метрик
+            metrics_files = glob.glob(
+                os.path.join(self.config.metrics_dir, "metrics_*.json")
             )
+            if not metrics_files:
+                return
 
-            if len(self.data_buffer) < self.config.min_samples:
-                return {}
+            latest_metrics = max(metrics_files, key=os.path.getctime)
+
+            # Загрузка метрик
+            with open(latest_metrics, "r") as f:
+                metrics_dict = json.load(f)
+
+            # Преобразование метрик в объекты
+            for pair, timeframes in metrics_dict.items():
+                self.metrics[pair] = {}
+                for timeframe, metrics in timeframes.items():
+                    self.metrics[pair][timeframe] = AdaptationMetrics.from_dict(metrics)
+
+        except Exception as e:
+            logger.error(f"Error loading metrics: {str(e)}")
+
+    async def update(
+        self,
+        market_data: pd.DataFrame,
+        performance: float,
+        pair: str,
+        timeframe: str,
+    ) -> None:
+        """Обновление адаптации"""
+        try:
+            # Проверка входных данных
+            if market_data.empty:
+                logger.warning("Empty market data received")
+                return
+
+            # Добавление данных в буфер
+            self.data_buffer = pd.concat([self.data_buffer, market_data])
+            if len(self.data_buffer) > self.config.max_buffer_size:
+                self.data_buffer = self.data_buffer.tail(self.config.max_buffer_size)
 
             # Извлечение признаков
             features = self._extract_features(self.data_buffer)
+            if features.empty:
+                logger.warning("Failed to extract features")
+                return
 
-            # Обновление состояния
-            state = AdaptationState(
-                timestamp=datetime.now(),
-                performance=performance,
-                parameters=self._get_current_parameters(),
-                market_conditions=features,
-            )
+            # Подготовка целевой переменной
+            target = (self.data_buffer["close"].shift(-1) > self.data_buffer["close"]).astype(int)
+            target = target[:-1]  # Удаляем последнее значение, так как у нас нет следующей цены
+            features = features[:-1]  # Удаляем последнюю строку признаков
 
-            async with self._history_lock:
-                self.adaptation_history.append(state)
+            # Загрузка или создание модели
+            model = await self._load_model(pair, timeframe)
+            if model is None:
+                model = SGDClassifier(
+                    learning_rate="constant",
+                    eta0=self.config.learning_rate,
+                    batch_size=self.config.batch_size,
+                    momentum=self.config.momentum,
+                )
 
-            # Оптимизация параметров
-            if len(self.adaptation_history) >= self.config.min_samples:
-                new_params = await self._optimize_parameters()
-                return new_params
+            # Адаптация модели
+            await self._adapt_model(pair, timeframe, model, features, target)
 
-            return self._get_current_parameters()
+            # Обновление метрик
+            await self._update_metrics(pair, timeframe, model, features, target)
+
+            # Сохранение метрик
+            await self._save_metrics()
 
         except Exception as e:
             logger.error(f"Error updating adaptation: {str(e)}")
-            return self._get_current_parameters()
 
-    def _extract_features(self, data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Извлечение признаков из данных
+    async def predict(
+        self,
+        market_data: pd.DataFrame,
+        pair: str,
+        timeframe: str,
+    ) -> Tuple[float, float]:
+        """Получение предсказания"""
+        try:
+            # Проверка входных данных
+            if market_data.empty:
+                logger.warning("Empty market data received")
+                return 0.0, 0.0
 
-        Args:
-            data: DataFrame с данными
+            # Извлечение признаков
+            features = self._extract_features(market_data)
+            if features.empty:
+                logger.warning("Failed to extract features")
+                return 0.0, 0.0
 
-        Returns:
-            pd.DataFrame: Признаки
-        """
+            # Загрузка модели
+            model = await self._load_model(pair, timeframe)
+            if model is None:
+                logger.warning("No model found")
+                return 0.0, 0.0
+
+            # Получение предсказания
+            prediction = model.predict_proba(features.values)[-1]
+            confidence = float(max(prediction))
+
+            # Определение направления
+            direction = 1.0 if prediction[1] > prediction[0] else -1.0
+
+            return direction, confidence
+
+        except Exception as e:
+            logger.error(f"Error getting prediction: {str(e)}")
+            return 0.0, 0.0
+
+    async def get_metrics(
+        self,
+        pair: str,
+        timeframe: str,
+    ) -> Optional[AdaptationMetrics]:
+        """Получение метрик"""
+        try:
+            return self.metrics.get(pair, {}).get(timeframe)
+
+        except Exception as e:
+            logger.error(f"Error getting metrics: {str(e)}")
+            return None
+
+    def _extract_features(self, data: pd.DataFrame) -> Optional[Dict[str, float]]:
+        """Извлечение признаков из данных"""
         try:
             features = {}
-
-            # Батчинг для больших наборов данных
-            if len(data) > self.config.feature_batch_size:
-                data = data.tail(self.config.feature_batch_size)
-
+            
+            # Технические индикаторы
+            features["rsi"] = ta.momentum.RSIIndicator(data["close"]).rsi().iloc[-1]
+            features["macd"] = ta.trend.MACD(data["close"]).macd().iloc[-1]
+            features["bb_upper"] = ta.volatility.BollingerBands(data["close"]).bollinger_hband().iloc[-1]
+            features["bb_lower"] = ta.volatility.BollingerBands(data["close"]).bollinger_lband().iloc[-1]
+            
             # Волатильность
-            features["volatility"] = float(data["close"].pct_change().std())
-
-            # Тренд
-            features["trend"] = float(data["close"].pct_change().mean())
-
-            # Объем
-            features["volume"] = float(data["volume"].mean())
-
-            # RSI
-            delta = data["close"].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-            rs = gain / loss
-            features["rsi"] = float(100 - (100 / (1 + rs)).iloc[-1])
-
-            # MACD
-            exp1 = data["close"].ewm(span=12, adjust=False).mean()
-            exp2 = data["close"].ewm(span=26, adjust=False).mean()
-            macd = exp1 - exp2
-            signal = macd.ewm(span=9, adjust=False).mean()
-            features["macd"] = float(macd.iloc[-1])
-            features["macd_signal"] = float(signal.iloc[-1])
-
-            # Bollinger Bands
-            bb_middle = data["close"].rolling(window=20).mean()
-            bb_std = data["close"].rolling(window=20).std()
-            bb_upper = bb_middle + (bb_std * 2)
-            bb_lower = bb_middle - (bb_std * 2)
-            features["bb_position"] = float(
-                (data["close"].iloc[-1] - bb_lower.iloc[-1])
-                / (bb_upper.iloc[-1] - bb_lower.iloc[-1])
-            )
+            features["volatility"] = data["close"].pct_change().std()
+            
+            # Объемы
+            features["volume_ma"] = data["volume"].rolling(window=20).mean().iloc[-1]
+            features["volume_std"] = data["volume"].rolling(window=20).std().iloc[-1]
+            
+            # Ценовые метрики
+            features["price_ma"] = data["close"].rolling(window=20).mean().iloc[-1]
+            features["price_std"] = data["close"].rolling(window=20).std().iloc[-1]
 
             return features
 
         except Exception as e:
             logger.error(f"Error extracting features: {str(e)}")
-            return {}
+            return None
 
     def _get_current_parameters(self) -> Dict[str, float]:
-        """
-        Получение текущих параметров
-
-        Returns:
-            Dict[str, float]: Параметры
-        """
+        """Получение текущих параметров"""
         try:
             if not self.adaptation_history:
                 return {}
@@ -525,51 +721,16 @@ class LiveAdaptationModel:
             logger.error(f"Error getting current parameters: {str(e)}")
             return {}
 
-    async def _optimize_parameters(self) -> Dict[str, float]:
-        """
-        Оптимизация параметров
-
-        Returns:
-            Dict[str, float]: Оптимизированные параметры
-        """
+    async def _optimize_parameters(self, model: AdaptableModel, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
+        """Оптимизация параметров"""
         try:
-            # Подготовка данных
-            async with self._history_lock:
-                X = np.array([state.market_conditions for state in self.adaptation_history])
-                y = np.array([state.performance for state in self.adaptation_history])
-
             # Обучение моделей
-            predictions = {}
-            for name, model in self.models.items():
                 model.fit(X, y)
-                predictions[name] = model.predict(X)
 
-            # Взвешенное усреднение предсказаний
-            weights = self._calculate_model_weights(predictions, y)
-            ensemble_prediction = np.zeros_like(y)
-            for name, pred in predictions.items():
-                ensemble_prediction += weights[name] * pred
+            # Получение параметров модели
+            params = model.get_params()
 
-            # Оптимизация
-            def objective(params):
-                return -np.mean(ensemble_prediction)
-
-            # Bayesian Optimization
-            optimizer = bo.BayesianOptimization(
-                f=objective,
-                pbounds={
-                    "volatility": (0.0, 1.0),
-                    "trend": (-1.0, 1.0),
-                    "volume": (0.0, 1.0),
-                    "rsi": (0.0, 100.0),
-                    "macd": (-1.0, 1.0),
-                    "bb_position": (0.0, 1.0),
-                },
-            )
-
-            optimizer.maximize(init_points=5, n_iter=self.config.bo_iterations)
-
-            return optimizer.max["params"]
+            return params
 
         except Exception as e:
             logger.error(f"Error optimizing parameters: {str(e)}")
@@ -678,54 +839,112 @@ class LiveAdaptationModel:
         except Exception as e:
             logger.error(f"Ошибка сохранения состояния: {e}")
 
-    def _calculate_metrics(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict:
-        """Расчет метрик"""
+    def _calculate_metrics(self, X: np.ndarray, y: np.ndarray) -> Tuple[float, float, float, float]:
+        """Расчет метрик качества"""
         try:
-            return {
-                "accuracy": float(accuracy_score(y_true, y_pred)),
-                "precision": float(precision_score(y_true, y_pred, average="weighted")),
-                "recall": float(recall_score(y_true, y_pred, average="weighted")),
-                "f1": float(f1_score(y_true, y_pred, average="weighted")),
-            }
-        except Exception as e:
-            logger.error(f"Ошибка расчета метрик: {e}")
-            return {}
+            # Получение предсказаний
+            y_pred = self._ensemble_predict(X)
 
-    def _detect_drift(self, current_metrics: Dict, historical_metrics: List[Dict]) -> float:
-        """Обнаружение дрейфа"""
+            # Расчет метрик
+            accuracy = accuracy_score(y, y_pred)
+            precision = precision_score(y, y_pred, average="weighted")
+            recall = recall_score(y, y_pred, average="weighted")
+            f1 = f1_score(y, y_pred, average="weighted")
+
+            return accuracy, precision, recall, f1
+
+        except Exception as e:
+            logger.error(f"Error calculating metrics: {str(e)}")
+            return 0.0, 0.0, 0.0, 0.0
+
+    def _calculate_drift_score(self, X: np.ndarray) -> float:
+        """Расчет показателя дрейфа"""
         try:
-            if not historical_metrics:
+            # Расчет средних значений
+            mean_current = np.mean(X, axis=0)
+            mean_historical = np.mean(self.historical_data, axis=0)
+
+            # Расчет ковариационных матриц
+            cov_current = np.cov(X.T)
+            cov_historical = np.cov(self.historical_data.T)
+
+            # Расчет расстояния между распределениями
+            mean_diff = np.linalg.norm(mean_current - mean_historical)
+            cov_diff = np.linalg.norm(cov_current - cov_historical)
+
+            # Нормализация метрик
+            mean_score = 1.0 / (1.0 + mean_diff)
+            cov_score = 1.0 / (1.0 + cov_diff)
+
+            # Комбинирование метрик
+            drift_score = 0.5 * mean_score + 0.5 * cov_score
+
+            return drift_score
+
+        except Exception as e:
+            logger.error(f"Error calculating drift score: {str(e)}")
                 return 0.0
 
-            # Расчет средних метрик
-            avg_metrics = {
-                "accuracy": np.mean([m["accuracy"] for m in historical_metrics]),
-                "precision": np.mean([m["precision"] for m in historical_metrics]),
-                "recall": np.mean([m["recall"] for m in historical_metrics]),
-                "f1": np.mean([m["f1"] for m in historical_metrics]),
-            }
+    def _calculate_confidence(self, X: np.ndarray) -> float:
+        """Расчет уверенности в предсказаниях"""
+        try:
+            # Получение предсказаний от всех моделей
+            predictions = []
+            for model in self.models.values():
+                pred = model.predict(X)
+                predictions.append(pred)
 
-            # Расчет отклонения
-            drift = np.mean(
-                [
-                    abs(current_metrics["accuracy"] - avg_metrics["accuracy"]),
-                    abs(current_metrics["precision"] - avg_metrics["precision"]),
-                    abs(current_metrics["recall"] - avg_metrics["recall"]),
-                    abs(current_metrics["f1"] - avg_metrics["f1"]),
-                ]
-            )
+            # Расчет точности предсказаний
+            accuracy = np.mean([np.std(pred) for pred in predictions])
 
-            return float(drift)
+            # Расчет энтропии предсказаний
+            entropy_value = np.mean([entropy(pred) for pred in predictions])
+
+            # Нормализация энтропии
+            normalized_entropy = 1.0 - (entropy_value / np.log(len(predictions)))
+
+            # Комбинирование метрик
+            confidence = 0.7 * accuracy + 0.3 * normalized_entropy
+
+            return confidence
 
         except Exception as e:
-            logger.error(f"Ошибка обнаружения дрейфа: {e}")
+            logger.error(f"Error calculating confidence: {str(e)}")
+            return 0.0
+
+    def _calculate_performance(self) -> float:
+        """Расчет общей производительности"""
+        try:
+            # Расчет всех метрик
+            accuracy, precision, recall, f1 = self._calculate_metrics(
+                self.current_data, self.target_data
+            )
+            drift_score = self._calculate_drift_score(self.current_data)
+            confidence = self._calculate_confidence(self.current_data)
+
+            # Взвешенная сумма метрик
+            performance = (
+                0.3 * accuracy
+                + 0.2 * precision
+                + 0.2 * recall
+                + 0.1 * f1
+                + 0.1 * drift_score
+                + 0.1 * confidence
+            )
+
+            return performance
+
+        except Exception as e:
+            logger.error(f"Error calculating performance: {str(e)}")
             return 0.0
 
     def update(self, df: pd.DataFrame, model_id: str, model: Any):
         """Обновление модели"""
         try:
             # Добавление данных в буфер
-            self.data_buffer = pd.concat([self.data_buffer, df]).tail(self.config.max_samples)
+            self.data_buffer = pd.concat([self.data_buffer, df]).tail(
+                self.config.max_samples
+            )
 
             if len(self.data_buffer) < self.config.min_samples:
                 return
@@ -735,8 +954,12 @@ class LiveAdaptationModel:
 
             # Подготовка данных
             X = features.values
-            y = (self.data_buffer["close"].shift(-1) > self.data_buffer["close"]).values[:-1]
-            X = X[:-1]  # Убираем последнюю строку, так как для нее нет целевой переменной
+            y = (
+                self.data_buffer["close"].shift(-1) > self.data_buffer["close"]
+            ).values[:-1]
+            X = X[
+                :-1
+            ]  # Убираем последнюю строку, так как для нее нет целевой переменной
 
             # Нормализация
             if model_id not in self.scalers:
@@ -760,23 +983,18 @@ class LiveAdaptationModel:
             self.metrics_history = self.metrics_history[-self.config.metrics_window :]
 
             # Обнаружение дрейфа
-            drift_score = self._detect_drift(
-                metrics, [m for m in self.metrics_history if m["model_id"] == model_id]
-            )
+            drift_score = self._calculate_drift_score(X_scaled)
 
             # Обновление метрик
             self.metrics[model_id] = AdaptationMetrics(
-                accuracy=metrics["accuracy"],
-                precision=metrics["precision"],
-                recall=metrics["recall"],
-                f1=metrics["f1"],
-                confidence=1.0 - drift_score,
+                accuracy=metrics[0],
+                precision=metrics[1],
+                recall=metrics[2],
+                f1=metrics[3],
                 drift_score=drift_score,
-                last_update=datetime.now(),
-                samples_count=len(self.data_buffer),
-                retrain_count=self.metrics.get(model_id, {}).get("retrain_count", 0) + 1,
-                error_count=self.metrics.get(model_id, {}).get("error_count", 0),
-            ).__dict__
+                confidence=self._calculate_confidence(X_scaled),
+                timestamp=datetime.now(),
+            )
 
             # Сохранение состояния
             self._save_state()
@@ -836,195 +1054,364 @@ class LiveAdaptationModel:
         self._prediction_cache.clear()
         self._feature_cache.clear()
 
-    def _evaluate_individual(self, individual):
-        """Оценка индивидуума для генетического алгоритма"""
+    def _evaluate_individual(self, individual: List[float]) -> Tuple[float,]:
+        """Оценка особи в GA"""
         try:
-            # Преобразование индивидуума в параметры модели
-            params = self._individual_to_params(individual)
-
-            # Создание модели с параметрами
-            model = self._create_model_with_params(params)
-            if model is None:
-                return (-float("inf"),)
-
-            # Подготовка данных для оценки
-            if len(self.data_buffer) < self.config.min_samples:
-                return (-float("inf"),)
-
-            features = self._extract_features(self.data_buffer)
-            X = features.values
-            y = (self.data_buffer["close"].shift(-1) > self.data_buffer["close"]).values[:-1]
-            X = X[:-1]  # Убираем последнюю строку
-
-            # Нормализация
-            X_scaled = self.scaler.fit_transform(X)
-
-            # Обучение и оценка модели
-            model.fit(X_scaled, y)
-            predictions = model.predict(X_scaled)
-
-            # Расчет метрик
-            accuracy = accuracy_score(y, predictions)
-            precision = precision_score(y, predictions)
-            recall = recall_score(y, predictions)
-            f1 = f1_score(y, predictions)
-
-            # Общий скор как среднее метрик
-            score = (accuracy + precision + recall + f1) / 4
-
+            # Преобразование параметров
+            params = {
+                "learning_rate": individual[0],
+                "max_iter": int(individual[1] * 1000),
+                "tol": individual[2],
+            }
+            
+            # Обучение модели
+            model = SGDClassifier(**params)
+            model.fit(self.current_data, self.target_data)
+            
+            # Оценка качества
+            score = model.score(self.current_data, self.target_data)
+            
             return (score,)
-
+            
         except Exception as e:
             logger.error(f"Error evaluating individual: {str(e)}")
-            return (-float("inf"),)
+            return (0.0,)
+
+    def _evaluate_bo(self, **params: float) -> float:
+        """Оценка параметров в BO"""
+        try:
+            # Преобразование параметров
+            model_params = {
+                "learning_rate": params["learning_rate"],
+                "max_iter": int(params["max_iter"]),
+                "tol": params["tol"],
+            }
+            
+            # Обучение модели
+            model = SGDClassifier(**model_params)
+            model.fit(self.current_data, self.target_data)
+            
+            # Оценка качества
+            score = model.score(self.current_data, self.target_data)
+            
+            return score
+
+        except Exception as e:
+            logger.error(f"Error evaluating BO parameters: {str(e)}")
+            return 0.0
+
+    def _optimize_parameters(self) -> Dict[str, float]:
+        """Оптимизация параметров"""
+        try:
+            # Оптимизация с помощью GA
+            pop = self.toolbox.population(n=50)
+            result, _ = algorithms.eaSimple(
+                pop,
+                self.toolbox,
+                cxpb=0.7,
+                mutpb=0.3,
+                ngen=10,
+                verbose=False,
+            )
+            
+            best_individual = tools.selBest(result, k=1)[0]
+            ga_params = {
+                "learning_rate": best_individual[0],
+                "max_iter": int(best_individual[1] * 1000),
+                "tol": best_individual[2],
+            }
+            
+            # Оптимизация с помощью BO
+            self.bo.maximize(init_points=5, n_iter=10)
+            bo_params = self.bo.max["params"]
+            
+            # Комбинирование результатов
+            final_params = {
+                "learning_rate": (ga_params["learning_rate"] + bo_params["learning_rate"]) / 2,
+                "max_iter": int((ga_params["max_iter"] + bo_params["max_iter"]) / 2),
+                "tol": (ga_params["tol"] + bo_params["tol"]) / 2,
+            }
+            
+            return final_params
+            
+        except Exception as e:
+            logger.error(f"Error optimizing parameters: {str(e)}")
+            return {
+                "learning_rate": 0.01,
+                "max_iter": 1000,
+                "tol": 1e-3,
+            }
+
+    async def _adapt_model(
+        self, model_id: str, features: pd.DataFrame, target: pd.Series
+    ) -> None:
+        """Адаптация модели"""
+        try:
+            # Получение модели
+            model = self.models.get(model_id)
+            if model is None:
+                logger.error(f"Model {model_id} not found")
+                return
+
+            # Подготовка данных
+            X = features.values
+            y = target.values
+
+            # Оптимизация параметров
+            params = self._optimize_parameters()
+
+            # Обновление параметров модели
+            model.set_params(**params)
+
+            # Обучение модели
+            model.fit(X, y)
+
+            # Обновление метрик
+            metrics = self._calculate_metrics(X, y)
+            drift_score = self._calculate_drift_score(X)
+
+            # Обновление метрик
+            self.metrics[model_id] = AdaptationMetrics(
+                accuracy=metrics[0],
+                precision=metrics[1],
+                recall=metrics[2],
+                f1=metrics[3],
+                drift_score=drift_score,
+                confidence=self._calculate_confidence(X),
+                timestamp=datetime.now(),
+            )
+
+        except Exception as e:
+            logger.error(f"Error adapting model {model_id}: {str(e)}")
+            raise
+
+    async def _update_model_weights(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Обновление весов моделей"""
+        try:
+            total_error = 0.0
+            errors = {}
+
+            for name, model in self.models.items():
+                pred = model.predict(X)
+                error = np.mean(np.abs(pred - y))
+                errors[name] = error
+                total_error += error
+
+            if total_error > 0:
+                for name in self.models:
+                    self.model_weights[name] = 1 - (errors[name] / total_error)
+            else:
+                for name in self.models:
+                    self.model_weights[name] = 1.0 / len(self.models)
+
+        except Exception as e:
+            logger.error(f"Error updating model weights: {str(e)}")
+            raise
+
+    async def _update_metrics(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Обновление метрик"""
+        try:
+            async with self.metrics_lock:
+                # Расчет метрик
+                accuracy, precision, recall, f1 = self._calculate_metrics(X, y)
+                drift_score = self._calculate_drift_score(X)
+                confidence = self._calculate_confidence(X)
+
+                # Обновление метрик
+                self.metrics = AdaptationMetrics(
+                    accuracy=accuracy,
+                    precision=precision,
+                    recall=recall,
+                    f1=f1,
+                    drift_score=drift_score,
+                    confidence=confidence,
+                    timestamp=datetime.now(),
+                )
+
+        except Exception as e:
+            logger.error(f"Error updating metrics: {str(e)}")
+            raise
+
+    async def save_state(self, path: str) -> None:
+        """Сохранение состояния"""
+        try:
+            state = {
+                "models": {
+                    name: {
+                        "model": model,
+                        "weights": self.model_weights[name],
+                    }
+                    for name, model in self.models.items()
+                },
+                "metrics": self.metrics,
+                "history": self.adaptation_history,
+                "scaler": self.scaler,
+                "config": self.config,
+            }
+
+            async with aiofiles.open(path, "wb") as f:
+                await f.write(pickle.dumps(state))
+
+        except Exception as e:
+            logger.error(f"Error saving state: {str(e)}")
+            raise
+
+    async def load_state(self, path: str) -> None:
+        """Загрузка состояния"""
+        try:
+            async with aiofiles.open(path, "rb") as f:
+                state = pickle.loads(await f.read())
+
+            self.models = state["models"]
+            self.metrics = state["metrics"]
+            self.adaptation_history = state["history"]
+            self.scaler = state["scaler"]
+            self.config = state["config"]
+
+        except Exception as e:
+            logger.error(f"Error loading state: {str(e)}")
+            raise
 
 
 class LiveAdaptation:
-    """Класс для адаптации моделей в реальном времени"""
+    """Адаптация в реальном времени"""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or {
-            "adaptation_window": 1000,
-            "min_samples": 100,
-            "update_interval": 100,
-            "confidence_threshold": 0.7,
-        }
-        self.adaptation_state = {}
-        self._last_update = None
+    def __init__(self, config: Optional[AdaptationConfig] = None):
+        """Инициализация"""
+        self.config = config or AdaptationConfig()
+        self.adaptation_dir = Path("adaptation")
+        self.adaptation_dir.mkdir(parents=True, exist_ok=True)
 
-    def update_state(self, data: pd.DataFrame, trades: List[Dict]) -> Dict[str, Any]:
-        """
-        Обновление состояния адаптации
+        # Данные
+        self.data_buffer = pd.DataFrame()
+        self.metrics_history = []
 
-        Args:
-            data: Рыночные данные
-            trades: История сделок
+        # Модели
+        self.models: Dict[str, AdaptableModel] = {}
+        self.scalers = {}
+        self.metrics = {}
 
-        Returns:
-            Dict[str, Any]: Обновленное состояние адаптации
-        """
+        # Кэш
+        self._prediction_cache = {}
+        self._feature_cache = {}
+
+        # Инициализация компонентов
+        self.model: Optional[AdaptableModel] = None
+        self.market_state: Optional[MarketStateInterface] = None
+        self.model_selector: Optional[ModelSelectorInterface] = None
+        self.pattern_discovery: Optional[PatternDiscoveryInterface] = None
+
+        # Хранение метрик с ограничением размера
+        self.metrics: Dict[str, Dict[str, AdaptationMetrics]] = {}
+
+        # История адаптации с ограничением размера
+        self.adaptation_history: List[AdaptationHistory] = []
+
+        # Блокировки для потокобезопасности
+        self._metrics_lock = asyncio.Lock()
+        self._model_lock = asyncio.Lock()
+        self._history_lock = asyncio.Lock()
+
+    async def update(self, data: pd.DataFrame) -> None:
+        """Обновление адаптации"""
         try:
-            if len(data) < self.config["min_samples"]:
-                return self.adaptation_state
+            # Добавление данных в буфер
+            self.data_buffer = pd.concat([self.data_buffer, data])
+            if len(self.data_buffer) > self.config.min_samples:
+                self.data_buffer = self.data_buffer.iloc[-self.config.min_samples:]
 
-            # Расчет метрик
-            volatility = data["close"].pct_change().std()
-            trend = self._calculate_trend(data)
-            market_regime = self._detect_regime(data)
+            # Извлечение признаков
+            features = self._extract_features(self.data_buffer)
+            if features is None:
+                return
 
-            # Обновление состояния
-            self.adaptation_state = {
-                "volatility": volatility,
-                "trend": trend,
-                "market_regime": market_regime,
-                "position_size_factor": self._calculate_position_size_factor(volatility, trend),
-                "stop_loss_factor": self._calculate_stop_loss_factor(volatility),
-                "take_profit_factor": self._calculate_take_profit_factor(trend),
-                "commission_factor": self._calculate_commission_factor(volatility),
-                "slippage_factor": self._calculate_slippage_factor(volatility),
-                "last_update": datetime.now(),
-            }
+            # Подготовка данных
+            X, y = self._prepare_data(features)
+            if X is None or y is None:
+                return
 
-            self._last_update = datetime.now()
-            return self.adaptation_state
+            # Обучение моделей
+            await self._train_ensemble(X, y)
+
+            # Обновление весов
+            await self._update_model_weights(X, y)
+
+            # Обновление метрик
+            await self._update_metrics(X, y)
+
+            # Обновление истории
+            await self._update_history()
 
         except Exception as e:
-            logger.error(f"Error updating adaptation state: {str(e)}")
-            return self.adaptation_state
+            logger.error(f"Error updating adaptation: {str(e)}")
+            raise
 
-    def _calculate_trend(self, data: pd.DataFrame) -> float:
-        """Расчет тренда"""
+    async def _train_ensemble(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Обучение ансамбля моделей"""
         try:
-            returns = data["close"].pct_change()
-            return returns.mean() / returns.std() if returns.std() != 0 else 0
+            for name, model in self.models.items():
+                model.fit(X, y)
+                logger.info(f"Trained {name} model")
+
         except Exception as e:
-            logger.error(f"Error calculating trend: {str(e)}")
-            return 0
+            logger.error(f"Error training ensemble: {str(e)}")
+            raise
 
-    def _detect_regime(self, data: pd.DataFrame) -> str:
-        """Определение режима рынка"""
+    async def _update_model_weights(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Обновление весов моделей"""
         try:
-            volatility = data["close"].pct_change().std()
-            trend = self._calculate_trend(data)
+            total_error = 0.0
+            errors = {}
 
-            if abs(trend) > 0.5:
-                return "trend"
-            elif volatility > 0.02:
-                return "volatile"
-            elif abs(trend) < 0.1:
-                return "sideways"
+            for name, model in self.models.items():
+                pred = model.predict(X)
+                error = np.mean(np.abs(pred - y))
+                errors[name] = error
+                total_error += error
+
+            if total_error > 0:
+                for name in self.models:
+                    self.model_weights[name] = 1 - (errors[name] / total_error)
             else:
-                return "normal"
+                for name in self.models:
+                    self.model_weights[name] = 1.0 / len(self.models)
 
         except Exception as e:
-            logger.error(f"Error detecting regime: {str(e)}")
-            return "normal"
+            logger.error(f"Error updating model weights: {str(e)}")
+            raise
 
-    def _calculate_position_size_factor(self, volatility: float, trend: float) -> float:
-        """Расчет фактора размера позиции"""
+    async def _update_metrics(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Обновление метрик"""
         try:
-            base_factor = 1.0
+            async with self._metrics_lock:
+                # Расчет метрик
+                accuracy, precision, recall, f1 = self._calculate_metrics(X, y)
+                drift_score = self._calculate_drift_score(X)
+                confidence = self._calculate_confidence(X)
 
-            # Корректировка по волатильности
-            if volatility > 0.02:
-                base_factor *= 0.8
-            elif volatility < 0.005:
-                base_factor *= 1.2
-
-            # Корректировка по тренду
-            if abs(trend) > 0.5:
-                base_factor *= 1.2
-            elif abs(trend) < 0.1:
-                base_factor *= 0.8
-
-            return max(0.5, min(1.5, base_factor))
+                # Обновление метрик
+                self.metrics = AdaptationMetrics(
+                    accuracy=accuracy,
+                    precision=precision,
+                    recall=recall,
+                    f1=f1,
+                    drift_score=drift_score,
+                    confidence=confidence,
+                    timestamp=datetime.now(),
+                )
 
         except Exception as e:
-            logger.error(f"Error calculating position size factor: {str(e)}")
-            return 1.0
+            logger.error(f"Error updating metrics: {str(e)}")
+            raise
 
-    def _calculate_stop_loss_factor(self, volatility: float) -> float:
-        """Расчет фактора стоп-лосса"""
+    async def _update_history(self) -> None:
+        """Обновление истории адаптации"""
         try:
-            if volatility > 0.02:
-                return 1.5
-            elif volatility < 0.005:
-                return 0.8
-            return 1.0
-        except Exception as e:
-            logger.error(f"Error calculating stop loss factor: {str(e)}")
-            return 1.0
+            async with self._history_lock:
+                self.adaptation_history.append(self.metrics)
+                if len(self.adaptation_history) > self.config.history_size:
+                    self.adaptation_history.pop(0)
 
-    def _calculate_take_profit_factor(self, trend: float) -> float:
-        """Расчет фактора тейк-профита"""
-        try:
-            if abs(trend) > 0.5:
-                return 1.5
-            elif abs(trend) < 0.1:
-                return 0.8
-            return 1.0
         except Exception as e:
-            logger.error(f"Error calculating take profit factor: {str(e)}")
-            return 1.0
-
-    def _calculate_commission_factor(self, volatility: float) -> float:
-        """Расчет фактора комиссии"""
-        try:
-            if volatility > 0.02:
-                return 1.2
-            return 1.0
-        except Exception as e:
-            logger.error(f"Error calculating commission factor: {str(e)}")
-            return 1.0
-
-    def _calculate_slippage_factor(self, volatility: float) -> float:
-        """Расчет фактора проскальзывания"""
-        try:
-            if volatility > 0.02:
-                return 1.5
-            elif volatility < 0.005:
-                return 0.8
-            return 1.0
-        except Exception as e:
-            logger.error(f"Error calculating slippage factor: {str(e)}")
-            return 1.0
+            logger.error(f"Error updating history: {str(e)}")
+            raise

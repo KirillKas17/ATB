@@ -42,9 +42,15 @@ def log_trade(trade_data: Dict[str, Any], logger: Optional["logger"] = None) -> 
     )
 
 
-def log_error(error: Exception, context: Dict[str, Any], logger: Optional["logger"] = None) -> None:
+def log_error(
+    error: Exception, context: Dict[str, Any], logger: Optional["logger"] = None
+) -> None:
     """Логирование ошибки"""
     if logger is None:
         logger = setup_logger("error_logger")
 
-    logger.error("Error occurred: {error} | Context: {context}", error=str(error), context=context)
+    logger.error(
+        "Error occurred: {error} | Context: {context}",
+        error=str(error),
+        context=context,
+    )

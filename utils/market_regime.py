@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Any, Dict
 
-import numpy as np
 import pandas as pd
 
 from .technical import calculate_momentum, calculate_volatility

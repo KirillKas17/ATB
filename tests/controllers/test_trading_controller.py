@@ -1,11 +1,10 @@
-import asyncio
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
 from core.controllers.trading_controller import TradingController
-from core.models import MarketData, Order, Position
+from core.models import Order, Position
 
 
 @pytest.fixture
@@ -31,8 +30,12 @@ def mock_exchange():
             "status": "closed",
         }
     )
-    exchange.cancel_order = AsyncMock(return_value={"id": "test_order", "status": "canceled"})
-    exchange.fetch_markets = AsyncMock(return_value=[{"symbol": "BTC/USDT", "active": True}])
+    exchange.cancel_order = AsyncMock(
+        return_value={"id": "test_order", "status": "canceled"}
+    )
+    exchange.fetch_markets = AsyncMock(
+        return_value=[{"symbol": "BTC/USDT", "active": True}]
+    )
     return exchange
 
 
@@ -40,7 +43,11 @@ def mock_exchange():
 def config():
     return {
         "trading_pairs": ["BTC/USDT"],
-        "risk_limits": {"max_position_size": 1.0, "max_daily_loss": 1000.0, "max_leverage": 3.0},
+        "risk_limits": {
+            "max_position_size": 1.0,
+            "max_daily_loss": 1000.0,
+            "max_leverage": 3.0,
+        },
         "order_settings": {"default_amount": 0.1, "default_leverage": 1.0},
         "market_update_interval": 60,
         "position_update_interval": 60,
@@ -141,7 +148,9 @@ async def test_close_all_positions(controller):
         controller.position_controller.positions.pop(pair, None)
         return mock_order
 
-    controller.position_controller.close_position = AsyncMock(side_effect=close_position_and_remove)
+    controller.position_controller.close_position = AsyncMock(
+        side_effect=close_position_and_remove
+    )
 
     await controller.close_all_positions()
     assert len(controller.position_controller.positions) == 0

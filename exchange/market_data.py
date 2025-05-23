@@ -3,9 +3,9 @@ import json
 from asyncio import Lock
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional
 
 import backoff
 import numpy as np
@@ -14,9 +14,6 @@ import websockets
 from loguru import logger
 
 from utils.technical import (
-    adx,
-    atr,
-    bollinger_bands,
     calculate_adx,
     calculate_atr,
     calculate_bollinger_bands,
@@ -26,19 +23,6 @@ from utils.technical import (
     calculate_rsi,
     calculate_stochastic,
     calculate_vwap,
-    cci,
-    ema,
-    fractals,
-    get_significant_levels,
-    keltner_channels,
-    macd,
-    order_imbalance,
-    rsi,
-    sma,
-    stoch_rsi,
-    volume_delta,
-    vwap,
-    wma,
 )
 
 
@@ -106,7 +90,9 @@ class MarketData:
         """Запуск обработчика с повторными попытками"""
         try:
             # Подключение к WebSocket
-            self.websocket = await websockets.connect(f"wss://stream.bybit.com/v5/public/spot")
+            self.websocket = await websockets.connect(
+                f"wss://stream.bybit.com/v5/public/spot"
+            )
             self.is_connected = True
 
             # Подписка на канал
@@ -173,7 +159,9 @@ class MarketData:
             self.is_connected = False
             await asyncio.sleep(5)  # Задержка перед переподключением
 
-            self.websocket = await websockets.connect(f"wss://stream.bybit.com/v5/public/spot")
+            self.websocket = await websockets.connect(
+                f"wss://stream.bybit.com/v5/public/spot"
+            )
             self.is_connected = True
 
             await self._subscribe()
@@ -190,7 +178,9 @@ class MarketData:
                 new_candle = pd.DataFrame(
                     [
                         {
-                            "timestamp": pd.to_datetime(candle_data["timestamp"], unit="ms"),
+                            "timestamp": pd.to_datetime(
+                                candle_data["timestamp"], unit="ms"
+                            ),
                             "open": float(candle_data["open"]),
                             "high": float(candle_data["high"]),
                             "low": float(candle_data["low"]),

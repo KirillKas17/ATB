@@ -2,7 +2,6 @@ import asyncio
 import json
 import sys
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -115,7 +114,9 @@ class WindowModelTrainer:
 
             # Ограничение размера выборки
             if len(df) > self.config.max_samples:
-                df = df.sample(n=self.config.max_samples, random_state=self.config.random_state)
+                df = df.sample(
+                    n=self.config.max_samples, random_state=self.config.random_state
+                )
 
             X = df.drop(columns=["optimal_window"])
             y = df["optimal_window"]
@@ -189,7 +190,10 @@ class WindowModelTrainer:
 
             # Разделение данных
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=self.config.test_size, random_state=self.config.random_state
+                X,
+                y,
+                test_size=self.config.test_size,
+                random_state=self.config.random_state,
             )
 
             # Оптимизация гиперпараметров
@@ -294,7 +298,10 @@ async def main():
 if __name__ == "__main__":
     # Настройка логирования
     logger.add(
-        "logs/train_window_model_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+        "logs/train_window_model_{time}.log",
+        rotation="1 day",
+        retention="7 days",
+        level="INFO",
     )
 
     # Запуск асинхронного main

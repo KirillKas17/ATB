@@ -1,14 +1,10 @@
-import asyncio
 import json
 import os
-import warnings
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from functools import lru_cache
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import joblib
 import lime
 import lime.lime_tabular
 import matplotlib.pyplot as plt
@@ -16,6 +12,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import shap
+import talib
 from loguru import logger
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -133,7 +130,10 @@ class DecisionReasoner:
 
         # Настройка логгера
         logger.add(
-            self.log_dir / "decision_reason.log", rotation="1 day", retention="7 days", level="INFO"
+            self.log_dir / "decision_reason.log",
+            rotation="1 day",
+            retention="7 days",
+            level="INFO",
         )
 
         # Данные
@@ -185,44 +185,42 @@ class DecisionReasoner:
             features["volatility"] = features["returns"].rolling(20).std()
 
             # Технические индикаторы
-            features["rsi"] = talib.RSI(df["close"])
-            features["macd"], features["macd_signal"], _ = talib.MACD(df["close"])
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = talib.BBANDS(
-                df["close"]
+            features["rsi"] = talib.RSI(df["close"].values)
+            macd, macd_signal, _ = talib.MACD(df["close"].values)
+            features["macd"] = pd.Series(macd, index=df.index)
+            features["macd_signal"] = pd.Series(macd_signal, index=df.index)
+
+            bb_upper, bb_middle, bb_lower = talib.BBANDS(df["close"].values)
+            features["bb_upper"] = pd.Series(bb_upper, index=df.index)
+            features["bb_middle"] = pd.Series(bb_middle, index=df.index)
+            features["bb_lower"] = pd.Series(bb_lower, index=df.index)
+
+            features["atr"] = talib.ATR(
+                df["high"].values, df["low"].values, df["close"].values
             )
-            features["atr"] = talib.ATR(df["high"], df["low"], df["close"])
-            features["adx"] = talib.ADX(df["high"], df["low"], df["close"])
+            features["adx"] = talib.ADX(
+                df["high"].values, df["low"].values, df["close"].values
+            )
 
             # Объемные признаки
             features["volume_ma"] = df["volume"].rolling(20).mean()
             features["volume_std"] = df["volume"].rolling(20).std()
             features["volume_ratio"] = df["volume"] / features["volume_ma"]
 
-            # Моментум
-            features["momentum"] = talib.MOM(df["close"], timeperiod=10)
-            features["roc"] = talib.ROC(df["close"], timeperiod=10)
-
-            # Волатильность
-            features["high_low_ratio"] = df["high"] / df["low"]
-            features["close_open_ratio"] = df["close"] / df["open"]
-
-            # Тренд
-            features["trend"] = talib.ADX(df["high"], df["low"], df["close"])
-            features["trend_strength"] = abs(features["trend"])
-
-            # Нормализация
-            scaler = StandardScaler()
-            features_scaled = pd.DataFrame(
-                scaler.fit_transform(features.fillna(0)),
-                columns=features.columns,
-                index=features.index,
-            )
-
-            return features_scaled
-
+            return features.fillna(0)
         except Exception as e:
             logger.error(f"Ошибка извлечения признаков: {e}")
             return pd.DataFrame()
+
+    def calculate_ema(self, data: pd.Series, period: int) -> pd.Series:
+        """Расчет экспоненциальной скользящей средней"""
+        try:
+            return pd.Series(
+                talib.EMA(data.values, timeperiod=period), index=data.index
+            )
+        except Exception as e:
+            logger.error(f"Ошибка расчета EMA: {e}")
+            return pd.Series(index=data.index)
 
     def _calculate_metrics(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict:
         """Расчет метрик"""
@@ -237,7 +235,9 @@ class DecisionReasoner:
             logger.error(f"Ошибка расчета метрик: {e}")
             return {}
 
-    def _calculate_risk_score(self, features: pd.DataFrame, predictions: np.ndarray) -> float:
+    def _calculate_risk_score(
+        self, features: pd.DataFrame, predictions: np.ndarray
+    ) -> float:
         """Расчет оценки риска"""
         try:
             # Волатильность
@@ -253,7 +253,9 @@ class DecisionReasoner:
             momentum = features["momentum"].iloc[-1]
 
             # Расчет риска
-            risk = np.mean([volatility, abs(trend), 1 / volume if volume > 0 else 1, abs(momentum)])
+            risk = np.mean(
+                [volatility, abs(trend), 1 / volume if volume > 0 else 1, abs(momentum)]
+            )
 
             return float(risk)
 
@@ -281,7 +283,9 @@ class DecisionReasoner:
 
             # Фильтрация по порогу
             importance = {
-                k: v for k, v in importance.items() if v >= self.config.feature_importance_threshold
+                k: v
+                for k, v in importance.items()
+                if v >= self.config.feature_importance_threshold
             }
 
             return importance
@@ -294,7 +298,9 @@ class DecisionReasoner:
         """Обновление модели"""
         try:
             # Добавление данных в буфер
-            self.data_buffer = pd.concat([self.data_buffer, df]).tail(self.config.max_samples)
+            self.data_buffer = pd.concat([self.data_buffer, df]).tail(
+                self.config.max_samples
+            )
 
             if len(self.data_buffer) < self.config.min_samples:
                 return
@@ -304,8 +310,12 @@ class DecisionReasoner:
 
             # Подготовка данных
             X = features.values
-            y = (self.data_buffer["close"].shift(-1) > self.data_buffer["close"]).values[:-1]
-            X = X[:-1]  # Убираем последнюю строку, так как для нее нет целевой переменной
+            y = (
+                self.data_buffer["close"].shift(-1) > self.data_buffer["close"]
+            ).values[:-1]
+            X = X[
+                :-1
+            ]  # Убираем последнюю строку, так как для нее нет целевой переменной
 
             # Нормализация
             if model_id not in self.scalers:
@@ -344,7 +354,8 @@ class DecisionReasoner:
                 risk_score=risk_score,
                 last_update=datetime.now(),
                 samples_count=len(self.data_buffer),
-                decision_count=self.metrics.get(model_id, {}).get("decision_count", 0) + 1,
+                decision_count=self.metrics.get(model_id, {}).get("decision_count", 0)
+                + 1,
                 error_count=self.metrics.get(model_id, {}).get("error_count", 0),
                 feature_importance=feature_importance,
             ).__dict__
@@ -360,7 +371,9 @@ class DecisionReasoner:
                 self.metrics[model_id]["error_count"] += 1
             raise
 
-    def make_decision(self, df: pd.DataFrame, model_id: str) -> Tuple[np.ndarray, float, float]:
+    def make_decision(
+        self, df: pd.DataFrame, model_id: str
+    ) -> Tuple[np.ndarray, float, float]:
         """Принятие решения"""
         try:
             if model_id not in self.models:
@@ -458,7 +471,9 @@ class DecisionReasoner:
             )
 
             # Создание визуализации
-            viz_path = self._create_visualization(pair, timeframe, feature_importance, indicators)
+            viz_path = self._create_visualization(
+                pair, timeframe, feature_importance, indicators
+            )
 
             # Создание отчета
             report = DecisionReport(
@@ -486,7 +501,8 @@ class DecisionReasoner:
         try:
             # SHAP объяснитель
             self.explainer = shap.KernelExplainer(
-                model.predict, features.sample(n=min(self.config.max_samples, len(features)))
+                model.predict,
+                features.sample(n=min(self.config.max_samples, len(features))),
             )
 
             # LIME объяснитель
@@ -520,7 +536,9 @@ class DecisionReasoner:
             indicators["bb_lower"] = bb_lower.iloc[-1]
 
             # ATR
-            indicators["atr"] = talib.ATR(data["high"], data["low"], data["close"]).iloc[-1]
+            indicators["atr"] = talib.ATR(
+                data["high"], data["low"], data["close"]
+            ).iloc[-1]
 
             return indicators
 
@@ -541,9 +559,9 @@ class DecisionReasoner:
             context = {}
 
             # Анализ тренда
-            ema_20 = calculate_ema(data["close"], 20)
-            ema_50 = calculate_ema(data["close"], 50)
-            ema_200 = calculate_ema(data["close"], 200)
+            ema_20 = self.calculate_ema(data["close"], 20)
+            ema_50 = self.calculate_ema(data["close"], 50)
+            ema_200 = self.calculate_ema(data["close"], 200)
 
             context["trend"] = {
                 "direction": "up" if ema_20.iloc[-1] > ema_200.iloc[-1] else "down",
@@ -553,7 +571,9 @@ class DecisionReasoner:
             }
 
             # Анализ волатильности
-            atr = calculate_atr(data, 14)
+            atr = talib.ATR(
+                data["high"].values, data["low"].values, data["close"].values
+            )
             volatility = data["close"].pct_change().rolling(20).std()
 
             context["volatility"] = {
@@ -565,19 +585,19 @@ class DecisionReasoner:
             }
 
             # Анализ объема
-            volume_ma = data["volume"].rolling(20).mean()
+            volume_ma = talib.SMA(data["volume"], timeperiod=20)
             volume_trend = data["volume"].pct_change(20)
 
             context["volume"] = {
                 "current": data["volume"].iloc[-1],
                 "trend": volume_trend.iloc[-1],
                 "relative": data["volume"].iloc[-1] / volume_ma.iloc[-1],
-                "distribution": calculate_volume_profile(data),
+                "distribution": self._calculate_volume_profile(data),
             }
 
             # Анализ импульса
-            rsi = calculate_rsi(data["close"], 14)
-            macd, signal, hist = calculate_macd(data["close"])
+            rsi = talib.RSI(data["close"].values)
+            macd, signal, hist = talib.MACD(data["close"].values)
 
             context["momentum"] = {
                 "rsi": rsi.iloc[-1],
@@ -588,18 +608,20 @@ class DecisionReasoner:
             }
 
             # Анализ структуры рынка
-            support_resistance = calculate_market_structure(data)
-            liquidity_zones = calculate_liquidity_zones(data)
+            support_resistance = self._calculate_market_structure(data)
+            liquidity_zones = self._calculate_liquidity_zones(data)
 
             context["market_structure"] = {
                 "support_resistance": support_resistance,
                 "liquidity_zones": liquidity_zones,
-                "price_position": self._calculate_price_position(data, support_resistance),
-                "fractals": calculate_fractals(data),
+                "price_position": self._calculate_price_position(
+                    data, support_resistance
+                ),
+                "fractals": self._calculate_fractals(data),
             }
 
             # Анализ манипуляций
-            imbalance = calculate_imbalance(data)
+            imbalance = self._calculate_imbalance(data)
             fakeouts = self._identify_fakeouts(data)
 
             context["manipulation"] = {
@@ -636,7 +658,9 @@ class DecisionReasoner:
             logger.error(f"Error calculating trend consistency: {str(e)}")
             return 0.5
 
-    def _calculate_price_position(self, data: pd.DataFrame, levels: List[float]) -> float:
+    def _calculate_price_position(
+        self, data: pd.DataFrame, levels: List[float]
+    ) -> float:
         """Расчет позиции цены относительно уровней."""
         try:
             current_price = data["close"].iloc[-1]
@@ -692,35 +716,45 @@ class DecisionReasoner:
             patterns = []
 
             # Базовые паттерны
-            if talib.CDLDOJI(data["open"], data["high"], data["low"], data["close"]).iloc[-1]:
+            if talib.CDLDOJI(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("doji")
 
-            if talib.CDLENGULFING(data["open"], data["high"], data["low"], data["close"]).iloc[-1]:
+            if talib.CDLENGULFING(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("engulfing")
 
-            if talib.CDLHAMMER(data["open"], data["high"], data["low"], data["close"]).iloc[-1]:
+            if talib.CDLHAMMER(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("hammer")
 
             # Расширенные паттерны
-            if talib.CDLMORNINGSTAR(data["open"], data["high"], data["low"], data["close"]).iloc[
-                -1
-            ]:
+            if talib.CDLMORNINGSTAR(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("morning_star")
 
-            if talib.CDLEVENINGSTAR(data["open"], data["high"], data["low"], data["close"]).iloc[
-                -1
-            ]:
+            if talib.CDLEVENINGSTAR(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("evening_star")
 
-            if talib.CDLHARAMI(data["open"], data["high"], data["low"], data["close"]).iloc[-1]:
+            if talib.CDLHARAMI(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("harami")
 
-            if talib.CDLPIERCING(data["open"], data["high"], data["low"], data["close"]).iloc[-1]:
+            if talib.CDLPIERCING(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("piercing")
 
-            if talib.CDLDARKCLOUDCOVER(data["open"], data["high"], data["low"], data["close"]).iloc[
-                -1
-            ]:
+            if talib.CDLDARKCLOUDCOVER(
+                data["open"], data["high"], data["low"], data["close"]
+            ).iloc[-1]:
                 patterns.append("dark_cloud_cover")
 
             # Кастомные паттерны
@@ -806,11 +840,14 @@ class DecisionReasoner:
 
             # Основное решение
             explanation.append(
-                f"Signal: {signal['type'].upper()} " f"(confidence: {signal['confidence']:.2f})"
+                f"Signal: {signal['type'].upper()} "
+                f"(confidence: {signal['confidence']:.2f})"
             )
 
             # Важные признаки
-            top_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)[:3]
+            top_features = sorted(
+                feature_importance.items(), key=lambda x: x[1], reverse=True
+            )[:3]
 
             explanation.append("\nKey factors:")
             for feature, importance in top_features:
@@ -826,7 +863,9 @@ class DecisionReasoner:
             explanation.append(f"- Trend: {market_context['trend']}")
             explanation.append(f"- Volatility: {market_context['volatility']:.2f}")
             if market_context["candle_patterns"]:
-                explanation.append(f"- Patterns: {', '.join(market_context['candle_patterns'])}")
+                explanation.append(
+                    f"- Patterns: {', '.join(market_context['candle_patterns'])}"
+                )
 
             return "\n".join(explanation)
 
@@ -911,7 +950,9 @@ class DecisionReasoner:
         except Exception as e:
             logger.error(f"Error saving report: {str(e)}")
 
-    def get_reports(self, pair: str, timeframe: Optional[str] = None) -> List[DecisionReport]:
+    def get_reports(
+        self, pair: str, timeframe: Optional[str] = None
+    ) -> List[DecisionReport]:
         """Получение отчетов"""
         try:
             reports = self.reports.get(pair, [])
@@ -933,14 +974,16 @@ class DecisionReasoner:
             # Технические индикаторы
             features["rsi"] = talib.RSI(data["close"])
             features["macd"], features["macd_signal"], _ = talib.MACD(data["close"])
-            features["bb_upper"], features["bb_middle"], features["bb_lower"] = talib.BBANDS(
-                data["close"]
+            features["bb_upper"], features["bb_middle"], features["bb_lower"] = (
+                talib.BBANDS(data["close"])
             )
             features["atr"] = talib.ATR(data["high"], data["low"], data["close"])
 
             # Свечные характеристики
             features["body_size"] = abs(data["close"] - data["open"])
-            features["upper_shadow"] = data["high"] - data[["open", "close"]].max(axis=1)
+            features["upper_shadow"] = data["high"] - data[["open", "close"]].max(
+                axis=1
+            )
             features["lower_shadow"] = data[["open", "close"]].min(axis=1) - data["low"]
             features["is_bullish"] = (data["close"] > data["open"]).astype(int)
 
@@ -995,7 +1038,9 @@ class DecisionReasoner:
             logger.error(f"Error in prediction: {str(e)}")
             return "neutral", 0.5
 
-    def adjust_strategy_signal(self, signal: Dict, confidence: float, market_regime: str) -> Dict:
+    def adjust_strategy_signal(
+        self, signal: Dict, confidence: float, market_regime: str
+    ) -> Dict:
         """Adjust strategy signal based on confidence and market regime.
 
         Args:
@@ -1081,11 +1126,19 @@ class DecisionReasoner:
             win_rate = winning_trades / total_trades if total_trades > 0 else 0
 
             # Calculate average confidence for winning vs losing trades
-            winning_confidences = [t["confidence"] for t in self.trade_history if t["pnl"] > 0]
-            losing_confidences = [t["confidence"] for t in self.trade_history if t["pnl"] <= 0]
+            winning_confidences = [
+                t["confidence"] for t in self.trade_history if t["pnl"] > 0
+            ]
+            losing_confidences = [
+                t["confidence"] for t in self.trade_history if t["pnl"] <= 0
+            ]
 
-            avg_winning_confidence = np.mean(winning_confidences) if winning_confidences else 0
-            avg_losing_confidence = np.mean(losing_confidences) if losing_confidences else 0
+            avg_winning_confidence = (
+                np.mean(winning_confidences) if winning_confidences else 0
+            )
+            avg_losing_confidence = (
+                np.mean(losing_confidences) if losing_confidences else 0
+            )
 
             return {
                 "total_trades": total_trades,
@@ -1218,7 +1271,10 @@ class DecisionReasoner:
 
     def _explain_volume(self, volume_data: Dict) -> str:
         """Объяснение объемов"""
-        return f"Объемы: {volume_data['current']:.2f} " f"({volume_data['change']:+.2%} к среднему)"
+        return (
+            f"Объемы: {volume_data['current']:.2f} "
+            f"({volume_data['change']:+.2%} к среднему)"
+        )
 
     def _log_explanation(self, decision: TradeDecision, explanation: str, data: Dict):
         """Логирование объяснения"""
@@ -1246,7 +1302,9 @@ class DecisionReasoner:
                 return False
 
             # Проверка трех последовательных бычьих свечей
-            three_bullish = all(data["close"].iloc[-i] > data["open"].iloc[-i] for i in range(1, 4))
+            three_bullish = all(
+                data["close"].iloc[-i] > data["open"].iloc[-i] for i in range(1, 4)
+            )
 
             # Проверка роста закрытия
             rising_closes = all(
@@ -1254,7 +1312,9 @@ class DecisionReasoner:
             )
 
             # Проверка размера тел свечей
-            body_sizes = [abs(data["close"].iloc[-i] - data["open"].iloc[-i]) for i in range(1, 4)]
+            body_sizes = [
+                abs(data["close"].iloc[-i] - data["open"].iloc[-i]) for i in range(1, 4)
+            ]
             increasing_bodies = all(
                 body_sizes[i] > body_sizes[i + 1] for i in range(len(body_sizes) - 1)
             )
@@ -1272,7 +1332,9 @@ class DecisionReasoner:
                 return False
 
             # Проверка трех последовательных медвежьих свечей
-            three_bearish = all(data["close"].iloc[-i] < data["open"].iloc[-i] for i in range(1, 4))
+            three_bearish = all(
+                data["close"].iloc[-i] < data["open"].iloc[-i] for i in range(1, 4)
+            )
 
             # Проверка падения закрытия
             falling_closes = all(
@@ -1280,7 +1342,9 @@ class DecisionReasoner:
             )
 
             # Проверка размера тел свечей
-            body_sizes = [abs(data["close"].iloc[-i] - data["open"].iloc[-i]) for i in range(1, 4)]
+            body_sizes = [
+                abs(data["close"].iloc[-i] - data["open"].iloc[-i]) for i in range(1, 4)
+            ]
             increasing_bodies = all(
                 body_sizes[i] > body_sizes[i + 1] for i in range(len(body_sizes) - 1)
             )
@@ -1328,11 +1392,15 @@ class DecisionReasoner:
 
             # Проверка первой свечи
             first_candle = (
-                abs(data["close"].iloc[-3] - data["open"].iloc[-3]) > data["atr"].iloc[-3]
+                abs(data["close"].iloc[-3] - data["open"].iloc[-3])
+                > data["atr"].iloc[-3]
             )
 
             # Проверка доджи
-            doji = abs(data["close"].iloc[-2] - data["open"].iloc[-2]) < data["atr"].iloc[-2] * 0.1
+            doji = (
+                abs(data["close"].iloc[-2] - data["open"].iloc[-2])
+                < data["atr"].iloc[-2] * 0.1
+            )
 
             # Проверка гэпа
             gap_up = data["low"].iloc[-2] > data["high"].iloc[-3]
@@ -1340,7 +1408,8 @@ class DecisionReasoner:
 
             # Проверка третьей свечи
             third_candle = (
-                abs(data["close"].iloc[-1] - data["open"].iloc[-1]) > data["atr"].iloc[-1]
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                > data["atr"].iloc[-1]
             )
 
             return first_candle and doji and (gap_up or gap_down) and third_candle
@@ -1357,11 +1426,15 @@ class DecisionReasoner:
 
             # Проверка первой свечи
             first_candle = (
-                abs(data["close"].iloc[-3] - data["open"].iloc[-3]) > data["atr"].iloc[-3]
+                abs(data["close"].iloc[-3] - data["open"].iloc[-3])
+                > data["atr"].iloc[-3]
             )
 
             # Проверка доджи
-            doji = abs(data["close"].iloc[-2] - data["open"].iloc[-2]) < data["atr"].iloc[-2] * 0.1
+            doji = (
+                abs(data["close"].iloc[-2] - data["open"].iloc[-2])
+                < data["atr"].iloc[-2] * 0.1
+            )
 
             # Проверка гэпа
             gap_up = data["low"].iloc[-2] > data["high"].iloc[-3]
@@ -1369,7 +1442,8 @@ class DecisionReasoner:
 
             # Проверка третьей свечи
             third_candle = (
-                abs(data["close"].iloc[-1] - data["open"].iloc[-1]) > data["atr"].iloc[-1]
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                > data["atr"].iloc[-1]
             )
 
             # Проверка противоположного направления
@@ -1396,13 +1470,19 @@ class DecisionReasoner:
                 return False
 
             # Проверка доджи
-            doji = abs(data["close"].iloc[-1] - data["open"].iloc[-1]) < data["atr"].iloc[-1] * 0.1
+            doji = (
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                < data["atr"].iloc[-1] * 0.1
+            )
 
             # Проверка верхней тени
             upper_shadow = data["high"].iloc[-1] - max(
                 data["open"].iloc[-1], data["close"].iloc[-1]
             )
-            lower_shadow = min(data["open"].iloc[-1], data["close"].iloc[-1]) - data["low"].iloc[-1]
+            lower_shadow = (
+                min(data["open"].iloc[-1], data["close"].iloc[-1])
+                - data["low"].iloc[-1]
+            )
 
             return doji and upper_shadow > lower_shadow * 3
 
@@ -1417,13 +1497,19 @@ class DecisionReasoner:
                 return False
 
             # Проверка доджи
-            doji = abs(data["close"].iloc[-1] - data["open"].iloc[-1]) < data["atr"].iloc[-1] * 0.1
+            doji = (
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                < data["atr"].iloc[-1] * 0.1
+            )
 
             # Проверка нижней тени
             upper_shadow = data["high"].iloc[-1] - max(
                 data["open"].iloc[-1], data["close"].iloc[-1]
             )
-            lower_shadow = min(data["open"].iloc[-1], data["close"].iloc[-1]) - data["low"].iloc[-1]
+            lower_shadow = (
+                min(data["open"].iloc[-1], data["close"].iloc[-1])
+                - data["low"].iloc[-1]
+            )
 
             return doji and lower_shadow > upper_shadow * 3
 
@@ -1467,7 +1553,10 @@ class DecisionReasoner:
             upper_shadow = data["high"].iloc[-1] - max(
                 data["open"].iloc[-1], data["close"].iloc[-1]
             )
-            lower_shadow = min(data["open"].iloc[-1], data["close"].iloc[-1]) - data["low"].iloc[-1]
+            lower_shadow = (
+                min(data["open"].iloc[-1], data["close"].iloc[-1])
+                - data["low"].iloc[-1]
+            )
 
             long_shadows = upper_shadow > body_size and lower_shadow > body_size
 
@@ -1493,7 +1582,10 @@ class DecisionReasoner:
             upper_shadow = data["high"].iloc[-1] - max(
                 data["open"].iloc[-1], data["close"].iloc[-1]
             )
-            lower_shadow = min(data["open"].iloc[-1], data["close"].iloc[-1]) - data["low"].iloc[-1]
+            lower_shadow = (
+                min(data["open"].iloc[-1], data["close"].iloc[-1])
+                - data["low"].iloc[-1]
+            )
 
             no_upper = upper_shadow < body_size * 0.1
             no_lower = lower_shadow < body_size * 0.1
@@ -1538,27 +1630,32 @@ class DecisionReasoner:
 
             # Проверка первой свечи
             first_candle = (
-                abs(data["close"].iloc[-5] - data["open"].iloc[-5]) > data["atr"].iloc[-5]
+                abs(data["close"].iloc[-5] - data["open"].iloc[-5])
+                > data["atr"].iloc[-5]
             )
 
             # Проверка второй свечи
             second_candle = (
-                abs(data["close"].iloc[-4] - data["open"].iloc[-4]) > data["atr"].iloc[-4] * 0.5
+                abs(data["close"].iloc[-4] - data["open"].iloc[-4])
+                > data["atr"].iloc[-4] * 0.5
             )
 
             # Проверка третьей свечи
             third_candle = (
-                abs(data["close"].iloc[-3] - data["open"].iloc[-3]) > data["atr"].iloc[-3] * 0.3
+                abs(data["close"].iloc[-3] - data["open"].iloc[-3])
+                > data["atr"].iloc[-3] * 0.3
             )
 
             # Проверка четвертой свечи
             fourth_candle = (
-                abs(data["close"].iloc[-2] - data["open"].iloc[-2]) > data["atr"].iloc[-2] * 0.2
+                abs(data["close"].iloc[-2] - data["open"].iloc[-2])
+                > data["atr"].iloc[-2] * 0.2
             )
 
             # Проверка пятой свечи
             fifth_candle = (
-                abs(data["close"].iloc[-1] - data["open"].iloc[-1]) > data["atr"].iloc[-1]
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                > data["atr"].iloc[-1]
             )
 
             # Проверка направления
@@ -1588,8 +1685,14 @@ class DecisionReasoner:
                 return False
 
             # Проверка длинных свечей
-            first_long = abs(data["close"].iloc[-2] - data["open"].iloc[-2]) > data["atr"].iloc[-2]
-            second_long = abs(data["close"].iloc[-1] - data["open"].iloc[-1]) > data["atr"].iloc[-1]
+            first_long = (
+                abs(data["close"].iloc[-2] - data["open"].iloc[-2])
+                > data["atr"].iloc[-2]
+            )
+            second_long = (
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                > data["atr"].iloc[-1]
+            )
 
             # Проверка противоположного направления
             opposite_direction = (data["close"].iloc[-2] > data["open"].iloc[-2]) != (
@@ -1598,7 +1701,8 @@ class DecisionReasoner:
 
             # Проверка закрытия на одном уровне
             same_close = (
-                abs(data["close"].iloc[-2] - data["close"].iloc[-1]) < data["atr"].iloc[-1] * 0.1
+                abs(data["close"].iloc[-2] - data["close"].iloc[-1])
+                < data["atr"].iloc[-1] * 0.1
             )
 
             return first_long and second_long and opposite_direction and same_close
@@ -1615,12 +1719,14 @@ class DecisionReasoner:
 
             # Проверка первой свечи
             first_candle = (
-                abs(data["close"].iloc[-2] - data["open"].iloc[-2]) > data["atr"].iloc[-2]
+                abs(data["close"].iloc[-2] - data["open"].iloc[-2])
+                > data["atr"].iloc[-2]
             )
 
             # Проверка второй свечи
             second_candle = (
-                abs(data["close"].iloc[-1] - data["open"].iloc[-1]) > data["atr"].iloc[-1] * 0.5
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                > data["atr"].iloc[-1] * 0.5
             )
 
             # Проверка направления
@@ -1628,7 +1734,8 @@ class DecisionReasoner:
 
             # Проверка закрытия
             close_near_low = (
-                abs(data["close"].iloc[-1] - data["low"].iloc[-2]) < data["atr"].iloc[-1] * 0.1
+                abs(data["close"].iloc[-1] - data["low"].iloc[-2])
+                < data["atr"].iloc[-1] * 0.1
             )
 
             return first_candle and second_candle and bearish and close_near_low
@@ -1645,12 +1752,14 @@ class DecisionReasoner:
 
             # Проверка первой свечи
             first_candle = (
-                abs(data["close"].iloc[-2] - data["open"].iloc[-2]) > data["atr"].iloc[-2]
+                abs(data["close"].iloc[-2] - data["open"].iloc[-2])
+                > data["atr"].iloc[-2]
             )
 
             # Проверка второй свечи
             second_candle = (
-                abs(data["close"].iloc[-1] - data["open"].iloc[-1]) > data["atr"].iloc[-1] * 0.5
+                abs(data["close"].iloc[-1] - data["open"].iloc[-1])
+                > data["atr"].iloc[-1] * 0.5
             )
 
             # Проверка направления
@@ -1658,7 +1767,8 @@ class DecisionReasoner:
 
             # Проверка закрытия
             close_near_low = (
-                abs(data["close"].iloc[-1] - data["low"].iloc[-2]) < data["atr"].iloc[-1] * 0.1
+                abs(data["close"].iloc[-1] - data["low"].iloc[-2])
+                < data["atr"].iloc[-1] * 0.1
             )
 
             return first_candle and second_candle and bearish and close_near_low
@@ -1666,3 +1776,234 @@ class DecisionReasoner:
         except Exception as e:
             logger.error(f"Error checking on neck: {str(e)}")
             return False
+
+    def _identify_fakeouts(self, data: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Идентификация фейковых пробоев"""
+        try:
+            fakeouts = []
+
+            # Расчет уровней поддержки и сопротивления
+            bb_upper, bb_middle, bb_lower = talib.BBANDS(data["close"].values)
+
+            # Поиск пробоев
+            for i in range(1, len(data)):
+                # Пробой верхней границы
+                if (
+                    data["close"].iloc[i - 1] < bb_upper[i - 1]
+                    and data["close"].iloc[i] > bb_upper[i]
+                ):
+                    # Проверка на возврат
+                    if data["close"].iloc[i + 1 : i + 5].min() < bb_middle[i]:
+                        fakeouts.append(
+                            {
+                                "type": "bullish",
+                                "index": i,
+                                "price": data["close"].iloc[i],
+                                "strength": (data["close"].iloc[i] - bb_upper[i])
+                                / bb_upper[i],
+                            }
+                        )
+
+                # Пробой нижней границы
+                if (
+                    data["close"].iloc[i - 1] > bb_lower[i - 1]
+                    and data["close"].iloc[i] < bb_lower[i]
+                ):
+                    # Проверка на возврат
+                    if data["close"].iloc[i + 1 : i + 5].max() > bb_middle[i]:
+                        fakeouts.append(
+                            {
+                                "type": "bearish",
+                                "index": i,
+                                "price": data["close"].iloc[i],
+                                "strength": (bb_lower[i] - data["close"].iloc[i])
+                                / bb_lower[i],
+                            }
+                        )
+
+            return fakeouts
+        except Exception as e:
+            logger.error(f"Ошибка идентификации фейковых пробоев: {e}")
+            return []
+
+    def _calculate_market_structure(self, data: pd.DataFrame) -> Dict[str, List[float]]:
+        """Расчет уровней поддержки и сопротивления"""
+        try:
+            # Используем полосы Боллинджера для определения уровней
+            bb_upper, bb_middle, bb_lower = talib.BBANDS(data["close"].values)
+
+            # Находим локальные максимумы и минимумы
+            peaks, _ = talib.MAX(data["high"].values, timeperiod=20)
+            troughs, _ = talib.MIN(data["low"].values, timeperiod=20)
+
+            # Группируем близкие уровни
+            support_levels = self._group_price_levels(troughs)
+            resistance_levels = self._group_price_levels(peaks)
+
+            return {
+                "support": support_levels,
+                "resistance": resistance_levels,
+                "bb_upper": float(bb_upper[-1]),
+                "bb_middle": float(bb_middle[-1]),
+                "bb_lower": float(bb_lower[-1]),
+            }
+        except Exception as e:
+            logger.error(f"Ошибка расчета рыночной структуры: {e}")
+            return {
+                "support": [],
+                "resistance": [],
+                "bb_upper": 0.0,
+                "bb_middle": 0.0,
+                "bb_lower": 0.0,
+            }
+
+    def _calculate_liquidity_zones(
+        self, data: pd.DataFrame
+    ) -> Dict[str, List[Dict[str, float]]]:
+        """Расчет зон ликвидности"""
+        try:
+            zones = []
+
+            # Анализ объемов на уровнях цены
+            price_levels = np.linspace(data["low"].min(), data["high"].max(), 50)
+            volume_profile = self._calculate_volume_profile(data)
+
+            # Находим зоны с высокой ликвидностью
+            for i in range(len(price_levels) - 1):
+                level_volume = volume_profile[i]
+                if level_volume > np.mean(volume_profile) * 1.5:
+                    zones.append(
+                        {
+                            "price_level": float(price_levels[i]),
+                            "volume": float(level_volume),
+                            "strength": float(level_volume / np.mean(volume_profile)),
+                        }
+                    )
+
+            return {"zones": zones}
+        except Exception as e:
+            logger.error(f"Ошибка расчета зон ликвидности: {e}")
+            return {"zones": []}
+
+    def _calculate_volume_profile(self, data: pd.DataFrame) -> np.ndarray:
+        """Расчет профиля объема"""
+        try:
+            # Создаем гистограмму объемов по уровням цены
+            price_levels = np.linspace(data["low"].min(), data["high"].max(), 50)
+            volume_profile = np.zeros_like(price_levels)
+
+            for i in range(len(data)):
+                price = data["close"].iloc[i]
+                volume = data["volume"].iloc[i]
+
+                # Находим ближайший уровень цены
+                level_idx = np.abs(price_levels - price).argmin()
+                volume_profile[level_idx] += volume
+
+            return volume_profile
+        except Exception as e:
+            logger.error(f"Ошибка расчета профиля объема: {e}")
+            return np.zeros(50)
+
+    def _calculate_fractals(
+        self, data: pd.DataFrame
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """Расчет фракталов"""
+        try:
+            fractals = []
+
+            # Поиск фракталов на 5 свечах
+            for i in range(2, len(data) - 2):
+                # Бычий фрактал
+                if (
+                    data["low"].iloc[i - 2] > data["low"].iloc[i]
+                    and data["low"].iloc[i - 1] > data["low"].iloc[i]
+                    and data["low"].iloc[i + 1] > data["low"].iloc[i]
+                    and data["low"].iloc[i + 2] > data["low"].iloc[i]
+                ):
+                    fractals.append(
+                        {
+                            "type": "bullish",
+                            "index": i,
+                            "price": float(data["low"].iloc[i]),
+                            "strength": float(
+                                (
+                                    data["low"].iloc[i - 2 : i + 3].max()
+                                    - data["low"].iloc[i]
+                                )
+                                / data["low"].iloc[i]
+                            ),
+                        }
+                    )
+
+                # Медвежий фрактал
+                if (
+                    data["high"].iloc[i - 2] < data["high"].iloc[i]
+                    and data["high"].iloc[i - 1] < data["high"].iloc[i]
+                    and data["high"].iloc[i + 1] < data["high"].iloc[i]
+                    and data["high"].iloc[i + 2] < data["high"].iloc[i]
+                ):
+                    fractals.append(
+                        {
+                            "type": "bearish",
+                            "index": i,
+                            "price": float(data["high"].iloc[i]),
+                            "strength": float(
+                                (
+                                    data["high"].iloc[i]
+                                    - data["high"].iloc[i - 2 : i + 3].min()
+                                )
+                                / data["high"].iloc[i]
+                            ),
+                        }
+                    )
+
+            return {"fractals": fractals}
+        except Exception as e:
+            logger.error(f"Ошибка расчета фракталов: {e}")
+            return {"fractals": []}
+
+    def _calculate_imbalance(self, data: pd.DataFrame) -> Dict[str, float]:
+        """Расчет дисбаланса в стакане"""
+        try:
+            # Используем объемы для оценки дисбаланса
+            buy_volume = data[data["close"] > data["open"]]["volume"].sum()
+            sell_volume = data[data["close"] < data["open"]]["volume"].sum()
+
+            total_volume = buy_volume + sell_volume
+            if total_volume == 0:
+                return {"imbalance": 0.0}
+
+            imbalance = (buy_volume - sell_volume) / total_volume
+            return {"imbalance": float(imbalance)}
+        except Exception as e:
+            logger.error(f"Ошибка расчета дисбаланса: {e}")
+            return {"imbalance": 0.0}
+
+    def _group_price_levels(
+        self, levels: np.ndarray, threshold: float = 0.01
+    ) -> List[float]:
+        """Группировка близких ценовых уровней"""
+        try:
+            if len(levels) == 0:
+                return []
+
+            # Сортируем уровни
+            sorted_levels = np.sort(levels)
+            grouped_levels = []
+            current_group = [sorted_levels[0]]
+
+            for level in sorted_levels[1:]:
+                if abs(level - current_group[-1]) / current_group[-1] <= threshold:
+                    current_group.append(level)
+                else:
+                    grouped_levels.append(float(np.mean(current_group)))
+                    current_group = [level]
+
+            if current_group:
+                grouped_levels.append(float(np.mean(current_group)))
+
+            return grouped_levels
+        except Exception as e:
+            logger.error(f"Ошибка группировки ценовых уровней: {e}")
+            return []

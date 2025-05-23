@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from .base_strategy import BaseStrategy, Signal, StrategyMetrics
+from .base_strategy import BaseStrategy, Signal
 
 
 @dataclass
@@ -18,7 +17,9 @@ class MeanReversionConfig:
     std_period: int = 20  # Период для расчета стандартного отклонения
     z_score_threshold: float = 2.0  # Порог Z-оценки
     min_reversion_periods: int = 3  # Минимальное количество периодов для подтверждения
-    max_reversion_periods: int = 10  # Максимальное количество периодов для подтверждения
+    max_reversion_periods: int = (
+        10  # Максимальное количество периодов для подтверждения
+    )
 
     # Параметры входа
     entry_threshold: float = 0.01  # Порог для входа
@@ -171,11 +172,15 @@ class MeanReversionStrategy(BaseStrategy):
             reversion = analysis["reversion"]
 
             # Проверяем базовые условия
-            if not self._check_basic_conditions(data, volatility, spread, liquidity, reversion):
+            if not self._check_basic_conditions(
+                data, volatility, spread, liquidity, reversion
+            ):
                 return None
 
             # Генерируем сигнал
-            signal = self._generate_trading_signal(data, volatility, spread, liquidity, reversion)
+            signal = self._generate_trading_signal(
+                data, volatility, spread, liquidity, reversion
+            )
             if signal:
                 self._update_position_state(signal, data)
 
@@ -420,7 +425,12 @@ class MeanReversionStrategy(BaseStrategy):
             else:
                 volatility = returns.rolling(window=self.config.std_period).std()
 
-            return {"mean": mean, "std": std, "z_score": z_score, "volatility": volatility}
+            return {
+                "mean": mean,
+                "std": std,
+                "z_score": z_score,
+                "volatility": volatility,
+            }
 
         except Exception as e:
             logger.error(f"Error calculating adaptive parameters: {str(e)}")
@@ -446,14 +456,18 @@ class MeanReversionStrategy(BaseStrategy):
 
             # Фильтр объема
             if self.config.use_volume_filter:
-                volume_ma = data["volume"].rolling(window=self.config.volume_ma_period).mean()
+                volume_ma = (
+                    data["volume"].rolling(window=self.config.volume_ma_period).mean()
+                )
                 if data["volume"].iloc[-1] < volume_ma.iloc[-1] * 0.8:
                     return False
 
             # Фильтр волатильности
             if self.config.use_volatility_filter:
                 volatility_ma = (
-                    analysis["volatility"].rolling(window=self.config.volatility_ma_period).mean()
+                    analysis["volatility"]
+                    .rolling(window=self.config.volatility_ma_period)
+                    .mean()
                 )
                 if analysis["volatility"] < volatility_ma.iloc[-1] * 0.5:
                     return False
@@ -557,7 +571,9 @@ class MeanReversionStrategy(BaseStrategy):
 
             # Генерируем сигнал входа
             if not self.position:
-                signal = self._generate_entry_signal(data, volatility, spread, liquidity, reversion)
+                signal = self._generate_entry_signal(
+                    data, volatility, spread, liquidity, reversion
+                )
                 if signal:
                     # Корректируем сигнал с учетом адаптивных параметров
                     if self.config.adaptive_position_sizing:
@@ -568,7 +584,9 @@ class MeanReversionStrategy(BaseStrategy):
 
             # Генерируем сигнал выхода
             else:
-                signal = self._generate_exit_signal(data, volatility, spread, liquidity, reversion)
+                signal = self._generate_exit_signal(
+                    data, volatility, spread, liquidity, reversion
+                )
                 if signal:
                     return signal
 
@@ -611,7 +629,10 @@ class MeanReversionStrategy(BaseStrategy):
             ):
 
                 # Проверяем объем
-                if data["volume"].iloc[-1] > data["volume"].rolling(window=20).mean().iloc[-1]:
+                if (
+                    data["volume"].iloc[-1]
+                    > data["volume"].rolling(window=20).mean().iloc[-1]
+                ):
                     # Рассчитываем размер позиции
                     volume = self._calculate_position_size(current_price, volatility)
 
@@ -644,7 +665,10 @@ class MeanReversionStrategy(BaseStrategy):
             ):
 
                 # Проверяем объем
-                if data["volume"].iloc[-1] > data["volume"].rolling(window=20).mean().iloc[-1]:
+                if (
+                    data["volume"].iloc[-1]
+                    > data["volume"].rolling(window=20).mean().iloc[-1]
+                ):
                     # Рассчитываем размер позиции
                     volume = self._calculate_position_size(current_price, volatility)
 
@@ -871,7 +895,9 @@ class MeanReversionStrategy(BaseStrategy):
 
             # Корректировка на максимальный размер
             position_size = base_size * volatility_factor
-            position_size = min(position_size, self.config.max_position_size - self.total_position)
+            position_size = min(
+                position_size, self.config.max_position_size - self.total_position
+            )
 
             return position_size
 

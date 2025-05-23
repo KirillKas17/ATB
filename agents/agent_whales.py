@@ -1,18 +1,16 @@
-import logging
 from abc import ABC, abstractmethod
-from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Tuple
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 
-from agents.agent_market_regime import MarketRegime, MarketRegimeAgent
+from agents.agent_market_regime import MarketRegimeAgent
 from core.types import Signal
 from exchange.market_data import MarketData
-from utils.indicators import calculate_imbalance, calculate_volume_profile
+from utils.indicators import calculate_volume_profile
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -123,11 +121,11 @@ class WhalesAgent:
         :param config: словарь параметров
         """
         self.config = config or {
-            'volume_threshold': 1000000,
-            'price_impact_threshold': 0.02,
-            'order_book_depth': 20,
-            'min_whale_size': 100000,
-            'max_spread': 0.01
+            "volume_threshold": 1000000,
+            "price_impact_threshold": 0.02,
+            "order_book_depth": 20,
+            "min_whale_size": 100000,
+            "max_spread": 0.01,
         }
         self.data_provider = DefaultDataProvider()
         self.cache = WhaleActivityCache()
@@ -143,25 +141,27 @@ class WhalesAgent:
             # Получаем данные
             market_data = await self.data_provider.get_market_data(pair)
             order_book = await self.data_provider.get_order_book(pair)
-            
+
             # Анализируем активность
             is_whale_activity = self._detect_whale_activity(market_data)
             order_book_analysis = await self._analyze_order_book(order_book)
             whale_score = self._calculate_whale_score(market_data)
-            
+
             if is_whale_activity:
-                return [WhaleActivity(
-                    pair=pair,
-                    timestamp=pd.Timestamp.now(),
-                    activity_type=WhaleActivityType.ORDER_BOOK,
-                    confidence=float(whale_score),
-                    impact=float(whale_score),
-                    details={
-                        'imbalance': float(order_book_analysis['imbalance']),
-                        'bid_volume': float(order_book_analysis['bid_volume']),
-                        'ask_volume': float(order_book_analysis['ask_volume'])
-                    }
-                )]
+                return [
+                    WhaleActivity(
+                        pair=pair,
+                        timestamp=pd.Timestamp.now(),
+                        activity_type=WhaleActivityType.ORDER_BOOK,
+                        confidence=float(whale_score),
+                        impact=float(whale_score),
+                        details={
+                            "imbalance": float(order_book_analysis["imbalance"]),
+                            "bid_volume": float(order_book_analysis["bid_volume"]),
+                            "ask_volume": float(order_book_analysis["ask_volume"]),
+                        },
+                    )
+                ]
             return []
         except Exception as e:
             logger.error(f"Error detecting whale activity: {str(e)}")
@@ -210,10 +210,17 @@ class WhalesAgent:
         try:
             if pair not in self.cache.activities:
                 return 0.0
-            recent_activities = self.cache.activities[pair][-self.config["lookback_period"] :]
+            recent_activities = self.cache.activities[pair][
+                -self.config["lookback_period"] :
+            ]
             if not recent_activities:
                 return 0.0
-            weights = {"order_book": 0.4, "volume": 0.3, "impulse": 0.2, "dominance": 0.1}
+            weights = {
+                "order_book": 0.4,
+                "volume": 0.3,
+                "impulse": 0.2,
+                "dominance": 0.1,
+            }
             weighted_confidence = sum(
                 a.confidence * weights[str(a.activity_type)] for a in recent_activities
             )
@@ -227,40 +234,44 @@ class WhalesAgent:
         try:
             # Преобразуем данные в DataFrame
             df = pd.DataFrame(data)
-            
+
             # Анализируем объемы на уровнях
-            bid_volumes = df['bids'].apply(lambda x: sum(bid[1] for bid in x))
-            ask_volumes = df['asks'].apply(lambda x: sum(ask[1] for ask in x))
-            
+            bid_volumes = df["bids"].apply(lambda x: sum(bid[1] for bid in x))
+            ask_volumes = df["asks"].apply(lambda x: sum(ask[1] for ask in x))
+
             # Определяем дисбаланс
             volume_imbalance = (bid_volumes - ask_volumes) / (bid_volumes + ask_volumes)
-            
+
             return {
-                'imbalance': float(volume_imbalance.iloc[-1]),
-                'bid_volume': float(bid_volumes.iloc[-1]),
-                'ask_volume': float(ask_volumes.iloc[-1])
+                "imbalance": float(volume_imbalance.iloc[-1]),
+                "bid_volume": float(bid_volumes.iloc[-1]),
+                "ask_volume": float(ask_volumes.iloc[-1]),
             }
         except Exception as e:
             logger.error(f"Error analyzing order book: {str(e)}")
-            return {'imbalance': 0.0, 'bid_volume': 0.0, 'ask_volume': 0.0}
+            return {"imbalance": 0.0, "bid_volume": 0.0, "ask_volume": 0.0}
 
     def _detect_whale_activity(self, data: pd.DataFrame) -> bool:
         """Определение активности китов."""
         try:
             # Проверяем объемы
-            volume_threshold = data['volume'].mean() * 3
-            large_volumes = (data['volume'] > volume_threshold).values
-            
+            volume_threshold = data["volume"].mean() * 3
+            large_volumes = (data["volume"] > volume_threshold).values
+
             # Проверяем ценовые движения
-            price_changes = data['close'].pct_change().abs()
+            price_changes = data["close"].pct_change().abs()
             significant_moves = (price_changes > 0.02).values  # 2% изменение
-            
+
             # Проверяем спред
-            spread = (data['high'] - data['low']) / data['low']
+            spread = (data["high"] - data["low"]) / data["low"]
             wide_spread = (spread > 0.01).values  # 1% спред
-            
+
             # Если есть хотя бы одно условие
-            return bool(np.any(large_volumes)) or bool(np.any(significant_moves)) or bool(np.any(wide_spread))
+            return (
+                bool(np.any(large_volumes))
+                or bool(np.any(significant_moves))
+                or bool(np.any(wide_spread))
+            )
         except Exception as e:
             logger.error(f"Error detecting whale activity: {str(e)}")
             return False
@@ -269,13 +280,19 @@ class WhalesAgent:
         """Расчет скора активности китов."""
         try:
             # Преобразуем numpy array в Series
-            volumes = pd.Series(data['volume'].values)
-            price_changes = pd.Series(data['close'].pct_change().values)
-            
+            volumes = pd.Series(data["volume"].values)
+            price_changes = pd.Series(data["close"].pct_change().values)
+
             # Нормализуем метрики
-            volume_score = min(1.0, float(volumes.iloc[-1]) / self.config['volume_threshold'])
-            price_score = min(1.0, abs(float(price_changes.iloc[-1])) / self.config['price_impact_threshold'])
-            
+            volume_score = min(
+                1.0, float(volumes.iloc[-1]) / self.config["volume_threshold"]
+            )
+            price_score = min(
+                1.0,
+                abs(float(price_changes.iloc[-1]))
+                / self.config["price_impact_threshold"],
+            )
+
             return (volume_score + price_score) / 2
         except Exception as e:
             logger.error(f"Error calculating whale score: {str(e)}")
@@ -367,14 +384,18 @@ class WhalesAgent:
 
             # Получение данных о доминировании
             market_data = await self.data_provider.get_market_data("BTCUSDT")
-            total_market_cap = market_data["close"].iloc[-1] * market_data["volume"].iloc[-1]
+            total_market_cap = (
+                market_data["close"].iloc[-1] * market_data["volume"].iloc[-1]
+            )
 
             # Расчет доминирования
             if pair == "BTCUSDT":
                 dominance = total_market_cap / self._get_total_crypto_market_cap()
             else:
                 eth_data = await self.data_provider.get_market_data("ETHUSDT")
-                eth_market_cap = eth_data["close"].iloc[-1] * eth_data["volume"].iloc[-1]
+                eth_market_cap = (
+                    eth_data["close"].iloc[-1] * eth_data["volume"].iloc[-1]
+                )
                 dominance = eth_market_cap / total_market_cap
 
             if dominance < self.config["dominance_threshold"]:

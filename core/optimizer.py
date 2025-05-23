@@ -2,13 +2,11 @@ from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import product
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 from loguru import logger
-from scikit_optimize import BayesSearchCV, gp_minimize
-from scikit_optimize.space import Categorical, Integer, Real
 
 from core.strategy import Strategy
 
@@ -80,7 +78,9 @@ class StrategyOptimizer:
             elif self.config.optimization_method == "bayesian":
                 return self._bayesian_optimization(strategy, data, param_grid)
             else:
-                raise ValueError(f"Unknown optimization method: {self.config.optimization_method}")
+                raise ValueError(
+                    f"Unknown optimization method: {self.config.optimization_method}"
+                )
 
         except Exception as e:
             logger.error(f"Error optimizing strategy: {str(e)}")
@@ -111,7 +111,9 @@ class StrategyOptimizer:
                 for params in param_combinations:
                     param_dict = dict(zip(param_names, params))
                     futures.append(
-                        executor.submit(self._evaluate_params, strategy, data, param_dict, None)
+                        executor.submit(
+                            self._evaluate_params, strategy, data, param_dict, None
+                        )
                     )
 
                 # Собираем результаты
@@ -307,7 +309,6 @@ class StrategyOptimizer:
                     test_y = y.iloc[split_idx:]
                 else:
                     train_y = None
-                    test_y = None
 
             # Обучаем стратегию
             if train_y is not None:
@@ -408,7 +409,9 @@ class StrategyOptimizer:
         else:
             raise ValueError(f"Unknown metric: {self.config.metric}")
 
-    def _simulate_trades(self, signals: List[Any], data: pd.DataFrame) -> List[Dict[str, Any]]:
+    def _simulate_trades(
+        self, signals: List[Any], data: pd.DataFrame
+    ) -> List[Dict[str, Any]]:
         """
         Симуляция сделок по сигналам.
 

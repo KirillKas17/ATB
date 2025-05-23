@@ -1,16 +1,14 @@
 import asyncio
-import json
 import os
 import platform
 import shutil
 import subprocess
 import sys
-import time
 import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 import psutil
 from loguru import logger
@@ -327,7 +325,8 @@ VSVersionInfo(
                     end_time=end_time,
                     build_size=build_size,
                     build_time=build_time,
-                    memory_usage=end_metrics["memory_usage"] - start_metrics["memory_usage"],
+                    memory_usage=end_metrics["memory_usage"]
+                    - start_metrics["memory_usage"],
                     cpu_usage=end_metrics["cpu_usage"],
                     success=True,
                 )
@@ -376,7 +375,9 @@ VSVersionInfo(
             engine_proc = subprocess.Popen(
                 [sys.executable, str(self.main_script)],
                 creationflags=(
-                    subprocess.CREATE_NEW_CONSOLE if platform.system() == "Windows" else 0
+                    subprocess.CREATE_NEW_CONSOLE
+                    if platform.system() == "Windows"
+                    else 0
                 ),
             )
 
@@ -384,7 +385,9 @@ VSVersionInfo(
             dash_proc = subprocess.Popen(
                 [sys.executable, str(self.dashboard_script)],
                 creationflags=(
-                    subprocess.CREATE_NEW_CONSOLE if platform.system() == "Windows" else 0
+                    subprocess.CREATE_NEW_CONSOLE
+                    if platform.system() == "Windows"
+                    else 0
                 ),
             )
 
@@ -421,7 +424,9 @@ async def main():
 
 if __name__ == "__main__":
     # Настройка логирования
-    logger.add("logs/build_{time}.log", rotation="1 day", retention="7 days", level="INFO")
+    logger.add(
+        "logs/build_{time}.log", rotation="1 day", retention="7 days", level="INFO"
+    )
 
     # Запуск асинхронного main
     asyncio.run(main())

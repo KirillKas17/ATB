@@ -155,7 +155,8 @@ class TestDashboard:
     def test_get_correlations(self, dashboard, mock_market_data):
         """Тест получения корреляций"""
         with patch(
-            "dashboard.dashboard.MarketData.get_historical_data", return_value=mock_market_data
+            "dashboard.dashboard.MarketData.get_historical_data",
+            return_value=mock_market_data,
         ):
             correlations = dashboard.get_correlations()
             assert isinstance(correlations, dict)
@@ -164,7 +165,8 @@ class TestDashboard:
     def test_get_pair_correlations(self, dashboard, mock_market_data):
         """Тест получения корреляций для пары"""
         with patch(
-            "dashboard.dashboard.MarketData.get_historical_data", return_value=mock_market_data
+            "dashboard.dashboard.MarketData.get_historical_data",
+            return_value=mock_market_data,
         ):
             correlations = dashboard.get_pair_correlations("BTC/USDT")
             assert isinstance(correlations, dict)
