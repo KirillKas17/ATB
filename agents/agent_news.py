@@ -9,14 +9,8 @@ from typing import (
     Any,
     Callable,
     Dict,
-    Generic,
     List,
     Optional,
-    Type,
-    TypedDict,
-    TypeVar,
-    Union,
-    cast,
 )
 
 import feedparser

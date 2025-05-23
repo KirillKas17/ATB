@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import lime
 import lime.lime_tabular
@@ -183,10 +183,17 @@ class DecisionReasoner:
             features["returns"] = df["close"].pct_change()
             features["log_returns"] = np.log1p(features["returns"])
             features["volatility"] = features["returns"].rolling(20).std()
-
             # Технические индикаторы
-            features["rsi"] = talib.RSI(df["close"].values)
-            macd, macd_signal, _ = talib.MACD(df["close"].values)
+            features["rsi"] = pd.Series(
+                ta.RSI(df["close"].values, timeperiod=14), 
+                index=df.index
+            )
+            macd, macd_signal, _ = ta.MACD(
+                df["close"].values,
+                fastperiod=12,
+                slowperiod=26,
+                signalperiod=9
+            )
             features["macd"] = pd.Series(macd, index=df.index)
             features["macd_signal"] = pd.Series(macd_signal, index=df.index)
 
@@ -195,10 +202,10 @@ class DecisionReasoner:
             features["bb_middle"] = pd.Series(bb_middle, index=df.index)
             features["bb_lower"] = pd.Series(bb_lower, index=df.index)
 
-            features["atr"] = talib.ATR(
+            features["atr"] = ta.ATR(
                 df["high"].values, df["low"].values, df["close"].values
             )
-            features["adx"] = talib.ADX(
+            features["adx"] = ta.ADX(
                 df["high"].values, df["low"].values, df["close"].values
             )
 
@@ -216,7 +223,7 @@ class DecisionReasoner:
         """Расчет экспоненциальной скользящей средней"""
         try:
             return pd.Series(
-                talib.EMA(data.values, timeperiod=period), index=data.index
+                ta.EMA(data.values, timeperiod=period), index=data.index
             )
         except Exception as e:
             logger.error(f"Ошибка расчета EMA: {e}")
