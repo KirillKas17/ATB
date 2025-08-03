@@ -1,17 +1,13 @@
 from datetime import datetime
 
 import pytest
-
-from core.signal_processor import (
-    MarketContext,
-    ProcessedSignal,
-    Signal,
-    SignalProcessor,
-)
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
+from core.signal_processor import (MarketContext, ProcessedSignal, Signal,
+                                   SignalProcessor)
 
 
 @pytest.fixture
-def market_context():
+def market_context() -> Any:
     """Фикстура для MarketContext"""
     return MarketContext(
         volatility=0.02,
@@ -32,7 +28,7 @@ def market_context():
 
 
 @pytest.fixture
-def signal_processor():
+def signal_processor() -> Any:
     """Фикстура для SignalProcessor"""
     config = {
         "min_confidence": 0.6,
@@ -52,7 +48,7 @@ def signal_processor():
 
 
 @pytest.fixture
-def buy_signal():
+def buy_signal() -> Any:
     """Фикстура для сигнала на покупку"""
     return Signal(
         timestamp=datetime.now(),
@@ -73,7 +69,7 @@ def buy_signal():
 
 
 @pytest.fixture
-def sell_signal():
+def sell_signal() -> Any:
     """Фикстура для сигнала на продажу"""
     return Signal(
         timestamp=datetime.now(),
@@ -96,7 +92,7 @@ def sell_signal():
 class TestSignalProcessor:
     """Тесты для SignalProcessor"""
 
-    def test_initialization(self, signal_processor):
+    def test_initialization(self, signal_processor) -> None:
         """Тест инициализации"""
         assert signal_processor.min_confidence == 0.6
         assert signal_processor.max_position_size == 1.0
@@ -105,7 +101,7 @@ class TestSignalProcessor:
         assert signal_processor.impact_threshold == 0.1
         assert signal_processor.priority_weights["strength"] == 0.3
 
-    def test_process_signal(self, signal_processor, buy_signal, market_context):
+    def test_process_signal(self, signal_processor, buy_signal, market_context) -> None:
         """Тест обработки сигнала"""
         result = signal_processor.process_signal(buy_signal, market_context)
 
@@ -122,7 +118,7 @@ class TestSignalProcessor:
         assert result.expected_impact >= 0
         assert result.market_impact >= 0
 
-    def test_calculate_confidence(self, signal_processor, buy_signal, market_context):
+    def test_calculate_confidence(self, signal_processor, buy_signal, market_context) -> None:
         """Тест расчета уверенности"""
         confidence = signal_processor._calculate_confidence(buy_signal, market_context)
 
@@ -131,7 +127,7 @@ class TestSignalProcessor:
 
     def test_calculate_position_size(
         self, signal_processor, buy_signal, market_context
-    ):
+    ) -> None:
         """Тест расчета размера позиции"""
         confidence = 0.8
         position_size = signal_processor._calculate_position_size(
@@ -140,7 +136,7 @@ class TestSignalProcessor:
 
         assert 0 <= position_size <= signal_processor.max_position_size
 
-    def test_calculate_risk_metrics(self, signal_processor, buy_signal, market_context):
+    def test_calculate_risk_metrics(self, signal_processor, buy_signal, market_context) -> None:
         """Тест расчета метрик риска"""
         position_size = 0.5
         risk_metrics = signal_processor._calculate_risk_metrics(
@@ -156,7 +152,7 @@ class TestSignalProcessor:
 
     def test_calculate_execution_priority(
         self, signal_processor, buy_signal, market_context
-    ):
+    ) -> None:
         """Тест расчета приоритета исполнения"""
         confidence = 0.8
         priority = signal_processor._calculate_execution_priority(
@@ -167,7 +163,7 @@ class TestSignalProcessor:
 
     def test_calculate_expected_impact(
         self, signal_processor, buy_signal, market_context
-    ):
+    ) -> None:
         """Тест расчета ожидаемого влияния"""
         position_size = 0.5
         impact = signal_processor._calculate_expected_impact(
@@ -178,7 +174,7 @@ class TestSignalProcessor:
 
     def test_calculate_correlation_impact(
         self, signal_processor, buy_signal, market_context
-    ):
+    ) -> None:
         """Тест расчета влияния на коррелированные инструменты"""
         impact = signal_processor._calculate_correlation_impact(
             buy_signal, market_context
@@ -190,7 +186,7 @@ class TestSignalProcessor:
 
     def test_calculate_market_impact(
         self, signal_processor, buy_signal, market_context
-    ):
+    ) -> None:
         """Тест расчета влияния на рынок"""
         position_size = 0.5
         impact = signal_processor._calculate_market_impact(
@@ -199,7 +195,7 @@ class TestSignalProcessor:
 
         assert impact >= 0
 
-    def test_regime_factor(self, signal_processor):
+    def test_regime_factor(self, signal_processor) -> None:
         """Тест расчета фактора режима"""
         # Тест для бычьего рынка
         assert signal_processor._get_regime_factor("buy", "bull") == 1.0
@@ -217,7 +213,7 @@ class TestSignalProcessor:
         assert signal_processor._get_regime_factor("buy", "volatile") == 0.3
         assert signal_processor._get_regime_factor("sell", "volatile") == 0.3
 
-    def test_serialization(self, signal_processor, buy_signal, market_context):
+    def test_serialization(self, signal_processor, buy_signal, market_context) -> None:
         """Тест сериализации/десериализации"""
         result = signal_processor.process_signal(buy_signal, market_context)
 

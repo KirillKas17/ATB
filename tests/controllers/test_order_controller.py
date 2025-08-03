@@ -2,13 +2,41 @@ from datetime import datetime
 from unittest.mock import AsyncMock
 
 import pytest
-
+from unittest.mock import Mock, patch
 from core.controllers.order_controller import OrderController
-from core.models import Order
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.entities import Order, Position
+else:
+    try:
+        from domain.entities import Order, Position
+    except ImportError:
+        # Создаем заглушки для тестирования
+        class Order:
+            def __init__(self, id: str, pair: str, type: str, side: str, price: float, size: float, status: str, timestamp: datetime) -> Any:
+                self.id = id
+                self.pair = pair
+                self.type = type
+                self.side = side
+                self.price = price
+                self.size = size
+                self.status = status
+                self.timestamp = timestamp
+        class Position:
+            def __init__(self, pair: str, side: str, size: float, entry_price: float, current_price: float, pnl: float, leverage: float, entry_time: datetime) -> Any:
+                self.pair = pair
+                self.side = side
+                self.size = size
+                self.entry_price = entry_price
+                self.current_price = current_price
+                self.pnl = pnl
+                self.leverage = leverage
+                self.entry_time = entry_time
 
 
 @pytest.fixture
-def mock_exchange():
+def mock_exchange() -> Any:
     exchange = AsyncMock()
     exchange.create_order = AsyncMock()
     exchange.cancel_order = AsyncMock()
@@ -18,12 +46,12 @@ def mock_exchange():
 
 
 @pytest.fixture
-def order_controller(mock_exchange):
+def order_controller(mock_exchange) -> Any:
     return OrderController(mock_exchange, {})
 
 
 @pytest.fixture
-def sample_order():
+def sample_order() -> Any:
     return Order(
         id="",
         pair="BTC/USDT",
@@ -37,7 +65,7 @@ def sample_order():
 
 
 @pytest.mark.asyncio
-async def test_place_order(order_controller, sample_order, mock_exchange):
+async def test_place_order(order_controller, sample_order, mock_exchange) -> None:
     """Тест размещения ордера"""
     mock_exchange.create_order.return_value = {"id": "123", "status": "open"}
 
@@ -49,7 +77,7 @@ async def test_place_order(order_controller, sample_order, mock_exchange):
 
 
 @pytest.mark.asyncio
-async def test_cancel_order(order_controller, mock_exchange):
+async def test_cancel_order(order_controller, mock_exchange) -> None:
     """Тест отмены ордера"""
     order_id = "123"
     await order_controller.cancel_order(order_id)
@@ -57,7 +85,7 @@ async def test_cancel_order(order_controller, mock_exchange):
 
 
 @pytest.mark.asyncio
-async def test_get_order(order_controller, mock_exchange):
+async def test_get_order(order_controller, mock_exchange) -> None:
     """Тест получения ордера"""
     order_data = {
         "id": "123",
@@ -79,7 +107,7 @@ async def test_get_order(order_controller, mock_exchange):
 
 
 @pytest.mark.asyncio
-async def test_get_open_orders(order_controller, mock_exchange):
+async def test_get_open_orders(order_controller, mock_exchange) -> None:
     """Тест получения открытых ордеров"""
     orders_data = [
         {

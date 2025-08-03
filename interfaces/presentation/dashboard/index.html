@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Современный дашборд торгового бота в стиле Apple">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>ATB Dashboard</title>
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Навигация в контейнере -->
+        <nav class="glass-nav">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <div class="logo">ATB</div>
+                    <span class="brand-text">Trading System</span>
+                </div>
+                
+                <div class="nav-controls">
+                    <button class="control-btn start-btn" id="startBtn">
+                        <span class="btn-icon">▶</span>
+                        <span class="btn-text">Запуск</span>
+                    </button>
+                    <button class="control-btn stop-btn" id="stopBtn">
+                        <span class="btn-icon">⏹</span>
+                        <span class="btn-text">Стоп</span>
+                    </button>
+                </div>
+                
+                <div class="nav-menu">
+                    <button class="nav-item active" data-section="overview">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Обзор</span>
+                    </button>
+                    <button class="nav-item" data-section="performance">
+                        <span class="nav-icon">📈</span>
+                        <span class="nav-text">Производительность</span>
+                    </button>
+                    <button class="nav-item" data-section="positions">
+                        <span class="nav-icon">💼</span>
+                        <span class="nav-text">Позиции</span>
+                    </button>
+                    <button class="nav-item" data-section="analytics">
+                        <span class="nav-icon">🔍</span>
+                        <span class="nav-text">Аналитика</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Секция Обзор -->
+            <section class="content-section active" id="overviewSection">
+                <!-- Статус системы -->
+                <div class="status-grid">
+                    <div class="status-card glass-card">
+                        <div class="status-header">
+                            <h3>Статус системы</h3>
+                            <div class="status-indicator online" id="systemStatus"></div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Состояние</span>
+                                <span class="metric-value" id="systemState">Активен</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Время работы</span>
+                                <span class="metric-value" id="uptime">00:00:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-card glass-card">
+                        <div class="status-header">
+                            <h3>Баланс</h3>
+                            <div class="status-indicator positive"></div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Общий P&L</span>
+                                <span class="metric-value positive" id="totalPnl">+$1,234.56</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24ч P&L</span>
+                                <span class="metric-value positive" id="dailyPnl">+$123.45</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-card glass-card">
+                        <div class="status-header">
+                            <h3>Торговля</h3>
+                            <div class="status-indicator active"></div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Активных позиций</span>
+                                <span class="metric-value" id="activePositions">3</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Win Rate</span>
+                                <span class="metric-value positive" id="winRate">78.5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-card glass-card">
+                        <div class="status-header">
+                            <h3>Производительность</h3>
+                            <div class="status-indicator good"></div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value" id="cpuUsage">23%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Память</span>
+                                <span class="metric-value" id="memoryUsage">1.2GB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Основные графики -->
+                <div class="charts-grid">
+                    <div class="chart-card glass-card large">
+                        <div class="chart-header">
+                            <h3>P&L по времени</h3>
+                            <div class="chart-controls">
+                                <button class="time-btn active" data-period="1h">1H</button>
+                                <button class="time-btn" data-period="24h">24H</button>
+                                <button class="time-btn" data-period="7d">7D</button>
+                                <button class="time-btn" data-period="30d">30D</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pnlChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card glass-card">
+                        <div class="chart-header">
+                            <h3>Распределение прибыли</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card glass-card">
+                        <div class="chart-header">
+                            <h3>Активность торгов</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tradesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция Производительность -->
+            <section class="content-section" id="performanceSection">
+                <div class="performance-grid">
+                    <div class="performance-card glass-card">
+                        <h3>Метрики эффективности</h3>
+                        <div class="metrics-list">
+                            <div class="metric-item">
+                                <span class="metric-name">Sharpe Ratio</span>
+                                <span class="metric-value positive">2.34</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-name">Max Drawdown</span>
+                                <span class="metric-value negative">-8.7%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-name">Sortino Ratio</span>
+                                <span class="metric-value positive">3.12</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-name">Calmar Ratio</span>
+                                <span class="metric-value positive">1.89</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="performance-card glass-card">
+                        <h3>Статистика торгов</h3>
+                        <div class="metrics-list">
+                            <div class="metric-item">
+                                <span class="metric-name">Всего сделок</span>
+                                <span class="metric-value">1,247</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-name">Прибыльных</span>
+                                <span class="metric-value positive">978</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-name">Убыточных</span>
+                                <span class="metric-value negative">269</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-name">Средняя прибыль</span>
+                                <span class="metric-value positive">$45.23</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция Позиции -->
+            <section class="content-section" id="positionsSection">
+                <div class="positions-header">
+                    <h2>Активные позиции</h2>
+                    <button class="refresh-btn" id="refreshPositions">🔄 Обновить</button>
+                </div>
+                <div class="positions-grid" id="positionsContainer">
+                    <!-- Позиции будут добавляться динамически -->
+                </div>
+            </section>
+
+            <!-- Секция Аналитика -->
+            <section class="content-section" id="analyticsSection">
+                <div class="analytics-grid">
+                    <div class="analytics-card glass-card">
+                        <h3>Анализ рынка</h3>
+                        <div class="market-indicators">
+                            <div class="indicator">
+                                <span class="indicator-name">RSI</span>
+                                <span class="indicator-value neutral">45.2</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-name">MACD</span>
+                                <span class="indicator-value positive">+0.023</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-name">Bollinger</span>
+                                <span class="indicator-value neutral">Средняя</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card glass-card">
+                        <h3>Сигналы AI</h3>
+                        <div class="ai-signals">
+                            <div class="signal positive">
+                                <span class="signal-icon">📈</span>
+                                <span class="signal-text">Сильный сигнал на покупку BTC</span>
+                            </div>
+                            <div class="signal negative">
+                                <span class="signal-icon">📉</span>
+                                <span class="signal-text">Слабый сигнал на продажу ETH</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="notifications-container" id="notificationsContainer"></div>
+
+    <!-- Скрипты -->
+    <script src="dashboard.js"></script>
+</body>
+</html>

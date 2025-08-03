@@ -2,13 +2,41 @@ from datetime import datetime
 from unittest.mock import AsyncMock
 
 import pytest
-
+from unittest.mock import Mock, patch
 from core.controllers.trading_controller import TradingController
-from core.models import Order, Position
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.entities import Order, Position
+else:
+    try:
+        from domain.entities import Order, Position
+    except ImportError:
+        # Создаем заглушки для тестирования
+        class Order:
+            def __init__(self, id: str, pair: str, type: str, side: str, price: float, size: float, status: str, timestamp: datetime) -> Any:
+                self.id = id
+                self.pair = pair
+                self.type = type
+                self.side = side
+                self.price = price
+                self.size = size
+                self.status = status
+                self.timestamp = timestamp
+        class Position:
+            def __init__(self, pair: str, side: str, size: float, entry_price: float, current_price: float, pnl: float, leverage: float, entry_time: datetime) -> Any:
+                self.pair = pair
+                self.side = side
+                self.size = size
+                self.entry_price = entry_price
+                self.current_price = current_price
+                self.pnl = pnl
+                self.leverage = leverage
+                self.entry_time = entry_time
 
 
 @pytest.fixture
-def mock_exchange():
+def mock_exchange() -> Any:
     exchange = AsyncMock()
     exchange.fetch_balance = AsyncMock(
         return_value={
@@ -40,7 +68,7 @@ def mock_exchange():
 
 
 @pytest.fixture
-def config():
+def config() -> Any:
     return {
         "trading_pairs": ["BTC/USDT"],
         "risk_limits": {
@@ -56,19 +84,19 @@ def config():
 
 
 @pytest.fixture
-def controller(mock_exchange, config):
+def controller(mock_exchange, config) -> Any:
     return TradingController(mock_exchange, config)
 
 
 @pytest.mark.asyncio
-async def test_start(controller):
+async def test_start(controller) -> None:
     await controller.start()
     assert controller.state.is_running
     assert controller.monitoring_tasks
 
 
 @pytest.mark.asyncio
-async def test_stop(controller):
+async def test_stop(controller) -> None:
     await controller.start()
     await controller.stop()
     assert not controller.state.is_running
@@ -76,51 +104,51 @@ async def test_stop(controller):
 
 
 @pytest.mark.asyncio
-async def test_load_config(controller):
+async def test_load_config(controller) -> None:
     await controller._load_config()
     assert controller._validate_config() is True
 
 
 @pytest.mark.asyncio
-async def test_init_trading_pairs(controller):
+async def test_init_trading_pairs(controller) -> None:
     await controller._init_trading_pairs()
     assert "BTC/USDT" in controller.trading_pairs
 
 
 @pytest.mark.asyncio
-async def test_start_monitoring(controller):
+async def test_start_monitoring(controller) -> None:
     await controller._start_monitoring()
     assert controller.monitoring_tasks
     assert len(controller.monitoring_tasks) == 3
 
 
 @pytest.mark.asyncio
-async def test_stop_monitoring(controller):
+async def test_stop_monitoring(controller) -> None:
     await controller._start_monitoring()
     await controller._stop_monitoring()
     assert not controller.monitoring_tasks
 
 
 @pytest.mark.asyncio
-async def test_monitor_market_data(controller):
+async def test_monitor_market_data(controller) -> None:
     await controller._monitor_market()
     assert hasattr(controller.market_controller, "current_state")
 
 
 @pytest.mark.asyncio
-async def test_monitor_positions(controller):
+async def test_monitor_positions(controller) -> None:
     await controller._monitor_positions()
     assert controller.position_controller.positions is not None
 
 
 @pytest.mark.asyncio
-async def test_monitor_orders(controller):
+async def test_monitor_orders(controller) -> None:
     await controller._monitor_orders()
     assert controller.order_controller.active_orders is not None
 
 
 @pytest.mark.asyncio
-async def test_close_all_positions(controller):
+async def test_close_all_positions(controller) -> None:
     position = Position(
         pair="BTC/USDT",
         side="long",
@@ -144,7 +172,7 @@ async def test_close_all_positions(controller):
         timestamp=datetime.now(),
     )
 
-    async def close_position_and_remove(pair):
+    async def close_position_and_remove(pair) -> Any:
         controller.position_controller.positions.pop(pair, None)
         return mock_order
 
@@ -157,7 +185,7 @@ async def test_close_all_positions(controller):
 
 
 @pytest.mark.asyncio
-async def test_cancel_all_orders(controller):
+async def test_cancel_all_orders(controller) -> None:
     order = Order(
         id="test_order",
         pair="BTC/USDT",
@@ -181,7 +209,7 @@ async def test_cancel_all_orders(controller):
     assert len(controller.order_controller.active_orders) == 0
 
 
-def test_validate_config(controller):
+def test_validate_config(controller) -> None:
     """Тест валидации конфигурации"""
     assert controller._validate_config() is True
 

@@ -1,27 +1,28 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from unittest.mock import Mock, patch
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
-from exchange.bybit_client import BybitClient
-from utils.logger import setup_logger
+from shared.logging import setup_logger
 
 logger = setup_logger(__name__)
 
 
 @pytest.fixture
-def bybit_config():
+def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return {"api_key": "test_api_key", "api_secret": "test_api_secret", "testnet": True}
 
 
 @pytest.fixture
-def bybit_client(bybit_config):
+def bybit_client(bybit_config) -> Any:
     """Фикстура с клиентом Bybit"""
     return BybitClient(config=bybit_config)
 
 
 class TestBybitClient:
-    def test_initialization(self, bybit_client, bybit_config):
+    def test_initialization(self, bybit_client, bybit_config) -> None:
         """Тест инициализации клиента"""
         assert bybit_client.api_key == bybit_config["api_key"]
         assert bybit_client.api_secret == bybit_config["api_secret"]
@@ -38,7 +39,7 @@ class TestBybitClient:
         )
 
     @pytest.mark.asyncio
-    async def test_connection(self, bybit_client):
+    async def test_connection(self, bybit_client) -> None:
         """Тест подключения к API"""
         with patch("exchange.bybit_client.aiohttp.ClientSession") as mock_session:
             mock_session.return_value.__aenter__.return_value.get = AsyncMock()
@@ -53,7 +54,7 @@ class TestBybitClient:
             assert bybit_client.session is None
 
     @pytest.mark.asyncio
-    async def test_websocket_subscription(self, bybit_client):
+    async def test_websocket_subscription(self, bybit_client) -> None:
         """Тест подписки на WebSocket"""
         with patch("exchange.bybit_client.websockets.connect") as mock_ws:
             mock_ws.return_value.__aenter__.return_value.send = AsyncMock()
@@ -71,7 +72,7 @@ class TestBybitClient:
             assert bybit_client.ws is None
 
     @pytest.mark.asyncio
-    async def test_get_klines(self, bybit_client):
+    async def test_get_klines(self, bybit_client) -> None:
         """Тест получения свечей"""
         with patch("exchange.bybit_client.aiohttp.ClientSession") as mock_session:
             mock_response = {
@@ -92,7 +93,7 @@ class TestBybitClient:
             assert len(klines) == 1
 
     @pytest.mark.asyncio
-    async def test_get_orderbook(self, bybit_client):
+    async def test_get_orderbook(self, bybit_client) -> None:
         """Тест получения стакана"""
         with patch("exchange.bybit_client.aiohttp.ClientSession") as mock_session:
             mock_response = {
@@ -110,7 +111,7 @@ class TestBybitClient:
             assert "asks" in orderbook
 
     @pytest.mark.asyncio
-    async def test_place_order(self, bybit_client):
+    async def test_place_order(self, bybit_client) -> None:
         """Тест размещения ордера"""
         with patch("exchange.bybit_client.aiohttp.ClientSession") as mock_session:
             mock_response = {"ret_code": 0, "result": {"order_id": "test_order_id"}}
@@ -126,7 +127,7 @@ class TestBybitClient:
             assert "order_id" in order
 
     @pytest.mark.asyncio
-    async def test_cancel_order(self, bybit_client):
+    async def test_cancel_order(self, bybit_client) -> None:
         """Тест отмены ордера"""
         with patch("exchange.bybit_client.aiohttp.ClientSession") as mock_session:
             mock_response = {"ret_code": 0, "result": {"order_id": "test_order_id"}}
@@ -141,7 +142,7 @@ class TestBybitClient:
 
 
 @pytest.mark.asyncio
-async def test_get_ticker(client):
+async def test_get_ticker(client) -> None:
     """Тест получения тикера"""
     try:
         ticker = await client.get_ticker("BTCUSDT")
@@ -159,7 +160,7 @@ async def test_get_ticker(client):
 
 
 @pytest.mark.asyncio
-async def test_get_balance(client):
+async def test_get_balance(client) -> None:
     """Тест получения баланса"""
     try:
         balance = await client.get_balance()
@@ -175,7 +176,7 @@ async def test_get_balance(client):
 
 
 @pytest.mark.asyncio
-async def test_create_order(client):
+async def test_create_order(client) -> None:
     """Тест создания ордера"""
     try:
         order = await client.create_order(
@@ -197,7 +198,7 @@ async def test_create_order(client):
 
 
 @pytest.mark.asyncio
-async def test_get_order(client):
+async def test_get_order(client) -> None:
     """Тест получения информации об ордере"""
     try:
         # Создание тестового ордера
@@ -225,7 +226,7 @@ async def test_get_order(client):
 
 
 @pytest.mark.asyncio
-async def test_rate_limit(client):
+async def test_rate_limit(client) -> None:
     """Тест ограничения запросов"""
     try:
         # Выполнение нескольких запросов
@@ -239,7 +240,7 @@ async def test_rate_limit(client):
 
 
 @pytest.mark.asyncio
-async def test_error_handling(client):
+async def test_error_handling(client) -> None:
     """Тест обработки ошибок"""
     # Тест с неверным символом
     with pytest.raises(Exception):

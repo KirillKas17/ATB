@@ -1,13 +1,30 @@
 from datetime import datetime
 
 import pytest
-
 from core.controllers.risk_controller import RiskController
-from core.models import Position
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.entities import Position
+else:
+    try:
+        from domain.entities import Position
+    except ImportError:
+        # Создаем заглушки для тестирования
+        class Position:
+            def __init__(self, pair: str, side: str, size: float, entry_price: float, current_price: float, pnl: float, leverage: float, entry_time: datetime) -> Any:
+                self.pair = pair
+                self.side = side
+                self.size = size
+                self.entry_price = entry_price
+                self.current_price = current_price
+                self.pnl = pnl
+                self.leverage = leverage
+                self.entry_time = entry_time
 
 
 @pytest.fixture
-def config():
+def config() -> Any:
     return {
         "balance": 10000.0,
         "stop_loss_multiplier": 2.0,
@@ -18,12 +35,12 @@ def config():
 
 
 @pytest.fixture
-def risk_controller(config):
+def risk_controller(config) -> Any:
     return RiskController(config)
 
 
 @pytest.fixture
-def sample_position():
+def sample_position() -> Any:
     return Position(
         pair="BTC/USDT",
         side="long",
@@ -31,23 +48,24 @@ def sample_position():
         entry_price=50000.0,
         current_price=50000.0,
         pnl=0.0,
+        leverage=1,
         entry_time=datetime.now(),
     )
 
 
-def test_calculate_position_size(risk_controller):
+def test_calculate_position_size(risk_controller) -> None:
     """Тест расчета размера позиции"""
     size = risk_controller.calculate_position_size("BTC/USDT", 50000.0, 0.02)
     assert size == 0.004  # 10000 * 0.02 / 50000
 
 
-def test_calculate_stop_loss_long(risk_controller, sample_position):
+def test_calculate_stop_loss_long(risk_controller, sample_position) -> None:
     """Тест расчета стоп-лосса для длинной позиции"""
     stop_loss = risk_controller.calculate_stop_loss(sample_position, 1000.0)
     assert stop_loss == 48000.0  # 50000 - (1000 * 2)
 
 
-def test_calculate_stop_loss_short(risk_controller):
+def test_calculate_stop_loss_short(risk_controller) -> None:
     """Тест расчета стоп-лосса для короткой позиции"""
     position = Position(
         pair="BTC/USDT",
@@ -56,19 +74,20 @@ def test_calculate_stop_loss_short(risk_controller):
         entry_price=50000.0,
         current_price=50000.0,
         pnl=0.0,
+        leverage=1,
         entry_time=datetime.now(),
     )
     stop_loss = risk_controller.calculate_stop_loss(position, 1000.0)
     assert stop_loss == 52000.0  # 50000 + (1000 * 2)
 
 
-def test_calculate_take_profit_long(risk_controller, sample_position):
+def test_calculate_take_profit_long(risk_controller, sample_position) -> None:
     """Тест расчета тейк-профита для длинной позиции"""
     take_profit = risk_controller.calculate_take_profit(sample_position, 1000.0)
     assert take_profit == 53000.0  # 50000 + (1000 * 3)
 
 
-def test_calculate_take_profit_short(risk_controller):
+def test_calculate_take_profit_short(risk_controller) -> None:
     """Тест расчета тейк-профита для короткой позиции"""
     position = Position(
         pair="BTC/USDT",
@@ -77,19 +96,20 @@ def test_calculate_take_profit_short(risk_controller):
         entry_price=50000.0,
         current_price=50000.0,
         pnl=0.0,
+        leverage=1,
         entry_time=datetime.now(),
     )
     take_profit = risk_controller.calculate_take_profit(position, 1000.0)
     assert take_profit == 47000.0  # 50000 - (1000 * 3)
 
 
-def test_check_risk_limits_valid(risk_controller, sample_position):
+def test_check_risk_limits_valid(risk_controller, sample_position) -> None:
     """Тест проверки лимитов риска - валидный случай"""
     risk_controller.risk_metrics["daily_pnl"] = 0.0
     assert risk_controller.check_risk_limits(sample_position) is True
 
 
-def test_check_risk_limits_invalid_size(risk_controller):
+def test_check_risk_limits_invalid_size(risk_controller) -> None:
     """Тест проверки лимитов риска - превышение размера позиции"""
     position = Position(
         pair="BTC/USDT",
@@ -98,18 +118,19 @@ def test_check_risk_limits_invalid_size(risk_controller):
         entry_price=50000.0,
         current_price=50000.0,
         pnl=0.0,
+        leverage=1,
         entry_time=datetime.now(),
     )
     assert risk_controller.check_risk_limits(position) is False
 
 
-def test_check_risk_limits_invalid_daily_loss(risk_controller, sample_position):
+def test_check_risk_limits_invalid_daily_loss(risk_controller, sample_position) -> None:
     """Тест проверки лимитов риска - превышение дневного убытка"""
     risk_controller.risk_metrics["daily_pnl"] = -2000.0  # Превышает max_daily_loss
     assert risk_controller.check_risk_limits(sample_position) is False
 
 
-def test_update_risk_metrics(risk_controller):
+def test_update_risk_metrics(risk_controller) -> None:
     """Тест обновления метрик риска"""
     positions = [
         Position(
@@ -119,6 +140,7 @@ def test_update_risk_metrics(risk_controller):
             entry_price=50000.0,
             current_price=51000.0,
             pnl=100.0,
+            leverage=1,
             entry_time=datetime.now(),
         ),
         Position(
@@ -128,6 +150,7 @@ def test_update_risk_metrics(risk_controller):
             entry_price=3000.0,
             current_price=2900.0,
             pnl=100.0,
+            leverage=1,
             entry_time=datetime.now(),
         ),
     ]

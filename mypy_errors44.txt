@@ -1,0 +1,141 @@
+infrastructure\market_data\base_connector.py:153: error: Statement is unreachable  [unreachable]
+domain\services\spread_analyzer.py:65: error: Statement is unreachable  [unreachable]
+domain\services\spread_analyzer.py:89: error: Statement is unreachable  [unreachable]
+domain\services\spread_analyzer.py:130: error: Statement is unreachable  [unreachable]
+domain\strategies\utils.py:26: error: Statement is unreachable  [unreachable]
+domain\strategies\utils.py:48: error: Statement is unreachable  [unreachable]
+domain\strategies\utils.py:280: error: Statement is unreachable  [unreachable]
+domain\sessions\session_predictor.py:412: error: Unsupported operand types for > ("Series[type[object]]" and "int")  [operator]
+domain\sessions\session_predictor.py:413: error: Unsupported operand types for < ("Series[type[object]]" and "int")  [operator]
+domain\sessions\session_predictor.py:422: error: Statement is unreachable  [unreachable]
+domain\sessions\session_predictor.py:424: error: Statement is unreachable  [unreachable]
+domain\sessions\session_optimizer.py:348: error: Statement is unreachable  [unreachable]
+domain\sessions\session_optimizer.py:350: error: Statement is unreachable  [unreachable]
+domain\sessions\session_optimizer.py:406: error: Statement is unreachable  [unreachable]
+domain\sessions\session_influence_analyzer.py:521: error: Statement is unreachable  [unreachable]
+domain\sessions\session_influence_analyzer.py:523: error: Statement is unreachable  [unreachable]
+domain\sessions\session_analyzer.py:293: error: Statement is unreachable  [unreachable]
+domain\sessions\session_analyzer.py:295: error: Statement is unreachable  [unreachable]
+domain\sessions\implementations.py:246: error: Statement is unreachable  [unreachable]
+domain\services\market_metrics.py:256: error: Statement is unreachable  [unreachable]
+domain\services\market_metrics.py:269: error: Statement is unreachable  [unreachable]
+domain\services\market_metrics.py:271: error: Statement is unreachable  [unreachable]
+domain\services\market_metrics.py:327: error: Statement is unreachable  [unreachable]
+domain\services\market_metrics.py:416: error: Statement is unreachable  [unreachable]
+domain\sessions\session_analyzer_factory.py:40: error: Statement is unreachable  [unreachable]
+domain\sessions\session_analyzer_factory.py:148: error: Unexpected keyword argument "session_marker" for "BaseSessionAnalyzer"  [call-arg]
+domain\sessions\interfaces.py:200: note: "BaseSessionAnalyzer" defined here
+domain\sessions\session_analyzer_factory.py:152: error: Missing positional argument "registry" in call to "BaseSessionAnalyzer"  [call-arg]
+infrastructure\repositories\trading\validators.py:201: error: Statement is unreachable  [unreachable]
+infrastructure\repositories\trading\validators.py:212: error: Statement is unreachable  [unreachable]
+infrastructure\repositories\trading\validators.py:335: error: Statement is unreachable  [unreachable]
+infrastructure\repositories\trading\validators.py:351: error: Statement is unreachable  [unreachable]
+infrastructure\repositories\trading\validators.py:364: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\exchange.py:88: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\exchange.py:293: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\exchange.py:355: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\exchange.py:561: error: Returning Any from function declared to return "dict[str, Any] | None"  [no-any-return]
+domain\prediction\reversal_predictor.py:353: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\exchanges\base_exchange_service.py:128: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\ml_services.py:91: error: Unsupported operand types for > ("Series[type[object]]" and "float")  [operator]
+infrastructure\external_services\ml_services.py:92: error: Unsupported operand types for < ("Series[type[object]]" and "float")  [operator]
+infrastructure\external_services\ml_services.py:148: error: Incompatible types in assignment (expression has type "Series[Timestamp]", variable has type "TimestampSeries")  [assignment]
+infrastructure\external_services\ml_services.py:154: error: Incompatible types in assignment (expression has type "Series[Any]", variable has type "TimestampSeries")  [assignment]
+infrastructure\external_services\ml_services.py:169: error: Returning Any from function declared to return "Series[Any]"  [no-any-return]
+infrastructure\external_services\ml_services.py:438: error: Unsupported operand types for < ("int" and "None")  [operator]
+infrastructure\external_services\ml_services.py:438: note: Left operand is of type "float | None"
+infrastructure\external_services\ml_services.py:439: error: Unsupported operand types for / ("float" and "None")  [operator]
+infrastructure\external_services\ml_services.py:439: note: Right operand is of type "float | None"
+infrastructure\external_services\ml_services.py:440: error: Unsupported operand types for - ("None" and "int")  [operator]
+infrastructure\external_services\ml_services.py:440: note: Left operand is of type "float | None"
+infrastructure\external_services\ml_services.py:576: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+infrastructure\external_services\ml_services.py:608: error: Unsupported operand types for < ("int" and "None")  [operator]
+infrastructure\external_services\ml_services.py:608: note: Left operand is of type "float | None"
+infrastructure\external_services\ml_services.py:609: error: Unsupported operand types for / ("float" and "None")  [operator]
+infrastructure\external_services\ml_services.py:609: note: Right operand is of type "float | None"
+infrastructure\external_services\ml_services.py:610: error: Unsupported operand types for - ("None" and "int")  [operator]
+infrastructure\external_services\ml_services.py:610: note: Left operand is of type "float | None"
+infrastructure\external_services\exchanges\bybit_exchange_service.py:33: error: Statement is unreachable  [unreachable]
+infrastructure\external_services\exchanges\binance_exchange_service.py:33: error: Statement is unreachable  [unreachable]
+domain\services\risk_analysis.py:345: error: Incompatible types in assignment (expression has type "DataFrame | Series[Any] | str | bytes | date | <9 more items>", variable has type "Series[Any]")  [assignment]
+domain\services\risk_analysis.py:347: error: Statement is unreachable  [unreachable]
+domain\services\risk_analysis.py:387: error: No overload variant of "minimize" matches argument types "Callable[[ndarray[Any, Any]], float]", "ndarray[Any, dtype[Any]]", "str", "list[tuple[float, float]]", "list[dict[Any, Any]]", "dict[Any, Any]"  [call-overload]
+domain\services\risk_analysis.py:387: note: Possible overload variants:
+domain\services\risk_analysis.py:387: note:     def minimize(fun: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], float | floating[Any] | integer[Any] | bool_], x0: float | floating[Any] | integer[Any] | bool_ | CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]], args: tuple[object, ...] = ..., method: Literal['Nelder-Mead', 'nelder-mead', 'Powell', 'powell', 'CG', 'cg', 'BFGS', 'bfgs', 'Newton-CG', 'newton-cg', 'L-BFGS-B', 'l-bfgs-b', 'TNC', 'tnc', 'COBYLA', 'cobyla', 'COBYQA', 'cobyqa', 'SLSQP', 'slsqp', 'Trust-Constr', 'trust-constr', 'Dogleg', 'dogleg', 'Trust-NCG', 'trust-ncg', 'Trust-Exact', 'trust-exact', 'Trust-Krylov', 'trust-krylov'] | _MinimizeMethodFun | None = ..., jac: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]] | Literal['2-point', '3-point', 'cs'] | Literal[False, 0] | None = ..., hess: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]]] | Literal['2-point', '3-point', 'cs'] | HessianUpdateStrategy | None = ..., hessp: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]] | None = ..., bounds: Sequence[tuple[float | floating[Any] | integer[Any] | bool_ | None, float | floating[Any] | integer[Any] | bool_ | None]] | Bounds | None = ..., constraints: LinearConstraint | NonlinearConstraint | _ConstraintDict | Sequence[LinearConstraint | NonlinearConstraint | _ConstraintDict] = ..., tol: float | floating[Any] | integer[Any] | bool_ | None = ..., callback: _CallbackResult | _CallbackVector | None = ..., options: _MinimizeOptions | None = ...) -> OptimizeResult
+domain\services\risk_analysis.py:387: note:     def minimize(fun: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], tuple[float | floating[Any] | integer[Any] | bool_, CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]]], x0: float | floating[Any] | integer[Any] | bool_ | CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]], args: tuple[object, ...], method: Literal['Nelder-Mead', 'nelder-mead', 'Powell', 'powell', 'CG', 'cg', 'BFGS', 'bfgs', 'Newton-CG', 'newton-cg', 'L-BFGS-B', 'l-bfgs-b', 'TNC', 'tnc', 'COBYLA', 'cobyla', 'COBYQA', 'cobyqa', 'SLSQP', 'slsqp', 'Trust-Constr', 'trust-constr', 'Dogleg', 'dogleg', 'Trust-NCG', 'trust-ncg', 'Trust-Exact', 'trust-exact', 'Trust-Krylov', 'trust-krylov'] | _MinimizeMethodFun | None, jac: Literal[True, 1], hess: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]]] | Literal['2-point', '3-point', 'cs'] | HessianUpdateStrategy | None = ..., hessp: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]] | None = ..., bounds: Sequence[tuple[float | floating[Any] | integer[Any] | bool_ | None, float | floating[Any] | integer[Any] | bool_ | None]] | Bounds | None = ..., constraints: LinearConstraint | NonlinearConstraint | _ConstraintDict | Sequence[LinearConstraint | NonlinearConstraint | _ConstraintDict] = ..., tol: float | floating[Any] | integer[Any] | bool_ | None = ..., callback: _CallbackResult | _CallbackVector | None = ..., options: _MinimizeOptions | None = ...) -> OptimizeResult
+domain\services\risk_analysis.py:387: note:     def minimize(fun: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], tuple[float | floating[Any] | integer[Any] | bool_, CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]]], x0: float | floating[Any] | integer[Any] | bool_ | CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]], args: tuple[object, ...] = ..., method: Literal['Nelder-Mead', 'nelder-mead', 'Powell', 'powell', 'CG', 'cg', 'BFGS', 'bfgs', 'Newton-CG', 'newton-cg', 'L-BFGS-B', 'l-bfgs-b', 'TNC', 'tnc', 'COBYLA', 'cobyla', 'COBYQA', 'cobyqa', 'SLSQP', 'slsqp', 'Trust-Constr', 'trust-constr', 'Dogleg', 'dogleg', 'Trust-NCG', 'trust-ncg', 'Trust-Exact', 'trust-exact', 'Trust-Krylov', 'trust-krylov'] | _MinimizeMethodFun | None = ..., *, jac: Literal[True, 1], hess: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]]] | Literal['2-point', '3-point', 'cs'] | HessianUpdateStrategy | None = ..., hessp: Callable[[ndarray[tuple[int], dtype[floating[_64Bit]]], ndarray[tuple[int], dtype[floating[_64Bit]]], VarArg(Any), KwArg(Any)], CanArrayND[floating[Any] | integer[Any] | bool_, tuple[int, ...]] | Sequence[float | floating[Any] | integer[Any] | bool_ | CanArray0D[floating[Any] | integer[Any] | bool_]]] | None = ..., bounds: Sequence[tuple[float | floating[Any] | integer[Any] | bool_ | None, float | floating[Any] | integer[Any] | bool_ | None]] | Bounds | None = ..., constraints: LinearConstraint | NonlinearConstraint | _ConstraintDict | Sequence[LinearConstraint | NonlinearConstraint | _ConstraintDict] = ..., tol: float | floating[Any] | integer[Any] | bool_ | None = ..., callback: _CallbackResult | _CallbackVector | None = ..., options: _MinimizeOptions | None = ...) -> OptimizeResult
+domain\services\risk_analysis.py:393: error: Redundant cast to "dict[Any, Any]"  [redundant-cast]
+domain\symbols\market_phase_classifier.py:161: error: No overload variant of "concat" matches argument types "list[object]", "int"  [call-overload]
+domain\symbols\market_phase_classifier.py:161: note: Possible overload variants:
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[DataFrame] | Mapping[HashableT1, DataFrame], *, axis: Literal['index', 0] | Literal['columns', 1] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> DataFrame
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[Series[Any]] | Mapping[HashableT1, Series[Any]], *, axis: Literal['index', 0] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> Series[Any]
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[Series[Any] | DataFrame] | Mapping[HashableT1, Series[Any] | DataFrame], *, axis: Literal['index', 0] | Literal['columns', 1] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> DataFrame
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[None] | Mapping[HashableT1, None], *, axis: Literal['index', 0] | Literal['columns', 1] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> Never
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[DataFrame | None] | Mapping[HashableT1, DataFrame | None], *, axis: Literal['index', 0] | Literal['columns', 1] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> DataFrame
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[Series[Any] | None] | Mapping[HashableT1, Series[Any] | None], *, axis: Literal['index', 0] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> Series[Any]
+domain\symbols\market_phase_classifier.py:161: note:     def [HashableT1: Hashable, HashableT2: Hashable, HashableT3: Hashable, HashableT4: Hashable] concat(objs: Iterable[Series[Any] | DataFrame | None] | Mapping[HashableT1, Series[Any] | DataFrame | None], *, axis: Literal['index', 0] | Literal['columns', 1] = ..., join: Literal['inner', 'outer'] = ..., ignore_index: bool = ..., keys: Iterable[HashableT2] = ..., levels: Sequence[list[HashableT3] | tuple[HashableT3, ...]] = ..., names: list[HashableT4] | None = ..., verify_integrity: bool = ..., sort: bool = ..., copy: bool = ...) -> DataFrame
+domain\strategies\validators_fixed.py:121: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:144: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:176: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:206: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:222: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:238: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:271: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:290: error: Statement is unreachable  [unreachable]
+domain\strategies\validators_fixed.py:296: error: Statement is unreachable  [unreachable]
+domain\strategies\validators.py:250: error: Statement is unreachable  [unreachable]
+domain\strategies\validators.py:266: error: Statement is unreachable  [unreachable]
+domain\strategies\validators.py:282: error: Statement is unreachable  [unreachable]
+domain\strategies\validators.py:315: error: Statement is unreachable  [unreachable]
+domain\strategies\validators.py:334: error: Statement is unreachable  [unreachable]
+domain\strategies\validators.py:340: error: Statement is unreachable  [unreachable]
+domain\strategies\base_strategy.py:134: error: Statement is unreachable  [unreachable]
+domain\protocols\strategy_protocol.py:1197: error: Statement is unreachable  [unreachable]
+domain\entities\strategy_interface.py:465: error: Incompatible types in assignment (expression has type "float | int", variable has type "int")  [assignment]
+infrastructure\repositories\strategy_repository.py:661: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\strategy_repository.py:680: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\strategy_repository.py:695: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\strategy_repository.py:951: error: Unsupported operand types for - ("float" and "datetime")  [operator]
+infrastructure\repositories\risk_repository.py:606: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\risk_repository.py:661: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\risk_repository.py:717: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\risk_repository.py:728: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\portfolio_repository.py:777: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\portfolio_repository.py:857: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\portfolio_repository.py:881: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\portfolio_repository.py:941: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:492: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:494: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:496: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:655: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:715: error: Redundant cast to "Prediction"  [redundant-cast]
+infrastructure\repositories\ml_repository.py:743: error: Redundant cast to "Prediction | None"  [redundant-cast]
+infrastructure\repositories\ml_repository.py:752: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:757: error: Redundant cast to "bool"  [redundant-cast]
+infrastructure\repositories\ml_repository.py:770: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:776: error: Redundant cast to "bool"  [redundant-cast]
+infrastructure\repositories\ml_repository.py:785: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:791: error: Redundant cast to "bool"  [redundant-cast]
+infrastructure\repositories\ml_repository.py:826: error: Returning Any from function declared to return "bool"  [no-any-return]
+infrastructure\repositories\ml_repository.py:832: error: Redundant cast to "bool"  [redundant-cast]
+infrastructure\repositories\ml_repository.py:849: error: Redundant cast to "int"  [redundant-cast]
+domain\services\pattern_discovery.py:241: error: Statement is unreachable  [unreachable]
+domain\protocols\integration.py:738: error: Argument 1 of "find_by" is incompatible with supertype "RepositoryProtocol"; supertype defines the argument type as "list[QueryFilter]"  [override]
+domain\protocols\integration.py:738: note: This violates the Liskov substitution principle
+domain\protocols\integration.py:738: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+domain\protocols\integration.py:738: error: Argument 2 of "find_by" is incompatible with supertype "RepositoryProtocol"; supertype defines the argument type as "QueryOptions | None"  [override]
+domain\protocols\integration.py:741: error: Argument 1 of "count" is incompatible with supertype "RepositoryProtocol"; supertype defines the argument type as "list[QueryFilter] | None"  [override]
+domain\protocols\integration.py:741: note: This violates the Liskov substitution principle
+domain\protocols\integration.py:741: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+domain\protocols\integration.py:744: error: Argument 1 of "find_one_by" is incompatible with supertype "RepositoryProtocol"; supertype defines the argument type as "list[QueryFilter]"  [override]
+domain\protocols\integration.py:744: note: This violates the Liskov substitution principle
+domain\protocols\integration.py:744: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+domain\protocols\integration.py:747: error: Argument 1 of "get_all" is incompatible with supertype "RepositoryProtocol"; supertype defines the argument type as "QueryOptions | None"  [override]
+domain\protocols\integration.py:747: note: This violates the Liskov substitution principle
+domain\protocols\integration.py:747: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+domain\protocols\integration.py:750: error: Argument 1 of "stream" is incompatible with supertype "RepositoryProtocol"; supertype defines the argument type as "QueryOptions | None"  [override]
+domain\protocols\integration.py:750: note: This violates the Liskov substitution principle
+domain\protocols\integration.py:750: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+domain\protocols\integration.py:753: error: Statement is unreachable  [unreachable]
+infrastructure\repositories\order_repository.py:1225: error: Statement is unreachable  [unreachable]
+Found 111 errors in 31 files (checked 202 source files)

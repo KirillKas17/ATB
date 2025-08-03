@@ -3,20 +3,22 @@ from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
-
+from unittest.mock import Mock, patch
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from core.controllers.market_controller import MarketController
 from core.controllers.order_controller import OrderController
 from core.controllers.position_controller import PositionController
 from core.controllers.risk_controller import RiskController
 from core.controllers.trading_controller import TradingController
 from core.types import TradingMode, TradingPair
-from utils.logger import setup_logger
+
+from shared.logging import setup_logger
 
 logger = setup_logger(__name__)
 
 
 @pytest.fixture
-def mock_config():
+def mock_config() -> Any:
     return {
         "exchange": {
             "name": "binance",
@@ -40,19 +42,19 @@ def mock_config():
 
 
 @pytest.fixture
-def mock_exchange():
+def mock_exchange() -> Any:
     return AsyncMock()
 
 
 @pytest.fixture
-def trading_controller(mock_exchange, mock_config):
+def trading_controller(mock_exchange, mock_config) -> Any:
     return TradingController(mock_exchange, mock_config)
 
 
 class TestTradingController:
     """Тесты для TradingController"""
 
-    def test_initialization(self, trading_controller, mock_config):
+    def test_initialization(self, trading_controller, mock_config) -> None:
         """Тест инициализации"""
         assert trading_controller.config == mock_config
         assert isinstance(trading_controller.order_controller, OrderController)
@@ -61,51 +63,51 @@ class TestTradingController:
         assert isinstance(trading_controller.risk_controller, RiskController)
 
     @pytest.mark.asyncio
-    async def test_start(self, trading_controller):
+    async def test_start(self, trading_controller) -> None:
         """Тест запуска контроллера"""
         await trading_controller.start()
         assert len(trading_controller.monitoring_tasks) > 0
 
     @pytest.mark.asyncio
-    async def test_stop(self, trading_controller):
+    async def test_stop(self, trading_controller) -> None:
         """Тест остановки контроллера"""
         await trading_controller.start()
         await trading_controller.stop()
         assert len(trading_controller.monitoring_tasks) == 0
 
     @pytest.mark.asyncio
-    async def test_cancel_all_orders(self, trading_controller):
+    async def test_cancel_all_orders(self, trading_controller) -> None:
         """Тест отмены всех ордеров"""
         await trading_controller.cancel_all_orders()
         trading_controller.order_controller.cancel_all_orders.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_close_all_positions(self, trading_controller):
+    async def test_close_all_positions(self, trading_controller) -> None:
         """Тест закрытия всех позиций"""
         await trading_controller.close_all_positions()
         trading_controller.position_controller.close_all_positions.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_monitor_market(self, trading_controller):
+    async def test_monitor_market(self, trading_controller) -> None:
         """Тест мониторинга рынка"""
         await trading_controller._monitor_market()
         trading_controller.market_controller.get_ohlcv.assert_called()
 
     @pytest.mark.asyncio
-    async def test_monitor_positions(self, trading_controller):
+    async def test_monitor_positions(self, trading_controller) -> None:
         """Тест мониторинга позиций"""
         await trading_controller._monitor_positions()
         trading_controller.position_controller.update_positions.assert_called()
         trading_controller.risk_controller.update_risk_metrics.assert_called()
 
     @pytest.mark.asyncio
-    async def test_monitor_orders(self, trading_controller):
+    async def test_monitor_orders(self, trading_controller) -> None:
         """Тест мониторинга ордеров"""
         await trading_controller._monitor_orders()
         trading_controller.order_controller.get_open_orders.assert_called()
         trading_controller.order_controller.clear_invalid_orders.assert_called()
 
-    def test_validate_config(self, trading_controller):
+    def test_validate_config(self, trading_controller) -> None:
         """Тест валидации конфигурации"""
         assert trading_controller._validate_config()
 
@@ -115,7 +117,7 @@ class TestTradingController:
 
 
 @pytest.fixture
-def controller(mock_config):
+def controller(mock_config) -> Any:
     with patch(
         "core.controllers.trading_controller.ConfigLoader.load_config",
         return_value=mock_config,
@@ -123,7 +125,7 @@ def controller(mock_config):
         return TradingController()
 
 
-def test_controller_initialization(controller, mock_config):
+def test_controller_initialization(controller, mock_config) -> None:
     """Тест инициализации контроллера"""
     assert controller.config == mock_config
     assert controller.mode == TradingMode.PAUSED
@@ -132,7 +134,7 @@ def test_controller_initialization(controller, mock_config):
 
 
 @pytest.mark.asyncio
-async def test_start(controller):
+async def test_start(controller) -> None:
     """Тест запуска контроллера"""
     with patch("core.controllers.trading_controller.Exchange.connect") as mock_connect:
         await controller.start()
@@ -141,7 +143,7 @@ async def test_start(controller):
 
 
 @pytest.mark.asyncio
-async def test_stop(controller):
+async def test_stop(controller) -> None:
     """Тест остановки контроллера"""
     controller.is_running = True
     with patch(
@@ -153,7 +155,7 @@ async def test_stop(controller):
 
 
 @pytest.mark.asyncio
-async def test_set_mode(controller):
+async def test_set_mode(controller) -> None:
     """Тест установки режима работы"""
     with patch(
         "core.controllers.trading_controller.TradingController._start_trading_mode"
@@ -163,7 +165,7 @@ async def test_set_mode(controller):
         mock_start.assert_called_once()
 
 
-def test_load_trading_pairs(controller):
+def test_load_trading_pairs(controller) -> None:
     """Тест загрузки торговых пар"""
     pairs = ["BTC/USDT", "ETH/USDT"]
     controller.config["trading"]["pairs"] = pairs
@@ -175,7 +177,7 @@ def test_load_trading_pairs(controller):
 
 
 @pytest.mark.asyncio
-async def test_monitor_market(controller):
+async def test_monitor_market(controller) -> None:
     """Тест мониторинга рынка"""
     controller.is_running = True
     with patch(
@@ -187,7 +189,7 @@ async def test_monitor_market(controller):
 
 
 @pytest.mark.asyncio
-async def test_process_signals(controller):
+async def test_process_signals(controller) -> None:
     """Тест обработки сигналов"""
     controller.is_running = True
     controller.mode = TradingMode.TRADING
@@ -199,7 +201,7 @@ async def test_process_signals(controller):
         mock_signals.assert_called()
 
 
-def test_calculate_levels(controller):
+def test_calculate_levels(controller) -> None:
     """Тест расчета уровней"""
     symbol = "BTC/USDT"
     direction = "long"
@@ -219,7 +221,7 @@ def test_calculate_levels(controller):
     assert take_profit > entry_price
 
 
-def test_log_decision_tree(controller):
+def test_log_decision_tree(controller) -> None:
     """Тест логирования дерева решений"""
     decision = TradingDecision(
         symbol="BTC/USDT",
@@ -242,7 +244,7 @@ def test_log_decision_tree(controller):
 
 
 @pytest.fixture
-def market_context():
+def market_context() -> Any:
     """Фикстура для рыночного контекста"""
     return {
         "price": 50000.0,
@@ -254,27 +256,27 @@ def market_context():
 
 
 @pytest.fixture
-def high_confidence_signal():
+def high_confidence_signal() -> Any:
     """Фикстура для сигнала с высокой уверенностью"""
     return {"direction": "long", "confidence": 0.9, "source": "ml_model"}
 
 
 @pytest.fixture
-def low_confidence_signal():
+def low_confidence_signal() -> Any:
     """Фикстура для сигнала с низкой уверенностью"""
     return {"direction": "long", "confidence": 0.5, "source": "ml_model"}
 
 
 @pytest.fixture
-def normal_confidence_signal():
+def normal_confidence_signal() -> Any:
     """Фикстура для сигнала со средней уверенностью"""
     return {"direction": "long", "confidence": 0.75, "source": "ml_model"}
 
 
-class TestTradingController:
-    """Тесты для TradingController"""
+class TestTradingControllerAdvanced:
+    """Тесты для TradingController (продвинутые функции)"""
 
-    def test_initialization(self, controller):
+    def test_initialization(self, controller) -> None:
         """Тест инициализации"""
         assert controller.config["min_confidence"] == 0.6
         assert controller.config["high_confidence"] == 0.85
@@ -287,7 +289,7 @@ class TestTradingController:
 
     async def test_decide_action_high_confidence(
         self, controller, high_confidence_signal, market_context
-    ):
+    ) -> None:
         """Тест принятия решения при высокой уверенности"""
         decision = await controller.decide_action(
             symbol="BTCUSDT",
@@ -305,7 +307,7 @@ class TestTradingController:
 
     async def test_decide_action_low_confidence(
         self, controller, low_confidence_signal, market_context
-    ):
+    ) -> None:
         """Тест принятия решения при низкой уверенности"""
         decision = await controller.decide_action(
             symbol="BTCUSDT",
@@ -319,7 +321,7 @@ class TestTradingController:
 
     async def test_decide_action_normal_confidence(
         self, controller, normal_confidence_signal, market_context
-    ):
+    ) -> None:
         """Тест принятия решения при средней уверенности"""
         decision = await controller.decide_action(
             symbol="BTCUSDT",
@@ -331,7 +333,7 @@ class TestTradingController:
         assert decision.volume == controller.config["normal_volume"]
         assert decision.leverage == controller.config["normal_leverage"]
 
-    async def test_calculate_levels_long(self, controller):
+    async def test_calculate_levels_long(self, controller) -> None:
         """Тест расчета уровней для длинной позиции"""
         stop_loss, take_profit = controller._calculate_levels(
             symbol="BTCUSDT", direction="long", entry_price=50000.0, confidence=0.9
@@ -343,7 +345,7 @@ class TestTradingController:
             "risk_reward_ratio"
         ]
 
-    async def test_calculate_levels_short(self, controller):
+    async def test_calculate_levels_short(self, controller) -> None:
         """Тест расчета уровней для короткой позиции"""
         stop_loss, take_profit = controller._calculate_levels(
             symbol="BTCUSDT", direction="short", entry_price=50000.0, confidence=0.9
@@ -357,7 +359,7 @@ class TestTradingController:
 
     async def test_log_decision_tree(
         self, controller, high_confidence_signal, market_context, tmp_path
-    ):
+    ) -> None:
         """Тест логирования дерева решений"""
         # Установка временной директории для логов
         controller.log_dir = tmp_path
@@ -389,7 +391,7 @@ class TestTradingController:
 
     async def test_decision_history(
         self, controller, high_confidence_signal, market_context
-    ):
+    ) -> None:
         """Тест истории решений"""
         # Принятие нескольких решений
         decision1 = await controller.decide_action(

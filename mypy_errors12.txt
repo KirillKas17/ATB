@@ -1,0 +1,7 @@
+
+
+
+
+
+Found 2837 errors in 275 files (checked 1097 source files)
+mypy . --ignore-missing-imports --no-strict-optional > mypy_errors12.txt 2>&1

@@ -1,0 +1,474 @@
+# Конфигурация для application слоя
+
+# Общие настройки
+application:
+  name: "ATB Trading System"
+  version: "1.0.0"
+  environment: "production"
+  debug: false
+  log_level: "INFO"
+  
+  # Настройки производительности
+  performance:
+    max_concurrent_requests: 100
+    request_timeout: 30
+    connection_pool_size: 20
+    cache_enabled: true
+    
+  # Настройки безопасности
+  security:
+    api_key_required: true
+    rate_limiting_enabled: true
+    max_requests_per_minute: 1000
+    cors_enabled: true
+    allowed_origins: ["*"]
+
+# Конфигурация сервисов
+services:
+  # Market Service
+  market_service:
+    enabled: true
+    cache_enabled: true
+    update_interval: 60  # секунды
+    max_retries: 3
+    retry_delay: 5  # секунды
+    websocket_enabled: true
+    websocket_reconnect_delay: 10
+    orderbook_depth: 20
+    price_precision: 8
+    volume_precision: 8
+    
+    # Настройки для разных бирж
+    exchanges:
+      bybit:
+        enabled: true
+        api_key: "${BYBIT_API_KEY}"
+        api_secret: "${BYBIT_API_SECRET}"
+        testnet: false
+        rate_limit: 100  # запросов в минуту
+      binance:
+        enabled: false
+        api_key: "${BINANCE_API_KEY}"
+        api_secret: "${BINANCE_API_SECRET}"
+        testnet: false
+        rate_limit: 1200  # запросов в минуту
+      bitget:
+        enabled: false
+        api_key: "${BITGET_API_KEY}"
+        api_secret: "${BITGET_API_SECRET}"
+        passphrase: "${BITGET_PASSPHRASE}"
+        testnet: false
+        rate_limit: 100  # запросов в минуту
+
+  # ML Service
+  ml_service:
+    enabled: true
+    model_path: "/models"
+    prediction_threshold: 0.7
+    batch_size: 32
+    max_predictions_per_second: 100
+    model_update_interval: 3600  # 1 час
+    feature_engineering_enabled: true
+    
+    # Настройки моделей
+    models:
+      price_prediction:
+        type: "LSTM"
+        input_size: 100
+        hidden_size: 128
+        num_layers: 3
+        dropout: 0.2
+        learning_rate: 0.001
+      trend_prediction:
+        type: "RandomForest"
+        n_estimators: 100
+        max_depth: 10
+        min_samples_split: 5
+      volatility_prediction:
+        type: "GARCH"
+        p: 1
+        q: 1
+        distribution: "normal"
+    
+    # Настройки данных
+    data:
+      historical_days: 365
+      feature_columns: ["open", "high", "low", "close", "volume"]
+      target_column: "close"
+      train_test_split: 0.8
+      validation_split: 0.1
+
+  # Trading Service
+  trading_service:
+    enabled: true
+    max_orders: 100
+    order_timeout: 30  # секунды
+    retry_attempts: 3
+    retry_delay: 5  # секунды
+    order_validation_enabled: true
+    risk_checks_enabled: true
+    
+    # Настройки ордеров
+    orders:
+      max_order_size: 10000  # USDT
+      min_order_size: 10  # USDT
+      max_slippage: 0.005  # 0.5%
+      order_types: ["MARKET", "LIMIT", "STOP_LOSS", "TAKE_PROFIT"]
+      
+    # Настройки позиций
+    positions:
+      max_positions: 20
+      max_position_size: 50000  # USDT
+      position_sizing_enabled: true
+      dynamic_sizing_enabled: true
+      
+    # Настройки исполнения
+    execution:
+      smart_routing_enabled: true
+      iceberg_orders_enabled: false
+      time_weighted_orders_enabled: true
+      execution_algorithm: "TWAP"  # Time-Weighted Average Price
+
+  # Strategy Service
+  strategy_service:
+    enabled: true
+    max_strategies: 50
+    strategy_timeout: 60  # секунды
+    backtest_enabled: true
+    optimization_enabled: true
+    strategy_validation_enabled: true
+    
+    # Настройки бэктестинга
+    backtest:
+      initial_balance: 10000  # USDT
+      commission: 0.001  # 0.1%
+      slippage: 0.0005  # 0.05%
+      start_date: "2023-01-01"
+      end_date: "2024-01-01"
+      
+    # Настройки оптимизации
+    optimization:
+      method: "genetic_algorithm"
+      population_size: 50
+      generations: 100
+      mutation_rate: 0.1
+      crossover_rate: 0.8
+      
+    # Настройки стратегий
+    strategies:
+      trend_following:
+        enabled: true
+        max_parameters: 10
+        min_performance: 0.1
+      mean_reversion:
+        enabled: true
+        max_parameters: 8
+        min_performance: 0.08
+      arbitrage:
+        enabled: true
+        max_parameters: 5
+        min_performance: 0.05
+      volatility:
+        enabled: true
+        max_parameters: 6
+        min_performance: 0.06
+
+  # Portfolio Service
+  portfolio_service:
+    enabled: true
+    max_portfolios: 10
+    default_currency: "USDT"
+    rebalancing_enabled: true
+    performance_tracking_enabled: true
+    
+    # Настройки ребалансировки
+    rebalancing:
+      frequency: "daily"  # daily, weekly, monthly
+      threshold: 0.05  # 5%
+      max_rebalance_cost: 0.002  # 0.2%
+      rebalancing_algorithm: "equal_weight"
+      
+    # Настройки производительности
+    performance:
+      benchmark: "BTCUSDT"
+      risk_free_rate: 0.02  # 2%
+      sharpe_ratio_target: 1.0
+      max_drawdown_target: 0.15  # 15%
+      
+    # Настройки портфелей
+    portfolios:
+      conservative:
+        max_risk: 0.05
+        max_concentration: 0.2
+        rebalancing_threshold: 0.03
+      moderate:
+        max_risk: 0.1
+        max_concentration: 0.3
+        rebalancing_threshold: 0.05
+      aggressive:
+        max_risk: 0.2
+        max_concentration: 0.5
+        rebalancing_threshold: 0.08
+
+  # Risk Service
+  risk_service:
+    enabled: true
+    risk_cache_ttl: 300  # 5 минут
+    var_confidence_levels: [0.95, 0.99]
+    max_position_size: 10000  # USDT
+    max_portfolio_concentration: 0.2  # 20%
+    max_daily_loss: 1000  # USDT
+    
+    # Настройки VaR
+    var:
+      calculation_method: "historical_simulation"
+      lookback_period: 252  # дней
+      confidence_levels: [0.95, 0.99]
+      max_var: 0.05  # 5% от портфеля
+      
+    # Настройки стресс-тестирования
+    stress_testing:
+      enabled: true
+      scenarios: ["market_crash", "volatility_spike", "liquidity_crisis"]
+      max_loss_scenario: 0.3  # 30%
+      
+    # Настройки лимитов
+    limits:
+      position_limits:
+        max_single_position: 0.1  # 10% от портфеля
+        max_sector_exposure: 0.3  # 30% от портфеля
+      portfolio_limits:
+        max_leverage: 2.0
+        max_correlation: 0.7
+        min_diversification: 5  # активов
+      trading_limits:
+        max_daily_trades: 100
+        max_daily_volume: 100000  # USDT
+        max_slippage: 0.01  # 1%
+
+  # Cache Service
+  cache_service:
+    enabled: true
+    default_ttl: 300  # 5 минут
+    max_size: 10000
+    cleanup_interval: 60  # секунды
+    eviction_policy: "LRU"  # LRU, LFU, FIFO
+    
+    # Настройки кэширования
+    caching:
+      market_data_ttl: 60  # 1 минута
+      orderbook_ttl: 30  # 30 секунд
+      portfolio_ttl: 300  # 5 минут
+      risk_metrics_ttl: 600  # 10 минут
+      strategy_results_ttl: 3600  # 1 час
+      
+    # Настройки памяти
+    memory:
+      max_memory_usage: 0.8  # 80% от доступной памяти
+      compression_enabled: true
+      serialization_format: "pickle"  # pickle, json, msgpack
+
+  # Notification Service
+  notification_service:
+    enabled: true
+    default_level: "info"
+    retry_attempts: 3
+    retry_delay: 5  # секунды
+    batch_size: 10
+    batch_timeout: 30  # секунды
+    
+    # Email настройки
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: "${EMAIL_USERNAME}"
+      password: "${EMAIL_PASSWORD}"
+      from_email: "${FROM_EMAIL}"
+      to_emails: ["${ADMIN_EMAIL}"]
+      ssl_enabled: true
+      
+    # Webhook настройки
+    webhook:
+      enabled: false
+      url: "${WEBHOOK_URL}"
+      headers:
+        Authorization: "Bearer ${WEBHOOK_TOKEN}"
+        Content-Type: "application/json"
+      timeout: 10  # секунды
+      retry_on_failure: true
+      
+    # Telegram настройки
+    telegram:
+      enabled: false
+      bot_token: "${TELEGRAM_BOT_TOKEN}"
+      chat_id: "${TELEGRAM_CHAT_ID}"
+      api_url: "https://api.telegram.org/bot"
+      parse_mode: "HTML"
+      
+    # Настройки алертов
+    alerts:
+      risk_alerts:
+        enabled: true
+        threshold_high_risk: 0.15
+        threshold_critical_risk: 0.25
+      performance_alerts:
+        enabled: true
+        threshold_low_performance: -0.05
+        threshold_high_performance: 0.1
+      trading_alerts:
+        enabled: true
+        large_trade_threshold: 10000  # USDT
+        unusual_activity_threshold: 0.5
+
+# Настройки мониторинга
+monitoring:
+  enabled: true
+  metrics_collection_interval: 60  # секунды
+  health_check_interval: 30  # секунды
+  
+  # Prometheus настройки
+  prometheus:
+    enabled: true
+    port: 9090
+    metrics_path: "/metrics"
+    
+  # Grafana настройки
+  grafana:
+    enabled: true
+    url: "http://localhost:3000"
+    api_key: "${GRAFANA_API_KEY}"
+    
+  # Логирование
+  logging:
+    level: "INFO"
+    format: "json"
+    output: "file"
+    file_path: "/logs/application.log"
+    max_file_size: "100MB"
+    max_files: 10
+    compression_enabled: true
+
+# Настройки базы данных
+database:
+  type: "postgresql"  # postgresql, mysql, sqlite
+  host: "${DB_HOST}"
+  port: 5432
+  name: "${DB_NAME}"
+  username: "${DB_USERNAME}"
+  password: "${DB_PASSWORD}"
+  ssl_enabled: true
+  
+  # Настройки пула соединений
+  connection_pool:
+    min_size: 5
+    max_size: 20
+    max_queries: 50000
+    max_inactive_connection_lifetime: 300  # секунды
+    
+  # Настройки миграций
+  migrations:
+    auto_migrate: true
+    migration_path: "/migrations"
+    backup_before_migrate: true
+
+# Настройки Redis
+redis:
+  enabled: true
+  host: "${REDIS_HOST}"
+  port: 6379
+  password: "${REDIS_PASSWORD}"
+  database: 0
+  
+  # Настройки кластера
+  cluster:
+    enabled: false
+    nodes: []
+    
+  # Настройки кэширования
+  cache:
+    default_ttl: 300
+    max_memory: "1GB"
+    eviction_policy: "allkeys-lru"
+
+# Настройки очередей
+queues:
+  type: "redis"  # redis, rabbitmq, kafka
+  host: "${QUEUE_HOST}"
+  port: 6379
+  password: "${QUEUE_PASSWORD}"
+  
+  # Настройки обработки
+  processing:
+    max_workers: 10
+    batch_size: 100
+    timeout: 30  # секунды
+    
+  # Настройки очередей
+  queues:
+    trading_orders:
+      name: "trading_orders"
+      priority: "high"
+      max_retries: 3
+    market_data:
+      name: "market_data"
+      priority: "medium"
+      max_retries: 1
+    notifications:
+      name: "notifications"
+      priority: "low"
+      max_retries: 5
+
+# Настройки API
+api:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  
+  # Настройки аутентификации
+  authentication:
+    enabled: true
+    method: "jwt"  # jwt, api_key, oauth
+    jwt_secret: "${JWT_SECRET}"
+    jwt_expiration: 3600  # секунды
+    
+  # Настройки CORS
+  cors:
+    enabled: true
+    allowed_origins: ["*"]
+    allowed_methods: ["GET", "POST", "PUT", "DELETE"]
+    allowed_headers: ["*"]
+    
+  # Настройки rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_size: 100
+    
+  # Настройки документации
+  documentation:
+    enabled: true
+    swagger_ui: true
+    redoc: true
+    openapi_version: "3.0.0"
+
+# Настройки тестирования
+testing:
+  enabled: false
+  test_data_path: "/test_data"
+  mock_external_services: true
+  
+  # Настройки бэктестинга
+  backtesting:
+    enabled: true
+    initial_balance: 10000
+    commission: 0.001
+    slippage: 0.0005
+    
+  # Настройки симуляции
+  simulation:
+    enabled: true
+    speed_multiplier: 1.0
+    real_time: false
+    save_results: true 

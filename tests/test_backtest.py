@@ -1,18 +1,14 @@
 from datetime import datetime, timedelta
 from unittest.mock import Mock
-
-import numpy as np
-import pandas as pd
 import pytest
-from backtest.backtest import Backtest, Trade
-
-from utils.logger import setup_logger
-
+import pandas as pd
+import numpy as np
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
+from simulation.backtester.core import Backtest, Trade
+from shared.logging import setup_logger
 logger = setup_logger(__name__)
-
-
 @pytest.fixture
-def mock_market_data():
+def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
     data = pd.DataFrame(
@@ -26,10 +22,8 @@ def mock_market_data():
         index=dates,
     )
     return data
-
-
 @pytest.fixture
-def backtest_config():
+def backtest_config() -> Any:
     """Фикстура с конфигурацией бэктеста"""
     return {
         "initial_balance": 10000.0,
@@ -39,16 +33,12 @@ def backtest_config():
         "stop_loss": 0.02,
         "take_profit": 0.05,
     }
-
-
 @pytest.fixture
-def backtest(backtest_config, mock_market_data):
+def backtest(backtest_config, mock_market_data) -> Any:
     """Фикстура с экземпляром бэктеста"""
     return Backtest(data=mock_market_data, config=backtest_config)
-
-
 class TestBacktest:
-    def test_backtest_initialization(self, backtest, backtest_config):
+    def test_backtest_initialization(self, backtest, backtest_config) -> None:
         """Тест инициализации бэктеста"""
         assert backtest.initial_balance == backtest_config["initial_balance"]
         assert backtest.commission == backtest_config["commission"]
@@ -58,19 +48,16 @@ class TestBacktest:
         assert backtest.take_profit == backtest_config["take_profit"]
         assert isinstance(backtest.trades, list)
         assert isinstance(backtest.equity_curve, pd.Series)
-
-    def test_run_backtest(self, backtest):
+    def test_run_backtest(self, backtest) -> None:
         """Тест запуска бэктеста"""
         strategy = Mock()
         strategy.generate_signal.return_value = {"action": "buy", "price": 100.0}
-
         results = backtest.run(strategy)
         assert isinstance(results, dict)
         assert "trades" in results
         assert "equity_curve" in results
         assert "metrics" in results
-
-    def test_open_position(self, backtest):
+    def test_open_position(self, backtest) -> None:
         """Тест открытия позиции"""
         trade = backtest._open_position(
             price=100.0, size=0.1, direction="long", timestamp=datetime.now()
@@ -80,8 +67,7 @@ class TestBacktest:
         assert trade.size == 0.1
         assert trade.direction == "long"
         assert trade.status == "open"
-
-    def test_close_position(self, backtest):
+    def test_close_position(self, backtest) -> None:
         """Тест закрытия позиции"""
         trade = backtest._open_position(
             price=100.0, size=0.1, direction="long", timestamp=datetime.now()
@@ -92,15 +78,13 @@ class TestBacktest:
         assert closed_trade.exit_price == 105.0
         assert closed_trade.status == "closed"
         assert closed_trade.pnl == 0.5  # (105 - 100) * 0.1
-
-    def test_calculate_position_size(self, backtest):
+    def test_calculate_position_size(self, backtest) -> None:
         """Тест расчета размера позиции"""
         size = backtest._calculate_position_size(price=100.0, risk_per_trade=0.02)
         assert isinstance(size, float)
         assert size > 0
         assert size <= backtest.position_size
-
-    def test_get_trade_statistics(self, backtest):
+    def test_get_trade_statistics(self, backtest) -> None:
         """Тест получения статистики по сделкам"""
         # Добавляем тестовые сделки
         for i in range(5):
@@ -116,7 +100,6 @@ class TestBacktest:
                 status="closed",
             )
             backtest.trades.append(trade)
-
         stats = backtest.get_trade_statistics()
         assert isinstance(stats, dict)
         assert "total_trades" in stats

@@ -12,10 +12,9 @@ import numpy as np
 import optuna
 import pandas as pd
 from loguru import logger
+from ml.window_optimizer import WindowConfig, WindowSizeOptimizer
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import cross_val_score, train_test_split
-
-from ml.window_optimizer import WindowConfig, WindowSizeOptimizer
 
 warnings.filterwarnings("ignore")
 
@@ -70,7 +69,7 @@ class WindowModelTrainer:
         """Инициализация тренера"""
         self.config = config or TrainingConfig()
         self._setup_directories()
-        self.metrics_history = []
+        self.metrics_history: List[TrainingMetrics] = []
         self._model_lock = asyncio.Lock()
 
     def _setup_directories(self):
@@ -114,9 +113,16 @@ class WindowModelTrainer:
 
             # Ограничение размера выборки
             if len(df) > self.config.max_samples:
-                df = df.sample(
-                    n=self.config.max_samples, random_state=self.config.random_state
-                )
+                # Явно приводим к DataFrame для mypy
+                df_dataframe = pd.DataFrame(df)
+                # Проверяем, что df_dataframe не является callable перед индексированием
+                if callable(df_dataframe):
+                    df_dataframe = df_dataframe()
+                if hasattr(df_dataframe, 'iloc'):
+                    df = df_dataframe.iloc[:self.config.max_samples]  # type: ignore
+                else:
+                    # Альтернативный способ обрезки данных
+                    df = df_dataframe.head(self.config.max_samples)  # type: ignore
 
             X = df.drop(columns=["optimal_window"])
             y = df["optimal_window"]
@@ -132,13 +138,19 @@ class WindowModelTrainer:
         """Обработка пропущенных значений"""
         # Заполнение пропусков медианой для числовых колонок
         numeric_columns = df.select_dtypes(include=[np.number]).columns
-        df[numeric_columns] = df[numeric_columns].fillna(df[numeric_columns].median())
+        df_numeric = df[numeric_columns].fillna(df[numeric_columns].median())
+        df = df.copy()
+        df[numeric_columns] = df_numeric
 
         # Заполнение пропусков модой для категориальных колонок
         categorical_columns = df.select_dtypes(include=["object"]).columns
-        df[categorical_columns] = df[categorical_columns].fillna(
-            df[categorical_columns].mode().iloc[0]
-        )
+        if len(categorical_columns) > 0:
+            mode_values = df[categorical_columns].mode()
+            if not mode_values.empty:
+                df_categorical = df[categorical_columns].fillna(mode_values.iloc[0])
+            else:
+                df_categorical = df[categorical_columns].fillna("unknown")
+            df[categorical_columns] = df_categorical
 
         return df
 

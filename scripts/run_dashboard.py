@@ -3,22 +3,21 @@ import json
 import signal
 import sys
 import webbrowser
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
 import psutil
 import uvicorn
+from dashboard.api import create_api
+from dashboard.websocket import create_websocket_app
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
-
-from dashboard.api import create_api
-from dashboard.websocket import create_websocket_app
 
 
 @dataclass
@@ -36,9 +35,9 @@ class DashboardConfig:
     api_prefix: str = "/api"
     ws_prefix: str = "/ws"
     browser_url: str = "http://localhost:5000"
-    allowed_origins: List[str] = None
-    allowed_methods: List[str] = None
-    allowed_headers: List[str] = None
+    allowed_origins: List[str] = field(default_factory=lambda: ["*"])
+    allowed_methods: List[str] = field(default_factory=lambda: ["*"])
+    allowed_headers: List[str] = field(default_factory=lambda: ["*"])
 
 
 @dataclass
@@ -61,11 +60,16 @@ class DashboardManager:
     def __init__(self, config: Optional[DashboardConfig] = None):
         """Инициализация менеджера"""
         self.config = config or DashboardConfig()
-        self.metrics_history = []
+        self._server: Optional[uvicorn.Server] = None
+        self._start_time: Optional[datetime] = None
         self._metrics_lock = asyncio.Lock()
-        self._app_lock = asyncio.Lock()
-        self._server = None
-        self._start_time = None
+        self.metrics_history: List[DashboardMetrics] = []
+
+        # Метрики для подсчета
+        self._active_connections = 0
+        self._total_requests = 0
+        self._error_count = 0
+        self._last_error: Optional[str] = None
 
         # Настройка разрешенных origins
         if self.config.allowed_origins is None:
@@ -74,6 +78,19 @@ class DashboardManager:
             self.config.allowed_methods = ["*"]
         if self.config.allowed_headers is None:
             self.config.allowed_headers = ["*"]
+
+    def increment_requests(self):
+        """Увеличить счетчик запросов"""
+        self._total_requests += 1
+
+    def increment_errors(self, error_message: str):
+        """Увеличить счетчик ошибок"""
+        self._error_count += 1
+        self._last_error = error_message
+
+    def update_connections(self, count: int):
+        """Обновить количество активных соединений"""
+        self._active_connections = count
 
     def create_app(self) -> FastAPI:
         """Создание приложения дашборда"""
@@ -167,9 +184,10 @@ class DashboardManager:
                     uptime=uptime,
                     memory_usage=memory_usage,
                     cpu_usage=cpu_usage,
-                    active_connections=0,  # TODO: Добавить подсчет активных соединений
-                    total_requests=0,  # TODO: Добавить подсчет запросов
-                    error_count=0,  # TODO: Добавить подсчет ошибок
+                    active_connections=self._active_connections,
+                    total_requests=self._total_requests,
+                    error_count=self._error_count,
+                    last_error=self._last_error,
                 )
 
                 self.metrics_history.append(metrics)

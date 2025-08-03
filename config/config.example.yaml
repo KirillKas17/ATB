@@ -1,0 +1,478 @@
+# ATB Trading System Configuration Example
+# Скопируйте этот файл в config.yaml и заполните реальными значениями
+
+system:
+  name: "ATB Trading System"
+  version: "1.0.0"
+  environment: "development"  # development, staging, production
+  debug: true
+
+# Настройки бирж (ЗАМЕНИТЕ НА РЕАЛЬНЫЕ ЗНАЧЕНИЯ)
+exchanges:
+  bybit:
+    api_key: "${BYBIT_API_KEY}"  # Установите переменную окружения
+    secret: "${BYBIT_SECRET}"    # Установите переменную окружения
+    password: "${BYBIT_PASSWORD}"  # Для некоторых бирж
+    sandbox: true  # Использовать тестовую среду
+    options:
+      defaultType: "spot"  # spot, futures, margin
+      adjustForTimeDifference: true
+      recvWindow: 60000
+
+  binance:
+    api_key: "${BINANCE_API_KEY}"  # Установите переменную окружения
+    secret: "${BINANCE_SECRET}"    # Установите переменную окружения
+    sandbox: true
+    options:
+      defaultType: "spot"
+      recvWindow: 60000
+
+# Настройки риск-менеджмента
+risk:
+  max_risk_per_trade: 0.02      # 2% риска на сделку
+  max_daily_loss: 0.05          # 5% максимальный дневной убыток
+  max_weekly_loss: 0.15         # 15% максимальный недельный убыток
+  max_portfolio_risk: 0.10      # 10% максимальный риск портфеля
+  max_correlation: 0.7          # Максимальная корреляция между позициями
+  position_sizing_method: "kelly"  # kelly, fixed, volatility
+  stop_loss_method: "atr"       # atr, percentage, fixed
+
+# Настройки портфеля
+portfolio:
+  max_position_size: 0.2        # 20% максимальный размер позиции
+  min_position_size: 0.01       # 1% минимальный размер позиции
+  target_correlation: 0.3       # Целевая корреляция
+  rebalance_threshold: 0.1      # Порог ребалансировки
+  max_assets: 10                # Максимум активов в портфеле
+  rebalance_frequency: "daily"  # Частота ребалансировки
+
+# Настройки торговли
+trading:
+  symbols:
+    - "BTC/USDT"
+    - "ETH/USDT"
+    - "BNB/USDT"
+    - "ADA/USDT"
+    - "SOL/USDT"
+  
+  timeframes:
+    - "1m"
+    - "5m"
+    - "15m"
+    - "1h"
+    - "4h"
+    - "1d"
+  
+  strategies:
+    - "mean_reversion"
+    - "momentum"
+    - "breakout"
+    - "grid_trading"
+    - "dca"
+  
+  order_types:
+    - "market"
+    - "limit"
+    - "stop_loss"
+    - "take_profit"
+  
+  execution:
+    max_slippage: 0.001         # 0.1% максимальный проскальзывание
+    retry_attempts: 3           # Количество попыток выполнения ордера
+    retry_delay: 1.0            # Задержка между попытками (секунды)
+
+# Настройки машинного обучения
+ml:
+  models:
+    - "lstm"
+    - "transformer"
+    - "xgboost"
+    - "ensemble"
+  
+  features:
+    - "price"
+    - "volume"
+    - "technical_indicators"
+    - "market_sentiment"
+    - "on_chain_data"
+  
+  training:
+    lookback_period: 100        # Период для обучения
+    validation_split: 0.2       # Доля данных для валидации
+    retrain_frequency: "weekly" # Частота переобучения
+    min_samples: 1000           # Минимальное количество сэмплов
+
+# Настройки ИИ
+ai:
+  decision_threshold: 0.7       # Порог уверенности для принятия решений
+  confidence_weight: 0.8        # Вес уверенности в принятии решений
+  adaptation_speed: 0.1         # Скорость адаптации
+  exploration_rate: 0.1         # Скорость исследования новых стратегий
+  
+  components:
+    regime_discovery: true      # Включить обнаружение режимов
+    live_adaptation: true       # Включить живую адаптацию
+    meta_learning: true         # Включить мета-обучение
+
+# Настройки мониторинга
+monitoring:
+  prometheus_port: 8001         # Порт для метрик Prometheus
+  health_check_interval: 30     # Интервал проверки здоровья (секунды)
+  metrics_update_interval: 60   # Интервал обновления метрик (секунды)
+  alert_thresholds:
+    memory_usage: 0.9           # 90% использования памяти
+    cpu_usage: 0.8              # 80% использования CPU
+    disk_usage: 0.95            # 95% использования диска
+    error_rate: 0.1             # 10% ошибок
+
+# Настройки логирования
+logging:
+  level: "INFO"                 # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file_rotation: "1 day"        # Ротация логов
+  file_retention: "30 days"     # Хранение логов
+  format: "detailed"            # simple, detailed, json
+
+# Настройки уведомлений (ЗАМЕНИТЕ НА РЕАЛЬНЫЕ ЗНАЧЕНИЯ)
+notifications:
+  enabled: true
+  channels:
+    - "telegram"
+    - "email"
+    - "slack"
+  
+  telegram:
+    bot_token: "${TELEGRAM_BOT_TOKEN}"  # Установите переменную окружения
+    chat_id: "${TELEGRAM_CHAT_ID}"      # Установите переменную окружения
+  
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "${EMAIL_USERNAME}"       # Установите переменную окружения
+    password: "${EMAIL_PASSWORD}"       # Установите переменную окружения
+    recipients:
+      - "admin@example.com"
+  
+  slack:
+    webhook_url: "${SLACK_WEBHOOK_URL}"  # Установите переменную окружения
+    channel: "#trading-alerts"
+
+# Настройки базы данных
+database:
+  type: "postgresql"            # postgresql, sqlite, mysql
+  host: "localhost"
+  port: 5432
+  name: "atb_trading"
+  username: "${DB_USERNAME}"    # Установите переменную окружения
+  password: "${DB_PASSWORD}"    # Установите переменную окружения
+
+# Настройки базы данных
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "your_password_here"
+  database: "trading_bot"
+  
+  # Настройки пула соединений
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+
+# Настройки Redis
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  database: 0
+  
+  # Настройки кэша
+  cache_ttl: 300  # 5 минут
+  max_cache_size: 1000
+
+# Управление рисками
+risk:
+  # Лимиты риска
+  max_risk_per_trade: 0.02      # 2% на сделку
+  max_daily_loss: 0.05          # 5% в день
+  max_weekly_loss: 0.15         # 15% в неделю
+  max_portfolio_risk: 0.10      # 10% портфеля
+  max_correlation: 0.7          # Максимальная корреляция
+  
+  # Размер позиции
+  position_sizing: "kelly"      # kelly, fixed, volatility
+  min_position_size: 0.01       # 1% от капитала
+  max_position_size: 0.20       # 20% от капитала
+  
+  # Стоп-лоссы
+  default_stop_loss: 0.02       # 2% по умолчанию
+  trailing_stop: true           # Использовать трейлинг-стоп
+  trailing_stop_distance: 0.01  # 1% для трейлинг-стопа
+
+# Управление портфелем
+portfolio:
+  # Лимиты позиций
+  max_position_size: 0.20       # 20% на позицию
+  min_position_size: 0.01       # 1% на позицию
+  
+  # Корреляции
+  target_correlation: 0.3       # Целевая корреляция
+  max_correlation: 0.7          # Максимальная корреляция
+  
+  # Ребалансировка
+  rebalance_threshold: 0.1      # 10% для ребалансировки
+  rebalance_interval: 3600      # Каждый час
+  
+  # Диверсификация
+  max_assets: 10                # Максимум активов
+  min_assets: 3                 # Минимум активов
+
+# Стратегии
+strategies:
+  # Включенные стратегии
+  enabled:
+    - "trend_strategy"
+    - "mean_reversion_strategy"
+    - "scalping_strategy"
+    - "arbitrage_strategy"
+    - "volatility_strategy"
+  
+  # Параметры стратегий
+  parameters:
+    trend_strategy:
+      fast_period: 10
+      slow_period: 20
+      stop_loss: 0.02
+      take_profit: 0.04
+      min_volume: 1000000
+    
+    mean_reversion_strategy:
+      rsi_period: 14
+      oversold: 30
+      overbought: 70
+      stop_loss: 0.015
+      take_profit: 0.03
+    
+    scalping_strategy:
+      min_profit: 0.001
+      max_loss: 0.002
+      max_hold_time: 300  # 5 минут
+      min_volume: 500000
+    
+    arbitrage_strategy:
+      min_spread: 0.005
+      max_execution_time: 60
+      min_volume: 100000
+    
+    volatility_strategy:
+      atr_period: 14
+      volatility_threshold: 0.02
+      stop_loss: 0.025
+      take_profit: 0.05
+
+# Машинное обучение
+ml:
+  # Модели
+  models:
+    transformer:
+      enabled: true
+      model_size: "base"
+      max_length: 100
+      batch_size: 32
+    
+    lstm:
+      enabled: true
+      layers: [64, 32]
+      dropout: 0.2
+    
+    xgboost:
+      enabled: true
+      max_depth: 6
+      learning_rate: 0.1
+  
+  # Обучение
+  training:
+    retrain_interval: 86400     # 24 часа
+    validation_split: 0.2
+    min_samples: 1000
+    max_samples: 100000
+  
+  # Предсказания
+  prediction:
+    confidence_threshold: 0.7
+    min_predictions: 10
+    update_interval: 60         # 1 минута
+
+# Искусственный интеллект
+ai:
+  # Параметры принятия решений
+  decision_thresholds:
+    min_confidence: 0.7
+    max_risk_per_trade: 0.02
+    min_profit_factor: 1.5
+    max_drawdown: 0.1
+  
+  # Обучение
+  learning:
+    enabled: true
+    learning_rate: 0.01
+    memory_size: 10000
+    update_interval: 300        # 5 минут
+  
+  # Эволюция
+  evolution:
+    enabled: true
+    mutation_rate: 0.1
+    crossover_rate: 0.8
+    population_size: 50
+
+# Обнаружение режимов
+regime_discovery:
+  enabled: true
+  min_patterns: 10
+  confidence_threshold: 0.6
+  update_interval: 3600        # 1 час
+  
+  # Параметры кластеризации
+  clustering:
+    eps: 0.5
+    min_samples: 5
+    algorithm: "dbscan"
+
+# Мониторинг и метрики
+monitoring:
+  # Prometheus
+  prometheus:
+    enabled: true
+    port: 8001
+    path: "/metrics"
+  
+  # Логирование
+  logging:
+    level: "INFO"
+    file: "logs/trading_bot.log"
+    max_size: "100MB"
+    backup_count: 5
+  
+  # Алерты
+  alerts:
+    enabled: true
+    channels:
+      - "email"
+      - "telegram"
+      - "slack"
+    
+    # Условия алертов
+    conditions:
+      daily_loss_threshold: 0.03
+      system_error_threshold: 5
+      performance_threshold: 0.5
+
+# Веб-интерфейс
+dashboard:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  
+  # Аутентификация
+  auth:
+    enabled: true
+    username: "admin"
+    password: "change_this_password"
+  
+  # API
+  api:
+    enabled: true
+    rate_limit: 100
+    cors_origins: ["*"]
+
+# Уведомления
+notifications:
+  # Email
+  email:
+    enabled: false
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "your_email@gmail.com"
+    password: "your_app_password"
+    recipients: ["admin@example.com"]
+  
+  # Telegram
+  telegram:
+    enabled: false
+    bot_token: "your_bot_token"
+    chat_id: "your_chat_id"
+  
+  # Slack
+  slack:
+    enabled: false
+    webhook_url: "your_webhook_url"
+    channel: "#trading-alerts"
+
+# Безопасность
+security:
+  # API ключи
+  api_keys:
+    encryption_enabled: true
+    key_rotation_days: 30
+  
+  # IP ограничения
+  ip_whitelist:
+    enabled: false
+    ips: ["127.0.0.1", "192.168.1.0/24"]
+  
+  # Аудит
+  audit:
+    enabled: true
+    log_all_operations: true
+    retention_days: 90
+
+# Производительность
+performance:
+  # Асинхронность
+  async:
+    max_workers: 10
+    queue_size: 1000
+  
+  # Кэширование
+  cache:
+    enabled: true
+    ttl: 300
+    max_size: 1000
+  
+  # Оптимизация
+  optimization:
+    enable_compression: true
+    enable_parallel_processing: true
+    batch_size: 100
+
+# Тестирование
+testing:
+  # Бэктестинг
+  backtest:
+    enabled: true
+    start_date: "2023-01-01"
+    end_date: "2023-12-31"
+    initial_balance: 10000
+  
+  # Симуляция
+  simulation:
+    enabled: true
+    market_data_source: "historical"
+    slippage: 0.001
+    commission: 0.001
+
+# Разработка
+development:
+  debug: false
+  verbose: false
+  profile: false
+  
+  # Тестирование
+  test_mode: false
+  mock_exchange: false
+  
+  # Логирование
+  log_level: "INFO"
+  log_to_file: true
+  log_to_console: true 

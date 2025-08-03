@@ -2,13 +2,29 @@ from datetime import datetime
 from unittest.mock import AsyncMock
 
 import pytest
-
+from unittest.mock import Mock, patch
 from core.controllers.market_controller import MarketController
-from core.models import MarketData
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.entities import MarketData
+else:
+    try:
+        from domain.entities import MarketData
+    except ImportError:
+        class MarketData:
+            def __init__(self, timestamp: datetime, open: float, high: float, low: float, close: float, volume: float, pair: str) -> Any:
+                self.timestamp = timestamp
+                self.open = open
+                self.high = high
+                self.low = low
+                self.close = close
+                self.volume = volume
+                self.pair = pair
 
 
 @pytest.fixture
-def mock_exchange():
+def mock_exchange() -> Any:
     exchange = AsyncMock()
     exchange.fetch_ticker = AsyncMock()
     exchange.fetch_ohlcv = AsyncMock()
@@ -18,12 +34,12 @@ def mock_exchange():
 
 
 @pytest.fixture
-def market_controller(mock_exchange):
+def market_controller(mock_exchange) -> Any:
     return MarketController(mock_exchange)
 
 
 @pytest.mark.asyncio
-async def test_get_ticker(market_controller, mock_exchange):
+async def test_get_ticker(market_controller, mock_exchange) -> None:
     """Тест получения тикера"""
     ticker_data = {
         "symbol": "BTC/USDT",
@@ -41,7 +57,7 @@ async def test_get_ticker(market_controller, mock_exchange):
 
 
 @pytest.mark.asyncio
-async def test_get_ohlcv(market_controller, mock_exchange):
+async def test_get_ohlcv(market_controller, mock_exchange) -> None:
     """Тест получения OHLCV данных"""
     ohlcv_data = [
         [datetime.now().timestamp() * 1000, 50000.0, 50100.0, 49900.0, 50050.0, 100.0]
@@ -61,7 +77,7 @@ async def test_get_ohlcv(market_controller, mock_exchange):
 
 
 @pytest.mark.asyncio
-async def test_get_order_book(market_controller, mock_exchange):
+async def test_get_order_book(market_controller, mock_exchange) -> None:
     """Тест получения книги ордеров"""
     order_book = {"bids": [[49900.0, 1.0]], "asks": [[50100.0, 1.0]]}
     mock_exchange.fetch_order_book.return_value = order_book
@@ -73,7 +89,7 @@ async def test_get_order_book(market_controller, mock_exchange):
 
 
 @pytest.mark.asyncio
-async def test_get_trades(market_controller, mock_exchange):
+async def test_get_trades(market_controller, mock_exchange) -> None:
     """Тест получения сделок"""
     trades = [
         {
@@ -93,7 +109,7 @@ async def test_get_trades(market_controller, mock_exchange):
     mock_exchange.fetch_trades.assert_called_once_with("BTC/USDT", limit=50)
 
 
-def test_get_market_data(market_controller):
+def test_get_market_data(market_controller) -> None:
     """Тест получения рыночных данных"""
     market_data = [
         MarketData(

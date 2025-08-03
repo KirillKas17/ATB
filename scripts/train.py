@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import aiofiles
+import aiofiles  # type: ignore
 import joblib
 import pandas as pd
 import psutil
@@ -15,12 +15,11 @@ import yaml
 from data_loader import DataLoader
 from dotenv import load_dotenv
 from loguru import logger
-from tqdm import tqdm
-
 from ml.adaptive_strategy_generator import AdaptiveStrategyGenerator
 from ml.meta_learning import MetaLearning
 from ml.pattern_discovery import PatternDiscovery
 from simulation.backtester import BacktestConfig, Backtester
+from tqdm import tqdm
 
 
 @dataclass
@@ -93,7 +92,7 @@ class ModelTrainer:
     def __init__(self, config: Optional[TrainingConfig] = None):
         """Инициализация тренера"""
         self.config = config or TrainingConfig.from_yaml()
-        self.metrics_history = []
+        self.metrics_history: List[TrainingMetrics] = []
         self._train_lock = asyncio.Lock()
         self._executor = ThreadPoolExecutor(max_workers=self.config.num_workers)
 
@@ -103,7 +102,7 @@ class ModelTrainer:
             self.config.backup_dir,
             self.config.log_dir,
         ]:
-            Path(dir_path).mkdir(parents=True, exist_ok=True)
+            Path(str(dir_path)).mkdir(parents=True, exist_ok=True)
 
     def _get_system_metrics(self) -> Dict:
         """Получение системных метрик"""

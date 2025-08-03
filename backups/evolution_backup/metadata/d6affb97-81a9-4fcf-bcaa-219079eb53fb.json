@@ -1,0 +1,11 @@
+{
+  "backup_id": "d6affb97-81a9-4fcf-bcaa-219079eb53fb",
+  "backup_path": "{'test': 'data_2'}.gz",
+  "backup_time": "2025-06-30T23:10:06.772638",
+  "backup_format": "json",
+  "backup_size_bytes": 116,
+  "compression_ratio": 1.0,
+  "checksum": "-280623329255596407",
+  "version": "1.0",
+  "description": "Backup created at 2025-06-30T23:10:06.772638"
+}

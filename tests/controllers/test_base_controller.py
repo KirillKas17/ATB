@@ -1,17 +1,16 @@
 from datetime import datetime
 
 import pytest
-
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from core.controllers.base import BaseController
-from core.models import SystemState
 
 
 @pytest.fixture
-def base_controller():
+def base_controller() -> Any:
     return BaseController()
 
 
-def test_init(base_controller):
+def test_init(base_controller) -> None:
     """Тест инициализации контроллера"""
     assert isinstance(base_controller.state, SystemState)
     assert isinstance(base_controller.config, dict)
@@ -22,7 +21,7 @@ def test_init(base_controller):
 
 
 @pytest.mark.asyncio
-async def test_start(base_controller):
+async def test_start(base_controller) -> None:
     """Тест запуска контроллера"""
     await base_controller.start()
     assert base_controller.state.is_running is True
@@ -30,7 +29,7 @@ async def test_start(base_controller):
 
 
 @pytest.mark.asyncio
-async def test_stop(base_controller):
+async def test_stop(base_controller) -> None:
     """Тест остановки контроллера"""
     await base_controller.start()
     await base_controller.stop()
@@ -39,7 +38,7 @@ async def test_stop(base_controller):
 
 
 @pytest.mark.asyncio
-async def test_update_state(base_controller):
+async def test_update_state(base_controller) -> None:
     """Тест обновления состояния"""
     await base_controller.update_state()
     assert isinstance(base_controller.state.last_update, datetime)

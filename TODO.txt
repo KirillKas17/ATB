@@ -1,0 +1,5 @@
+✅ Убрать buzzwords → дать строгие мат. описания
+✅ Детализировать ML training pipeline и feature/target engineering
+✅ Добавить live practical examples
+✅ Вставить business layer (market, revenue, go-to-market, scaling plan)
+✅ Описать team/operational roadmap при покупке или инвестиции

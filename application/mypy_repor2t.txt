@@ -1,0 +1,2 @@
+mypy: "types.py" shadows library module "types"
+note: A user-defined top-level module with name "types" is not supported

@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
 import pytest
-
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from core.market_state import MarketState, MarketStateManager
 
 
 @pytest.fixture
-def sample_market_state():
+def sample_market_state() -> Any:
     """Фикстура для MarketState"""
     return MarketState(
         timestamp=datetime.now(),
@@ -29,7 +29,7 @@ def sample_market_state():
 
 
 @pytest.fixture
-def market_state_manager():
+def market_state_manager() -> Any:
     """Фикстура для MarketStateManager"""
     config = {
         "lookback_period": 100,
@@ -43,7 +43,7 @@ def market_state_manager():
 class TestMarketState:
     """Тесты для MarketState"""
 
-    def test_creation(self, sample_market_state):
+    def test_creation(self, sample_market_state) -> None:
         """Тест создания MarketState"""
         assert sample_market_state.price == 100.0
         assert sample_market_state.volume == 1000.0
@@ -52,7 +52,7 @@ class TestMarketState:
         assert len(sample_market_state.resistance_levels) == 2
         assert "BTC/USD" in sample_market_state.correlation_matrix
 
-    def test_serialization(self, sample_market_state):
+    def test_serialization(self, sample_market_state) -> None:
         """Тест сериализации/десериализации"""
         # Сериализация
         state_dict = sample_market_state.to_dict()
@@ -80,14 +80,14 @@ class TestMarketState:
 class TestMarketStateManager:
     """Тесты для MarketStateManager"""
 
-    def test_initialization(self, market_state_manager):
+    def test_initialization(self, market_state_manager) -> None:
         """Тест инициализации"""
         assert market_state_manager.lookback_period == 100
         assert market_state_manager.regime_threshold == 0.7
         assert market_state_manager.volatility_window == 20
         assert market_state_manager.momentum_window == 10
 
-    def test_add_state(self, market_state_manager, sample_market_state):
+    def test_add_state(self, market_state_manager, sample_market_state) -> None:
         """Тест добавления состояния"""
         market_state_manager.add_state(sample_market_state)
         latest_state = market_state_manager.get_latest_state()
@@ -96,7 +96,7 @@ class TestMarketStateManager:
         assert latest_state.price == sample_market_state.price
         assert latest_state.volume == sample_market_state.volume
 
-    def test_lookback(self, market_state_manager):
+    def test_lookback(self, market_state_manager) -> None:
         """Тест ограничения истории состояний"""
         # Добавляем больше состояний, чем lookback_period
         for i in range(150):
@@ -123,7 +123,7 @@ class TestMarketStateManager:
         # Проверяем, что сохранилось только lookback_period состояний
         assert len(market_state_manager.states) == market_state_manager.lookback_period
 
-    def test_market_regime_detection(self, market_state_manager):
+    def test_market_regime_detection(self, market_state_manager) -> None:
         """Тест определения рыночного режима"""
         # Создаем состояния для бычьего рынка
         for i in range(20):
@@ -150,7 +150,7 @@ class TestMarketStateManager:
         latest_state = market_state_manager.get_latest_state()
         assert latest_state.market_regime == "bull"
 
-    def test_support_resistance_levels(self, market_state_manager):
+    def test_support_resistance_levels(self, market_state_manager) -> None:
         """Тест расчета уровней поддержки и сопротивления"""
         # Создаем состояния с колебаниями цены
         prices = [100.0, 102.0, 98.0, 103.0, 97.0, 104.0, 96.0]
@@ -179,7 +179,7 @@ class TestMarketStateManager:
         assert len(latest_state.support_levels) > 0
         assert len(latest_state.resistance_levels) > 0
 
-    def test_correlation_matrix(self, market_state_manager):
+    def test_correlation_matrix(self, market_state_manager) -> None:
         """Тест расчета корреляционной матрицы"""
         # Создаем состояния для двух коррелированных инструментов
         for i in range(20):
@@ -210,7 +210,7 @@ class TestMarketStateManager:
         assert "BTC/USD" in latest_state.correlation_matrix
         assert "ETH/USD" in latest_state.correlation_matrix["BTC/USD"]
 
-    def test_market_metrics(self, market_state_manager):
+    def test_market_metrics(self, market_state_manager) -> None:
         """Тест расчета рыночных метрик"""
         # Создаем состояния с разными метриками
         for i in range(20):

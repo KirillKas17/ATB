@@ -8,7 +8,7 @@ import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import psutil
 from loguru import logger
@@ -29,7 +29,7 @@ class BuildConfig:
     version: str = "1.0.0"
     company: str = "TradingBot"
     copyright: str = "Copyright © 2024"
-    description: str = "Advanced Trading Bot"
+    description: str = "Syntra"
 
 
 @dataclass
@@ -52,7 +52,7 @@ class ExecutableBuilder:
     def __init__(self, config: Optional[BuildConfig] = None):
         """Инициализация сборщика"""
         self.config = config or BuildConfig()
-        self.metrics_history = []
+        self.metrics_history: List[BuildMetrics] = []
         self._build_lock = asyncio.Lock()
 
         # Пути

@@ -1,0 +1,145 @@
+# -*- coding: utf-8 -*-
+"""Конфигурация подключений к биржам."""
+
+# Legacy биржи (существующие)
+legacy_exchanges:
+  binance:
+    enabled: true
+    api_key: null  # Замените на реальный ключ
+    api_secret: null  # Замените на реальный секрет
+    websocket_url: "wss://stream.binance.com:9443/ws"
+    
+  coinbase:
+    enabled: true
+    api_key: null
+    api_secret: null
+    websocket_url: "wss://ws-feed.pro.coinbase.com"
+    
+  kraken:
+    enabled: true
+    api_key: null
+    api_secret: null
+    websocket_url: "wss://ws.kraken.com"
+
+# Новые биржи (расширенные)
+new_exchanges:
+  bingx:
+    enabled: true
+    api_key: null  # Замените на реальный ключ
+    api_secret: null  # Замените на реальный секрет
+    websocket_url: "wss://open-api-swap.bingx.com/swap-market"
+    symbol_format: "BTC-USDT"  # Формат символов для этой биржи
+    
+  bitget:
+    enabled: true
+    api_key: null
+    api_secret: null
+    websocket_url: "wss://ws.bitget.com/spot/v1/stream"
+    symbol_format: "BTCUSDT_SPBL"  # Формат символов для этой биржи
+    
+  bybit:
+    enabled: true
+    api_key: null
+    api_secret: null
+    websocket_url: "wss://stream.bybit.com/v5/public/spot"
+    symbol_format: "BTCUSDT"  # Формат символов для этой биржи
+
+# Настройки мониторинга
+monitoring:
+  # Символы для мониторинга
+  symbols:
+    - "BTCUSDT"
+    - "ETHUSDT"
+    - "ADAUSDT"
+    - "DOTUSDT"
+    - "LINKUSDT"
+  
+  # Интервал обнаружения запутанности (в секундах)
+  detection_interval: 0.5
+  
+  # Максимальный lag между биржами (в миллисекундах)
+  max_lag_ms: 5.0
+  
+  # Порог корреляции для обнаружения запутанности
+  correlation_threshold: 0.90
+  
+  # Размер буфера для обновлений ордербука
+  buffer_size: 1000
+  
+  # Толерантность синхронизации (в миллисекундах)
+  sync_tolerance_ms: 100.0
+
+# Настройки логирования
+logging:
+  # Путь к файлу логов
+  log_file: "logs/extended_entanglement.log"
+  
+  # Уровень логирования
+  level: "INFO"
+  
+  # Ротация логов
+  rotation: "10 MB"
+  
+  # Время хранения логов
+  retention: "7 days"
+
+# Настройки переподключения
+reconnection:
+  # Максимальное количество попыток переподключения
+  max_attempts: 5
+  
+  # Базовая задержка между попытками (в секундах)
+  base_delay: 1.0
+  
+  # Максимальная задержка между попытками (в секундах)
+  max_delay: 30.0
+
+# Настройки производительности
+performance:
+  # Количество параллельных задач мониторинга
+  max_concurrent_tasks: 10
+  
+  # Таймаут для WebSocket операций (в секундах)
+  websocket_timeout: 10.0
+  
+  # Интервал ping для поддержания соединения (в секундах)
+  ping_interval: 30.0
+
+# Настройки безопасности
+security:
+  # Использовать SSL/TLS для WebSocket соединений
+  use_ssl: true
+  
+  # Проверять SSL сертификаты
+  verify_ssl: true
+  
+  # Таймаут для SSL операций (в секундах)
+  ssl_timeout: 10.0
+
+# Настройки метрик
+metrics:
+  # Включить сбор метрик
+  enabled: true
+  
+  # Интервал сбора метрик (в секундах)
+  collection_interval: 30.0
+  
+  # Путь для сохранения метрик
+  storage_path: "metrics/entanglement_metrics.json"
+
+# Настройки алертов
+alerts:
+  # Включить алерты
+  enabled: true
+  
+  # Порог корреляции для алертов
+  correlation_threshold: 0.95
+  
+  # Порог уверенности для алертов
+  confidence_threshold: 0.90
+  
+  # Минимальный lag для алертов (в миллисекундах)
+  min_lag_ms: 1.0
+  
+  # Максимальный lag для алертов (в миллисекундах)
+  max_lag_ms: 10.0 

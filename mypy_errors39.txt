@@ -1,0 +1,10 @@
+
+
+
+
+
+
+
+
+Found 432 errors in 49 files (checked 201 source files)
+>python -m mypy domain/ --exclude venv --show-error-codes > mypy_errors39.txt 2>&1
