@@ -806,32 +806,153 @@ class EntanglementMonitor:
             }
 
     def detect_breakdown(self, historical_scores: List[float], threshold: float = 0.5) -> bool:
-        """Обнаружение разрыва запутанности."""
-        # Заглушка для совместимости с тестами
-        if len(historical_scores) < 2:
+        """Продвинутое обнаружение разрыва запутанности."""
+        import numpy as np
+        
+        if len(historical_scores) < 3:
             return False
-        return historical_scores[-1] < threshold
+        
+        scores_array = np.array(historical_scores)
+        
+        # 1. Проверка текущего значения ниже порога
+        current_below_threshold = scores_array[-1] < threshold
+        
+        # 2. Статистический анализ изменений
+        if len(scores_array) >= 10:
+            # Анализ тренда последних периодов
+            recent_scores = scores_array[-10:]
+            trend_slope = np.polyfit(range(len(recent_scores)), recent_scores, 1)[0]
+            
+            # Резкое снижение тренда
+            sharp_decline = trend_slope < -0.05
+            
+            # Анализ волатильности
+            volatility = np.std(recent_scores)
+            mean_score = np.mean(recent_scores)
+            
+            # Высокая волатильность с низким средним
+            unstable_pattern = volatility > 0.15 and mean_score < threshold
+            
+            # Комбинированная оценка разрыва
+            breakdown_detected = (
+                current_below_threshold and 
+                (sharp_decline or unstable_pattern)
+            )
+        else:
+            # Для коротких серий используем простой анализ
+            recent_decline = (
+                len(scores_array) >= 3 and
+                scores_array[-1] < scores_array[-2] < scores_array[-3] and
+                scores_array[-1] < threshold * 0.8  # Более строгий порог
+            )
+            breakdown_detected = current_below_threshold or recent_decline
+        
+        return breakdown_detected
 
     def calculate_trend(self, historical_scores: List[float]) -> str:
-        """Расчет тренда запутанности."""
-        # Заглушка для совместимости с тестами
-        if len(historical_scores) < 2:
-            return "stable"
-        if historical_scores[-1] > historical_scores[0]:
-            return "increasing"
-        elif historical_scores[-1] < historical_scores[0]:
-            return "decreasing"
-        else:
-            return "stable"
+        """Продвинутый расчет тренда запутанности."""
+        import numpy as np
+        from scipy import stats
+        
+        if len(historical_scores) < 3:
+            return "insufficient_data"
+        
+        scores_array = np.array(historical_scores)
+        
+        try:
+            # Статистический анализ тренда с помощью регрессии
+            x = np.arange(len(scores_array))
+            slope, intercept, r_value, p_value, std_err = stats.linregress(x, scores_array)
+            
+            # Определение статистической значимости тренда
+            significant = p_value < 0.05
+            
+            # Классификация тренда
+            if significant:
+                if slope > 0.01:  # Значимый положительный тренд
+                    trend_strength = min(abs(slope) * 100, 1.0)  # Нормализация силы тренда
+                    if trend_strength > 0.5:
+                        return "strongly_increasing"
+                    else:
+                        return "increasing"
+                elif slope < -0.01:  # Значимый отрицательный тренд
+                    trend_strength = min(abs(slope) * 100, 1.0)
+                    if trend_strength > 0.5:
+                        return "strongly_decreasing"
+                    else:
+                        return "decreasing"
+                else:
+                    return "stable"
+            else:
+                # Если тренд статистически не значим, анализируем волатильность
+                volatility = np.std(scores_array)
+                if volatility > 0.2:
+                    return "volatile"
+                else:
+                    return "stable"
+                    
+        except Exception:
+            # Fallback на простой анализ
+            if len(historical_scores) >= 2:
+                if historical_scores[-1] > historical_scores[0]:
+                    return "increasing"
+                elif historical_scores[-1] < historical_scores[0]:
+                    return "decreasing"
+                else:
+                    return "stable"
+            return "unknown"
 
     def validate_data(self, data: Any) -> bool:
-        """Валидация входных данных."""
-        # Заглушка для совместимости с тестами
-        if data is None:
-            return False
-        if isinstance(data, list) and len(data) == 0:
-            return False
-        if not isinstance(data, list):
+        """Продвинутая валидация входных данных."""
+        import numpy as np
+        
+        try:
+            # Проверка на None
+            if data is None:
+                return False
+            
+            # Проверка типов данных
+            if isinstance(data, (list, tuple, np.ndarray)):
+                if len(data) == 0:
+                    return False
+                
+                # Проверка на числовые значения
+                try:
+                    numeric_data = np.array(data, dtype=float)
+                    
+                    # Проверка на NaN и бесконечность
+                    if np.any(np.isnan(numeric_data)) or np.any(np.isinf(numeric_data)):
+                        return False
+                    
+                    # Проверка на минимальную длину для анализа
+                    if len(numeric_data) < 2:
+                        return False
+                    
+                    # Проверка на разумный диапазон значений (для цен)
+                    if np.any(numeric_data < 0):  # Отрицательные цены недопустимы
+                        return False
+                    
+                    # Проверка на экстремальные значения
+                    if np.any(numeric_data > 1e10):  # Слишком большие значения
+                        return False
+                    
+                    # Проверка на константные данные
+                    if np.std(numeric_data) == 0:
+                        return False  # Все значения одинаковые
+                    
+                    return True
+                    
+                except (ValueError, TypeError):
+                    return False
+            
+            # Для других типов данных
+            elif isinstance(data, (int, float)):
+                return not (np.isnan(data) or np.isinf(data) or data < 0)
+            
+            else:
+                return False
+                
+        except Exception:
             return False
         return True
 
