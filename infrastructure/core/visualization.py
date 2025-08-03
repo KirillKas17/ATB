@@ -618,3 +618,40 @@ def plot_indicators(data: DataFrame, indicators: Dict[str, Series]) -> go.Figure
     )
     
     return fig
+
+
+# Основной класс для удобства использования
+class Visualizer:
+    """Главный класс визуализации для удобного доступа ко всем функциям."""
+    
+    def __init__(self):
+        self.theme = "plotly_dark"
+        self.default_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+    
+    def create_price_chart(self, data, title="Price Chart"):
+        """Создание графика цен."""
+        return create_price_chart(data, title)
+    
+    def create_candlestick_chart(self, data, title="Candlestick Chart"):
+        """Создание свечного графика."""
+        return create_candlestick_chart(data, title)
+    
+    def create_volume_chart(self, data, title="Volume Chart"):
+        """Создание графика объёмов."""
+        return create_volume_chart(data, title)
+    
+    def create_portfolio_chart(self, portfolio_data, title="Portfolio"):
+        """Создание графика портфеля."""
+        return create_portfolio_chart(portfolio_data, title)
+    
+    def create_performance_chart(self, performance_data, title="Performance"):
+        """Создание графика производительности."""
+        return create_performance_chart(performance_data, title)
+    
+    def create_correlation_matrix(self, correlation_data, title="Correlation Matrix"):
+        """Создание матрицы корреляций."""
+        return create_correlation_matrix(correlation_data, title)
+    
+    def create_technical_indicators_chart(self, data, indicators, title="Technical Indicators"):
+        """Создание графика технических индикаторов."""
+        return create_technical_indicators_chart(data, indicators, title)

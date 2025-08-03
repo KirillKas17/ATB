@@ -968,3 +968,7 @@ class OrderManagerAdapter(ExchangeProtocol):
         )
         
         return await self.order_manager.list_orders_from_request(request)
+
+
+# Алиас для удобства импорта
+OrderManager = ProductionOrderManager
