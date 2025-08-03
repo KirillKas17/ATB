@@ -42,6 +42,14 @@ class RiskType(Enum):
     CORRELATION = "correlation"
 
 @dataclass
+class RiskLimits:
+    """Лимиты рисков."""
+    max_loss: float = 0.2
+    max_exposure: float = 1.0
+    max_concentration: float = 0.3
+    max_leverage: float = 3.0
+
+@dataclass
 class RiskMetrics:
     """Метрики риска."""
     var_95: float = 0.0  # Value at Risk 95%
@@ -961,6 +969,18 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             base_recovery = int(base_recovery * 0.7)  # Быстрее при волатильности
         
         return base_recovery
+
+class DefaultRiskAnalysisService(AdvancedRiskAnalysisService):
+    """Дефолтная реализация сервиса анализа рисков."""
+    
+    def __init__(self):
+        super().__init__()
+        logger.info("Initialized DefaultRiskAnalysisService")
+    
+    async def initialize_async(self) -> None:
+        """Асинхронная инициализация сервиса."""
+        # Здесь можно добавить асинхронную инициализацию при необходимости
+        pass
 
 # Создание глобального экземпляра сервиса
 risk_analysis_service = AdvancedRiskAnalysisService()

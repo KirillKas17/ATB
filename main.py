@@ -27,7 +27,7 @@ from application.use_cases.manage_orders import DefaultOrderManagementUseCase
 from application.use_cases.manage_positions import DefaultPositionManagementUseCase
 from application.use_cases.manage_risk import DefaultRiskManagementUseCase
 from application.use_cases.manage_trading_pairs import DefaultTradingPairManagementUseCase
-from application.use_cases.manage_trading_orchestrator import DefaultTradingOrchestratorUseCase
+from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 
 # Импорты сервисов
 from application.services.market_service import MarketService

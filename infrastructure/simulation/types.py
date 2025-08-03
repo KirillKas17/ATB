@@ -187,7 +187,7 @@ class SimulationTimestamp:
         return self.value.isoformat()
 
     @classmethod
-    def from_iso(cls, iso_str: str) -> SimulationTimestamp:
+    def from_iso(cls, iso_str: str) -> 'SimulationTimestamp':
         return cls(datetime.fromisoformat(iso_str))
 
 

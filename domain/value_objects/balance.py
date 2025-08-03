@@ -4,7 +4,7 @@ Value Object для баланса торгового счета.
 
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency

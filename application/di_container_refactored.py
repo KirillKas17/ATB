@@ -124,11 +124,11 @@ try:
 except ImportError:
     from safe_import_wrapper import SafeImportMock
     MarketMakerModelAgent = SafeImportMock("MarketMakerModelAgent")
-from infrastructure.strategies.trend_strategy import TrendStrategy
-from infrastructure.strategies.sideways_strategy import SidewaysStrategy
+from infrastructure.strategies.trend_strategies import TrendStrategy
+from infrastructure.strategies.sideways_strategies import SidewaysStrategy
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
-from infrastructure.strategies.evolvable_base_strategy import EvolvableBaseStrategy
-from infrastructure.strategies.manipulation_strategy import ManipulationStrategy
+from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
+from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
 from infrastructure.strategies.volatility_strategy import VolatilityStrategy
 from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
 from infrastructure.external_services.bybit_client import BybitClient
