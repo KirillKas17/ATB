@@ -918,5 +918,6 @@ class PatternMemoryRepository(IPatternStorage):
         try:
             if hasattr(self, "executor") and self.executor:
                 self.executor.shutdown(wait=False)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to cleanup pattern memory repository: {e}")
+            # Продолжаем работу, но логируем ошибку для мониторинга

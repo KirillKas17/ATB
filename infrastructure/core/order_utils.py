@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
+from decimal import Decimal, InvalidOperation
 
 from loguru import logger
 
@@ -250,8 +251,8 @@ class OrderUtils:
             # Предупреждение о стоп-ордерах
             if order.get("type") in ["stop", "stop_limit"]:
                 warnings.append("Stop orders may not execute in volatile markets")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to generate warnings for order {order.get('id')}: {e}")
         return warnings
 
     def _generate_suggestions(self, order: Dict[str, Any]) -> List[str]:
@@ -267,8 +268,8 @@ class OrderUtils:
             # Предложение использовать OCO ордера
             if order.get("type") in ["limit", "stop"]:
                 suggestions.append("Consider using OCO orders for better execution")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to generate suggestions for order {order.get('id')}: {e}")
         return suggestions
 
     async def create_optimized_order(
