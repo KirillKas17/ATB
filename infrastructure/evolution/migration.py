@@ -11,8 +11,8 @@ from typing import Dict, List, Optional, Any
 from sqlmodel import Session, text
 from sqlalchemy import text as sql_text
 
-from domain.evolution.interfaces import EvolutionMigrationProtocol
-from domain.evolution.storage import StrategyStorage
+from infrastructure.evolution.types import EvolutionMigrationProtocol
+from infrastructure.evolution.strategy_storage import StrategyStorage
 from infrastructure.evolution.types import MigrationMetadata
 from infrastructure.evolution.exceptions import MigrationError
 
