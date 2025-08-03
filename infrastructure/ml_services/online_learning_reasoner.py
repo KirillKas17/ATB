@@ -54,7 +54,7 @@ class OnlineLearningReasoner:
             return 0, 0.0
         X = np.array([list(features.values())])
         prediction = self.online_model.predict(X)[0]
-        confidence = np.max(self.online_model.predict_proba(X)[0])
+        confidence = np.max(self.online_model.predict_proba(X)[0])  # type: ignore[attr-defined]
         return int(prediction), float(confidence)
 
     def get_metrics(self) -> Dict[str, float]:

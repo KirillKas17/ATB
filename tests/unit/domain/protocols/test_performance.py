@@ -297,7 +297,7 @@ class TestBenchmarkRunner:
             return x * 2
 
         result = await benchmark_runner.benchmark_function(
-            test_func, "test_benchmark", iterations=10, warmup_iterations=2, 5
+            test_func, "test_benchmark", 5, iterations=10, warmup_iterations=2
         )
 
         assert result.name == "test_benchmark"
@@ -322,7 +322,7 @@ class TestBenchmarkRunner:
             return x * 2
 
         result = await benchmark_runner.benchmark_function(
-            async_test_func, "async_test_benchmark", iterations=5, warmup_iterations=1, 5
+            async_test_func, "async_test_benchmark", 5, iterations=5, warmup_iterations=1
         )
 
         assert result.name == "async_test_benchmark"
@@ -343,7 +343,7 @@ class TestBenchmarkRunner:
             return x + x
 
         functions = [(func1, "func1"), (func2, "func2")]
-        results = await benchmark_runner.compare_functions(functions, iterations=5, 5)
+        results = await benchmark_runner.compare_functions(functions, 5, iterations=5)
 
         assert len(results) == 2
         assert "func1" in results
@@ -636,7 +636,7 @@ class TestPerformanceIntegration:
 
         # Бенчмаркаем
         benchmark_result = await benchmark_runner.benchmark_function(
-            test_function, "test_benchmark", iterations=10, 1000
+            test_function, "test_benchmark", 1000, iterations=10
         )
 
         assert benchmark_result.name == "test_benchmark"

@@ -1,6 +1,7 @@
 import asyncio
 import json
 import signal
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime

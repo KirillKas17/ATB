@@ -56,7 +56,7 @@ class SecurityConfig:
     password_min_length: int = 8
     require_special_chars: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Загружаем секреты из переменных окружения."""
         self.api_key = os.getenv("API_KEY") or self.api_key
         self.api_secret = os.getenv("API_SECRET") or self.api_secret
@@ -81,7 +81,7 @@ class DatabaseConfig:
     ssl_mode: str = "prefer"
     connection_string: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Загружаем пароль из переменных окружения."""
         if not self.password:
             self.password = os.getenv("DB_PASSWORD")
@@ -109,7 +109,7 @@ class CacheConfig:
     ttl: int = 3600
     eviction_policy: str = "lru"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Загружаем пароль из переменных окружения."""
         if not self.password:
             self.password = os.getenv("REDIS_PASSWORD")
@@ -148,7 +148,7 @@ class TradingConfig:
     max_position_size: Decimal = Decimal("0.1")
     max_concentration: Decimal = Decimal("0.25")
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация торговых параметров."""
         if self.risk_threshold <= 0:
             raise ValueError("risk_threshold must be positive")
@@ -171,7 +171,7 @@ class RiskConfig:
     max_concentration: Decimal = Decimal("0.25")  # 25% максимальная концентрация
     risk_cache_ttl: int = 300  # 5 минут
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация параметров риска."""
         if self.max_var <= 0:
             raise ValueError("max_var must be positive")
@@ -196,7 +196,7 @@ class MonitoringConfig:
     dashboard_enabled: bool = True
     dashboard_port: int = 8080
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация параметров мониторинга."""
         if self.metrics_interval <= 0:
             raise ValueError("metrics_interval must be positive")
@@ -219,7 +219,7 @@ class MLConfig:
     early_stopping_patience: int = 10
     model_checkpoint_interval: int = 5
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация ML параметров."""
         if self.validation_split <= 0 or self.validation_split >= 1:
             raise ValueError("validation_split must be between 0 and 1")
@@ -244,7 +244,7 @@ class EvolutionConfig:
     tournament_size: int = 3
     fitness_threshold: float = 0.95
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация параметров эволюции."""
         if self.population_size <= 0:
             raise ValueError("population_size must be positive")
@@ -298,7 +298,7 @@ class ApplicationConfig:
         default_factory=dict
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация конфигурации."""
         errors = self.validate()
         if errors:

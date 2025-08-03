@@ -44,9 +44,9 @@ BBUpperValue = NewType("BBUpperValue", float)
 BBMiddleValue = NewType("BBMiddleValue", float)
 BBLowerValue = NewType("BBLowerValue", float)
 # Типы для рыночных данных
-OHLCVData = NewType("OHLCVData", pd.DataFrame)
+OHLCVData = NewType("OHLCVData", Any)  # pd.DataFrame не может быть subclass
 OrderBookData = Dict[str, Any]
-MarketDataWindow = NewType("MarketDataWindow", pd.DataFrame)
+MarketDataWindow = NewType("MarketDataWindow", Any)  # pd.DataFrame не может быть subclass
 # Константы
 MIN_CONFIDENCE_THRESHOLD: Final[float] = 0.0
 MAX_CONFIDENCE_THRESHOLD: Final[float] = 1.0

@@ -7,16 +7,17 @@ import os
 import re
 from pathlib import Path
 
-def fix_visualization_py():
+
+def fix_visualization_py() -> None:
     """Исправление ошибок в visualization.py"""
-    file_path = "infrastructure/core/visualization.py"
+    file_path: str = "infrastructure/core/visualization.py"
     
     if not os.path.exists(file_path):
         print(f"Файл {file_path} не найден")
         return
     
     with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+        content: str = f.read()
     
     # Исправляем импорты
     if "from pandas.core.series import Series as PandasSeries" not in content:
@@ -44,16 +45,17 @@ def fix_visualization_py():
     
     print(f"Исправлен файл {file_path}")
 
-def fix_technical_analysis_py():
+
+def fix_technical_analysis_py() -> None:
     """Исправление ошибок в technical_analysis.py"""
-    file_path = "infrastructure/core/technical_analysis.py"
+    file_path: str = "infrastructure/core/technical_analysis.py"
     
     if not os.path.exists(file_path):
         print(f"Файл {file_path} не найден")
         return
     
     with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+        content: str = f.read()
     
     # Исправляем abs
     content = re.sub(
@@ -81,16 +83,17 @@ def fix_technical_analysis_py():
     
     print(f"Исправлен файл {file_path}")
 
-def fix_technical_py():
+
+def fix_technical_py() -> None:
     """Исправление ошибок в technical.py"""
-    file_path = "infrastructure/core/technical.py"
+    file_path: str = "infrastructure/core/technical.py"
     
     if not os.path.exists(file_path):
         print(f"Файл {file_path} не найден")
         return
     
     with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+        content: str = f.read()
     
     # Исправляем abs
     content = re.sub(
@@ -118,7 +121,8 @@ def fix_technical_py():
     
     print(f"Исправлен файл {file_path}")
 
-def main():
+
+def main() -> None:
     """Основная функция"""
     print("Начинаю исправление ошибок типизации...")
     
@@ -127,6 +131,7 @@ def main():
     fix_technical_py()
     
     print("Исправление завершено!")
+
 
 if __name__ == "__main__":
     main() 

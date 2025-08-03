@@ -338,7 +338,7 @@ class DefaultEvolvableMetaController(EvolvableMetaController):
             if prices[i - 1] != 0:
                 returns.append((prices[i] - prices[i - 1]) / prices[i - 1])
         if returns:
-            return float(np.std(returns))
+            return float(np.std(returns))  # type: ignore[attr-defined]
         return 0.0
 
     def _calculate_trend_strength(self, prices: List[float]) -> float:

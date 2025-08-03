@@ -11,6 +11,10 @@ from typing import List
 
 import pandas as pd
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from domain.entities.position import Position
+
 
 @runtime_checkable
 class StrategyUtilitiesProtocol(Protocol):

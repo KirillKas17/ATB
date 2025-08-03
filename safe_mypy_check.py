@@ -1,7 +1,8 @@
 import os
 import subprocess
+from typing import List
 
-CHECK_DIRS = [
+CHECK_DIRS: List[str] = [
     "agents",
     "analysis",
     "backtest",
@@ -20,7 +21,8 @@ CHECK_DIRS = [
 ]
 
 
-def contains_python_files(path):
+def contains_python_files(path: str) -> bool:
+    """Проверяет, содержит ли директория файлы Python"""
     for root, _, files in os.walk(path):
         for f in files:
             if f.endswith(".py"):
@@ -28,7 +30,8 @@ def contains_python_files(path):
     return False
 
 
-def run_mypy():
+def run_mypy() -> None:
+    """Запускает проверку типов mypy для существующих директорий"""
     for path in CHECK_DIRS:
         if os.path.exists(path) and contains_python_files(path):
             print(f"\n🔍 Проверка типов: {path}")

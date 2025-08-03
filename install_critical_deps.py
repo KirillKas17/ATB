@@ -130,7 +130,7 @@ def install_dependencies(deps: List[str], category: str) -> Tuple[int, int]:
     
     return installed, failed
 
-def main():
+def main() -> bool:
     """Основная функция."""
     print("🚀 Установка критических зависимостей ATB Trading System")
     print("=" * 60)

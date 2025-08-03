@@ -61,7 +61,7 @@ class SpreadAnalyzer(ISpreadAnalyzer):
             }
         except Exception as e:
             if self.logger:
-                try:
+                try:  # type: ignore[unreachable]
                     self.logger.error(f"Error analyzing spread: {str(e)}")
                 except Exception:
                     pass  # Игнорируем ошибки логирования
@@ -86,7 +86,7 @@ class SpreadAnalyzer(ISpreadAnalyzer):
                 return float(imbalance)
         except Exception as e:
             if self.logger:
-                try:
+                try:  # type: ignore[unreachable]
                     self.logger.error(f"Error calculating imbalance: {str(e)}")
                 except Exception:
                     pass  # Игнорируем ошибки логирования
@@ -129,7 +129,7 @@ class SpreadAnalyzer(ISpreadAnalyzer):
                     }
         except Exception as e:
             if self.logger:
-                try:
+                try:  # type: ignore[unreachable]
                     self.logger.error(f"Error predicting spread movement: {str(e)}")
                 except Exception:
                     pass  # Игнорируем ошибки логирования
