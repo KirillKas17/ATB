@@ -314,8 +314,9 @@ class EvolvableMarketRegimeAgent(EvolvableComponent):
             try:
                 new_model.net[0].weight.data[:current_hidden_dim, :] = self.ml_model.net[0].weight.data
                 new_model.net[0].bias.data[:current_hidden_dim] = self.ml_model.net[0].bias.data
-            except:
-                pass
+            except (RuntimeError, IndexError, AttributeError) as e:
+                # Логируем ошибку копирования весов и продолжаем с новой моделью
+                logger.warning(f"Could not copy weights during market regime model evolution: {e}")
             self.ml_model = new_model
             self.optimizer = torch.optim.Adam(self.ml_model.parameters(), lr=1e-3)
             logger.info(f"Model architecture evolved: hidden_dim={new_hidden_dim}")

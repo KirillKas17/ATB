@@ -553,13 +553,15 @@ class PostgresPositionRepository(PositionRepository):
         from domain.value_objects.price import Price
         from domain.value_objects.volume import Volume
         from domain.value_objects.currency import Currency
+        import ast
         
         metadata_str = row["metadata"] if row["metadata"] else "{}"
         try:
-            metadata = eval(metadata_str) if metadata_str else {}
+            # ИСПРАВЛЕНИЕ БЕЗОПАСНОСТИ: заменяем небезопасный eval() на ast.literal_eval()
+            metadata = ast.literal_eval(metadata_str) if metadata_str else {}
             if not isinstance(metadata, dict):
                 metadata = {}
-        except:
+        except (ValueError, SyntaxError):
             metadata = {}
         
         return Position(

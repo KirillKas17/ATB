@@ -60,13 +60,18 @@ def zscore(data: ArrayLike, window: Optional[int] = None) -> np.ndarray:
     if window is None:
         return (data - np.mean(data)) / np.std(data)
     else:
-        result = np.zeros_like(data)
-        for i in range(len(data)):
-            if i < window:
-                result[i] = np.nan
+        result = np.full_like(data, np.nan, dtype=float)
+        
+        # Векторизованный подход для улучшения производительности
+        for i in range(window, len(data)):
+            window_data = data[i - window : i]
+            window_mean = np.mean(window_data)
+            window_std = np.std(window_data)
+            if window_std > 0:  # Избегаем деления на ноль
+                result[i] = (data[i] - window_mean) / window_std
             else:
-                window_data = data[i - window : i]
-                result[i] = (data[i] - np.mean(window_data)) / np.std(window_data)
+                result[i] = 0.0
+                
         return result
 
 

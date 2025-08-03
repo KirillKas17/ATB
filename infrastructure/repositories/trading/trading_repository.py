@@ -613,6 +613,38 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
         # Инициализируем базу данных при создании
         asyncio.create_task(self._init_database())
 
+    def _parse_metadata_safely(self, metadata_str: str) -> Dict[str, Any]:
+        """
+        Безопасный парсинг метаданных из строки.
+        
+        Использует ast.literal_eval() вместо небезопасного eval()
+        для предотвращения выполнения произвольного кода.
+        
+        Args:
+            metadata_str: Строка с метаданными для парсинга
+            
+        Returns:
+            Dict[str, Any]: Словарь метаданных или пустой словарь при ошибке
+        """
+        import ast
+        
+        if not metadata_str or metadata_str.strip() == "":
+            return {}
+            
+        try:
+            result = ast.literal_eval(metadata_str)
+            if isinstance(result, dict):
+                return result
+            else:
+                self.logger.warning(f"Metadata is not a dict: {type(result)}")
+                return {}
+        except (ValueError, SyntaxError) as e:
+            self.logger.warning(f"Failed to parse metadata safely: {e}")
+            return {}
+        except Exception as e:
+            self.logger.error(f"Unexpected error parsing metadata: {e}")
+            return {}
+
     async def _get_pool(self) -> Any:
         """Получение пула соединений."""
         if self._pool is None:
@@ -1261,7 +1293,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                 if row["take_profit"]
                 else None
             ),
-            metadata=eval(row["metadata"]) if row["metadata"] else {},
+            metadata=self._parse_metadata_safely(row["metadata"]) if row["metadata"] else {},
         )
 
     async def save_trade(self, trade: Trade) -> Trade:

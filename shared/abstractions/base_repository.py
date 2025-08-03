@@ -56,9 +56,10 @@ class BaseRepository(ABC, Generic[T]):
 
     def get_or_create(self, entity: T, **kwargs) -> T:
         """Получение существующей или создание новой сущности."""
-        existing = self.find_by_criteria(**kwargs)
+        # ИСПРАВЛЕНИЕ БЕЗОПАСНОСТИ: используем безопасный метод вместо прямого обращения к [0]
+        existing = self.find_one_by_criteria(**kwargs)
         if existing:
-            return existing[0]
+            return existing
         return self.create(entity)
 
     def find_by_criteria(self, **kwargs) -> List[T]:

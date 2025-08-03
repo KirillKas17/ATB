@@ -18,9 +18,16 @@ from domain.value_objects.volume import Volume
 
 # Убираю дублирующиеся импорты и исправляю типы
 try:
-    from domain.entities.strategy import *
+    from domain.entities.strategy import (
+        Strategy, StrategyType, Signal, SignalType, 
+        StrategyInterface, StrategyParameters
+    )
 except ImportError:
-    pass
+    # Fallback imports if some classes are not available
+    try:
+        from domain.entities.strategy import Strategy, StrategyType
+    except ImportError:
+        pass
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)

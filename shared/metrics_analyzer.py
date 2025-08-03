@@ -320,11 +320,12 @@ class MetricsAnalyzer:
         # Скользящее среднее для сглаживания
         window_size = min(5, len(values) // 2)
         smoothed_values = []
-        for i in range(len(values)):
+        for i, _ in enumerate(values):
             start_idx = max(0, i - window_size // 2)
             end_idx = min(len(values), i + window_size // 2 + 1)
             smoothed_values.append(statistics.mean(values[start_idx:end_idx]))
-        # Поиск отклонений от тренда
+        
+        # Поиск отклонений от тренда - используем enumerate для эффективности
         for i, (point, smoothed_value) in enumerate(zip(data, smoothed_values)):
             expected_value = trend.start_value + trend.slope * i
             deviation = abs(smoothed_value - expected_value)

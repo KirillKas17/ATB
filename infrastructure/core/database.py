@@ -490,7 +490,9 @@ class Database:
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                query = "SELECT * FROM signals WHERE 1=1"
+                # ИСПРАВЛЕНИЕ ПРОИЗВОДИТЕЛЬНОСТИ: заменяем SELECT * на явные поля
+                query = """SELECT id, pair, signal_type, strength, confidence, 
+                          source, timestamp, metadata FROM signals WHERE 1=1"""
                 params = []
                 if pair:
                     query += " AND pair = %s"
