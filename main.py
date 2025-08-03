@@ -125,9 +125,13 @@ except ImportError as e:
 # Импорт основных модулей ATB
 try:
     from application.di_container_refactored import Container, get_service_locator
-    from application.orchestration.trading_orchestrator import TradingOrchestrator
+    from application.orchestration.orchestrator_factory import create_trading_orchestrator
     from domain.strategies import get_strategy_registry
     from infrastructure.agents.agent_context_refactored import AgentContext
+    from domain.intelligence.entanglement_detector import EntanglementDetector
+    from domain.intelligence.mirror_detector import MirrorDetector
+    from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
+    from application.orchestration.strategy_integration import strategy_integration
 except ImportError as e:
     logger.error(f"Failed to import ATB modules: {e}")
     sys.exit(1)
@@ -137,31 +141,69 @@ async def main() -> None:
     config = create_default_config()
     service_locator = get_service_locator()
     
-    # Простая заглушка для проверки запуска системы
     print("🚀 Торговая система ATB запущена успешно!")
-    print("📊 Все модули загружены:")
-    print("   ✅ Domain layer")
-    print("   ✅ Application layer") 
-    print("   ✅ Infrastructure layer")
-    print("   ✅ DI Container")
-    print("   ✅ Зависимости установлены")
-    print("\n💡 Система готова к дальнейшей разработке!")
+    print("📊 Инициализация компонентов:")
+    
+    # Инициализация основных агентов
+    try:
+        entanglement_detector = EntanglementDetector()
+        print("   ✅ EntanglementDetector")
+        
+        mirror_detector = MirrorDetector()
+        print("   ✅ MirrorDetector")
+        
+        market_maker_agent = MarketMakerModelAgent()
+        print("   ✅ MarketMakerModelAgent")
+        
+        # Инициализация стратегий
+        await strategy_integration.initialize_strategies()
+        print("   ✅ StrategyIntegration")
+        
+        # Создание полноценного оркестратора
+        orchestrator = create_trading_orchestrator(config)
+        print("   ✅ TradingOrchestrator")
+        
+        print("   ✅ Domain layer")
+        print("   ✅ Application layer") 
+        print("   ✅ Infrastructure layer")
+        print("   ✅ DI Container")
+        print("   ✅ Зависимости установлены")
+        
+    except Exception as e:
+        print(f"   ❌ Ошибка инициализации: {e}")
+        return
+
+    orchestrator_task = None
 
     def shutdown_handler(signum: int, frame: Any) -> None:
         """Handle shutdown signals."""
         logger.info(f"Received signal {signum}, shutting down...")
-        print("🛑 Система корректно завершена")
+        print("🛑 Получен сигнал завершения...")
+        if orchestrator_task:
+            orchestrator_task.cancel()
+        print("✅ Система корректно остановлена")
         sys.exit(0)
 
     signal.signal(signal.SIGINT, shutdown_handler)
     signal.signal(signal.SIGTERM, shutdown_handler)
 
-    # Держим систему запущенной
+    print("\n💡 Запуск торгового оркестратора...")
     try:
-        while True:
-            await asyncio.sleep(1)
-    except KeyboardInterrupt:
+        # Запуск оркестратора в фоне
+        orchestrator_task = asyncio.create_task(orchestrator.start())
+        print("🎯 Торговый оркестратор запущен")
+        print("📈 Система в полном рабочем состоянии!")
+        
+        # Ожидание завершения
+        await orchestrator_task
+        
+    except asyncio.CancelledError:
         print("🛑 Получен сигнал завершения")
+        await orchestrator.stop()
+        print("✅ Система корректно остановлена")
+    except KeyboardInterrupt:
+        print("🛑 Получен Ctrl+C")
+        await orchestrator.stop()
         print("✅ Система корректно остановлена")
 
 if __name__ == "__main__":
