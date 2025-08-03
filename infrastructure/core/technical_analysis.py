@@ -4,7 +4,12 @@
 
 import pandas as pd
 import numpy as np
-import talib as ta
+try:
+    import talib as ta
+    TALIB_AVAILABLE = True
+except ImportError:
+    ta = None
+    TALIB_AVAILABLE = False
 from typing import Dict, List, Optional, Any, Tuple, Union, cast
 from dataclasses import dataclass
 from sklearn.cluster import DBSCAN

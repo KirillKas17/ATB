@@ -17,18 +17,34 @@ try:
     import talib  # type: ignore
 except ImportError:
     talib = None
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    nn = None
+    F = None
+    TORCH_AVAILABLE = False
 from loguru import logger
 from scipy import stats
 from scipy.signal import savgol_filter
 from sklearn.preprocessing import RobustScaler
-from torch import Tensor
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from torch.optim import AdamW
-from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
-from torch.utils.data import DataLoader
+if TORCH_AVAILABLE:
+    from torch import Tensor
+    from torch.nn import TransformerEncoder, TransformerEncoderLayer
+    from torch.optim import AdamW
+    from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
+    from torch.utils.data import DataLoader
+else:
+    Tensor = None
+    TransformerEncoder = None
+    TransformerEncoderLayer = None
+    AdamW = None
+    CosineAnnealingWarmRestarts = None
+    DataLoader = None
 
 # Type aliases
 DataFrame = pd.DataFrame
@@ -86,7 +102,7 @@ class AdvancedPredictorConfig:
     meta_batch_size: int = 32
     meta_epochs: int = 100
     # Устройство
-    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    device: str = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
 
     def to_dict(self) -> Dict[str, Any]:
         return {k: v for k, v in self.__dict__.items()}

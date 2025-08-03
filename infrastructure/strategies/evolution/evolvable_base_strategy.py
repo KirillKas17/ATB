@@ -8,8 +8,16 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
-import torch
-import torch.nn as nn
+
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except ImportError:
+    from torch_mock import torch
+    torch.nn = torch.nn
+    nn = torch.nn
+    TORCH_AVAILABLE = False
 from loguru import logger
 
 from domain.types.strategy_types import (

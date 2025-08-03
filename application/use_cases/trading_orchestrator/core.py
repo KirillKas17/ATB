@@ -102,8 +102,8 @@ from .update_handlers import UpdateHandlers
 from domain.strategies.base_strategy import BaseStrategy
 from domain.repositories.position_repository import PositionRepository
 from domain.repositories.portfolio_repository import PortfolioRepository
-from domain.entities.id import EntityId
-from domain.value_objects.symbol import Symbol
+from domain.types import EntityId
+from domain.types import Symbol
 from domain.value_objects.money import Money, Currency
 from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price

@@ -17,39 +17,39 @@ from dataclasses import dataclass
 from domain.entities.risk_metrics import RiskMetrics
 from domain.types.risk_types import RiskReport  # type: ignore
 from domain.types.risk_types import StressTestResult  # type: ignore
-from domain.entities.portfolio_risk import PortfolioRisk  # type: ignore
-from domain.entities.position_risk import PositionRisk  # type: ignore
-from domain.entities.risk_optimization_result import RiskOptimizationResult  # type: ignore
-from domain.entities.portfolio_optimization_method import PortfolioOptimizationMethod  # type: ignore
-from domain.protocols.risk_analysis_protocol import RiskAnalysisProtocol  # type: ignore
-from domain.services.risk_analysis_service import RiskAnalysisService  # type: ignore
+from domain.types.risk_types import PortfolioRisk  # type: ignore
+from domain.types.risk_types import PositionRisk  # type: ignore
+from domain.types.risk_types import RiskOptimizationResult  # type: ignore
+from domain.types.risk_types import PortfolioOptimizationMethod  # type: ignore
+from domain.services.risk_analysis import RiskAnalysisProtocol  # type: ignore
+# from domain.services.risk_analysis_service import RiskAnalysisService  # type: ignore
 from domain.types.risk_types import RiskMetrics as DomainRiskMetrics
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
-from infrastructure.cache.cache_config import CacheConfig  # type: ignore
+# from infrastructure.cache.cache_config import CacheConfig  # type: ignore
 from infrastructure.cache.cache_manager import CacheManager
 from shared.logging import LoggerMixin
-from shared.risk_calculations import (  # type: ignore
-    calc_volatility,
-    calc_sharpe,
-    calc_sortino,
-    calc_max_drawdown,
-    calc_parametric_var,
-    calc_parametric_cvar,
-    calc_beta,
-    calc_portfolio_return,
-    optimize_portfolio_weights,
-    calc_diversification_ratio,
-    calc_concentration_risk,
-    calc_scenario_impact,
-    validate_returns_data,
-    validate_scenario,
-    generate_default_scenarios,
-    generate_risk_recommendations,
-    generate_risk_alerts,
-    create_empty_risk_metrics,
-    create_empty_optimization_result,
-)
+# from shared.risk_calculations import (  # type: ignore
+#     calc_volatility,
+#     calc_sharpe,
+#     calc_sortino,
+#     calc_max_drawdown,
+#     calc_parametric_var,
+#     calc_parametric_cvar,
+#     calc_beta,
+#     calc_portfolio_return,
+#     optimize_portfolio_weights,
+#     calc_diversification_ratio,
+#     calc_concentration_risk,
+#     calc_scenario_impact,
+#     validate_returns_data,
+#     validate_scenario,
+#     generate_default_scenarios,
+#     generate_risk_recommendations,
+#     generate_risk_alerts,
+#     create_empty_risk_metrics,
+#     create_empty_optimization_result,
+# )
 
 
 class ValidationError(Exception):
@@ -132,13 +132,13 @@ class PortfolioOptimizerProtocol(Protocol):
         ...
 
 
-class RiskAnalysisServiceImpl(RiskAnalysisService, LoggerMixin):
+class RiskAnalysisServiceImpl(RiskAnalysisProtocol, LoggerMixin):
     """Промышленная реализация сервиса анализа рисков."""
 
     def __init__(
         self,
         config: Optional[RiskModelConfig] = None,
-        cache_config: Optional[CacheConfig] = None,
+        cache_config: Optional[Any] = None,
         metrics_calculator: Optional[RiskMetricsCalculatorProtocol] = None,
         portfolio_optimizer: Optional[PortfolioOptimizerProtocol] = None,
     ):
@@ -544,3 +544,6 @@ class RiskAnalysisServiceImpl(RiskAnalysisService, LoggerMixin):
                 optimization_method=PortfolioOptimizationMethod.SHARPE_MAXIMIZATION,
                 optimization_timestamp=datetime.now(),
             )
+
+# Alias for backward compatibility
+RiskAnalysisService = RiskAnalysisServiceImpl

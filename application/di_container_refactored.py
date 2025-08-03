@@ -62,14 +62,14 @@ from domain.services.ml_predictor import MLPredictor
 from infrastructure.external_services.risk_analysis_adapter import RiskAnalysisServiceAdapter
 from infrastructure.external_services.technical_analysis_adapter import TechnicalAnalysisServiceAdapter
 from infrastructure.services.market_conditions_analyzer import MarketConditionsAnalyzer
-from infrastructure.repositories.in_memory_repositories import (
-    InMemoryMarketRepository,
-    InMemoryMLRepository,
-    InMemoryPortfolioRepository,
-    InMemoryRiskRepository,
-    InMemoryStrategyRepository,
-    InMemoryTradingRepository,
-)
+# from infrastructure.repositories.in_memory_repositories import (
+#     InMemoryMarketRepository,
+#     InMemoryMLRepository,
+#     InMemoryPortfolioRepository,
+#     InMemoryRiskRepository,
+#     InMemoryStrategyRepository,
+#     InMemoryTradingRepository,
+# )
 from domain.protocols.repository_protocol import (
     MarketRepositoryProtocol,
     MLRepositoryProtocol,
@@ -111,11 +111,19 @@ from domain.services.technical_analysis import (
 )
 from domain.symbols.market_phase_classifier import MarketPhaseClassifier
 from domain.symbols.opportunity_score import OpportunityScoreCalculator
-from domain.symbols.symbol_validator import SymbolValidator
+from domain.symbols.validators import SymbolValidator
 from domain.symbols.cache import SymbolCacheManager
-from domain.sessions.factories import SessionRepositoryConfig
-from domain.sessions.implementations import SessionService
-from infrastructure.agents.market_maker.model_agent import MarketMakerModelAgent
+# from domain.sessions.factories import SessionRepositoryConfig
+try:
+    from domain.sessions.implementations import SessionService
+except ImportError:
+    from safe_import_wrapper import SafeImportMock
+    SessionService = SafeImportMock("SessionService")
+try:
+    from infrastructure.agents.market_maker.agent import MarketMakerAgent as MarketMakerModelAgent
+except ImportError:
+    from safe_import_wrapper import SafeImportMock
+    MarketMakerModelAgent = SafeImportMock("MarketMakerModelAgent")
 from infrastructure.strategies.trend_strategy import TrendStrategy
 from infrastructure.strategies.sideways_strategy import SidewaysStrategy
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator

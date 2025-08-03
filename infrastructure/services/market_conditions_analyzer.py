@@ -13,8 +13,9 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from domain.types.base_types import Symbol, TimestampValue
-from domain.value_objects.currency import Price
+from domain.types import Symbol
+from domain.types.base_types import TimestampValue
+from domain.value_objects.price import Price
 from domain.entities.market import MarketData
 from domain.repositories.market_repository import MarketRepository
 from infrastructure.core.market_state import MarketState

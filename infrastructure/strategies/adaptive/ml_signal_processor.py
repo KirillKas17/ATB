@@ -9,13 +9,13 @@ from loguru import logger
 import numpy as np
 
 from infrastructure.core.technical_analysis import calculate_rsi
-from infrastructure.ml_services.advanced_price_predictor import MetaLearner
+# from infrastructure.ml_services.advanced_price_predictor import MetaLearner
 
 
 class MLSignalProcessor:
     """Обработчик ML сигналов"""
 
-    def __init__(self, meta_learner: Optional[MetaLearner] = None):
+    def __init__(self, meta_learner: Optional[Any] = None):
         self.meta_learner = meta_learner
 
     def get_predictions(self, data: pd.DataFrame) -> Dict[str, float]:
