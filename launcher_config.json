@@ -1,0 +1,95 @@
+{
+  "auto_start_components": [
+    "database",
+    "trading_engine",
+    "dashboard"
+  ],
+  "startup_delay": 2,
+  "health_check_interval": 30,
+  "auto_restart": true,
+  "max_restart_attempts": 3,
+  "dashboard_port": 8080,
+  "api_port": 8000,
+  "monitoring_port": 9090,
+  "enable_monitoring": true,
+  "enable_auto_backup": true,
+  "backup_interval_hours": 24,
+  "python_executable": "python",
+  "environment": "development",
+  "ui_settings": {
+    "theme": "dark",
+    "language": "ru",
+    "auto_save_config": true,
+    "show_splash_screen": true,
+    "minimize_to_tray": false
+  },
+  "trading_settings": {
+    "default_mode": "simulation",
+    "default_pairs": ["BTC/USDT", "ETH/USDT"],
+    "default_strategies": ["RSI Bounce", "MACD Cross"],
+    "risk_management": {
+      "max_position_size_percent": 5.0,
+      "default_stop_loss_percent": 2.0,
+      "default_take_profit_percent": 4.0
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "max_file_size_mb": 50,
+    "backup_count": 5,
+    "console_output": true,
+    "file_output": true
+  },
+  "performance": {
+    "max_memory_usage_mb": 1024,
+    "cpu_limit_percent": 80,
+    "cleanup_interval_minutes": 60
+  },
+  "security": {
+    "enable_ssl": false,
+    "api_key_required": false,
+    "max_login_attempts": 3,
+    "session_timeout_minutes": 60
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "data/atb_trading.db",
+    "backup_enabled": true,
+    "vacuum_interval_hours": 24
+  },
+  "external_services": {
+    "enable_api_server": true,
+    "enable_websocket": true,
+    "enable_metrics": true,
+    "redis_enabled": false,
+    "redis_host": "localhost",
+    "redis_port": 6379
+  },
+  "features": {
+    "enable_backtesting": true,
+    "enable_paper_trading": true,
+    "enable_live_trading": false,
+    "enable_strategy_optimization": true,
+    "enable_risk_analysis": true,
+    "enable_portfolio_tracking": true
+  },
+  "notifications": {
+    "enable_desktop_notifications": true,
+    "enable_email_notifications": false,
+    "enable_telegram_notifications": false,
+    "notification_levels": ["error", "warning", "info"]
+  },
+  "data_sources": {
+    "primary_exchange": "binance",
+    "backup_exchanges": ["bybit", "coinbase"],
+    "market_data_timeout_seconds": 30,
+    "reconnect_attempts": 5
+  },
+  "advanced": {
+    "multiprocessing_enabled": true,
+    "worker_processes": 2,
+    "async_processing": true,
+    "cache_enabled": true,
+    "cache_size_mb": 128
+  }
+}
