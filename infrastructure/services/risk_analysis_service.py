@@ -15,8 +15,8 @@ import pandas as pd
 from dataclasses import dataclass
 
 from domain.entities.risk_metrics import RiskMetrics
-from domain.entities.risk_report import RiskReport  # type: ignore
-from domain.entities.stress_test_result import StressTestResult  # type: ignore
+from domain.types.risk_types import RiskReport  # type: ignore
+from domain.types.risk_types import StressTestResult  # type: ignore
 from domain.entities.portfolio_risk import PortfolioRisk  # type: ignore
 from domain.entities.position_risk import PositionRisk  # type: ignore
 from domain.entities.risk_optimization_result import RiskOptimizationResult  # type: ignore

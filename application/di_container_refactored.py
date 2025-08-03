@@ -23,7 +23,7 @@ from application.services.risk_service import RiskService
 
 # Application Services
 from application.services.service_factory import get_service_factory
-from application.services.strategy_service import StrategyService
+# from application.services.strategy_service import StrategyService
 from application.services.trading_service import TradingService
 from application.symbol_selection.opportunity_selector import (
     DynamicOpportunityAwareSymbolSelector,
@@ -91,7 +91,7 @@ from domain.protocols.service_protocols import (
     MLServiceProtocol,
     NotificationServiceProtocol,
     RiskServiceProtocol,
-    StrategyServiceProtocol,
+    # StrategyServiceProtocol,
     TradingServiceProtocol,
 )
 from domain.services.correlation_chain import DefaultCorrelationChain
@@ -104,7 +104,7 @@ from domain.services.risk_analysis import (
 from domain.services.signal_service import DefaultSignalService, SignalService
 
 # Domain Services
-from domain.services.strategy_service import DefaultStrategyService, StrategyService
+# from domain.services.strategy_service import DefaultStrategyService, StrategyService
 from domain.services.technical_analysis import (
     DefaultTechnicalAnalysisService,
     ITechnicalAnalysisService,
@@ -319,7 +319,7 @@ class Container(containers.DeclarativeContainer):
     )
     correlation_chain_service = providers.Singleton(DefaultCorrelationChain)
     signal_service = providers.Singleton(DefaultSignalService)
-    strategy_service = providers.Singleton(DefaultStrategyService)
+    # strategy_service = providers.Singleton(DefaultStrategyService)
     pattern_discovery = providers.Singleton(
         PatternDiscovery,
         config=providers.Callable(
@@ -522,7 +522,7 @@ class ServiceLocator:
             MLService: "ml_service",
             PortfolioService: "portfolio_service",
             RiskService: "risk_service",
-            StrategyService: "strategy_service_app",
+            # StrategyService: "strategy_service_app",
             TradingService: "trading_service",
         }
         service_name = service_mapping.get(service_type)

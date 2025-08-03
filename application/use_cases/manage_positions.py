@@ -41,7 +41,7 @@ from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
-from domain.value_objects.symbol import Symbol
+from domain.types import Symbol
 
 logger = logging.getLogger(__name__)
 

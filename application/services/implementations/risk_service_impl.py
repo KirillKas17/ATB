@@ -15,7 +15,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import Timestamp
 from domain.types import PortfolioId, EntityId
 from domain.entities.risk_metrics import RiskMetrics
-from domain.repositories.risk_repository import RiskRepository
+from infrastructure.repositories.risk_repository import RiskRepositoryProtocol as RiskRepository
 from domain.services.risk_analysis import RiskAnalysisService, RiskLimits
 
 

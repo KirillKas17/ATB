@@ -15,13 +15,23 @@ try:
     import talib  # type: ignore
 except ImportError:
     talib = None
-import torch
-import torch.nn as nn
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    nn = None
+    TORCH_AVAILABLE = False
 from deap import base, creator, tools  # type: ignore
 from loguru import logger
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler
-from torch.utils.data import DataLoader, Dataset
+if TORCH_AVAILABLE:
+    from torch.utils.data import DataLoader, Dataset
+else:
+    DataLoader = None
+    Dataset = None
 
 from shared.models.ml_metrics import TransformerMetrics
 

@@ -26,9 +26,9 @@ from application.services.implementations.portfolio_service_impl import (
     PortfolioServiceImpl,
 )
 from application.services.implementations.risk_service_impl import RiskServiceImpl
-from application.services.implementations.strategy_service_impl import (
-    StrategyServiceImpl,
-)
+# from application.services.implementations.strategy_service_impl import (
+#     StrategyServiceImpl,
+# )
 from application.services.implementations.trading_service_impl import TradingServiceImpl
 
 
@@ -198,8 +198,9 @@ class DefaultServiceFactory(ServiceFactory):
                 self.global_config.get("strategy_service", {}), config or {}
             )
 
-            self._service_instances[service_key] = StrategyServiceImpl(service_config)
-            self.logger.info("Created StrategyService instance")
+            # self._service_instances[service_key] = StrategyServiceImpl(service_config)
+            # self.logger.info("Created StrategyService instance")
+            raise NotImplementedError("StrategyServiceImpl not implemented yet")
 
         return self._service_instances[service_key]
 

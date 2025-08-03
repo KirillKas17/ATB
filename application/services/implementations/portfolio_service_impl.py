@@ -11,13 +11,13 @@ from application.protocols.service_protocols import PortfolioService
 from application.services.base_service import BaseApplicationService
 from application.types import CreateOrderRequest
 from application.protocols.service_protocols import PerformanceMetrics, PortfolioMetrics
-from domain.entities.balance import Balance
+from domain.value_objects.balance import Balance
 from domain.types import PortfolioId, Symbol
 from domain.types.repository_types import EntityId
 from domain.entities.portfolio import Portfolio
 from domain.repositories.portfolio_repository import PortfolioRepository
 from domain.services.portfolio_analysis import PortfolioAnalysisService
-from domain.services.portfolio_optimizer import PortfolioOptimizer
+from infrastructure.agents.portfolio.optimizers import IPortfolioOptimizer as PortfolioOptimizer
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import Timestamp, TimestampValue
