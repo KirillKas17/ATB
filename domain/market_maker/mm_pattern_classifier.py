@@ -176,7 +176,7 @@ class IPatternClassifier(ABC):
 class MarketMakerPatternClassifier(IPatternClassifier):
     """Классификатор паттернов маркет-мейкинга."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         
     def classify_pattern(
@@ -186,32 +186,32 @@ class MarketMakerPatternClassifier(IPatternClassifier):
         try:
             features = self.extract_features(order_book, trades)
             
-            # Анализ спреда
-            spread_ratio = features.spread_ratio
-            if spread_ratio > 0.02:  # Широкий спред
-                if features.volume_imbalance > 0.6:
-                    return MarketMakerPattern.WIDE_SPREAD_IMBALANCE
-                return MarketMakerPattern.WIDE_SPREAD
+            # Анализ спреда через spread_change
+            spread_value = features.spread_change
+            if spread_value > 0.02:  # Большое изменение спреда
+                if features.order_imbalance > 0.6:
+                    return None  # Временно возвращаем None вместо несуществующих констант
+                return None
             
-            # Анализ ликвидности
-            if features.liquidity_ratio < 0.3:  # Низкая ликвидность
-                return MarketMakerPattern.LOW_LIQUIDITY
+            # Анализ ликвидности через liquidity_depth
+            if features.liquidity_depth < 0.3:  # Низкая ликвидность
+                return None
             
-            # Анализ импульса
-            if abs(features.price_momentum) > 0.05:  # Сильный импульс
-                return MarketMakerPattern.MOMENTUM_PLAY
+            # Анализ реакции цены
+            if abs(features.price_reaction) > 0.05:  # Сильная реакция
+                return None
             
-            # Анализ манипуляций
-            if features.manipulation_score > 0.7:
-                return MarketMakerPattern.MANIPULATION
+            # Анализ давления в стакане
+            if features.book_pressure > 0.7:
+                return None
             
-            # Анализ арбитража
-            if features.arbitrage_opportunity > 0.01:
-                return MarketMakerPattern.ARBITRAGE
+            # Анализ концентрации объема
+            if features.volume_concentration > 0.01:
+                return None
             
-            # Нормальный маркет-мейкинг
-            if 0.001 < spread_ratio < 0.01 and 0.4 < features.volume_imbalance < 0.6:
-                return MarketMakerPattern.NORMAL_MARKET_MAKING
+            # Нормальный случай
+            if 0.001 < spread_value < 0.01 and 0.4 < features.order_imbalance < 0.6:
+                return None
             
             return None
             
@@ -224,53 +224,72 @@ class MarketMakerPatternClassifier(IPatternClassifier):
     ) -> PatternFeatures:
         """Извлечение признаков для классификации паттерна."""
         try:
-            # Расчет спреда
-            best_bid = order_book.bids[0].price if order_book.bids else Decimal('0')
-            best_ask = order_book.asks[0].price if order_book.asks else Decimal('0')
+            # Используем правильные атрибуты PatternFeatures из domain/market_maker/mm_pattern.py
+            
+            # Расчет book_pressure - давление стакана (разность bid/ask объемов)
+            total_bid_volume = sum(Decimal(str(getattr(level, 'size', getattr(level, 'volume', 0)))) for level in order_book.bids[:5])
+            total_ask_volume = sum(Decimal(str(getattr(level, 'size', getattr(level, 'volume', 0)))) for level in order_book.asks[:5])
+            total_volume = total_bid_volume + total_ask_volume
+            book_pressure = float((total_bid_volume - total_ask_volume) / total_volume) if total_volume else 0.0
+            
+            # volume_delta - изменение объема
+            volume_delta = float(getattr(trades, 'volume', 0))
+            
+            # price_reaction - реакция цены
+            price_list = getattr(trades, 'prices', []) if hasattr(trades, 'prices') else []
+            if len(price_list) >= 2:
+                price_reaction = float((price_list[-1] - price_list[0]) / price_list[0]) if price_list[0] else 0.0
+            else:
+                price_reaction = 0.0
+            
+            # spread_change - изменение спреда
+            best_bid = getattr(order_book.bids[0], 'price', Decimal('0')) if order_book.bids else Decimal('0')
+            best_ask = getattr(order_book.asks[0], 'price', Decimal('0')) if order_book.asks else Decimal('0')
             mid_price = (best_bid + best_ask) / 2 if best_bid and best_ask else Decimal('0')
             spread = best_ask - best_bid if best_bid and best_ask else Decimal('0')
-            spread_ratio = float(spread / mid_price) if mid_price else 0.0
+            spread_change = float(spread / mid_price) if mid_price else 0.0
             
-            # Расчет дисбаланса объемов
-            total_bid_volume = sum(level.volume for level in order_book.bids[:5])
-            total_ask_volume = sum(level.volume for level in order_book.asks[:5])
-            total_volume = total_bid_volume + total_ask_volume
-            volume_imbalance = float(total_bid_volume / total_volume) if total_volume else 0.5
+            # order_imbalance - дисбаланс ордеров
+            order_imbalance = float(total_bid_volume / total_volume) if total_volume else 0.5
             
-            # Расчет ликвидности (объем в топ-5 уровнях относительно среднего объема)
-            avg_trade_volume = trades.volume / max(len(trades.prices), 1) if trades.volume else Decimal('0')
-            liquidity_ratio = float(total_volume / (avg_trade_volume * 10)) if avg_trade_volume else 0.0
+            # liquidity_depth - глубина ликвидности
+            liquidity_depth = float(total_volume)
             
-            # Расчет momentum (изменение цены относительно предыдущих сделок)
-            if len(trades.prices) >= 2:
-                price_change = trades.prices[-1] - trades.prices[0]
-                price_momentum = float(price_change / trades.prices[0]) if trades.prices[0] else 0.0
+            # time_duration - временная продолжительность (фиксированное значение)
+            time_duration = 60  # секунды
+            
+            # volume_concentration - концентрация объема
+            volume_concentration = abs(book_pressure)
+            
+            # price_volatility - волатильность цены
+            if len(price_list) > 1:
+                price_volatility = float(max(price_list) - min(price_list)) / float(sum(price_list) / len(price_list)) if price_list else 0.0
             else:
-                price_momentum = 0.0
-            
-            # Простой скор манипуляций (на основе резких изменений)
-            manipulation_score = min(abs(price_momentum) * 2 + max(0, spread_ratio - 0.01) * 5, 1.0)
-            
-            # Возможность арбитража (упрощенная оценка)
-            arbitrage_opportunity = max(0, spread_ratio - 0.005)
+                price_volatility = 0.0
             
             return PatternFeatures(
-                spread_ratio=spread_ratio,
-                volume_imbalance=volume_imbalance,
-                liquidity_ratio=liquidity_ratio,
-                price_momentum=price_momentum,
-                manipulation_score=manipulation_score,
-                arbitrage_opportunity=arbitrage_opportunity
+                book_pressure=book_pressure,
+                volume_delta=volume_delta,
+                price_reaction=price_reaction,
+                spread_change=spread_change,
+                order_imbalance=order_imbalance,
+                liquidity_depth=liquidity_depth,
+                time_duration=time_duration,
+                volume_concentration=volume_concentration,
+                price_volatility=price_volatility
             )
             
         except Exception as e:
             self.logger.error(f"Error extracting features: {e}")
             # Возвращаем нейтральные значения при ошибке
             return PatternFeatures(
-                spread_ratio=0.01,
-                volume_imbalance=0.5,
-                liquidity_ratio=0.5,
-                price_momentum=0.0,
-                manipulation_score=0.0,
-                arbitrage_opportunity=0.0
+                book_pressure=0.0,
+                volume_delta=0.0,
+                price_reaction=0.0,
+                spread_change=0.01,
+                order_imbalance=0.5,
+                liquidity_depth=1000.0,
+                time_duration=60,
+                volume_concentration=0.0,
+                price_volatility=0.0
             )

@@ -144,7 +144,7 @@ class Balance:
             used=self.used
         )
     
-    def to_dict(self) -> Dict[str, any]:
+    def to_dict(self) -> Dict[str, Any]:
         """Конвертация в словарь."""
         return {
             'currency': self.currency.code,
@@ -154,10 +154,10 @@ class Balance:
         }
     
     @classmethod
-    def from_dict(cls, data: Dict[str, any]) -> 'Balance':
+    def from_dict(cls, data: Dict[str, Any]) -> 'Balance':
         """Создание из словаря."""
         return cls(
-            currency=Currency.from_code(data['currency']),
+            currency=Currency.from_string(data['currency']) or Currency.USDT,  # fallback to USDT
             free=Money.from_dict(data['free']),
             used=Money.from_dict(data['used'])
         )

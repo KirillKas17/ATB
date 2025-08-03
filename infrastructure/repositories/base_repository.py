@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, AsyncContextManager, Dict, Generic, List, Optional, Set, TypeVar, Union
+from typing import Any, AsyncContextManager, Callable, Dict, Generic, List, Optional, Set, TypeVar, Union
 import threading
 from collections import defaultdict
 import weakref
@@ -23,8 +23,8 @@ try:
     from sqlalchemy import text
     HAS_SQLALCHEMY = True
 except ImportError:
-    AsyncSession = None
-    AsyncEngine = None
+    AsyncSession = None  # type: ignore
+    AsyncEngine = None  # type: ignore
     HAS_SQLALCHEMY = False
 
 logger = logging.getLogger(__name__)
@@ -103,8 +103,8 @@ class TransactionContext:
         # Управление операциями и откатами
         self._operations: List[Dict[str, Any]] = []
         self._savepoints: Dict[str, SavePoint] = {}
-        self._rollback_handlers: List[callable] = []
-        self._commit_handlers: List[callable] = []
+        self._rollback_handlers: List[Callable[[Any], Any]] = []
+        self._commit_handlers: List[Callable[[Any], Any]] = []
         
         # Блокировки и синхронизация
         self._lock = asyncio.Lock()
@@ -180,11 +180,11 @@ class TransactionContext:
             self.metrics.rollback_count += 1
             logger.info(f"Rolled back to savepoint '{name}' in transaction {self.transaction_id}")
     
-    def add_rollback_handler(self, handler: callable) -> None:
+    def add_rollback_handler(self, handler: Callable[[Any], Any]) -> None:
         """Добавление обработчика отката."""
         self._rollback_handlers.append(handler)
     
-    def add_commit_handler(self, handler: callable) -> None:
+    def add_commit_handler(self, handler: Callable[[Any], Any]) -> None:
         """Добавление обработчика коммита."""
         self._commit_handlers.append(handler)
     
@@ -253,7 +253,7 @@ class RepositoryBackend(ABC):
 class SQLAlchemyBackend(RepositoryBackend):
     """Бэкенд для SQLAlchemy."""
     
-    def __init__(self, engine: Optional[AsyncEngine] = None, session_factory: Optional[callable] = None):
+    def __init__(self, engine: Optional[AsyncEngine] = None, session_factory: Optional[Callable[[], AsyncSession]] = None):
         if not HAS_SQLALCHEMY:
             raise ImportError("SQLAlchemy is required for SQLAlchemyBackend")
         
@@ -348,7 +348,7 @@ class SQLAlchemyBackend(RepositoryBackend):
 class MemoryBackend(RepositoryBackend):
     """In-memory бэкенд для тестирования."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._storage: Dict[str, Dict[str, Any]] = defaultdict(dict)
         self._transaction_snapshots: Dict[str, Dict[str, Dict[str, Any]]] = {}
         self._lock = asyncio.Lock()
