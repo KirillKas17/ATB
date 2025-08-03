@@ -194,13 +194,13 @@ class DefaultServiceFactory(ServiceFactory):
         service_key = "strategy_service"
 
         if service_key not in self._service_instances:
-            service_config = self._merge_configs(
-                self.global_config.get("strategy_service", {}), config or {}
-            )
+            service_config = config or {}
+            service_config.update({"name": "strategy_service"})
 
-            # self._service_instances[service_key] = StrategyServiceImpl(service_config)
-            # self.logger.info("Created StrategyService instance")
-            raise NotImplementedError("StrategyServiceImpl not implemented yet")
+            # Используем реализованный StrategyService из domain.services.strategy_service
+            from domain.services.strategy_service import strategy_service
+            self._service_instances[service_key] = strategy_service
+            self.logger.info("Created StrategyService instance using domain service")
 
         return self._service_instances[service_key]
 

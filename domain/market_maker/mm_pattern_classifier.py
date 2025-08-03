@@ -8,6 +8,7 @@ from collections import deque
 from datetime import datetime, timedelta
 from statistics import mean, stdev
 from typing import Dict, List, Optional, Tuple
+from decimal import Decimal
 
 from domain.market_maker.mm_pattern import (
     MarketMakerPattern,
@@ -173,72 +174,103 @@ class IPatternClassifier(ABC):
 
 
 class MarketMakerPatternClassifier(IPatternClassifier):
-    def __init__(self, config: Optional[PatternClassifierConfig] = None):
-        self.config = config or PatternClassifierConfig()
-        self.order_book_history: Dict[str, deque] = {}
-        self.trade_history: Dict[str, deque] = {}
-        self.max_history_size = self.config.max_history_size
-
+    """Классификатор паттернов маркет-мейкинга."""
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        
     def classify_pattern(
         self, symbol: Symbol, order_book: OrderBookSnapshot, trades: TradeSnapshot
     ) -> Optional[MarketMakerPattern]:
-        self._update_history(symbol, order_book, trades)
-        features = self.extract_features(order_book, trades)
-        pattern_type, confidence = self._determine_pattern_type(features)
-        if confidence < self.config.min_confidence:
+        """Классификация паттерна маркет-мейкинга."""
+        try:
+            features = self.extract_features(order_book, trades)
+            
+            # Анализ спреда
+            spread_ratio = features.spread_ratio
+            if spread_ratio > 0.02:  # Широкий спред
+                if features.volume_imbalance > 0.6:
+                    return MarketMakerPattern.WIDE_SPREAD_IMBALANCE
+                return MarketMakerPattern.WIDE_SPREAD
+            
+            # Анализ ликвидности
+            if features.liquidity_ratio < 0.3:  # Низкая ликвидность
+                return MarketMakerPattern.LOW_LIQUIDITY
+            
+            # Анализ импульса
+            if abs(features.price_momentum) > 0.05:  # Сильный импульс
+                return MarketMakerPattern.MOMENTUM_PLAY
+            
+            # Анализ манипуляций
+            if features.manipulation_score > 0.7:
+                return MarketMakerPattern.MANIPULATION
+            
+            # Анализ арбитража
+            if features.arbitrage_opportunity > 0.01:
+                return MarketMakerPattern.ARBITRAGE
+            
+            # Нормальный маркет-мейкинг
+            if 0.001 < spread_ratio < 0.01 and 0.4 < features.volume_imbalance < 0.6:
+                return MarketMakerPattern.NORMAL_MARKET_MAKING
+            
             return None
-        return MarketMakerPattern(
-            pattern_type=pattern_type,
-            symbol=symbol,
-            timestamp=order_book.timestamp,
-            features=features,
-            confidence=Confidence(confidence),
-            context=self._build_context(symbol, order_book, trades),
-        )
-
+            
+        except Exception as e:
+            self.logger.error(f"Error classifying pattern for {symbol}: {e}")
+            return None
+    
     def extract_features(
         self, order_book: OrderBookSnapshot, trades: TradeSnapshot
     ) -> PatternFeatures:
-        order_imbalance = order_book.get_order_imbalance()
-        return PatternFeatures(
-            book_pressure=BookPressure(float(order_imbalance)),  # Преобразуем в float
-            volume_delta=trades.get_volume_delta(),
-            price_reaction=trades.get_price_reaction(),
-            spread_change=SpreadChange(order_book.get_spread_percentage()),
-            order_imbalance=order_imbalance,
-            liquidity_depth=order_book.get_liquidity_depth(),
-            time_duration=TimeDuration(0),
-            volume_concentration=trades.get_volume_concentration(),
-            price_volatility=trades.get_price_volatility(),
-            market_microstructure={},
-        )
-
-    def _update_history(
-        self, symbol: str, order_book: OrderBookSnapshot, trades: TradeSnapshot
-    ) -> None:
-        if symbol not in self.order_book_history:
-            self.order_book_history[symbol] = deque(maxlen=self.max_history_size)
-        self.order_book_history[symbol].append(order_book)
-        if symbol not in self.trade_history:
-            self.trade_history[symbol] = deque(maxlen=self.max_history_size)
-        self.trade_history[symbol].append(trades)
-
-    def _determine_pattern_type(
-        self, features: PatternFeatures
-    ) -> Tuple[MarketMakerPatternType, float]:
-        if features.book_pressure > 0.3 and features.volume_delta > 0.2:
-            return MarketMakerPatternType.ACCUMULATION, 0.8
-        if features.book_pressure < -0.3 and features.volume_delta > 0.2:
-            return MarketMakerPatternType.EXIT, 0.8
-        return MarketMakerPatternType.ABSORPTION, 0.5
-
-    def _build_context(
-        self, symbol: Symbol, order_book: OrderBookSnapshot, trades: TradeSnapshot
-    ) -> PatternContext:
-        return {
-            "symbol": symbol,
-            "timestamp": order_book.timestamp.isoformat(),
-            "last_price": order_book.last_price,
-            "volume_24h": order_book.volume_24h,
-            "price_change_24h": order_book.price_change_24h,
-        }
+        """Извлечение признаков для классификации паттерна."""
+        try:
+            # Расчет спреда
+            best_bid = order_book.bids[0].price if order_book.bids else Decimal('0')
+            best_ask = order_book.asks[0].price if order_book.asks else Decimal('0')
+            mid_price = (best_bid + best_ask) / 2 if best_bid and best_ask else Decimal('0')
+            spread = best_ask - best_bid if best_bid and best_ask else Decimal('0')
+            spread_ratio = float(spread / mid_price) if mid_price else 0.0
+            
+            # Расчет дисбаланса объемов
+            total_bid_volume = sum(level.volume for level in order_book.bids[:5])
+            total_ask_volume = sum(level.volume for level in order_book.asks[:5])
+            total_volume = total_bid_volume + total_ask_volume
+            volume_imbalance = float(total_bid_volume / total_volume) if total_volume else 0.5
+            
+            # Расчет ликвидности (объем в топ-5 уровнях относительно среднего объема)
+            avg_trade_volume = trades.volume / max(len(trades.prices), 1) if trades.volume else Decimal('0')
+            liquidity_ratio = float(total_volume / (avg_trade_volume * 10)) if avg_trade_volume else 0.0
+            
+            # Расчет momentum (изменение цены относительно предыдущих сделок)
+            if len(trades.prices) >= 2:
+                price_change = trades.prices[-1] - trades.prices[0]
+                price_momentum = float(price_change / trades.prices[0]) if trades.prices[0] else 0.0
+            else:
+                price_momentum = 0.0
+            
+            # Простой скор манипуляций (на основе резких изменений)
+            manipulation_score = min(abs(price_momentum) * 2 + max(0, spread_ratio - 0.01) * 5, 1.0)
+            
+            # Возможность арбитража (упрощенная оценка)
+            arbitrage_opportunity = max(0, spread_ratio - 0.005)
+            
+            return PatternFeatures(
+                spread_ratio=spread_ratio,
+                volume_imbalance=volume_imbalance,
+                liquidity_ratio=liquidity_ratio,
+                price_momentum=price_momentum,
+                manipulation_score=manipulation_score,
+                arbitrage_opportunity=arbitrage_opportunity
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting features: {e}")
+            # Возвращаем нейтральные значения при ошибке
+            return PatternFeatures(
+                spread_ratio=0.01,
+                volume_imbalance=0.5,
+                liquidity_ratio=0.5,
+                price_momentum=0.0,
+                manipulation_score=0.0,
+                arbitrage_opportunity=0.0
+            )

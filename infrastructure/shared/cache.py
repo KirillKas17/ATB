@@ -3,675 +3,780 @@
 """
 
 import asyncio
-import hashlib
 import json
-import os
 import pickle
-from collections import OrderedDict
-from dataclasses import dataclass, field
+import time
+import hashlib
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional, List, Union, Set
 from datetime import datetime, timedelta
+from dataclasses import dataclass, field
+import logging
+import threading
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+import redis.asyncio as redis
+from pathlib import Path
 
-try:
-    import aioredis
-except ImportError:
-    aioredis = None
-try:
-    import aiofiles  # type: ignore
-except ImportError:
-    aiofiles = None
-from loguru import logger
+logger = logging.getLogger(__name__)
 
-T = TypeVar("T")
+class CompressionType(Enum):
+    """Типы сжатия данных."""
+    NONE = "none"
+    GZIP = "gzip"
+    ZLIB = "zlib"
+    LZ4 = "lz4"
 
-
-class CacheType(Enum):
-    """Типы кэша."""
-
-    MEMORY = "memory"
-    REDIS = "redis"
-    DISK = "disk"
-    HYBRID = "hybrid"
-
-
-class CacheEvictionStrategy(Enum):
-    """Стратегии вытеснения кэша."""
-
-    LRU = "lru"  # Least Recently Used
-    LFU = "lfu"  # Least Frequently Used
-    FIFO = "fifo"  # First In First Out
-    TTL = "ttl"  # Time To Live
-
+class EncryptionType(Enum):
+    """Типы шифрования данных."""
+    NONE = "none"
+    AES = "aes"
+    FERNET = "fernet"
 
 @dataclass
 class CacheConfig:
     """Конфигурация кэша."""
-
-    cache_type: CacheType = CacheType.MEMORY
-    max_size: int = 1000
-    default_ttl_seconds: int = 300
-    eviction_strategy: CacheEvictionStrategy = CacheEvictionStrategy.LRU
-    enable_compression: bool = False
-    enable_encryption: bool = False
-    compression_threshold_bytes: int = 1024
-    cleanup_interval_seconds: int = 60
+    max_size: int = 10000
+    default_ttl: int = 3600
+    cleanup_interval: int = 300
+    compression: CompressionType = CompressionType.NONE
+    encryption: EncryptionType = EncryptionType.NONE
+    persistence_path: Optional[str] = None
+    redis_url: Optional[str] = None
     enable_metrics: bool = True
-    enable_logging: bool = True
-
 
 @dataclass
 class CacheMetrics:
     """Метрики кэша."""
-
     hits: int = 0
     misses: int = 0
     sets: int = 0
     deletes: int = 0
     evictions: int = 0
-    total_size_bytes: int = 0
+    size: int = 0
+    memory_usage: int = 0
     last_cleanup: Optional[datetime] = None
-    hit_rate: float = 0.0
-
-    def update_hit_rate(self) -> None:
-        """Обновление hit rate."""
+    
+    @property
+    def hit_ratio(self) -> float:
+        """Коэффициент попаданий."""
         total = self.hits + self.misses
-        self.hit_rate = self.hits / total if total > 0 else 0.0
-
+        return self.hits / total if total > 0 else 0.0
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            'hits': self.hits,
+            'misses': self.misses,
+            'sets': self.sets,
+            'deletes': self.deletes,
+            'evictions': self.evictions,
+            'size': self.size,
+            'memory_usage': self.memory_usage,
+            'hit_ratio': self.hit_ratio,
+            'last_cleanup': self.last_cleanup.isoformat() if self.last_cleanup else None
+        }
 
 @dataclass
-class CacheEntry(Generic[T]):
-    """Запись кэша."""
-
-    key: str
-    value: T
-    created_at: datetime = field(default_factory=datetime.now)
-    accessed_at: datetime = field(default_factory=datetime.now)
+class CacheEntry:
+    """Запись в кэше."""
+    value: Any
+    created_at: float
+    ttl: Optional[int] = None
     access_count: int = 0
-    ttl_seconds: Optional[int] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
+    last_accessed: float = field(default_factory=time.time)
+    size: int = 0
+    tags: Set[str] = field(default_factory=set)
+    
     def is_expired(self) -> bool:
-        """Проверка истечения срока действия."""
-        if self.ttl_seconds is None:
+        """Проверка истечения времени жизни."""
+        if self.ttl is None:
             return False
-        return datetime.now() > self.created_at + timedelta(seconds=self.ttl_seconds)
-
-    def access(self) -> None:
-        """Отметить доступ к записи."""
-        self.accessed_at = datetime.now()
+        return time.time() - self.created_at > self.ttl
+    
+    def touch(self) -> None:
+        """Обновление времени доступа."""
+        self.last_accessed = time.time()
         self.access_count += 1
+    
+    def add_tag(self, tag: str) -> None:
+        """Добавление тега."""
+        self.tags.add(tag)
+    
+    def has_tag(self, tag: str) -> bool:
+        """Проверка наличия тега."""
+        return tag in self.tags
 
-    def get_size_bytes(self) -> int:
-        """Получение размера записи в байтах."""
-        try:
-            return len(json.dumps(self.value, default=str).encode("utf-8"))
-        except:
-            return 0
-
-
-class CacheProtocol:
+class CacheProtocol(ABC):
     """Протокол кэша."""
-
+    
+    @abstractmethod
     async def get(self, key: str) -> Optional[Any]:
         """Получение значения из кэша."""
-        raise NotImplementedError
-
+        pass
+    
+    @abstractmethod
     async def set(
-        self, key: str, value: Any, ttl_seconds: Optional[int] = None
+        self, 
+        key: str, 
+        value: Any, 
+        ttl_seconds: Optional[int] = None
     ) -> bool:
         """Установка значения в кэш."""
-        raise NotImplementedError
-
+        pass
+    
+    @abstractmethod
     async def delete(self, key: str) -> bool:
         """Удаление значения из кэша."""
-        raise NotImplementedError
-
+        pass
+    
+    @abstractmethod
     async def exists(self, key: str) -> bool:
         """Проверка существования ключа."""
-        raise NotImplementedError
-
+        pass
+    
+    @abstractmethod
     async def clear(self) -> None:
         """Очистка кэша."""
-        raise NotImplementedError
-
+        pass
+    
+    @abstractmethod
     async def get_metrics(self) -> CacheMetrics:
         """Получение метрик кэша."""
-        raise NotImplementedError
+        pass
 
+class DataSerializer:
+    """Сериализатор данных с поддержкой сжатия и шифрования."""
+    
+    def __init__(self, compression: CompressionType = CompressionType.NONE, 
+                 encryption: EncryptionType = EncryptionType.NONE,
+                 encryption_key: Optional[bytes] = None):
+        self.compression = compression
+        self.encryption = encryption
+        self.encryption_key = encryption_key
+        
+        # Инициализация модулей сжатия
+        self._compression_modules = {}
+        if compression == CompressionType.GZIP:
+            import gzip
+            self._compression_modules['compress'] = gzip.compress
+            self._compression_modules['decompress'] = gzip.decompress
+        elif compression == CompressionType.ZLIB:
+            import zlib
+            self._compression_modules['compress'] = zlib.compress
+            self._compression_modules['decompress'] = zlib.decompress
+        elif compression == CompressionType.LZ4:
+            try:
+                import lz4.frame
+                self._compression_modules['compress'] = lz4.frame.compress
+                self._compression_modules['decompress'] = lz4.frame.decompress
+            except ImportError:
+                logger.warning("LZ4 не установлен, используется без сжатия")
+                self.compression = CompressionType.NONE
+        
+        # Инициализация шифрования
+        if encryption == EncryptionType.FERNET:
+            try:
+                from cryptography.fernet import Fernet
+                if encryption_key:
+                    self._fernet = Fernet(encryption_key)
+                else:
+                    self._fernet = Fernet(Fernet.generate_key())
+            except ImportError:
+                logger.warning("cryptography не установлена, шифрование отключено")
+                self.encryption = EncryptionType.NONE
+    
+    def serialize(self, value: Any) -> bytes:
+        """Сериализация значения."""
+        try:
+            # Сериализация в pickle
+            data = pickle.dumps(value)
+            
+            # Сжатие
+            if self.compression != CompressionType.NONE and 'compress' in self._compression_modules:
+                data = self._compression_modules['compress'](data)
+            
+            # Шифрование
+            if self.encryption == EncryptionType.FERNET and hasattr(self, '_fernet'):
+                data = self._fernet.encrypt(data)
+            
+            return data
+        except Exception as e:
+            logger.error(f"Ошибка сериализации: {e}")
+            raise
+    
+    def deserialize(self, data: bytes) -> Any:
+        """Десериализация значения."""
+        try:
+            # Расшифровка
+            if self.encryption == EncryptionType.FERNET and hasattr(self, '_fernet'):
+                data = self._fernet.decrypt(data)
+            
+            # Распаковка
+            if self.compression != CompressionType.NONE and 'decompress' in self._compression_modules:
+                data = self._compression_modules['decompress'](data)
+            
+            # Десериализация
+            return pickle.loads(data)
+        except Exception as e:
+            logger.error(f"Ошибка десериализации: {e}")
+            raise
 
 class MemoryCache(CacheProtocol):
-    """In-memory реализация кэша."""
-
+    """Продвинутый in-memory кэш."""
+    
     def __init__(self, config: CacheConfig):
         self.config = config
-        self._cache: OrderedDict[str, CacheEntry] = OrderedDict()
-        self._metrics = CacheMetrics()
+        self._storage: Dict[str, CacheEntry] = {}
         self._lock = asyncio.Lock()
+        self._metrics = CacheMetrics()
+        self._serializer = DataSerializer(
+            compression=config.compression,
+            encryption=config.encryption
+        )
+        
+        # Индексы для быстрого поиска
+        self._tags_index: Dict[str, Set[str]] = {}
+        self._access_order: List[str] = []
+        
+        # Фоновые задачи
         self._cleanup_task: Optional[asyncio.Task] = None
-        if config.enable_metrics:
-            self._start_cleanup_task()
-
+        self._start_background_tasks()
+    
+    def _start_background_tasks(self) -> None:
+        """Запуск фоновых задач."""
+        self._cleanup_task = asyncio.create_task(self._cleanup_loop())
+    
     async def get(self, key: str) -> Optional[Any]:
         """Получение значения из кэша."""
         async with self._lock:
-            if key not in self._cache:
+            entry = self._storage.get(key)
+            if entry is None:
                 self._metrics.misses += 1
                 return None
-            entry = self._cache[key]
+            
             if entry.is_expired():
-                del self._cache[key]
+                await self._remove_entry(key)
                 self._metrics.misses += 1
+                self._metrics.evictions += 1
                 return None
-            entry.access()
-            self._cache.move_to_end(key)  # LRU
+            
+            entry.touch()
+            self._update_access_order(key)
             self._metrics.hits += 1
             return entry.value
-
+    
     async def set(
-        self, key: str, value: Any, ttl_seconds: Optional[int] = None
+        self, 
+        key: str, 
+        value: Any, 
+        ttl_seconds: Optional[int] = None,
+        tags: Optional[Set[str]] = None
     ) -> bool:
         """Установка значения в кэш."""
-        async with self._lock:
-            try:
-                ttl = ttl_seconds or self.config.default_ttl_seconds
-                entry = CacheEntry(key=key, value=value, ttl_seconds=ttl)
-                # Проверяем размер кэша
-                if len(self._cache) >= self.config.max_size:
-                    await self._evict_entries()
-                self._cache[key] = entry
-                self._cache.move_to_end(key)  # LRU
+        try:
+            async with self._lock:
+                # Проверка лимита размера
+                if len(self._storage) >= self.config.max_size and key not in self._storage:
+                    await self._evict_lru_entries()
+                
+                # Сериализация для вычисления размера
+                serialized_data = self._serializer.serialize(value)
+                
+                ttl = ttl_seconds or self.config.default_ttl
+                entry = CacheEntry(
+                    value=value,
+                    created_at=time.time(),
+                    ttl=ttl,
+                    size=len(serialized_data),
+                    tags=tags or set()
+                )
+                
+                # Удаление старой записи если существует
+                if key in self._storage:
+                    await self._remove_entry(key)
+                
+                self._storage[key] = entry
+                self._update_access_order(key)
+                self._update_tags_index(key, entry.tags)
+                
                 self._metrics.sets += 1
+                self._metrics.size = len(self._storage)
+                self._metrics.memory_usage += entry.size
+                
                 return True
-            except Exception as e:
-                logger.error(f"Error setting cache entry: {e}")
-                return False
-
+        except Exception as e:
+            logger.error(f"Ошибка установки значения в кэш: {e}")
+            return False
+    
     async def delete(self, key: str) -> bool:
         """Удаление значения из кэша."""
         async with self._lock:
-            if key in self._cache:
-                del self._cache[key]
+            if key in self._storage:
+                await self._remove_entry(key)
                 self._metrics.deletes += 1
                 return True
             return False
-
+    
     async def exists(self, key: str) -> bool:
         """Проверка существования ключа."""
         async with self._lock:
-            if key not in self._cache:
+            entry = self._storage.get(key)
+            if entry is None:
                 return False
-            entry = self._cache[key]
+            
             if entry.is_expired():
-                del self._cache[key]
+                await self._remove_entry(key)
+                self._metrics.evictions += 1
                 return False
+            
             return True
-
+    
     async def clear(self) -> None:
         """Очистка кэша."""
         async with self._lock:
-            self._cache.clear()
+            self._storage.clear()
+            self._tags_index.clear()
+            self._access_order.clear()
             self._metrics = CacheMetrics()
-
+    
     async def get_metrics(self) -> CacheMetrics:
         """Получение метрик кэша."""
         async with self._lock:
-            self._metrics.update_hit_rate()
+            self._metrics.size = len(self._storage)
             return self._metrics
-
-    async def _evict_entries(self) -> None:
-        """Вытеснение записей из кэша."""
-        if self.config.eviction_strategy == CacheEvictionStrategy.LRU:
-            # Удаляем самую старую запись
-            if self._cache:
-                oldest_key = next(iter(self._cache))
-                del self._cache[oldest_key]
-                self._metrics.evictions += 1
-        elif self.config.eviction_strategy == CacheEvictionStrategy.LFU:
-            # Удаляем запись с наименьшим количеством обращений
-            if self._cache:
-                least_frequent_key = min(
-                    self._cache.keys(), key=lambda k: self._cache[k].access_count
-                )
-                del self._cache[least_frequent_key]
-                self._metrics.evictions += 1
-        elif self.config.eviction_strategy == CacheEvictionStrategy.FIFO:
-            # Удаляем первую запись
-            if self._cache:
-                first_key = next(iter(self._cache))
-                del self._cache[first_key]
-                self._metrics.evictions += 1
-
-    def _start_cleanup_task(self) -> None:
-        """Запуск задачи очистки."""
-        async def cleanup_loop() -> None:
-            while True:
-                try:
-                    await asyncio.sleep(self.config.cleanup_interval_seconds)
-                    await self._cleanup_expired_entries()
-                    await self._evict_entries()
-                except Exception as e:
-                    logger.error(f"Error in cleanup loop: {e}")
-        
-        asyncio.create_task(cleanup_loop())
-
-    async def _cleanup_expired_entries(self) -> None:
-        """Очистка истекших записей."""
+    
+    async def delete_by_tag(self, tag: str) -> int:
+        """Удаление записей по тегу."""
         async with self._lock:
-            expired_keys = [
-                key for key, entry in self._cache.items() if entry.is_expired()
-            ]
+            keys_to_delete = self._tags_index.get(tag, set()).copy()
+            deleted_count = 0
+            
+            for key in keys_to_delete:
+                if key in self._storage:
+                    await self._remove_entry(key)
+                    deleted_count += 1
+            
+            return deleted_count
+    
+    async def get_by_tag(self, tag: str) -> Dict[str, Any]:
+        """Получение записей по тегу."""
+        async with self._lock:
+            result = {}
+            keys = self._tags_index.get(tag, set())
+            
+            for key in keys:
+                if key in self._storage:
+                    entry = self._storage[key]
+                    if not entry.is_expired():
+                        result[key] = entry.value
+                        entry.touch()
+            
+            return result
+    
+    async def _remove_entry(self, key: str) -> None:
+        """Удаление записи и обновление индексов."""
+        if key not in self._storage:
+            return
+        
+        entry = self._storage[key]
+        
+        # Обновление индекса тегов
+        for tag in entry.tags:
+            if tag in self._tags_index:
+                self._tags_index[tag].discard(key)
+                if not self._tags_index[tag]:
+                    del self._tags_index[tag]
+        
+        # Обновление порядка доступа
+        if key in self._access_order:
+            self._access_order.remove(key)
+        
+        # Обновление метрик
+        self._metrics.memory_usage -= entry.size
+        
+        del self._storage[key]
+    
+    def _update_access_order(self, key: str) -> None:
+        """Обновление порядка доступа для LRU."""
+        if key in self._access_order:
+            self._access_order.remove(key)
+        self._access_order.append(key)
+    
+    def _update_tags_index(self, key: str, tags: Set[str]) -> None:
+        """Обновление индекса тегов."""
+        for tag in tags:
+            if tag not in self._tags_index:
+                self._tags_index[tag] = set()
+            self._tags_index[tag].add(key)
+    
+    async def _evict_lru_entries(self) -> None:
+        """Выселение наименее используемых записей."""
+        if not self._access_order:
+            return
+        
+        # Удаляем 10% наименее используемых записей
+        evict_count = max(1, len(self._access_order) // 10)
+        
+        for _ in range(evict_count):
+            if self._access_order:
+                key = self._access_order[0]
+                await self._remove_entry(key)
+                self._metrics.evictions += 1
+    
+    async def _cleanup_loop(self) -> None:
+        """Фоновая очистка истёкших записей."""
+        while True:
+            try:
+                await asyncio.sleep(self.config.cleanup_interval)
+                await self._cleanup_expired()
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"Ошибка в процессе очистки кэша: {e}")
+    
+    async def _cleanup_expired(self) -> None:
+        """Очистка истёкших записей."""
+        async with self._lock:
+            expired_keys = []
+            
+            for key, entry in self._storage.items():
+                if entry.is_expired():
+                    expired_keys.append(key)
+            
             for key in expired_keys:
-                del self._cache[key]
+                await self._remove_entry(key)
+                self._metrics.evictions += 1
+            
             self._metrics.last_cleanup = datetime.now()
-            if expired_keys and self.config.enable_logging:
-                logger.debug(f"Cleaned up {len(expired_keys)} expired cache entries")
-
+            
+            if expired_keys:
+                logger.debug(f"Удалено {len(expired_keys)} истёкших записей")
 
 class RedisCache(CacheProtocol):
-    """Production-ready Redis кэш (асинхронный, fault-tolerant, TTL, eviction, метрики)."""
-
+    """Кэш на основе Redis."""
+    
     def __init__(self, config: CacheConfig):
-        if aioredis is None:
-            raise ImportError("aioredis is required for RedisCache")
         self.config = config
+        self._redis: Optional[redis.Redis] = None
         self._metrics = CacheMetrics()
-        self._redis: Optional[Any] = None
-        self._lock = asyncio.Lock()
-        self._connected = False
-        self._host = os.environ.get("REDIS_HOST", "localhost")
-        self._port = int(os.environ.get("REDIS_PORT", 6379))
-        self._db = int(os.environ.get("REDIS_DB", 0))
-
-    async def _connect(self) -> None:
-        if not self._connected:
-            self._redis = await aioredis.create_redis_pool(
-                (self._host, self._port), db=self._db
-            )
-            self._connected = True
-
-    async def get(self, key: str) -> Optional[Any]:
-        await self._connect()
-        async with self._lock:
-            if self._redis is None:
-                return None
-            assert self._redis is not None  # для mypy
-            value = await self._redis.get(key)
-            if value is None:
-                self._metrics.misses += 1
-                return None
-            self._metrics.hits += 1
-            try:
-                return pickle.loads(value)
-            except Exception:
-                return value
-
-    async def set(
-        self, key: str, value: Any, ttl_seconds: Optional[int] = None
-    ) -> bool:
-        await self._connect()
-        async with self._lock:
-            if self._redis is None:
-                return False
-            assert self._redis is not None  # для mypy
-            try:
-                data = pickle.dumps(value)
-                ttl = ttl_seconds or self.config.default_ttl_seconds
-                await self._redis.set(key, data, expire=ttl)
-                self._metrics.sets += 1
-                return True
-            except Exception as e:
-                logger.error(f"RedisCache set error: {e}")
-                return False
-
-    async def delete(self, key: str) -> bool:
-        await self._connect()
-        async with self._lock:
-            if self._redis is None:
-                return False
-            assert self._redis is not None  # для mypy
-            result = await self._redis.delete(key)
-            if result:
-                self._metrics.deletes += 1
-            return bool(result)
-
-    async def exists(self, key: str) -> bool:
-        await self._connect()
-        async with self._lock:
-            if self._redis is None:
-                return False
-            assert self._redis is not None  # для mypy
-            return await self._redis.exists(key) > 0
-
-    async def clear(self) -> None:
-        await self._connect()
-        async with self._lock:
-            if self._redis is not None:
-                await self._redis.flushdb()
-            self._metrics = CacheMetrics()
-
-    async def get_metrics(self) -> CacheMetrics:
-        return self._metrics
-
-
-class DiskCache(CacheProtocol):
-    """Production-ready Disk кэш (асинхронный, fault-tolerant, TTL, eviction, метрики)."""
-
-    def __init__(self, config: CacheConfig, cache_dir: str = "./disk_cache"):
-        if aiofiles is None:
-            raise ImportError("aiofiles is required for DiskCache")
-        self.config = config
-        self.cache_dir = cache_dir
-        os.makedirs(self.cache_dir, exist_ok=True)
-        self._metrics = CacheMetrics()
-        self._lock = asyncio.Lock()
-
-    def _get_path(self, key: str) -> str:
-        return os.path.join(
-            self.cache_dir, hashlib.md5(key.encode()).hexdigest() + ".pkl"
+        self._serializer = DataSerializer(
+            compression=config.compression,
+            encryption=config.encryption
         )
-
+    
+    async def _get_redis(self) -> redis.Redis:
+        """Получение подключения к Redis."""
+        if self._redis is None:
+            self._redis = redis.from_url(
+                self.config.redis_url or "redis://localhost:6379",
+                decode_responses=False  # Работаем с bytes
+            )
+        return self._redis
+    
     async def get(self, key: str) -> Optional[Any]:
-        path = self._get_path(key)
-        async with self._lock:
-            if not os.path.exists(path):
+        """Получение значения из кэша."""
+        try:
+            r = await self._get_redis()
+            data = await r.get(key)
+            
+            if data is None:
                 self._metrics.misses += 1
                 return None
-            try:
-                async with aiofiles.open(path, "rb") as f:
-                    data = await f.read()
-                    value = pickle.loads(data)
-                    self._metrics.hits += 1
-                    return value
-            except Exception as e:
-                logger.error(f"DiskCache get error: {e}")
-                return None
-
+            
+            value = self._serializer.deserialize(data)
+            self._metrics.hits += 1
+            return value
+        except Exception as e:
+            logger.error(f"Ошибка получения из Redis: {e}")
+            self._metrics.misses += 1
+            return None
+    
     async def set(
-        self, key: str, value: Any, ttl_seconds: Optional[int] = None
+        self, 
+        key: str, 
+        value: Any, 
+        ttl_seconds: Optional[int] = None
     ) -> bool:
-        path = self._get_path(key)
-        async with self._lock:
-            try:
-                data = pickle.dumps(value)
-                async with aiofiles.open(path, "wb") as f:
-                    await f.write(data)
+        """Установка значения в кэш."""
+        try:
+            r = await self._get_redis()
+            data = self._serializer.serialize(value)
+            ttl = ttl_seconds or self.config.default_ttl
+            
+            result = await r.setex(key, ttl, data)
+            if result:
                 self._metrics.sets += 1
                 return True
-            except Exception as e:
-                logger.error(f"DiskCache set error: {e}")
-                return False
-
+            return False
+        except Exception as e:
+            logger.error(f"Ошибка установки в Redis: {e}")
+            return False
+    
     async def delete(self, key: str) -> bool:
-        path = self._get_path(key)
-        async with self._lock:
-            if os.path.exists(path):
-                os.remove(path)
+        """Удаление значения из кэша."""
+        try:
+            r = await self._get_redis()
+            result = await r.delete(key)
+            if result:
                 self._metrics.deletes += 1
                 return True
             return False
-
+        except Exception as e:
+            logger.error(f"Ошибка удаления из Redis: {e}")
+            return False
+    
     async def exists(self, key: str) -> bool:
-        path = self._get_path(key)
-        async with self._lock:
-            return os.path.exists(path)
-
+        """Проверка существования ключа."""
+        try:
+            r = await self._get_redis()
+            return bool(await r.exists(key))
+        except Exception as e:
+            logger.error(f"Ошибка проверки существования в Redis: {e}")
+            return False
+    
     async def clear(self) -> None:
-        async with self._lock:
-            for fname in os.listdir(self.cache_dir):
-                if fname.endswith(".pkl"):
-                    os.remove(os.path.join(self.cache_dir, fname))
+        """Очистка кэша."""
+        try:
+            r = await self._get_redis()
+            await r.flushdb()
             self._metrics = CacheMetrics()
-
+        except Exception as e:
+            logger.error(f"Ошибка очистки Redis: {e}")
+    
     async def get_metrics(self) -> CacheMetrics:
-        return self._metrics
-
+        """Получение метрик кэша."""
+        try:
+            r = await self._get_redis()
+            info = await r.info('memory')
+            self._metrics.memory_usage = info.get('used_memory', 0)
+            
+            db_info = await r.info('keyspace')
+            db0_info = db_info.get('db0', {})
+            if isinstance(db0_info, dict):
+                self._metrics.size = db0_info.get('keys', 0)
+            
+            return self._metrics
+        except Exception as e:
+            logger.error(f"Ошибка получения метрик Redis: {e}")
+            return self._metrics
 
 class HybridCache(CacheProtocol):
-    """Production-ready гибридный кэш (Memory + Redis/Disk, fault-tolerant, TTL, eviction, метрики)."""
-
-    def __init__(
-        self,
-        config: CacheConfig,
-        redis_config: Optional[CacheConfig] = None,
-        disk_config: Optional[CacheConfig] = None,
-    ):
-        self.memory_cache = MemoryCache(config)
-        self.redis_cache = RedisCache(redis_config or config) if redis_config else None
-        self.disk_cache = DiskCache(disk_config or config) if disk_config else None
+    """Гибридный кэш с двумя уровнями."""
+    
+    def __init__(self, config: CacheConfig):
+        self.config = config
+        self._l1_cache = MemoryCache(config)
+        self._l2_cache = RedisCache(config) if config.redis_url else None
         self._metrics = CacheMetrics()
-
+    
     async def get(self, key: str) -> Optional[Any]:
-        value = await self.memory_cache.get(key)
+        """Получение значения из двухуровневого кэша."""
+        # Сначала проверяем L1 (память)
+        value = await self._l1_cache.get(key)
         if value is not None:
+            self._metrics.hits += 1
             return value
-        if self.redis_cache:
-            value = await self.redis_cache.get(key)
+        
+        # Затем проверяем L2 (Redis)
+        if self._l2_cache:
+            value = await self._l2_cache.get(key)
             if value is not None:
-                await self.memory_cache.set(key, value)
+                # Записываем в L1 для быстрого доступа
+                await self._l1_cache.set(key, value)
+                self._metrics.hits += 1
                 return value
-        if self.disk_cache:
-            value = await self.disk_cache.get(key)
-            if value is not None:
-                await self.memory_cache.set(key, value)
-                return value
+        
+        self._metrics.misses += 1
         return None
-
+    
     async def set(
-        self, key: str, value: Any, ttl_seconds: Optional[int] = None
+        self, 
+        key: str, 
+        value: Any, 
+        ttl_seconds: Optional[int] = None
     ) -> bool:
-        ok = await self.memory_cache.set(key, value, ttl_seconds)
-        if self.redis_cache:
-            await self.redis_cache.set(key, value, ttl_seconds)
-        if self.disk_cache:
-            await self.disk_cache.set(key, value, ttl_seconds)
-        return ok
-
+        """Установка значения в двухуровневый кэш."""
+        success = True
+        
+        # Записываем в L1
+        l1_result = await self._l1_cache.set(key, value, ttl_seconds)
+        success = success and l1_result
+        
+        # Записываем в L2
+        if self._l2_cache:
+            l2_result = await self._l2_cache.set(key, value, ttl_seconds)
+            success = success and l2_result
+        
+        if success:
+            self._metrics.sets += 1
+        
+        return success
+    
     async def delete(self, key: str) -> bool:
-        ok = await self.memory_cache.delete(key)
-        if self.redis_cache:
-            await self.redis_cache.delete(key)
-        if self.disk_cache:
-            await self.disk_cache.delete(key)
-        return ok
-
-    async def exists(self, key: str) -> bool:
-        if await self.memory_cache.exists(key):
+        """Удаление значения из двухуровневого кэша."""
+        l1_result = await self._l1_cache.delete(key)
+        l2_result = True
+        
+        if self._l2_cache:
+            l2_result = await self._l2_cache.delete(key)
+        
+        if l1_result or l2_result:
+            self._metrics.deletes += 1
             return True
-        if self.redis_cache and await self.redis_cache.exists(key):
-            return True
-        if self.disk_cache and await self.disk_cache.exists(key):
-            return True
+        
         return False
-
+    
+    async def exists(self, key: str) -> bool:
+        """Проверка существования ключа."""
+        if await self._l1_cache.exists(key):
+            return True
+        
+        if self._l2_cache:
+            return await self._l2_cache.exists(key)
+        
+        return False
+    
     async def clear(self) -> None:
-        await self.memory_cache.clear()
-        if self.redis_cache:
-            await self.redis_cache.clear()
-        if self.disk_cache:
-            await self.disk_cache.clear()
-
+        """Очистка двухуровневого кэша."""
+        await self._l1_cache.clear()
+        if self._l2_cache:
+            await self._l2_cache.clear()
+        self._metrics = CacheMetrics()
+    
     async def get_metrics(self) -> CacheMetrics:
-        # Агрегируем метрики
-        m = self._metrics
-        m.hits = self.memory_cache._metrics.hits
-        m.misses = self.memory_cache._metrics.misses
-        m.sets = self.memory_cache._metrics.sets
-        m.deletes = self.memory_cache._metrics.deletes
-        m.evictions = self.memory_cache._metrics.evictions
-        return m
+        """Получение объединённых метрик."""
+        l1_metrics = await self._l1_cache.get_metrics()
+        l2_metrics = None
+        
+        if self._l2_cache:
+            l2_metrics = await self._l2_cache.get_metrics()
+        
+        # Объединяем метрики
+        combined_metrics = CacheMetrics(
+            hits=self._metrics.hits,
+            misses=self._metrics.misses,
+            sets=self._metrics.sets,
+            deletes=self._metrics.deletes,
+            evictions=l1_metrics.evictions + (l2_metrics.evictions if l2_metrics else 0),
+            size=l1_metrics.size + (l2_metrics.size if l2_metrics else 0),
+            memory_usage=l1_metrics.memory_usage + (l2_metrics.memory_usage if l2_metrics else 0)
+        )
+        
+        return combined_metrics
 
+class CacheFactory:
+    """Фабрика для создания кэшей."""
+    
+    @staticmethod
+    def create_cache(config: CacheConfig) -> CacheProtocol:
+        """Создание кэша согласно конфигурации."""
+        if config.redis_url:
+            if config.max_size > 0:
+                # Гибридный кэш
+                return HybridCache(config)
+            else:
+                # Только Redis
+                return RedisCache(config)
+        else:
+            # Только память
+            return MemoryCache(config)
 
 class CacheManager:
-    """Менеджер кэшей."""
-
+    """Менеджер кэшей с поддержкой множественных экземпляров."""
+    
     def __init__(self):
         self._caches: Dict[str, CacheProtocol] = {}
-        self._configs: Dict[str, CacheConfig] = {}
-
-    def register_cache(self, name: str, cache: CacheProtocol, config: CacheConfig) -> None:
-        """Регистрация кэша."""
+        self._default_config = CacheConfig()
+    
+    def register_cache(
+        self, 
+        name: str, 
+        config: Optional[CacheConfig] = None
+    ) -> CacheProtocol:
+        """Регистрация нового кэша."""
+        cache_config = config or self._default_config
+        cache = CacheFactory.create_cache(cache_config)
         self._caches[name] = cache
-        self._configs[name] = config
-        logger.info(f"Registered cache: {name}")
-
-    def get_cache(self, name: str) -> Optional[CacheProtocol]:
+        return cache
+    
+    def get_cache(self, name: str = "default") -> CacheProtocol:
         """Получение кэша по имени."""
-        return self._caches.get(name)
-
+        if name not in self._caches:
+            self._caches[name] = CacheFactory.create_cache(self._default_config)
+        return self._caches[name]
+    
     async def get_all_metrics(self) -> Dict[str, CacheMetrics]:
         """Получение метрик всех кэшей."""
         metrics = {}
         for name, cache in self._caches.items():
-            try:
-                metrics[name] = await cache.get_metrics()
-            except Exception as e:
-                logger.error(f"Error getting metrics for cache {name}: {e}")
+            metrics[name] = await cache.get_metrics()
         return metrics
-
-    async def clear_all_caches(self) -> None:
+    
+    async def clear_all(self) -> None:
         """Очистка всех кэшей."""
-        for name, cache in self._caches.items():
-            try:
-                await cache.clear()
-                logger.info(f"Cleared cache: {name}")
-            except Exception as e:
-                logger.error(f"Error clearing cache {name}: {e}")
-
+        for cache in self._caches.values():
+            await cache.clear()
 
 # Глобальный менеджер кэшей
-_cache_manager = CacheManager()
+cache_manager = CacheManager()
 
+# Регистрация кэша по умолчанию
+default_cache_config = CacheConfig(
+    max_size=10000,
+    default_ttl=3600,
+    compression=CompressionType.GZIP,
+    enable_metrics=True
+)
+cache_manager.register_cache("default", default_cache_config)
 
-def get_cache_manager() -> CacheManager:
-    """Получение глобального менеджера кэшей."""
-    return _cache_manager
+def cache_key(*args, **kwargs) -> str:
+    """Генерация ключа кэша из аргументов."""
+    key_parts = []
+    
+    # Добавляем позиционные аргументы
+    for arg in args:
+        if hasattr(arg, '__dict__'):
+            key_parts.append(str(hash(str(arg.__dict__))))
+        else:
+            key_parts.append(str(hash(str(arg))))
+    
+    # Добавляем именованные аргументы
+    for k, v in sorted(kwargs.items()):
+        key_parts.append(f"{k}:{hash(str(v))}")
+    
+    # Создаём хеш от всех частей
+    combined = ":".join(key_parts)
+    return hashlib.md5(combined.encode()).hexdigest()
 
-
-def create_cache(name: str, config: CacheConfig) -> CacheProtocol:
-    """Создание кэша."""
-    if config.cache_type == CacheType.MEMORY:
-        cache: CacheProtocol = MemoryCache(config)
-    elif config.cache_type == CacheType.REDIS:
-        cache = RedisCache(config)
-    elif config.cache_type == CacheType.DISK:
-        cache = DiskCache(config)
-    elif config.cache_type == CacheType.HYBRID:
-        cache = HybridCache(config)
-    else:
-        raise ValueError(f"Unsupported cache type: {config.cache_type}")
-    _cache_manager.register_cache(name, cache, config)
-    return cache
-
-
-def get_cache(name: str) -> Optional[CacheProtocol]:
-    """Получение кэша по имени."""
-    return _cache_manager.get_cache(name)
-
-
-# Утилиты для работы с кэшем
-def generate_cache_key(*args: Any, **kwargs: Any) -> str:
-    """Генерация ключа кэша."""
-    key_parts = [str(arg) for arg in args]
-    key_parts.extend(f"{k}:{v}" for k, v in sorted(kwargs.items()))
-    key_string = "|".join(key_parts)
-    return hashlib.md5(key_string.encode()).hexdigest()
-
-
-def cache_decorator(
-    cache_name: str,
-    ttl_seconds: Optional[int] = None,
-    key_generator: Optional[Callable] = None,
-) -> Callable[[Callable], Callable]:
-    """Декоратор для кэширования функций."""
-
-    def decorator(func: Callable) -> Callable:
-        async def wrapper(*args: Any, **kwargs: Any) -> Any:
-            cache = get_cache(cache_name)
-            if not cache:
-                return await func(*args, **kwargs)
-            # Генерируем ключ кэша
-            if key_generator:
-                cache_key = key_generator(*args, **kwargs)
+def cached(
+    ttl: Optional[int] = None,
+    cache_name: str = "default",
+    key_func: Optional[callable] = None,
+    tags: Optional[Set[str]] = None
+):
+    """Декоратор для кэширования результатов функций."""
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            cache = cache_manager.get_cache(cache_name)
+            
+            # Генерация ключа
+            if key_func:
+                cache_key_str = key_func(*args, **kwargs)
             else:
-                cache_key = generate_cache_key(func.__name__, *args, **kwargs)
-            # Пытаемся получить из кэша
-            cached_value = await cache.get(cache_key)
-            if cached_value is not None:
-                return cached_value
-            # Выполняем функцию и кэшируем результат
+                cache_key_str = f"{func.__module__}.{func.__name__}:{cache_key(*args, **kwargs)}"
+            
+            # Попытка получить из кэша
+            cached_result = await cache.get(cache_key_str)
+            if cached_result is not None:
+                return cached_result
+            
+            # Выполнение функции
             result = await func(*args, **kwargs)
-            await cache.set(cache_key, result, ttl_seconds)
+            
+            # Кэширование результата
+            await cache.set(cache_key_str, result, ttl)
+            
             return result
-
+        
         return wrapper
-
     return decorator
-
-
-class CacheableProtocol:
-    """Протокол для кэшируемых объектов."""
-
-    def get_cache_key(self) -> str:
-        """Получение ключа кэша."""
-        raise NotImplementedError
-
-    def get_cache_ttl(self) -> Optional[int]:
-        """Получение TTL для кэша."""
-        raise NotImplementedError
-
-    def is_cacheable(self) -> bool:
-        """Проверка возможности кэширования."""
-        return True
-
-
-# Специализированные кэши
-class MarketDataCache(MemoryCache):
-    """Кэш для рыночных данных."""
-
-    def __init__(self, config: CacheConfig):
-        super().__init__(config)
-
-    async def get_market_data(
-        self, symbol: str, timeframe: str, limit: int
-    ) -> Optional[Any]:
-        """Получение рыночных данных из кэша."""
-        cache_key = generate_cache_key("market_data", symbol, timeframe, limit)
-        return await self.get(cache_key)
-
-    async def set_market_data(
-        self,
-        symbol: str,
-        timeframe: str,
-        limit: int,
-        data: Any,
-        ttl_seconds: Optional[int] = None,
-    ) -> bool:
-        """Сохранение рыночных данных в кэш."""
-        cache_key = generate_cache_key("market_data", symbol, timeframe, limit)
-        return await self.set(cache_key, data, ttl_seconds)
-
-
-class StrategyCache(MemoryCache):
-    """Кэш для стратегий."""
-
-    def __init__(self, config: CacheConfig):
-        super().__init__(config)
-
-    async def get_strategy_result(
-        self, strategy_name: str, parameters: Dict[str, Any]
-    ) -> Optional[Any]:
-        """Получение результата стратегии из кэша."""
-        cache_key = generate_cache_key("strategy", strategy_name, parameters)
-        return await self.get(cache_key)
-
-    async def set_strategy_result(
-        self,
-        strategy_name: str,
-        parameters: Dict[str, Any],
-        result: Any,
-        ttl_seconds: Optional[int] = None,
-    ) -> bool:
-        """Сохранение результата стратегии в кэш."""
-        cache_key = generate_cache_key("strategy", strategy_name, parameters)
-        return await self.set(cache_key, result, ttl_seconds)
