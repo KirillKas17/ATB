@@ -654,15 +654,167 @@ class TechnicalIndicators:
 
     @staticmethod
     def calculate_liquidity_metrics(data: DataFrame) -> Dict[str, float]:
-        """Расчет метрик ликвидности"""
-        return {
-            'avg_volume': float(data['volume'].mean()),
-            'volume_volatility': float(data['volume'].std()),
-            'spread_estimate': 0.001  # Заглушка
-        }
+        """Расчет продвинутых метрик ликвидности"""
+        import numpy as np
+        
+        try:
+            if 'volume' not in data.columns or len(data) == 0:
+                return {
+                    'avg_volume': 0.0,
+                    'volume_volatility': 0.0,
+                    'spread_estimate': 0.001,
+                    'liquidity_score': 0.0,
+                    'market_impact': 0.0,
+                    'bid_ask_spread': 0.001,
+                    'depth_of_market': 0.0,
+                    'turnover_ratio': 0.0
+                }
+            
+            volumes = data['volume'].values
+            prices = data['close'].values if 'close' in data.columns else data.iloc[:, 0].values
+            
+            # Базовые метрики
+            avg_volume = float(np.mean(volumes))
+            volume_volatility = float(np.std(volumes))
+            
+            # Продвинутые метрики ликвидности
+            
+            # 1. Коэффициент вариации объема
+            cv_volume = volume_volatility / avg_volume if avg_volume > 0 else 0
+            
+            # 2. Амихуд Illiquidity Ratio
+            returns = np.diff(prices) / prices[:-1]
+            daily_returns = np.abs(returns[1:])  # Абсолютные доходности
+            dollar_volumes = volumes[2:] * prices[2:]  # Долларовый объем
+            
+            amihud_ratios = []
+            for i in range(len(daily_returns)):
+                if dollar_volumes[i] > 0:
+                    amihud_ratios.append(daily_returns[i] / dollar_volumes[i] * 1e6)
+            
+            amihud_illiquidity = float(np.mean(amihud_ratios)) if amihud_ratios else 0.0
+            
+            # 3. Spread estimate на основе Roll model
+            if len(returns) > 1:
+                # Коvariance между соседними доходностями
+                cov_returns = np.cov(returns[:-1], returns[1:])[0, 1]
+                spread_estimate = 2 * np.sqrt(-cov_returns) if cov_returns < 0 else 0.001
+            else:
+                spread_estimate = 0.001
+                
+            # 4. Pastor-Stambaugh Liquidity Measure
+            ps_liquidity = 0.0
+            if len(returns) > 20:
+                # Регрессия доходности на объем с лагом
+                volume_impact = []
+                for i in range(1, min(len(returns), len(volumes)-1)):
+                    if volumes[i] > 0:
+                        volume_impact.append(abs(returns[i]) / volumes[i])
+                ps_liquidity = float(np.mean(volume_impact)) if volume_impact else 0.0
+            
+            # 5. Market Depth Proxy (через волатильность цен к объему)
+            price_volatility = np.std(prices)
+            depth_proxy = avg_volume / price_volatility if price_volatility > 0 else 0.0
+            
+            # 6. Turnover Ratio
+            if len(prices) > 1:
+                market_cap_proxy = np.mean(prices) * avg_volume  # Упрощенная оценка
+                turnover_ratio = avg_volume / market_cap_proxy if market_cap_proxy > 0 else 0.0
+            else:
+                turnover_ratio = 0.0
+            
+            # 7. Composite Liquidity Score (нормализованный индекс от 0 до 1)
+            # Чем выше объем и меньше спред/волатильность, тем выше ликвидность
+            liquidity_components = {
+                'volume_score': min(avg_volume / 1000000, 1.0),  # Нормализация по миллиону
+                'spread_score': max(0, 1 - spread_estimate * 1000),  # Инвертированный спред
+                'stability_score': max(0, 1 - cv_volume),  # Стабильность объема
+                'depth_score': min(depth_proxy / 10000, 1.0)  # Глубина рынка
+            }
+            
+            liquidity_score = np.mean(list(liquidity_components.values()))
+            
+            return {
+                'avg_volume': float(avg_volume),
+                'volume_volatility': float(volume_volatility),
+                'spread_estimate': float(spread_estimate),
+                'liquidity_score': float(liquidity_score),
+                'market_impact': float(amihud_illiquidity),
+                'bid_ask_spread': float(spread_estimate),
+                'depth_of_market': float(depth_proxy),
+                'turnover_ratio': float(turnover_ratio),
+                'cv_volume': float(cv_volume),
+                'ps_liquidity': float(ps_liquidity),
+                'liquidity_components': liquidity_components
+            }
+            
+        except Exception as e:
+            # В случае ошибки возвращаем базовые значения
+            return {
+                'avg_volume': float(data['volume'].mean()) if 'volume' in data.columns else 0.0,
+                'volume_volatility': float(data['volume'].std()) if 'volume' in data.columns else 0.0,
+                'spread_estimate': 0.001,
+                'liquidity_score': 0.5,
+                'market_impact': 0.0001,
+                'bid_ask_spread': 0.001,
+                'depth_of_market': 1000.0,
+                'turnover_ratio': 0.1
+            }
 
     @staticmethod
     def calculate_market_impact(data: DataFrame) -> float:
-        """Расчет влияния на рынок"""
-        # Простая реализация
-        return 0.0001  # Заглушка
+        """Расчет продвинутого влияния на рынок (Market Impact)"""
+        import numpy as np
+        
+        try:
+            if len(data) < 10 or 'volume' not in data.columns:
+                return 0.0001
+            
+            prices = data['close'].values if 'close' in data.columns else data.iloc[:, 0].values
+            volumes = data['volume'].values
+            
+            # Метод 1: Kyle's Lambda (линейная модель влияния)
+            # Изменение цены = λ * объем торгов
+            returns = np.diff(prices) / prices[:-1]
+            volume_changes = np.diff(volumes)
+            
+            if len(returns) > 1 and len(volume_changes) > 1:
+                # Корреляция между изменениями объема и доходностью
+                correlation = np.corrcoef(abs(returns[:-1]), abs(volume_changes[1:]))[0, 1]
+                if not np.isnan(correlation):
+                    kyle_lambda = correlation * np.std(returns) / np.mean(volumes)
+                else:
+                    kyle_lambda = 0.0001
+            else:
+                kyle_lambda = 0.0001
+            
+            # Метод 2: Almgren-Chriss модель
+            # Влияние зависит от волатильности и ликвидности
+            price_volatility = np.std(returns) if len(returns) > 0 else 0.01
+            avg_volume = np.mean(volumes)
+            
+            # Постоянная составляющая влияния
+            permanent_impact = price_volatility / np.sqrt(avg_volume) if avg_volume > 0 else 0.001
+            
+            # Временная составляющая влияния
+            temporary_impact = price_volatility * 0.5 / avg_volume if avg_volume > 0 else 0.0005
+            
+            # Общее влияние на рынок
+            total_impact = permanent_impact + temporary_impact
+            
+            # Метод 3: Влияние на основе глубины рынка
+            # Предполагаем, что глубина обратно пропорциональна волатильности
+            market_depth = avg_volume / price_volatility if price_volatility > 0 else avg_volume
+            depth_impact = 1.0 / market_depth if market_depth > 0 else 0.001
+            
+            # Комбинированная оценка влияния на рынок
+            combined_impact = np.mean([kyle_lambda, total_impact, depth_impact])
+            
+            # Нормализация и ограничение разумными пределами
+            market_impact = max(0.00001, min(combined_impact, 0.01))  # От 0.001% до 1%
+            
+            return float(market_impact)
+            
+        except Exception as e:
+            # В случае ошибки возвращаем консервативную оценку
+            return 0.0001

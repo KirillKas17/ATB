@@ -986,12 +986,26 @@ class SignalProcessor:
                     "timestamp": signal.get("timestamp")
                 })
         
+        # Расчет продвинутых метрик производительности
+        
+        profit_factor = self._calculate_profit_factor(trades)
+        sharpe_ratio = self._calculate_sharpe_ratio([t["return"] for t in trades])
+        max_drawdown = self._calculate_max_drawdown([t["return"] for t in trades])
+        sortino_ratio = self._calculate_sortino_ratio([t["return"] for t in trades])
+        calmar_ratio = self._calculate_calmar_ratio([t["return"] for t in trades])
+        
         return {
             "total_return": total_return,
             "signal_accuracy": wins / len(trades) if trades else 0.0,
-            "profit_factor": 1.5,  # Заглушка
+            "profit_factor": profit_factor,
             "win_rate": wins / len(trades) if trades else 0.0,
-            "trades": trades
+            "sharpe_ratio": sharpe_ratio,
+            "sortino_ratio": sortino_ratio,
+            "max_drawdown": max_drawdown,
+            "calmar_ratio": calmar_ratio,
+            "trades": trades,
+            "avg_win": np.mean([t["return"] for t in trades if t["return"] > 0]) if any(t["return"] > 0 for t in trades) else 0.0,
+            "avg_loss": np.mean([t["return"] for t in trades if t["return"] < 0]) if any(t["return"] < 0 for t in trades) else 0.0
         }
 
     def optimize_signal_parameters(self, market_data: pd.DataFrame) -> Dict[str, Any]:
@@ -1035,9 +1049,213 @@ class SignalProcessor:
         return alerts
 
     def get_signal_history(self, symbol: str, timeframe: str = "1h") -> List[Dict[str, Any]]:
-        """Получение истории сигналов."""
-        # Заглушка - возвращаем пустую историю
-        return []
+        """Получение продвинутой истории сигналов с аналитикой."""
+        try:
+            # Фильтрация сигналов по символу и времени
+            filtered_signals = []
+            current_time = datetime.now()
+            
+            for signal in self.signals:
+                signal_time = signal.get("timestamp", current_time)
+                if isinstance(signal_time, str):
+                    try:
+                        signal_time = datetime.fromisoformat(signal_time.replace('Z', '+00:00'))
+                    except:
+                        signal_time = current_time
+                
+                # Фильтр по символу
+                if signal.get("symbol") == symbol:
+                    # Добавляем дополнительную аналитику
+                    enhanced_signal = signal.copy()
+                    enhanced_signal.update({
+                        "age_hours": (current_time - signal_time).total_seconds() / 3600,
+                        "relevance_score": self._calculate_signal_relevance(signal, current_time),
+                        "confidence_trend": self._calculate_confidence_trend(signal),
+                        "performance_impact": self._estimate_performance_impact(signal)
+                    })
+                    filtered_signals.append(enhanced_signal)
+            
+            # Сортировка по времени (новые первыми)
+            filtered_signals.sort(key=lambda x: x.get("timestamp", current_time), reverse=True)
+            
+            # Ограничение количества для производительности
+            return filtered_signals[:100]
+            
+        except Exception as e:
+            logger.error(f"Error getting signal history: {e}")
+            return []
+
+    def _calculate_signal_relevance(self, signal: Dict[str, Any], current_time: datetime) -> float:
+        """Расчет релевантности сигнала."""
+        try:
+            signal_time = signal.get("timestamp", current_time)
+            if isinstance(signal_time, str):
+                signal_time = datetime.fromisoformat(signal_time.replace('Z', '+00:00'))
+            
+            # Время разложения релевантности (сигнал теряет актуальность)
+            hours_passed = (current_time - signal_time).total_seconds() / 3600
+            
+            # Экспоненциальное затухание релевантности
+            decay_rate = 0.1  # Половина релевантности теряется за ~7 часов
+            relevance = np.exp(-decay_rate * hours_passed)
+            
+            # Учет силы сигнала
+            strength = signal.get("strength", 0.5)
+            confidence = signal.get("confidence", 0.5)
+            
+            # Комбинированная релевантность
+            combined_relevance = relevance * (0.6 * strength + 0.4 * confidence)
+            
+            return float(max(0.0, min(1.0, combined_relevance)))
+            
+        except Exception:
+            return 0.5
+
+    def _calculate_confidence_trend(self, signal: Dict[str, Any]) -> str:
+        """Определение тренда уверенности в сигнале."""
+        try:
+            confidence = signal.get("confidence", 0.5)
+            
+            if confidence > 0.8:
+                return "high"
+            elif confidence > 0.6:
+                return "medium"
+            elif confidence > 0.4:
+                return "low"
+            else:
+                return "very_low"
+                
+        except Exception:
+            return "unknown"
+
+    def _estimate_performance_impact(self, signal: Dict[str, Any]) -> Dict[str, float]:
+        """Оценка потенциального влияния сигнала на производительность."""
+        try:
+            signal_type = signal.get("type", "unknown")
+            strength = signal.get("strength", 0.5)
+            confidence = signal.get("confidence", 0.5)
+            
+            # Базовые оценки влияния для разных типов сигналов
+            impact_multipliers = {
+                "buy": 1.0,
+                "sell": -1.0,
+                "strong_buy": 1.5,
+                "strong_sell": -1.5,
+                "hold": 0.0
+            }
+            
+            base_impact = impact_multipliers.get(signal_type, 0.0)
+            
+            # Модификация влияния на основе силы и уверенности
+            adjusted_impact = base_impact * strength * confidence
+            
+            # Оценка риска
+            risk_score = 1.0 - confidence  # Чем меньше уверенности, тем больше риск
+            
+            # Ожидаемая доходность (упрощенная модель)
+            expected_return = adjusted_impact * 0.02  # До 2% ожидаемой доходности
+            
+            return {
+                "expected_return": float(expected_return),
+                "risk_score": float(risk_score),
+                "impact_magnitude": float(abs(adjusted_impact)),
+                "direction": 1.0 if adjusted_impact > 0 else -1.0 if adjusted_impact < 0 else 0.0
+            }
+            
+        except Exception:
+            return {
+                "expected_return": 0.0,
+                "risk_score": 0.5,
+                "impact_magnitude": 0.0,
+                "direction": 0.0
+            }
+
+    def _calculate_profit_factor(self, trades: List[Dict[str, Any]]) -> float:
+        """Расчет профит-фактора."""
+        try:
+            profits = [t["return"] for t in trades if t["return"] > 0]
+            losses = [abs(t["return"]) for t in trades if t["return"] < 0]
+            
+            total_profit = sum(profits) if profits else 0.0
+            total_loss = sum(losses) if losses else 0.001  # Избегаем деления на ноль
+            
+            return total_profit / total_loss if total_loss > 0 else 0.0
+            
+        except Exception:
+            return 1.0
+
+    def _calculate_sharpe_ratio(self, returns: List[float]) -> float:
+        """Расчет коэффициента Шарпа."""
+        try:
+            if not returns or len(returns) < 2:
+                return 0.0
+            
+            returns_array = np.array(returns)
+            mean_return = np.mean(returns_array)
+            std_return = np.std(returns_array)
+            
+            # Предполагаем безрисковую ставку 0% для упрощения
+            sharpe = mean_return / std_return if std_return > 0 else 0.0
+            
+            return float(sharpe)
+            
+        except Exception:
+            return 0.0
+
+    def _calculate_sortino_ratio(self, returns: List[float]) -> float:
+        """Расчет коэффициента Сортино."""
+        try:
+            if not returns or len(returns) < 2:
+                return 0.0
+            
+            returns_array = np.array(returns)
+            mean_return = np.mean(returns_array)
+            
+            # Только отрицательные отклонения (downside deviation)
+            negative_returns = returns_array[returns_array < 0]
+            if len(negative_returns) == 0:
+                return float('inf') if mean_return > 0 else 0.0
+            
+            downside_deviation = np.std(negative_returns)
+            sortino = mean_return / downside_deviation if downside_deviation > 0 else 0.0
+            
+            return float(sortino)
+            
+        except Exception:
+            return 0.0
+
+    def _calculate_max_drawdown(self, returns: List[float]) -> float:
+        """Расчет максимальной просадки."""
+        try:
+            if not returns:
+                return 0.0
+            
+            cumulative_returns = np.cumsum(returns)
+            running_max = np.maximum.accumulate(cumulative_returns)
+            drawdown = cumulative_returns - running_max
+            
+            max_drawdown = np.min(drawdown) if len(drawdown) > 0 else 0.0
+            
+            return float(max_drawdown)
+            
+        except Exception:
+            return 0.0
+
+    def _calculate_calmar_ratio(self, returns: List[float]) -> float:
+        """Расчет коэффициента Кальмара."""
+        try:
+            if not returns:
+                return 0.0
+            
+            annual_return = np.mean(returns) * 252  # Предполагаем 252 торговых дня
+            max_drawdown = abs(self._calculate_max_drawdown(returns))
+            
+            calmar = annual_return / max_drawdown if max_drawdown > 0 else 0.0
+            
+            return float(calmar)
+            
+        except Exception:
+            return 0.0
     
     def cleanup(self) -> None:
         """Очистка ресурсов процессора сигналов."""
