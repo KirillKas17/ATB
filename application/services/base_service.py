@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, Dict, Optional
-from shared.base_service import SharedBaseService
+from shared.abstractions.base_service import BaseService
 
 try:
     import psutil
@@ -30,7 +30,7 @@ class ServiceMetrics:
     cpu_usage_percent: float = 0.0
 
 
-class BaseApplicationService(SharedBaseService, ABC):
+class BaseApplicationService(BaseService, ABC):
     """Базовый класс для всех сервисов application слоя."""
 
     def __init__(self, service_name: str, config: Optional[Dict[str, Any]] = None):

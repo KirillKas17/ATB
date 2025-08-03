@@ -25,7 +25,7 @@ from domain.evolution.strategy_model import (
     IndicatorType,
     StrategyCandidate,
 )
-from domain.evolution.strategy_types import EvolutionContext  # type: ignore[import-not-found]
+from domain.evolution.strategy_model import EvolutionContext  # type: ignore[import-not-found]
 from domain.types.evolution_types import FilterParameters, IndicatorParameters
 
 

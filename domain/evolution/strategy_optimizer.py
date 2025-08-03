@@ -12,12 +12,14 @@ import pandas as pd
 from scipy.optimize import minimize
 
 from domain.types.evolution_types import (
-    StrategyCandidate,
-    EvolutionContext,
     IndicatorParameters,
     FilterParameters,
     EntryCondition,
     ExitCondition,
+)
+from domain.evolution.strategy_model import (
+    StrategyCandidate,
+    EvolutionContext,
 )
 
 # Mock для optuna
@@ -37,7 +39,7 @@ class optuna_mock:
             self.direction = direction
             self.trials: List[Any] = []
 
-        def optimize(self, objective: Callable[[optuna_mock.Trial], float], n_trials: int) -> None:
+        def optimize(self, objective, n_trials: int) -> None:
             for _ in range(n_trials):
                 trial = optuna_mock.Trial()
                 objective(trial)

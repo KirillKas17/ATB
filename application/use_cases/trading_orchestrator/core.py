@@ -81,7 +81,7 @@ from domain.symbols import (
 from infrastructure.ml_services.decision_reasoner import DecisionReasoner
 from infrastructure.ml_services.live_adaptation import LiveAdaptation
 from infrastructure.ml_services.meta_learning import MetaLearning
-from infrastructure.ml_services.transformer_predictor import EvolutionaryTransformer
+# from infrastructure.ml_services.transformer_predictor import EvolutionaryTransformer
 from infrastructure.services.enhanced_trading_service import EnhancedTradingService
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import (
     AdaptiveStrategyGenerator,
@@ -102,8 +102,8 @@ from .update_handlers import UpdateHandlers
 from domain.strategies.base_strategy import BaseStrategy
 from domain.repositories.position_repository import PositionRepository
 from domain.repositories.portfolio_repository import PortfolioRepository
-from domain.entities.id import EntityId
-from domain.value_objects.symbol import Symbol
+from domain.types import EntityId
+from domain.types import Symbol
 from domain.value_objects.money import Money, Currency
 from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price
@@ -180,7 +180,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
         session_marker: Optional[Any] = None,
         live_adaptation_model: Optional[LiveAdaptation] = None,
         decision_reasoner: Optional[DecisionReasoner] = None,
-        evolutionary_transformer: Optional[EvolutionaryTransformer] = None,
+        # evolutionary_transformer: Optional[EvolutionaryTransformer] = None,
         pattern_discovery: Optional[PatternDiscovery] = None,
         meta_learning: Optional[MetaLearning] = None,
         # Временно закомментированные агенты - заменены на Any

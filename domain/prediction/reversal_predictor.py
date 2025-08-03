@@ -31,7 +31,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume_profile import VolumeProfile
-from infrastructure.data.price_pattern_extractor import PricePatternExtractor
+from domain.interfaces.price_pattern_extractor import PricePatternExtractor
 
 
 class ReversalPredictor:

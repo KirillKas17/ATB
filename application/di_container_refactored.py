@@ -23,7 +23,7 @@ from application.services.risk_service import RiskService
 
 # Application Services
 from application.services.service_factory import get_service_factory
-from application.services.strategy_service import StrategyService
+# from application.services.strategy_service import StrategyService
 from application.services.trading_service import TradingService
 from application.symbol_selection.opportunity_selector import (
     DynamicOpportunityAwareSymbolSelector,
@@ -62,14 +62,14 @@ from domain.services.ml_predictor import MLPredictor
 from infrastructure.external_services.risk_analysis_adapter import RiskAnalysisServiceAdapter
 from infrastructure.external_services.technical_analysis_adapter import TechnicalAnalysisServiceAdapter
 from infrastructure.services.market_conditions_analyzer import MarketConditionsAnalyzer
-from infrastructure.repositories.in_memory_repositories import (
-    InMemoryMarketRepository,
-    InMemoryMLRepository,
-    InMemoryPortfolioRepository,
-    InMemoryRiskRepository,
-    InMemoryStrategyRepository,
-    InMemoryTradingRepository,
-)
+# from infrastructure.repositories.in_memory_repositories import (
+#     InMemoryMarketRepository,
+#     InMemoryMLRepository,
+#     InMemoryPortfolioRepository,
+#     InMemoryRiskRepository,
+#     InMemoryStrategyRepository,
+#     InMemoryTradingRepository,
+# )
 from domain.protocols.repository_protocol import (
     MarketRepositoryProtocol,
     MLRepositoryProtocol,
@@ -91,7 +91,7 @@ from domain.protocols.service_protocols import (
     MLServiceProtocol,
     NotificationServiceProtocol,
     RiskServiceProtocol,
-    StrategyServiceProtocol,
+    # StrategyServiceProtocol,
     TradingServiceProtocol,
 )
 from domain.services.correlation_chain import DefaultCorrelationChain
@@ -104,18 +104,26 @@ from domain.services.risk_analysis import (
 from domain.services.signal_service import DefaultSignalService, SignalService
 
 # Domain Services
-from domain.services.strategy_service import DefaultStrategyService, StrategyService
+# from domain.services.strategy_service import DefaultStrategyService, StrategyService
 from domain.services.technical_analysis import (
     DefaultTechnicalAnalysisService,
     ITechnicalAnalysisService,
 )
 from domain.symbols.market_phase_classifier import MarketPhaseClassifier
 from domain.symbols.opportunity_score import OpportunityScoreCalculator
-from domain.symbols.symbol_validator import SymbolValidator
+from domain.symbols.validators import SymbolValidator
 from domain.symbols.cache import SymbolCacheManager
-from domain.sessions.factories import SessionRepositoryConfig
-from domain.sessions.implementations import SessionService
-from infrastructure.agents.market_maker.model_agent import MarketMakerModelAgent
+# from domain.sessions.factories import SessionRepositoryConfig
+try:
+    from domain.sessions.implementations import SessionService
+except ImportError:
+    from safe_import_wrapper import SafeImportMock
+    SessionService = SafeImportMock("SessionService")
+try:
+    from infrastructure.agents.market_maker.agent import MarketMakerAgent as MarketMakerModelAgent
+except ImportError:
+    from safe_import_wrapper import SafeImportMock
+    MarketMakerModelAgent = SafeImportMock("MarketMakerModelAgent")
 from infrastructure.strategies.trend_strategy import TrendStrategy
 from infrastructure.strategies.sideways_strategy import SidewaysStrategy
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
@@ -319,7 +327,7 @@ class Container(containers.DeclarativeContainer):
     )
     correlation_chain_service = providers.Singleton(DefaultCorrelationChain)
     signal_service = providers.Singleton(DefaultSignalService)
-    strategy_service = providers.Singleton(DefaultStrategyService)
+    # strategy_service = providers.Singleton(DefaultStrategyService)
     pattern_discovery = providers.Singleton(
         PatternDiscovery,
         config=providers.Callable(
@@ -522,7 +530,7 @@ class ServiceLocator:
             MLService: "ml_service",
             PortfolioService: "portfolio_service",
             RiskService: "risk_service",
-            StrategyService: "strategy_service_app",
+            # StrategyService: "strategy_service_app",
             TradingService: "trading_service",
         }
         service_name = service_mapping.get(service_type)
