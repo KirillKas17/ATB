@@ -292,53 +292,107 @@ class DefaultServiceFactory(ServiceFactory):
 
     def _get_risk_repository(self):
         """Получить репозиторий рисков."""
-        # Заглушка для репозитория рисков
-        return None
+        try:
+            from infrastructure.repositories.risk_repository import RiskRepositoryImpl
+            return RiskRepositoryImpl()
+        except ImportError:
+            self.logger.warning("RiskRepository not available, using mock")
+            from application.safe_services import SafeRiskService
+            return SafeRiskService()
 
     def _get_technical_analysis_service(self):
         """Получить сервис технического анализа."""
-        # Заглушка для сервиса технического анализа
-        return None
+        try:
+            from infrastructure.services.technical_analysis_service import TechnicalAnalysisService
+            return TechnicalAnalysisService()
+        except ImportError:
+            self.logger.warning("TechnicalAnalysisService not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("TechnicalAnalysisService")
 
     def _get_market_metrics_service(self):
         """Получить сервис рыночных метрик."""
-        # Заглушка для сервиса рыночных метрик
-        return None
+        try:
+            from infrastructure.services.market_metrics_service import MarketMetricsService
+            return MarketMetricsService()
+        except ImportError:
+            self.logger.warning("MarketMetricsService not available, using market service")
+            try:
+                from application.services.implementations.market_service_impl import MarketServiceImpl
+                return MarketServiceImpl()
+            except ImportError:
+                from application.safe_services import SafeMarketService
+                return SafeMarketService()
 
     def _get_market_repository(self):
         """Получить репозиторий рынка."""
-        # Заглушка для репозитория рынка
-        return None
+        try:
+            from infrastructure.repositories.market_repository import MarketRepositoryImpl
+            return MarketRepositoryImpl()
+        except ImportError:
+            self.logger.warning("MarketRepository not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("MarketRepository")
 
     def _get_ml_predictor(self):
         """Получить ML предиктор."""
-        # Заглушка для ML предиктора
-        return None
+        try:
+            from infrastructure.ml_services.predictor import MLPredictor
+            return MLPredictor()
+        except ImportError:
+            self.logger.warning("MLPredictor not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("MLPredictor")
 
     def _get_ml_repository(self):
         """Получить ML репозиторий."""
-        # Заглушка для ML репозитория
-        return None
+        try:
+            from infrastructure.repositories.ml_repository import MLRepositoryImpl
+            return MLRepositoryImpl()
+        except ImportError:
+            self.logger.warning("MLRepository not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("MLRepository")
 
     def _get_signal_service(self):
         """Получить сервис сигналов."""
-        # Заглушка для сервиса сигналов
-        return None
+        try:
+            from infrastructure.services.signal_service import SignalService
+            return SignalService()
+        except ImportError:
+            self.logger.warning("SignalService not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("SignalService")
 
     def _get_trading_repository(self):
         """Получить торговый репозиторий."""
-        # Заглушка для торгового репозитория
-        return None
+        try:
+            from infrastructure.repositories.trading_repository import TradingRepositoryImpl
+            return TradingRepositoryImpl()
+        except ImportError:
+            self.logger.warning("TradingRepository not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("TradingRepository")
 
     def _get_portfolio_optimizer(self):
         """Получить оптимизатор портфеля."""
-        # Заглушка для оптимизатора портфеля
-        return None
+        try:
+            from infrastructure.agents.portfolio.optimizers import PortfolioOptimizer
+            return PortfolioOptimizer()
+        except ImportError:
+            self.logger.warning("PortfolioOptimizer not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("PortfolioOptimizer")
 
     def _get_portfolio_repository(self):
         """Получить репозиторий портфеля."""
-        # Заглушка для репозитория портфеля
-        return None
+        try:
+            from infrastructure.repositories.portfolio_repository import PortfolioRepositoryImpl
+            return PortfolioRepositoryImpl()
+        except ImportError:
+            self.logger.warning("PortfolioRepository not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("PortfolioRepository")
 
     def get_service_instance(self, service_type: str) -> Optional[Any]:
         """Получить экземпляр сервиса по типу."""
