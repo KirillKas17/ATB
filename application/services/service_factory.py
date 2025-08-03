@@ -291,53 +291,73 @@ class DefaultServiceFactory(ServiceFactory):
 
     def _get_risk_repository(self):
         """Получить репозиторий рисков."""
-        # Заглушка для репозитория рисков
-        return None
+        from infrastructure.repositories.risk_repository import RiskRepository
+        if not hasattr(self, '_risk_repository'):
+            self._risk_repository = RiskRepository()
+        return self._risk_repository
 
     def _get_technical_analysis_service(self):
         """Получить сервис технического анализа."""
-        # Заглушка для сервиса технического анализа
-        return None
+        from infrastructure.services.technical_analysis_service import TechnicalAnalysisService
+        if not hasattr(self, '_technical_analysis_service'):
+            self._technical_analysis_service = TechnicalAnalysisService()
+        return self._technical_analysis_service
 
     def _get_market_metrics_service(self):
         """Получить сервис рыночных метрик."""
-        # Заглушка для сервиса рыночных метрик
-        return None
+        from infrastructure.services.market_metrics_service import MarketMetricsService
+        if not hasattr(self, '_market_metrics_service'):
+            self._market_metrics_service = MarketMetricsService()
+        return self._market_metrics_service
 
     def _get_market_repository(self):
         """Получить репозиторий рынка."""
-        # Заглушка для репозитория рынка
-        return None
+        from infrastructure.repositories.market_repository import MarketRepository
+        if not hasattr(self, '_market_repository'):
+            self._market_repository = MarketRepository()
+        return self._market_repository
 
     def _get_ml_predictor(self):
         """Получить ML предиктор."""
-        # Заглушка для ML предиктора
-        return None
+        from infrastructure.ml_services.predictor import MLPredictor
+        if not hasattr(self, '_ml_predictor'):
+            self._ml_predictor = MLPredictor()
+        return self._ml_predictor
 
     def _get_ml_repository(self):
         """Получить ML репозиторий."""
-        # Заглушка для ML репозитория
-        return None
+        from infrastructure.repositories.ml_repository import MLRepository
+        if not hasattr(self, '_ml_repository'):
+            self._ml_repository = MLRepository()
+        return self._ml_repository
 
     def _get_signal_service(self):
         """Получить сервис сигналов."""
-        # Заглушка для сервиса сигналов
-        return None
+        from infrastructure.services.signal_service import SignalService
+        if not hasattr(self, '_signal_service'):
+            self._signal_service = SignalService()
+        return self._signal_service
 
     def _get_trading_repository(self):
         """Получить торговый репозиторий."""
-        # Заглушка для торгового репозитория
-        return None
+        from infrastructure.repositories.trading.order_repository import OrderRepository
+        if not hasattr(self, '_trading_repository'):
+            self._trading_repository = OrderRepository()
+        return self._trading_repository
 
     def _get_portfolio_optimizer(self):
         """Получить оптимизатор портфеля."""
-        # Заглушка для оптимизатора портфеля
-        return None
+        from infrastructure.services.portfolio_optimizer import PortfolioOptimizer
+        if not hasattr(self, '_portfolio_optimizer'):
+            self._portfolio_optimizer = PortfolioOptimizer()
+        return self._portfolio_optimizer
 
     def _get_portfolio_repository(self):
         """Получить репозиторий портфеля."""
-        # Заглушка для репозитория портфеля
-        return None
+        from infrastructure.repositories.portfolio_repository import PortfolioRepository
+        if not hasattr(self, '_portfolio_repository'):
+            self._portfolio_repository = PortfolioRepository()
+        return self._portfolio_repository
 
     def get_service_instance(self, service_type: str) -> Optional[Any]:
         """Получить экземпляр сервиса по типу."""

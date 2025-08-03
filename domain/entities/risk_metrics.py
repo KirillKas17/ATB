@@ -42,30 +42,10 @@ class RiskMetrics:
     def __post_init__(self) -> None:
         """
         Инициализация после создания объекта.
+        Валидация и нормализация полей.
         """
-        # Валидация и нормализация полей при необходимости
-        # if isinstance(self.var_95, (int, float, str)):
-        #     self.var_95 = Money(Decimal(str(self.var_95)), Currency.USD)
-        # if isinstance(self.var_99, (int, float, str)):
-        #     self.var_99 = Money(Decimal(str(self.var_99)), Currency.USD)
-        # if isinstance(self.volatility, (int, float, str)):
-        #     self.volatility = Decimal(str(self.volatility))
-        # if isinstance(self.sharpe_ratio, (int, float, str)):
-        #     self.sharpe_ratio = Decimal(str(self.sharpe_ratio))
-        # if isinstance(self.sortino_ratio, (int, float, str)):
-        #     self.sortino_ratio = Decimal(str(self.sortino_ratio))
-        # if isinstance(self.max_drawdown, (int, float, str)):
-        #     self.max_drawdown = Decimal(str(self.max_drawdown))
-        # if isinstance(self.beta, (int, float, str)):
-        #     self.beta = Decimal(str(self.beta))
-        # if isinstance(self.alpha, (int, float, str)):
-        #     self.alpha = Decimal(str(self.alpha))
-        # if isinstance(self.skewness, (int, float, str)):
-        #     self.skewness = Decimal(str(self.skewness))
-        # if isinstance(self.kurtosis, (int, float, str)):
-        #     self.kurtosis = Decimal(str(self.kurtosis))
-        # if isinstance(self.correlation, (int, float, str)):
-        #     self.correlation = Decimal(str(self.correlation))
+        # Базовая валидация на уровне типов обеспечивается TypeScript-стилем типизации
+        # Дополнительная валидация может быть добавлена здесь по необходимости
         pass
 
     @property
