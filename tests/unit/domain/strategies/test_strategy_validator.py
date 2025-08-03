@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 from uuid import uuid4
 from domain.strategies import get_strategy_validator
 from domain.entities.strategy import StrategyType
