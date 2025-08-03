@@ -367,7 +367,7 @@ class StrategyPerformanceCalculator:
         """Добавить сделку."""
         self.trades.append(trade)
         # Обновляем кривую капитала
-        if self.equity_curve:
+        if self.equity_curve and len(self.equity_curve) > 0:
             last_equity = self.equity_curve[-1]
             new_equity = last_equity + trade.get("pnl", Decimal("0"))
         else:
@@ -797,7 +797,10 @@ def calculate_ema(prices: List[float], period: int) -> List[float]:
     multiplier = 2.0 / (period + 1)
     ema_values = [prices[0]]
     for i in range(1, len(prices)):
-        ema = (prices[i] * multiplier) + (ema_values[-1] * (1 - multiplier))
+        if len(ema_values) > 0:
+            ema = (prices[i] * multiplier) + (ema_values[-1] * (1 - multiplier))
+        else:
+            ema = prices[i]  # Fallback если ema_values пуст
         ema_values.append(ema)
     return ema_values
 

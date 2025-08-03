@@ -299,29 +299,37 @@ class MarketAnalysisProtocolImpl(ABC):
         # RSI с множественными периодами
         for period in [14, 21, 50]:
             rsi = await self._calculate_rsi(data, period)
-            signal = self._interpret_rsi(rsi[-1])
-            indicators[f"rsi_{period}"] = TechnicalIndicator(
-                name=f"RSI_{period}",
-                value=float(rsi[-1]),
-                signal=signal,
-                strength=self._calculate_signal_strength(rsi, signal),
-                confidence=self._calculate_indicator_confidence(rsi, period),
-                timestamp=datetime.now(),
-                parameters={"period": period}
-            )
+            if len(rsi) > 0:
+                rsi_value = rsi[-1]
+                signal = self._interpret_rsi(rsi_value)
+                indicators[f"rsi_{period}"] = TechnicalIndicator(
+                    name=f"RSI_{period}",
+                    value=float(rsi_value),
+                    signal=signal,
+                    strength=self._calculate_signal_strength(rsi, signal),
+                    confidence=self._calculate_indicator_confidence(rsi, period),
+                    timestamp=datetime.now(),
+                    parameters={"period": period}
+                )
+            else:
+                logger.warning(f"RSI calculation returned empty result for period {period}")
+                continue
 
         # MACD с оптимизацией
         macd_data = await self._calculate_macd(data)
-        macd_signal = self._interpret_macd(macd_data)
-        indicators["macd"] = TechnicalIndicator(
-            name="MACD",
-            value=float(macd_data["macd"][-1]),
-            signal=macd_signal,
-            strength=self._calculate_signal_strength(macd_data["macd"], macd_signal),
-            confidence=self._calculate_macd_confidence(macd_data),
-            timestamp=datetime.now(),
-            parameters={"fast": 12, "slow": 26, "signal": 9}
-        )
+        if macd_data and "macd" in macd_data and len(macd_data["macd"]) > 0:
+            macd_signal = self._interpret_macd(macd_data)
+            indicators["macd"] = TechnicalIndicator(
+                name="MACD",
+                value=float(macd_data["macd"][-1]),
+                signal=macd_signal,
+                strength=self._calculate_signal_strength(macd_data["macd"], macd_signal),
+                confidence=self._calculate_macd_confidence(macd_data),
+                timestamp=datetime.now(),
+                parameters={"fast": 12, "slow": 26, "signal": 9}
+            )
+        else:
+            logger.warning("MACD calculation returned empty or invalid result")
 
         # Bollinger Bands с динамическими параметрами
         bb_data = await self._calculate_bollinger_bands(data)

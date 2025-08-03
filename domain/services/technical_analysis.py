@@ -262,9 +262,16 @@ class TechnicalAnalysisService(TechnicalAnalysisProtocol):
         delta = prices_float.diff()
         gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
         loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+        
+        # Защита от деления на ноль
+        loss = loss.replace(0, np.nan)
         rs = gain / loss
+        rs = rs.fillna(0)  # Если loss=0, то rs=0 (нет потерь -> RSI=100)
+        
+        # Защита от деления на ноль в финальной формуле
         rsi = 100 - (100 / (1 + rs))
-        return rsi.fillna(50)  # Заполняем NaN значения
+        rsi = rsi.fillna(100)  # Если rs=0, то RSI=100
+        return rsi.fillna(50)  # Заполняем оставшиеся NaN значения
 
     def calculate_macd(
         self, prices: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9

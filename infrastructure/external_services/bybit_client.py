@@ -291,9 +291,9 @@ class BybitClient(ExchangeProtocol):
             if self.exchange_service:
                 return await self.exchange_service.calculate_commission(order_value, order_type)
             # Временное решение
-            commission_rate = 0.001  # 0.1%
-            commission_amount = float(order_value.amount) * commission_rate
-            return Money(amount=Decimal(commission_amount), currency=order_value.currency)
+            commission_rate = Decimal('0.001')  # 0.1%
+            commission_amount = order_value.amount * commission_rate
+            return Money(amount=commission_amount, currency=order_value.currency)
         except Exception as e:
             raise ExchangeError(f"Failed to calculate commission: {e}")
 
