@@ -76,6 +76,15 @@ class IntegratedTradingSystem:
             # Инициализация риск-менеджмента
             await self._initialize_risk_management()
             
+            # Инициализация эволюционных систем
+            await self._initialize_evolution_systems()
+            
+            # Инициализация управления сессиями
+            await self._initialize_session_management()
+            
+            # Инициализация симуляции и backtesting
+            await self._initialize_simulation_systems()
+            
             logger.info("🎉 Система успешно инициализирована!")
             return True
             
@@ -100,6 +109,18 @@ class IntegratedTradingSystem:
         self.services["market"] = self.service_locator.market_service()
         logger.info(f"✅ Рыночный сервис: {type(self.services['market']).__name__}")
         
+        # Agent Context - ядро агентной архитектуры
+        try:
+            from infrastructure.agents.agent_context_refactored import AgentContext
+            self.services["agent_context"] = AgentContext()
+            logger.info("✅ Agent Context инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Agent Context недоступен: {e}")
+            self.services["agent_context"] = safe_import("safe_import_wrapper", "SafeImportMock")("AgentContext")
+        
+        # Репозитории данных
+        await self._initialize_repositories()
+        
         # Дополнительные сервисы (с безопасными импортами)
         try:
             from application.services.service_factory import ServiceFactory
@@ -112,6 +133,46 @@ class IntegratedTradingSystem:
             logger.info("✅ Дополнительные сервисы инициализированы")
         except Exception as e:
             logger.warning(f"⚠️ Некоторые сервисы недоступны: {e}")
+    
+    async def _initialize_repositories(self):
+        """Инициализация репозиториев данных"""
+        logger.info("🗄️ Инициализация репозиториев...")
+        
+        # Market Repository
+        try:
+            from infrastructure.repositories.market_repository import MarketRepositoryImpl
+            self.services["market_repository"] = MarketRepositoryImpl()
+            logger.info("✅ Market Repository инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Market Repository недоступен: {e}")
+            self.services["market_repository"] = safe_import("safe_import_wrapper", "SafeImportMock")("MarketRepository")
+        
+        # Trading Repository
+        try:
+            from infrastructure.repositories.trading_repository import TradingRepositoryImpl
+            self.services["trading_repository"] = TradingRepositoryImpl()
+            logger.info("✅ Trading Repository инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Trading Repository недоступен: {e}")
+            self.services["trading_repository"] = safe_import("safe_import_wrapper", "SafeImportMock")("TradingRepository")
+        
+        # Portfolio Repository
+        try:
+            from infrastructure.repositories.portfolio_repository import PortfolioRepositoryImpl
+            self.services["portfolio_repository"] = PortfolioRepositoryImpl()
+            logger.info("✅ Portfolio Repository инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Portfolio Repository недоступен: {e}")
+            self.services["portfolio_repository"] = safe_import("safe_import_wrapper", "SafeImportMock")("PortfolioRepository")
+        
+        # ML Repository
+        try:
+            from infrastructure.repositories.ml_repository import MLRepositoryImpl
+            self.services["ml_repository"] = MLRepositoryImpl()
+            logger.info("✅ ML Repository инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ ML Repository недоступен: {e}")
+            self.services["ml_repository"] = safe_import("safe_import_wrapper", "SafeImportMock")("MLRepository")
     
     async def _initialize_strategies(self):
         """Инициализация торговых стратегий"""
@@ -155,6 +216,33 @@ class IntegratedTradingSystem:
         """Инициализация системы мониторинга"""
         logger.info("📊 Инициализация системы мониторинга...")
         
+        # Event Bus - ядро event-driven архитектуры
+        try:
+            from infrastructure.messaging.event_bus import EventBus
+            self.services["event_bus"] = EventBus()
+            logger.info("✅ Event Bus инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Event Bus недоступен: {e}")
+            self.services["event_bus"] = safe_import("safe_import_wrapper", "SafeImportMock")("EventBus")
+        
+        # Message Queue для асинхронных сообщений
+        try:
+            from infrastructure.messaging.message_queue import MessageQueue
+            self.services["message_queue"] = MessageQueue()
+            logger.info("✅ Message Queue инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Message Queue недоступен: {e}")
+            self.services["message_queue"] = safe_import("safe_import_wrapper", "SafeImportMock")("MessageQueue")
+        
+        # Health Monitoring
+        try:
+            from infrastructure.health.checker import HealthChecker
+            self.services["health_checker"] = HealthChecker()
+            logger.info("✅ Health Checker инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Health Checker недоступен: {e}")
+            self.services["health_checker"] = safe_import("safe_import_wrapper", "SafeImportMock")("HealthChecker")
+        
         # Мониторинг производительности
         self.services["performance_monitor"] = safe_import(
             "shared.performance_monitor", "PerformanceMonitor"
@@ -176,10 +264,23 @@ class IntegratedTradingSystem:
         """Инициализация риск-менеджмента"""
         logger.info("🛡️ Инициализация риск-менеджмента...")
         
-        # Circuit breaker для защиты от потерь
-        self.services["circuit_breaker"] = safe_import(
-            "infrastructure.risk.circuit_breaker", "CircuitBreaker"
-        )()
+        # Circuit Breaker для защиты от сбоев
+        try:
+            from infrastructure.circuit_breaker.breaker import CircuitBreaker
+            self.services["circuit_breaker"] = CircuitBreaker()
+            logger.info("✅ Circuit Breaker инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Circuit Breaker недоступен: {e}")
+            self.services["circuit_breaker"] = safe_import("safe_import_wrapper", "SafeImportMock")("CircuitBreaker")
+        
+        # Fallback механизмы
+        try:
+            from infrastructure.circuit_breaker.fallback import FallbackHandler
+            self.services["fallback_handler"] = FallbackHandler()
+            logger.info("✅ Fallback Handler инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Fallback Handler недоступен: {e}")
+            self.services["fallback_handler"] = safe_import("safe_import_wrapper", "SafeImportMock")("FallbackHandler")
         
         # Анализ корреляций
         try:
@@ -192,7 +293,134 @@ class IntegratedTradingSystem:
             logger.warning(f"⚠️ EntanglementMonitor недоступен: {e}")
             self.services["correlation_analyzer"] = safe_import("safe_import_wrapper", "SafeImportMock")("CorrelationAnalyzer")
         
+        # Внешние сервисы
+        await self._initialize_external_services()
+        
         logger.info("✅ Риск-менеджмент инициализирован")
+    
+    async def _initialize_external_services(self):
+        """Инициализация внешних сервисов"""
+        logger.info("🌐 Инициализация внешних сервисов...")
+        
+        # Exchange Services для подключения к биржам
+        try:
+            from infrastructure.external_services.exchanges.base_exchange_service import BaseExchangeService
+            self.services["exchange_service"] = BaseExchangeService()
+            logger.info("✅ Exchange Service инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Exchange Service недоступен: {e}")
+            self.services["exchange_service"] = safe_import("safe_import_wrapper", "SafeImportMock")("ExchangeService")
+        
+        # Technical Analysis Service
+        try:
+            from infrastructure.external_services.technical_analysis_adapter import TechnicalAnalysisAdapter
+            self.services["technical_analysis"] = TechnicalAnalysisAdapter()
+            logger.info("✅ Technical Analysis Service инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Technical Analysis Service недоступен: {e}")
+            self.services["technical_analysis"] = safe_import("safe_import_wrapper", "SafeImportMock")("TechnicalAnalysis")
+        
+        # Risk Analysis Adapter
+        try:
+            from infrastructure.external_services.risk_analysis_adapter import RiskAnalysisServiceAdapter
+            self.services["risk_analysis_adapter"] = RiskAnalysisServiceAdapter()
+            logger.info("✅ Risk Analysis Adapter инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Risk Analysis Adapter недоступен: {e}")
+            self.services["risk_analysis_adapter"] = safe_import("safe_import_wrapper", "SafeImportMock")("RiskAnalysisAdapter")
+    
+    async def _initialize_evolution_systems(self):
+        """Инициализация эволюционных систем"""
+        logger.info("🧬 Инициализация эволюционных систем...")
+        
+        # Strategy Generator для создания адаптивных стратегий
+        try:
+            from domain.evolution.strategy_generator import StrategyGenerator
+            self.services["strategy_generator"] = StrategyGenerator()
+            logger.info("✅ Strategy Generator инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Strategy Generator недоступен: {e}")
+            self.services["strategy_generator"] = safe_import("safe_import_wrapper", "SafeImportMock")("StrategyGenerator")
+        
+        # Strategy Optimizer для оптимизации стратегий
+        try:
+            from domain.evolution.strategy_optimizer import StrategyOptimizer
+            self.services["strategy_optimizer"] = StrategyOptimizer()
+            logger.info("✅ Strategy Optimizer инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Strategy Optimizer недоступен: {e}")
+            self.services["strategy_optimizer"] = safe_import("safe_import_wrapper", "SafeImportMock")("StrategyOptimizer")
+        
+        # Evolution Storage для хранения эволюционных данных
+        try:
+            from infrastructure.evolution.strategy_storage import StrategyStorage
+            self.services["evolution_storage"] = StrategyStorage()
+            logger.info("✅ Evolution Storage инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Evolution Storage недоступен: {e}")
+            self.services["evolution_storage"] = safe_import("safe_import_wrapper", "SafeImportMock")("EvolutionStorage")
+    
+    async def _initialize_session_management(self):
+        """Инициализация управления сессиями"""
+        logger.info("🔄 Инициализация управления сессиями...")
+        
+        # Session Manager для управления торговыми сессиями
+        try:
+            from domain.sessions.session_manager import SessionManager
+            self.services["session_manager"] = SessionManager()
+            logger.info("✅ Session Manager инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Session Manager недоступен: {e}")
+            self.services["session_manager"] = safe_import("safe_import_wrapper", "SafeImportMock")("SessionManager")
+        
+        # Session Predictor для предсказания сессий
+        try:
+            from domain.sessions.session_predictor import SessionPredictor
+            self.services["session_predictor"] = SessionPredictor()
+            logger.info("✅ Session Predictor инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Session Predictor недоступен: {e}")
+            self.services["session_predictor"] = safe_import("safe_import_wrapper", "SafeImportMock")("SessionPredictor")
+        
+        # Session Analyzer для анализа сессий
+        try:
+            from domain.sessions.session_analyzer import SessionAnalyzer
+            self.services["session_analyzer"] = SessionAnalyzer()
+            logger.info("✅ Session Analyzer инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Session Analyzer недоступен: {e}")
+            self.services["session_analyzer"] = safe_import("safe_import_wrapper", "SafeImportMock")("SessionAnalyzer")
+    
+    async def _initialize_simulation_systems(self):
+        """Инициализация систем симуляции"""
+        logger.info("🔧 Инициализация систем симуляции...")
+        
+        # Market Simulator для симуляции рынка
+        try:
+            from infrastructure.simulation.market_simulator import MarketSimulator
+            self.services["market_simulator"] = MarketSimulator()
+            logger.info("✅ Market Simulator инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Market Simulator недоступен: {e}")
+            self.services["market_simulator"] = safe_import("safe_import_wrapper", "SafeImportMock")("MarketSimulator")
+        
+        # Backtester для тестирования стратегий
+        try:
+            from infrastructure.simulation.backtester import Backtester
+            self.services["backtester"] = Backtester()
+            logger.info("✅ Backtester инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Backtester недоступен: {e}")
+            self.services["backtester"] = safe_import("safe_import_wrapper", "SafeImportMock")("Backtester")
+        
+        # Backtest Explainer для объяснения результатов
+        try:
+            from infrastructure.simulation.backtest_explainer import BacktestExplainer
+            self.services["backtest_explainer"] = BacktestExplainer()
+            logger.info("✅ Backtest Explainer инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Backtest Explainer недоступен: {e}")
+            self.services["backtest_explainer"] = safe_import("safe_import_wrapper", "SafeImportMock")("BacktestExplainer")
     
     async def start_trading(self):
         """Запуск основного торгового цикла"""
@@ -221,33 +449,49 @@ class IntegratedTradingSystem:
         cycle_start = datetime.now()
         
         try:
+            # 0. Проверка здоровья системы
+            await self._check_system_health()
+            
             # 1. Сбор рыночных данных
             await self._collect_market_data()
             
-            # 2. Анализ рынка и генерация сигналов
+            # 2. Анализ сессий и контекста
+            await self._analyze_sessions_and_context()
+            
+            # 3. Анализ рынка и генерация сигналов
             await self._analyze_market_and_generate_signals()
             
-            # 3. Оценка рисков
-            await self._assess_risks()
+            # 4. Эволюция стратегий
+            await self._evolve_strategies()
             
-            # 4. Выполнение торговых операций
-            await self._execute_trades()
+            # 5. Оценка рисков с Circuit Breaker
+            await self._assess_risks_with_protection()
             
-            # 5. Мониторинг позиций
+            # 6. Выполнение торговых операций через агентов
+            await self._execute_trades_with_agents()
+            
+            # 7. Мониторинг позиций
             await self._monitor_positions()
             
-            # 6. Обновление метрик производительности
+            # 8. Event Bus обработка
+            await self._process_events()
+            
+            # 9. Обновление метрик производительности
             await self._update_performance_metrics()
             
-            # 7. Логирование состояния
+            # 10. Логирование состояния
             cycle_duration = (datetime.now() - cycle_start).total_seconds()
+            active_services = len([s for s in self.services.values() if hasattr(s, '__call__')])
             logger.info(f"💫 Цикл завершен за {cycle_duration:.2f}с | "
                        f"Символов: {len(self.monitored_symbols)} | "
                        f"Сигналов: {len(self.signals_cache)} | "
-                       f"Стратегий: {len([s for s in self.strategies if s['enabled']])}")
+                       f"Стратегий: {len([s for s in self.strategies if s['enabled']])} | "
+                       f"Сервисов: {active_services}")
         
         except Exception as e:
             logger.error(f"❌ Ошибка в торговом цикле: {e}")
+            # Отправляем событие об ошибке через Event Bus
+            await self._send_error_event(e)
     
     async def _collect_market_data(self):
         """Сбор рыночных данных"""
@@ -496,6 +740,155 @@ class IntegratedTradingSystem:
             
         except Exception as e:
             logger.warning(f"⚠️ Ошибка сохранения состояния: {e}")
+    
+    async def _check_system_health(self):
+        """Проверка здоровья системы"""
+        health_checker = self.services.get("health_checker")
+        if health_checker and hasattr(health_checker, 'check_health'):
+            try:
+                health_status = await health_checker.check_health()
+                if not health_status.get("healthy", True):
+                    logger.warning(f"⚠️ Проблемы со здоровьем системы: {health_status}")
+            except Exception as e:
+                logger.warning(f"⚠️ Ошибка проверки здоровья: {e}")
+    
+    async def _analyze_sessions_and_context(self):
+        """Анализ сессий и контекста"""
+        try:
+            session_analyzer = self.services.get("session_analyzer")
+            agent_context = self.services.get("agent_context")
+            
+            if session_analyzer and hasattr(session_analyzer, 'analyze_current_session'):
+                session_analysis = await session_analyzer.analyze_current_session()
+                if session_analysis:
+                    logger.debug(f"📊 Анализ сессии: {session_analysis}")
+            
+            if agent_context and hasattr(agent_context, 'update_context'):
+                await agent_context.update_context(self.market_data_cache)
+                logger.debug("🤖 Agent Context обновлен")
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка анализа сессий: {e}")
+    
+    async def _evolve_strategies(self):
+        """Эволюция торговых стратегий"""
+        try:
+            strategy_optimizer = self.services.get("strategy_optimizer")
+            
+            if strategy_optimizer and hasattr(strategy_optimizer, 'optimize_strategies'):
+                # Передаем данные о производительности стратегий
+                strategy_performance = [s["performance"] for s in self.strategies]
+                optimization_result = await strategy_optimizer.optimize_strategies(strategy_performance)
+                
+                if optimization_result:
+                    logger.debug(f"🧬 Стратегии оптимизированы: {optimization_result}")
+                    
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка эволюции стратегий: {e}")
+    
+    async def _assess_risks_with_protection(self):
+        """Оценка рисков с Circuit Breaker защитой"""
+        circuit_breaker = self.services.get("circuit_breaker")
+        
+        try:
+            # Используем Circuit Breaker для защиты от сбоев
+            if circuit_breaker and hasattr(circuit_breaker, 'call'):
+                await circuit_breaker.call(self._assess_risks)
+            else:
+                await self._assess_risks()
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Circuit Breaker сработал при оценке рисков: {e}")
+            
+            # Используем Fallback механизм
+            fallback_handler = self.services.get("fallback_handler")
+            if fallback_handler and hasattr(fallback_handler, 'handle_risk_failure'):
+                await fallback_handler.handle_risk_failure()
+    
+    async def _execute_trades_with_agents(self):
+        """Выполнение торговых операций через агентную систему"""
+        try:
+            agent_context = self.services.get("agent_context")
+            
+            # Если агентный контекст доступен, используем его для координации
+            if agent_context and hasattr(agent_context, 'execute_trading_decisions'):
+                trading_decisions = await agent_context.execute_trading_decisions(self.signals_cache)
+                
+                if trading_decisions:
+                    logger.debug(f"🤖 Агентные торговые решения: {len(trading_decisions)}")
+                    
+                    # Выполняем решения через обычную торговую логику
+                    await self._execute_agent_decisions(trading_decisions)
+            else:
+                # Fallback к стандартной торговле
+                await self._execute_trades()
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка выполнения торговли через агентов: {e}")
+            # Fallback к стандартной торговле
+            await self._execute_trades()
+    
+    async def _execute_agent_decisions(self, decisions):
+        """Выполнение решений агентов"""
+        trading_service = self.services.get("trading")
+        if not trading_service:
+            return
+        
+        executed_trades = 0
+        
+        for decision in decisions:
+            try:
+                if decision.get("action") and decision.get("symbol"):
+                    trade_result = await trading_service.create_order(
+                        symbol=decision["symbol"],
+                        side=decision["action"],
+                        amount=decision.get("amount", 1000),
+                        order_type=decision.get("order_type", "market")
+                    )
+                    
+                    if trade_result.get("status") == "created":
+                        executed_trades += 1
+                        self.performance_metrics["total_trades"] += 1
+                        
+            except Exception as e:
+                logger.warning(f"⚠️ Ошибка выполнения агентного решения: {e}")
+        
+        if executed_trades > 0:
+            logger.info(f"🤖 Выполнено агентных торговых операций: {executed_trades}")
+    
+    async def _process_events(self):
+        """Обработка событий через Event Bus"""
+        try:
+            event_bus = self.services.get("event_bus")
+            
+            if event_bus and hasattr(event_bus, 'process_pending_events'):
+                await event_bus.process_pending_events()
+                
+            # Отправляем событие о завершении цикла
+            if event_bus and hasattr(event_bus, 'publish'):
+                await event_bus.publish("trading_cycle_completed", {
+                    "timestamp": datetime.now(),
+                    "symbols_processed": len(self.monitored_symbols),
+                    "signals_generated": len(self.signals_cache)
+                })
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка обработки событий: {e}")
+    
+    async def _send_error_event(self, error):
+        """Отправка события об ошибке"""
+        try:
+            event_bus = self.services.get("event_bus")
+            
+            if event_bus and hasattr(event_bus, 'publish'):
+                await event_bus.publish("system_error", {
+                    "timestamp": datetime.now(),
+                    "error": str(error),
+                    "error_type": type(error).__name__
+                })
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка отправки события об ошибке: {e}")
 
 
 async def main():
