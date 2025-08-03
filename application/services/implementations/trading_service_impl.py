@@ -575,8 +575,10 @@ class TradingServiceImpl(BaseApplicationService, TradingService):
                     # Волатильность растет с корнем времени
                     time_adjustment = (hours_held / 24) ** 0.5
                     volatility *= max(time_adjustment, 0.1)  # Минимум 10% от дневной
-                except Exception:
-                    pass
+                except Exception as e:
+                    # ИСПРАВЛЕНО: Логирование вместо поглощения исключения
+                    self.logger.warning(f"Time adjustment calculation failed for position held {hours_held} hours: {e}")
+                    # Используем базовую волатильность без временной корректировки
             
             return round(volatility, 4)
             

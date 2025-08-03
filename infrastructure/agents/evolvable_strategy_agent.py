@@ -323,8 +323,11 @@ class EvolvableStrategyAgent(EvolvableComponent):
             try:
                 new_model.net[0].weight.data[:current_hidden_dim, :] = self.ml_model.net[0].weight.data
                 new_model.net[0].bias.data[:current_hidden_dim] = self.ml_model.net[0].bias.data
-            except:
-                pass
+            except Exception as e:
+                # ИСПРАВЛЕНО: Логирование вместо поглощения исключения
+                logger.warning(f"Failed to copy model weights during evolution: {e}")
+                logger.debug(f"Model shapes - current: {self.ml_model.net[0].weight.shape}, new: {new_model.net[0].weight.shape}")
+                # Продолжаем с новой моделью без копирования весов
             self.ml_model = new_model
             self.optimizer = torch.optim.Adam(self.ml_model.parameters(), lr=1e-3)
             logger.info(f"Model architecture evolved: hidden_dim={new_hidden_dim}")

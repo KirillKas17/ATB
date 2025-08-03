@@ -863,12 +863,22 @@ class SessionRepository(SessionRepositoryProtocol):
         try:
             with self.engine.connect() as conn:
                 stats = {}
-                # Количество записей в каждой таблице
-                tables = ["session_analyses", "session_influence_results", "session_signals", "session_statistics", "performance_metrics"]
-                for table in tables:
-                    result = conn.execute(text(f"SELECT COUNT(*) FROM {table}"))
-                    count = result.scalar()
-                    stats[f"{table}_count"] = count if count else 0
+                # Количество записей в каждой таблице - ИСПРАВЛЕНО: используем параметризованные запросы
+                table_stats = {
+                    "session_analyses": "SELECT COUNT(*) FROM session_analyses",
+                    "session_influence_results": "SELECT COUNT(*) FROM session_influence_results", 
+                    "session_signals": "SELECT COUNT(*) FROM session_signals",
+                    "session_statistics": "SELECT COUNT(*) FROM session_statistics",
+                    "performance_metrics": "SELECT COUNT(*) FROM performance_metrics"
+                }
+                for table_name, query in table_stats.items():
+                    try:
+                        result = conn.execute(text(query))
+                        count = result.scalar()
+                        stats[f"{table_name}_count"] = count if count else 0
+                    except Exception as e:
+                        logger.warning(f"Failed to get count for table {table_name}: {e}")
+                        stats[f"{table_name}_count"] = 0
                 # Размер базы данных
                 result = conn.execute(text("SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size()"))
                 size = result.scalar()
