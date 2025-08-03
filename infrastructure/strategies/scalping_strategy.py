@@ -73,15 +73,15 @@ class ScalpingStrategy(BaseStrategy):
         else:
             config_dict = {}
         
-        super().__init__(config_dict)
-        
-        # Устанавливаем конфигурацию для этого класса
+        # Устанавливаем конфигурацию для этого класса ПЕРЕД вызовом super()
         if isinstance(config, ScalpingConfig):
             self._config = config
         elif isinstance(config, dict):
             self._config = ScalpingConfig(**config)
         else:
             self._config = ScalpingConfig()
+        
+        super().__init__(config_dict)
             
         # Состояние стратегии
         self.position: Optional[str] = None

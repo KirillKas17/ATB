@@ -6,6 +6,7 @@ import asyncio
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+import numpy as np
 
 from application.protocols.service_protocols import MLService, MLPrediction, PatternDetection
 from application.services.base_service import BaseApplicationService

@@ -476,10 +476,17 @@ class TradingOrchestrator(TradingOrchestratorProtocol):
 
             # Логирование статуса
             for component, status in health_status.items():
-                if not status["healthy"]:
-                    self.logger.warning(
-                        f"Component {component} unhealthy: {status['message']}"
-                    )
+                # Обработка различных форматов ответа health status
+                if isinstance(status, dict):
+                    if not status.get("healthy", True):
+                        self.logger.warning(
+                            f"Component {component} unhealthy: {status.get('message', 'Unknown issue')}"
+                        )
+                elif isinstance(status, str):
+                    if status.lower() not in ["healthy", "ok", "active"]:
+                        self.logger.warning(f"Component {component} status: {status}")
+                else:
+                    self.logger.info(f"Component {component} health check completed: {status}")
 
         except Exception as e:
             self.logger.error(f"Error monitoring system health: {e}")

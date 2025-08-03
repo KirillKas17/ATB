@@ -124,11 +124,11 @@ try:
 except ImportError:
     from safe_import_wrapper import SafeImportMock
     MarketMakerModelAgent = SafeImportMock("MarketMakerModelAgent")
-from infrastructure.strategies.trend_strategy import TrendStrategy
-from infrastructure.strategies.sideways_strategy import SidewaysStrategy
+from infrastructure.strategies.trend_strategies import TrendStrategy
+from infrastructure.strategies.sideways_strategies import SidewaysStrategy
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
-from infrastructure.strategies.evolvable_base_strategy import EvolvableBaseStrategy
-from infrastructure.strategies.manipulation_strategy import ManipulationStrategy
+from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
+from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
 from infrastructure.strategies.volatility_strategy import VolatilityStrategy
 from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
 from infrastructure.external_services.bybit_client import BybitClient
@@ -309,7 +309,7 @@ class Container(containers.DeclarativeContainer):
     ml_repository = providers.Singleton(InMemoryMLRepository)
     portfolio_repository = providers.Singleton(InMemoryPortfolioRepository)
     risk_repository = providers.Singleton(InMemoryRiskRepository)
-    strategy_repository = providers.Singleton(InMemoryStrategyRepository)
+    strategy_repository = providers.Singleton(InMemoryTradingRepository)  # Временно используем trading_repository
     trading_repository = providers.Singleton(InMemoryTradingRepository)
     
     # Domain Services
@@ -465,11 +465,13 @@ class Container(containers.DeclarativeContainer):
     )
     trading_orchestrator_use_case = providers.Singleton(
         DefaultTradingOrchestratorUseCase,
+        order_repository=trading_repository,  # Используем trading_repository для ордеров
+        position_repository=portfolio_repository,  # Используем portfolio_repository для позиций
+        portfolio_repository=portfolio_repository,
+        trading_repository=trading_repository,
+        strategy_repository=strategy_repository,
+        enhanced_trading_service=trading_service,
         session_service=session_service,
-        trading_service=trading_service,
-        strategy_factory=strategy_factory,
-        strategy_registry=strategy_registry,
-        strategy_validator=strategy_validator,
     )
     # Infrastructure
     market_maker_agent = providers.Singleton(
@@ -565,6 +567,7 @@ class ServiceLocator:
             "risk_management": "manage_risk_use_case",
             "trading_pair_management": "manage_trading_pairs_use_case",
             "trading_orchestrator": "trading_orchestrator_use_case",
+            "defaulttradingorchestrator": "trading_orchestrator_use_case",
         }
         use_case_name = use_case_mapping.get(
             use_case_type.__name__.lower().replace("usecase", "")

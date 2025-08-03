@@ -91,15 +91,15 @@ class VolatilityStrategy(BaseStrategy):
         else:
             config_dict = {}
         
-        super().__init__(config_dict)
-        
-        # Устанавливаем конфигурацию для этого класса
+        # Устанавливаем конфигурацию для этого класса ПЕРЕД вызовом super()
         if isinstance(config, VolatilityConfig):
             self._config = config
         elif isinstance(config, dict):
             self._config = VolatilityConfig(**config)
         else:
             self._config = VolatilityConfig()
+        
+        super().__init__(config_dict)
             
         # Состояние стратегии
         self.position: Optional[str] = None

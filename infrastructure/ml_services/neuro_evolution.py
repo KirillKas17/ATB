@@ -1023,11 +1023,21 @@ class EvolutionFactory:
         return NEATEvolution(config, input_size, output_size)
 
 
+# Обёртка для удобства использования
+class NeuroEvolution(NEATEvolution):
+    """Удобная обёртка для NEATEvolution с дефолтными параметрами."""
+    
+    def __init__(self, input_size: int = 10, output_size: int = 3, config: Optional[NeuroEvolutionConfig] = None):
+        if config is None:
+            config = NeuroEvolutionConfig()
+        super().__init__(config, input_size, output_size)
+
 # Экспорт основных классов
 __all__ = [
     'NeuroEvolutionConfig',
     'NEATGenome', 
     'NEATEvolution',
+    'NeuroEvolution',  # Добавляем алиас
     'QuantumInspiredEvolution',
     'NSGA2Selection',
     'AdaptiveParameterController',

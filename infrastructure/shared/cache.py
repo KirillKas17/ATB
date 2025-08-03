@@ -8,7 +8,7 @@ import pickle
 import time
 import hashlib
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, List, Union, Set
+from typing import Any, Dict, Optional, List, Union, Set, Protocol
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 import logging
@@ -18,6 +18,18 @@ import redis.asyncio as redis
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+class CacheableProtocol(Protocol):
+    """Протокол для кэшируемых объектов."""
+    
+    def to_cache_dict(self) -> Dict[str, Any]:
+        """Преобразование объекта в словарь для кэширования."""
+        ...
+    
+    @classmethod
+    def from_cache_dict(cls, data: Dict[str, Any]) -> 'CacheableProtocol':
+        """Создание объекта из словаря кэша."""
+        ...
 
 class CompressionType(Enum):
     """Типы сжатия данных."""
@@ -32,6 +44,29 @@ class EncryptionType(Enum):
     AES = "aes"
     FERNET = "fernet"
 
+class CacheEvictionStrategy(Enum):
+    """Стратегии вытеснения кэша."""
+    LRU = "lru"  # Least Recently Used
+    LFU = "lfu"  # Least Frequently Used
+    FIFO = "fifo"  # First In, First Out
+    TTL = "ttl"  # Time To Live
+
+class CacheType(Enum):
+    """Типы кэша."""
+    MEMORY = "memory"
+    REDIS = "redis"
+    HYBRID = "hybrid"
+
+@dataclass
+class CacheEntry:
+    """Запись кэша."""
+    key: str
+    value: Any
+    created_at: datetime
+    expires_at: Optional[datetime] = None
+    access_count: int = 0
+    last_accessed: Optional[datetime] = None
+
 @dataclass
 class CacheConfig:
     """Конфигурация кэша."""
@@ -43,6 +78,26 @@ class CacheConfig:
     persistence_path: Optional[str] = None
     redis_url: Optional[str] = None
     enable_metrics: bool = True
+    eviction_strategy: CacheEvictionStrategy = CacheEvictionStrategy.LRU
+
+class CacheProtocol(Protocol):
+    """Протокол для кэша."""
+    
+    async def get(self, key: str) -> Optional[Any]:
+        """Получение значения из кэша."""
+        ...
+    
+    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+        """Сохранение значения в кэш."""
+        ...
+    
+    async def delete(self, key: str) -> bool:
+        """Удаление значения из кэша."""
+        ...
+    
+    async def clear(self) -> None:
+        """Очистка кэша."""
+        ...
 
 @dataclass
 class CacheMetrics:
@@ -240,11 +295,23 @@ class MemoryCache(CacheProtocol):
         
         # Фоновые задачи
         self._cleanup_task: Optional[asyncio.Task] = None
-        self._start_background_tasks()
+        # Фоновые задачи будут запущены явно через start_background_tasks_async
     
-    def _start_background_tasks(self) -> None:
-        """Запуск фоновых задач."""
-        self._cleanup_task = asyncio.create_task(self._cleanup_loop())
+    async def start_background_tasks_async(self) -> None:
+        """Запуск фоновых задач (асинхронно)."""
+        if self._cleanup_task is None:
+            self._cleanup_task = asyncio.create_task(self._cleanup_loop())
+    
+    async def stop_background_tasks_async(self) -> None:
+        """Остановка фоновых задач."""
+        if self._cleanup_task is not None:
+            self._cleanup_task.cancel()
+            try:
+                await self._cleanup_task
+            except asyncio.CancelledError:
+                pass
+            finally:
+                self._cleanup_task = None
     
     async def get(self, key: str) -> Optional[Any]:
         """Получение значения из кэша."""
@@ -727,7 +794,92 @@ default_cache_config = CacheConfig(
     compression=CompressionType.GZIP,
     enable_metrics=True
 )
-cache_manager.register_cache("default", default_cache_config)
+# Регистрация дефолтного кэша будет выполнена при первом обращении
+_default_cache_registered = False
+
+def _ensure_default_cache():
+    """Обеспечение регистрации дефолтного кэша."""
+    global _default_cache_registered
+    if not _default_cache_registered:
+        cache_manager.register_cache("default", default_cache_config)
+        _default_cache_registered = True
+
+class MarketDataCache(MemoryCache):
+    """Специализированный кэш для рыночных данных."""
+    
+    def __init__(self, config: Optional[CacheConfig] = None):
+        if config is None:
+            config = CacheConfig(
+                max_size=50000,
+                default_ttl=300,  # 5 минут для рыночных данных
+                eviction_strategy=CacheEvictionStrategy.TTL
+            )
+        super().__init__(config)
+
+class StrategyCache(MemoryCache):
+    """Специализированный кэш для стратегий."""
+    
+    def __init__(self, config: Optional[CacheConfig] = None):
+        if config is None:
+            config = CacheConfig(
+                max_size=10000,
+                default_ttl=3600,  # 1 час для стратегий
+                eviction_strategy=CacheEvictionStrategy.LRU
+            )
+        super().__init__(config)
+
+def cache_decorator(ttl: Optional[int] = None, cache_name: str = "default"):
+    """Декоратор для кэширования результатов функций."""
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            _ensure_default_cache()
+            cache = cache_manager.get_cache(cache_name)
+            if cache is None:
+                return await func(*args, **kwargs)
+            
+            key = generate_cache_key(func.__name__, *args, **kwargs)
+            result = await cache.get(key)
+            if result is not None:
+                return result
+            
+            result = await func(*args, **kwargs)
+            await cache.set(key, result, ttl)
+            return result
+        return wrapper
+    return decorator
+
+def create_cache(cache_type: CacheType, config: CacheConfig) -> Union[MemoryCache, 'RedisCache']:
+    """Создание кэша указанного типа."""
+    if cache_type == CacheType.MEMORY:
+        return MemoryCache(config)
+    elif cache_type == CacheType.REDIS:
+        # Заглушка для RedisCache
+        return MemoryCache(config)
+    else:
+        return MemoryCache(config)
+
+def generate_cache_key(*args, **kwargs) -> str:
+    """Генерация ключа кэша из аргументов."""
+    key_parts = []
+    for arg in args:
+        if hasattr(arg, '__dict__'):
+            key_parts.append(str(hash(str(sorted(arg.__dict__.items())))))
+        else:
+            key_parts.append(str(hash(str(arg))))
+    
+    for k, v in sorted(kwargs.items()):
+        key_parts.append(f"{k}:{hash(str(v))}")
+    
+    return hashlib.md5(":".join(key_parts).encode()).hexdigest()
+
+def get_cache(name: str = "default") -> Optional[MemoryCache]:
+    """Получение кэша по имени."""
+    _ensure_default_cache()
+    return cache_manager.get_cache(name)
+
+def get_cache_manager() -> 'CacheManager':
+    """Получение менеджера кэшей."""
+    return cache_manager
 
 def cache_key(*args, **kwargs) -> str:
     """Генерация ключа кэша из аргументов."""

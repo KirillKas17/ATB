@@ -582,7 +582,8 @@ class StrategyService:
         self._auto_optimization_enabled = False
         self._optimization_interval = timedelta(hours=24)
         
-        self._start_monitoring()
+        # Мониторинг будет запущен явно через start_monitoring_async
+        self._monitoring_task: Optional[asyncio.Task] = None
     
     async def register_strategy(self, strategy: StrategyBase, config: Dict[str, Any]) -> str:
         """Регистрация новой стратегии."""
@@ -779,8 +780,11 @@ class StrategyService:
         except Exception as e:
             logger.error(f"Error handling strategy event: {e}")
     
-    def _start_monitoring(self) -> None:
-        """Запуск фонового мониторинга."""
+    async def start_monitoring_async(self) -> None:
+        """Запуск фонового мониторинга (асинхронно)."""
+        if self._monitoring_task is not None:
+            return  # Мониторинг уже запущен
+            
         async def monitoring_loop():
             while True:
                 try:
@@ -792,6 +796,17 @@ class StrategyService:
                     logger.error(f"Error in strategy monitoring: {e}")
         
         self._monitoring_task = asyncio.create_task(monitoring_loop())
+    
+    async def stop_monitoring_async(self) -> None:
+        """Остановка фонового мониторинга."""
+        if self._monitoring_task is not None:
+            self._monitoring_task.cancel()
+            try:
+                await self._monitoring_task
+            except asyncio.CancelledError:
+                pass
+            finally:
+                self._monitoring_task = None
     
     async def _monitor_strategies(self) -> None:
         """Мониторинг состояния стратегий."""

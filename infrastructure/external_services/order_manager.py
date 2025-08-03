@@ -968,3 +968,23 @@ class OrderManagerAdapter(ExchangeProtocol):
         )
         
         return await self.order_manager.list_orders_from_request(request)
+
+
+# Обёртка для удобства использования
+class OrderManager(ProductionOrderManager):
+    """Удобная обёртка для ProductionOrderManager с дефолтной конфигурацией."""
+    
+    def __init__(self, config: Optional[ConnectionConfig] = None):
+        if config is None:
+            # Создаём дефолтную конфигурацию
+            from domain.types.external_service_types import ConnectionConfig
+            config = ConnectionConfig(
+                timeout=30.0,
+                max_retries=3,
+                retry_delay=1.0
+            )
+        super().__init__(config)
+
+
+# Алиас для совместимости  
+OrderManagementService = ProductionOrderManager

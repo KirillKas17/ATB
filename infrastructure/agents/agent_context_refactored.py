@@ -724,7 +724,7 @@ class ContextManager:
         self._contexts: Dict[str, AgentContext] = {}
         self._context_lock = asyncio.Lock()
         self._cleanup_task: Optional[asyncio.Task] = None
-        self._start_cleanup_task()
+        # Cleanup task будет запущен явно через start_cleanup_async
     
     async def create_context(self, agent_id: str, initial_data: Optional[Dict[str, Any]] = None) -> AgentContext:
         """Создание нового контекста агента."""
@@ -759,8 +759,11 @@ class ContextManager:
         async with self._context_lock:
             return self._contexts.copy()
     
-    def _start_cleanup_task(self) -> None:
+    async def start_cleanup_async(self) -> None:
         """Запуск задачи очистки неактивных контекстов."""
+        if self._cleanup_task is not None:
+            return  # Уже запущен
+            
         async def cleanup_loop():
             while True:
                 try:
@@ -772,6 +775,17 @@ class ContextManager:
                     logger.error(f"Ошибка в процессе очистки контекстов: {e}")
         
         self._cleanup_task = asyncio.create_task(cleanup_loop())
+    
+    async def stop_cleanup_async(self) -> None:
+        """Остановка задачи очистки."""
+        if self._cleanup_task is not None:
+            self._cleanup_task.cancel()
+            try:
+                await self._cleanup_task
+            except asyncio.CancelledError:
+                pass
+            finally:
+                self._cleanup_task = None
     
     async def _cleanup_inactive_contexts(self) -> None:
         """Очистка неактивных контекстов."""

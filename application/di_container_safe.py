@@ -8,7 +8,7 @@ from safe_import_wrapper import safe_import
 from dependency_injector import containers, providers
 
 # Safe imports for potentially problematic components
-TrendStrategy = safe_import("infrastructure.strategies.trend_strategy", "TrendStrategy")
+TrendStrategy = safe_import("infrastructure.strategies.trend_strategies", "TrendStrategy")
 SidewaysStrategy = safe_import("infrastructure.strategies.sideways_strategy", "SidewaysStrategy") 
 AdaptiveStrategyGenerator = safe_import("infrastructure.strategies.adaptive.adaptive_strategy_generator", "AdaptiveStrategyGenerator")
 VolatilityStrategy = safe_import("infrastructure.strategies.volatility_strategy", "VolatilityStrategy")

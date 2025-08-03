@@ -93,8 +93,24 @@ class MemoryCache(CacheProtocol):
         self._stats = CacheStats()
         self._lock = asyncio.Lock()
         
-        # Запуск фонового процесса очистки истёкших записей
-        self._cleanup_task = asyncio.create_task(self._cleanup_loop())
+        # Фоновый процесс будет запущен явно через start_background_task
+        self._cleanup_task: Optional[asyncio.Task] = None
+    
+    async def start_background_task(self) -> None:
+        """Запуск фонового процесса очистки."""
+        if self._cleanup_task is None:
+            self._cleanup_task = asyncio.create_task(self._cleanup_loop())
+    
+    async def stop_background_task(self) -> None:
+        """Остановка фонового процесса очистки."""
+        if self._cleanup_task is not None:
+            self._cleanup_task.cancel()
+            try:
+                await self._cleanup_task
+            except asyncio.CancelledError:
+                pass
+            finally:
+                self._cleanup_task = None
     
     async def get(self, key: str) -> Optional[Any]:
         """Получение значения по ключу."""
@@ -302,6 +318,10 @@ cache_manager = CacheManager()
 # Создание кэша по умолчанию
 default_cache = MemoryCache(max_size=10000, default_ttl=3600)
 cache_manager.register_cache("default", default_cache, is_default=True)
+
+def get_cache_manager() -> CacheManager:
+    """Получение глобального менеджера кэшей."""
+    return cache_manager
 
 # Декоратор для кэширования результатов функций
 def cached(ttl: Optional[int] = None, cache_name: Optional[str] = None):

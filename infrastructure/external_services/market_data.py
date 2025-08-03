@@ -426,3 +426,15 @@ class DataCache:
         async with self.lock:
             self.cache.clear()
             self.timestamps.clear()
+
+
+# Обёртка для удобства использования
+class MarketDataProvider(MarketData):
+    """Удобная обёртка для MarketData с дефолтными параметрами."""
+    
+    def __init__(self, symbol: str = "BTCUSDT", interval: str = "1h", **kwargs):
+        super().__init__(symbol, interval, **kwargs)
+
+
+# Алиас для совместимости
+MarketDataService = MarketData

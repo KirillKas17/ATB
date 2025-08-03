@@ -87,15 +87,15 @@ class MomentumStrategy(BaseStrategy):
         else:
             config_dict = {}
         
-        super().__init__(config_dict)
-        
-        # Устанавливаем конфигурацию
+        # Устанавливаем конфигурацию ПЕРЕД вызовом super()
         if isinstance(config, MomentumConfig):
             self._config = config
         elif isinstance(config, dict):
             self._config = MomentumConfig(**config)
         else:
             self._config = MomentumConfig()
+            
+        super().__init__(config_dict)
             
         self.position: Optional[str] = None
         self.entry_price: Optional[float] = None

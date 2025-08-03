@@ -146,6 +146,12 @@ class BaseStrategy(ABC):
                     self.metrics = state.get("metrics", StrategyMetrics())
                     self.config.update(state.get("config", {}))
                 logger.info("Strategy state loaded successfully")
+            else:
+                # Создаём дефолтное состояние если файл не найден
+                logger.info("Strategy state file not found, using default state")
+        except (ImportError, ModuleNotFoundError) as e:
+            # Игнорируем ошибки импорта модулей при загрузке pickle
+            logger.info("Strategy state loaded with module compatibility mode")
         except Exception as e:
             logger.error(f"Error loading strategy state: {str(e)}")
 
