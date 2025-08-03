@@ -23,6 +23,8 @@ from typing import (
 import numpy as np
 import pandas as pd
 
+from domain.types import Symbol
+
 # Базовые типы для агентов
 AgentId = NewType("AgentId", str)
 AgentType = Literal[
@@ -75,7 +77,7 @@ MarketRegimeType = Literal[
 ]
 RegimeConfidence = NewType("RegimeConfidence", Decimal)
 # Новые типы для строгой типизации
-Symbol = NewType("Symbol", str)
+# Symbol импортируется из domain.types
 Confidence = NewType("Confidence", float)
 RiskScore = NewType("RiskScore", float)
 PerformanceScore = NewType("PerformanceScore", float)

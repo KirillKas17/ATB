@@ -18,11 +18,13 @@ from typing import (
     runtime_checkable,
 )
 
+from domain.types import Symbol
+
 # ============================================================================
 # NEW TYPES
 # ============================================================================
 PatternId = NewType("PatternId", str)
-Symbol = NewType("Symbol", str)
+# Symbol импортируется из domain.types
 Confidence = NewType("Confidence", float)
 SimilarityScore = NewType("SimilarityScore", float)
 SignalStrength = NewType("SignalStrength", float)

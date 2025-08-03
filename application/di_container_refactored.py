@@ -165,10 +165,6 @@ from infrastructure.evolution import (
     EvolutionMigration,
     StrategyStorage,
 )
-from infrastructure.external_services.account_manager import AccountManager
-
-# External Services
-from infrastructure.external_services.bybit_client import BybitClient
 
 # Market Profiles Module
 # from infrastructure.market_profiles import (
@@ -211,16 +207,7 @@ from infrastructure.sessions.session_repository import SessionRepositoryConfig
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import (
     AdaptiveStrategyGenerator,
 )
-from infrastructure.strategies.evolution.evolvable_base_strategy import (
-    EvolvableBaseStrategy,
-)
-from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
-from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
-from infrastructure.strategies.sideways_strategies import SidewaysStrategy
 
-# Импорты стратегий из infrastructure/strategies
-from infrastructure.strategies.trend_strategies import TrendStrategy
-from infrastructure.strategies.volatility_strategy import VolatilityStrategy
 from shared.abstractions.base_service import BaseService
 
 

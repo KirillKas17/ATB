@@ -299,11 +299,9 @@ class PositionManagementUseCase:
                 return None
 
             # Создание метрик позиции
-            from domain.entities.position import PositionSide as DomainPositionSide
-            from domain.types import VolumeValue, PriceValue, AmountValue, TimestampValue
             metrics = PositionMetrics(
                 position_id=PositionId(UUID(str(position_id))),
-                side=DomainPositionSide(position.side.value),
+                side=PositionSide(position.side.value),
                 volume=VolumeValue(position.quantity.amount),
                 entry_price=PriceValue(position.entry_price.value),
                 created_at=TimestampValue(getattr(position, "created_at", datetime.now())),

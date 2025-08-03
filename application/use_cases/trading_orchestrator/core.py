@@ -608,7 +608,6 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
         """Создание ордера из сигнала."""
         try:
             # Исправляем атрибуты Signal и типы Order
-            from domain.entities.order import Order, OrderType, OrderStatus, OrderSide
             from domain.value_objects.signal_type import SignalType
             from domain.types import VolumeValue
             
@@ -641,7 +640,6 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
     ) -> Optional[Order]:
         """Создание ордера для ребалансировки."""
         try:
-            from domain.entities.order import Order, OrderType, OrderStatus, OrderSide
             from domain.types import VolumeValue
             
             # Определяем сторону ордера

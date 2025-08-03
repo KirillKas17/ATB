@@ -24,7 +24,7 @@ from domain.value_objects.timestamp import Timestamp
 
 # Новые типы для строгой типизации
 SessionId = NewType("SessionId", str)
-Symbol = NewType("Symbol", str)
+# Symbol импортируется из domain.types
 VolumeMultiplier = NewType("VolumeMultiplier", float)
 VolatilityMultiplier = NewType("VolatilityMultiplier", float)
 ConfidenceScore = NewType("ConfidenceScore", float)

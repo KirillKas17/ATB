@@ -5,10 +5,12 @@ import asyncio
 import json
 import time
 import math
+import random
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import numpy as np
 from loguru import logger
 
 from application.entanglement.stream_manager import StreamManager
@@ -253,7 +255,6 @@ class EntanglementMonitor:
 
     async def _simulate_order_book_updates(self):
         """Симуляция обновлений ордербуков для тестирования."""
-        import random
 
         while self.is_running:
             try:
@@ -807,7 +808,6 @@ class EntanglementMonitor:
 
     def detect_breakdown(self, historical_scores: List[float], threshold: float = 0.5) -> bool:
         """Продвинутое обнаружение разрыва запутанности."""
-        import numpy as np
         
         if len(historical_scores) < 3:
             return False
@@ -851,7 +851,6 @@ class EntanglementMonitor:
 
     def calculate_trend(self, historical_scores: List[float]) -> str:
         """Продвинутый расчет тренда запутанности."""
-        import numpy as np
         from scipy import stats
         
         if len(historical_scores) < 3:
@@ -904,7 +903,6 @@ class EntanglementMonitor:
 
     def validate_data(self, data: Any) -> bool:
         """Продвинутая валидация входных данных."""
-        import numpy as np
         
         try:
             # Проверка на None
@@ -1033,7 +1031,6 @@ class EntanglementMonitor:
         try:
             # Временная реализация - возвращаем тестовые данные
             # В реальной реализации здесь должен быть вызов к market data service
-            import random
             base_price = 100.0
             prices = []
             for i in range(100):
