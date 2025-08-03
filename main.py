@@ -15,18 +15,20 @@ import signal
 import threading
 from pathlib import Path
 
-# Безопасный импорт pandas с fallback
-try:
-    import pandas as pd
-except ImportError:
-    print("Warning: pandas not installed. Some features may be limited.")
-    pd = None
+# Безопасные импорты с fallback
+from shared.safe_imports import (
+    pd, np, primary_logger, check_dependencies,
+    PANDAS_AVAILABLE, NUMPY_AVAILABLE, safe_execution
+)
+
+# Настройка логирования
+logger = primary_logger
 
 # Импорт типизированных конфигураций
 try:
     from shared.models.config import ApplicationConfig, TradingConfig, RiskConfig, create_default_config, validate_config
 except ImportError as e:
-    print(f"Warning: Failed to import config models: {e}")
+    logger.warning(f"Failed to import config models: {e}")
     # Создаем заглушки для базовой работы
     ApplicationConfig = dict
     TradingConfig = dict
@@ -38,7 +40,7 @@ except ImportError as e:
 try:
     from application.di_container_refactored import get_service_locator
 except ImportError as e:
-    print(f"Warning: Failed to import DI container: {e}")
+    logger.warning(f"Failed to import DI container: {e}")
     get_service_locator = lambda: None
 
 # Импорты для торговой оркестрации
@@ -49,7 +51,7 @@ try:
     from application.use_cases.manage_trading_pairs import DefaultTradingPairManagementUseCase
     from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 except ImportError as e:
-    print(f"Warning: Failed to import use cases: {e}")
+    logger.warning(f"Failed to import use cases: {e}")
     # Создаем заглушки
     DefaultOrderManagementUseCase = type('DefaultOrderManagementUseCase', (), {})
     DefaultPositionManagementUseCase = type('DefaultPositionManagementUseCase', (), {})
@@ -63,7 +65,7 @@ try:
     from application.services.trading_service import TradingService
     from application.services.risk_service import RiskService
 except ImportError as e:
-    print(f"Warning: Failed to import services: {e}")
+    logger.warning(f"Failed to import services: {e}")
     MarketService = type('MarketService', (), {})
     TradingService = type('TradingService', (), {})
     RiskService = type('RiskService', (), {})
@@ -76,7 +78,7 @@ try:
         StrategyValidator, get_strategy_validator
     )
 except ImportError as e:
-    print(f"Warning: Failed to import domain strategies: {e}")
+    logger.warning(f"Failed to import domain strategies: {e}")
     StrategyFactory = type('StrategyFactory', (), {})
     get_strategy_factory = lambda: StrategyFactory()
     StrategyRegistry = type('StrategyRegistry', (), {})
@@ -94,7 +96,7 @@ try:
     from infrastructure.strategies.volatility_strategy import VolatilityStrategy
     from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
 except ImportError as e:
-    print(f"Warning: Failed to import infrastructure strategies: {e}")
+    logger.warning(f"Failed to import infrastructure strategies: {e}")
     # Создаем базовые заглушки стратегий
     TrendStrategy = type('TrendStrategy', (), {})
     SidewaysStrategy = type('SidewaysStrategy', (), {})
@@ -160,9 +162,6 @@ from infrastructure.monitoring import (
     record_metric,
     create_alert
 )
-
-# Настройка логирования
-logger = logging.getLogger(__name__)
 
 # Импорт основных компонентов
 try:
