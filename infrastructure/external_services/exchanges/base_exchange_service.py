@@ -3,6 +3,7 @@
 """
 
 from datetime import datetime
+from decimal import Decimal
 from threading import Lock
 from typing import Any, Dict, List, Optional, Literal, Union, cast
 
