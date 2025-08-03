@@ -516,7 +516,76 @@ class IntegratedTradingSystem:
                 logger.warning(f"⚠️ Ошибка получения данных для {symbol}: {e}")
     
     async def _analyze_market_and_generate_signals(self):
-        """Анализ рынка и генерация торговых сигналов"""
+        """Анализ рынка и генерация торговых сигналов с продвинутыми методами"""
+        
+        # 1. Инициализируем улучшенный сервис прогнозирования
+        enhanced_prediction_service = None
+        try:
+            from application.services.enhanced_prediction_service import EnhancedPredictionService
+            enhanced_prediction_service = EnhancedPredictionService({
+                "advanced_engine": {
+                    "min_fvg_size": 0.001,
+                    "snr_window": 50,
+                    "orderflow_window": 20
+                }
+            })
+            logger.debug("✅ Enhanced Prediction Service инициализирован")
+        except Exception as e:
+            logger.warning(f"⚠️ Enhanced Prediction Service недоступен: {e}")
+        
+        # 2. Генерируем продвинутые прогнозы для каждого символа
+        for symbol in self.monitored_symbols:
+            try:
+                market_data = self.market_data_cache.get(symbol)
+                if not market_data:
+                    continue
+                
+                # Продвинутый анализ с FVG, SNR, OrderFlow
+                if enhanced_prediction_service:
+                    enhanced_prediction = await enhanced_prediction_service.generate_enhanced_prediction(
+                        symbol=symbol,
+                        market_service=self.services.get("market"),
+                        timeframe="4H"
+                    )
+                    
+                    if enhanced_prediction and enhanced_prediction.confidence > 0.3:
+                        signal_key = f"{symbol}_enhanced"
+                        self.signals_cache[signal_key] = {
+                            "symbol": symbol,
+                            "strategy": "enhanced_prediction",
+                            "signal": {
+                                "action": enhanced_prediction.direction,
+                                "confidence": enhanced_prediction.confidence,
+                                "target_price": enhanced_prediction.target_price,
+                                "stop_loss": enhanced_prediction.stop_loss,
+                                "risk_reward_ratio": enhanced_prediction.risk_reward_ratio,
+                                "market_structure": enhanced_prediction.market_structure,
+                                "volatility_regime": enhanced_prediction.volatility_regime,
+                                "snr_ratio": enhanced_prediction.snr_metrics.snr_ratio,
+                                "clarity_score": enhanced_prediction.snr_metrics.clarity_score,
+                                "fvg_count": len(enhanced_prediction.fvg_signals),
+                                "orderflow_count": len(enhanced_prediction.orderflow_signals),
+                                "liquidity_levels": len(enhanced_prediction.liquidity_levels),
+                                "prediction_type": "advanced"
+                            },
+                            "timestamp": datetime.now(),
+                            "market_data": market_data,
+                            "enhanced_data": {
+                                "fvg_signals": enhanced_prediction.fvg_signals,
+                                "orderflow_signals": enhanced_prediction.orderflow_signals,
+                                "liquidity_levels": enhanced_prediction.liquidity_levels,
+                                "snr_metrics": enhanced_prediction.snr_metrics
+                            }
+                        }
+                        
+                        logger.debug(f"📊 Enhanced сигнал для {symbol}: {enhanced_prediction.direction} "
+                                   f"(уверенность: {enhanced_prediction.confidence:.3f}, "
+                                   f"SNR: {enhanced_prediction.snr_metrics.snr_ratio:.2f})")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Ошибка продвинутого анализа для {symbol}: {e}")
+        
+        # 3. Традиционные стратегии (в дополнение к продвинутому анализу)
         for strategy in self.strategies:
             if not strategy["enabled"]:
                 continue
@@ -530,7 +599,7 @@ class IntegratedTradingSystem:
                     if not market_data:
                         continue
                     
-                    # Генерируем сигнал через стратегию
+                    # Генерируем сигнал через традиционную стратегию
                     signal = await self._generate_strategy_signal(
                         strategy_instance, symbol, market_data
                     )
@@ -547,6 +616,20 @@ class IntegratedTradingSystem:
                         
             except Exception as e:
                 logger.warning(f"⚠️ Ошибка генерации сигналов для {strategy_name}: {e}")
+        
+        # 4. Логируем статистику сигналов
+        enhanced_signals = len([s for s in self.signals_cache.values() 
+                              if s.get("signal", {}).get("prediction_type") == "advanced"])
+        traditional_signals = len(self.signals_cache) - enhanced_signals
+        
+        if enhanced_signals > 0:
+            avg_confidence = sum(s["signal"]["confidence"] for s in self.signals_cache.values() 
+                               if s.get("signal", {}).get("prediction_type") == "advanced") / enhanced_signals
+            avg_snr = sum(s["signal"]["snr_ratio"] for s in self.signals_cache.values() 
+                         if s.get("signal", {}).get("prediction_type") == "advanced") / enhanced_signals
+            
+            logger.info(f"🎯 Сгенерировано сигналов: Enhanced={enhanced_signals}, Traditional={traditional_signals}")
+            logger.info(f"📈 Enhanced качество: avg_confidence={avg_confidence:.3f}, avg_SNR={avg_snr:.2f}")
     
     async def _generate_strategy_signal(self, strategy, symbol, market_data):
         """Генерация сигнала от стратегии"""
