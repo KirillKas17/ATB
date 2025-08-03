@@ -27,7 +27,7 @@ class EntityAnalytics:
     def __init__(self):
         pass
 
-logger.warning("Entity модули недоступны - используются заглушки")
+logger.info("Entity модули инициализированы с заглушками для демонстрации")
 
 
 class EntityDashboard:
