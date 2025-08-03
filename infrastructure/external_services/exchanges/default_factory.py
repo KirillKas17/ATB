@@ -14,6 +14,7 @@ from domain.types.external_service_types import (
     ExchangeName,
 )
 
+
 from .config import ExchangeServiceConfig
 from .binance_exchange_service import BinanceExchangeService
 from .bybit_exchange_service import BybitExchangeService
