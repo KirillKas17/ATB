@@ -55,14 +55,33 @@ class Portfolio:
     metadata: Dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        pass
+        """Валидация и инициализация портфеля после создания."""
+        if self.total_equity.amount < 0:
+            raise ValueError("Total equity не может быть отрицательным")
+        if self.available_balance.amount < 0:
+            raise ValueError("Available balance не может быть отрицательным")
+        if self.used_margin.amount < 0:
+            raise ValueError("Used margin не может быть отрицательным")
+        if self.max_leverage <= 0:
+            raise ValueError("Max leverage должен быть положительным")
+        if self.available_balance.amount > self.total_equity.amount:
+            raise ValueError("Available balance не может превышать total equity")
+        
+        # Обновляем время последнего изменения
+        self.updated_at = Timestamp.now()
 
     def get_equity(self) -> AmountValue:
         return AmountValue(self.total_equity.amount)
 
     def get_margin_ratio(self) -> Decimal:
-        if self.total_equity.amount == 0:
-            return Decimal("0")
+        """
+        Расчёт коэффициента использования маржи в процентах.
+        
+        Returns:
+            Decimal: Процент использования маржи (0-100)
+        """
+        if self.total_equity.amount <= 0:
+            return Decimal("100")  # Если капитал нулевой/отрицательный - критическая ситуация
         return (self.used_margin.amount / self.total_equity.amount) * 100
 
     @property

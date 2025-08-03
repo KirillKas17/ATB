@@ -507,8 +507,7 @@ class TestModelConfig:
                 prediction_type=PredictionType.PRICE,
                 hyperparameters={},
                 features=[],
-                target="",
-                trading_pair=Symbol("BTCUSDT")
+                target=""
             )
 class TestTrainingConfig:
     """Тесты для TrainingConfig."""

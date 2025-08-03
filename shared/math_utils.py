@@ -197,12 +197,22 @@ def calculate_drawdown(returns: ArrayLike) -> Tuple[np.ndarray, float, int]:
         Tuple of (drawdown series, max drawdown, max drawdown duration)
     """
     returns = np.asarray(returns)
+    
+    if len(returns) == 0:
+        return np.array([]), 0.0, 0
+    
     cumulative_returns = np.cumprod(1 + returns)
     running_max = np.maximum.accumulate(cumulative_returns)
-    drawdown = (cumulative_returns - running_max) / running_max
-    max_drawdown = np.min(drawdown)
+    
+    # Защита от деления на ноль
+    drawdown = np.zeros_like(cumulative_returns)
+    non_zero_mask = running_max != 0
+    drawdown[non_zero_mask] = (cumulative_returns[non_zero_mask] - running_max[non_zero_mask]) / running_max[non_zero_mask]
+    
+    max_drawdown = np.min(drawdown) if len(drawdown) > 0 else 0.0
     max_drawdown_idx = np.where(drawdown == max_drawdown)[0]
-    max_drawdown_duration = max_drawdown_idx[-1] - max_drawdown_idx[0]
+    max_drawdown_duration = max_drawdown_idx[-1] - max_drawdown_idx[0] if len(max_drawdown_idx) > 0 else 0
+    
     return drawdown, max_drawdown, max_drawdown_duration
 
 

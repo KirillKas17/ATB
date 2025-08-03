@@ -198,9 +198,15 @@ class DefaultServiceFactory(ServiceFactory):
                 self.global_config.get("strategy_service", {}), config or {}
             )
 
-            # self._service_instances[service_key] = StrategyServiceImpl(service_config)
-            # self.logger.info("Created StrategyService instance")
-            raise NotImplementedError("StrategyServiceImpl not implemented yet")
+            # Создание репозитория стратегий
+            strategy_repository = self.create_strategy_repository(service_config.get("repository", {}))
+            
+            from application.services.implementations.strategy_service_impl import StrategyServiceImpl
+            self._service_instances[service_key] = StrategyServiceImpl(
+                strategy_repository=strategy_repository,
+                config=service_config
+            )
+            self.logger.info("Created StrategyService instance")
 
         return self._service_instances[service_key]
 

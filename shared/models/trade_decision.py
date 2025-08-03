@@ -190,15 +190,18 @@ class TradeDecision:
             return None
 
         if self.action == TradeAction.BUY:
+            # Для покупки: риск = цена входа - стоп-лосс, доходность = тейк-профит - цена входа
             risk = self.price.value - self.stop_loss.value
             reward = self.take_profit.value - self.price.value
         elif self.action == TradeAction.SELL:
+            # Для продажи: риск = стоп-лосс - цена входа, доходность = цена входа - тейк-профит
             risk = self.stop_loss.value - self.price.value
             reward = self.price.value - self.take_profit.value
         else:
             return None
 
-        if risk <= 0:
+        # Проверяем что риск и доходность положительные
+        if risk <= 0 or reward <= 0:
             return None
 
         return reward / risk
