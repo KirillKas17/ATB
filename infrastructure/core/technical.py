@@ -38,8 +38,16 @@ def rsi(data: Union[np.ndarray, List[float], pd.Series], period: int = 14) -> pd
     else:
         gain = pd.Series()
         loss = pd.Series()
+    
+    # Защита от деления на ноль
+    loss = loss.replace(0, np.nan)
     rs = gain / loss
-    return 100 - (100 / (1 + rs))
+    rs = rs.fillna(0)  # Если loss=0, то rs=0 (нет потерь -> RSI=100)
+    
+    # Защита от деления на ноль в финальной формуле
+    rsi_values = 100 - (100 / (1 + rs))
+    rsi_values = rsi_values.fillna(100)  # Если rs=0, то RSI=100
+    return rsi_values
 
 
 def stoch_rsi(
@@ -47,9 +55,16 @@ def stoch_rsi(
 ) -> Tuple[pd.Series, pd.Series]:
     """Stochastic RSI"""
     rsi_values = rsi(data, period)
-    stoch_k = (rsi_values - rsi_values.rolling(window=period).min()) / (
-        rsi_values.rolling(window=period).max() - rsi_values.rolling(window=period).min()
-    ) * 100
+    
+    # Защита от деления на ноль в stochastic расчете
+    rsi_min = rsi_values.rolling(window=period).min()
+    rsi_max = rsi_values.rolling(window=period).max()
+    denominator = rsi_max - rsi_min
+    
+    # Если max == min, то stoch_k = 50 (средний уровень)
+    stoch_k = ((rsi_values - rsi_min) / denominator.replace(0, np.nan)) * 100
+    stoch_k = stoch_k.fillna(50)
+    
     stoch_d = stoch_k.rolling(window=smooth_d).mean()
     return stoch_k, stoch_d
 

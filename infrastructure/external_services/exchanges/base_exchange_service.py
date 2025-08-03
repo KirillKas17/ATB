@@ -347,7 +347,7 @@ class BaseExchangeService(ExchangeServiceProtocol):
             raise ExchangeError(f"Failed to get order status: {e}")
 
     @backoff.on_exception(backoff.expo, (ConnectionError, NetworkError), max_tries=3)
-    async def get_balance(self) -> Dict[str, float]:
+    async def get_balance(self) -> Dict[str, Decimal]:
         """Получение баланса."""
         try:
             if self.config.enable_rate_limiting:
@@ -356,14 +356,15 @@ class BaseExchangeService(ExchangeServiceProtocol):
             cache_key = "balance"
             cached_balance = await self.cache.get(cache_key)
             if cached_balance:
-                return cast(Dict[str, float], cached_balance)
+                return cast(Dict[str, Decimal], cached_balance)
             if not self.ccxt_client:
                 raise ExchangeError("CCXT client not initialized")
             result = await self.ccxt_client.fetch_balance()
-            balance: Dict[str, float] = {}
+            balance: Dict[str, Decimal] = {}
             for currency, data in result["total"].items():
-                if float(data) > 0:
-                    balance[currency] = float(data)
+                decimal_amount = Decimal(str(data))
+                if decimal_amount > 0:
+                    balance[currency] = decimal_amount
             # Сохраняем в кэш
             await self.cache.set(cache_key, balance)
             self.metrics["successful_requests"] = self._safe_int(self.metrics.get("successful_requests", 0)) + 1

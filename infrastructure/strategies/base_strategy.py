@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
+from decimal import Decimal
 from pathlib import Path
 from queue import Queue
 from typing import Any, Dict, Optional, Tuple
@@ -224,7 +225,7 @@ class BaseStrategy(ABC):
         except Exception as e:
             return False, f"Validation error: {str(e)}"
 
-    def calculate_position_size(self, signal: Signal, account_balance: float) -> float:
+    def calculate_position_size(self, signal: Signal, account_balance: Decimal) -> Decimal:
         """
         Расчет размера позиции на основе сигнала и баланса.
         Args:
@@ -235,15 +236,16 @@ class BaseStrategy(ABC):
         """
         try:
             # Базовый размер позиции
-            position_size = account_balance * self.position_size_ratio
+            position_size = account_balance * Decimal(str(self.position_size_ratio))
             # Ограничиваем максимальный размер позиции
-            position_size = min(position_size, account_balance * self.max_position_size)
+            max_size = account_balance * Decimal(str(self.max_position_size))
+            position_size = min(position_size, max_size)
             # Учитываем уверенность в сигнале
-            position_size *= signal.confidence
-            return float(position_size)
+            position_size *= Decimal(str(signal.confidence))
+            return position_size
         except Exception as e:
             logger.error(f"Error calculating position size: {str(e)}")
-            return 0.0
+            return Decimal('0')
 
     def calculate_risk_metrics(self, data: pd.DataFrame) -> Dict[str, float]:
         """
@@ -374,7 +376,8 @@ class BaseStrategy(ABC):
             mean_return = returns.mean()
             downside_std = downside_returns.std()
             return float(mean_return / (downside_std ** 2) * (252**0.5))
-        except:
+        except (ZeroDivisionError, ValueError, TypeError) as e:
+            logger.warning(f"Error calculating Calmar ratio: {e}")
             return 0.0
 
     def _calculate_gain_loss_ratio(self, returns: pd.Series) -> float:
@@ -388,7 +391,8 @@ class BaseStrategy(ABC):
             if len(losses) == 0:
                 return 0.0
             return float(gains.mean() / abs(losses.mean()))
-        except:
+        except (ZeroDivisionError, ValueError, TypeError) as e:
+            logger.warning(f"Error calculating gain/loss ratio: {e}")
             return 0.0
 
     def update_metrics(self, signal: Signal, result: Dict[str, Any]) -> None:

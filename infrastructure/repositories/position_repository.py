@@ -2,6 +2,7 @@
 Сверхпродвинутая промышленная реализация репозитория позиций.
 """
 
+import ast
 import asyncio
 import logging
 from collections import defaultdict
@@ -556,10 +557,11 @@ class PostgresPositionRepository(PositionRepository):
         
         metadata_str = row["metadata"] if row["metadata"] else "{}"
         try:
-            metadata = eval(metadata_str) if metadata_str else {}
+            metadata = ast.literal_eval(metadata_str) if metadata_str else {}
             if not isinstance(metadata, dict):
                 metadata = {}
-        except:
+        except (ValueError, SyntaxError, TypeError) as e:
+            logging.warning(f"Failed to parse metadata '{metadata_str}': {e}")
             metadata = {}
         
         return Position(

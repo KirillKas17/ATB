@@ -3,6 +3,7 @@
 Торговый репозиторий - реализация хранения торговых данных.
 """
 
+import ast
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
@@ -1261,7 +1262,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                 if row["take_profit"]
                 else None
             ),
-            metadata=eval(row["metadata"]) if row["metadata"] else {},
+            metadata=ast.literal_eval(row["metadata"]) if row["metadata"] else {},
         )
 
     async def save_trade(self, trade: Trade) -> Trade:

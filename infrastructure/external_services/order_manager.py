@@ -492,8 +492,9 @@ class ProductionOrderManager(ExchangeProtocol):
         self, order_value: Money, order_type: OrderType
     ) -> Money:
         """Расчет комиссии."""
-        commission_rate = 0.001  # 0.1%
-        return Money(amount=float(order_value.amount) * commission_rate, currency=order_value.currency)
+        from decimal import Decimal
+        commission_rate = Decimal('0.001')  # 0.1%
+        return Money(amount=order_value.amount * commission_rate, currency=order_value.currency)
 
     async def validate_order(
         self,

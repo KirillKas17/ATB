@@ -471,8 +471,15 @@ def calc_rsi(prices: pd.Series, period: int = 14) -> pd.Series:
         if hasattr(gain, 'rolling'):
             avg_gain = gain.rolling(window=period).mean()
             avg_loss = loss.rolling(window=period).mean()
+            
+            # Защита от деления на ноль
+            avg_loss = avg_loss.replace(0, np.nan)
             rs = avg_gain / avg_loss
+            rs = rs.fillna(0)  # Если avg_loss=0, то rs=0 (нет потерь -> RSI=100)
+            
+            # Защита от деления на ноль в финальной формуле
             rsi = 100 - (100 / (1 + rs))
+            rsi = rsi.fillna(100)  # Если rs=0, то RSI=100
             return rsi
     return pd.Series()
 
@@ -558,8 +565,15 @@ def calc_mfi(
     # Вычисляем скользящие средние
     positive_mf = positive_flow.rolling(window=period).sum()
     negative_mf = negative_flow.rolling(window=period).sum()
-    # Вычисляем MFI
-    mfi = 100 - (100 / (1 + (positive_mf / negative_mf)))
+    
+    # Защита от деления на ноль в MFI
+    negative_mf = negative_mf.replace(0, np.nan)
+    money_ratio = positive_mf / negative_mf
+    money_ratio = money_ratio.fillna(0)  # Если negative_mf=0, то money_ratio=0
+    
+    # Вычисляем MFI с защитой от деления на ноль
+    mfi = 100 - (100 / (1 + money_ratio))
+    mfi = mfi.fillna(100)  # Если money_ratio=0, то MFI=100
     return mfi
 
 

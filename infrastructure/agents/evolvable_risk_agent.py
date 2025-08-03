@@ -302,7 +302,8 @@ class EvolvableRiskAgent(EvolvableComponent):
             try:
                 new_model.net[0].weight.data[:current_hidden_dim, :] = self.ml_model.net[0].weight.data
                 new_model.net[0].bias.data[:current_hidden_dim] = self.ml_model.net[0].bias.data
-            except:
+            except (RuntimeError, IndexError, AttributeError) as e:
+                logger.warning(f"Failed to copy model weights during evolution: {e}")
                 pass
             self.ml_model = new_model
             self.optimizer = torch.optim.Adam(self.ml_model.parameters(), lr=1e-3)
