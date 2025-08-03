@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-def fix_file(file_path):
+def fix_file(file_path: str) -> bool:
     """Исправляет проблемы с кодировкой в файле."""
     try:
         with open(file_path, 'rb') as f:
@@ -36,7 +36,7 @@ def fix_file(file_path):
         print(f"✗ Ошибка в {file_path}: {e}")
         return False
 
-def check_and_fix():
+def check_and_fix() -> None:
     """Проверяет и исправляет все Python файлы."""
     fixed_count = 0
     error_count = 0

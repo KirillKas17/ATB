@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 
-def run_ruff():
+def run_ruff() -> None:
     """Запуск Ruff для проверки кода"""
     try:
         # Проверяем наличие Ruff
@@ -31,7 +31,7 @@ def run_ruff():
     return True
 
 
-def format_code():
+def format_code() -> bool:
     """Форматирование кода с помощью Ruff"""
     try:
         print("Форматирование кода...")

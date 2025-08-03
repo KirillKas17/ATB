@@ -527,7 +527,7 @@ def calculate_support_resistance(
 
 def calculate_volume_profile(
     volume: Series, price: Series, bins: int = 10
-) -> Tuple[np.ndarray, pd.IntervalIndex]:
+) -> Tuple[np.ndarray, Any]:  # pd.IntervalIndex simplified
     """Расчет профиля объема"""
     price = cast(pd.Series, price)
     volume = cast(pd.Series, volume)

@@ -32,7 +32,7 @@ class MockModule:
 
 # Create mock torch with common attributes
 torch = MockModule()
-torch.cuda = MockModule()
+torch.cuda = MockModule()  # type: ignore[method-assign]
 torch.cuda.is_available = lambda: False  # type: ignore[method-assign]
 torch.nn = MockModule()  # type: ignore[attr-defined]
 torch.nn.Module = MockModule()

@@ -55,7 +55,7 @@ class DefaultRiskCalculator(IRiskCalculator):
             for pos in positions:
                 if "returns" in pos:
                     returns.extend(pos["returns"])
-            volatility = np.std(returns) if returns else 0.0
+            volatility = np.std(returns) if returns else 0.0  # type: ignore[attr-defined]
             # Расчет VaR
             var_95 = self.calculate_var(np.array(returns), 0.95) if returns else 0.0
             # Расчет максимальной просадки
