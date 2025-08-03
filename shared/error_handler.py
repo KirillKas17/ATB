@@ -3,283 +3,318 @@
 """
 
 import asyncio
+import logging
 import time
-import traceback
-from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, Type, Union, Tuple
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Type
+from datetime import datetime, timedelta
+from enum import Enum
 
-from .exceptions import ConfigurationError, ExchangeError
-from infrastructure.shared.exceptions import TradingError
-from .logging import get_logger
+# Настройка безопасного логирования
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-logger = get_logger(__name__)
+
+class ErrorSeverity(Enum):
+    """Уровни критичности ошибок."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class ErrorCategory(Enum):
+    """Категории ошибок."""
+    NETWORK = "network"
+    DATABASE = "database"
+    VALIDATION = "validation"
+    BUSINESS_LOGIC = "business_logic"
+    EXTERNAL_API = "external_api"
+    SYSTEM = "system"
 
 
 class ErrorHandler:
-    """Централизованный обработчик ошибок."""
-
-    def __init__(self) -> None:
-        self.error_callbacks: Dict[Type[Exception], Callable] = {}
-        self.error_counters: Dict[str, int] = {}
-        self.error_history: list = []
+    """Продвинутый обработчик ошибок с метриками и алертингом."""
+    
+    def __init__(self):
+        self.error_counts: Dict[str, int] = {}
+        self.error_history: List[Dict[str, Any]] = []
         self.max_history_size = 1000
-
-    def register_error_callback(self, error_type: Type[Exception], callback: Callable) -> None:
-        """Регистрация callback для определенного типа ошибки."""
-        self.error_callbacks[error_type] = callback
-
-    def handle_error(
-        self, error: Exception, context: Optional[Dict[str, Any]] = None
-    ) -> bool:
-        """
-        Обработка ошибки.
-
-        Args:
-            error: Исключение для обработки
-            context: Дополнительный контекст
-
-        Returns:
-            bool: True если ошибка была обработана, False если нужно пробросить дальше
-        """
+        
+    def log_error(self, error: Exception, severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+                  category: ErrorCategory = ErrorCategory.SYSTEM,
+                  context: Optional[Dict[str, Any]] = None) -> None:
+        """Логирование ошибки с контекстом."""
+        error_info = {
+            "timestamp": datetime.now().isoformat(),
+            "error_type": type(error).__name__,
+            "error_message": str(error),
+            "severity": severity.value,
+            "category": category.value,
+            "context": context or {}
+        }
+        
+        # Обновление счетчиков
+        error_key = f"{category.value}_{type(error).__name__}"
+        self.error_counts[error_key] = self.error_counts.get(error_key, 0) + 1
+        
+        # Добавление в историю
+        self.error_history.append(error_info)
+        if len(self.error_history) > self.max_history_size:
+            self.error_history.pop(0)
+        
+        # Логирование
+        log_level = {
+            ErrorSeverity.LOW: logging.INFO,
+            ErrorSeverity.MEDIUM: logging.WARNING,
+            ErrorSeverity.HIGH: logging.ERROR,
+            ErrorSeverity.CRITICAL: logging.CRITICAL
+        }[severity]
+        
+        logger.log(log_level, f"[{category.value.upper()}] {type(error).__name__}: {error}")
+        
+        # Алерт для критических ошибок
+        if severity == ErrorSeverity.CRITICAL:
+            self._send_critical_alert(error_info)
+    
+    def _send_critical_alert(self, error_info: Dict[str, Any]) -> None:
+        """Отправка критического алерта."""
         try:
-            # Увеличиваем счетчик ошибок
-            error_type = type(error).__name__
-            self.error_counters[error_type] = self.error_counters.get(error_type, 0) + 1
-
-            # Добавляем в историю
-            error_record = {
-                "timestamp": datetime.now(),
-                "error_type": error_type,
-                "message": str(error),
-                "context": context or {},
-                "traceback": traceback.format_exc(),
-            }
-            self.error_history.append(error_record)
-
-            # Ограничиваем размер истории
-            if len(self.error_history) > self.max_history_size:
-                self.error_history = self.error_history[-self.max_history_size :]
-
-            # Логируем ошибку
-            logger.error(
-                f"Error occurred: {error_type} - {str(error)}",
-                extra={"context": context, "traceback": traceback.format_exc()},
-            )
-
-            # Вызываем зарегистрированный callback
-            for error_class, callback in self.error_callbacks.items():
-                if isinstance(error, error_class):
-                    try:
-                        callback(error, context)
-                        return True
-                    except Exception as callback_error:
-                        logger.error(f"Error in error callback: {callback_error}")
-
-            # Обработка по умолчанию
-            return self._default_error_handler(error, context)
-
-        except Exception as handler_error:
-            logger.error(f"Error in error handler: {handler_error}")
-            return False
-
-    def _default_error_handler(
-        self, error: Exception, context: Optional[Dict[str, Any]]
-    ) -> bool:
-        """Обработчик ошибок по умолчанию."""
-
-        if isinstance(error, TradingError):
-            logger.error(
-                "Trading error occurred",
-                extra={"error": str(error), "context": context},
-            )
-            return True
-
-        elif isinstance(error, ExchangeError):
-            logger.error(
-                "Exchange error occurred",
-                extra={"error": str(error), "context": context},
-            )
-            return True
-
-        elif isinstance(error, ConfigurationError):
-            logger.error(
-                "Configuration error occurred",
-                extra={"error": str(error), "context": context},
-            )
-            return True
-
-        else:
-            logger.error(
-                "Unexpected error occurred",
-                extra={"error": str(error), "context": context},
-            )
-            return False
-
+            # Здесь можно интегрироваться с системой алертинга
+            logger.critical(f"CRITICAL ALERT: {error_info}")
+        except Exception as e:
+            logger.error(f"Failed to send critical alert: {e}")
+    
     def get_error_stats(self) -> Dict[str, Any]:
         """Получение статистики ошибок."""
+        total_errors = sum(self.error_counts.values())
+        recent_errors = len([e for e in self.error_history 
+                           if datetime.fromisoformat(e["timestamp"]) > datetime.now() - timedelta(hours=1)])
+        
         return {
-            "counters": self.error_counters.copy(),
-            "total_errors": sum(self.error_counters.values()),
-            "recent_errors": self.error_history[-10:] if self.error_history else [],
+            "total_errors": total_errors,
+            "recent_errors_1h": recent_errors,
+            "error_counts": self.error_counts.copy(),
+            "most_frequent": max(self.error_counts.items(), key=lambda x: x[1]) if self.error_counts else None
         }
 
-    def clear_history(self) -> None:
-        """Очистка истории ошибок."""
-        self.error_history.clear()
-        self.error_counters.clear()
+
+# Глобальный обработчик ошибок
+global_error_handler = ErrorHandler()
 
 
-# Глобальный экземпляр обработчика ошибок
-error_handler = ErrorHandler()
-
-
-def handle_errors(func: Callable) -> Callable:
-    """Декоратор для автоматической обработки ошибок."""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            context = {
-                "function": func.__name__,
-                "args": str(args),
-                "kwargs": str(kwargs),
-            }
-            if error_handler.handle_error(e, context):
-                raise Exception(f"Error in {func.__name__}: {str(e)}")
-            raise
-
-    return wrapper
-
-
-def async_handle_errors(func: Callable) -> Callable:
-    """Асинхронный декоратор для автоматической обработки ошибок."""
-
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except Exception as e:
-            context = {
-                "function": func.__name__,
-                "args": str(args),
-                "kwargs": str(kwargs),
-            }
-            if error_handler.handle_error(e, context):
-                raise Exception(f"Error in {func.__name__}: {str(e)}")
-            raise
-
-    return wrapper
-
-
-def retry_on_error(
-    max_retries: int = 3,
-    delay: float = 1.0,
-    error_types: tuple = (ExchangeError,),
-):
-    """Декоратор для повторных попыток при ошибках."""
-
+def retry_on_failure(max_retries: int = 3, delay: float = 1.0, 
+                    backoff_factor: float = 2.0,
+                    error_types: Tuple[Type[Exception], ...] = (Exception,),
+                    async_mode: bool = False):
+    """
+    Декоратор для повтора операций при ошибках.
+    ИСПРАВЛЕНО: Правильная обработка асинхронных и синхронных функций.
+    """
     def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            last_error = None
-            for attempt in range(max_retries):
-                try:
-                    return func(*args, **kwargs)
-                except error_types as e:
-                    last_error = e
-                    if attempt < max_retries - 1:
-                        logger.warning(
-                            f"Attempt {attempt + 1} failed, retrying in {delay}s: {e}"
-                        )
-                        time.sleep(delay)
-                    else:
-                        logger.error(f"All {max_retries} attempts failed")
-            raise last_error
-
-        return wrapper
-
+        if asyncio.iscoroutinefunction(func):
+            @wraps(func)
+            async def async_wrapper(*args, **kwargs):
+                last_error = None
+                current_delay = delay
+                
+                for attempt in range(max_retries):
+                    try:
+                        return await func(*args, **kwargs)
+                    except error_types as e:
+                        last_error = e
+                        if attempt < max_retries - 1:
+                            logger.warning(
+                                f"Async attempt {attempt + 1} failed, retrying in {current_delay}s: {e}"
+                            )
+                            # ИСПРАВЛЕНО: Используем asyncio.sleep вместо time.sleep
+                            await asyncio.sleep(current_delay)
+                            current_delay *= backoff_factor
+                        else:
+                            logger.error(f"All {max_retries} async attempts failed")
+                
+                global_error_handler.log_error(last_error, ErrorSeverity.HIGH, ErrorCategory.SYSTEM)
+                raise last_error
+            
+            return async_wrapper
+        else:
+            @wraps(func)
+            def sync_wrapper(*args, **kwargs):
+                last_error = None
+                current_delay = delay
+                
+                for attempt in range(max_retries):
+                    try:
+                        return func(*args, **kwargs)
+                    except error_types as e:
+                        last_error = e
+                        if attempt < max_retries - 1:
+                            logger.warning(
+                                f"Sync attempt {attempt + 1} failed, retrying in {current_delay}s: {e}"
+                            )
+                            # Для синхронных функций time.sleep допустим
+                            time.sleep(current_delay)
+                            current_delay *= backoff_factor
+                        else:
+                            logger.error(f"All {max_retries} sync attempts failed")
+                
+                global_error_handler.log_error(last_error, ErrorSeverity.HIGH, ErrorCategory.SYSTEM)
+                raise last_error
+            
+            return sync_wrapper
+    
     return decorator
 
 
-def async_retry_on_error(
-    max_retries: int = 3,
-    delay: float = 1.0,
-    error_types: tuple = (ExchangeError,),
-):
-    """Асинхронный декоратор для повторных попыток при ошибках."""
-
+def handle_exceptions(error_types: Union[Type[Exception], Tuple[Type[Exception], ...]] = Exception,
+                     severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+                     category: ErrorCategory = ErrorCategory.SYSTEM,
+                     return_value: Any = None,
+                     reraise: bool = True):
+    """Декоратор для обработки исключений с логированием."""
+    if not isinstance(error_types, tuple):
+        error_types = (error_types,)
+    
     def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            last_error = None
-            for attempt in range(max_retries):
+        if asyncio.iscoroutinefunction(func):
+            @wraps(func)
+            async def async_wrapper(*args, **kwargs):
                 try:
                     return await func(*args, **kwargs)
                 except error_types as e:
-                    last_error = e
-                    if attempt < max_retries - 1:
-                        logger.warning(
-                            f"Attempt {attempt + 1} failed, retrying in {delay}s: {e}"
-                        )
-                        await asyncio.sleep(delay)
-                    else:
-                        logger.error(f"All {max_retries} attempts failed")
-            raise last_error
-
-        return wrapper
-
+                    global_error_handler.log_error(e, severity, category, {
+                        "function": func.__name__,
+                        "args": str(args)[:100],  # Ограничиваем размер
+                        "kwargs": str(kwargs)[:100]
+                    })
+                    
+                    if reraise:
+                        raise
+                    return return_value
+            
+            return async_wrapper
+        else:
+            @wraps(func)
+            def sync_wrapper(*args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except error_types as e:
+                    global_error_handler.log_error(e, severity, category, {
+                        "function": func.__name__,
+                        "args": str(args)[:100],
+                        "kwargs": str(kwargs)[:100]
+                    })
+                    
+                    if reraise:
+                        raise
+                    return return_value
+            
+            return sync_wrapper
+    
     return decorator
 
 
-# Регистрация обработчиков по умолчанию
-def setup_default_error_handlers() -> None:
-    """Настройка обработчиков ошибок по умолчанию."""
-
-    def trading_error_handler(error: TradingError, context: Optional[Dict[str, Any]]):
-        """Обработчик торговых ошибок."""
-        logger.error(
-            f"Trading error: {error.message}",
-            extra={
-                "error_code": error.error_code,
-                "details": error.details,
-                "context": context,
-            },
-        )
-
-    def exchange_error_handler(error: ExchangeError, context: Optional[Dict[str, Any]]):
-        """Обработчик ошибок биржи."""
-        logger.error(
-            f"Exchange error: {error.message}",
-            extra={
-                "error_code": error.error_code,
-                "details": error.details,
-                "context": context,
-            },
-        )
-
-    def configuration_error_handler(
-        error: ConfigurationError, context: Optional[Dict[str, Any]]
-    ):
-        """Обработчик ошибок конфигурации."""
-        logger.error(
-            f"Configuration error: {error.message}",
-            extra={
-                "error_code": error.error_code,
-                "details": error.details,
-                "context": context,
-            },
-        )
-
-    # Регистрируем обработчики
-    error_handler.register_error_callback(TradingError, trading_error_handler)
-    error_handler.register_error_callback(ExchangeError, exchange_error_handler)
-    error_handler.register_error_callback(
-        ConfigurationError, configuration_error_handler
-    )
+def safe_execute(func: Callable, *args, default_return: Any = None, 
+                log_errors: bool = True, **kwargs) -> Any:
+    """Безопасное выполнение функции с обработкой ошибок."""
+    try:
+        if asyncio.iscoroutinefunction(func):
+            # Для асинхронных функций возвращаем корутину
+            return func(*args, **kwargs)
+        else:
+            return func(*args, **kwargs)
+    except Exception as e:
+        if log_errors:
+            global_error_handler.log_error(e, ErrorSeverity.MEDIUM, ErrorCategory.SYSTEM, {
+                "function": getattr(func, '__name__', 'unknown'),
+                "safe_execute": True
+            })
+        return default_return
 
 
-# Инициализация при импорте
-setup_default_error_handlers()
+class CircuitBreaker:
+    """Упрощенный Circuit Breaker для предотвращения каскадных сбоев."""
+    
+    def __init__(self, failure_threshold: int = 5, recovery_timeout: float = 60.0):
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.failure_count = 0
+        self.last_failure_time: Optional[float] = None
+        self.state = "closed"  # closed, open, half-open
+    
+    def can_execute(self) -> bool:
+        """Проверка возможности выполнения операции."""
+        if self.state == "closed":
+            return True
+        elif self.state == "open":
+            if time.time() - (self.last_failure_time or 0) > self.recovery_timeout:
+                self.state = "half-open"
+                return True
+            return False
+        else:  # half-open
+            return True
+    
+    def record_success(self) -> None:
+        """Запись успешной операции."""
+        self.failure_count = 0
+        self.state = "closed"
+    
+    def record_failure(self) -> None:
+        """Запись неудачной операции."""
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        
+        if self.failure_count >= self.failure_threshold:
+            self.state = "open"
+        elif self.state == "half-open":
+            self.state = "open"
+
+
+def circuit_breaker_decorator(circuit_breaker: CircuitBreaker):
+    """Декоратор Circuit Breaker."""
+    def decorator(func: Callable) -> Callable:
+        if asyncio.iscoroutinefunction(func):
+            @wraps(func)
+            async def async_wrapper(*args, **kwargs):
+                if not circuit_breaker.can_execute():
+                    raise RuntimeError("Circuit breaker is open")
+                
+                try:
+                    result = await func(*args, **kwargs)
+                    circuit_breaker.record_success()
+                    return result
+                except Exception as e:
+                    circuit_breaker.record_failure()
+                    raise
+            
+            return async_wrapper
+        else:
+            @wraps(func)
+            def sync_wrapper(*args, **kwargs):
+                if not circuit_breaker.can_execute():
+                    raise RuntimeError("Circuit breaker is open")
+                
+                try:
+                    result = func(*args, **kwargs)
+                    circuit_breaker.record_success()
+                    return result
+                except Exception as e:
+                    circuit_breaker.record_failure()
+                    raise
+            
+            return sync_wrapper
+    
+    return decorator
+
+
+# Экспорт основных компонентов
+__all__ = [
+    'ErrorHandler', 'ErrorSeverity', 'ErrorCategory',
+    'global_error_handler', 'retry_on_failure', 'handle_exceptions',
+    'safe_execute', 'CircuitBreaker', 'circuit_breaker_decorator'
+]
