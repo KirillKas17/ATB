@@ -37,6 +37,8 @@ from .implementations import (
     SessionPredictor,
 )
 
+import uuid
+
 
 class SessionProfileRegistryAdapter(SessionRegistry):
     """Адаптер для SessionProfileRegistry к интерфейсу SessionRegistry."""
@@ -317,15 +319,67 @@ class SessionServiceFactory:
         self, storage_path: Optional[str] = None
     ) -> Any:
         """Создание репозитория сессий."""
-        # Здесь должна быть реализация создания репозитория
-        raise NotImplementedError("Session repository creation not implemented")
+        from infrastructure.repositories.base_repository import BaseRepository, MemoryBackend
+        
+        class SessionRepository(BaseRepository):
+            def __init__(self, storage_path: Optional[str] = None):
+                backend = MemoryBackend()
+                super().__init__(backend)
+                self._storage_path = storage_path
+                self._sessions = {}
+            
+            async def save(self, entity):
+                async with self.transaction():
+                    session_id = getattr(entity, 'id', str(uuid.uuid4()))
+                    self._sessions[session_id] = entity
+                    return entity
+            
+            async def find_by_id(self, entity_id):
+                return self._sessions.get(entity_id)
+            
+            async def find_all(self):
+                return list(self._sessions.values())
+            
+            async def delete(self, entity_id):
+                if entity_id in self._sessions:
+                    del self._sessions[entity_id]
+                    return True
+                return False
+        
+        return SessionRepository(storage_path)
 
     def create_session_config_repository(
         self, storage_path: Optional[str] = None
     ) -> Any:
         """Создание репозитория конфигураций сессий."""
-        # Здесь должна быть реализация создания репозитория конфигураций
-        raise NotImplementedError("Session configuration repository creation not implemented")
+        from infrastructure.repositories.base_repository import BaseRepository, MemoryBackend
+        
+        class SessionConfigRepository(BaseRepository):
+            def __init__(self, storage_path: Optional[str] = None):
+                backend = MemoryBackend()
+                super().__init__(backend)
+                self._storage_path = storage_path
+                self._configs = {}
+            
+            async def save(self, entity):
+                async with self.transaction():
+                    config_id = getattr(entity, 'id', str(uuid.uuid4()))
+                    self._configs[config_id] = entity
+                    return entity
+            
+            async def find_by_id(self, entity_id):
+                return self._configs.get(entity_id)
+            
+            async def find_all(self):
+                return list(self._configs.values())
+            
+            async def delete(self, entity_id):
+                if entity_id in self._configs:
+                    del self._configs[entity_id]
+                    return True
+                return False
+        
+        return SessionConfigRepository(storage_path)
 
 
 # Глобальные функции для удобства

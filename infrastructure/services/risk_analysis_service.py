@@ -21,13 +21,13 @@ from domain.types.risk_types import PortfolioRisk  # type: ignore
 from domain.types.risk_types import PositionRisk  # type: ignore
 from domain.types.risk_types import RiskOptimizationResult  # type: ignore
 from domain.types.risk_types import PortfolioOptimizationMethod  # type: ignore
-from domain.services.risk_analysis import RiskAnalysisProtocol  # type: ignore
+from domain.services.risk_analysis import AdvancedRiskAnalysisService, risk_analysis_service
 # from domain.services.risk_analysis_service import RiskAnalysisService  # type: ignore
 from domain.types.risk_types import RiskMetrics as DomainRiskMetrics
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 # from infrastructure.cache.cache_config import CacheConfig  # type: ignore
-from infrastructure.cache.cache_manager import CacheManager
+from infrastructure.shared.cache import CacheManager, CacheConfig
 from shared.logging import LoggerMixin
 # from shared.risk_calculations import (  # type: ignore
 #     calc_volatility,
@@ -132,7 +132,7 @@ class PortfolioOptimizerProtocol(Protocol):
         ...
 
 
-class RiskAnalysisServiceImpl(RiskAnalysisProtocol, LoggerMixin):
+class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
     """Промышленная реализация сервиса анализа рисков."""
 
     def __init__(
