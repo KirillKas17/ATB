@@ -245,7 +245,12 @@ class BaseExchangeService(ExchangeServiceProtocol):
             if not self.ccxt_client:
                 raise ExchangeError("CCXT client not initialized")
             result = await self.ccxt_client.create_order(**order_params)
-            # Преобразуем результат
+            # ИСПРАВЛЕНО: Безопасное преобразование результата с проверкой ключей
+            required_keys = ["id", "symbol", "type", "side", "amount", "status", "timestamp"]
+            for key in required_keys:
+                if key not in result:
+                    raise ExchangeError(f"Missing required field '{key}' in order result: {result}")
+            
             order_data: Dict[str, Any] = {
                 "id": result["id"],
                 "symbol": result["symbol"],
@@ -319,6 +324,12 @@ class BaseExchangeService(ExchangeServiceProtocol):
             if not self.ccxt_client:
                 raise ExchangeError("CCXT client not initialized")
             result = await self.ccxt_client.fetch_order(str(order_id))
+            # ИСПРАВЛЕНО: Безопасная проверка ключей перед обращением
+            required_keys = ["id", "symbol", "type", "side", "amount", "status", "timestamp"]
+            for key in required_keys:
+                if key not in result:
+                    raise ExchangeError(f"Missing required field '{key}' in order status result: {result}")
+            
             order_data: Dict[str, Any] = {
                 "id": result["id"],
                 "symbol": result["symbol"],

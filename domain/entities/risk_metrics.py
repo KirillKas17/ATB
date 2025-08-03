@@ -197,8 +197,36 @@ class RiskMetrics:
             correlation=Decimal(data["correlation"]),
             created_at=Timestamp.from_iso(data["created_at"]),
             updated_at=Timestamp.from_iso(data["updated_at"]),
-            metadata=ast.literal_eval(data.get("metadata", "{}")),
+            # ИСПРАВЛЕНО: Безопасная обработка metadata с проверкой на ошибки
+            metadata=cls._safe_parse_metadata(data.get("metadata", "{}")),
         )
+
+    @classmethod
+    def _safe_parse_metadata(cls, metadata_str: str) -> Dict:
+        """Безопасный парсинг metadata строки."""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            if not metadata_str or metadata_str.strip() == "":
+                return {}
+            
+            # Используем ast.literal_eval для безопасного парсинга
+            result = ast.literal_eval(metadata_str)
+            
+            # Проверяем что результат - словарь
+            if not isinstance(result, dict):
+                logger.warning(f"Metadata is not a dict: {type(result)}, defaulting to empty dict")
+                return {}
+                
+            return result
+            
+        except (ValueError, SyntaxError, TypeError) as e:
+            logger.warning(f"Failed to parse metadata '{metadata_str}': {e}, defaulting to empty dict")
+            return {}
+        except Exception as e:
+            logger.error(f"Unexpected error parsing metadata '{metadata_str}': {e}, defaulting to empty dict")
+            return {}
 
     def __str__(self) -> str:
         """Строковое представление метрик."""
