@@ -72,7 +72,20 @@ def run_dashboard():
         print("🚀 Запуск ATB Trading Dashboard...")
         
         # Проверяем, какую версию запускать
-        dashboard_type = "integrated"  # integrated, basic, или simple
+        dashboard_type = "advanced"  # advanced, integrated, basic, или simple
+        
+        if dashboard_type == "advanced":
+            # Попытка запуска продвинутого дашборда
+            try:
+                from interfaces.desktop.advanced_dashboard import AdvancedTradingDashboard
+                print("⚡ Запуск продвинутого дашборда...")
+                dashboard = AdvancedTradingDashboard()
+                dashboard.run()
+                
+            except ImportError as e:
+                print(f"⚠️ Не удалось загрузить продвинутый дашборд: {e}")
+                print("🔄 Переключение на интегрированную версию...")
+                dashboard_type = "integrated"
         
         if dashboard_type == "integrated":
             # Попытка запуска интегрированного дашборда
