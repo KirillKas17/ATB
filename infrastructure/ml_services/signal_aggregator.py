@@ -1,13 +1,21 @@
 """
-Агрегатор сигналов из различных источников.
+Signal Aggregator для ML Services в ATB Trading System.
 """
 
+from enum import Enum
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Any, Optional
 
 import numpy as np
 
-from domain.types.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType
+from domain.types.ml_types import AggregatedSignal, SignalSource, SignalType
+
+
+class ActionType(Enum):
+    """Типы торговых действий."""
+    BUY = "buy"
+    SELL = "sell"
+    HOLD = "hold"
 
 
 class SignalAggregator:
@@ -72,9 +80,9 @@ class SignalAggregator:
         action_str = max(scores, key=lambda k: scores[k])
         # Преобразование строки в enum
         if action_str == "buy":
-            action = ActionType.OPEN
+            action = ActionType.BUY
         elif action_str == "sell":
-            action = ActionType.CLOSE
+            action = ActionType.SELL
         else:
             action = ActionType.HOLD
         confidence = float(scores[action_str])
@@ -115,10 +123,10 @@ class SignalAggregator:
         weighted_pred = np.average(predictions, weights=weights)
         # Определение действия
         if weighted_pred > 0.3:
-            action = ActionType.OPEN
+            action = ActionType.BUY
             confidence = min(float(weighted_pred), 1.0)
         elif weighted_pred < -0.3:
-            action = ActionType.CLOSE
+            action = ActionType.SELL
             confidence = min(float(abs(weighted_pred)), 1.0)
         else:
             action = ActionType.HOLD
@@ -159,9 +167,9 @@ class SignalAggregator:
         action_str = max(probs, key=lambda k: probs[k])
         # Преобразование строки в enum
         if action_str == "buy":
-            action = ActionType.OPEN
+            action = ActionType.BUY
         elif action_str == "sell":
-            action = ActionType.CLOSE
+            action = ActionType.SELL
         else:
             action = ActionType.HOLD
         confidence = float(probs[action_str])

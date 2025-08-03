@@ -5,13 +5,21 @@
 
 import re
 import math
+import logging
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union, Callable
 from functools import wraps
 from dataclasses import dataclass
 
-from loguru import logger
+# Безопасная настройка логирования
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
 @dataclass
