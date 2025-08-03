@@ -96,7 +96,17 @@ def main():
         sys.path.insert(0, str(project_root))
         
         # Импорт и запуск главного приложения
-        from interfaces.desktop.dashboard_with_settings import MainApplication
+        try:
+            from interfaces.desktop.dashboard_with_settings import MainApplication
+        except ImportError as e:
+            if "tkinter" in str(e):
+                print("❌ Tkinter не установлен!")
+                print("💡 Для установки tkinter на Linux: sudo apt-get install python3-tk")
+                print("💡 На Windows: tkinter обычно предустановлен с Python")
+                input("Нажмите Enter для выхода...")
+                return False
+            else:
+                raise
         
         print("🎨 Загрузка Apple-style интерфейса...")
         print("📺 Подготовка Live Demo дашборда...")

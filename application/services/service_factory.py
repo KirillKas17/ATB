@@ -199,7 +199,7 @@ class DefaultServiceFactory(ServiceFactory):
             )
 
             # Создание репозитория стратегий
-            strategy_repository = self.create_strategy_repository(service_config.get("repository", {}))
+            strategy_repository = self._get_strategy_repository()
             
             from application.services.implementations.strategy_service_impl import StrategyServiceImpl
             self._service_instances[service_key] = StrategyServiceImpl(
@@ -399,6 +399,16 @@ class DefaultServiceFactory(ServiceFactory):
             self.logger.warning("PortfolioRepository not available, using mock")
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("PortfolioRepository")
+
+    def _get_strategy_repository(self):
+        """Получить репозиторий стратегий."""
+        try:
+            from infrastructure.repositories.strategy_repository import StrategyRepositoryImpl
+            return StrategyRepositoryImpl()
+        except ImportError:
+            self.logger.warning("StrategyRepository not available, using mock")
+            from safe_import_wrapper import SafeImportMock
+            return SafeImportMock("StrategyRepository")
 
     def get_service_instance(self, service_type: str) -> Optional[Any]:
         """Получить экземпляр сервиса по типу."""

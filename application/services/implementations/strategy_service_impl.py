@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 from uuid import UUID, uuid4
 
 from domain.entities.strategy import AbstractStrategy, StrategyState, StrategyStatus
-from domain.interfaces.strategy_service import StrategyService
+from application.protocols.service_protocols import StrategyService
 from domain.repositories.strategy_repository import StrategyRepository
 from domain.value_objects.strategy_id import StrategyId
 from domain.exceptions import StrategyExecutionError, ValidationError
