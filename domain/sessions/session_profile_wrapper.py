@@ -91,7 +91,7 @@ class SessionProfile:
                 typical_volatility_multiplier=1.3,
                 liquidity_profile=LiquidityProfile.ABUNDANT,
                 intensity_profile=SessionIntensity.NORMAL,
-                market_regime_tendency=MarketRegime.TRENDING
+                market_regime_tendency=MarketRegime.TRENDING_BULL
             )
             
             # Нью-Йоркская сессия
@@ -123,7 +123,7 @@ class SessionProfile:
                 typical_volatility_multiplier=1.1,
                 liquidity_profile=LiquidityProfile.EXCESSIVE,
                 intensity_profile=SessionIntensity.NORMAL,
-                market_regime_tendency=MarketRegime.TRENDING
+                market_regime_tendency=MarketRegime.TRENDING_BULL
             )
             
             # Сиднейская сессия

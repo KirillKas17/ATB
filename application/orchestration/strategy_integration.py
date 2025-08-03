@@ -34,15 +34,15 @@ class StrategyIntegrationManager:
     async def initialize_strategies(self) -> None:
         """Инициализация всех доступных стратегий."""
         try:
-            # Инициализация основных стратегий
+            # Инициализация основных стратегий с дефолтными конфигурациями
             self.strategies.update({
-                'trend': TrendStrategy(),
-                'sideways': SidewaysStrategy(), 
-                'volatility': VolatilityStrategy(),
-                'manipulation': ManipulationStrategy(),
-                'mean_reversion': MeanReversionStrategy(),
-                'momentum': MomentumStrategy(),
-                'scalping': ScalpingStrategy()
+                'trend': TrendStrategy({}),
+                'sideways': SidewaysStrategy({}), 
+                'volatility': VolatilityStrategy({}),
+                'manipulation': ManipulationStrategy({}),
+                'mean_reversion': MeanReversionStrategy({}),
+                'momentum': MomentumStrategy({}),
+                'scalping': ScalpingStrategy({})
             })
             
             # Активация базовых стратегий

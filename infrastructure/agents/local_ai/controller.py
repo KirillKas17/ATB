@@ -601,3 +601,139 @@ class LocalAIController:
             logger.info("Cache cleared")
         except Exception as e:
             logger.error(f"Error clearing cache: {e}")
+
+    async def make_decision(self, market_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Принятие торгового решения на основе рыночных данных."""
+        try:
+            # Валидация входных данных
+            if not market_data or 'symbol' not in market_data:
+                return {
+                    "action": "hold",
+                    "confidence": 0.0,
+                    "reason": "Недостаточно данных",
+                    "timestamp": time.time()
+                }
+            
+            symbol = market_data['symbol']
+            price = market_data.get('price', 0)
+            
+            # Базовая логика принятия решений
+            decision_data = {
+                "symbol": symbol,
+                "current_price": price,
+                "analysis_type": "ai_decision",
+                "timestamp": time.time()
+            }
+            
+            # Анализ через AI агента
+            analysis_result = await self.analyze_request(decision_data)
+            
+            if analysis_result and analysis_result.get("status") == "completed":
+                result = analysis_result.get("result", {})
+                
+                # Извлекаем рекомендацию из анализа
+                recommendation = result.get("recommendation", "hold")
+                confidence = result.get("confidence", 0.5)
+                reasoning = result.get("reasoning", "AI анализ выполнен")
+                
+                return {
+                    "action": recommendation,
+                    "confidence": float(confidence),
+                    "reason": reasoning,
+                    "symbol": symbol,
+                    "price": price,
+                    "timestamp": time.time(),
+                    "ai_analysis": result
+                }
+            else:
+                # Fallback решение
+                return {
+                    "action": "hold",
+                    "confidence": 0.3,
+                    "reason": "AI анализ недоступен, используется консервативная стратегия",
+                    "symbol": symbol,
+                    "price": price,
+                    "timestamp": time.time()
+                }
+                
+        except Exception as e:
+            logger.error(f"Error making decision: {e}")
+            return {
+                "action": "hold",
+                "confidence": 0.0,
+                "reason": f"Ошибка принятия решения: {str(e)}",
+                "timestamp": time.time(),
+                "error": True
+            }
+    
+    async def evaluate_risk(self, trade_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Оценка рисков торговой операции."""
+        try:
+            symbol = trade_data.get('symbol', '')
+            quantity = trade_data.get('quantity', 0)
+            side = trade_data.get('side', 'buy')
+            
+            # Базовая оценка рисков
+            risk_score = 0.5  # Средний риск по умолчанию
+            
+            # Анализируем размер позиции
+            if quantity > 1.0:  # Большая позиция
+                risk_score += 0.2
+            elif quantity < 0.1:  # Маленькая позиция
+                risk_score -= 0.1
+            
+            # Анализируем направление сделки
+            if side.lower() == 'short':
+                risk_score += 0.1  # Короткие позиции рискованнее
+            
+            # Ограничиваем риск диапазоном 0-1
+            risk_score = max(0.0, min(1.0, risk_score))
+            
+            risk_level = "low" if risk_score < 0.3 else "medium" if risk_score < 0.7 else "high"
+            
+            return {
+                "risk_score": risk_score,
+                "risk_level": risk_level,
+                "symbol": symbol,
+                "quantity": quantity,
+                "side": side,
+                "recommendations": self._generate_risk_recommendations(risk_score),
+                "timestamp": time.time()
+            }
+            
+        except Exception as e:
+            logger.error(f"Error evaluating risk: {e}")
+            return {
+                "risk_score": 1.0,  # Максимальный риск при ошибке
+                "risk_level": "high",
+                "error": str(e),
+                "timestamp": time.time()
+            }
+    
+    def _generate_risk_recommendations(self, risk_score: float) -> List[str]:
+        """Генерация рекомендаций по управлению рисками."""
+        recommendations = []
+        
+        if risk_score < 0.3:
+            recommendations.extend([
+                "Низкий уровень риска",
+                "Можно увеличить размер позиции",
+                "Подходящий момент для входа"
+            ])
+        elif risk_score < 0.7:
+            recommendations.extend([
+                "Средний уровень риска", 
+                "Использовать стандартный размер позиции",
+                "Установить stop-loss",
+                "Следить за рыночными условиями"
+            ])
+        else:
+            recommendations.extend([
+                "Высокий уровень риска",
+                "Уменьшить размер позиции",
+                "Обязательный stop-loss",
+                "Рассмотреть отказ от сделки",
+                "Дополнительный анализ рынка"
+            ])
+        
+        return recommendations
