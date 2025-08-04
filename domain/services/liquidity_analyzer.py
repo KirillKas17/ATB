@@ -14,10 +14,11 @@ from decimal import Decimal
 from datetime import datetime
 
 
-class LiquidityZoneType:
-    SUPPORT = "support"
-    RESISTANCE = "resistance"
-    NEUTRAL = "neutral"
+# Используем LiquidityZoneType из domain.types.service_types
+# class LiquidityZoneType:
+#     SUPPORT = "support"
+#     RESISTANCE = "resistance"
+#     NEUTRAL = "neutral"
 
 
 class ILiquidityAnalyzer(ABC):
