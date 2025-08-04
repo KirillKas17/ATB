@@ -34,19 +34,19 @@ class Quantity(BaseValueObject):
                 # Конвертируем в Decimal если возможно
                 object.__setattr__(self, 'value', Decimal(str(self.value)))
             except (InvalidOperation, ValueError) as e:
-                raise ValidationError(f"Invalid quantity value: {e}")
+                raise ValidationError("value", self.value, "decimal_format", f"Invalid quantity value: {e}")
         
         # Остальные валидации
         if self.value <= 0:
-            raise ValidationError("Quantity must be positive")
+            raise ValidationError("value", self.value, "positive", "Quantity must be positive")
         
         if not isinstance(self.precision, int) or self.precision < 0:
-            raise ValidationError("Precision must be a non-negative integer")
+            raise ValidationError("precision", self.precision, "non_negative_integer", "Precision must be a non-negative integer")
         
         # Проверяем, что значение не превышает максимально возможное
         max_value = Decimal('999999999.99999999')  # Разумный максимум
         if self.value > max_value:
-            raise ValidationError(f"Quantity {self.value} exceeds maximum allowed value")
+            raise ValidationError("value", self.value, "max_value", f"Quantity {self.value} exceeds maximum allowed value")
         
         # Округляем до нужной точности
         rounded_value = self.value.quantize(Decimal('0.' + '0' * self.precision), rounding=ROUND_DOWN)
@@ -71,7 +71,7 @@ class Quantity(BaseValueObject):
             decimal_value = Decimal(str(value))
             return cls(value=decimal_value, precision=precision)
         except (InvalidOperation, ValueError) as e:
-            raise ValidationError(f"Cannot create quantity from value '{value}': {e}")
+            raise ValidationError("value", value, "creation", f"Cannot create quantity from value '{value}': {e}")
     
     @classmethod
     def zero(cls, precision: int = 8) -> 'Quantity':
@@ -84,20 +84,20 @@ class Quantity(BaseValueObject):
     def from_string(cls, value_str: str, precision: int = 8) -> 'Quantity':
         """Создание из строки с дополнительной валидацией."""
         if not isinstance(value_str, str):
-            raise ValidationError("Value must be a string")
+            raise ValidationError("value", value_str, "string_type", "Value must be a string")
         
         # Удаляем лишние пробелы
         value_str = value_str.strip()
         
         if not value_str:
-            raise ValidationError("Quantity string cannot be empty")
+            raise ValidationError("value", value_str, "non_empty", "Quantity string cannot be empty")
         
         return cls.create(value_str, precision)
     
     def add(self, other: 'Quantity') -> 'Quantity':
         """Сложение двух quantity с сохранением большей точности."""
         if not isinstance(other, Quantity):
-            raise ValidationError("Can only add Quantity to Quantity")
+            raise ValidationError("value", "", "validation", "Can only add Quantity to Quantity")
         
         max_precision = max(self.precision, other.precision)
         result_value = self.value + other.value
@@ -107,10 +107,10 @@ class Quantity(BaseValueObject):
     def subtract(self, other: 'Quantity') -> 'Quantity':
         """Вычитание quantity с проверкой на отрицательность."""
         if not isinstance(other, Quantity):
-            raise ValidationError("Can only subtract Quantity from Quantity")
+            raise ValidationError("value", "", "validation", "Can only subtract Quantity from Quantity")
         
         if other.value > self.value:
-            raise ValidationError("Subtraction would result in negative quantity")
+            raise ValidationError("value", "", "validation", "Subtraction would result in negative quantity")
         
         max_precision = max(self.precision, other.precision)
         result_value = self.value - other.value
@@ -122,10 +122,10 @@ class Quantity(BaseValueObject):
         try:
             multiplier_decimal = Decimal(str(multiplier))
         except (InvalidOperation, ValueError) as e:
-            raise ValidationError(f"Invalid multiplier: {e}")
+            raise ValidationError("value", "", "format", f"Invalid multiplier: {e}")
         
         if multiplier_decimal <= 0:
-            raise ValidationError("Multiplier must be positive")
+            raise ValidationError("value", "", "validation", "Multiplier must be positive")
         
         result_value = self.value * multiplier_decimal
         return Quantity(value=result_value, precision=self.precision)
@@ -135,10 +135,10 @@ class Quantity(BaseValueObject):
         try:
             divisor_decimal = Decimal(str(divisor))
         except (InvalidOperation, ValueError) as e:
-            raise ValidationError(f"Invalid divisor: {e}")
+            raise ValidationError("value", "", "format", f"Invalid divisor: {e}")
         
         if divisor_decimal <= 0:
-            raise ValidationError("Divisor must be positive")
+            raise ValidationError("value", "", "validation", "Divisor must be positive")
         
         result_value = self.value / divisor_decimal
         return Quantity(value=result_value, precision=self.precision)
@@ -146,23 +146,23 @@ class Quantity(BaseValueObject):
     def percentage_of(self, total: 'Quantity') -> Decimal:
         """Вычисление процента от общего количества."""
         if not isinstance(total, Quantity):
-            raise ValidationError("Total must be a Quantity")
+            raise ValidationError("value", "", "validation", "Total must be a Quantity")
         
         if total.value == 0:
-            raise ValidationError("Cannot calculate percentage of zero")
+            raise ValidationError("value", "", "validation", "Cannot calculate percentage of zero")
         
         return (self.value / total.value) * 100
     
     def is_greater_than(self, other: 'Quantity') -> bool:
         """Сравнение больше."""
         if not isinstance(other, Quantity):
-            raise ValidationError("Can only compare with another Quantity")
+            raise ValidationError("value", "", "validation", "Can only compare with another Quantity")
         return self.value > other.value
     
     def is_less_than(self, other: 'Quantity') -> bool:
         """Сравнение меньше."""
         if not isinstance(other, Quantity):
-            raise ValidationError("Can only compare with another Quantity")
+            raise ValidationError("value", "", "validation", "Can only compare with another Quantity")
         return self.value < other.value
     
     def is_equal_to(self, other: 'Quantity') -> bool:
@@ -200,23 +200,23 @@ class Quantity(BaseValueObject):
     def meets_minimum(self, minimum: 'Quantity') -> bool:
         """Проверка соответствия минимальному количеству."""
         if not isinstance(minimum, Quantity):
-            raise ValidationError("Minimum must be a Quantity")
+            raise ValidationError("value", "", "validation", "Minimum must be a Quantity")
         
         return self.value >= minimum.value
     
     def apply_lot_size(self, lot_size: 'Quantity') -> 'Quantity':
         """Применение размера лота (округление вниз до кратного лоту)."""
         if not isinstance(lot_size, Quantity):
-            raise ValidationError("Lot size must be a Quantity")
+            raise ValidationError("value", "", "validation", "Lot size must be a Quantity")
         
         if lot_size.value <= 0:
-            raise ValidationError("Lot size must be positive")
+            raise ValidationError("value", "", "validation", "Lot size must be positive")
         
         # Вычисляем количество полных лотов
         lots = int(self.value / lot_size.value)
         
         if lots == 0:
-            raise ValidationError("Quantity is less than minimum lot size")
+            raise ValidationError("value", "", "validation", "Quantity is less than minimum lot size")
         
         # Возвращаем количество, кратное лоту
         result_value = lot_size.value * lots

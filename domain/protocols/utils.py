@@ -126,11 +126,11 @@ def validate_entity_id(entity_id: Union[UUID, str]) -> UUID:
         try:
             return UUID(entity_id)
         except ValueError:
-            raise ValidationError(f"Invalid entity ID format: {entity_id}")
+            raise ValidationError("value", "", "format", f"Invalid entity ID format: {entity_id}")
     elif isinstance(entity_id, UUID):
         return entity_id
     else:
-        raise ValidationError(f"Entity ID must be UUID or string, got {type(entity_id)}")
+        raise ValidationError("value", "", "format", f"Entity ID must be UUID or string, got {type(entity_id)}")
 
 
 def validate_symbol(symbol: Union[str, Symbol]) -> Symbol:
@@ -148,10 +148,10 @@ def validate_symbol(symbol: Union[str, Symbol]) -> Symbol:
     """
     if isinstance(symbol, str):
         if not symbol or len(symbol) > 20:
-            raise ValidationError(f"Invalid symbol format: {symbol}")
+            raise ValidationError("value", "", "format", f"Invalid symbol format: {symbol}")
         return Symbol(symbol)
     else:
-        raise ValidationError(f"Symbol must be string or Symbol, got {type(symbol)}")
+        raise ValidationError("value", "", "format", f"Symbol must be string or Symbol, got {type(symbol)}")
 
 
 # ============================================================================

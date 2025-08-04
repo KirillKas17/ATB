@@ -33,13 +33,13 @@ class VolumeProfile:
     def __post_init__(self) -> None:
         """Валидация данных профиля объема."""
         if self.current_volume < 0:
-            raise ValidationError("Current volume cannot be negative")
+            raise ValidationError("value", "", "validation", "Current volume cannot be negative")
         if not -1.0 <= self.volume_trend <= 1.0:
-            raise ValidationError("Volume trend must be between -1.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Volume trend must be between -1.0 and 1.0")
         if not 0.0 <= self.volume_stability <= 1.0:
-            raise ValidationError("Volume stability must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Volume stability must be between 0.0 and 1.0")
         if self.volume_anomaly_ratio < 0:
-            raise ValidationError("Volume anomaly ratio cannot be negative")
+            raise ValidationError("value", "", "validation", "Volume anomaly ratio cannot be negative")
 
     def to_metrics(self) -> Dict[str, float]:
         """Преобразование в метрики."""
@@ -72,24 +72,24 @@ class PriceStructure:
     def __post_init__(self) -> None:
         """Валидация данных структуры цены."""
         if self.current_price < 0:
-            raise ValidationError("Current price cannot be negative")
+            raise ValidationError("value", "", "validation", "Current price cannot be negative")
         if self.atr < 0:
-            raise ValidationError("ATR cannot be negative")
+            raise ValidationError("value", "", "validation", "ATR cannot be negative")
         if self.atr_percent < 0:
-            raise ValidationError("ATR percent cannot be negative")
+            raise ValidationError("value", "", "validation", "ATR percent cannot be negative")
         if self.vwap < 0:
-            raise ValidationError("VWAP cannot be negative")
+            raise ValidationError("value", "", "validation", "VWAP cannot be negative")
         if not 0.0 <= self.price_entropy <= 1.0:
-            raise ValidationError("Price entropy must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Price entropy must be between 0.0 and 1.0")
         if not 0.0 <= self.volatility_compression <= 1.0:
-            raise ValidationError("Volatility compression must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Volatility compression must be between 0.0 and 1.0")
         # Валидация уровней
         if self.support_level is not None and self.support_level < 0:
-            raise ValidationError("Support level cannot be negative")
+            raise ValidationError("value", "", "validation", "Support level cannot be negative")
         if self.resistance_level is not None and self.resistance_level < 0:
-            raise ValidationError("Resistance level cannot be negative")
+            raise ValidationError("value", "", "validation", "Resistance level cannot be negative")
         if self.pivot_point is not None and self.pivot_point < 0:
-            raise ValidationError("Pivot point cannot be negative")
+            raise ValidationError("value", "", "validation", "Pivot point cannot be negative")
 
     def to_metrics(self) -> Dict[str, Any]:
         """Преобразование в метрики."""
@@ -123,21 +123,21 @@ class OrderBookMetricsData:
     def __post_init__(self) -> None:
         """Валидация метрик стакана заявок."""
         if self.bid_ask_spread < 0:
-            raise ValidationError("Bid-ask spread cannot be negative")
+            raise ValidationError("value", "", "validation", "Bid-ask spread cannot be negative")
         if self.spread_percent < 0:
-            raise ValidationError("Spread percent cannot be negative")
+            raise ValidationError("value", "", "validation", "Spread percent cannot be negative")
         if self.bid_volume < 0:
-            raise ValidationError("Bid volume cannot be negative")
+            raise ValidationError("value", "", "validation", "Bid volume cannot be negative")
         if self.ask_volume < 0:
-            raise ValidationError("Ask volume cannot be negative")
+            raise ValidationError("value", "", "validation", "Ask volume cannot be negative")
         if not -1.0 <= self.volume_imbalance <= 1.0:
-            raise ValidationError("Volume imbalance must be between -1.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Volume imbalance must be between -1.0 and 1.0")
         if not 0.0 <= self.order_book_symmetry <= 1.0:
-            raise ValidationError("Order book symmetry must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Order book symmetry must be between 0.0 and 1.0")
         if self.liquidity_depth < 0:
-            raise ValidationError("Liquidity depth cannot be negative")
+            raise ValidationError("value", "", "validation", "Liquidity depth cannot be negative")
         if not 0.0 <= self.absorption_ratio <= 1.0:
-            raise ValidationError("Absorption ratio must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Absorption ratio must be between 0.0 and 1.0")
 
     def to_metrics(self) -> Dict[str, float]:
         """Преобразование в метрики."""
@@ -167,19 +167,19 @@ class PatternMetricsData:
     def __post_init__(self) -> None:
         """Валидация метрик паттернов."""
         if not 0.0 <= self.mirror_neuron_score <= 1.0:
-            raise ValidationError("Mirror neuron score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Mirror neuron score must be between 0.0 and 1.0")
         if not 0.0 <= self.gravity_anomaly_score <= 1.0:
-            raise ValidationError("Gravity anomaly score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Gravity anomaly score must be between 0.0 and 1.0")
         if not 0.0 <= self.reversal_setup_score <= 1.0:
-            raise ValidationError("Reversal setup score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Reversal setup score must be between 0.0 and 1.0")
         if not 0.0 <= self.pattern_confidence <= 1.0:
-            raise ValidationError("Pattern confidence must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Pattern confidence must be between 0.0 and 1.0")
         if not 0.0 <= self.historical_pattern_match <= 1.0:
             raise ValidationError(
                 "Historical pattern match must be between 0.0 and 1.0"
             )
         if not 0.0 <= self.pattern_complexity <= 1.0:
-            raise ValidationError("Pattern complexity must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Pattern complexity must be between 0.0 and 1.0")
 
     def to_metrics(self) -> Dict[str, float]:
         """Преобразование в метрики."""
@@ -206,13 +206,13 @@ class SessionMetricsData:
     def __post_init__(self) -> None:
         """Валидация метрик сессии."""
         if not 0.0 <= self.session_alignment <= 1.0:
-            raise ValidationError("Session alignment must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Session alignment must be between 0.0 and 1.0")
         if self.session_activity < 0:
-            raise ValidationError("Session activity cannot be negative")
+            raise ValidationError("value", "", "validation", "Session activity cannot be negative")
         if self.session_volatility < 0:
-            raise ValidationError("Session volatility cannot be negative")
+            raise ValidationError("value", "", "validation", "Session volatility cannot be negative")
         if not 0.0 <= self.session_influence_score <= 1.0:
-            raise ValidationError("Session influence score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Session influence score must be between 0.0 and 1.0")
 
     def to_metrics(self) -> Dict[str, float]:
         """Преобразование в метрики."""
@@ -248,16 +248,16 @@ class SymbolProfile(SymbolProfileProtocol):
     def __post_init__(self) -> None:
         """Валидация профиля символа."""
         if not self.symbol:
-            raise ValidationError("Symbol cannot be empty")
+            raise ValidationError("value", "", "validation", "Symbol cannot be empty")
         if not 0.0 <= self.opportunity_score <= 1.0:
-            raise ValidationError("Opportunity score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Opportunity score must be between 0.0 and 1.0")
         if not 0.0 <= self.confidence <= 1.0:
-            raise ValidationError("Confidence must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Confidence must be between 0.0 and 1.0")
 
     def is_opportunity(self, min_score: float = 0.78) -> bool:
         """Проверка, является ли символ торговой возможностью."""
         if not 0.0 <= min_score <= 1.0:
-            raise ValidationError("Minimum score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Minimum score must be between 0.0 and 1.0")
         return (
             self.opportunity_score >= min_score
             and self.market_phase != MarketPhase.NO_STRUCTURE
@@ -355,10 +355,10 @@ class SymbolProfile(SymbolProfileProtocol):
         try:
             # Валидация обязательных полей
             if not isinstance(data, dict):
-                raise ValidationError("Data must be a dictionary")
+                raise ValidationError("value", "", "validation", "Data must be a dictionary")
             symbol = data.get("symbol", "")
             if not symbol:
-                raise ValidationError("Symbol is required")
+                raise ValidationError("value", "", "validation", "Symbol is required")
             # Создание вложенных объектов
             volume_profile = VolumeProfile(**data.get("volume_profile", {}))
             price_structure = PriceStructure(**data.get("price_structure", {}))
@@ -385,7 +385,7 @@ class SymbolProfile(SymbolProfileProtocol):
             )
         except (KeyError, ValueError, TypeError) as e:
             logger.error(f"Error creating SymbolProfile from dict: {e}")
-            raise ValidationError(f"Invalid data format: {e}")
+            raise ValidationError("value", "", "format", f"Invalid data format: {e}")
 
     def get_all_metrics(self) -> Dict[str, Any]:
         """Получение всех метрик в структурированном виде."""

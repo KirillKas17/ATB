@@ -26,7 +26,7 @@ class BotControl:
             st.error(f"Ошибка загрузки конфигурации: {e}")
             return {}
 
-    def save_config(self, config: Dict):
+    def save_config(self, config: Dict[Any, Any]) -> None:
         """Сохранение конфигурации"""
         try:
             config_file = self.config_dir / "config.yaml"

@@ -15,6 +15,7 @@ class StrategyError(Exception):
         strategy_id: Optional[str] = None,
         strategy_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
+        context: Optional[Dict[str, Any]] = None,
     ):
         """
         Инициализация исключения.
@@ -24,13 +25,25 @@ class StrategyError(Exception):
             strategy_id: ID стратегии
             strategy_name: Имя стратегии
             details: Дополнительные детали ошибки
+            context: Контекст ошибки (alias для details)
         """
         super().__init__(message)
         self.message = message
         self.strategy_id = strategy_id
         self.strategy_name = strategy_name
-        self.details = details or {}
+        # Поддерживаем и details, и context для совместимости
+        self.details = details or context or {}
         self.timestamp = None  # Будет установлено при логировании
+    
+    @property
+    def context(self) -> Dict[str, Any]:
+        """Alias для details для совместимости с тестами."""
+        return self.details
+    
+    @context.setter
+    def context(self, value: Dict[str, Any]) -> None:
+        """Setter для context."""
+        self.details = value
 
     def __str__(self) -> str:
         """Строковое представление исключения."""

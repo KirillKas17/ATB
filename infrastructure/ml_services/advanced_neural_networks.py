@@ -641,7 +641,7 @@ class AdaptiveLearningRateScheduler:
         self.patience = 10
         self.factor = 0.5
         
-    def step(self, loss: float):
+    def step(self, loss: float) -> None:
         """Обновляет learning rate на основе loss"""
         self.step_count += 1
         

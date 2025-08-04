@@ -114,16 +114,16 @@ class OpportunityScore:
         """Инициализация метаданных."""
         # Валидация scores
         if not 0.0 <= self.total_score <= 1.0:
-            raise ValidationError("Total score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Total score must be between 0.0 and 1.0")
         if not 0.0 <= self.confidence <= 1.0:
-            raise ValidationError("Confidence must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Confidence must be between 0.0 and 1.0")
         if not 0.0 <= self.phase_confidence <= 1.0:
-            raise ValidationError("Phase confidence must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Phase confidence must be between 0.0 and 1.0")
 
     def is_opportunity(self, min_score: float = 0.78) -> bool:
         """Проверка, является ли символ торговой возможностью."""
         if not 0.0 <= min_score <= 1.0:
-            raise ValidationError("Minimum score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Minimum score must be between 0.0 and 1.0")
         return self.total_score >= min_score and self.confidence >= 0.6
 
     def get_score_breakdown(self) -> Dict[str, float]:
@@ -315,7 +315,7 @@ class OpportunityScoreCalculator(OpportunityScoreCalculatorProtocol):
     ) -> bool:
         """Проверка, является ли символ торговой возможностью."""
         if not 0.0 <= min_score <= 1.0:
-            raise ValidationError("Minimum score must be between 0.0 and 1.0")
+            raise ValidationError("value", "", "validation", "Minimum score must be between 0.0 and 1.0")
         return score >= min_score
 
     def _validate_input_data(
@@ -323,17 +323,17 @@ class OpportunityScoreCalculator(OpportunityScoreCalculatorProtocol):
     ) -> None:
         """Валидация входных данных."""
         if not symbol or not isinstance(symbol, str):
-            raise ValidationError("Symbol must be a non-empty string")
+            raise ValidationError("value", "", "validation", "Symbol must be a non-empty string")
         if not isinstance(market_data, pd.DataFrame):
-            raise ValidationError("Market data must be a pandas DataFrame")
+            raise ValidationError("value", "", "validation", "Market data must be a pandas DataFrame")
         required_columns = ["open", "high", "low", "close", "volume"]
         missing_columns = [
             col for col in required_columns if col not in market_data.columns
         ]
         if missing_columns:
-            raise ValidationError(f"Missing required columns: {missing_columns}")
+            raise ValidationError("value", "", "format", f"Missing required columns: {missing_columns}")
         if not isinstance(order_book, dict):
-            raise ValidationError("Order book must be a dictionary")
+            raise ValidationError("value", "", "validation", "Order book must be a dictionary")
         if len(market_data) == 0:
             raise DataInsufficientError("Market data is empty")
 
