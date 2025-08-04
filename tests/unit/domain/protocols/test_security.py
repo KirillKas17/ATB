@@ -755,7 +755,7 @@ class TestSecurityManager:
 class TestSecurityDecorators:
     """Тесты для декораторов безопасности."""
 
-    def test_require_authentication_decorator(self):
+    async def test_require_authentication_decorator(self):
         """Тест декоратора требования аутентификации."""
         context = SecurityContext(
             user_id="user123",
@@ -774,7 +774,7 @@ class TestSecurityDecorators:
         result = await test_function(context)
         assert result == "success"
 
-    def test_encrypt_sensitive_fields_decorator(self):
+    async def test_encrypt_sensitive_fields_decorator(self):
         """Тест декоратора шифрования чувствительных полей."""
         @encrypt_sensitive_fields(["password", "email"])
         async def test_function(data: Dict[str, Any]):
@@ -791,7 +791,7 @@ class TestSecurityDecorators:
         assert result["password"] != original_data["password"]
         assert result["email"] != original_data["email"]
 
-    def test_audit_security_events_decorator(self):
+    async def test_audit_security_events_decorator(self):
         """Тест декоратора аудита событий безопасности."""
         @audit_security_events(AuditEvent.DATA_ACCESS, "/api/data", "GET")
         async def test_function():
