@@ -531,8 +531,7 @@ class SignalGenerationProtocolImpl(ABC):
             min_confidence = filters["min_confidence"]
             filtered_signals = [
                 signal for signal in filtered_signals
-                if isinstance(signal.metadata.get("confidence", 0.0), (int, float, Decimal)) and
-                   float(signal.metadata.get("confidence", 0.0)) >= float(min_confidence)
+                if self._get_numeric_value(signal.metadata.get("confidence", 0.0)) >= self._get_numeric_value(min_confidence)
             ]
         
         # Фильтрация по максимальному риску
@@ -540,8 +539,7 @@ class SignalGenerationProtocolImpl(ABC):
             max_risk = filters["max_risk"]
             filtered_signals = [
                 signal for signal in filtered_signals
-                if isinstance(signal.metadata.get("risk_score", 1.0), (int, float, Decimal)) and
-                   float(signal.metadata.get("risk_score", 1.0)) <= float(max_risk)
+                if self._get_numeric_value(signal.metadata.get("risk_score", 1.0)) <= self._get_numeric_value(max_risk)
             ]
         
         # Фильтрация по типу сигнала
@@ -738,7 +736,7 @@ class SignalGenerationProtocolImpl(ABC):
         self, original: Signal, optimized: Signal
     ) -> Dict[str, Tuple[Any, Any]]:
         """Определение изменений параметров."""
-        changes = {}
+        changes: Dict[str, Tuple[Any, Any]] = {}
         
         # Сравнение основных параметров
         if original.price != optimized.price:
@@ -776,4 +774,18 @@ class SignalGenerationProtocolImpl(ABC):
         self, signals: List[Signal], market_data: pd.DataFrame
     ) -> List[Signal]:
         """Фильтрация по качеству с машинным обучением."""
-        return signals 
+        return signals
+
+    def _get_numeric_value(self, value: Any) -> float:
+        """Безопасное извлечение числового значения."""
+        if isinstance(value, (int, float)):
+            return float(value)
+        elif isinstance(value, Decimal):
+            return float(value)
+        elif isinstance(value, str):
+            try:
+                return float(value)
+            except (ValueError, TypeError):
+                return 0.0
+        else:
+            return 0.0 

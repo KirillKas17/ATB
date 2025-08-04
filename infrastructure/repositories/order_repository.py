@@ -572,6 +572,34 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             f"Operation failed after {self._retry_attempts} attempts: {last_exception}"
         )
 
+    async def _execute_order_operation(self, operation: Callable[..., Order]) -> Order:
+        """Типизированная версия для операций с Order."""
+        result = await self._execute_with_retry(operation)
+        if isinstance(result, Order):
+            return result
+        raise RepositoryError(f"Expected Order, got {type(result)}")
+
+    async def _execute_order_list_operation(self, operation: Callable[..., List[Order]]) -> List[Order]:
+        """Типизированная версия для операций со списком Order."""
+        result = await self._execute_with_retry(operation)
+        if isinstance(result, list):
+            return result
+        raise RepositoryError(f"Expected List[Order], got {type(result)}")
+
+    async def _execute_optional_order_operation(self, operation: Callable[..., Optional[Order]]) -> Optional[Order]:
+        """Типизированная версия для операций с Optional[Order]."""
+        result = await self._execute_with_retry(operation)
+        if result is None or isinstance(result, Order):
+            return result
+        raise RepositoryError(f"Expected Optional[Order], got {type(result)}")
+
+    async def _execute_int_operation(self, operation: Callable[..., int]) -> int:
+        """Типизированная версия для операций с int."""
+        result = await self._execute_with_retry(operation)
+        if isinstance(result, int):
+            return result
+        raise RepositoryError(f"Expected int, got {type(result)}")
+
     async def save(self, order: Order) -> Order:
         """Сохранить ордер в PostgreSQL."""
 
@@ -612,7 +640,10 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                     await self.cache_service.invalidate(f"order:{order.id}")
                 return self._row_to_order(result)
 
-        return await self._execute_with_retry(_save_operation, order)
+        result = await self._execute_with_retry(_save_operation, order)
+        if isinstance(result, Order):
+            return result
+        raise RepositoryError(f"Expected Order from save operation, got {type(result)}")
 
     async def get_by_id(self, entity_id: Union[UUID, str]) -> Optional[Order]:
         """Получить ордер по ID с кэшированием."""
@@ -638,7 +669,10 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 return order
             return None
 
-        return await self._execute_with_retry(_get_operation)
+        result = await self._execute_with_retry(_get_operation)
+        if result is None or isinstance(result, Order):
+            return result
+        raise RepositoryError(f"Expected Optional[Order] from get operation, got {type(result)}")
 
     async def get_by_trading_pair(
         self, trading_pair: TradingPair, status: Optional[OrderStatus] = None

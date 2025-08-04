@@ -533,14 +533,18 @@ class MarketAnalysisProtocolImpl(ABC):
         recent_values = values[-10:]  # Последние 10 значений
         if signal in ["buy", "weak_buy"]:
             # Сила сигнала на покупку
-            strength = np.mean(recent_values) / np.max(values)
+            mean_val = float(np.mean(recent_values))
+            max_val = float(np.max(values))
+            strength = mean_val / max_val if max_val != 0 else 0.5
         elif signal in ["sell", "weak_sell"]:
             # Сила сигнала на продажу
-            strength = (np.max(values) - np.mean(recent_values)) / np.max(values)
+            mean_val = float(np.mean(recent_values))
+            max_val = float(np.max(values))
+            strength = (max_val - mean_val) / max_val if max_val != 0 else 0.5
         else:
             strength = 0.5
         
-        return min(max(strength, 0.0), 1.0)
+        return float(min(max(float(strength), 0.0), 1.0))
 
     def _calculate_indicator_confidence(self, values: np.ndarray, period: int) -> float:
         """Расчет уверенности индикатора."""
@@ -548,14 +552,14 @@ class MarketAnalysisProtocolImpl(ABC):
             return 0.5
         
         # Стабильность значений
-        recent_std = np.std(values[-period:])
-        overall_std = np.std(values)
+        recent_std = float(np.std(values[-period:]))
+        overall_std = float(np.std(values))
         
         if overall_std == 0:
             return 0.5
         
         stability = 1.0 - (recent_std / overall_std)
-        return min(max(stability, 0.0), 1.0)
+        return float(min(max(float(stability), 0.0), 1.0))
 
     def _calculate_macd_confidence(self, macd_data: Dict[str, np.ndarray]) -> float:
         """Расчет уверенности MACD."""
@@ -564,14 +568,14 @@ class MarketAnalysisProtocolImpl(ABC):
             return 0.5
         
         # Тренд гистограммы
-        recent_trend = np.mean(np.diff(histogram[-5:]))
-        overall_trend = np.mean(np.diff(histogram))
+        recent_trend = float(np.mean(np.diff(histogram[-5:])))
+        overall_trend = float(np.mean(np.diff(histogram)))
         
         if overall_trend == 0:
             return 0.5
         
         confidence = 1.0 - abs(recent_trend - overall_trend) / abs(overall_trend)
-        return min(max(confidence, 0.0), 1.0)
+        return float(min(max(float(confidence), 0.0), 1.0))
 
     def _calculate_bb_strength(self, bb_data: Dict[str, np.ndarray]) -> float:
         """Расчет силы сигнала полос Боллинджера."""
@@ -580,8 +584,8 @@ class MarketAnalysisProtocolImpl(ABC):
             return 0.5
         
         # Расстояние от центральной линии
-        distance_from_center = abs(percent_b[-1] - 0.5)
-        return min(distance_from_center * 2, 1.0)
+        distance_from_center = abs(float(percent_b[-1]) - 0.5)
+        return float(min(distance_from_center * 2, 1.0))
 
     def _calculate_bb_confidence(self, bb_data: Dict[str, np.ndarray]) -> float:
         """Расчет уверенности полос Боллинджера."""
@@ -593,15 +597,15 @@ class MarketAnalysisProtocolImpl(ABC):
         
         # Ширина полос
         band_width = (upper - lower) / bb_data["middle"]
-        recent_width = np.mean(band_width[-5:])
-        overall_width = np.mean(band_width)
+        recent_width = float(np.mean(band_width[-5:]))
+        overall_width = float(np.mean(band_width))
         
         if overall_width == 0:
             return 0.5
         
         # Уверенность выше при стабильной ширине полос
         stability = 1.0 - abs(recent_width - overall_width) / overall_width
-        return min(max(stability, 0.0), 1.0)
+        return float(min(max(float(stability), 0.0), 1.0))
 
     def _calculate_atr_confidence(self, atr: np.ndarray) -> float:
         """Расчет уверенности ATR."""
@@ -609,14 +613,14 @@ class MarketAnalysisProtocolImpl(ABC):
             return 0.5
         
         # Стабильность ATR
-        recent_atr = np.mean(atr[-5:])
-        overall_atr = np.mean(atr)
+        recent_atr = float(np.mean(atr[-5:]))
+        overall_atr = float(np.mean(atr))
         
         if overall_atr == 0:
             return 0.5
         
         stability = 1.0 - abs(recent_atr - overall_atr) / overall_atr
-        return min(max(stability, 0.0), 1.0)
+        return float(min(max(float(stability), 0.0), 1.0))
 
     async def _detect_harmonic_patterns(self, data: pd.DataFrame) -> List[MarketPattern]:
         """Обнаружение гармонических паттернов."""
