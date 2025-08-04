@@ -8,7 +8,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import joblib
 from shared.numpy_utils import np
-import pandas as pd
+from typing import TYPE_CHECKING
+
 import ta
 import umap
 from loguru import logger
@@ -25,10 +26,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
 from shared.models.ml_metrics import PatternMetrics
+from shared.safe_imports import pd, DataFrame, Series
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+
 
 
 @dataclass

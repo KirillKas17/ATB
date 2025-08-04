@@ -25,13 +25,14 @@ class Statistics:
             st.error(f"Ошибка загрузки истории сделок: {e}")
             return pd.DataFrame()
 
-    def load_performance_metrics(self) -> dict:
+    def load_performance_metrics(self) -> dict[Any, Any]:
         """Загрузка метрик производительности"""
         try:
             metrics_file = self.stats_dir / "performance_metrics.json"
             if metrics_file.exists():
                 with open(metrics_file, "r") as f:
-                    return json.load(f)
+                    result = json.load(f)
+                    return result if isinstance(result, dict) else {}
             return {}
         except Exception as e:
             st.error(f"Ошибка загрузки метрик: {e}")

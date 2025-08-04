@@ -24,10 +24,7 @@ class UseCaseResult(Generic[ResponseT]):
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        if self.warnings is None:
-            self.warnings = []
-        if self.metadata is None:
-            self.metadata = {}
+        pass
 
     @classmethod
     def success_result(
@@ -232,7 +229,8 @@ class BaseUseCase(ABC, Generic[RequestT, ResponseT]):
         if hasattr(request, "__dict__"):
             return request.__dict__.copy()
         elif hasattr(request, "to_dict"):
-            return request.to_dict()
+            result = request.to_dict()
+            return result if isinstance(result, dict) else {"converted": str(result)}
         else:
             return {"request_type": type(request).__name__}
 
