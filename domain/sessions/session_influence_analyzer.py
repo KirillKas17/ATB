@@ -104,6 +104,12 @@ class SessionInfluenceResult:
         default_factory=list
     )
 
+    @property
+    def score(self) -> float:
+        """Общий счет влияния сессии."""
+        # Комбинируем confidence и predicted_volatility для общего счета
+        return (self.confidence + self.predicted_volatility) / 2.0
+
     def to_dict(self) -> Dict[str, Union[str, float, int, Dict[str, Union[str, float, int]], List[Dict[str, Union[str, float, int]]]]]:
         """Преобразование в словарь."""
         return {

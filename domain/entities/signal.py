@@ -33,6 +33,7 @@ class SignalType(Enum):
     HOLD = "hold"
     CLOSE = "close"
     CANCEL = "cancel"
+    REVERSAL = "reversal"
 
 
 class SignalStrength(Enum):
@@ -84,6 +85,11 @@ class Signal:
         if self.expires_at is None:
             return False
         return datetime.now() > self.expires_at
+
+    @property
+    def signal_id(self) -> UUID:
+        """Alias for id field for backward compatibility"""
+        return self.id
 
     @property
     def risk_reward_ratio(self) -> Optional[Decimal]:

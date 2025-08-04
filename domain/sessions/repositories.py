@@ -384,20 +384,25 @@ class SessionConfigurationRepository:
             logger.error(f"Failed to delete session profile: {e}")
             return False
 
-    def update_session_profile(
-        self,
-        session_type: SessionType,
-        updates: Dict[str, Union[str, float, int, bool]],
-    ) -> bool:
+    def update_session_profile(self, session_type: SessionType, updates: Dict[str, Any]) -> bool:
         """Обновление профиля сессии."""
         try:
+            # Получаем существующий профиль
             profile = self.get_session_profile(session_type)
-            if not profile:
+            if profile is None:
+                logger.warning(f"No existing profile found for {session_type.value}")
                 return False
-            # Создаем новый профиль с обновленными значениями
-            updated_profile = profile.model_copy(update=updates)
+            
+            # Применяем обновления
+            for key, value in updates.items():
+                if hasattr(profile, key):
+                    setattr(profile, key, value)
+                else:
+                    logger.warning(f"Unknown attribute {key} for SessionProfile")
+            
             # Сохраняем обновленный профиль
-            self.save_session_profile(updated_profile)
+            self.save_session_profile(profile)
+            logger.info(f"Updated session profile: {session_type.value}")
             return True
         except Exception as e:
             logger.error(f"Failed to update session profile: {e}")

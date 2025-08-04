@@ -94,7 +94,10 @@ class MirrorNeuronSignalExample(BaseExample):
             
             # Расчет результатов
             trades_executed = len(trades)
-            total_pnl = sum(Decimal(str(trade.get("pnl", 0))) for trade in trades) if trades else Decimal("0")
+            total_pnl = sum(
+                Decimal(str(trade.get("pnl", 0))) if trade.get("pnl", 0) != 0 else Decimal("0") 
+                for trade in trades
+            ) if trades else Decimal("0")
             
             # Расчет метрик
             performance_metrics = self.calculate_performance_metrics(trades)

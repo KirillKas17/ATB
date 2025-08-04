@@ -3,7 +3,7 @@
 """
 
 from dataclasses import dataclass, field
-from datetime import time
+from datetime import time, datetime
 from enum import Enum, auto
 from typing import (
     Any,
@@ -347,6 +347,8 @@ class SessionProfile(BaseModel):
     reversal_probability: float = Field(default=0.2, ge=0.0, le=1.0)
     continuation_probability: float = Field(default=0.6, ge=0.0, le=1.0)
     manipulation_susceptibility: float = Field(default=0.3, ge=0.0, le=1.0)
+    # Временные метки
+    last_updated: Optional[datetime] = Field(default=None)
 
     def calculate_session_impact(
         self,
