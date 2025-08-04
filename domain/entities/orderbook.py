@@ -72,17 +72,17 @@ class OrderBookSnapshot:
     @property
     def total_bid_volume(self) -> Volume:
         """Общий объем покупок."""
-        total = sum(bid[1].value for bid in self.bids)
+        total = sum(Decimal(str(bid[1])) for bid in self.bids)
         return Volume(
-            total, self.bids[0][1].currency if self.bids else Currency.USD
+            total, Currency.USD
         )
 
     @property
     def total_ask_volume(self) -> Volume:
         """Общий объем продаж."""
-        total = sum(ask[1].value for ask in self.asks)
+        total = sum(Decimal(str(ask[1])) for ask in self.asks)
         return Volume(
-            total, self.asks[0][1].currency if self.asks else Currency.USD
+            total, Currency.USD
         )
 
     @property

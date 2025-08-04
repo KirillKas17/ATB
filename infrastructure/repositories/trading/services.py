@@ -73,7 +73,7 @@ class TradingRepositoryServices:
                 if balance.currency in ["USDT", "USD", "BTC", "ETH"]
             )
             return {
-                "account_id": account.account_id,
+                "account_id": account.id,
                 "total_balance": total_balance,
                 "available_balance": available_balance,
                 "currency": "USDT",

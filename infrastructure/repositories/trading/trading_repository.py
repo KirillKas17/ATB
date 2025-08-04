@@ -478,7 +478,7 @@ class InMemoryTradingRepository(TradingRepositoryProtocol):
     async def save_account(self, account: Account) -> Account:
         """Сохранение аккаунта."""
         try:
-            account_id = account.account_id
+            account_id = account.id
             self._accounts[account_id] = account
             
             # Инвалидация кэша баланса
@@ -1478,7 +1478,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                 
                 await conn.execute(
                     query,
-                    account.account_id,
+                    account.id,
                     getattr(account, 'name', ''),
                     getattr(account, 'type', 'SPOT'),
                     getattr(account, 'status', 'ACTIVE'),
@@ -1498,13 +1498,13 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                     """
                     await conn.execute(
                         balance_query,
-                        account.account_id,
+                        account.id,
                         balance.currency,
                         float(balance.total),
                         float(balance.available)
                     )
                 
-                self.logger.info(f"Account saved to PostgreSQL: {account.account_id}")
+                self.logger.info(f"Account saved to PostgreSQL: {account.id}")
                 return account
         except Exception as e:
             self.logger.error(f"Error saving account to PostgreSQL: {e}")
@@ -1536,7 +1536,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                     balances.append(balance)
                 
                 account = Account(
-                    account_id=row['account_id'],
+                    id=row['account_id'],
                     balances=balances
                 )
                 

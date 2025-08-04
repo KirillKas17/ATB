@@ -189,12 +189,12 @@ class TradingPair:
             quote_currency=quote_currency,
             is_active=data["is_active"],
             min_order_size=(
-                Volume(Decimal(str(data["min_order_size"])))
+                Volume(Decimal(str(data["min_order_size"])), Currency.USD)
                 if data.get("min_order_size")
                 else None
             ),
             max_order_size=(
-                Volume(Decimal(str(data["max_order_size"])))
+                Volume(Decimal(str(data["max_order_size"])), Currency.USD)
                 if data.get("max_order_size")
                 else None
             ),

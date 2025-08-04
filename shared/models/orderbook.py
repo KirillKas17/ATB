@@ -25,7 +25,7 @@ class OrderBookUpdate:
     def get_mid_price(self) -> Optional[Price]:
         if self.bids and self.asks:
             mid = (self.bids[0][0].value + self.asks[0][0].value) / 2
-            return Price(value=mid, currency=self.bids[0][0].currency)
+            return Price(amount=mid, currency=self.bids[0][0].currency)
         return None
 
     def get_spread(self) -> Optional[Decimal]:

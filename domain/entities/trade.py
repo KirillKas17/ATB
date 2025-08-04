@@ -49,7 +49,7 @@ class Trade:
     symbol: Symbol = field(default=Symbol(""))
     side: SignalTypeType = field(default="buy")  # "buy" или "sell"
     price: Price = field(default_factory=lambda: Price(Decimal("0"), Currency.USDT))
-    volume: Volume = field(default_factory=lambda: Volume(Decimal("0")))
+    volume: Volume = field(default_factory=lambda: Volume(Decimal("0"), Currency.USDT))
     executed_at: TimestampValue = field(
         default_factory=lambda: TimestampValue(Timestamp.now().value)
     )

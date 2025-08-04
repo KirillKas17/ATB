@@ -28,6 +28,8 @@ class AccountProtocol(Protocol):
     def to_dict(self) -> Dict[str, Any]: ...
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AccountProtocol": ...
+
+
 @runtime_checkable
 class BalanceProtocol(Protocol):
     """Протокол для баланса."""
@@ -41,11 +43,13 @@ class BalanceProtocol(Protocol):
     def to_dict(self) -> Dict[str, Any]: ...
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BalanceProtocol": ...
+
+
 @dataclass
 class Account:
     """Аккаунт на бирже."""
 
-    account_id: str = field(default_factory=lambda: str(uuid4()))
+    id: AccountId = field(default_factory=lambda: AccountId(uuid4()))
     exchange_name: str = ""
     balances: List["Balance"] = field(default_factory=list)
     is_active: bool = True
@@ -70,7 +74,7 @@ class Account:
     def to_dict(self) -> Dict[str, Any]:
         """Преобразование в словарь."""
         return {
-            "account_id": self.account_id,
+            "id": str(self.id),
             "exchange_name": self.exchange_name,
             "balances": [balance.to_dict() for balance in self.balances],
             "is_active": self.is_active,
@@ -83,7 +87,7 @@ class Account:
     def from_dict(cls, data: Dict[str, Any]) -> "Account":
         """Создание из словаря."""
         return cls(
-            account_id=data["account_id"],
+            id=AccountId(data["id"]) if data.get("id") else AccountId(uuid4()),
             exchange_name=data["exchange_name"],
             balances=[Balance.from_dict(b) for b in data.get("balances", [])],
             is_active=data.get("is_active", True),
