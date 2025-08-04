@@ -618,8 +618,8 @@ def calc_ultimate_oscillator(
         return pd.Series()
     # Вычисляем True Range
     tr1 = high - low
-    tr2 = abs(high - close.shift(1))
-    tr3 = abs(low - close.shift(1))
+    tr2 = (high - close.shift(1)).abs()
+    tr3 = (low - close.shift(1)).abs()
     tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
     # Вычисляем Buying Pressure
     bp = close - pd.concat([low, close.shift(1)], axis=1).min(axis=1)
