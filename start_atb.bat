@@ -40,7 +40,7 @@ REM Функция проверки Python
 :CHECK_PYTHON
 echo [⚡] Проверка системных требований...
 echo.
-python --version >nul 2>&1
+python --version >nul 2>&1 || python3 --version >nul 2>&1
 if %errorlevel% neq 0 (
     color 0C
     echo ❌ ОШИБКА: Python не найден в системе!
@@ -53,13 +53,19 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VER=%%i
+python --version >nul 2>&1 && (
+    for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VER=%%i
+    set PYTHON_CMD=python
+) || (
+    for /f "tokens=2" %%i in ('python3 --version 2^>^&1') do set PYTHON_VER=%%i
+    set PYTHON_CMD=python3
+)
 echo ✅ Python найден: %PYTHON_VER%
 echo %date% %time% - Python version: %PYTHON_VER% >> %LOG_FILE%
 
 REM Проверка базовых зависимостей
 echo [🔍] Проверка базовых модулей...
-python -c "import sys, os, asyncio, logging, json, threading, decimal, datetime, pathlib" >nul 2>&1
+%PYTHON_CMD% -c "import sys, os, asyncio, logging, json, threading, decimal, datetime, pathlib" >nul 2>&1
 if %errorlevel% neq 0 (
     color 0C
     echo ❌ Критическая ошибка: Отсутствуют базовые модули Python!
@@ -71,7 +77,7 @@ echo ✅ Базовые модули проверены
 
 REM Проверка GUI модулей
 echo [🖥️] Проверка GUI компонентов...
-python -c "import tkinter" >nul 2>&1
+%PYTHON_CMD% -c "import tkinter" >nul 2>&1
 if %errorlevel% neq 0 (
     color 0E
     echo ⚠️ WARNING: Tkinter недоступен
@@ -83,13 +89,13 @@ if %errorlevel% neq 0 (
 REM Проверка научных библиотек
 echo [📊] Проверка аналитических библиотек...
 set "MISSING_LIBS="
-python -c "import numpy" >nul 2>&1
+%PYTHON_CMD% -c "import numpy" >nul 2>&1
 if %errorlevel% neq 0 set "MISSING_LIBS=!MISSING_LIBS! numpy"
 
-python -c "import pandas" >nul 2>&1
+%PYTHON_CMD% -c "import pandas" >nul 2>&1
 if %errorlevel% neq 0 set "MISSING_LIBS=!MISSING_LIBS! pandas"
 
-python -c "import matplotlib" >nul 2>&1
+%PYTHON_CMD% -c "import matplotlib" >nul 2>&1
 if %errorlevel% neq 0 set "MISSING_LIBS=!MISSING_LIBS! matplotlib"
 
 if not "!MISSING_LIBS!"=="" (
@@ -122,21 +128,21 @@ REM Проверка дополнительных зависимостей
 echo [🧪] Проверка расширенного функционала...
 set "OPTIONAL_FEATURES="
 
-python -c "import requests" >nul 2>&1
+%PYTHON_CMD% -c "import requests" >nul 2>&1
 if %errorlevel% equ 0 (
     set "OPTIONAL_FEATURES=!OPTIONAL_FEATURES! ✅API-клиент"
 ) else (
     set "OPTIONAL_FEATURES=!OPTIONAL_FEATURES! ❌API-клиент"
 )
 
-python -c "import websockets" >nul 2>&1
+%PYTHON_CMD% -c "import websockets" >nul 2>&1
 if %errorlevel% equ 0 (
     set "OPTIONAL_FEATURES=!OPTIONAL_FEATURES! ✅WebSocket"
 ) else (
     set "OPTIONAL_FEATURES=!OPTIONAL_FEATURES! ❌WebSocket"
 )
 
-python -c "import fastapi" >nul 2>&1
+%PYTHON_CMD% -c "import fastapi" >nul 2>&1
 if %errorlevel% equ 0 (
     set "OPTIONAL_FEATURES=!OPTIONAL_FEATURES! ✅FastAPI"
 ) else (
@@ -158,7 +164,7 @@ if exist "launcher_config.json" (
     echo ✅ Конфигурация launcher'а найдена
 ) else (
     echo 🔧 Создание конфигурации по умолчанию...
-    python -c "import json; config={'auto_start_components':['database','trading_engine','dashboard'],'dashboard_port':8080,'environment':'development'}; open('launcher_config.json','w').write(json.dumps(config,indent=2))"
+    %PYTHON_CMD% -c "import json; config={'auto_start_components':['database','trading_engine','dashboard'],'dashboard_port':8080,'environment':'development'}; open('launcher_config.json','w').write(json.dumps(config,indent=2))"
     echo ✅ Конфигурация создана
 )
 
@@ -208,7 +214,7 @@ echo [🔄] Инициализация компонентов...
 echo.
 echo %date% %time% - Full system launch initiated >> %LOG_FILE%
 
-python atb_launcher.py
+%PYTHON_CMD% atb_launcher.py
 if %errorlevel% neq 0 (
     color 0C
     echo ❌ Ошибка запуска системы (код: %errorlevel%)
@@ -231,7 +237,7 @@ echo [🖥️] Запуск торгового дашборда...
 echo.
 echo %date% %time% - Dashboard-only launch >> %LOG_FILE%
 
-python run_dashboard.py
+%PYTHON_CMD% run_dashboard.py
 if %errorlevel% neq 0 (
     color 0C
     echo ❌ Ошибка запуска дашборда
@@ -254,7 +260,7 @@ echo 📊 Мониторинг компонентов, автоперезапу�
 echo.
 echo %date% %time% - Advanced launcher mode >> %LOG_FILE%
 
-start "ATB System Monitor" python atb_launcher.py
+start "ATB System Monitor" %PYTHON_CMD% atb_launcher.py
 echo ✅ Системный launcher запущен в отдельном окне
 goto END
 
@@ -271,9 +277,9 @@ echo.
 echo %date% %time% - Simple mode launch >> %LOG_FILE%
 
 REM Простая проверка Python и прямой запуск
-python -c "print('✅ Python готов')"
+%PYTHON_CMD% -c "print('✅ Python готов')"
 echo [🚀] Прямой запуск дашборда...
-python run_dashboard.py
+%PYTHON_CMD% run_dashboard.py
 goto END
 
 :DIAGNOSTICS
@@ -296,7 +302,7 @@ echo   ▶ Время: %date% %time%
 echo.
 
 echo 🐍 Python диагностика:
-python -c "import sys,platform;print(f'  ▶ Версия: {sys.version}');print(f'  ▶ Платформа: {platform.platform()}');print(f'  ▶ Путь: {sys.executable}')"
+%PYTHON_CMD% -c "import sys,platform;print(f'  ▶ Версия: {sys.version}');print(f'  ▶ Платформа: {platform.platform()}');print(f'  ▶ Путь: {sys.executable}')"
 echo.
 
 echo 📦 Установленные пакеты:
