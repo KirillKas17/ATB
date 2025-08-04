@@ -330,10 +330,10 @@ def log_errors_decorator() -> Any:
 class AgentLogger(InfrastructureLogger):
     """Логгер для агентов."""
 
-    def __init__(self, agent_name: str, **kwargs):
+    def __init__(self, agent_name: str, **kwargs: Any) -> None:
         super().__init__(agent_name, LogContext.AGENT, **kwargs)
 
-    def log_agent_state_change(self, old_state: str, new_state: str, **kwargs) -> None:
+    def log_agent_state_change(self, old_state: str, new_state: str, **kwargs: Any) -> None:
         """Логирование изменения состояния агента."""
         self.info(
             f"Agent state changed: {old_state} -> {new_state}",
@@ -342,7 +342,7 @@ class AgentLogger(InfrastructureLogger):
             **kwargs,
         )
 
-    def log_agent_processing(self, data_type: str, data_count: int, **kwargs) -> None:
+    def log_agent_processing(self, data_type: str, data_count: int, **kwargs: Any) -> None:
         """Логирование обработки данных агентом."""
         self.debug(
             f"Processing {data_count} {data_type} items",
@@ -355,7 +355,7 @@ class AgentLogger(InfrastructureLogger):
 class RepositoryLogger(InfrastructureLogger):
     """Логгер для репозиториев."""
 
-    def __init__(self, repository_name: str, **kwargs):
+    def __init__(self, repository_name: str, **kwargs: Any) -> None:
         super().__init__(repository_name, LogContext.REPOSITORY, **kwargs)
 
     def log_database_operation(
@@ -389,7 +389,7 @@ class RepositoryLogger(InfrastructureLogger):
 class ServiceLogger(InfrastructureLogger):
     """Логгер для сервисов."""
 
-    def __init__(self, service_name: str, **kwargs):
+    def __init__(self, service_name: str, **kwargs: Any) -> None:
         super().__init__(service_name, LogContext.SERVICE, **kwargs)
 
     def log_service_call(
@@ -412,7 +412,7 @@ class ServiceLogger(InfrastructureLogger):
 class ExternalServiceLogger(InfrastructureLogger):
     """Логгер для внешних сервисов."""
 
-    def __init__(self, service_name: str, **kwargs):
+    def __init__(self, service_name: str, **kwargs: Any) -> None:
         super().__init__(service_name, LogContext.EXTERNAL, **kwargs)
 
     def log_api_request(
