@@ -581,7 +581,7 @@ class Strategy:
                 errors.append("Signal cooldown cannot exceed 24 hours")
         return errors
 
-    def calculate_risk_metrics(self, data: pd.DataFrame) -> RiskMetricsDict:
+    async def calculate_risk_metrics(self, data: pd.DataFrame) -> RiskMetricsDict:
         """Расчет метрик риска с использованием централизованного сервиса."""
         try:
             from domain.services.risk_analysis import DefaultRiskAnalysisService
@@ -601,15 +601,15 @@ class Strategy:
                     "sortino_ratio": 0.0,
                 }
             # Используем централизованный сервис
-            risk_metrics = risk_service.calculate_portfolio_risk(returns)
+            risk_metrics = await risk_service.calculate_portfolio_risk(returns)
             return {
                 "volatility": float(risk_metrics.volatility),
-                "var_95": float(risk_metrics.var_95.value),
-                "max_drawdown": float(risk_metrics.max_drawdown),
-                "sharpe_ratio": float(risk_metrics.sharpe_ratio),
-                "sortino_ratio": float(risk_metrics.sortino_ratio),
-                "cvar_95": float(risk_metrics.var_95.amount),
-                "avg_correlation": float(risk_metrics.beta),  # Используем beta как заменитель корреляции
+                "var_95": float(risk_metrics.daily_var),  # Using daily_var instead of var_95.value
+                "max_drawdown": float(getattr(risk_metrics, 'max_drawdown', 0.0)),  # Safe access
+                "sharpe_ratio": float(getattr(risk_metrics, 'sharpe_ratio', 0.0)),  # Safe access
+                "sortino_ratio": float(getattr(risk_metrics, 'sortino_ratio', 0.0)),  # Safe access
+                "cvar_95": float(risk_metrics.expected_shortfall),  # Using expected_shortfall instead of var_95.amount
+                "avg_correlation": float(risk_metrics.correlation_risk),  # Using correlation_risk
             }
         except Exception as e:
             logger.error(f"Error calculating risk metrics: {e}")

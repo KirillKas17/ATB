@@ -9,7 +9,11 @@ from typing import Dict, List, Optional, Tuple, Any, NamedTuple
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
-from loguru import logger
+try:
+    from loguru import logger
+except ImportError:
+    import logging
+    logger = logging.getLogger(__name__)
 
 
 @dataclass

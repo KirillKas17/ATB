@@ -25,7 +25,7 @@ class Symbol(BaseValueObject):
     quote: Optional[str] = None
     exchange: Optional[str] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация и парсинг символа."""
         if not self.value:
             raise ValueError("Symbol value cannot be empty")

@@ -84,11 +84,12 @@ class StrategyRegistryProtocol(Protocol):
 class BaseStrategyRegistry(ABC):
     """Базовый класс для реестра стратегий."""
     
-    def __init__(self):
-        self._strategies = {}
-        self._strategy_configs = {}
-        self._strategy_metadata = {}
-        self._performance_cache = {}
+    def __init__(self, *, max_strategies: int = 100) -> None:
+        self._strategies: Dict[str, Any] = {}
+        self._strategy_configs: Dict[str, Any] = {}
+        self._strategy_metadata: Dict[str, Any] = {}
+        self._performance_cache: Dict[str, float] = {}
+        self._last_cleanup = datetime.now()
     
     @abstractmethod
     async def _save_registry_state(self) -> None:

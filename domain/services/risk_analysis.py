@@ -480,7 +480,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
                     
                     # Расчёт стоимости портфеля после шока
                     stressed_value = self._calculate_stressed_portfolio_value(
-                        asset_prices, stressed_prices, weights
+                        weights, asset_prices, stressed_prices
                     )
                     
                     loss_amount = base_portfolio_value - stressed_value
@@ -556,9 +556,9 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             mean_returns = returns_df.mean().values
             
             # Целевая функция: минимизация риска (дисперсии портфеля)
-            def objective(weights):
+            def objective(weights: np.ndarray) -> float:
                 portfolio_variance = np.dot(weights, np.dot(cov_matrix, weights))
-                return portfolio_variance
+                return float(portfolio_variance)  # Explicit cast to float
             
             # Ограничения
             constraints_list = []
@@ -678,21 +678,31 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             logger.error(f"Ошибка обнаружения изменения режима: {e}")
             return {'regime_change': False, 'confidence': 0.0}
     
-    def forecast_risk(self, returns_data: np.ndarray, forecast_horizon: int = 21) -> Dict[str, float]:
+    def forecast_risk_metrics(
+        self, 
+        returns_data: np.ndarray, 
+        forecast_horizon: int = 30
+    ) -> Dict[str, Any]:  # Changed from Dict[str, float] to allow mixed types
         """
-        Прогнозирование риска на заданный горизонт.
+        Прогнозирование метрик риска на основе исторических данных.
         
         Args:
             returns_data: Исторические доходности
-            forecast_horizon: Горизонт прогноза в днях
+            forecast_horizon: Горизонт прогнозирования в днях
             
         Returns:
-            Dict[str, float]: Прогнозные метрики риска
+            Dict[str, Any]: Прогнозные метрики риска
         """
         try:
             if len(returns_data) < 30:
                 logger.warning("Недостаточно данных для прогнозирования риска")
-                return {'forecasted_volatility': 0.0, 'confidence_interval': (0.0, 0.0)}
+                return {
+                    'forecasted_volatility': 0.0, 
+                    'confidence_interval_lower': 0.0,
+                    'confidence_interval_upper': 0.0,
+                    'forecast_horizon_days': forecast_horizon,
+                    'model': 'EWMA'
+                }
             
             # EWMA модель для прогнозирования волатильности
             lambda_param = 0.94  # Параметр затухания для EWMA
@@ -716,15 +726,22 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             confidence_upper = forecasted_volatility + 1.96 * volatility_std
             
             return {
-                'forecasted_volatility': forecasted_volatility,
-                'confidence_interval': (confidence_lower, confidence_upper),
-                'forecast_horizon_days': forecast_horizon,
-                'model': 'EWMA'
+                'forecasted_volatility': float(forecasted_volatility),
+                'confidence_interval_lower': float(confidence_lower),
+                'confidence_interval_upper': float(confidence_upper),
+                'forecast_horizon_days': int(forecast_horizon),
+                'model': str('EWMA')
             }
             
         except Exception as e:
             logger.error(f"Ошибка прогнозирования риска: {e}")
-            return {'forecasted_volatility': 0.0, 'confidence_interval': (0.0, 0.0)}
+            return {
+                'forecasted_volatility': 0.0, 
+                'confidence_interval_lower': 0.0,
+                'confidence_interval_upper': 0.0,
+                'forecast_horizon_days': int(forecast_horizon),
+                'model': 'EWMA'
+            }
     
     # Вспомогательные методы
     
@@ -732,7 +749,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
         """Расчёт Value at Risk."""
         if len(returns) == 0:
             return 0.0
-        return np.percentile(returns, (1 - confidence_level) * 100)
+        return float(np.percentile(returns, (1 - confidence_level) * 100))
     
     def _calculate_expected_shortfall(self, returns: np.ndarray, confidence_level: float) -> float:
         """Расчёт Expected Shortfall (Conditional VaR)."""
@@ -932,16 +949,16 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
     
     def _calculate_stressed_portfolio_value(
         self, 
+        weights: List[float], 
         base_prices: Dict[str, float], 
-        stressed_prices: Dict[str, float], 
-        weights: np.ndarray
+        stressed_prices: Dict[str, float]
     ) -> float:
         """Расчёт стоимости портфеля после стресс-теста."""
         assets = list(base_prices.keys())
         base_value = sum(base_prices[asset] * weight for asset, weight in zip(assets, weights))
         stressed_value = sum(stressed_prices.get(asset, base_prices[asset]) * weight 
                            for asset, weight in zip(assets, weights))
-        return stressed_value
+        return float(stressed_value)  # Explicit cast to float
     
     def _estimate_recovery_time(self, loss_percentage: float, scenario: Dict[str, Any]) -> Optional[int]:
         """Оценка времени восстановления после потерь."""
@@ -973,7 +990,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
 class DefaultRiskAnalysisService(AdvancedRiskAnalysisService):
     """Дефолтная реализация сервиса анализа рисков."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         logger.info("Initialized DefaultRiskAnalysisService")
     

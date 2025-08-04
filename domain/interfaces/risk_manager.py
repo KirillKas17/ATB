@@ -8,6 +8,9 @@ from decimal import Decimal
 from datetime import datetime
 from enum import Enum
 
+# Temporary type alias until RiskConfig is defined
+RiskConfig = Dict[str, Any]
+
 class RiskLevel(Enum):
     """Уровни риска."""
     LOW = "low"
@@ -71,11 +74,12 @@ class RiskManagerProtocol(Protocol):
 class BaseRiskManager(ABC):
     """Базовый класс для менеджера рисков."""
     
-    def __init__(self):
+    def __init__(self, *, config: Optional[RiskConfig] = None) -> None:
         self._max_position_size = Decimal('0.1')  # 10% от портфеля
         self._max_daily_loss = Decimal('0.02')    # 2% дневная потеря
         self._max_drawdown = Decimal('0.05')      # 5% максимальная просадка
-        self._risk_alerts = []
+        self._risk_alerts: List[str] = []
+        self._last_risk_check: Optional[datetime] = None
         self._emergency_mode = False
     
     @abstractmethod

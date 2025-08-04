@@ -67,7 +67,7 @@ class TradingSignal:
     source: Optional[SignalSource] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация данных сигнала."""
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
@@ -89,7 +89,7 @@ class AggregatedSignal:
     weights: Dict[SignalSource, float] = field(default_factory=dict)
     consensus_score: float = 0.0
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация агрегированного сигнала."""
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
@@ -107,7 +107,7 @@ class ModelPrediction:
     features: Dict[str, float] = field(default_factory=dict)
     model_version: str = "1.0"
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация предсказания."""
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
@@ -121,7 +121,7 @@ class FeatureVector:
     target: Optional[float] = None
     label: Optional[ActionType] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация вектора признаков."""
         if not self.features:
             raise ValueError("Features dictionary cannot be empty")
@@ -142,7 +142,7 @@ class ModelMetrics:
     timestamp: datetime
     validation_samples: int = 0
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация метрик."""
         metrics = [self.accuracy, self.precision, self.recall, self.f1_score, self.auc_roc]
         for i, metric in enumerate(metrics):
@@ -158,7 +158,7 @@ class TrainingData:
     timestamps: List[datetime]
     symbols: List[str]
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация обучающих данных."""
         lengths = [len(self.features), len(self.labels), len(self.timestamps), len(self.symbols)]
         if len(set(lengths)) > 1:

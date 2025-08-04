@@ -60,7 +60,7 @@ RiskLevelType = Literal["low", "medium", "high", "extreme"]
 # Типы для портфельного анализа
 PortfolioWeight = NewType("PortfolioWeight", Decimal)
 DiversificationScore = NewType("DiversificationScore", Decimal)
-CorrelationMatrix = NewType("CorrelationMatrix", np.ndarray)
+CorrelationMatrix = NewType("CorrelationMatrix", List[List[float]])  # Changed from np.ndarray
 # Типы для исполнения ордеров
 ExecutionSpeed = NewType("ExecutionSpeed", int)  # milliseconds
 SlippageTolerance = NewType("SlippageTolerance", Decimal)
