@@ -332,8 +332,8 @@ class CorrelationChain:
                         correlations.append(corr)
             # Расчет стабильности
             if len(correlations) > 1:
-                stability = 1.0 - np.std(correlations)
-                return max(0.0, min(1.0, stability))
+                stability = 1.0 - float(np.std(correlations))
+                return float(max(0.0, min(1.0, stability)))
             else:
                 return 0.0
         except Exception as e:

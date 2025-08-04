@@ -268,28 +268,28 @@ class MarketMakerPatternClassifier(IPatternClassifier):
                 price_volatility = 0.0
             
             return PatternFeatures(
-                book_pressure=book_pressure,
-                volume_delta=volume_delta,
-                price_reaction=price_reaction,
-                spread_change=spread_change,
-                order_imbalance=order_imbalance,
-                liquidity_depth=liquidity_depth,
-                time_duration=time_duration,
-                volume_concentration=volume_concentration,
-                price_volatility=price_volatility
+                book_pressure=BookPressure(book_pressure),
+                volume_delta=VolumeDelta(volume_delta),
+                price_reaction=PriceReaction(price_reaction),
+                spread_change=SpreadChange(spread_change),
+                order_imbalance=OrderImbalance(order_imbalance),
+                liquidity_depth=LiquidityDepth(liquidity_depth),
+                time_duration=TimeDuration(time_duration),
+                volume_concentration=VolumeConcentration(volume_concentration),
+                price_volatility=PriceVolatility(price_volatility)
             )
             
         except Exception as e:
             self.logger.error(f"Error extracting features: {e}")
             # Возвращаем нейтральные значения при ошибке
             return PatternFeatures(
-                book_pressure=0.0,
-                volume_delta=0.0,
-                price_reaction=0.0,
-                spread_change=0.01,
-                order_imbalance=0.5,
-                liquidity_depth=1000.0,
-                time_duration=60,
-                volume_concentration=0.0,
-                price_volatility=0.0
+                book_pressure=BookPressure(0.0),
+                volume_delta=VolumeDelta(0.0),
+                price_reaction=PriceReaction(0.0),
+                spread_change=SpreadChange(0.01),
+                order_imbalance=OrderImbalance(0.5),
+                liquidity_depth=LiquidityDepth(1000.0),
+                time_duration=TimeDuration(60),
+                volume_concentration=VolumeConcentration(0.0),
+                price_volatility=PriceVolatility(0.0)
             )

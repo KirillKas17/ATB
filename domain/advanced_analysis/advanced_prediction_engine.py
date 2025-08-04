@@ -573,7 +573,7 @@ class AdvancedPredictionEngine:
             volatility_regime=volatility_regime
         )
     
-    def _update_fvg_retests(self, fvgs: List[FairValueGap], data: pd.DataFrame):
+    def _update_fvg_retests(self, fvgs: List[FairValueGap], data: pd.DataFrame) -> None:
         """Обновление информации о ретестах FVG"""
         current_price = data['close'].iloc[-1]
         
@@ -596,11 +596,11 @@ class AdvancedPredictionEngine:
         touches = 0
         
         if level_type == 'resistance':
-            touches = ((data['high'] >= level - tolerance) & 
-                      (data['high'] <= level + tolerance)).sum()
+            touches = int(((data['high'] >= level - tolerance) & 
+                          (data['high'] <= level + tolerance)).sum())
         else:  # support
-            touches = ((data['low'] >= level - tolerance) & 
-                      (data['low'] <= level + tolerance)).sum()
+            touches = int(((data['low'] >= level - tolerance) & 
+                          (data['low'] <= level + tolerance)).sum())
         
         return touches
     
@@ -726,10 +726,11 @@ class AdvancedPredictionEngine:
             tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
             
             atr = tr.rolling(period).mean()
-            return float(atr.iloc[-1])
+            atr_value = atr.iloc[-1]
+            return float(atr_value) if not pd.isna(atr_value) else float(data['close'].iloc[-1] * 0.02)
             
         except Exception:
-            return data['close'].iloc[-1] * 0.02  # 2% fallback
+            return float(data['close'].iloc[-1] * 0.02)  # 2% fallback
     
     def _analyze_real_orderflow(self, orderbook_data: pd.DataFrame) -> List[OrderFlowImbalance]:
         """Анализ реального orderflow с данными ордербука"""

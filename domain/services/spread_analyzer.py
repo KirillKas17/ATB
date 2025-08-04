@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from domain.types.ml_types import SpreadAnalysisResult, SpreadMovementPrediction
+from domain.types.service_types import SpreadAnalysisResult, SpreadMovementPrediction
 
 
 class AnalysisError(Exception):

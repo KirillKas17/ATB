@@ -40,7 +40,7 @@ def calc_sharpe(returns: pd.Series, risk_free_rate: float = 0.02) -> float:
     excess_return = float(np.mean(returns_array)) - risk_free_rate / TRADING_DAYS
     volatility = float(np.std(returns_array)) * np.sqrt(TRADING_DAYS)
     if volatility > 0:
-        return excess_return / volatility
+        return float(excess_return / volatility)
     return 0.0
 
 
@@ -55,7 +55,7 @@ def calc_sortino(returns: pd.Series, risk_free_rate: float = 0.02) -> float:
         return 0.0
     downside_deviation = float(np.std(downside_returns)) * np.sqrt(TRADING_DAYS)
     if downside_deviation > 0:
-        return excess_return / downside_deviation
+        return float(excess_return / downside_deviation)
     return 0.0
 
 
@@ -125,7 +125,8 @@ def calc_downside_deviation(returns: pd.Series) -> float:
     returns_array = returns.to_numpy() if hasattr(returns, 'to_numpy') else np.asarray(returns)
     downside_returns = returns_array[returns_array < 0.0]
     if len(downside_returns) > 0:
-        return float(np.std(downside_returns)) * np.sqrt(TRADING_DAYS)
+        std_value = float(np.std(downside_returns))
+        return std_value * float(np.sqrt(TRADING_DAYS))
     return 0.0
 
 
