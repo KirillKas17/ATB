@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.signal_service import SignalService, ISignalService
 from domain.types.ml_types import SignalResult, SignalStrength, SignalType
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 class TestSignalService:
     """Тесты для сервиса сигналов."""

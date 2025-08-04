@@ -1,4 +1,4 @@
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from pandas import DataFrame, Series
 from typing import Any, Dict, List, Optional, Tuple

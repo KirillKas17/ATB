@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.risk_types import RiskLevel
 

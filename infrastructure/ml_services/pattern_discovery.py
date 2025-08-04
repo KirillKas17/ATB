@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import joblib  # type: ignore
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import ta  # type: ignore
 import umap  # type: ignore

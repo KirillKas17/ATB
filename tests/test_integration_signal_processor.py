@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from core.signal_processor import (MarketContext, ProcessedSignal, Signal,
                                    SignalProcessor)

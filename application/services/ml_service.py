@@ -2,7 +2,7 @@
 Сервис для работы с ML моделями.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime
 from decimal import Decimal

@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import catboost as cb
 import joblib
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import xgboost as xgb
 from loguru import logger

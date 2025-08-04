@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 
 

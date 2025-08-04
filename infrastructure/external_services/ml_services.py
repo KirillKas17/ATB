@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union, cast
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor

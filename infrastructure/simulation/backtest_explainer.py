@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Any
 
 import aiofiles
 import matplotlib.pyplot as plt
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 # from pandas import crosstab  # Исправлено: убираем неиспользуемый импорт
 import psutil  # type: ignore

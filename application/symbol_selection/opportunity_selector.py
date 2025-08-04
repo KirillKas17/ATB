@@ -4,7 +4,7 @@ import asyncio
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 
 from domain.protocols.exchange_protocols import SymbolMetricsProviderProtocol

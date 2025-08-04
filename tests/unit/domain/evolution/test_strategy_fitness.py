@@ -11,7 +11,7 @@ Unit тесты для strategy_fitness.py.
 """
 
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timedelta
 from decimal import Decimal

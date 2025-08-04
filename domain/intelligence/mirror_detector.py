@@ -3,7 +3,7 @@
 import time
 from typing import Any, Dict, Final, List, Optional, Tuple, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 from scipy import stats

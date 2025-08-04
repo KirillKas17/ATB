@@ -9,7 +9,7 @@ from pathlib import Path
 from queue import Queue
 from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 

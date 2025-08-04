@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Tuple
 
 from loguru import logger
 
-import numpy as np
+from shared.numpy_utils import np
 
 from .types import Trade, TradeDirection
 

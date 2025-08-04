@@ -13,7 +13,7 @@ from functools import lru_cache
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import backoff
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import websockets
 from loguru import logger

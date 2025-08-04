@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 from ..memory.utils import estimate_object_size, retry_on_failure
 

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 
 
 @dataclass
@@ -154,10 +154,19 @@ class MarketStateManager:
             return
         prices = [s.price for s in self.states]
         # Поиск локальных минимумов и максимумов
-        from scipy.signal import argrelextrema
-
-        local_min = argrelextrema(np.array(prices), np.less, order=5)[0]
-        local_max = argrelextrema(np.array(prices), np.greater, order=5)[0]
+        try:
+            from scipy.signal import argrelextrema
+            local_min = argrelextrema(np.array(prices), np.less, order=5)[0]
+            local_max = argrelextrema(np.array(prices), np.greater, order=5)[0]
+        except ImportError:
+            # Fallback если scipy недоступна
+            local_min = []
+            local_max = []
+            for i in range(2, len(prices) - 2):
+                if all(prices[i] < prices[j] for j in range(i-2, i+3) if j != i):
+                    local_min.append(i)
+                if all(prices[i] > prices[j] for j in range(i-2, i+3) if j != i):
+                    local_max.append(i)
         # Кластеризация уровней
         support_levels = self._cluster_levels([prices[i] for i in local_min])
         resistance_levels = self._cluster_levels([prices[i] for i in local_max])

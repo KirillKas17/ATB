@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import nltk
-import numpy as np
+from shared.numpy_utils import np
 from nltk.sentiment.vader import VaderSentimentAnalyzer
 from transformers import pipeline as transformers_pipeline
 

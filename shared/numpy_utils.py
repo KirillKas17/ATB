@@ -1,0 +1,174 @@
+"""
+Numpy utilities with fallback implementations
+"""
+
+from typing import Any, List, Union
+
+try:
+    HAS_NUMPY = True
+except ImportError:
+    HAS_NUMPY = False
+    
+    # Mock numpy functions
+    class MockNumpy:
+        @staticmethod
+        def array(data: Any) -> List[Any]:
+            """Convert to list (mock array)"""
+            if isinstance(data, list):
+                return data
+            return list(data)
+        
+        @staticmethod
+        def asarray(data: Any) -> List[Any]:
+            """Convert to array (alias for array)"""
+            return MockNumpy.array(data)
+        
+        @staticmethod
+        def mean(data: Any) -> float:
+            """Calculate mean"""
+            arr = list(data) if not isinstance(data, list) else data
+            return sum(arr) / len(arr) if arr else 0.0
+        
+        @staticmethod
+        def std(data: Any) -> float:
+            """Calculate standard deviation"""
+            arr = list(data) if not isinstance(data, list) else data
+            if not arr:
+                return 0.0
+            mean = sum(arr) / len(arr)
+            variance = sum((x - mean) ** 2 for x in arr) / len(arr)
+            return variance ** 0.5
+        
+        @staticmethod
+        def min(data: Any) -> float:
+            """Get minimum value"""
+            arr = list(data) if not isinstance(data, list) else data
+            return min(arr) if arr else 0.0
+        
+        @staticmethod
+        def max(data: Any) -> float:
+            """Get maximum value"""
+            arr = list(data) if not isinstance(data, list) else data
+            return max(arr) if arr else 0.0
+        
+        @staticmethod
+        def percentile(data: Any, percentile: float) -> float:
+            """Calculate percentile"""
+            arr = list(data) if not isinstance(data, list) else data
+            if not arr:
+                return 0.0
+            sorted_arr = sorted(arr)
+            idx = int(len(sorted_arr) * percentile / 100)
+            return sorted_arr[min(idx, len(sorted_arr) - 1)]
+        
+        @staticmethod
+        def var(data: Any) -> float:
+            """Calculate variance"""
+            arr = list(data) if not isinstance(data, list) else data
+            if not arr:
+                return 0.0
+            mean = sum(arr) / len(arr)
+            return sum((x - mean) ** 2 for x in arr) / len(arr)
+        
+        @staticmethod
+        def cov(data1: Any, data2: Any = None) -> Any:
+            """Calculate covariance matrix"""
+            if data2 is None:
+                # Single argument - covariance matrix
+                if not data1:
+                    return [[0.0]]
+                return [[1.0]]  # Mock covariance matrix
+            else:
+                # Two arguments - covariance between arrays
+                arr1 = list(data1) if not isinstance(data1, list) else data1
+                arr2 = list(data2) if not isinstance(data2, list) else data2
+                if not arr1 or not arr2 or len(arr1) != len(arr2):
+                    return 0.0
+                mean1 = sum(arr1) / len(arr1)
+                mean2 = sum(arr2) / len(arr2)
+                return sum((x - mean1) * (y - mean2) for x, y in zip(arr1, arr2)) / len(arr1)
+        
+        @staticmethod
+        def polyfit(x: Any, y: Any, degree: int) -> List[float]:
+            """Simple linear fit (mock)"""
+            # Simple linear regression for degree 1
+            if degree == 1 and len(x) > 1:
+                n = len(x)
+                sum_x = sum(x)
+                sum_y = sum(y)
+                sum_xy = sum(x[i] * y[i] for i in range(n))
+                sum_xx = sum(x[i] * x[i] for i in range(n))
+                
+                slope = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x)
+                intercept = (sum_y - slope * sum_x) / n
+                return [slope, intercept]
+            return [0.0, 0.0]
+        
+        @staticmethod
+        def less(a: Any, b: Any) -> List[bool]:
+            """Element-wise less than comparison"""
+            if isinstance(a, (list, tuple)):
+                return [x < b for x in a]
+            return [a < b]
+        
+        @staticmethod
+        def greater(a: Any, b: Any) -> List[bool]:
+            """Element-wise greater than comparison"""
+            if isinstance(a, (list, tuple)):
+                return [x > b for x in a]
+            return [a > b]
+        
+        class maximum:
+            @staticmethod
+            def accumulate(data: Any) -> List[float]:
+                """Cumulative maximum"""
+                arr = list(data) if not isinstance(data, list) else data
+                if not arr:
+                    return []
+                result = [arr[0]]
+                for i in range(1, len(arr)):
+                    result.append(max(result[-1], arr[i]))
+                return result
+        
+        class random:
+            @staticmethod
+            def random(size: Any = None) -> Any:
+                """Random numbers"""
+                import random as py_random
+                if size is None:
+                    return py_random.random()
+                if isinstance(size, int):
+                    return [py_random.random() for _ in range(size)]
+                return [py_random.random() for _ in range(10)]  # Default size
+            
+            @staticmethod
+            def randn(*args: Any) -> Any:
+                """Random normal"""
+                import random as py_random
+                if not args:
+                    return py_random.gauss(0, 1)
+                size = args[0] if args else 1
+                return [py_random.gauss(0, 1) for _ in range(size)]
+            
+            @staticmethod
+            def uniform(low: float = 0.0, high: float = 1.0, size: Any = None) -> Any:
+                """Random uniform"""
+                import random as py_random
+                if size is None:
+                    return py_random.uniform(low, high)
+                if isinstance(size, int):
+                    return [py_random.uniform(low, high) for _ in range(size)]
+                return [py_random.uniform(low, high) for _ in range(10)]
+        
+        @staticmethod
+        def linspace(start: float, stop: float, num: int = 50) -> List[float]:
+            """Create linearly spaced array"""
+            if num <= 1:
+                return [start]
+            step = (stop - start) / (num - 1)
+            return [start + i * step for i in range(num)]
+    
+    np = MockNumpy()  # type: ignore
+
+# Export types and constants
+ArrayLike = Union[List[float], List[int], Any]

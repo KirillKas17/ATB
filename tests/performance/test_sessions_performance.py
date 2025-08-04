@@ -5,7 +5,7 @@ import pytest
 import time
 import cProfile
 import pstats
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any

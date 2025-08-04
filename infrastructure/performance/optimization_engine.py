@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import lru_cache, wraps
 import weakref
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 
 @dataclass

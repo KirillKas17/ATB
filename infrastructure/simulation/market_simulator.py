@@ -18,7 +18,7 @@ from loguru import logger
 from scipy import stats
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns  # type: ignore

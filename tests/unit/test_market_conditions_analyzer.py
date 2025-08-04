@@ -5,7 +5,7 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime, timedelta
 from unittest.mock import Mock, AsyncMock
 

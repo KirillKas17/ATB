@@ -8,7 +8,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, cast
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_regression, mutual_info_regression

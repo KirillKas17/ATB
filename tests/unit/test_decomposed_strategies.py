@@ -4,7 +4,7 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from unittest.mock import patch
 from infrastructure.strategies.trend_strategies import TrendStrategy
 from infrastructure.strategies.sideways_strategies import SidewaysStrategy

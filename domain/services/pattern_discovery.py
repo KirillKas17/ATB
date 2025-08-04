@@ -7,7 +7,7 @@ import logging
 from dataclasses import asdict, dataclass, field
 from typing import Any, Coroutine, Dict, List, Optional, Tuple, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from scipy.signal import find_peaks
 from sklearn.cluster import DBSCAN

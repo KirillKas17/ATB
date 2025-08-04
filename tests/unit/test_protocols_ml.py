@@ -7,7 +7,7 @@ import asyncio
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from datetime import datetime, timedelta
 from typing import List, Any, Dict, Optional
-import numpy as np
+from shared.numpy_utils import np
 from decimal import Decimal
 from uuid import uuid4
 from sklearn.metrics import mean_squared_error, r2_score

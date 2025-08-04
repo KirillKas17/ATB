@@ -4,7 +4,7 @@ Unit тесты для domain/protocols/strategy_protocol.py.
 
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import asyncio
 from typing import Dict, Any, List, Optional, Tuple
 from unittest.mock import Mock, patch, MagicMock

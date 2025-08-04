@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union, Callable
 from pathlib import Path
 
-import numpy as np
+from shared.numpy_utils import np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

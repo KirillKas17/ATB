@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import joblib  # type: ignore
-import numpy as np
+from shared.numpy_utils import np
 import optuna
 import pandas as pd  # type: ignore
 from loguru import logger

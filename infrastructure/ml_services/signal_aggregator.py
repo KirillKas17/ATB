@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType, TradingSignal
 

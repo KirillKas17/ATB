@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 from decimal import Decimal
@@ -1295,7 +1295,6 @@ class AdaptiveStrategyGenerator(BaseStrategy):
                     df = df.fillna(0)  # type: ignore[attr-defined]
             except (AttributeError, TypeError):
                 # Если fillna недоступен, используем numpy
-                import numpy as np
                 df = df.replace([np.inf, -np.inf], np.nan)  # type: ignore[attr-defined]
                 df = df.fillna(0)  # type: ignore[attr-defined]
             return df

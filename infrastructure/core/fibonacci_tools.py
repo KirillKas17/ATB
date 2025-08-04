@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import plotly.graph_objects as go
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple

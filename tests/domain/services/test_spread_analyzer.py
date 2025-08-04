@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.spread_analyzer import SpreadAnalyzer, ISpreadAnalyzer
 from domain.types.ml_types import SpreadAnalysisResult, SpreadMovementPrediction
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 class TestSpreadAnalyzer:
     """Тесты для сервиса анализа спредов."""

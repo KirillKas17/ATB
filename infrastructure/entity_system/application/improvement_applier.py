@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.entity_system_types import ExperimentData, ExperimentResult
 

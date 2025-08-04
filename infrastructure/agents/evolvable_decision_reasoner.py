@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 """Движок эволюционной оптимизации."""
 
 import random
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 

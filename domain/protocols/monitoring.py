@@ -13,7 +13,7 @@ from typing import (
 )
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.infrastructure_types import (
     SystemMetrics,

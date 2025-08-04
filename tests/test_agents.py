@@ -4,11 +4,11 @@ from pathlib import Path
 from unittest.mock import Mock
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator_asyncio
 import yaml
 from agents.agent_market_regime import MarketRegime, MarketRegimeAgent

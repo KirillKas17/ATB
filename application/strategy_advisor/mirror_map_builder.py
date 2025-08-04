@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 

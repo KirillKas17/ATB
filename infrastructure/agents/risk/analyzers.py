@@ -2,14 +2,13 @@
 Калькуляторы рисков для risk agent.
 """
 
-try:
-    import numpy as np
-except ImportError:
-    np = None  # type: ignore
+from shared.numpy_utils import np, ArrayLike
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from .types import RiskConfig, RiskLevel, RiskLimits, RiskMetrics
+
+
 
 
 class IRiskCalculator(ABC):
@@ -27,13 +26,13 @@ class IRiskCalculator(ABC):
 
     @abstractmethod
     def calculate_var(
-        self, returns: np.ndarray, confidence_level: float = 0.95
+        self, returns: ArrayLike, confidence_level: float = 0.95
     ) -> float:
         """Расчет Value at Risk."""
         pass
 
     @abstractmethod
-    def calculate_max_drawdown(self, equity_curve: np.ndarray) -> float:
+    def calculate_max_drawdown(self, equity_curve: ArrayLike) -> float:
         """Расчет максимальной просадки."""
         pass
 
@@ -114,7 +113,7 @@ class DefaultRiskCalculator(IRiskCalculator):
             return RiskMetrics(value=0.0, details={"error": str(e)})
 
     def calculate_var(
-        self, returns: np.ndarray, confidence_level: float = 0.95
+        self, returns: ArrayLike, confidence_level: float = 0.95
     ) -> float:
         """Расчет Value at Risk."""
         try:
@@ -122,12 +121,12 @@ class DefaultRiskCalculator(IRiskCalculator):
                 return 0.0
             # Используем исторический VaR
             var_percentile = (1 - confidence_level) * 100
-            var = np.percentile(returns, var_percentile) if np else 0.0
+            var = np.percentile(returns, var_percentile)
             return float(abs(var))
         except Exception:
             return 0.0
 
-    def calculate_max_drawdown(self, equity_curve: np.ndarray) -> float:
+    def calculate_max_drawdown(self, equity_curve: ArrayLike) -> float:
         """Расчет максимальной просадки."""
         try:
             if len(equity_curve) == 0:
@@ -175,7 +174,7 @@ class RiskMetricsCalculator:
         self.base_calculator = DefaultRiskCalculator(config)
 
     def calculate_sharpe_ratio(
-        self, returns: np.ndarray, risk_free_rate: float = 0.02
+        self, returns: ArrayLike, risk_free_rate: float = 0.02
     ) -> float:
         """Расчет коэффициента Шарпа."""
         try:
@@ -194,7 +193,7 @@ class RiskMetricsCalculator:
             return 0.0
 
     def calculate_sortino_ratio(
-        self, returns: np.ndarray, risk_free_rate: float = 0.02
+        self, returns: ArrayLike, risk_free_rate: float = 0.02
     ) -> float:
         """Расчет коэффициента Сортино."""
         try:
@@ -214,7 +213,7 @@ class RiskMetricsCalculator:
         except Exception:
             return 0.0
 
-    def calculate_calmar_ratio(self, returns: np.ndarray, max_dd: float) -> float:
+    def calculate_calmar_ratio(self, returns: ArrayLike, max_dd: float) -> float:
         """Расчет коэффициента Кальмара."""
         try:
             if len(returns) == 0 or max_dd == 0:
@@ -226,7 +225,7 @@ class RiskMetricsCalculator:
             return 0.0
 
     def calculate_beta(
-        self, portfolio_returns: np.ndarray, market_returns: np.ndarray
+        self, portfolio_returns: ArrayLike, market_returns: ArrayLike
     ) -> float:
         """Расчет беты портфеля."""
         try:
@@ -245,7 +244,7 @@ class RiskMetricsCalculator:
             return 1.0
 
     def calculate_correlation_matrix(
-        self, returns_data: Dict[str, np.ndarray]
+        self, returns_data: Dict[str, ArrayLike]
     ) -> Dict[str, Dict[str, float]]:
         """Расчет корреляционной матрицы."""
         try:

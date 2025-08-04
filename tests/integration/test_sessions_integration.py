@@ -2,7 +2,7 @@
 Интеграционные тесты для модуля sessions.
 """
 from unittest.mock import Mock, AsyncMock, patch
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any

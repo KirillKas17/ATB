@@ -16,7 +16,7 @@ from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, Any, Protocol, runtime_checkable
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 

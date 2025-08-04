@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import optuna
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 try:
     import talib  # type: ignore

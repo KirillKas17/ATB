@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 
 import yaml
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 try:
     import toml  # type: ignore

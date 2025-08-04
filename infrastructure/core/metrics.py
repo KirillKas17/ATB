@@ -720,7 +720,6 @@ class MetricsCollector:
             
             # Коэффициент Шарпа
             if len(pnls) > 1:
-                import numpy as np
                 mean_pnl = np.mean(pnls)
                 std_pnl = np.std(pnls)
                 sharpe_ratio = mean_pnl / std_pnl if std_pnl > 0 else 0.0

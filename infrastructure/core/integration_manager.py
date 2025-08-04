@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 
 from infrastructure.agents.local_ai.controller import LocalAIController

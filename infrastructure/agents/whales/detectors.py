@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import torch
 import torch.nn as nn

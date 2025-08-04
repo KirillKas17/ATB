@@ -6,7 +6,7 @@ import threading
 from datetime import datetime
 from typing import Any, Dict, Optional, Union, cast
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from pandas import Series
 

@@ -3,7 +3,7 @@ Unit тесты для domain/evolution/strategy_selection.py
 """
 
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from decimal import Decimal
 from datetime import datetime
 from unittest.mock import Mock, patch

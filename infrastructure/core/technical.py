@@ -2,7 +2,7 @@
 Технический анализ для торговых стратегий.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple, Union

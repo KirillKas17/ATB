@@ -5,7 +5,7 @@ Unit тесты для EfficiencyValidator.
 """
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-import numpy as np
+from shared.numpy_utils import np
 from infrastructure.core.efficiency_validator import EfficiencyValidator
 
 class TestEfficiencyValidator:

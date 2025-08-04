@@ -10,7 +10,7 @@ Unit тесты для domain.memory.interfaces
 - IPatternMemoryOptimizer
 """
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from unittest.mock import MagicMock
 from domain.memory.interfaces import (
     IPatternMemoryRepository, IPatternMatcher, IPatternMemoryService,

@@ -7,7 +7,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import joblib
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression

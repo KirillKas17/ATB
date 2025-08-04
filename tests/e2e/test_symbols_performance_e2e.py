@@ -5,7 +5,7 @@ E2E тесты производительности для анализа сим
 
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import asyncio
 from decimal import Decimal
 from typing import List, Dict, Any

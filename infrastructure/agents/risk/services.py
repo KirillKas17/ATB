@@ -6,7 +6,7 @@ import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Callable, Dict, List, Optional
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 from .analyzers import DefaultRiskCalculator, RiskMetricsCalculator

@@ -3,7 +3,7 @@ Unit тесты для FeatureEngineer
 """
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from sklearn.preprocessing import StandardScaler
 from infrastructure.external_services.ml.feature_engineer import FeatureEngineer

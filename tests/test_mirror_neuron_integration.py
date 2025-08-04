@@ -2,7 +2,7 @@
 """Интеграционные тесты для системы Mirror Neuron Signal Detection."""
 import time
 import logging
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator

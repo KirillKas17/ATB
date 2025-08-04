@@ -11,7 +11,7 @@ Unit тесты для noise_analyzer.py.
 """
 
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime
 from typing import Dict, List, Any
 from unittest.mock import Mock, patch

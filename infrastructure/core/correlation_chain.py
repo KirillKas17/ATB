@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, cast
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 from scipy import stats

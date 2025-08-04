@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 from datetime import datetime, timedelta
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 

@@ -15,7 +15,7 @@ from infrastructure.agents.agent_context_refactored import AgentContext, Strateg
 from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 from application.di_container import Container
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 class TestLiveAdaptationIntegration:
     """Тесты интеграции LiveAdaptationModel в систему Syntra."""

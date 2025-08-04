@@ -33,7 +33,7 @@ def check_dependencies():
             if package == 'tkinter':
                 import tkinter
             elif package == 'numpy':
-                import numpy
+                from shared.numpy_utils import np
             elif package == 'pandas':
                 import pandas
             elif package == 'matplotlib':

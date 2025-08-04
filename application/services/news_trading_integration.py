@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 from pydantic import BaseModel
 
 from domain.protocols.agent_protocols import (

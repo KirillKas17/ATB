@@ -3,7 +3,7 @@
 """
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 try:
     import talib as ta
     TALIB_AVAILABLE = True

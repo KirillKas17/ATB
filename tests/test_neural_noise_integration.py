@@ -3,7 +3,7 @@
 import asyncio
 import time
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from application.filters.orderbook_filter import (FilterConfig,
                                                   OrderBookPreFilter)

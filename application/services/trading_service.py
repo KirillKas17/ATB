@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 from decimal import Decimal
 
 from domain.entities.order import Order, OrderSide, OrderType, OrderStatus

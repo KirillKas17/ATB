@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Модуль визуализации для стратегий."""
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import matplotlib.pyplot as plt
 import seaborn as sns  # type: ignore
 from datetime import datetime

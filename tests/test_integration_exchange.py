@@ -2,12 +2,12 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from unittest.mock import Mock, patch
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pytest
 from unittest.mock import Mock, patch
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator_asyncio
 from core.exchange import Exchange
 from domain.entities.order import Order

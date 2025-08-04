@@ -13,7 +13,7 @@
 import os
 import re
 import secrets
-import numpy as np
+from shared.numpy_utils import np
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union

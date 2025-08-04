@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from shared.visualization import (plot_cvd_and_delta_volume, plot_fuzzy_zones,
                                   plot_whale_activity)

@@ -5,7 +5,7 @@ from decimal import Decimal
 from enum import Enum, auto
 from typing import Any, Dict, List, Optional, Protocol, Tuple, TypedDict, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from typing_extensions import NotRequired
 

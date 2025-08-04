@@ -8,7 +8,7 @@ import tempfile
 from datetime import datetime, timedelta
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.agents.evolvable_market_maker import EvolvableMarketMakerAgent
 from infrastructure.agents.evolvable_risk_agent import EvolvableRiskAgent

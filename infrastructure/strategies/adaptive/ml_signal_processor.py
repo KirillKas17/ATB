@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 from infrastructure.core.technical_analysis import calculate_rsi
 # from infrastructure.ml_services.advanced_price_predictor import MetaLearner

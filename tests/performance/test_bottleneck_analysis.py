@@ -5,7 +5,7 @@
 
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import time
 import line_profiler
 import memory_profiler

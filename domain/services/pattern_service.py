@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 from scipy.signal import find_peaks
 
 from domain.entities.pattern import Pattern, PatternConfidence

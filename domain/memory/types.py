@@ -5,7 +5,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, TypedDict, Union
 
-import numpy as np
+from shared.numpy_utils import np
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired
 

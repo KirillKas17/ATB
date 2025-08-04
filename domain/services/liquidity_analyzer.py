@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from pandas import Interval
 

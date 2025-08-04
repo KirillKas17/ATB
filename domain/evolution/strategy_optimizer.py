@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast, Union
 from uuid import uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from scipy.optimize import minimize
 

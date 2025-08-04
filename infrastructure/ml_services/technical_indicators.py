@@ -3,7 +3,7 @@
 """
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Dict, List, Optional, Any, Union, cast
 from pandas import Series, DataFrame
 
@@ -655,7 +655,6 @@ class TechnicalIndicators:
     @staticmethod
     def calculate_liquidity_metrics(data: DataFrame) -> Dict[str, Union[float, Dict[str, float]]]:
         """Расчет продвинутых метрик ликвидности"""
-        import numpy as np
         
         try:
             if 'volume' not in data.columns or len(data) == 0:
@@ -764,7 +763,6 @@ class TechnicalIndicators:
     @staticmethod
     def calculate_market_impact(data: DataFrame) -> float:
         """Расчет продвинутого влияния на рынок (Market Impact)"""
-        import numpy as np
         
         try:
             if len(data) < 10 or 'volume' not in data.columns:

@@ -10,7 +10,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from dataclasses import dataclass
 

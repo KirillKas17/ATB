@@ -5,7 +5,7 @@
 import tempfile
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import torch
 from infrastructure.agents.evolvable_market_maker import EvolvableMarketMakerAgent, MarketMakerML

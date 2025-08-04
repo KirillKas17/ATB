@@ -5,7 +5,7 @@
 """
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union

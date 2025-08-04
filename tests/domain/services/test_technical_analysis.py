@@ -2,7 +2,7 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from domain.services.technical_analysis import (
     TechnicalAnalysisService,
     DefaultTechnicalAnalysisService,

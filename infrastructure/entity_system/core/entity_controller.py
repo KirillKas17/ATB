@@ -7,7 +7,7 @@ from collections import deque
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 import psutil
 from loguru import logger
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor

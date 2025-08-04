@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 # Миграция из utils/math_utils.py
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Union

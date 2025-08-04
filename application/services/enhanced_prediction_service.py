@@ -183,7 +183,6 @@ class EnhancedPredictionService:
     
     def _generate_synthetic_data(self, symbol: str) -> pd.DataFrame:
         """Генерация синтетических данных для тестирования"""
-        import numpy as np
         
         # Базовые параметры на основе символа
         base_price = 100 + (hash(symbol) % 1000)

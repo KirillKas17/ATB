@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, Union
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 from domain.value_objects.currency import Currency

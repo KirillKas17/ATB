@@ -4,7 +4,7 @@
 """
 import asyncio
 import logging
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
