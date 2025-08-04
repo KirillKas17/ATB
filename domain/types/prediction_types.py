@@ -14,6 +14,7 @@ from typing import (
     TypedDict,
     Union,
     runtime_checkable,
+    TypeAlias,
 )
 from uuid import UUID
 
@@ -44,9 +45,9 @@ BBUpperValue = NewType("BBUpperValue", float)
 BBMiddleValue = NewType("BBMiddleValue", float)
 BBLowerValue = NewType("BBLowerValue", float)
 # Типы для рыночных данных
-OHLCVData = NewType("OHLCVData", Any)  # pd.DataFrame не может быть subclass
+OHLCVData: TypeAlias = Any  # pd.DataFrame
 OrderBookData = Dict[str, Any]
-MarketDataWindow = NewType("MarketDataWindow", Any)  # pd.DataFrame не может быть subclass
+MarketDataWindow: TypeAlias = Any  # pd.DataFrame
 # Константы
 MIN_CONFIDENCE_THRESHOLD: Final[float] = 0.0
 MAX_CONFIDENCE_THRESHOLD: Final[float] = 1.0

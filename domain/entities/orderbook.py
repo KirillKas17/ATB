@@ -74,7 +74,7 @@ class OrderBookSnapshot:
         """Общий объем покупок."""
         total = sum(Decimal(str(bid[1])) for bid in self.bids)
         return Volume(
-            total, Currency.USD
+            Decimal(str(total)) if total != 0 else Decimal("0"), Currency.USD
         )
 
     @property
@@ -82,7 +82,7 @@ class OrderBookSnapshot:
         """Общий объем продаж."""
         total = sum(Decimal(str(ask[1])) for ask in self.asks)
         return Volume(
-            total, Currency.USD
+            Decimal(str(total)) if total != 0 else Decimal("0"), Currency.USD
         )
 
     @property

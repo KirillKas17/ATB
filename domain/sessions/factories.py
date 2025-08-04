@@ -3,11 +3,15 @@
 Фабрики для создания компонентов торговых сессий.
 """
 
-from typing import Any, Dict, List, Optional, Union, Type
-from typing import cast
-from .interfaces import SessionAnalyzerFactory
+import asyncio
+import json
+import logging
+import uuid
+from dataclasses import dataclass, field
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union, Type
+from uuid import UUID
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 from domain.types.session_types import SessionType
 from domain.value_objects.timestamp import Timestamp
@@ -36,8 +40,6 @@ from .implementations import (
     InMemorySessionCache,
     SessionPredictor,
 )
-
-import uuid
 
 
 class SessionProfileRegistryAdapter(SessionRegistry):
@@ -321,26 +323,26 @@ class SessionServiceFactory:
         """Создание репозитория сессий."""
         from infrastructure.repositories.base_repository import BaseRepository, MemoryBackend
         
-        class SessionRepository(BaseRepository):
-            def __init__(self, storage_path: Optional[str] = None):
+        class SessionRepository(BaseRepository[Any]):
+            def __init__(self, storage_path: Optional[str] = None) -> None:
                 backend = MemoryBackend()
                 super().__init__(backend)
                 self._storage_path = storage_path
-                self._sessions = {}
+                self._sessions: Dict[str, Any] = {}
             
-            async def save(self, entity):
+            async def save(self, entity: Any) -> Any:
                 async with self.transaction():
                     session_id = getattr(entity, 'id', str(uuid.uuid4()))
                     self._sessions[session_id] = entity
                     return entity
             
-            async def find_by_id(self, entity_id):
+            async def find_by_id(self, entity_id: str) -> Optional[Any]:
                 return self._sessions.get(entity_id)
             
-            async def find_all(self):
+            async def find_all(self) -> List[Any]:
                 return list(self._sessions.values())
             
-            async def delete(self, entity_id):
+            async def delete(self, entity_id: str) -> bool:
                 if entity_id in self._sessions:
                     del self._sessions[entity_id]
                     return True
@@ -354,26 +356,26 @@ class SessionServiceFactory:
         """Создание репозитория конфигураций сессий."""
         from infrastructure.repositories.base_repository import BaseRepository, MemoryBackend
         
-        class SessionConfigRepository(BaseRepository):
-            def __init__(self, storage_path: Optional[str] = None):
+        class SessionConfigRepository(BaseRepository[Any]):
+            def __init__(self, storage_path: Optional[str] = None) -> None:
                 backend = MemoryBackend()
                 super().__init__(backend)
                 self._storage_path = storage_path
-                self._configs = {}
+                self._configs: Dict[str, Any] = {}
             
-            async def save(self, entity):
+            async def save(self, entity: Any) -> Any:
                 async with self.transaction():
                     config_id = getattr(entity, 'id', str(uuid.uuid4()))
                     self._configs[config_id] = entity
                     return entity
             
-            async def find_by_id(self, entity_id):
+            async def find_by_id(self, entity_id: str) -> Optional[Any]:
                 return self._configs.get(entity_id)
             
-            async def find_all(self):
+            async def find_all(self) -> List[Any]:
                 return list(self._configs.values())
             
-            async def delete(self, entity_id):
+            async def delete(self, entity_id: str) -> bool:
                 if entity_id in self._configs:
                     del self._configs[entity_id]
                     return True

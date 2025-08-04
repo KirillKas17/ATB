@@ -8,16 +8,16 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, cast
 from uuid import uuid4
+import logging
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 from domain.entities.strategy import StrategyType
 from domain.types.technical_types import SignalType
 from domain.types.strategy_types import StrategyType as StrategyTypeFromTypes
+from domain.types import EntryCondition, ExitCondition
 from domain.evolution.strategy_model import (
-    EntryCondition,
     EntryRule,
-    ExitCondition,
     ExitRule,
     FilterConfig,
     FilterType,
@@ -25,7 +25,7 @@ from domain.evolution.strategy_model import (
     IndicatorType,
     StrategyCandidate,
 )
-from domain.evolution.strategy_model import EvolutionContext  # type: ignore[import-not-found]
+from domain.evolution.strategy_model import EvolutionContext
 from domain.types.evolution_types import FilterParameters, IndicatorParameters
 
 

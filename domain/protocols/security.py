@@ -14,6 +14,7 @@ import base64
 import functools
 import hashlib
 import hmac
+import logging
 import os
 import secrets
 import time
@@ -22,6 +23,9 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Set, Tuple, Union
 from uuid import UUID, uuid4
+
+# Настройка логгера
+logger = logging.getLogger(__name__)
 
 try:
     import bcrypt  # type: ignore
@@ -39,12 +43,12 @@ try:
     CRYPTOGRAPHY_AVAILABLE = True
 except ImportError:
     CRYPTOGRAPHY_AVAILABLE = False
-    Fernet = type('Fernet', (), {})  # type: ignore
-    hashes = type('hashes', (), {})  # type: ignore
-    serialization = type('serialization', (), {})  # type: ignore
-    rsa = type('rsa', (), {})  # type: ignore
-    padding = type('padding', (), {})  # type: ignore
-    PBKDF2HMAC = type('PBKDF2HMAC', (), {})  # type: ignore
+    Fernet = type('Fernet', (), {})
+    hashes = type('hashes', (), {})
+    serialization = type('serialization', (), {})
+    rsa = type('rsa', (), {})
+    padding = type('padding', (), {})
+    PBKDF2HMAC = type('PBKDF2HMAC', (), {})
 from domain.exceptions.protocol_exceptions import (
     ProtocolAuthenticationError,
     ProtocolAuthorizationError,
@@ -623,19 +627,37 @@ class SecurityManager:
         return decrypted_data
 
     def _is_sensitive_field(self, field_name: str) -> bool:
-        """Проверить, является ли поле чувствительным."""
+        """Проверить является ли поле чувствительным."""
         sensitive_fields = {
-            "password",
-            "api_key",
-            "api_secret",
-            "passphrase",
-            "token",
-            "secret",
-            "key",
-            "credential",
+            "password", "token", "key", "secret", "credential", "auth", "login",
+            "email", "phone", "ssn", "passport", "card", "account"
         }
-        field_lower = field_name.lower()
-        return any(sensitive in field_lower for sensitive in sensitive_fields)
+        return any(sensitive in field_name.lower() for sensitive in sensitive_fields)
+
+    def _looks_encrypted(self, value: str) -> bool:
+        """Проверить выглядит ли значение зашифрованным."""
+        try:
+            # Простая проверка - зашифрованные данные обычно содержат base64
+            import base64
+            base64.b64decode(value)
+            return len(value) > 20 and "==" in value[-3:]
+        except Exception:
+            return False
+
+    def _decrypt_value(self, value: str) -> str:
+        """Расшифровать значение."""
+        if hasattr(self.crypto_manager, 'decrypt_string'):
+            return self.crypto_manager.decrypt_string(value)
+        return value
+
+    def _decrypt_nested_dict(self, data: Dict[str, Any]) -> None:
+        """Расшифровать вложенный словарь."""
+        for key, value in data.items():
+            if isinstance(value, str) and self._is_sensitive_field(key):
+                if self._looks_encrypted(value):
+                    data[key] = self._decrypt_value(value)
+            elif isinstance(value, dict):
+                self._decrypt_nested_dict(value)
 
     async def get_security_report(self, hours: int = 24) -> Dict[str, Any]:
         """Получить отчет по безопасности."""
@@ -667,10 +689,10 @@ security_manager = SecurityManager()
 
 
 # Декораторы для безопасности
-def require_authentication(resource: str, action: Permission) -> Callable:
+def require_authentication(resource: str, action: Permission) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Декоратор для требования аутентификации."""
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             # Извлекаем контекст безопасности из аргументов
@@ -701,10 +723,10 @@ def require_authentication(resource: str, action: Permission) -> Callable:
     return decorator
 
 
-def encrypt_sensitive_fields(fields: List[str]) -> Callable:
+def encrypt_sensitive_fields(fields: List[str]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Декоратор для шифрования чувствительных полей."""
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             # Шифруем входные данные
@@ -756,10 +778,10 @@ def encrypt_sensitive_fields(fields: List[str]) -> Callable:
     return decorator
 
 
-def audit_security_events(event: AuditEvent, resource: str, action: str) -> Callable:
+def audit_security_events(event: AuditEvent, resource: str, action: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Декоратор для аудита событий безопасности."""
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             context = kwargs.get("security_context")

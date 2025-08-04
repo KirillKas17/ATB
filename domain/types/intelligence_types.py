@@ -215,7 +215,7 @@ class OrderBookSnapshot:
         bid_volume = sum(vol.value for _, vol in self.bids)
         ask_volume = sum(vol.value for _, vol in self.asks)
         total_volume = bid_volume + ask_volume
-        return Volume(Decimal(str(total_volume)))
+        return Volume(Decimal(str(total_volume)), Currency.USDT)
 
     def get_volume_imbalance(self) -> float:
         """Получение дисбаланса объемов."""

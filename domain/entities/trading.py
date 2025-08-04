@@ -14,7 +14,7 @@ from domain.types import MetadataDict
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price
-from domain.value_objects.timestamp import TimestampValue
+from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
 
 # Типы для идентификаторов
@@ -163,7 +163,7 @@ class TradeProtocol(Protocol):
     quantity: Volume
     price: Price
     commission: Money
-    timestamp: TimestampValue
+    timestamp: Timestamp
 
     @property
     def total_value(self) -> Money: ...
@@ -210,8 +210,8 @@ class Trade:
     quantity: Volume = field(default_factory=lambda: Volume(Decimal("0"), Currency.USD))
     price: Price = field(default_factory=lambda: Price(Decimal("0"), Currency.USD))
     commission: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
-    timestamp: TimestampValue = field(
-        default_factory=lambda: TimestampValue(datetime.now())
+    timestamp: Timestamp = field(
+        default_factory=lambda: Timestamp(datetime.now())
     )
 
     def __post_init__(self) -> None:
@@ -251,7 +251,7 @@ class Trade:
             quantity=Volume(Decimal(data["quantity"]), Currency.USD),
             price=Price(Decimal(data["price"]), Currency.USD),
             commission=Money(Decimal(data["commission"]), Currency.USD),
-            timestamp=TimestampValue(datetime.fromisoformat(data["timestamp"])),
+            timestamp=Timestamp(datetime.fromisoformat(data["timestamp"])),
         )
 
 

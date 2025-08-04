@@ -3,8 +3,9 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, cast
+import logging
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 from domain.types import (
     MarketPhaseResult,
