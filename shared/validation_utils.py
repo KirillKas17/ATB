@@ -336,11 +336,13 @@ class ValidationUtils:
         try:
             if rule_type in ["in_range", "min_length", "max_length", "pattern", "min_items", "max_items", "required_keys", "allowed_keys"]:
                 if callable(validator):
-                    return validator(value, parameters)
+                    result = validator(value, parameters)
+                    return bool(result)
                 return False
             else:
                 if callable(validator):
-                    return validator(value)
+                    result = validator(value)
+                    return bool(result)
                 return False
         except Exception:
             return False

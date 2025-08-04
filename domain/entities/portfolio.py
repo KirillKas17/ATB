@@ -8,11 +8,17 @@ from decimal import Decimal
 from enum import Enum
 from typing import Dict, Optional, Protocol, runtime_checkable
 from uuid import UUID, uuid4
+from datetime import datetime
+from decimal import Decimal
+from typing import Dict, Any, Optional
+from dataclasses import dataclass, field
 
+from loguru import logger
 from domain.types import AmountValue, PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.timestamp import Timestamp
+from domain.value_objects.percentage import Percentage
 
 
 class PortfolioStatus(Enum):
@@ -46,6 +52,9 @@ class Portfolio:
         default_factory=lambda: Money(Decimal("0"), Currency.USD)
     )
     used_margin: Money = field(
+        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+    )
+    available_margin: Money = field(
         default_factory=lambda: Money(Decimal("0"), Currency.USD)
     )
     risk_profile: RiskProfile = RiskProfile.MODERATE
@@ -173,10 +182,6 @@ class Portfolio:
     @property
     def is_closed(self) -> bool:
         return self.status == PortfolioStatus.CLOSED
-
-    @property
-    def available_margin(self) -> Money:
-        return Money(self.free_margin.amount, self.free_margin.currency)
 
     def update_equity(self, new_equity: Money) -> None:
         self.total_equity = new_equity

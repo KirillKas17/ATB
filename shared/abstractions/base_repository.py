@@ -226,7 +226,11 @@ class BaseRepository(ABC, Generic[T]):
     def _get_entity_id(self, entity: T) -> str | UUID:
         """Получение ID сущности."""
         if hasattr(entity, "id"):
-            return entity.id
+            entity_id = entity.id
+            if isinstance(entity_id, (str, UUID)):
+                return entity_id
+            else:
+                return str(entity_id)
         raise RepositoryError("Entity does not have 'id' attribute")
 
     def _matches_criteria(self, entity: T, criteria: Dict[str, Any]) -> bool:

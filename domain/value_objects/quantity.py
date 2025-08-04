@@ -28,6 +28,7 @@ class Quantity(BaseValueObject):
     
     def __post_init__(self) -> None:
         """Валидация quantity после создания."""
+        # Валидация и конвертация value
         if not isinstance(self.value, Decimal):
             try:
                 # Конвертируем в Decimal если возможно
@@ -35,6 +36,7 @@ class Quantity(BaseValueObject):
             except (InvalidOperation, ValueError) as e:
                 raise ValidationError(f"Invalid quantity value: {e}")
         
+        # Остальные валидации
         if self.value <= 0:
             raise ValidationError("Quantity must be positive")
         

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from domain.types import (
@@ -19,15 +19,15 @@ from domain.types import (
     PriceMomentumValue,
     RSIMetric,
     Symbol,
-    TimestampValue,
     TrendStrengthValue,
     VolatilityValue,
     VolumeTrendValue,
 )
-from domain.types.common_types import Timestamp
+from domain.types.base_types import TimestampValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
+from domain.value_objects.timestamp import Timestamp
 
 
 class MarketRegime(Enum):
@@ -88,9 +88,9 @@ class MarketProtocol(Protocol):
         }
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketProtocol":
+    def from_dict(cls, data: Dict[str, Any]) -> "Market":
         """Десериализация рыночной информации с валидацией."""
-        return cls(
+        return Market(
             id=data['id'],
             symbol=data['symbol'],
             name=data['name'],
@@ -160,14 +160,14 @@ class MarketDataProtocol(Protocol):
     def is_bullish(self) -> bool:
         """Определение бычьего тренда с учётом объёма и силы."""
         price_bullish = self.close.amount > self.open.amount
-        volume_confirmation = self.volume and self.volume.amount > 0
+        volume_confirmation = bool(self.volume and self.volume.amount > 0)
         body_strength = self.get_body_size().amount > (self.get_price_range().amount * Decimal('0.3'))
         return price_bullish and volume_confirmation and body_strength
         
     def is_bearish(self) -> bool:
         """Определение медвежьего тренда с объёмным подтверждением."""
         price_bearish = self.close.amount < self.open.amount
-        volume_confirmation = self.volume and self.volume.amount > 0
+        volume_confirmation = bool(self.volume and self.volume.amount > 0)
         body_strength = self.get_body_size().amount > (self.get_price_range().amount * Decimal('0.3'))
         return price_bearish and volume_confirmation and body_strength
 
@@ -222,7 +222,7 @@ class MarketDataProtocol(Protocol):
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketDataProtocol":
+    def from_dict(cls, data: Dict[str, Any]) -> "MarketData":
         """Десериализация с валидацией и восстановлением всех аналитических свойств."""
         from domain.value_objects.price import Price
         from domain.value_objects.volume import Volume
@@ -230,20 +230,20 @@ class MarketDataProtocol(Protocol):
         # Извлечение базовых OHLCV данных
         ohlcv = data.get('ohlcv', {})
         
-        return cls(
+        return MarketData(
             id=data['id'],
             symbol=data['symbol'],
             timeframe=data['timeframe'],
-            timestamp=datetime.fromisoformat(data['timestamp']),
+            timestamp=TimestampValue(datetime.fromisoformat(data['timestamp'])),
             open=Price(Decimal(ohlcv['open']), Currency.USD),
             high=Price(Decimal(ohlcv['high']), Currency.USD),
             low=Price(Decimal(ohlcv['low']), Currency.USD),
             close=Price(Decimal(ohlcv['close']), Currency.USD),
-            volume=Volume(Decimal(ohlcv['volume'])) if ohlcv.get('volume') else None,
-            quote_volume=Volume(Decimal(data['extended_data']['quote_volume'])) if data.get('extended_data', {}).get('quote_volume') else None,
+            volume=Volume(Decimal(ohlcv['volume']), Currency.USD) if ohlcv.get('volume') else Volume(Decimal("0"), Currency.USD),
+            quote_volume=Volume(Decimal(data['extended_data']['quote_volume']), Currency.USD) if data.get('extended_data', {}).get('quote_volume') else None,
             trades_count=data.get('extended_data', {}).get('trades_count'),
-            taker_buy_volume=Volume(Decimal(data['extended_data']['taker_buy_volume'])) if data.get('extended_data', {}).get('taker_buy_volume') else None,
-            taker_buy_quote_volume=Volume(Decimal(data['extended_data']['taker_buy_quote_volume'])) if data.get('extended_data', {}).get('taker_buy_quote_volume') else None,
+            taker_buy_volume=Volume(Decimal(data['extended_data']['taker_buy_volume']), Currency.USD) if data.get('extended_data', {}).get('taker_buy_volume') else None,
+            taker_buy_quote_volume=Volume(Decimal(data['extended_data']['taker_buy_quote_volume']), Currency.USD) if data.get('extended_data', {}).get('taker_buy_quote_volume') else None,
             metadata=data.get('metadata', {})
         )
 
