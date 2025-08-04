@@ -13,7 +13,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Callable
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import time
 
 from loguru import logger

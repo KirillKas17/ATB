@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.technical_analysis import DefaultTechnicalAnalysisService
 from shared.data_loader import load_market_data, save_market_data

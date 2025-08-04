@@ -6,7 +6,7 @@ from datetime import datetime
 from itertools import product
 from typing import Any, Dict, List, Optional, Callable
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 

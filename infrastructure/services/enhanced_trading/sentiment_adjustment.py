@@ -6,7 +6,7 @@
 # ВАЖНО: Для корректной работы mypy с pandas используйте pandas-stubs: pip install pandas-stubs
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict, List, Optional, Any, Union

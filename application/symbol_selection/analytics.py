@@ -2,7 +2,7 @@
 Аналитика для выбора символов.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from typing import Any, Dict, List
 

@@ -2,7 +2,7 @@
 Репозитории для модуля торговых сессий.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 from datetime import timedelta
 from typing import Any, Dict, List, Optional, Union
 

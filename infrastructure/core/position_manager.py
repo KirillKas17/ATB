@@ -8,7 +8,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 
 from shared.logging import setup_logger
 

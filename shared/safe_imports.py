@@ -132,7 +132,6 @@ except ImportError:
 
 # NumPy с fallback
 try:
-    import numpy as np
     NUMPY_AVAILABLE = True
 except ImportError:
     logger.warning("numpy not available. Using fallback implementations.")

@@ -229,7 +229,6 @@ class AutonomousController:
                 return 0.0
             
             # Расчет стандартного отклонения доходностей
-            import numpy as np
             volatility = float(np.std(returns))
             return volatility
         except Exception as e:

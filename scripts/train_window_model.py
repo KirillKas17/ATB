@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import joblib
-import numpy as np
+from shared.numpy_utils import np
 import optuna
 import pandas as pd
 from loguru import logger

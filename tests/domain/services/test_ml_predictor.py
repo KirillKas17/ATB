@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.ml_predictor import MLPredictor
 from domain.types.ml_types import PredictionResult, ModelPerformance, FeatureImportance
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 class TestMLPredictor:
     """Тесты для сервиса ML предсказаний."""

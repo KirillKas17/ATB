@@ -3,7 +3,7 @@
 """
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Dict, List, Optional, Any, Tuple
 from pandas import Series, DataFrame
 

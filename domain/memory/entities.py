@@ -2,7 +2,7 @@
 """Сущности модуля памяти паттернов."""
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.memory.types import (
     MarketFeatures,

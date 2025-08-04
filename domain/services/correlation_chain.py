@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Protocol, Tuple, Union, runtime_checkable
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from scipy.signal import correlate
 from scipy.stats import pearsonr, spearmanr, kendalltau, norm

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 
 

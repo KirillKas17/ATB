@@ -6,7 +6,7 @@ Unit тесты для DataProcessor.
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import timedelta
 from infrastructure.core.data_processor import DataProcessor
 

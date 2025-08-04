@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 from domain.entities.order import OrderSide, OrderStatus, OrderType

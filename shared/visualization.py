@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Модуль визуализации для shared слоя."""
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import matplotlib.pyplot as plt
 from typing import Any, Dict, List, Optional, Tuple
 from infrastructure.core.visualization import plot_whale_activity, plot_trades

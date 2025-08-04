@@ -4,7 +4,7 @@
 import pytest
 from datetime import datetime
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import TYPE_CHECKING, Optional, Dict, Any
 
 if TYPE_CHECKING:

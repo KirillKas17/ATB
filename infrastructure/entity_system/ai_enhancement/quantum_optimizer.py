@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 
 class OptimizationType(Enum):

@@ -14,7 +14,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, Tuple, runtime_checkable
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from scipy import stats
 from sklearn.ensemble import RandomForestClassifier

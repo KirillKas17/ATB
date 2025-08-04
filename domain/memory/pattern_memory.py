@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 from scipy.spatial.distance import cosine
 from sklearn.preprocessing import StandardScaler

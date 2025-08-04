@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 from uuid import UUID, uuid4
 from datetime import datetime
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 from pydantic import BaseModel, Field

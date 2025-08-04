@@ -4,7 +4,7 @@ Unit тесты для интеграции MirrorDetector в TradingOrchestrato
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from domain.entities.strategy import Signal, SignalType, Strategy
 from domain.entities.portfolio import Portfolio

@@ -3,7 +3,7 @@
 Включает математические модели оценки рисков, стресс-тестирование и оптимизацию портфеля.
 """
 import asyncio
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import logging
 from abc import ABC, abstractmethod

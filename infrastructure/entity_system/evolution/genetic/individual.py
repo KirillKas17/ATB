@@ -9,7 +9,7 @@ import json
 import random
 from typing import Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.entity_system_types import FitnessScore, GeneDict
 

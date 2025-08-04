@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Callable
 
-import numpy as np
+from shared.numpy_utils import np
 import torch
 from deap import algorithms, base, creator, tools  # type: ignore
 from loguru import logger

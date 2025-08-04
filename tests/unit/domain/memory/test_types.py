@@ -7,7 +7,7 @@ Unit тесты для domain.memory.types
 - TypedDict структуры
 """
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime
 from domain.memory.types import (
     OutcomeType, VolumeProfile, MarketRegime, PredictionDirection,

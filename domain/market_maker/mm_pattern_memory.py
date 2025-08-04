@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol
 from dataclasses import dataclass
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.market_maker.mm_pattern import (
     MarketMakerPattern,

@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from scipy.stats import norm
 from typing import Union
 

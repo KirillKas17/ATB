@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import pywt
 from scipy import signal

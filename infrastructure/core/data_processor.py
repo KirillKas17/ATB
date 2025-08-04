@@ -2,7 +2,7 @@
 """Процессор данных для infrastructure слоя."""
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from shared.logging import LoggerMixin
 

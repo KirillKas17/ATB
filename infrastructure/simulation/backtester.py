@@ -16,7 +16,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-import numpy as np
+from shared.numpy_utils import np
 import psutil
 from loguru import logger
 

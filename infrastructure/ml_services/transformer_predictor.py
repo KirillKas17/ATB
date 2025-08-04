@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import optuna
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 # # import talib  # Временно закомментировано из-за проблем с установкой на Windows  # Временно закомментировано из-за проблем с установкой на Windows
 try:

@@ -7,7 +7,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import pandas as pd
 from pandas import DataFrame, Series
-import numpy as np
+from shared.numpy_utils import np
 from typing import Dict, List, Optional, Any, Tuple
 import logging
 

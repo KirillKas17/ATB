@@ -1,4 +1,4 @@
-import numpy as np
+from shared.numpy_utils import np
 from shared.wavelet_tools import (extract_wavelet_features, perform_cwt,
                                   perform_dwt, reconstruct_dwt)
 def test_perform_dwt_and_reconstruct() -> None:

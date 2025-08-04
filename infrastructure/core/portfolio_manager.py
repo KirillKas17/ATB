@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Tuple, Optional
 from loguru import logger
 from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 import time
 

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Dict, List
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.entity_system_types import FitnessScore, GeneDict
 

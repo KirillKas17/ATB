@@ -2,7 +2,7 @@
 Промышленный исполнитель сделок для бэктестинга.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal

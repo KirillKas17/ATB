@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Any, Protocol
 from dataclasses import dataclass
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.market_maker.mm_pattern import MarketMakerPattern, PatternResult
 from domain.market_maker.mm_pattern_memory import PatternMemory

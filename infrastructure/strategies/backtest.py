@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Модуль бэктестинга стратегий."""
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import matplotlib.pyplot as plt
 from datetime import datetime
 from pathlib import Path

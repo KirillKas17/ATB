@@ -6,7 +6,7 @@ from functools import partial
 from itertools import product
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 

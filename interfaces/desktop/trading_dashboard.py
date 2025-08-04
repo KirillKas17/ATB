@@ -20,7 +20,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.animation import FuncAnimation
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 # Импорты из основного проекта

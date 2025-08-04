@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from loguru import logger
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import pickle
 
 from domain.entities.market import MarketData  # исправлен импорт

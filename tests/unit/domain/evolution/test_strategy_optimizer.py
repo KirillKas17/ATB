@@ -10,7 +10,7 @@ Unit тесты для strategy_optimizer.py.
 """
 
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime
 from decimal import Decimal

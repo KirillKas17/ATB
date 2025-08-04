@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 
 from infrastructure.core.evolution_integration import evolution_integration

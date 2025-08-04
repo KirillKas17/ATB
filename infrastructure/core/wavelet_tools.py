@@ -2,7 +2,7 @@
 # Содержимое файла переносится без изменений для сохранения бизнес-логики.
 from typing import List, Tuple, Union, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 import pywt  # type: ignore
 from scipy.stats import entropy
 

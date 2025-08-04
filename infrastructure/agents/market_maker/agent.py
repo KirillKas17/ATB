@@ -1,5 +1,5 @@
 import pickle
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, Optional
 import pandas as pd
 

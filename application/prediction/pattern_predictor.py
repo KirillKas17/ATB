@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from domain.types.intelligence_types import PatternDetection
 from domain.types.intelligence_types import PatternType
-from domain.entities.pattern_memory import PatternMemory
+from domain.memory.pattern_memory import PatternMemory
 from domain.value_objects.timestamp import Timestamp
 
 logger = logging.getLogger(__name__)

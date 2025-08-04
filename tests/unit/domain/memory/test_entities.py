@@ -10,7 +10,7 @@ Unit тесты для domain.memory.entities
 - MemoryOptimizationResult
 """
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime
 from domain.memory.entities import (
     PatternSnapshot, PatternOutcome, PredictionResult, PatternCluster, PatternAnalysis, MemoryOptimizationResult

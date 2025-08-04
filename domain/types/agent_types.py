@@ -20,7 +20,7 @@ from typing import (
     runtime_checkable,
 )
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 # Базовые типы для агентов

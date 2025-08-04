@@ -7,7 +7,7 @@
 - Статистического анализа
 """
 
-import numpy as np
+from shared.numpy_utils import np
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple

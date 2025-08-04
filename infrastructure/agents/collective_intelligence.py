@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union, Callable, Set
 from uuid import uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 import torch
 import torch.nn as nn
 from loguru import logger

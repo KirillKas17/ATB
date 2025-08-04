@@ -9,11 +9,11 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.types.intelligence_types import PatternDetection
 from domain.types.intelligence_types import PatternType
-from domain.entities.pattern_memory import PatternMemory
+from domain.memory.pattern_memory import PatternMemory
 from domain.value_objects.timestamp import Timestamp
 
 logger = logging.getLogger(__name__)

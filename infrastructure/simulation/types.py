@@ -3,7 +3,7 @@
 Полная строгая типизация для промышленного уровня.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta

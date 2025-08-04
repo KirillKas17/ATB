@@ -6,7 +6,7 @@ Unit тесты для technical_analysis.py.
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from infrastructure.core.technical_analysis import (
     sma, ema, rsi, macd, bollinger_bands, atr, stoch_rsi,
     cci, adx, vwap, calculate_fibonacci_levels, calculate_support_resistance,

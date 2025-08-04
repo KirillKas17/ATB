@@ -3,7 +3,7 @@
 import time
 from typing import Any, Dict, Final, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 from scipy import stats
 from scipy.signal import welch

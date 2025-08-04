@@ -33,7 +33,7 @@ from typing import (
 )
 from uuid import uuid4
 from contextlib import contextmanager
-import numpy as np
+from shared.numpy_utils import np
 
 try:
     import psutil

@@ -16,7 +16,7 @@ from uuid import uuid4
 from decimal import Decimal
 from datetime import datetime
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.protocols.ml_protocol import (
     MLProtocol,

@@ -6,7 +6,7 @@
 import pytest
 from unittest.mock import Mock, patch
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from decimal import Decimal
 

@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from simulation.backtest_explainer import BacktestExplainer
 from simulation.backtester import Backtester

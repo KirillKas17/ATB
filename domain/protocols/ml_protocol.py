@@ -24,7 +24,7 @@ from typing import (
 )
 from uuid import UUID, uuid4
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 from domain.entities.ml import Model, ModelStatus, ModelType, Prediction, PredictionType

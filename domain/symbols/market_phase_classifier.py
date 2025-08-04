@@ -6,7 +6,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from scipy import stats
 

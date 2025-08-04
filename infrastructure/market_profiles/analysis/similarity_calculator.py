@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 from loguru import logger
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.market_maker.mm_pattern import MarketMakerPattern
 from domain.types.market_maker_types import (

@@ -5,7 +5,7 @@ import pytest
 import asyncio
 import time
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime
 from typing import Dict, Any, List
 # from infrastructure.agents.agent_risk import RiskAgent

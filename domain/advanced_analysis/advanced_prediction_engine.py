@@ -3,7 +3,7 @@
 Включает анализ FVG (Fair Value Gaps), SNR (Signal-to-Noise Ratio), OrderFlow и другие методы
 """
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple, Any, NamedTuple
 from dataclasses import dataclass

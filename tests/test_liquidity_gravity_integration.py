@@ -2,7 +2,7 @@
 """Интеграционные тесты для системы гравитации ликвидности."""
 import time
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from application.risk.liquidity_gravity_monitor import LiquidityGravityMonitor, MonitorConfig
 from domain.market.liquidity_gravity import (LiquidityGravityConfig,

@@ -6,7 +6,7 @@ import asyncio
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
-import numpy as np
+from shared.numpy_utils import np
 
 from application.protocols.service_protocols import MLService, MLPrediction, PatternDetection
 from application.services.base_service import BaseApplicationService
@@ -866,7 +866,6 @@ class MLServiceImpl(BaseApplicationService, MLService):
 
     def _calculate_sentiment_confidence(self, *scores) -> float:
         """Расчет уверенности в анализе настроений."""
-        import numpy as np
         
         # Чем больше согласованность между разными методами, тем выше уверенность
         scores_array = np.array(scores)
@@ -912,7 +911,6 @@ class MLServiceImpl(BaseApplicationService, MLService):
 
     async def _detect_patterns_advanced(self, market_data, pattern_model) -> List[Any]:
         """Продвинутое обнаружение паттернов."""
-        import numpy as np
         import pandas as pd
         from datetime import datetime, timedelta
         
@@ -1205,7 +1203,6 @@ class MLServiceImpl(BaseApplicationService, MLService):
 
     async def _calculate_risk_metrics_advanced(self, market_data, portfolio_data, risk_model) -> Dict[str, Any]:
         """Продвинутый расчет метрик риска."""
-        import numpy as np
         
         try:
             risk_metrics = {}

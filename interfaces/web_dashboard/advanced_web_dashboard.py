@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime, timedelta
 import asyncio
 import threading

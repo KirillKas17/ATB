@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 from scipy import stats
 

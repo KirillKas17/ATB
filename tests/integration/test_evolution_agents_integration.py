@@ -8,7 +8,7 @@ import tempfile
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from infrastructure.agents.evolvable_market_maker import EvolvableMarketMakerAgent
 from infrastructure.agents.evolvable_risk_agent import EvolvableRiskAgent
 from infrastructure.agents.evolvable_portfolio_agent import EvolvablePortfolioAgent

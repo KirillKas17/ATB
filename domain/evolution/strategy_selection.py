@@ -5,7 +5,7 @@
 from datetime import datetime
 from typing import Any, Dict, List
 
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.evolution.strategy_fitness import StrategyEvaluationResult
 from domain.evolution.strategy_model import EvolutionContext, StrategyCandidate

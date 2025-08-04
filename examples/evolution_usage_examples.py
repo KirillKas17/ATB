@@ -7,7 +7,7 @@
 import asyncio
 from datetime import datetime
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 # Импорт оригинальных агентов
 from agents.agent_market_regime import MarketRegimeAgent

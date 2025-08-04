@@ -5,7 +5,7 @@
 
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from decimal import Decimal, InvalidOperation
 from unittest.mock import Mock, patch, MagicMock
 import re

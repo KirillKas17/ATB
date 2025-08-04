@@ -3,7 +3,7 @@
 """
 
 from typing import Any, Callable, Dict, List, Optional
-import numpy as np
+from shared.numpy_utils import np
 
 from loguru import logger
 

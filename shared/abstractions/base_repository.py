@@ -54,14 +54,14 @@ class BaseRepository(ABC, Generic[T]):
         """Проверка существования сущности."""
         return self.get_by_id(entity_id) is not None
 
-    def get_or_create(self, entity: T, **kwargs) -> T:
+    def get_or_create(self, entity: T, **kwargs: Any) -> T:
         """Получение существующей или создание новой сущности."""
         existing = self.find_by_criteria(**kwargs)
         if existing:
             return existing[0]
         return self.create(entity)
 
-    def find_by_criteria(self, **kwargs) -> List[T]:
+    def find_by_criteria(self, **kwargs: Any) -> List[T]:
         """Поиск по критериям."""
         entities = self.get_all()
         result = []
@@ -70,7 +70,7 @@ class BaseRepository(ABC, Generic[T]):
                 result.append(entity)
         return result
 
-    def find_one_by_criteria(self, **kwargs) -> Optional[T]:
+    def find_one_by_criteria(self, **kwargs: Any) -> Optional[T]:
         """Поиск одной сущности по критериям."""
         entities = self.find_by_criteria(**kwargs)
         return entities[0] if entities else None
@@ -90,7 +90,7 @@ class BaseRepository(ABC, Generic[T]):
                 raise RepositoryError(f"Failed to update entity: {str(e)}")
         return updated_count
 
-    def delete_by_criteria(self, **kwargs) -> int:
+    def delete_by_criteria(self, **kwargs: Any) -> int:
         """Удаление сущностей по критериям."""
         entities = self.find_by_criteria(**kwargs)
         deleted_count = 0

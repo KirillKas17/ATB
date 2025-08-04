@@ -2,7 +2,7 @@
 Юнит-тесты для компонентов модуля sessions.
 """
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timezone, time
 from typing import Dict, Any

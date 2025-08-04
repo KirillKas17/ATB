@@ -10,7 +10,7 @@ Unit тесты для ML.
 """
 
 import pytest
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from decimal import Decimal
 from datetime import datetime

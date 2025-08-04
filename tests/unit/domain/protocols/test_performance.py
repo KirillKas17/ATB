@@ -15,7 +15,7 @@ import time
 import pytest
 from unittest.mock import Mock, patch, AsyncMock, MagicMock
 from typing import Dict, Any, List, Tuple
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime, timedelta
 
 from domain.protocols.performance import (

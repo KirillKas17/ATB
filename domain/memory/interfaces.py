@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Интерфейсы для модуля памяти паттернов."""
 from typing import Any, Dict, List, Optional, Protocol, Tuple
-import numpy as np
+from shared.numpy_utils import np
 
 from domain.memory.entities import PatternOutcome, PatternSnapshot, PredictionResult
 from domain.memory.types import (

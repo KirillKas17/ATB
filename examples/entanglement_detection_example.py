@@ -96,8 +96,6 @@ def test_entanglement_detector():
 
     # Создаем тестовые данные
 
-    import numpy as np
-
     # Симулируем данные с высокой корреляцией
     base_prices = np.linspace(50000, 51000, 100)
     noise1 = np.random.normal(0, 10, 100)

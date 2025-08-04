@@ -338,7 +338,6 @@ class DashboardController:
     
     def _get_mock_market_data(self, symbol: str) -> Dict[str, Any]:
         """Генерация мок-данных"""
-        import numpy as np
         import pandas as pd
         
         # Генерация OHLCV данных
@@ -425,8 +424,6 @@ class DashboardController:
         returns = [self._get_trade_pnl(trade) for trade in trades]
         if not returns:
             return 0.0
-        
-        import numpy as np
         mean_return = np.mean(returns)
         std_return = np.std(returns)
         
@@ -475,8 +472,6 @@ class DashboardController:
         """Расчет VaR 95%"""
         if not trades:
             return 0.0
-        
-        import numpy as np
         returns = [self._get_trade_pnl(trade) for trade in trades]
         return np.percentile(returns, 5) if returns else 0.0
     
@@ -531,7 +526,6 @@ class DashboardController:
     
     def _get_mock_backtest_results(self) -> Dict[str, Any]:
         """Мок-результаты бэктестинга"""
-        import numpy as np
         import pandas as pd
         
         # Генерация синтетической кривой доходности

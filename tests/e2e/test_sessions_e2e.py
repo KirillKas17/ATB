@@ -3,7 +3,7 @@ E2E тесты для модуля sessions.
 """
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from domain.types.session_types import (

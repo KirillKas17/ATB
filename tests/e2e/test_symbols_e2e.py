@@ -6,7 +6,7 @@ E2E тесты для анализа символов.
 import pytest
 from unittest.mock import Mock, patch
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 import asyncio
 from decimal import Decimal
 from typing import List, Dict, Any

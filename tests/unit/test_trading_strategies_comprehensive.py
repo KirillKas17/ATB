@@ -5,7 +5,7 @@
 
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from decimal import Decimal
 from unittest.mock import Mock, AsyncMock, patch
 from typing import Dict, List, Any

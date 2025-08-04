@@ -10,7 +10,7 @@ import ast
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Set
-import numpy as np
+from shared.numpy_utils import np
 
 from loguru import logger
 

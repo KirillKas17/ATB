@@ -10,7 +10,6 @@ from enum import Enum
 
 if TYPE_CHECKING:
     import pandas as pd
-    import numpy as np
 
 # Type aliases for numpy and pandas types
 NumpyFloat: TypeAlias = float

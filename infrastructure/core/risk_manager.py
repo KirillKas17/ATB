@@ -7,7 +7,7 @@
 import time
 from typing import Any, Dict, List
 
-import numpy as np
+from shared.numpy_utils import np
 from loguru import logger
 
 from infrastructure.messaging.event_bus import Event, EventBus, EventPriority, EventName, EventType

@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-import numpy as np
+from shared.numpy_utils import np
 
 
 @dataclass

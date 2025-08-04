@@ -7,7 +7,7 @@
 # ВАЖНО: Для корректной работы mypy с pandas используйте pandas-stubs: pip install pandas-stubs
 
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Dict, List, Optional, Tuple, Union, Any, cast
 
 # Типы для pandas

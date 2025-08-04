@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 from domain.value_objects.base_value_object import BaseValueObject

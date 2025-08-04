@@ -21,7 +21,7 @@ class TestStrategyScanner:
         """Создание тестового файла стратегии."""
         strategy_content = '''
 """Тестовая стратегия."""
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 class TrendFollowingStrategy:
     """Стратегия следования за трендом."""
@@ -270,7 +270,7 @@ class SimpleClass:
         """Тест извлечения импортов."""
         import ast
         code = """
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 """

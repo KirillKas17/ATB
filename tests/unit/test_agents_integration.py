@@ -3,7 +3,7 @@
 """
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Dict, Any
 from infrastructure.agents.agent_risk import RiskAgent  # type: ignore
 from infrastructure.agents.agent_news import NewsAgent  # type: ignore

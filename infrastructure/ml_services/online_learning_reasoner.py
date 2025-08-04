@@ -2,7 +2,7 @@
 Онлайн-обучающий анализатор решений.
 """
 
-import numpy as np
+from shared.numpy_utils import np
 from typing import Dict, List, Tuple
 
 from sklearn.linear_model import LogisticRegression

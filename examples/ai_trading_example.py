@@ -7,7 +7,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-import numpy as np
+from shared.numpy_utils import np
 import pandas as pd
 
 # Добавление корневой директории в путь

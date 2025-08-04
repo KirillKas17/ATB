@@ -3,7 +3,7 @@
 """
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.external_services.technical_analysis_service import TechnicalAnalysisServiceAdapter
 class TestTechnicalAnalysisService:

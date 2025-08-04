@@ -5,7 +5,7 @@ import time
 from collections import deque
 from typing import Any, Dict, Final, List, Optional, Tuple, cast
 
-import numpy as np
+from shared.numpy_utils import np
 
 # Настройка логгера
 logger = logging.getLogger(__name__)

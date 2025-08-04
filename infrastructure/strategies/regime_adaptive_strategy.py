@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union, Tuple

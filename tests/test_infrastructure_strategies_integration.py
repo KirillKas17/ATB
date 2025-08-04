@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
 from infrastructure.strategies.regime_adaptive_strategy import RegimeAdaptiveStrategy

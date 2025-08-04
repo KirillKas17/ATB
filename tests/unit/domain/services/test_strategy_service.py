@@ -12,7 +12,7 @@ Unit тесты для StrategyService.
 
 import pytest
 import pandas as pd
-import numpy as np
+from shared.numpy_utils import np
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from unittest.mock import Mock, patch, MagicMock, AsyncMock
