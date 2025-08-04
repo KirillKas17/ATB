@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Protocol
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from domain.types.trading_types import TradingConfig
 
 class OrchestratorMode(Enum):
     """Режимы работы оркестратора."""
@@ -97,7 +98,7 @@ class TradingOrchestratorProtocol(Protocol):
 class BaseTradingOrchestrator(ABC):
     """Базовый класс для торгового оркестратора."""
     
-    def __init__(self):
+    def __init__(self, *, config: Optional[TradingConfig] = None) -> None:
         self._mode = OrchestratorMode.MANUAL
         self._current_phase = TradingPhase.INITIALIZATION
         self._is_running = False
@@ -105,7 +106,10 @@ class BaseTradingOrchestrator(ABC):
         self._emergency_stop_active = False
         self._cycle_count = 0
         self._last_cycle_time = None
-        self._performance_metrics = {}
+        self._strategies: Dict[str, Any] = {}
+        self._performance_metrics: Dict[str, float] = {}
+        self._last_update: Optional[datetime] = None
+        self._error_count = 0
     
     @abstractmethod
     async def _initialize_components(self) -> None:
@@ -162,3 +166,11 @@ class BaseTradingOrchestrator(ABC):
             'value': value,
             'timestamp': datetime.now()
         }
+        # Fix the datetime assignment issue
+        if self._last_update is None:
+            self._last_update = datetime.now()
+        
+        # Fix the dict assignment to float
+        performance_data = self._get_performance_data()
+        if isinstance(performance_data, dict) and 'score' in performance_data:
+            self._performance_metrics['overall_score'] = float(performance_data['score'])

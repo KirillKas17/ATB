@@ -56,7 +56,7 @@ class EvolutionManagerProtocol(Protocol):
 class BaseEvolutionManager(ABC):
     """Базовый класс для менеджера эволюции."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._is_running = False
         self._current_generation = 0
         self._best_fitness = 0.0

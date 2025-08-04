@@ -3,7 +3,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Dict, List, Optional, Protocol, Callable, Awaitable
 from datetime import datetime
 from decimal import Decimal
 
@@ -41,15 +41,15 @@ class MarketDataProtocol(Protocol):
         """Получение списка доступных символов."""
         ...
     
-    async def subscribe_ticker(self, symbol: str, callback) -> None:
+    async def subscribe_ticker(self, symbol: str, callback: Callable[[Any], Awaitable[None]]) -> None:
         """Подписка на обновления тикера."""
         ...
     
-    async def subscribe_orderbook(self, symbol: str, callback) -> None:
+    async def subscribe_orderbook(self, symbol: str, callback: Callable[[Any], Awaitable[None]]) -> None:
         """Подписка на обновления стакана."""
         ...
     
-    async def subscribe_trades(self, symbol: str, callback) -> None:
+    async def subscribe_trades(self, symbol: str, callback: Callable[[Any], Awaitable[None]]) -> None:
         """Подписка на обновления сделок."""
         ...
     
@@ -60,9 +60,9 @@ class MarketDataProtocol(Protocol):
 class BaseMarketDataProvider(ABC):
     """Базовый класс для провайдера рыночных данных."""
     
-    def __init__(self, exchange: str):
+    def __init__(self, exchange: str) -> None:
         self.exchange = exchange
-        self._subscriptions = {}
+        self._subscriptions: Dict[str, Any] = {}
         self._connected = False
     
     @abstractmethod

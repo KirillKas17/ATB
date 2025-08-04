@@ -34,7 +34,7 @@ TrendStrengthValue = NewType("TrendStrengthValue", float)
 PatternConfidenceValue = NewType("PatternConfidenceValue", float)
 SessionAlignmentValue = NewType("SessionAlignmentValue", float)
 # Типы для рыночных данных
-MarketDataFrame = NewType("MarketDataFrame", Any)  # pd.DataFrame не может быть subclass
+MarketDataFrame = NewType("MarketDataFrame", Dict[str, Any])  # Используем Dict вместо Any
 OrderBookData = NewType("OrderBookData", Dict[str, Any])
 PatternMemoryData = NewType("PatternMemoryData", Dict[str, Any])
 SessionData = NewType("SessionData", Dict[str, Any])

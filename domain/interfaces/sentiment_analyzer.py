@@ -7,6 +7,9 @@ from typing import Any, Dict, List, Optional, Protocol
 from datetime import datetime
 from enum import Enum
 
+# Temporary type alias until SentimentConfig is defined
+SentimentConfig = Dict[str, Any]
+
 class SentimentType(Enum):
     """Типы настроений."""
     VERY_BEARISH = "very_bearish"
@@ -72,10 +75,11 @@ class SentimentAnalyzerProtocol(Protocol):
 class BaseSentimentAnalyzer(ABC):
     """Базовый класс для анализатора настроений."""
     
-    def __init__(self):
-        self._sentiment_cache = {}
-        self._last_update = {}
+    def __init__(self, *, config: Optional[SentimentConfig] = None) -> None:
+        self._sentiment_cache: Dict[str, Any] = {}
+        self._last_update: Dict[str, datetime] = {}
         self._confidence_threshold = 0.7
+        self._analysis_history: Dict[str, Any] = {}
     
     @abstractmethod
     async def fetch_news_data(self, symbol: str) -> List[Dict[str, Any]]:

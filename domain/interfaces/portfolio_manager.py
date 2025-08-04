@@ -57,10 +57,10 @@ class PortfolioManagerProtocol(Protocol):
 class BasePortfolioManager(ABC):
     """Базовый класс для менеджера портфеля."""
     
-    def __init__(self):
-        self._balances = {}
-        self._positions = {}
-        self._last_update = None
+    def __init__(self) -> None:
+        self._balances: Dict[str, float] = {}
+        self._positions: Dict[str, Any] = {}
+        self._last_update: Optional[datetime] = None
     
     @abstractmethod
     async def update_balances(self) -> None:

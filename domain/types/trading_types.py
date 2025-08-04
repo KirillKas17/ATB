@@ -47,12 +47,12 @@ class Signal:
     strength: SignalStrength
     price: Optional[Decimal] = None
     quantity: Optional[Decimal] = None
-    timestamp: datetime = None
+    timestamp: Optional[datetime] = None
     source: Optional[str] = None
     confidence: float = 0.0
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now()
         if self.metadata is None:
@@ -69,7 +69,7 @@ class TradingPair:
     tick_size: Decimal = Decimal('0.01')
     is_active: bool = True
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.symbol:
             self.symbol = f"{self.base_asset}{self.quote_asset}"
 
@@ -91,7 +91,7 @@ class TradingConfig:
     # Фильтры времени
     trading_hours_start: Optional[str] = None
     trading_hours_end: Optional[str] = None
-    allowed_days: List[int] = None  # 0-6, где 0 = понедельник
+    allowed_days: Optional[List[int]] = None  # 0-6, где 0 = понедельник
     
     # Фильтры символов
     allowed_symbols: Optional[List[str]] = None
@@ -107,7 +107,7 @@ class TradingConfig:
     enable_notifications: bool = True
     log_level: str = "INFO"
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.allowed_days is None:
             self.allowed_days = list(range(7))  # Все дни недели
         if self.blacklisted_symbols is None:
@@ -127,10 +127,10 @@ class OrderInfo:
     filled_quantity: Decimal = Decimal('0')
     remaining_quantity: Optional[Decimal] = None
     average_price: Optional[Decimal] = None
-    created_at: datetime = None
-    updated_at: datetime = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.created_at is None:
             self.created_at = datetime.now()
         if self.updated_at is None:
@@ -148,10 +148,10 @@ class Position:
     current_price: Optional[Decimal] = None
     unrealized_pnl: Optional[Decimal] = None
     realized_pnl: Decimal = Decimal('0')
-    opened_at: datetime = None
-    updated_at: datetime = None
+    opened_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.opened_at is None:
             self.opened_at = datetime.now()
         if self.updated_at is None:
@@ -173,10 +173,10 @@ class Trade:
     quantity: Decimal
     price: Decimal
     fee: Optional[Decimal] = None
-    timestamp: datetime = None
+    timestamp: Optional[datetime] = None
     order_id: Optional[str] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now()
         if self.fee is None:
@@ -192,9 +192,9 @@ class MarketData:
     volume_24h: Decimal
     price_change_24h: Decimal
     price_change_percent_24h: float
-    timestamp: datetime = None
+    timestamp: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now()
     
