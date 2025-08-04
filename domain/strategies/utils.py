@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from shared.numpy_utils import np
 
-from domain.types.risk_types import RiskLevel
+from domain.type_definitions.risk_types import RiskLevel
 
 logger = logging.getLogger(__name__)
 

@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from loguru import logger
 
-from domain.types.market_maker_types import MarketMakerPatternType
+from domain.type_definitions.market_maker_types import MarketMakerPatternType
 
 from ..interfaces.storage_interfaces import IBehaviorHistoryStorage
 from ..models.storage_config import StorageConfig

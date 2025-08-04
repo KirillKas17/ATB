@@ -33,7 +33,7 @@ import pandas as pd
 
 from domain.entities.signal import Signal
 from domain.entities.strategy import Strategy
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     PerformanceScore,

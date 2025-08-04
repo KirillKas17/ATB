@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from domain.entities.trading import Signal as DomainSignal
 from domain.entities.market import MarketData as DomainMarketData
-from domain.types import Symbol, MetadataDict, TimestampValue
+from domain.type_definitions import Symbol, MetadataDict, TimestampValue
 from domain.value_objects import Price as DomainPrice, Volume as DomainVolume
 from domain.entities.trading import SignalType as DomainSignalType, OrderSide as DomainOrderSide
 from domain.value_objects.currency import Currency

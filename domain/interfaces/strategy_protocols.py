@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     MarketRegime,
     StrategyAnalysis,
     StrategyDirection,

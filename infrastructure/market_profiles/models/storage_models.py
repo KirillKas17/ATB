@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Final, List, Optional
 
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Accuracy,
     AverageReturn,
     Confidence,

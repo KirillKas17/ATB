@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Accuracy,
     AverageReturn,
     BookPressure,

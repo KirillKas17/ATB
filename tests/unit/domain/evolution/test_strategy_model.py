@@ -19,8 +19,8 @@ from domain.evolution.strategy_model import (
     StrategyCandidate,
     EvolutionContext,
 )
-from domain.types.technical_types import SignalType
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.technical_types import SignalType
+from domain.type_definitions.strategy_types import StrategyType
 
 
 class TestEvolutionStatus:

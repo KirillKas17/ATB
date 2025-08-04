@@ -17,7 +17,7 @@ from infrastructure.entity_system.memory.utils import (
     generate_snapshot_id, calculate_checksum,
     serialize_snapshot, deserialize_snapshot, validate_snapshot_data
 )
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     EntityState, MemorySnapshot, AnalysisResult, Hypothesis, 
     Experiment, Improvement, MemoryError
 )

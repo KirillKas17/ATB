@@ -30,7 +30,7 @@ from uuid import uuid4
 from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.entities.trading import Signal as DomainSignal, Trade as DomainTrade
 from domain.entities.market import MarketData as DomainMarketData
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     PortfolioId,
     PriceValue,
@@ -324,7 +324,7 @@ class SimulationMarketData:
         """Преобразование в доменную модель."""
         from domain.value_objects.price import Price
         from domain.value_objects.volume import Volume
-        from domain.types import MetadataDict, TimestampValue
+        from domain.type_definitions import MetadataDict, TimestampValue
         return DomainMarketData(
             symbol=self.symbol,
             timestamp=TimestampValue(self.timestamp.value),
@@ -361,7 +361,7 @@ class SimulationSignal:
     def to_domain_signal(self) -> DomainSignal:
         """Преобразование в доменную модель."""
         from domain.entities.trading import Signal, SignalType
-        from domain.types import MetadataDict
+        from domain.type_definitions import MetadataDict
         # Преобразование типа сигнала
         if self.signal_type == "buy":
             signal_type = SignalType.BUY
@@ -419,7 +419,7 @@ class SimulationOrder:
         from domain.entities.order import Order
         from domain.value_objects.volume import Volume
         from domain.value_objects.price import Price
-        from domain.types import MetadataDict, VolumeValue
+        from domain.type_definitions import MetadataDict, VolumeValue
         return Order(
             id=self.id,
             symbol=self.symbol,
@@ -471,9 +471,9 @@ class SimulationTrade:
         """Преобразование в доменную модель."""
         from domain.entities.trading import Trade
         from domain.value_objects.timestamp import TimestampValue
-        from domain.types import MetadataDict, TradingPair
+        from domain.type_definitions import MetadataDict, TradingPair
         from domain.entities.trading import OrderSide as DomainOrderSide
-        from domain.types import TimestampValue as DomainTimestampValue
+        from domain.type_definitions import TimestampValue as DomainTimestampValue
         
         # Преобразование OrderSide
         if self.side == OrderSide.BUY:

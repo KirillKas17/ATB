@@ -10,8 +10,8 @@ from loguru import logger
 
 from domain.entities.orderbook import OrderBookSnapshot
 from domain.intelligence.noise_analyzer import NoiseAnalysisResult, NoiseAnalyzer
-from domain.types import MetadataDict
-from domain.types.intelligence_types import (
+from domain.type_definitions import MetadataDict
+from domain.type_definitions.intelligence_types import (
     AnalysisMetadata,
     NoiseAnalysisConfig,
     NoiseMetrics,
@@ -144,7 +144,7 @@ class OrderBookPreFilter:
                 )
             # Выполняем анализ
             # Приводим к правильному типу для analyze_noise
-            from domain.types.intelligence_types import OrderBookSnapshot as IntelligenceOrderBookSnapshot
+            from domain.type_definitions.intelligence_types import OrderBookSnapshot as IntelligenceOrderBookSnapshot
             
             # Создаем объект правильного типа
             intelligence_order_book = IntelligenceOrderBookSnapshot(

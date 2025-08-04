@@ -7,7 +7,7 @@ import time
 from asyncio import Lock
 from typing import List
 
-from domain.types.external_service_types import RateLimit, RateLimitWindow
+from domain.type_definitions.external_service_types import RateLimit, RateLimitWindow
 
 
 class RateLimiter:

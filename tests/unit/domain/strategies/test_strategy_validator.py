@@ -3,7 +3,7 @@ from typing import Any
 from uuid import uuid4
 from domain.strategies import get_strategy_validator
 from domain.entities.strategy import StrategyType
-from domain.types import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
+from domain.type_definitions import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
 class MockStrategy:
     def __init__(self, strategy_id, name, strategy_type, trading_pairs, parameters, risk_level, confidence_threshold) -> Any:
         self._strategy_id = strategy_id

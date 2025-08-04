@@ -18,8 +18,8 @@ from domain.strategies.exceptions import (
 )
 from domain.strategies.strategy_interface import StrategyInterface
 from domain.strategies.validators import StrategyValidator
-from domain.types import MetadataDict, StrategyId, TradingPair
-from domain.types.evolution_types import StrategyPerformance as EvolutionStrategyPerformance
+from domain.type_definitions import MetadataDict, StrategyId, TradingPair
+from domain.type_definitions.evolution_types import StrategyPerformance as EvolutionStrategyPerformance
 from domain.entities.strategy_performance import StrategyPerformance as EntityStrategyPerformance
 
 

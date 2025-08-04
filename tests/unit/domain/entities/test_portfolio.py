@@ -16,7 +16,7 @@ from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from domain.entities.portfolio import Portfolio, PortfolioStatus, RiskProfile, PortfolioProtocol
-from domain.types import PortfolioId
+from domain.type_definitions import PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.timestamp import Timestamp

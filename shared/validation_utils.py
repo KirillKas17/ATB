@@ -8,7 +8,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any, Callable, Dict, List, Optional, Union
 from uuid import UUID
 
-from domain.types.common_types import (
+from domain.type_definitions.common_types import (
     ValidationContext,
     ValidationResult,
     ValidationRule,

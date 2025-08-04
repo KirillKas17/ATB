@@ -4,7 +4,7 @@
 """
 from typing import Any, Dict, List, Protocol
 
-from domain.types.session_types import SessionAnalysisResult
+from domain.type_definitions.session_types import SessionAnalysisResult
 
 
 class SessionRiskAnalyzerProtocol(Protocol):

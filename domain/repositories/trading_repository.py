@@ -10,7 +10,7 @@ from uuid import UUID
 from domain.entities.order import Order, OrderStatus
 from domain.entities.trading import Position, Trade, TradingSession
 from domain.protocols.repository_protocol import RepositoryProtocol
-from domain.types import EntityId, OrderId, PositionId
+from domain.type_definitions import EntityId, OrderId, PositionId
 from domain.value_objects.money import Money
 
 

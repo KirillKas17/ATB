@@ -6,7 +6,7 @@ import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.liquidity_analyzer import LiquidityAnalyzer, ILiquidityAnalyzer
-from domain.types.ml_types import LiquidityAnalysisResult, LiquidityZone, LiquiditySweep
+from domain.type_definitions.ml_types import LiquidityAnalysisResult, LiquidityZone, LiquiditySweep
 class TestLiquidityAnalyzer:
     """Тесты для сервиса анализа ликвидности."""
     @pytest.fixture

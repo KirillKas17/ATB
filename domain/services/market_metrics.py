@@ -10,7 +10,7 @@ from shared.numpy_utils import np
 import pandas as pd
 from pandas import Series
 
-from domain.types.market_metrics_types import (
+from domain.type_definitions.market_metrics_types import (
     LiquidityMetrics,
     MarketMetricsResult,
     MarketStressMetrics,

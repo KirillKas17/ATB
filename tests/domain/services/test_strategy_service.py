@@ -6,7 +6,7 @@ import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.strategy_service import StrategyService, IStrategyService
-from domain.types.ml_types import StrategyResult, StrategyPerformance, StrategyConfig
+from domain.type_definitions.ml_types import StrategyResult, StrategyPerformance, StrategyConfig
 class TestStrategyService:
     """Тесты для сервиса стратегий."""
     @pytest.fixture

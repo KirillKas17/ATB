@@ -16,8 +16,8 @@ from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
-from domain.types import OrderId, TradeId, Symbol, create_order_id, create_trade_id, VolumeValue, TimestampValue
-from domain.types.external_service_types import ExchangeConfig, ConnectionStatus
+from domain.type_definitions import OrderId, TradeId, Symbol, create_order_id, create_trade_id, VolumeValue, TimestampValue
+from domain.type_definitions.external_service_types import ExchangeConfig, ConnectionStatus
 from domain.protocols.exchange_protocols import WebSocketClientProtocol, MarketDataConnectorProtocol, MarketStreamAggregatorProtocol, SymbolMetricsProviderProtocol
 from domain.exceptions.protocol_exceptions import (
     ExchangeConnectionError,
@@ -30,7 +30,7 @@ from domain.exceptions.protocol_exceptions import (
     OrderAlreadyFilledError,
     TimeoutError,
 )
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ExchangeName,
     APIKey,
     APISecret,

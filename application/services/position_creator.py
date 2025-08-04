@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from domain.entities.portfolio import Portfolio
 from domain.entities.position import Position, PositionSide
-from domain.types import PortfolioId, PositionId, TradingPair, Symbol
+from domain.type_definitions import PortfolioId, PositionId, TradingPair, Symbol
 from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency

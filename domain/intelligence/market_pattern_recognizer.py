@@ -12,14 +12,14 @@ from shared.numpy_utils import np
 import pandas as pd
 
 from domain.entities.signal import Signal, SignalType
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 
 from loguru import logger
 
 from domain.memory.pattern_memory import MarketFeatures
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 from domain.value_objects.timestamp import Timestamp
 
 

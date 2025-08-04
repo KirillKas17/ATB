@@ -18,7 +18,7 @@ from unittest.mock import Mock, patch
 from collections import deque
 
 from domain.intelligence.entanglement_detector import EntanglementDetector
-from domain.types.intelligence_types import (
+from domain.type_definitions.intelligence_types import (
     EntanglementConfig,
     EntanglementResult,
     EntanglementStrength,

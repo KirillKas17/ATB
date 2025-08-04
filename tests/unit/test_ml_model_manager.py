@@ -10,8 +10,8 @@ from unittest.mock import Mock, patch
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from sklearn.preprocessing import StandardScaler
 from domain.entities.ml import Model, ModelStatus
-from domain.types import ModelId
-from domain.types.external_service_types import MLModelConfig, MLModelType, PredictionType
+from domain.type_definitions import ModelId
+from domain.type_definitions.external_service_types import MLModelConfig, MLModelType, PredictionType
 from infrastructure.external_services.ml.config import MLServiceConfig
 from infrastructure.external_services.ml.model_manager import ModelManager
 class TestModelManager:

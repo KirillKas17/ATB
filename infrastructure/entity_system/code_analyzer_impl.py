@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from loguru import logger
 
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     AnalysisResult,
     BaseCodeAnalyzer,
     CodeStructure,

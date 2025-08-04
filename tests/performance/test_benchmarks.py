@@ -20,7 +20,7 @@ from infrastructure.repositories.strategy_repository import InMemoryStrategyRepo
 from infrastructure.repositories.ml_repository import InMemoryMLRepository
 from infrastructure.core.optimized_database import OptimizedDatabase
 from infrastructure.messaging_copy.optimized_event_bus import OptimizedEventBus
-from domain.types import OrderId, TradeId, VolumeValue, TimestampValue, TradingPair
+from domain.type_definitions import OrderId, TradeId, VolumeValue, TimestampValue, TradingPair
 from domain.entities.strategy_parameters import StrategyParameters
 from uuid import uuid4
 from datetime import datetime

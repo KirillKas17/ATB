@@ -11,7 +11,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, TypedDict, Union
 
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     AnalysisResult,
     EntityState,
     Experiment,

@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union
 
-from domain.types.risk_types import PortfolioRisk, PositionRisk, RiskMetrics
+from domain.type_definitions.risk_types import PortfolioRisk, PositionRisk, RiskMetrics
 from domain.value_objects import Currency, Money
 
 __all__ = [

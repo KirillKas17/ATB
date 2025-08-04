@@ -16,7 +16,7 @@ from infrastructure.external_services.ml_services import (
     LocalMLService
 )
 from domain.entities.ml import Model, ModelType, ModelStatus
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     MLModelConfig,
     MLPredictionRequest
 )

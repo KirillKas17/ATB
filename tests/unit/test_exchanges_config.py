@@ -5,7 +5,7 @@ Unit тесты для ExchangeServiceConfig
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ExchangeName, ExchangeCredentials, ConnectionConfig
 )
 from infrastructure.external_services.exchanges.config import ExchangeServiceConfig

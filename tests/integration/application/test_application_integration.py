@@ -16,7 +16,7 @@ from domain.value_objects.volume import Volume
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.entities.order import OrderType, OrderSide, OrderStatus
-from domain.types import PortfolioId, OrderId, TradingPair, Symbol
+from domain.type_definitions import PortfolioId, OrderId, TradingPair, Symbol
 from domain.entities.trade import Trade
 from domain.entities.trading_session import TradingSession
 from domain.entities.trading_pair import TradingPair as DomainTradingPair

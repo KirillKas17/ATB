@@ -9,7 +9,7 @@ import pandas as pd
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
-from domain.types.technical_types import (
+from domain.type_definitions.technical_types import (
     PatternType,
     SignalStrength,
     SignalType,

@@ -9,7 +9,7 @@ from shared.numpy_utils import np
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired
 
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 from domain.value_objects.timestamp import Timestamp
 
 

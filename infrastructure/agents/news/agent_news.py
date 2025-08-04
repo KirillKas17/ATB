@@ -6,7 +6,7 @@ import asyncio
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from domain.types.agent_types import ProcessingResult, AgentType, AgentConfig
+from domain.type_definitions.agent_types import ProcessingResult, AgentType, AgentConfig
 from infrastructure.agents.base_agent import AgentStatus, BaseAgent
 from infrastructure.agents.social_media.agent_social_media import SocialMediaAgent
 from shared.logging import setup_logger

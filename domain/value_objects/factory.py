@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Callable, ClassVar, Dict, Optional, Type, TypeVar, Union, List
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     CacheKey,
     CurrencyPair,
     ErrorCode,

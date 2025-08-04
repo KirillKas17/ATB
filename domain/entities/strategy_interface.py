@@ -10,7 +10,7 @@ from dataclasses import field
 
 from domain.entities.signal import Signal, SignalStrength, SignalType
 from domain.entities.strategy import StrategyStatus, StrategyType
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     PerformanceMetrics,
     PriceValue,

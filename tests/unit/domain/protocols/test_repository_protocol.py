@@ -34,7 +34,7 @@ from domain.entities.risk import RiskProfile
 from domain.entities.ml import Model
 from domain.entities.trading import Position
 from domain.entities.trading_pair import TradingPair
-from domain.types.repository_types import QueryFilter, QueryOptions
+from domain.type_definitions.repository_types import QueryFilter, QueryOptions
 from domain.exceptions.base_exceptions import ValidationError
 
 

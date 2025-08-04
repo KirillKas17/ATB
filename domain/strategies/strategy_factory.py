@@ -24,7 +24,7 @@ from domain.strategies.exceptions import (
     StrategyValidationError,
 )
 from domain.strategies.validators import StrategyValidator
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     RiskLevel,
     StrategyConfig,

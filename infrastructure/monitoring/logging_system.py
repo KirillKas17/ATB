@@ -21,7 +21,7 @@ from typing import Any, Callable, Dict, Generator, List, Optional
 
 from loguru import logger
 
-from domain.types.monitoring_types import LogContext, LogEntry, LoggerProtocol, LogLevel
+from domain.type_definitions.monitoring_types import LogContext, LogEntry, LoggerProtocol, LogLevel
 
 
 class StructuredLogger(LoggerProtocol):

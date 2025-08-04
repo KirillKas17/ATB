@@ -11,7 +11,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
-from domain.types import MetadataDict
+from domain.type_definitions import MetadataDict
 
 
 class TestOrderBookSnapshot:

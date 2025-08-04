@@ -15,7 +15,7 @@ from domain.entities.portfolio_fixed import Portfolio
 from domain.entities.position import Position
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 
 
 @dataclass

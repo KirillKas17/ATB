@@ -6,7 +6,7 @@ import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.pattern_discovery import PatternDiscovery, IPatternDiscovery
-from domain.types.ml_types import PatternResult, PatternType, PatternConfidence
+from domain.type_definitions.ml_types import PatternResult, PatternType, PatternConfidence
 class TestPatternDiscovery:
     """Тесты для сервиса обнаружения паттернов."""
     @pytest.fixture

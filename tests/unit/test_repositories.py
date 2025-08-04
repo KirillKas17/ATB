@@ -18,7 +18,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
-from domain.types import OrderId, TradeId, Symbol, TimestampValue
+from domain.type_definitions import OrderId, TradeId, Symbol, TimestampValue
 from infrastructure.repositories.trading_repository import InMemoryTradingRepository, PostgresTradingRepository
 from infrastructure.repositories.strategy_repository import InMemoryStrategyRepository, PostgresStrategyRepository
 from infrastructure.repositories.ml_repository import InMemoryMLRepository, PostgresMLRepository
@@ -191,7 +191,7 @@ class TestPortfolioRepository:
         )
     @pytest.fixture
     def sample_position(self) -> Any:
-        from domain.types import Symbol
+        from domain.type_definitions import Symbol
         return PortfolioPosition(
             id="test-position",
             portfolio_id="test-portfolio",

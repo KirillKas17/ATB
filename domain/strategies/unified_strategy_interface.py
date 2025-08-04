@@ -17,7 +17,7 @@ from domain.entities.signal import Signal
 from domain.entities.strategy import StrategyStatus, StrategyType
 from domain.entities.strategy_performance import StrategyPerformance
 from domain.memory.pattern_memory import PatternMemory
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     PerformanceScore,

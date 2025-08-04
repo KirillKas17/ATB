@@ -34,13 +34,13 @@ from domain.protocols.repository_protocol import (
     TransactionProtocol,
 )
 from domain.repositories.base_repository_impl import BaseRepositoryImpl
-from domain.types import OrderId, PortfolioId, Symbol, StrategyId, SignalId, VolumeValue, TradingPair as DomainTradingPair
+from domain.type_definitions import OrderId, PortfolioId, Symbol, StrategyId, SignalId, VolumeValue, TradingPair as DomainTradingPair
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import TimestampValue, Timestamp
-from domain.types import MetadataDict
+from domain.type_definitions import MetadataDict
 
 
 class InMemoryOrderRepository(

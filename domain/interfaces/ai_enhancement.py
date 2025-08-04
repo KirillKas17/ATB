@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
-from domain.types.entity_system_types import CodeStructure
+from domain.type_definitions.entity_system_types import CodeStructure
 
 
 class BaseAIEnhancement(ABC):

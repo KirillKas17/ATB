@@ -42,8 +42,8 @@ from domain.protocols.monitoring import (
     AlertError,
     HealthCheckError,
 )
-from domain.types.infrastructure_types import SystemMetrics
-from domain.types.common_types import HealthStatus
+from domain.type_definitions.infrastructure_types import SystemMetrics
+from domain.type_definitions.common_types import HealthStatus
 from shared.models.example_types import PerformanceMetrics
 
 

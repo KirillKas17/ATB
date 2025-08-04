@@ -10,14 +10,14 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID, uuid4
 
-from domain.types import (
+from domain.type_definitions import (
     EntryCondition,
     ExitCondition,
     IndicatorParameters,
     FilterParameters,
 )
-from domain.types.technical_types import SignalType
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.technical_types import SignalType
+from domain.type_definitions.strategy_types import StrategyType
 
 logger = logging.getLogger(__name__)
 

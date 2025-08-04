@@ -23,18 +23,18 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from domain.entities.ml import Model, ModelStatus, ModelType, Prediction, PredictionType as EntityPredictionType
-from domain.types.external_service_types import PredictionType
+from domain.type_definitions.external_service_types import PredictionType
 from domain.exceptions import MLModelError, NetworkError, ValidationError
 from domain.protocols.ml_protocol import MLProtocol, ModelMetrics, TrainingConfig, PredictionConfig
-from domain.types import ModelId, Symbol
-from domain.types.external_service_types import (
+from domain.type_definitions import ModelId, Symbol
+from domain.type_definitions.external_service_types import (
     MLModelConfig,
     FeatureName,
     TargetName,
     ModelName,
 )
-from domain.types.external_service_types import MLModelType as ExternalMLModelType
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import MLModelType as ExternalMLModelType
+from domain.type_definitions.external_service_types import (
     MLPredictionRequest,
     MLServiceProtocol,
 )

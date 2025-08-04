@@ -22,7 +22,7 @@ from infrastructure.monitoring import (
     get_tracer,
     get_dashboard
 )
-from domain.types.monitoring_types import (
+from domain.type_definitions.monitoring_types import (
     Metric,
     MetricType,
     Alert,

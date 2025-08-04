@@ -38,7 +38,7 @@ from domain.exceptions import (
     NetworkError,
     TimeoutError
 )
-from domain.types import OrderId, PortfolioId, Symbol
+from domain.type_definitions import OrderId, PortfolioId, Symbol
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price

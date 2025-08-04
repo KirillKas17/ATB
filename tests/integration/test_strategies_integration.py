@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
 from domain.entities.market import MarketData, MarketState
-from domain.types import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
+from domain.type_definitions import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
 from domain.strategies.strategy_factory import StrategyFactory, get_strategy_factory
 from domain.strategies.strategy_registry import StrategyRegistry, get_strategy_registry
 from domain.strategies.base_strategies import (

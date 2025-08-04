@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from typing import Any, Dict
 
-from domain.types.external_service_types import ExchangeName
+from domain.type_definitions.external_service_types import ExchangeName
 
 from .base_exchange_service import BaseExchangeService
 from .config import ExchangeServiceConfig

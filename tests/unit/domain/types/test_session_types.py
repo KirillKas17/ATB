@@ -13,7 +13,7 @@ import pytest
 from datetime import time
 from unittest.mock import Mock
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionId, Symbol, VolumeMultiplier, VolatilityMultiplier,
     ConfidenceScore, CorrelationScore,
     DEFAULT_LOOKBACK_DAYS, DEFAULT_MIN_DATA_POINTS, DEFAULT_CONFIDENCE_THRESHOLD,

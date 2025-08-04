@@ -25,7 +25,7 @@ from domain.protocols.repository_protocol import (
     RepositoryResponse,
     RepositoryState,
 )
-from domain.types.common_types import EntityId, JsonData, ValidationResult
+from domain.type_definitions.common_types import EntityId, JsonData, ValidationResult
 
 T = TypeVar("T")
 

@@ -14,7 +14,7 @@ from infrastructure.agents.agent_portfolio import PortfolioAgent
 from infrastructure.agents.agent_whales import WhalesAgent
 from infrastructure.agents.agent_meta_controller import MetaControllerAgent
 from infrastructure.agents.agent_market_maker_model import MarketMakerModelAgent
-from domain.types.agent_types import AgentStatus
+from domain.type_definitions.agent_types import AgentStatus
 class TestBaseAgentIntegration:
     """Тесты базовой интеграции агентов с BaseAgent"""
     @pytest.fixture

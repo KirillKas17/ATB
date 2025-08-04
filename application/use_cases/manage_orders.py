@@ -20,7 +20,7 @@ from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.repositories.order_repository import OrderRepository
 from domain.repositories.portfolio_repository import PortfolioRepository
 from domain.repositories.position_repository import PositionRepository
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     PortfolioId,
     PriceValue,
@@ -30,7 +30,7 @@ from domain.types import (
     VolumeValue,
     AmountValue,
 )
-from domain.types.repository_types import EntityId
+from domain.type_definitions.repository_types import EntityId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price

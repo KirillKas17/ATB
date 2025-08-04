@@ -47,7 +47,7 @@ from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
-from domain.types import (
+from domain.type_definitions import (
     Symbol,
     OrderId,
     TradingPair,
@@ -63,7 +63,7 @@ from domain.types import (
 )
 from domain.entities.signal import Signal
 from domain.protocols.strategy_protocol import MarketRegime
-from domain.types.protocol_types import (
+from domain.type_definitions.protocol_types import (
     PatternDetectionResult,
     SignalFilterDict,
     StrategyAdaptationRules,
@@ -72,7 +72,7 @@ from domain.types.protocol_types import (
     PerformanceMetricsDict as ProtocolPerformanceMetricsDict,
     HealthCheckDict as ProtocolHealthCheckDict,
 )
-from domain.types.repository_types import (
+from domain.type_definitions.repository_types import (
     BulkOperationResult,
     TransactionalProtocol,
     TransactionId,
@@ -82,7 +82,7 @@ from domain.types.repository_types import (
 from domain.protocols.repository_protocol import TransactionProtocol
 from domain.protocols.strategy_protocol import PerformanceMetrics
 from domain.entities.order import OrderSide, OrderStatus, VolumeValue, OrderType
-from domain.types.protocol_types import MarketAnalysisResult
+from domain.type_definitions.protocol_types import MarketAnalysisResult
 from domain.entities.ml import PredictionType as EntityPredictionType
 from domain.entities.position import Position
 from domain.entities.trade import Trade

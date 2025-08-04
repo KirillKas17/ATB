@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from loguru import logger
 
 from domain.symbols import SymbolProfile
-from domain.types.symbol_types import MarketPhase
+from domain.type_definitions.symbol_types import MarketPhase
 
 from .types import SymbolSelectionResult
 

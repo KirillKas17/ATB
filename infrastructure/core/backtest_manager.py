@@ -7,13 +7,13 @@ from uuid import UUID, uuid4
 
 from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.entities.trade import Trade
-from domain.types import PortfolioId, StrategyId, TradeId, OrderId, Symbol, TimestampValue
+from domain.type_definitions import PortfolioId, StrategyId, TradeId, OrderId, Symbol, TimestampValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price
-from domain.types import TimestampValue
+from domain.type_definitions import TimestampValue
 from domain.value_objects.volume import Volume
-from domain.types import VolumeValue
+from domain.type_definitions import VolumeValue
 from shared.logging import LoggerMixin
 
 

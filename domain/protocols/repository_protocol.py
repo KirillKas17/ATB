@@ -46,7 +46,7 @@ from domain.exceptions.protocol_exceptions import (
     TransactionError,
     ValidationError,
 )
-from domain.types import (
+from domain.type_definitions import (
     MetadataDict,
     OrderId,
     PortfolioId,
@@ -57,14 +57,14 @@ from domain.types import (
     TradeId,
     TradingPair,
 )
-from domain.types.protocol_types import (
+from domain.type_definitions.protocol_types import (
     HealthCheckDict,
     ModelId,
     PerformanceMetricsDict,
     QueryFilterDict,
     RiskProfileId,
 )
-from domain.types.repository_types import (
+from domain.type_definitions.repository_types import (
     BulkOperationResult,
     QueryFilter,
     QueryOperator,

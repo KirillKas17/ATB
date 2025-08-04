@@ -19,7 +19,7 @@ from domain.protocols.integration import (
     TradingSystemIntegration
 )
 from domain.protocols.ml_protocol import TrainingConfig
-from domain.types import ModelId
+from domain.type_definitions import ModelId
 from domain.entities.ml import ModelType, Model, Prediction
 from domain.entities.order import Order
 from domain.entities.market import MarketData

@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Dict, Optional, Protocol, runtime_checkable
 from uuid import UUID, uuid4
 
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     OrderStatusType,
     PortfolioId,

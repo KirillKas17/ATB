@@ -8,7 +8,7 @@ from shared.numpy_utils import np
 import torch
 from loguru import logger
 
-from domain.types.entity_system_types import CodeStructure
+from domain.type_definitions.entity_system_types import CodeStructure
 from domain.interfaces.ai_enhancement import BaseAIEnhancement
 
 from .feature_extractor import CodeFeatureExtractor

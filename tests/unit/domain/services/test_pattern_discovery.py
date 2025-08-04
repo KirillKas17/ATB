@@ -15,7 +15,7 @@ from typing import Dict, Any, List
 from unittest.mock import Mock, patch, MagicMock
 
 from domain.services.pattern_discovery import PatternDiscovery, PatternConfig, Pattern
-from domain.types.service_types import PatternType, AnalysisConfig, MarketDataFrame
+from domain.type_definitions.service_types import PatternType, AnalysisConfig, MarketDataFrame
 from domain.exceptions.base_exceptions import ValidationError
 
 

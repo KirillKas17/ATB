@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ConnectionConfig,
     ExchangeCredentials,
     ExchangeName,

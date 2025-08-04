@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Protocol, Sequence, Union
 import pandas as pd
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     MarketConditions,
     SessionAnalysisResult,
     SessionMetrics,

@@ -3,7 +3,7 @@
 Промышленный модуль мониторинга и алертов по торговым сессиям.
 """
 from typing import Any, Callable, Dict, List, Protocol
-from domain.types.session_types import SessionAnalysisResult
+from domain.type_definitions.session_types import SessionAnalysisResult
 
 
 class SessionMonitorProtocol(Protocol):

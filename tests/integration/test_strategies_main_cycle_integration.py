@@ -14,7 +14,7 @@ from domain.strategies.exceptions import (
     StrategyCreationError, StrategyValidationError, StrategyRegistryError
 )
 from domain.entities.strategy import StrategyType, StrategyStatus
-from domain.types import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
+from domain.type_definitions import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
 from domain.entities.market import MarketData
 # Импорты для интеграции с основным циклом
 from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase

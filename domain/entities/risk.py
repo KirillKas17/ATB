@@ -10,8 +10,8 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 from uuid import UUID, uuid4
 
-from domain.types import RiskLevel as RiskLevelType
-from domain.types import RiskMetrics as RiskMetricsTypedDict
+from domain.type_definitions import RiskLevel as RiskLevelType
+from domain.type_definitions import RiskMetrics as RiskMetricsTypedDict
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 

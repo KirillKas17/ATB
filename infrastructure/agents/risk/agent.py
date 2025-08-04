@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.agent_types import AgentType, AgentConfig
-from domain.types.risk_types import RiskLevel, RiskMetrics
+from domain.type_definitions.agent_types import AgentType, AgentConfig
+from domain.type_definitions.risk_types import RiskLevel, RiskMetrics
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from infrastructure.agents.base_agent import BaseAgent, AgentStatus, ProcessingResult

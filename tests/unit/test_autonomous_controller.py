@@ -8,7 +8,7 @@ from unittest.mock import Mock, AsyncMock
 from infrastructure.core.autonomous_controller import AutonomousController
 from infrastructure.messaging.event_bus import EventBus
 from infrastructure.messaging.optimized_event_bus import Event, EventPriority, EventType
-from domain.types.messaging_types import EventMetadata
+from domain.type_definitions.messaging_types import EventMetadata
 
 
 class TestAutonomousController:

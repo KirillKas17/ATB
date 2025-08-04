@@ -18,7 +18,7 @@ from typing import Dict, List, Any, Optional
 from unittest.mock import Mock, patch
 
 from domain.intelligence.mirror_detector import MirrorDetector
-from domain.types.intelligence_types import (
+from domain.type_definitions.intelligence_types import (
     MirrorDetectionConfig,
     MirrorSignal,
     CorrelationMatrix,

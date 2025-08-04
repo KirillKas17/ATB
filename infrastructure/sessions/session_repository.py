@@ -17,7 +17,7 @@ from sqlalchemy.engine import Engine
 
 from domain.interfaces.signal_protocols import SessionInfluenceSignal
 from domain.sessions.session_influence_analyzer import SessionInfluenceResult
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType, SessionPhase, SessionAnalysisResult, SessionMetrics, MarketConditions, ConfidenceScore, MarketRegime, SessionIntensity
 )
 from domain.sessions.session_influence_analyzer import SessionInfluenceMetrics

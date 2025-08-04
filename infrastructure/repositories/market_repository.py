@@ -26,7 +26,7 @@ from domain.protocols.repository_protocol import (
     QueryFilter,
     QueryOperator,
 )
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.protocols.repository_protocol import QueryFilter as ProtocolQueryFilter
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume

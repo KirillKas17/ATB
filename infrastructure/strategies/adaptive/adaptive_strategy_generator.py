@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 from loguru import logger
 
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     MarketRegime,
     StrategyAnalysis,
     StrategyDirection,

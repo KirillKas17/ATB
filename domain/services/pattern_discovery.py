@@ -13,7 +13,7 @@ from scipy.signal import find_peaks
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
-from domain.types.service_types import (
+from domain.type_definitions.service_types import (
     AnalysisConfig,
     IndicatorType,
     MarketDataFrame,

@@ -44,7 +44,7 @@ from domain.market_maker.mm_pattern import (
     MarketMakerPattern, PatternFeatures, MarketMakerPatternType,
     PatternResult, PatternOutcome, PatternMemory
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     BookPressure, VolumeDelta, PriceReaction, SpreadChange,
     OrderImbalance, LiquidityDepth, TimeDuration, VolumeConcentration,
     PriceVolatility, MarketMicrostructure, Confidence, Accuracy,
@@ -144,7 +144,7 @@ def sample_order() -> Order:
     # Импорты внутри функции для избежания циклических зависимостей
     from domain.value_objects.currency import Currency
     from domain.value_objects.price import Price
-    from domain.types import OrderId, VolumeValue, TradingPair, Symbol
+    from domain.type_definitions import OrderId, VolumeValue, TradingPair, Symbol
     return Order(
         id=OrderId(uuid4()),
         trading_pair=TradingPair(Symbol("BTC/USDT")),
@@ -160,7 +160,7 @@ def sample_position() -> Position:
     from domain.value_objects.currency import Currency
     from domain.value_objects.price import Price
     from domain.value_objects.volume import Volume
-    from domain.types import PositionId, PortfolioId, Symbol
+    from domain.type_definitions import PositionId, PortfolioId, Symbol
     pair = TradingPair(
         symbol=Symbol("BTC/USDT"),
         base_currency=Currency.BTC,
@@ -806,7 +806,7 @@ class TestUtils:
     @staticmethod
     def create_test_pattern(pattern_type: MarketMakerPatternType, confidence: float = 0.8) -> Any:
         """Создает тестовый паттерн."""
-        from domain.types.market_maker_types import Symbol
+        from domain.type_definitions.market_maker_types import Symbol
         features = PatternFeatures(
             book_pressure=BookPressure(0.6),
             volume_delta=VolumeDelta(0.1),

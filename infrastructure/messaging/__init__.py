@@ -10,7 +10,7 @@
 """
 
 # Экспорт типов из domain
-from domain.types.messaging_types import (  # Базовые типы; Приоритеты; Типы событий; Модели данных; Обработчики; WebSocket типы; Протоколы; Конфигурации; Метрики; Исключения; Утилиты
+from domain.type_definitions.messaging_types import (  # Базовые типы; Приоритеты; Типы событий; Модели данных; Обработчики; WebSocket типы; Протоколы; Конфигурации; Метрики; Исключения; Утилиты
     ConnectionError,
     ConnectionID,
     CorrelationID,

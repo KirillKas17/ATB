@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from loguru import logger
 
-from domain.types.prediction_types import (
+from domain.type_definitions.prediction_types import (
     ConfidenceScore,
     DivergenceType,
     ReversalDirection,

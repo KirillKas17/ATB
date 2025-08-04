@@ -16,7 +16,7 @@ from domain.strategies.exceptions import (
     StrategyParameterError,
     StrategyValidationError,
 )
-from domain.types import RiskLevel
+from domain.type_definitions import RiskLevel
 
 logger = logging.getLogger(__name__)
 

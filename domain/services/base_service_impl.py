@@ -19,7 +19,7 @@ from domain.exceptions.protocol_exceptions import (
     ServiceError,
     ValidationError,
 )
-from domain.types.common_types import (
+from domain.type_definitions.common_types import (
     CacheValue,
     ConfigData,
     EntityId,

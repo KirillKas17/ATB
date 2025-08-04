@@ -11,11 +11,11 @@ from domain.exceptions import (
     ExchangeError, ConnectionError, AuthenticationError, 
     InvalidOrderError, NetworkError
 )
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ConnectionStatus, TimeFrame, ExchangeName, ExchangeCredentials, 
     MarketDataRequest, OrderRequest, OrderType, OrderSide
 )
-from domain.types import OrderId, Symbol
+from domain.type_definitions import OrderId, Symbol
 from infrastructure.external_services.exchanges.config import ExchangeServiceConfig
 from infrastructure.external_services.exchanges.base_exchange_service import BaseExchangeService
 class TestBaseExchangeService:

@@ -11,7 +11,7 @@ from domain.entities.position import Position, PositionId
 from domain.entities.trading import Trade
 from domain.entities.account import Account
 from domain.entities.trading_pair import TradingPair
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.value_objects.money import Money
 
 

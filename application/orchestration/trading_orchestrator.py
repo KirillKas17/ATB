@@ -22,7 +22,7 @@ from domain.interfaces.risk_manager import RiskManagerProtocol
 from domain.interfaces.sentiment_analyzer import SentimentAnalyzerProtocol
 from domain.interfaces.strategy_registry import StrategyRegistryProtocol
 from domain.interfaces.trading_orchestrator import TradingOrchestratorProtocol
-from domain.types.trading_types import Signal, TradingConfig, TradingPair
+from domain.type_definitions.trading_types import Signal, TradingConfig, TradingPair
 from shared.models.config import ApplicationConfig
 from application.use_cases.manage_trading_pairs import GetTradingPairsRequest
 

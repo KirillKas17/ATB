@@ -6,11 +6,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from unittest.mock import Mock, patch
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ExchangeType, ExchangeCredentials, ConnectionConfig, 
     MarketDataRequest, OrderRequest, OrderType, OrderSide, TimeFrame
 )
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from infrastructure.external_services.exchanges.factory import ExchangeServiceFactory
 from infrastructure.external_services.exchanges.bybit_exchange_service import BybitExchangeService
 from infrastructure.external_services.exchanges.binance_exchange_service import BinanceExchangeService

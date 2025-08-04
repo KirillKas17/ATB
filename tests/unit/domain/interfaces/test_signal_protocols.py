@@ -20,7 +20,7 @@ from domain.interfaces.signal_protocols import (
     BaseSignalEngine,
     BaseMarketMakerSignalEngine
 )
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     MarketConditions,
     MarketRegime,
     SessionIntensity,

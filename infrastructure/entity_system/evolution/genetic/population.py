@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from shared.numpy_utils import np
 
-from domain.types.entity_system_types import FitnessScore
+from domain.type_definitions.entity_system_types import FitnessScore
 
 from .individual import Individual
 

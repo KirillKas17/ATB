@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 from loguru import logger
 
-from domain.types.agent_types import ProcessingResult, AgentType, AgentConfig
+from domain.type_definitions.agent_types import ProcessingResult, AgentType, AgentConfig
 from infrastructure.agents.base_agent import AgentStatus, BaseAgent
 
 from .detectors import (

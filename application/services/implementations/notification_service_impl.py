@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from application.protocols.service_protocols import NotificationService, PerformanceMetrics
 from domain.entities.trade import Trade
-from domain.types import PortfolioId
+from domain.type_definitions import PortfolioId
 
 
 class NotificationServiceImpl(NotificationService):

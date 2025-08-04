@@ -3,7 +3,7 @@
 from typing import Any, Type
 
 # Импортируем типы из централизованного модуля
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     ConfidenceScore,
     CorrelationScore,
     InfluenceType,

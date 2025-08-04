@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, TypedDict
 from datetime import datetime
 from decimal import Decimal
 
-from domain.types.enhanced_types import (
+from domain.type_definitions.enhanced_types import (
     FlexibleValue, JsonValue, ConfigValue, CacheValue,
     EntityId, ResourceId, TaskId, Timestamp, Amount, Percentage,
     MarketDataType, OrderBookDataType, TradeDataType,

@@ -13,7 +13,7 @@ from uuid import UUID
 
 logger = logging.getLogger(__name__)
 
-from domain.types.session_types import SessionType
+from domain.type_definitions.session_types import SessionType
 from domain.value_objects.timestamp import Timestamp
 
 from .interfaces import (

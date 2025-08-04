@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from domain.types.entity_system_types import BaseMemoryManager, MemorySnapshot, EntityState
+from domain.type_definitions.entity_system_types import BaseMemoryManager, MemorySnapshot, EntityState
 
 
 class MemoryManagerImpl(BaseMemoryManager):

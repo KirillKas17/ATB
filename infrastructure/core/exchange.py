@@ -17,12 +17,12 @@ from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.entities.position import Position, PositionSide
 from domain.entities.trade import Trade
 from domain.entities.trading_pair import TradingPair as TradingPairEntity
-from domain.types import OrderId, PositionId, TradeId, TradingPair, PortfolioId
+from domain.type_definitions import OrderId, PositionId, TradeId, TradingPair, PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
-from domain.types import VolumeValue
+from domain.type_definitions import VolumeValue
 from domain.value_objects.symbol import Symbol
 
 logger = logging.getLogger(__name__)

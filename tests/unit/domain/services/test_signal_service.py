@@ -26,12 +26,12 @@ from domain.services.signal_service import (
 )
 from domain.entities.signal import Signal, SignalStrength, SignalType
 from domain.entities.strategy import Strategy
-from domain.types.signal_types import (
+from domain.type_definitions.signal_types import (
     SignalValidationResult,
     SignalAggregationResult,
     SignalAnalysisResult
 )
-from domain.types import MarketDataFrame
+from domain.type_definitions import MarketDataFrame
 
 
 class TestSignalGenerationContext:

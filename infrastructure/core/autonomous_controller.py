@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.messaging_types import Event, EventType, EventPriority
+from domain.type_definitions.messaging_types import Event, EventType, EventPriority
 from infrastructure.circuit_breaker.breaker import CircuitBreaker
 from infrastructure.core.metrics import MetricsCollector
 from infrastructure.messaging.event_bus import EventBus
@@ -19,7 +19,7 @@ from infrastructure.ml_services.meta_learning import MetaLearning
 from infrastructure.ml_services.regime_discovery import RegimeDiscovery
 from infrastructure.agents.local_ai.controller import LocalAIController
 from shared.cache import get_cache_manager
-from domain.types.messaging_types import EventName, EventType
+from domain.type_definitions.messaging_types import EventName, EventType
 
 
 class AutonomousController:

@@ -4,7 +4,7 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.signal_service import SignalService, ISignalService
-from domain.types.ml_types import SignalResult, SignalStrength, SignalType
+from domain.type_definitions.ml_types import SignalResult, SignalStrength, SignalType
 import pandas as pd
 from shared.numpy_utils import np
 

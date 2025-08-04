@@ -17,11 +17,11 @@ import pandas as pd
 from unittest.mock import Mock
 from uuid import UUID, uuid4
 
-from domain.types.external_service_types import ConnectionConfig, ConnectionTimeout, RateLimit, RateLimitWindow
+from domain.type_definitions.external_service_types import ConnectionConfig, ConnectionTimeout, RateLimit, RateLimitWindow
 from infrastructure.external_services.market_data import DataCache
 from domain.entities.order import Order
 from domain.entities.order import OrderSide, OrderStatus, OrderType
-from domain.types import Symbol, VolumeValue, PriceValue
+from domain.type_definitions import Symbol, VolumeValue, PriceValue
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 from domain.value_objects.money import Money
@@ -74,7 +74,7 @@ class Exchange:
         
         # Исправление ошибки 79-80: OrderManagerAdapter требует ConnectionConfig, а не dict
         try:
-            from domain.types.external_service_types import ConnectionConfig, ConnectionTimeout, RateLimit, RateLimitWindow
+            from domain.type_definitions.external_service_types import ConnectionConfig, ConnectionTimeout, RateLimit, RateLimitWindow
             connection_config = ConnectionConfig(
                 timeout=ConnectionTimeout(30),
                 rate_limit=RateLimit(100),
@@ -295,7 +295,7 @@ class Exchange:
         """Отмена ордера"""
         try:
             # Исправление ошибки 283: cancel_order ожидает OrderId, а не str
-            from domain.types import OrderId
+            from domain.type_definitions import OrderId
             # Исправление: избегаем isinstance с NewType
             if isinstance(order_id, str):
                 order_uuid = OrderId(UUID(order_id))

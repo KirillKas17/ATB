@@ -11,7 +11,7 @@ from shared.numpy_utils import np
 import pandas as pd
 from scipy.optimize import minimize
 
-from domain.types.evolution_types import (
+from domain.type_definitions.evolution_types import (
     IndicatorParameters,
     FilterParameters,
     EntryCondition,

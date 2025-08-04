@@ -15,10 +15,10 @@ from domain.protocols.strategy_protocol import (
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.entities.market import Price, Volume
-from domain.types import (
+from domain.type_definitions import (
     RiskLevel, ConfidenceLevel, Symbol, StrategyId
 )
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.strategy_types import StrategyType
 from decimal import Decimal
 from uuid import UUID
 

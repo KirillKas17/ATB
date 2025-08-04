@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Type, Union
 
 from loguru import logger
 
-from domain.types.session_types import SessionType
+from domain.type_definitions.session_types import SessionType
 
 from .interfaces import BaseSessionAnalyzer, SessionRegistry
 from .session_analyzer import SessionAnalyzer

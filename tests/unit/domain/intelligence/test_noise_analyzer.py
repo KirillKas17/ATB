@@ -17,7 +17,7 @@ from typing import Dict, List, Any
 from unittest.mock import Mock, patch
 
 from domain.intelligence.noise_analyzer import NoiseAnalyzer
-from domain.types.intelligence_types import (
+from domain.type_definitions.intelligence_types import (
     NoiseAnalysisConfig,
     NoiseAnalysisResult,
     NoiseType,

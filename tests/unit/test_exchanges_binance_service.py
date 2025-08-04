@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from unittest.mock import Mock, patch
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from domain.types.external_service_types import ExchangeName, ExchangeCredentials, ConnectionConfig
+from domain.type_definitions.external_service_types import ExchangeName, ExchangeCredentials, ConnectionConfig
 from infrastructure.external_services.exchanges.config import ExchangeServiceConfig
 from infrastructure.external_services.exchanges.binance_exchange_service import BinanceExchangeService
 class TestBinanceExchangeService:

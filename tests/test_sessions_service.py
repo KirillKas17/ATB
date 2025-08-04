@@ -6,7 +6,7 @@ import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import datetime, timezone
 from unittest.mock import Mock, MagicMock
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType, SessionPhase, SessionAnalysisResult, SessionMetrics, 
     MarketConditions, ConfidenceScore, MarketRegime, SessionIntensity
 )

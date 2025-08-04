@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.sessions.factories import get_session_service
-from domain.types.session_types import SessionType, MarketRegime, SessionIntensity
+from domain.type_definitions.session_types import SessionType, MarketRegime, SessionIntensity
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_session_service_integration_simple() -> None:

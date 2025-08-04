@@ -28,7 +28,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.pool import QueuePool
 
-from domain.types import SignalTypeType, TradeId, Symbol, TimestampValue
+from domain.type_definitions import SignalTypeType, TradeId, Symbol, TimestampValue
 from domain.entities.trade import Trade
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume

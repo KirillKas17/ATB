@@ -8,7 +8,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from domain.types.risk_types import (
+from domain.type_definitions.risk_types import (
     PortfolioOptimizationMethod,
     PortfolioRisk,
     PositionRisk,

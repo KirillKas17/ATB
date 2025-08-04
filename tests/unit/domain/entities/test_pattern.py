@@ -16,7 +16,7 @@ from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from domain.entities.pattern import Pattern, PatternConfidence
-from domain.types.pattern_types import PatternType as BasePatternType
+from domain.type_definitions.pattern_types import PatternType as BasePatternType
 
 
 class TestPatternConfidence:

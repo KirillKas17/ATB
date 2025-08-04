@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from domain.types.market_maker_types import Accuracy, Confidence, SimilarityScore
+from domain.type_definitions.market_maker_types import Accuracy, Confidence, SimilarityScore
 
 
 @dataclass(frozen=True)

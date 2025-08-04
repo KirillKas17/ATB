@@ -22,8 +22,8 @@ from domain.exceptions.protocol_exceptions import (
 )
 from domain.repositories.base_repository import BaseRepository
 from domain.value_objects import Currency
-from domain.types import Symbol
-from domain.types.repository_types import (
+from domain.type_definitions import Symbol
+from domain.type_definitions.repository_types import (
     BulkOperationResult,
     QueryFilter,
     QueryOptions,
@@ -35,7 +35,7 @@ from domain.types.repository_types import (
 )
 from domain.protocols.repository_protocol import RepositoryState as RepositoryStateProtocol
 from domain.protocols.repository_protocol import TradingPairRepositoryProtocol, TransactionProtocol
-from domain.types.protocol_types import PerformanceMetricsDict, HealthCheckDict
+from domain.type_definitions.protocol_types import PerformanceMetricsDict, HealthCheckDict
 from infrastructure.repositories.trading.models import TradingPairModel
 
 
@@ -953,7 +953,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
     def _row_to_trading_pair(self, row: Any) -> TradingPair:
         """Преобразовать строку БД в TradingPair."""
         from domain.value_objects.currency import Currency
-        from domain.types import Symbol
+        from domain.type_definitions import Symbol
         
         base_currency = Currency.from_string(row.get("base_currency", "USD"))
         quote_currency = Currency.from_string(row.get("quote_currency", "USD"))

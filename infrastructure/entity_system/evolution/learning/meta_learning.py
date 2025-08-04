@@ -3,7 +3,7 @@
 import random
 from typing import Any, Dict, List, Optional
 
-from domain.types.entity_system_types import FitnessScore
+from domain.type_definitions.entity_system_types import FitnessScore
 
 
 class MetaLearning:

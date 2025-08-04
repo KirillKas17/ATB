@@ -4,7 +4,7 @@
 """
 from typing import Any, Dict, List, Protocol
 import pandas as pd
-from domain.types.session_types import SessionAnalysisResult
+from domain.type_definitions.session_types import SessionAnalysisResult
 
 
 class SessionAnalyticsProtocol(Protocol):

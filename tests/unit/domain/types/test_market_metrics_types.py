@@ -10,7 +10,7 @@ import pytest
 from typing import Optional
 import pandas as pd
 
-from domain.types.market_metrics_types import (
+from domain.type_definitions.market_metrics_types import (
     TrendDirection,
     VolatilityTrend,
     VolumeTrend,

@@ -11,7 +11,7 @@ from domain.entities.portfolio import Portfolio
 from domain.entities.strategy import Strategy
 from domain.entities.trading import Trade
 from domain.value_objects.money import Money
-from domain.types import PortfolioId, Symbol, StrategyId
+from domain.type_definitions import PortfolioId, Symbol, StrategyId
 from application.types import (
     CreateOrderRequest, CreateOrderResponse, PortfolioSummary, StrategyPerformance
 )

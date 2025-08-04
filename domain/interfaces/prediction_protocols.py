@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from domain.types.prediction_types import (
+from domain.type_definitions.prediction_types import (
     AnalysisMetadata,
     CandlestickMetadata,
     CandlestickPatternType,

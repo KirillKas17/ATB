@@ -12,7 +12,7 @@ from typing import List, Dict, Any
 from domain.evolution.strategy_selection import StrategySelector
 from domain.evolution.strategy_fitness import StrategyEvaluationResult
 from domain.evolution.strategy_model import EvolutionContext, StrategyCandidate
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.strategy_types import StrategyType
 
 
 class TestStrategySelector:

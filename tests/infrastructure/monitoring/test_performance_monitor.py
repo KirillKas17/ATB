@@ -22,7 +22,7 @@ from infrastructure.monitoring.performance_monitor import (
     record_histogram,
     record_timer
 )
-from domain.types.monitoring_types import Metric, MetricType, MetricCollectorProtocol
+from domain.type_definitions.monitoring_types import Metric, MetricType, MetricCollectorProtocol
 class TestPerformanceMonitor:
     """Тесты для PerformanceMonitor."""
     def test_init_default(self) -> None:

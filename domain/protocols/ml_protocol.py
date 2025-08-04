@@ -40,7 +40,7 @@ from domain.exceptions import (
     PredictionError,
     TrainingError,
 )
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     ModelId,

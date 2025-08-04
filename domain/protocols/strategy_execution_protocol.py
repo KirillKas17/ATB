@@ -16,7 +16,7 @@ from domain.entities.market import MarketData
 from domain.entities.order import Order
 from domain.entities.position import Position
 from domain.entities.signal import Signal
-from domain.types import PriceValue, VolumeValue
+from domain.type_definitions import PriceValue, VolumeValue
 
 
 @runtime_checkable

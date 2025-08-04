@@ -28,7 +28,7 @@ from domain.entities.trading import Trade
 from domain.entities.strategy import Strategy
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
-from domain.types import Symbol, TradingPair
+from domain.type_definitions import Symbol, TradingPair
 from application.services.trading_service import TradingService
 from infrastructure.external_services.exchanges.base_exchange_service import BaseExchangeService
 

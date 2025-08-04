@@ -7,7 +7,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Protocol, runtime_checkable
 
-from domain.types import StrategyId
+from domain.type_definitions import StrategyId
 
 
 @runtime_checkable

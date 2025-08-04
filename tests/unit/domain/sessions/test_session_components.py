@@ -7,7 +7,7 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timezone, time
 from typing import Dict, Any
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType, SessionPhase, SessionProfile, SessionBehavior, SessionTimeWindow,
     MarketConditions, MarketRegime, SessionIntensity, SessionAnalysisResult,
     SessionMetrics, ConfidenceScore

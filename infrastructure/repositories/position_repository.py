@@ -30,7 +30,7 @@ from domain.protocols.repository_protocol import (
     RepositoryState,
 )
 from domain.repositories.position_repository import PositionRepository
-from domain.types import EntityId, PositionId, PortfolioId, MetadataDict, TimestampValue, Symbol
+from domain.type_definitions import EntityId, PositionId, PortfolioId, MetadataDict, TimestampValue, Symbol
 from typing import Dict, Any
 from decimal import Decimal
 
