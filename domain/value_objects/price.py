@@ -31,7 +31,7 @@ from domain.types.value_object_types import (
 class Price:
     """Value Object для цен."""
 
-    value: Decimal
+    amount: Decimal
     currency: Currency
     quote_currency: Optional[Currency] = None
 
@@ -39,7 +39,7 @@ class Price:
         if self.quote_currency is None:
             object.__setattr__(self, "quote_currency", Currency.USD)
 
-        if self.value < 0:
+        if self.amount < 0:
             raise ValueError("Price cannot be negative")
 
     def __add__(self, other: "Price") -> "Price":
@@ -50,7 +50,11 @@ class Price:
             or self.quote_currency != other.quote_currency
         ):
             raise ValueError("Cannot add prices with different currencies")
-        return Price(self.value + other.value, self.currency, self.quote_currency)
+        return Price(
+            amount=self.amount + other.amount, 
+            currency=self.currency, 
+            quote_currency=self.quote_currency
+        )
 
     def __sub__(self, other: "Price") -> "Price":
         if not isinstance(other, Price):
@@ -60,22 +64,35 @@ class Price:
             or self.quote_currency != other.quote_currency
         ):
             raise ValueError("Cannot subtract prices with different currencies")
-        return Price(self.value - other.value, self.currency, self.quote_currency)
-
-    def __mul__(self, other: Union[Decimal, float, int]) -> "Price":
-        if not isinstance(other, (Decimal, float, int)):
-            raise TypeError("Can only multiply Price by numeric value")
         return Price(
-            self.value * Decimal(str(other)), self.currency, self.quote_currency
+            amount=self.amount - other.amount,
+            currency=self.currency,
+            quote_currency=self.quote_currency
         )
 
-    def __truediv__(self, other: Union[Decimal, float, int]) -> "Price":
-        if not isinstance(other, (Decimal, float, int)):
-            raise TypeError("Can only divide Price by numeric value")
-        if Decimal(str(other)) == 0:
+    def __mul__(self, factor: Union[int, float, Decimal]) -> "Price":
+        return Price(
+            amount=self.amount * Decimal(str(factor)),
+            currency=self.currency,
+            quote_currency=self.quote_currency
+        )
+
+    def __truediv__(self, divisor: Union[int, float, Decimal]) -> "Price":
+        if divisor == 0:
             raise ValueError("Cannot divide by zero")
         return Price(
-            self.value / Decimal(str(other)), self.currency, self.quote_currency
+            amount=self.amount / Decimal(str(divisor)),
+            currency=self.currency,
+            quote_currency=self.quote_currency
+        )
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Price):
+            return False
+        return (
+            self.amount == other.amount
+            and self.currency == other.currency
+            and self.quote_currency == other.quote_currency
         )
 
     def __lt__(self, other: "Price") -> bool:
@@ -86,143 +103,134 @@ class Price:
             or self.quote_currency != other.quote_currency
         ):
             raise ValueError("Cannot compare prices with different currencies")
-        return self.value < other.value
+        return self.amount < other.amount
 
     def __le__(self, other: "Price") -> bool:
-        return self < other or self == other
+        return self == other or self < other
 
     def __gt__(self, other: "Price") -> bool:
-        if not isinstance(other, Price):
-            raise TypeError("Can only compare Price with Price")
-        if (
-            self.currency != other.currency
-            or self.quote_currency != other.quote_currency
-        ):
-            raise ValueError("Cannot compare prices with different currencies")
-        return self.value > other.value
+        return not self <= other
 
     def __ge__(self, other: "Price") -> bool:
-        return self > other or self == other
+        return not self < other
+
+    def __hash__(self) -> int:
+        return hash((self.amount, self.currency, self.quote_currency))
 
     def __str__(self) -> str:
-        quote_code = (
-            self.quote_currency.code if self.quote_currency is not None else "?"
-        )
-        return f"{self.value} {self.currency.code}/{quote_code}"
+        return f"{self.amount} {self.currency.code}"
 
     def __repr__(self) -> str:
-        quote_code = (
-            self.quote_currency.code if self.quote_currency is not None else "?"
-        )
-        return f"Price({self.value}, {self.currency.code}, {quote_code})"
-
-    def percentage_change(self, other: "Price") -> Decimal:
-        """Вычисляет процентное изменение относительно другой цены."""
-        if not isinstance(other, Price):
-            raise TypeError("Other must be Price instance")
-        if (
-            self.currency != other.currency
-            or self.quote_currency != other.quote_currency
-        ):
-            raise ValueError("Prices must have same currency pair")
-        if other.value == 0:
-            return Decimal("0")
-        return ((self.value - other.value) / other.value) * 100
-
-    def spread(self, other: "Price") -> Decimal:
-        """Вычисляет спред относительно другой цены."""
-        if not isinstance(other, Price):
-            raise TypeError("Other must be Price instance")
-        if (
-            self.currency != other.currency
-            or self.quote_currency != other.quote_currency
-        ):
-            raise ValueError("Prices must have same currency pair")
-        return abs(self.value - other.value)
-
-    def slippage(self, target_price: "Price") -> Decimal:
-        """Вычисляет проскальзывание относительно целевой цены."""
-        if not isinstance(target_price, Price):
-            raise TypeError("Target price must be Price instance")
-        if (
-            self.currency != target_price.currency
-            or self.quote_currency != target_price.quote_currency
-        ):
-            raise ValueError("Prices must have same currency pair")
-        if Decimal(target_price.value) == Decimal("0"):
-            return Decimal("0")
-        return abs(self.value - target_price.value) / Decimal(target_price.value)
+        return f"Price({self.amount}, {self.currency.code})"
 
     @property
-    def amount(self) -> Decimal:
-        """Возвращает значение цены."""
-        return self.value
+    def value(self) -> Decimal:
+        """Возвращает числовое значение цены."""
+        return self.amount
 
     def to_decimal(self) -> Decimal:
-        """Возвращает значение цены как Decimal."""
-        return self.value
+        """Возвращает цену как Decimal."""
+        return self.amount
 
-    def percentage_change_from(self, other: "Price") -> Decimal:
-        """Вычисляет процентное изменение относительно другой цены."""
-        return self.percentage_change(other)
+    def to_float(self) -> float:
+        """Возвращает цену как float."""
+        return float(self.amount)
 
-    def spread_with(self, other: "Price") -> "Price":
-        """Вычисляет спред с другой ценой и возвращает Price объект."""
-        spread_value = self.spread(other)
-        return Price(spread_value, self.currency, self.quote_currency)
-
-    def apply_slippage(self, slippage_percent: Decimal) -> Tuple["Price", "Price"]:
-        """Применяет проскальзывание и возвращает bid/ask цены."""
-        slippage_decimal = slippage_percent / 100
-        bid_price = Price(
-            self.value * (1 - slippage_decimal), self.currency, self.quote_currency
-        )
-        ask_price = Price(
-            self.value * (1 + slippage_decimal), self.currency, self.quote_currency
-        )
-        return bid_price, ask_price
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Создает словарь для сериализации."""
+    def to_dict(self) -> Dict[str, Optional[str]]:
+        """Сериализует цену в словарь."""
         return {
-            "value": str(self.value),
+            "amount": str(self.amount),
             "currency": self.currency.code,
-            "quote_currency": (
-                self.quote_currency.code if self.quote_currency is not None else None
-            ),
-            "type": "Price",
+            "quote_currency": self.quote_currency.code if self.quote_currency else None,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Price":
-        """Создает из словаря."""
-        value = Decimal(data["value"])
+    def from_dict(cls, data: Dict[str, str]) -> "Price":
+        """Создает цену из словаря."""
         currency = Currency.from_string(data["currency"])
-        if currency is None:
-            raise ValueError(f"Unknown currency: {data['currency']}")
-        quote_currency = Currency.from_string(data["quote_currency"])
-        if quote_currency is None:
-            quote_currency = Currency.USD
-        return cls(value, currency, quote_currency)
+        quote_currency = None
+        if data.get("quote_currency"):
+            quote_currency = Currency.from_string(data["quote_currency"])
+        
+        if not currency:
+            raise ValueError(f"Invalid currency: {data['currency']}")
+            
+        return cls(
+            amount=Decimal(data["amount"]),
+            currency=currency,
+            quote_currency=quote_currency,
+        )
 
-    @property
-    def hash(self) -> str:
-        """Возвращает хеш цены для кэширования."""
-        data = f"{self.value}:{self.currency.code}:{self.quote_currency.code if self.quote_currency else 'USD'}"
-        return hashlib.md5(data.encode()).hexdigest()
+    @classmethod
+    def zero(cls, currency: Currency) -> "Price":
+        """Создает нулевую цену."""
+        return cls(amount=Decimal("0"), currency=currency)
 
-    def validate(self) -> bool:
-        """Валидирует цену."""
-        return self.value >= 0 and self.currency is not None
+    def is_zero(self) -> bool:
+        """Проверяет, является ли цена нулевой."""
+        return self.amount == Decimal("0")
 
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Price):
-            return (
-                self.value == other.value
-                and self.currency == other.currency
-                and self.quote_currency == other.quote_currency
-            )
-        return False
+    def is_positive(self) -> bool:
+        """Проверяет, является ли цена положительной."""
+        return self.amount > Decimal("0")
 
-    def __hash__(self) -> int:
-        return hash((self.value, self.currency, self.quote_currency))
+    def is_negative(self) -> bool:
+        """Проверяет, является ли цена отрицательной."""
+        return self.amount < Decimal("0")
+
+    def abs(self) -> "Price":
+        """Возвращает абсолютное значение цены."""
+        return Price(
+            amount=abs(self.amount),
+            currency=self.currency,
+            quote_currency=self.quote_currency
+        )
+
+    def round(self, precision: int = 8) -> "Price":
+        """Округляет цену до заданной точности."""
+        return Price(
+            amount=round(self.amount, precision),
+            currency=self.currency,
+            quote_currency=self.quote_currency
+        )
+
+    def format(self, precision: Optional[int] = None) -> str:
+        """Форматирует цену для отображения."""
+        if precision is None:
+            precision = 8
+        return f"{self.amount:.{precision}f} {self.currency.code}"
+
+    def convert_to(self, target_currency: Currency, rate: Decimal) -> "Price":
+        """Конвертирует цену в другую валюту по курсу."""
+        converted_amount = self.amount * rate
+        return Price(
+            amount=converted_amount,
+            currency=target_currency,
+            quote_currency=self.currency
+        )
+
+    def calculate_difference(self, other: "Price") -> "Price":
+        """Вычисляет разность между ценами."""
+        return self - other
+
+    def calculate_percentage_change(self, other: "Price") -> Decimal:
+        """Вычисляет процентное изменение относительно другой цены."""
+        if other.amount == 0:
+            raise ValueError("Cannot calculate percentage change from zero price")
+        return ((self.amount - other.amount) / other.amount) * Decimal("100")
+
+    def with_currency(self, currency: Currency) -> "Price":
+        """Создает новую цену с той же суммой, но другой валютой."""
+        return Price(
+            amount=self.amount,
+            currency=currency,
+            quote_currency=self.quote_currency
+        )
+
+    def with_amount(self, amount: Decimal) -> "Price":
+        """Создает новую цену с другой суммой, но той же валютой."""
+        return Price(
+            amount=amount,
+            currency=self.currency,
+            quote_currency=self.quote_currency
+        )

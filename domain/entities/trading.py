@@ -207,7 +207,7 @@ class Trade:
     order_id: OrderId = field(default_factory=lambda: OrderId(str(uuid4())))
     trading_pair: TradingPair = field(default=TradingPair(""))
     side: OrderSide = OrderSide.BUY
-    quantity: Volume = field(default_factory=lambda: Volume(Decimal("0")))
+    quantity: Volume = field(default_factory=lambda: Volume(Decimal("0"), Currency.USD))
     price: Price = field(default_factory=lambda: Price(Decimal("0"), Currency.USD))
     commission: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
     timestamp: TimestampValue = field(
@@ -215,9 +215,12 @@ class Trade:
     )
 
     def __post_init__(self) -> None:
-        self.quantity = Volume(Decimal(str(self.quantity)))
-        self.price = Price(Decimal(str(self.price)), Currency.USD)
-        self.commission = Money(Decimal(str(self.commission)), Currency.USD)
+        if isinstance(self.quantity, Decimal):
+            self.quantity = Volume(self.quantity, Currency.USD)
+        if isinstance(self.price, Decimal):
+            self.price = Price(self.price, Currency.USD)
+        if isinstance(self.commission, Decimal):
+            self.commission = Money(self.commission, Currency.USD)
 
     @property
     def total_value(self) -> Money:
@@ -245,7 +248,7 @@ class Trade:
             order_id=OrderId(str(data["order_id"])),
             trading_pair=TradingPair(data["trading_pair"]),
             side=OrderSide(data["side"]),
-            quantity=Volume(Decimal(data["quantity"])),
+            quantity=Volume(Decimal(data["quantity"]), Currency.USD),
             price=Price(Decimal(data["price"]), Currency.USD),
             commission=Money(Decimal(data["commission"]), Currency.USD),
             timestamp=TimestampValue(datetime.fromisoformat(data["timestamp"])),
@@ -259,7 +262,7 @@ class Position:
     id: PositionId = field(default_factory=lambda: PositionId(str(uuid4())))
     symbol: Symbol = field(default=Symbol(""))
     side: PositionSide = PositionSide.LONG
-    quantity: Volume = field(default_factory=lambda: Volume(Decimal("0")))
+    quantity: Volume = field(default_factory=lambda: Volume(Decimal("0"), Currency.USD))
     entry_price: Price = field(
         default_factory=lambda: Price(Decimal("0"), Currency.USD)
     )
@@ -279,7 +282,8 @@ class Position:
     metadata: MetadataDict = field(default_factory=lambda: MetadataDict({}))
 
     def __post_init__(self) -> None:
-        self.quantity = Volume(Decimal(str(self.quantity)))
+        if isinstance(self.quantity, Decimal):
+            self.quantity = Volume(self.quantity, Currency.USD)
         self.entry_price = Price(Decimal(str(self.entry_price)), Currency.USD)
         self.current_price = Price(Decimal(str(self.current_price)), Currency.USD)
         self.unrealized_pnl = Money(Decimal(str(self.unrealized_pnl)), Currency.USD)
@@ -340,7 +344,7 @@ class Position:
             id=PositionId(str(data["id"])),
             symbol=Symbol(data["symbol"]),
             side=PositionSide(data["side"]),
-            quantity=Volume(Decimal(data["quantity"])),
+            quantity=Volume(Decimal(data["quantity"]), Currency.USD),
             entry_price=Price(Decimal(data["entry_price"]), Currency.USD),
             current_price=Price(Decimal(data["current_price"]), Currency.USD),
             entry_time=datetime.fromisoformat(data["entry_time"]),
@@ -370,15 +374,17 @@ class TradingSession:
     end_time: Optional[datetime] = None
     trading_pairs: List[TradingPair] = field(default_factory=list)
     total_trades: int = 0
-    total_volume: Volume = field(default_factory=lambda: Volume(Decimal("0")))
+    total_volume: Volume = field(default_factory=lambda: Volume(Decimal("0"), Currency.USD))
     total_commission: Money = field(
         default_factory=lambda: Money(Decimal("0"), Currency.USD)
     )
     pnl: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
 
     def __post_init__(self) -> None:
-        self.total_volume = Volume(Decimal(str(self.total_volume)))
-        self.total_commission = Money(Decimal(str(self.total_commission)), Currency.USD)
+        if isinstance(self.total_volume, Decimal):
+            self.total_volume = Volume(self.total_volume, Currency.USD)
+        if isinstance(self.total_commission, Decimal):
+            self.total_commission = Money(self.total_commission, Currency.USD)
         self.pnl = Money(Decimal(str(self.pnl)), Currency.USD)
 
     def add_trade(self, trade: Trade) -> None:
@@ -424,7 +430,7 @@ class TradingSession:
             ),
             trading_pairs=[TradingPair(pair) for pair in data.get("trading_pairs", [])],
             total_trades=data["total_trades"],
-            total_volume=Volume(Decimal(data["total_volume"])),
+            total_volume=Volume(Decimal(data["total_volume"]), Currency.USD),
             total_commission=Money(Decimal(data["total_commission"]), Currency.USD),
             pnl=Money(Decimal(data["pnl"]), Currency.USD),
         )

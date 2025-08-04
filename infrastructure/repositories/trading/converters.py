@@ -482,7 +482,7 @@ class TradingEntityConverter:
         """Преобразование Account в AccountModel."""
         try:
             return AccountModel(
-                id=account.account_id,
+                id=account.id,
                 name=account.exchange_name,
                 email=account.email if hasattr(account, "email") else None,
                 status=account.status if hasattr(account, "status") else "ACTIVE",
