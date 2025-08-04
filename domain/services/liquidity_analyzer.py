@@ -7,10 +7,11 @@ import pandas as pd
 from pandas import Interval
 
 from domain.types.service_types import (
-    LiquidityAnalysisResult, LiquiditySweep, LiquidityZone, LiquidityScore,
+    LiquidityAnalysisResult, LiquiditySweep, LiquidityZone, LiquidityScore, LiquidityZoneType,
     TimestampValue, PriceValue, SweepType, ConfidenceLevel, VolumeValue
 )
 from decimal import Decimal
+from datetime import datetime
 
 
 class LiquidityZoneType:
@@ -127,7 +128,7 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
                         strength=strength,
                         volume=VolumeValue(Decimal(str(level.get("volume", 0)))),
                         touches=level.get("touches", 0),
-                        timestamp=TimestampValue(),
+                        timestamp=TimestampValue(datetime.now()),
                         confidence=ConfidenceLevel(Decimal(str(strength)))
                     )
                 )
@@ -334,7 +335,7 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
 
     def _classify_zone_type(
         self, level: Dict[str, Any], market_data: pd.DataFrame
-    ) -> str:
+    ) -> LiquidityZoneType:
         """Классифицирует тип зоны"""
         current_price = market_data["close"].iloc[-1]
         level_price = level["price"]
