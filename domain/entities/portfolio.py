@@ -55,7 +55,64 @@ class Portfolio:
     metadata: Dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        pass
+        """Пост-инициализация с валидацией и расчётом производных метрик."""
+        # Валидация консистентности данных
+        if self.total_equity.amount < 0:
+            raise ValueError("Total equity cannot be negative")
+        
+        if self.used_margin.amount < 0:
+            raise ValueError("Used margin cannot be negative")
+        
+        if self.used_margin.amount > self.total_equity.amount:
+            logger.warning("Used margin exceeds total equity - high risk detected")
+        
+        # Расчёт доступного маржина
+        self.available_margin = Money(
+            self.total_equity.amount - self.used_margin.amount,
+            self.total_equity.currency
+        )
+        
+        # Инициализация метаданных если они пусты
+        if not self.metadata:
+            self.metadata.update({
+                'created_at': datetime.now().isoformat(),
+                'risk_level': self._calculate_risk_level(),
+                'margin_health': self._assess_margin_health()
+            })
+    
+    def _calculate_risk_level(self) -> str:
+        """Расчёт уровня риска портфеля."""
+        if self.total_equity.amount == 0:
+            return "UNDEFINED"
+        
+        margin_ratio = self.get_margin_ratio()
+        
+        if margin_ratio < 10:
+            return "LOW"
+        elif margin_ratio < 30:
+            return "MODERATE"
+        elif margin_ratio < 60:
+            return "HIGH"
+        else:
+            return "EXTREME"
+    
+    def _assess_margin_health(self) -> str:
+        """Оценка здоровья маржи."""
+        if self.total_equity.amount == 0:
+            return "UNDEFINED"
+        
+        available_ratio = (self.available_margin.amount / self.total_equity.amount) * 100
+        
+        if available_ratio > 70:
+            return "EXCELLENT"
+        elif available_ratio > 50:
+            return "GOOD"
+        elif available_ratio > 30:
+            return "FAIR"
+        elif available_ratio > 10:
+            return "POOR"
+        else:
+            return "CRITICAL"
 
     def get_equity(self) -> AmountValue:
         return AmountValue(self.total_equity.amount)
