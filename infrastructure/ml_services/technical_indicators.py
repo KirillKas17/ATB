@@ -270,7 +270,7 @@ class TechnicalIndicators:
         if isinstance(adx_result, dict):
             adx_data = adx_result
         else:
-            adx_data = {}
+            adx_data = {}  # type: ignore[unreachable]
         if isinstance(adx_data, dict) and "adx" in adx_data and isinstance(adx_data["adx"], Series) and len(adx_data["adx"]) > 0:
             adx_series: pd.Series = adx_data["adx"]
             indicators["adx"] = (
@@ -653,7 +653,7 @@ class TechnicalIndicators:
             return 'sideways'
 
     @staticmethod
-    def calculate_liquidity_metrics(data: DataFrame) -> Dict[str, float]:
+    def calculate_liquidity_metrics(data: DataFrame) -> Dict[str, Union[float, Dict[str, float]]]:
         """Расчет продвинутых метрик ликвидности"""
         import numpy as np
         
@@ -745,7 +745,7 @@ class TechnicalIndicators:
                 'turnover_ratio': float(turnover_ratio),
                 'cv_volume': float(cv_volume),
                 'ps_liquidity': float(ps_liquidity),
-                'liquidity_components': liquidity_components
+                'liquidity_components': {k: float(v) for k, v in liquidity_components.items()}
             }
             
         except Exception as e:

@@ -614,7 +614,7 @@ def calculate_market_structure(
 
 def calculate_wave_clusters(
     prices: np.ndarray, window: int = 20, min_points: int = 3, eps: float = 0.5
-) -> List[Dict[str, Union[float, List[float], int]]]:
+) -> List[Dict[str, Union[float, List[Dict[str, Any]], int]]]:
     """
     Кластеризация волн цены.
     Args:

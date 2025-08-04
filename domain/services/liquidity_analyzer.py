@@ -6,7 +6,10 @@ import numpy as np
 import pandas as pd
 from pandas import Interval
 
-from domain.types.ml_types import LiquidityAnalysisResult, LiquiditySweep, LiquidityZone
+from domain.types.service_types import (
+    LiquidityAnalysisResult, LiquiditySweep, LiquidityZone,
+    TimestampValue, PriceValue, SweepType, ConfidenceLevel, VolumeValue
+)
 
 
 class LiquidityZoneType:
@@ -129,20 +132,22 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
                 if self._is_sweep_high(candle, market_data, i):
                     sweeps.append(
                         LiquiditySweep(
-                            timestamp=candle.name,
-                            price=float(candle["high"]) if hasattr(candle, "__getitem__") else 0.0,
-                            type="sweep_high",
-                            confidence=self._calculate_sweep_confidence(candle, "high"),
+                            timestamp=TimestampValue(candle.name),
+                            price=PriceValue(float(candle["high"]) if hasattr(candle, "__getitem__") else 0.0),
+                            sweep_type=SweepType("sweep_high"),
+                            confidence=ConfidenceLevel(self._calculate_sweep_confidence(candle, "high")),
+                            volume=VolumeValue(0.0)
                         )
                     )
                 # Проверка на sweep ниже
                 if self._is_sweep_low(candle, market_data, i):
                     sweeps.append(
                         LiquiditySweep(
-                            timestamp=candle.name,
-                            price=float(candle["low"]) if hasattr(candle, "__getitem__") else 0.0,
-                            type="sweep_low",
-                            confidence=self._calculate_sweep_confidence(candle, "low"),
+                            timestamp=TimestampValue(candle.name),
+                            price=PriceValue(float(candle["low"]) if hasattr(candle, "__getitem__") else 0.0),
+                            sweep_type=SweepType("sweep_low"),
+                            confidence=ConfidenceLevel(self._calculate_sweep_confidence(candle, "low")),
+                            volume=VolumeValue(0.0)
                         )
                     )
             return sweeps
