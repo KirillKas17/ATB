@@ -20,7 +20,8 @@ class BotControl:
             config_file = self.config_dir / "config.yaml"
             if config_file.exists():
                 with open(config_file, "r") as f:
-                    return yaml.safe_load(f)
+                    config_data = yaml.safe_load(f)
+                    return config_data if isinstance(config_data, dict) else {}
             return {}
         except Exception as e:
             st.error(f"Ошибка загрузки конфигурации: {e}")
@@ -42,7 +43,8 @@ class BotControl:
             tasks_file = self.data_dir / "tasks.json"
             if tasks_file.exists():
                 with open(tasks_file, "r") as f:
-                    return json.load(f)
+                    tasks_data = json.load(f)
+                    return tasks_data if isinstance(tasks_data, list) else []
             return []
         except Exception as e:
             st.error(f"Ошибка загрузки задач: {e}")

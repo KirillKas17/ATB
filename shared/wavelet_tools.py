@@ -99,7 +99,7 @@ def perform_cwt(
     try:
         # Use pywt for CWT instead of scipy.signal.cwt
         coefficients, frequencies = pywt.cwt(data, scales, wavelet)
-        return coefficients
+        return np.asarray(coefficients)
     except Exception as e:
         logger.error(f"Error in CWT: {e}")
         return np.zeros((len(scales), len(data)))
@@ -129,7 +129,7 @@ def wavelet_denoising(
             coeffs_thresh.append(coeff_thresh)
         # Wavelet reconstruction
         denoised = pywt.waverec(coeffs_thresh, wavelet)
-        return denoised[: len(data)]  # Ensure same length
+        return np.asarray(denoised[: len(data)])  # Ensure same length
     except Exception as e:
         logger.error(f"Error in wavelet denoising: {e}")
         return data

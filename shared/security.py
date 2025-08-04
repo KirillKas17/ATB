@@ -187,7 +187,7 @@ class AdvancedInputValidator:
             # Нормализация признаков
             features_scaled = self.scaler.transform(features)
             # Предсказание аномалий
-            anomaly_score = self.anomaly_detector.decision_function(features_scaled)[0]
+            anomaly_score = float(self.anomaly_detector.decision_function(features_scaled)[0])
             # Нормализация в диапазон [0, 1]
             return max(0.0, min(1.0, (anomaly_score + 0.5)))
         except Exception as e:
@@ -417,7 +417,8 @@ class AdvancedAuthenticator:
             "iat": datetime.now(timezone.utc),
             "iss": "syntra_trading_system",
         }
-        return jwt.encode(payload, self.config.jwt_secret, algorithm="HS512")
+        token = jwt.encode(payload, self.config.jwt_secret, algorithm="HS512")
+        return token if isinstance(token, str) else token.decode('utf-8')
 
     def _create_session(
         self, username: str, additional_factors: Optional[Dict[str, Any]]

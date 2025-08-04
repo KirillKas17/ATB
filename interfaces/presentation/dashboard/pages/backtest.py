@@ -21,7 +21,8 @@ class Backtest:
             results_file = self.results_dir / "backtest_results.json"
             if results_file.exists():
                 with open(results_file, "r") as f:
-                    return json.load(f)
+                    results_data = json.load(f)
+                    return results_data if isinstance(results_data, dict) else {}
             return {}
         except Exception as e:
             st.error(f"Ошибка загрузки результатов: {e}")
