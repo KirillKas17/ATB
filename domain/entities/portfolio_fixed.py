@@ -23,11 +23,11 @@ class Account:
 
     id: UUID = field(default_factory=uuid4)
     name: str = ""
-    balance: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
-    equity: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
-    margin: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
+    balance: Money = field(default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD))
+    equity: Money = field(default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD))
+    margin: Money = field(default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD))
     free_margin: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     margin_level: Decimal = Decimal("0")
     updated_at: datetime = field(default_factory=datetime.now)
@@ -35,11 +35,11 @@ class Account:
 
     def get_margin_used(self) -> Money:
         """Получение использованной маржи."""
-        return Money(self.margin.amount, Currency.USD)
+        return Money(amount=self.margin.amount, currency=Currency.USD)
 
     def get_margin_available(self) -> Money:
         """Получение доступной маржи."""
-        return Money(self.free_margin.amount, Currency.USD)
+        return Money(amount=self.free_margin.amount, currency=Currency.USD)
 
     def get_margin_ratio(self) -> Decimal:
         """Получение коэффициента маржи."""
@@ -71,10 +71,10 @@ class Account:
         return cls(
             id=UUID(data["id"]) if isinstance(data["id"], str) else data["id"],
             name=data["name"],
-            balance=Money(Decimal(data["balance"]), Currency.USD),
-            equity=Money(Decimal(data["equity"]), Currency.USD),
-            margin=Money(Decimal(data["margin"]), Currency.USD),
-            free_margin=Money(Decimal(data["free_margin"]), Currency.USD),
+            balance=Money(amount=Decimal(data["balance"]), currency=Currency.USD),
+            equity=Money(amount=Decimal(data["equity"]), currency=Currency.USD),
+            margin=Money(amount=Decimal(data["margin"]), currency=Currency.USD),
+            free_margin=Money(amount=Decimal(data["free_margin"]), currency=Currency.USD),
             margin_level=Decimal(data["margin_level"]),
             updated_at=datetime.fromisoformat(data["updated_at"]),
             metadata=data.get("metadata", {}),
@@ -88,21 +88,21 @@ class Position:
     id: UUID = field(default_factory=uuid4)
     trading_pair: str = ""
     side: str = "long"  # long/short
-    quantity: Volume = field(default_factory=lambda: Volume(Decimal("0")))
+    quantity: Volume = field(default_factory=lambda: Volume(amount=Decimal("0"), currency=Currency.USD))
     average_price: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     current_price: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     unrealized_pnl: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     realized_pnl: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     margin_used: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     leverage: Decimal = Decimal("1")
     created_at: datetime = field(default_factory=datetime.now)
@@ -139,12 +139,12 @@ class Position:
             pnl_amount = (
                 self.current_price.amount - self.average_price.amount
             ) * self.quantity.value
-            self.unrealized_pnl = Money(pnl_amount, Currency.USD)
+            self.unrealized_pnl = Money(amount=pnl_amount, currency=Currency.USD)
         else:  # short
             pnl_amount = (
                 self.average_price.amount - self.current_price.amount
             ) * self.quantity.value
-            self.unrealized_pnl = Money(pnl_amount, Currency.USD)
+            self.unrealized_pnl = Money(amount=pnl_amount, currency=Currency.USD)
 
     def add_quantity(self, quantity: Volume, price: Money) -> None:
         """Добавить количество к позиции"""
@@ -156,7 +156,7 @@ class Position:
                 price.amount * quantity.value
             )
             self.quantity += quantity
-            self.average_price = Money(total_value / self.quantity.value, Currency.USD)
+            self.average_price = Money(amount=total_value / self.quantity.value, currency=Currency.USD)
 
         self._calculate_unrealized_pnl()
         self.updated_at = datetime.now()
@@ -176,29 +176,29 @@ class Position:
                 self.average_price.amount - price.amount
             ) * quantity.value
 
-        self.realized_pnl += Money(realized_pnl_amount, Currency.USD)
+        self.realized_pnl += Money(amount=realized_pnl_amount, currency=Currency.USD)
         self.quantity -= quantity
 
         if self.quantity.value == 0:
-            self.average_price = Money(Decimal("0"), Currency.USD)
-            self.unrealized_pnl = Money(Decimal("0"), Currency.USD)
+            self.average_price = Money(amount=Decimal("0"), currency=Currency.USD)
+            self.unrealized_pnl = Money(amount=Decimal("0"), currency=Currency.USD)
         else:
             self._calculate_unrealized_pnl()
 
         self.updated_at = datetime.now()
-        return Money(realized_pnl_amount, Currency.USD)
+        return Money(amount=realized_pnl_amount, currency=Currency.USD)
 
     @property
     def total_pnl(self) -> Money:
         """Общий PnL (реализованный + нереализованный)"""
-        return Money(
-            self.realized_pnl.amount + self.unrealized_pnl.amount, Currency.USD
+        return Money(amount=
+            self.realized_pnl.amount + self.unrealized_pnl.amount, currency=Currency.USD
         )
 
     @property
     def market_value(self) -> Money:
         """Рыночная стоимость позиции"""
-        return Money(self.current_price.amount * self.quantity.value, Currency.USD)
+        return Money(amount=self.current_price.amount * self.quantity.value, currency=Currency.USD)
 
     @property
     def is_open(self) -> bool:
@@ -230,12 +230,12 @@ class Position:
             id=UUID(data["id"]) if isinstance(data["id"], str) else data["id"],
             trading_pair=data["trading_pair"],
             side=data["side"],
-            quantity=Volume(Decimal(data["quantity"])),
-            average_price=Money(Decimal(data["average_price"]), Currency.USD),
-            current_price=Money(Decimal(data["current_price"]), Currency.USD),
-            unrealized_pnl=Money(Decimal(data["unrealized_pnl"]), Currency.USD),
-            realized_pnl=Money(Decimal(data["realized_pnl"]), Currency.USD),
-            margin_used=Money(Decimal(data["margin_used"]), Currency.USD),
+            quantity=Volume(amount=Decimal(data["quantity"]), currency=Currency.USD),
+            average_price=Money(amount=Decimal(data["average_price"]), currency=Currency.USD),
+            current_price=Money(amount=Decimal(data["current_price"]), currency=Currency.USD),
+            unrealized_pnl=Money(amount=Decimal(data["unrealized_pnl"]), currency=Currency.USD),
+            realized_pnl=Money(amount=Decimal(data["realized_pnl"]), currency=Currency.USD),
+            margin_used=Money(amount=Decimal(data["margin_used"]), currency=Currency.USD),
             leverage=Decimal(data["leverage"]),
             created_at=datetime.fromisoformat(data["created_at"]),
             updated_at=datetime.fromisoformat(data["updated_at"]),
@@ -248,11 +248,11 @@ class Balance:
     """Баланс аккаунта"""
 
     currency: Currency = Currency.USD
-    available: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
-    total: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
-    locked: Money = field(default_factory=lambda: Money(Decimal("0"), Currency.USD))
+    available: Money = field(default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD))
+    total: Money = field(default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD))
+    locked: Money = field(default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD))
     unrealized_pnl: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
 
     def __post_init__(self) -> None:
@@ -270,33 +270,31 @@ class Balance:
     def update_available(self, amount: Money) -> None:
         """Обновить доступный баланс"""
         self.available = amount
-        self.total = Money(
-            self.available.amount + self.locked.amount + self.unrealized_pnl.amount,
-            self.currency,
+        self.total = Money(amount=
+            self.available.amount + self.locked.amount + self.unrealized_pnl.amount, currency=self.currency,
         )
 
     def lock_amount(self, amount: Money) -> None:
         """Заблокировать сумму"""
         if amount > self.available:
             raise ValueError("Insufficient available balance")
-        self.locked = Money(self.locked.amount + amount.amount, self.currency)
-        self.available = Money(self.available.amount - amount.amount, self.currency)
+        self.locked = Money(amount=self.locked.amount + amount.amount, currency=self.currency)
+        self.available = Money(amount=self.available.amount - amount.amount, currency=self.currency)
 
     def unlock_amount(self, amount: Money) -> None:
         """Разблокировать сумму"""
         if amount > self.locked:
             raise ValueError("Cannot unlock more than locked amount")
-        self.locked = Money(self.locked.amount - amount.amount, self.currency)
-        self.available = Money(self.available.amount + amount.amount, self.currency)
+        self.locked = Money(amount=self.locked.amount - amount.amount, currency=self.currency)
+        self.available = Money(amount=self.available.amount + amount.amount, currency=self.currency)
 
     def add_unrealized_pnl(self, pnl: Money) -> None:
         """Добавить нереализованный PnL"""
-        self.unrealized_pnl = Money(
-            self.unrealized_pnl.amount + pnl.amount, self.currency
+        self.unrealized_pnl = Money(amount=
+            self.unrealized_pnl.amount + pnl.amount, currency=self.currency
         )
-        self.total = Money(
-            self.available.amount + self.locked.amount + self.unrealized_pnl.amount,
-            self.currency,
+        self.total = Money(amount=
+            self.available.amount + self.locked.amount + self.unrealized_pnl.amount, currency=self.currency,
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -315,10 +313,10 @@ class Balance:
         currency = Currency(data["currency"])
         return cls(
             currency=currency,
-            available=Money(Decimal(data["available"]), currency),
-            total=Money(Decimal(data["total"]), currency),
-            locked=Money(Decimal(data["locked"]), currency),
-            unrealized_pnl=Money(Decimal(data["unrealized_pnl"]), currency),
+            available=Money(amount=Decimal(data["available"]), currency=currency),
+            total=Money(amount=Decimal(data["total"]), currency=currency),
+            locked=Money(amount=Decimal(data["locked"]), currency=currency),
+            unrealized_pnl=Money(amount=Decimal(data["unrealized_pnl"]), currency=currency),
         )
 
 
@@ -334,13 +332,13 @@ class Portfolio:
     orders: List[Order] = field(default_factory=list)
     trades: List[Trade] = field(default_factory=list)
     total_equity: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     total_margin_used: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     free_margin: Money = field(
-        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+        default_factory=lambda: Money(amount=Decimal("0"), currency=Currency.USD)
     )
     margin_level: Percentage = field(default_factory=lambda: Percentage(Decimal("0")))
     created_at: datetime = field(default_factory=datetime.now)
@@ -402,28 +400,28 @@ class Portfolio:
     def _recalculate_metrics(self) -> None:
         """Пересчитать метрики портфеля"""
         # Общая стоимость в USD
-        total_equity = Money(Decimal("0"), Currency.USD)
-        total_margin_used = Money(Decimal("0"), Currency.USD)
+        total_equity = Money(amount=Decimal("0"), currency=Currency.USD)
+        total_margin_used = Money(amount=Decimal("0"), currency=Currency.USD)
 
         # Суммируем балансы
         for balance in self.balances.values():
-            total_equity = Money(
-                total_equity.amount + balance.total.amount, Currency.USD
+            total_equity = Money(amount=
+                total_equity.amount + balance.total.amount, currency=Currency.USD
             )
 
         # Суммируем позиции
         for position in self.positions.values():
-            total_equity = Money(
-                total_equity.amount + position.total_pnl.amount, Currency.USD
+            total_equity = Money(amount=
+                total_equity.amount + position.total_pnl.amount, currency=Currency.USD
             )
-            total_margin_used = Money(
-                total_margin_used.amount + position.margin_used.amount, Currency.USD
+            total_margin_used = Money(amount=
+                total_margin_used.amount + position.margin_used.amount, currency=Currency.USD
             )
 
         self.total_equity = total_equity
         self.total_margin_used = total_margin_used
-        self.free_margin = Money(
-            total_equity.amount - total_margin_used.amount, Currency.USD
+        self.free_margin = Money(amount=
+            total_equity.amount - total_margin_used.amount, currency=Currency.USD
         )
 
         # Уровень маржи
@@ -455,7 +453,7 @@ class Portfolio:
         total = Decimal("0")
         for pos in self.positions.values():
             total += pos.market_value.amount
-        return Money(total, Currency.USD)
+        return Money(amount=total, currency=Currency.USD)
 
     @property
     def total_pnl(self) -> Money:
@@ -463,38 +461,38 @@ class Portfolio:
         total = Decimal("0")
         for pos in self.positions.values():
             total += pos.total_pnl.amount
-        return Money(total, Currency.USD)
+        return Money(amount=total, currency=Currency.USD)
 
     def get_total_value(self) -> Money:
         """Получение общей стоимости портфеля."""
-        return Money(self.total_equity.amount, Currency.USD)
+        return Money(amount=self.total_equity.amount, currency=Currency.USD)
 
     def get_positions_value(self) -> Money:
         """Получение стоимости позиций."""
         total = Decimal("0")
         for pos in self.positions.values():
             total += pos.market_value.amount
-        return Money(total, Currency.USD)
+        return Money(amount=total, currency=Currency.USD)
 
     def get_cash_balance(self) -> Money:
         """Получение наличного баланса."""
         if Currency.USD in self.balances:
-            return Money(self.balances[Currency.USD].available.amount, Currency.USD)
-        return Money(Decimal("0"), Currency.USD)
+            return Money(amount=self.balances[Currency.USD].available.amount, currency=Currency.USD)
+        return Money(amount=Decimal("0"), currency=Currency.USD)
 
     def get_unrealized_pnl(self) -> Money:
         """Получение нереализованной прибыли/убытка."""
         total = Decimal("0")
         for pos in self.positions.values():
             total += pos.unrealized_pnl.amount
-        return Money(total, Currency.USD)
+        return Money(amount=total, currency=Currency.USD)
 
     def get_realized_pnl(self) -> Money:
         """Получение реализованной прибыли/убытка."""
         total = Decimal("0")
         for pos in self.positions.values():
             total += pos.realized_pnl.amount
-        return Money(total, Currency.USD)
+        return Money(amount=total, currency=Currency.USD)
 
     def get_position_by_symbol(self, symbol: str) -> Optional[Position]:
         """Получение позиции по символу."""
@@ -524,7 +522,8 @@ class Portfolio:
     ) -> List[Trade]:
         """Получение сделок по диапазону дат."""
         return [
-            trade for trade in self.trades if start_date <= trade.timestamp <= end_date
+            trade for trade in self.trades 
+            if start_date <= (trade.timestamp.value if hasattr(trade.timestamp, 'value') else trade.timestamp).replace(tzinfo=None) <= end_date  # type: ignore[union-attr]
         ]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -565,9 +564,9 @@ class Portfolio:
             },
             orders=[Order.from_dict(order_data) for order_data in data["orders"]],
             trades=[Trade.from_dict(trade_data) for trade_data in data["trades"]],
-            total_equity=Money(Decimal(data["total_equity"]), Currency.USD),
-            total_margin_used=Money(Decimal(data["total_margin_used"]), Currency.USD),
-            free_margin=Money(Decimal(data["free_margin"]), Currency.USD),
+            total_equity=Money(amount=Decimal(data["total_equity"]), currency=Currency.USD),
+            total_margin_used=Money(amount=Decimal(data["total_margin_used"]), currency=Currency.USD),
+            free_margin=Money(amount=Decimal(data["free_margin"]), currency=Currency.USD),
             margin_level=Percentage(Decimal(data["margin_level"])),
             created_at=datetime.fromisoformat(data["created_at"]),
             updated_at=datetime.fromisoformat(data["updated_at"]),

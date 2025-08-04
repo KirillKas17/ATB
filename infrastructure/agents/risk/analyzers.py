@@ -2,7 +2,10 @@
 Калькуляторы рисков для risk agent.
 """
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None  # type: ignore
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
@@ -119,7 +122,7 @@ class DefaultRiskCalculator(IRiskCalculator):
                 return 0.0
             # Используем исторический VaR
             var_percentile = (1 - confidence_level) * 100
-            var = np.percentile(returns, var_percentile)
+            var = np.percentile(returns, var_percentile) if np else 0.0
             return float(abs(var))
         except Exception:
             return 0.0

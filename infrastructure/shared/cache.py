@@ -8,7 +8,7 @@ import pickle
 import time
 import hashlib
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, List, Union, Set, Protocol
+from typing import Any, Dict, Optional, List, Union, Set, Protocol, Callable
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 import logging
@@ -58,16 +58,6 @@ class CacheType(Enum):
     HYBRID = "hybrid"
 
 @dataclass
-class CacheEntry:
-    """Запись кэша."""
-    key: str
-    value: Any
-    created_at: datetime
-    expires_at: Optional[datetime] = None
-    access_count: int = 0
-    last_accessed: Optional[datetime] = None
-
-@dataclass
 class CacheConfig:
     """Конфигурация кэша."""
     max_size: int = 10000
@@ -79,25 +69,6 @@ class CacheConfig:
     redis_url: Optional[str] = None
     enable_metrics: bool = True
     eviction_strategy: CacheEvictionStrategy = CacheEvictionStrategy.LRU
-
-class CacheProtocol(Protocol):
-    """Протокол для кэша."""
-    
-    async def get(self, key: str) -> Optional[Any]:
-        """Получение значения из кэша."""
-        ...
-    
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
-        """Сохранение значения в кэш."""
-        ...
-    
-    async def delete(self, key: str) -> bool:
-        """Удаление значения из кэша."""
-        ...
-    
-    async def clear(self) -> None:
-        """Очистка кэша."""
-        ...
 
 @dataclass
 class CacheMetrics:
@@ -161,15 +132,13 @@ class CacheEntry:
         """Проверка наличия тега."""
         return tag in self.tags
 
-class CacheProtocol(ABC):
+class CacheProtocol(Protocol):
     """Протокол кэша."""
     
-    @abstractmethod
     async def get(self, key: str) -> Optional[Any]:
         """Получение значения из кэша."""
-        pass
+        ...
     
-    @abstractmethod
     async def set(
         self, 
         key: str, 
@@ -177,27 +146,23 @@ class CacheProtocol(ABC):
         ttl_seconds: Optional[int] = None
     ) -> bool:
         """Установка значения в кэш."""
-        pass
+        ...
     
-    @abstractmethod
     async def delete(self, key: str) -> bool:
         """Удаление значения из кэша."""
-        pass
+        ...
     
-    @abstractmethod
     async def exists(self, key: str) -> bool:
         """Проверка существования ключа."""
-        pass
+        ...
     
-    @abstractmethod
     async def clear(self) -> None:
         """Очистка кэша."""
-        pass
+        ...
     
-    @abstractmethod
     async def get_metrics(self) -> CacheMetrics:
         """Получение метрик кэша."""
-        pass
+        ...
 
 class DataSerializer:
     """Сериализатор данных с поддержкой сжатия и шифрования."""
@@ -751,7 +716,7 @@ class CacheFactory:
 class CacheManager:
     """Менеджер кэшей с поддержкой множественных экземпляров."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._caches: Dict[str, CacheProtocol] = {}
         self._default_config = CacheConfig()
     
@@ -797,7 +762,7 @@ default_cache_config = CacheConfig(
 # Регистрация дефолтного кэша будет выполнена при первом обращении
 _default_cache_registered = False
 
-def _ensure_default_cache():
+def _ensure_default_cache() -> None:
     """Обеспечение регистрации дефолтного кэша."""
     global _default_cache_registered
     if not _default_cache_registered:
@@ -828,10 +793,10 @@ class StrategyCache(MemoryCache):
             )
         super().__init__(config)
 
-def cache_decorator(ttl: Optional[int] = None, cache_name: str = "default"):
+def cache_decorator(ttl: Optional[int] = None, cache_name: str = "default") -> Callable:
     """Декоратор для кэширования результатов функций."""
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             _ensure_default_cache()
             cache = cache_manager.get_cache(cache_name)
             if cache is None:
@@ -858,7 +823,7 @@ def create_cache(cache_type: CacheType, config: CacheConfig) -> Union[MemoryCach
     else:
         return MemoryCache(config)
 
-def generate_cache_key(*args, **kwargs) -> str:
+def generate_cache_key(*args: Any, **kwargs: Any) -> str:
     """Генерация ключа кэша из аргументов."""
     key_parts = []
     for arg in args:
@@ -881,7 +846,7 @@ def get_cache_manager() -> 'CacheManager':
     """Получение менеджера кэшей."""
     return cache_manager
 
-def cache_key(*args, **kwargs) -> str:
+def cache_key(*args: Any, **kwargs: Any) -> str:
     """Генерация ключа кэша из аргументов."""
     key_parts = []
     
@@ -903,12 +868,12 @@ def cache_key(*args, **kwargs) -> str:
 def cached(
     ttl: Optional[int] = None,
     cache_name: str = "default",
-    key_func: Optional[callable] = None,
+    key_func: Optional[Callable] = None,
     tags: Optional[Set[str]] = None
-):
+) -> Callable:
     """Декоратор для кэширования результатов функций."""
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             cache = cache_manager.get_cache(cache_name)
             
             # Генерация ключа
