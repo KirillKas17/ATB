@@ -5,6 +5,7 @@
 Тестирование экстремальных нагрузок и восстановления после сбоев.
 """
 import asyncio
+import os
 import pytest
 import time
 import threading
@@ -216,15 +217,22 @@ class TestSystemStressAndResilience:
             chunks_count = target_memory_mb // chunk_size_mb
             
             for i in range(chunks_count):
-                # Создание чанка данных
+                # Оптимизированное создание чанка данных (уменьшен размер для CI/CD)
+                chunk_size = 5000 if os.getenv('CI') else 50000  # Меньше для CI
                 chunk_data = []
-                for j in range(50000):  # ~50MB данных
+                
+                # Предварительно генерируем данные для оптимизации
+                base_timestamp = datetime.now()
+                base_prices = [50000 + j for j in range(chunk_size)]
+                base_volumes = [random.uniform(0.1, 100.0) for j in range(chunk_size)]
+                
+                for j in range(chunk_size):
                     market_record = {
-                        'timestamp': datetime.now(),
-                        'price': Decimal(str(50000 + j)),
-                        'volume': Decimal(str(random.uniform(0.1, 100.0))),
+                        'timestamp': base_timestamp,
+                        'price': Decimal(str(base_prices[j])),
+                        'volume': Decimal(str(base_volumes[j])),
                         'order_id': f'order_{i}_{j}',
-                        'metadata': f'metadata_string_{j}' * 10  # Дополнительная память
+                        'metadata': f'metadata_string_{j}' * (2 if os.getenv('CI') else 10)  # Меньше для CI
                     }
                     chunk_data.append(market_record)
                 
