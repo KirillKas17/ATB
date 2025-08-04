@@ -7,14 +7,15 @@ import logging
 import time
 from asyncio import Lock
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Set, Union
+import json
 
 import backoff
 import pandas as pd
 from unittest.mock import Mock
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from domain.types.external_service_types import ConnectionConfig, ConnectionTimeout, RateLimit, RateLimitWindow
 from infrastructure.external_services.market_data import DataCache
@@ -402,13 +403,106 @@ class Exchange:
     async def _save_metrics(self) -> None:
         """Сохранение метрик"""
         try:
-            # Здесь можно добавить логику сохранения в базу данных
-            pass
+            # Продвинутая система сохранения метрик
+            current_time = datetime.now(timezone.utc)
+            
+            # Подготовка данных метрик для сохранения
+            metrics_data = {
+                "timestamp": current_time.isoformat(),
+                "exchange_id": getattr(self, 'exchange_id', 'unknown'),
+                "session_id": getattr(self, 'session_id', str(uuid4())),
+                **self.metrics
+            }
+            
+            # Вычисление дополнительных аналитических метрик
+            if "total_volume" in self.metrics and isinstance(self.metrics["total_volume"], (int, float)):
+                metrics_data["volume_per_hour"] = float(self.metrics["total_volume"]) / max(1, 
+                    (current_time - getattr(self, 'start_time', current_time)).seconds / 3600)
+            
+            if "error_count" in self.metrics and "total_trades" in self.metrics:
+                error_count = int(self.metrics.get("error_count", 0))
+                total_trades = int(self.metrics.get("total_trades", 1))
+                metrics_data["success_rate"] = 1.0 - (error_count / max(1, total_trades))
+            
+            # Многоуровневое сохранение
+            save_tasks = []
+            
+            # 1. Локальное кэширование в памяти
+            if not hasattr(self, '_metrics_cache'):
+                self._metrics_cache = []
+            self._metrics_cache.append(metrics_data)
+            # Ограничиваем размер кэша
+            if len(self._metrics_cache) > 1000:
+                self._metrics_cache = self._metrics_cache[-1000:]
+            
+            # 2. Асинхронное сохранение в файл
+            save_tasks.append(self._save_to_file(metrics_data))
+            
+            # 3. Отправка в базу данных (если доступна)
+            if hasattr(self, 'database') and self.database:
+                save_tasks.append(self._save_to_database(metrics_data))
+            
+            # 4. Отправка в мониторинг системы
+            save_tasks.append(self._send_to_monitoring(metrics_data))
+            
+            # Выполнение всех задач сохранения параллельно
+            if save_tasks:
+                await asyncio.gather(*save_tasks, return_exceptions=True)
+                
+            logger.debug(f"Metrics saved successfully: {len(metrics_data)} fields")
+            
         except Exception as e:
             logger.error(f"Error saving metrics: {str(e)}")
             self.metrics["last_error"] = str(e)
             self.metrics["error_count"] = int(self.metrics.get("error_count", 0)) + 1
-            raise
+
+    async def _save_to_file(self, metrics_data: Dict[str, Any]) -> None:
+        """Сохранение метрик в файл"""
+        try:
+            import json
+            import os
+            from pathlib import Path
+            
+            # Создаем директорию для метрик
+            metrics_dir = Path("data/metrics")
+            metrics_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Генерируем имя файла на основе даты
+            filename = f"exchange_metrics_{datetime.now().strftime('%Y%m%d')}.jsonl"
+            filepath = metrics_dir / filename
+            
+            # Добавляем строку в файл (формат JSONL)
+            with open(filepath, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(metrics_data, default=str) + '\n')
+                
+        except Exception as e:
+            logger.warning(f"Failed to save metrics to file: {e}")
+
+    async def _save_to_database(self, metrics_data: Dict[str, Any]) -> None:
+        """Сохранение метрик в базу данных"""
+        try:
+            # Асинхронная отправка в базу данных
+            await self.database.execute(
+                "INSERT INTO exchange_metrics (data, timestamp) VALUES (?, ?)",
+                (json.dumps(metrics_data), metrics_data["timestamp"])
+            )
+        except Exception as e:
+            logger.warning(f"Failed to save metrics to database: {e}")
+
+    async def _send_to_monitoring(self, metrics_data: Dict[str, Any]) -> None:
+        """Отправка метрик в систему мониторинга"""
+        try:
+            # Интеграция с системой мониторинга
+            if hasattr(self, 'monitoring_client'):
+                await self.monitoring_client.send_metrics(
+                    source="exchange",
+                    metrics=metrics_data
+                )
+            # Логирование ключевых метрик
+            if "total_pnl" in metrics_data:
+                logger.info(f"Exchange PnL: {metrics_data['total_pnl']}")
+        except Exception as e:
+            logger.warning(f"Failed to send metrics to monitoring: {e}")
 
     def get_historical_data(
         self,

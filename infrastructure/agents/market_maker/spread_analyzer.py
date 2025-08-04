@@ -68,7 +68,10 @@ class SpreadAnalyzer:
 
     def is_spread_acceptable(self, spread: float) -> bool:
         """Проверка приемлемости спреда."""
-        return spread <= self.config["spread_threshold"]
+        spread_threshold = self.config.get("spread_threshold", 0.001)
+        if isinstance(spread_threshold, (int, float)):
+            return spread <= float(spread_threshold)
+        return False
 
     def get_spread_recommendation(
         self, spread_analysis: Dict[str, float]

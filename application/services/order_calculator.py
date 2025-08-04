@@ -194,12 +194,12 @@ class OrderCalculator:
         if hasattr(order.price, 'amount'):
             price_value = order.price.amount
         else:
-            price_value = order.price  # type: ignore
+            price_value = order.price
             
         if hasattr(order.quantity, 'amount'):
             quantity_value = order.quantity.amount
         else:
-            quantity_value = order.quantity  # type: ignore
+            quantity_value = order.quantity
             
         # Расчет стоимости ордера
         order_value = self.calculate_order_value(quantity_value, price_value)
@@ -223,7 +223,7 @@ class OrderCalculator:
             if hasattr(order.stop_price, 'amount'):
                 stop_price_value = order.stop_price.amount
             else:
-                stop_price_value = order.stop_price  # type: ignore
+                stop_price_value = order.stop_price
         else:
             stop_price_value = price_value
             

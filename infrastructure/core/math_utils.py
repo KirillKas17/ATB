@@ -205,7 +205,7 @@ def calculate_sharpe_ratio(
     if isinstance(returns, list):
         returns = np.array(returns)
     elif isinstance(returns, pd.Series):
-        returns = returns.values  # type: ignore
+        returns = returns.values
     returns = np.asarray(returns)  # Убеждаемся, что это numpy array
     excess_returns = returns - risk_free_rate
     if len(excess_returns) == 0:
@@ -231,7 +231,7 @@ def calculate_sortino_ratio(
     if isinstance(returns, list):
         returns = np.array(returns)
     elif isinstance(returns, pd.Series):
-        returns = returns.values  # type: ignore
+        returns = returns.values
     returns = np.asarray(returns)  # Убеждаемся, что это numpy array
     excess_returns = returns - risk_free_rate
     if len(excess_returns) == 0:

@@ -5,15 +5,15 @@ import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Dict, Any
-from infrastructure.agents.agent_risk import RiskAgent  # type: ignore
-from infrastructure.agents.agent_news import NewsAgent  # type: ignore
-from infrastructure.agents.social_media_agent import SocialMediaAgent  # type: ignore
-from infrastructure.agents.agent_market_regime import MarketRegimeAgent  # type: ignore
-from infrastructure.agents.agent_order_executor import OrderExecutorAgent  # type: ignore
-from infrastructure.agents.agent_portfolio import PortfolioAgent  # type: ignore
-from infrastructure.agents.agent_whales import WhalesAgent  # type: ignore
-from infrastructure.agents.agent_meta_controller import MetaControllerAgent  # type: ignore
-from infrastructure.agents.agent_market_maker_model import MarketMakerModelAgent  # type: ignore
+from infrastructure.agents.agent_risk import RiskAgent
+from infrastructure.agents.agent_news import NewsAgent
+from infrastructure.agents.social_media_agent import SocialMediaAgent
+from infrastructure.agents.agent_market_regime import MarketRegimeAgent
+from infrastructure.agents.agent_order_executor import OrderExecutorAgent
+from infrastructure.agents.agent_portfolio import PortfolioAgent
+from infrastructure.agents.agent_whales import WhalesAgent
+from infrastructure.agents.agent_meta_controller import MetaControllerAgent
+from infrastructure.agents.agent_market_maker_model import MarketMakerModelAgent
 from domain.types.agent_types import AgentStatus
 class TestBaseAgentIntegration:
     """Тесты базовой интеграции агентов с BaseAgent"""

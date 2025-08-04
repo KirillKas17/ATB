@@ -157,7 +157,7 @@ class TestHealthChecker:
         status = health_checker.perform_health_check()
         # Проверяем, что статус является строкой или имеет атрибут status
         if hasattr(status, 'status'):
-            assert status.status in ["healthy", "unhealthy", "degraded"]  # type: ignore
+            assert status.status in ["healthy", "unhealthy", "degraded"]
         else:
             assert status in ["healthy", "unhealthy", "degraded"]
     @pytest.mark.asyncio
@@ -419,7 +419,7 @@ class TestMonitoringIntegration:
         metrics_collector.record_metric(metric_data)
         # Проверяем здоровье
         health_status = await health_checker.perform_health_check()
-        assert isinstance(health_status, HealthStatus)  # type: ignore
+        assert isinstance(health_status, HealthStatus)
         # Записываем метрики производительности
         perf_metrics = PerformanceMetrics(
             cpu_usage=45.2,

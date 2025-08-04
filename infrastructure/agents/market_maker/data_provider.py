@@ -298,8 +298,8 @@ class TechnicalIndicators:
     def calculate_rsi(prices: pd.Series, window: int = 14) -> pd.Series:
         """Рассчитать RSI."""
         delta = prices.diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()  # type: ignore
-        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()  # type: ignore
+        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
         rs = gain / loss
         rsi = 100 - (100 / (1 + rs))
         return rsi

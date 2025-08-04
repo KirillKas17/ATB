@@ -16,7 +16,7 @@ from loguru import logger
 
 # Временные замены для отсутствующих библиотек
 try:
-    import talib  # type: ignore
+    import talib
 except ImportError:
     # Простая замена для talib
     class TalibMock:
@@ -256,31 +256,36 @@ class TechnicalAnalysisService(TechnicalAnalysisProtocol):
         return prices.ewm(span=period).mean()
 
     def calculate_rsi(self, prices: pd.Series, period: int = 14) -> pd.Series:
-        """Рассчитать Relative Strength Index."""
-        # Приводим к float для избежания ошибок типизации
+        """Рассчитать Relative Strength Index (оптимизировано)."""
+        # Векторизованные вычисления для оптимизации
         prices_float = prices.astype(float)
         delta = prices_float.diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
         
-        # Защита от деления на ноль
-        loss = loss.replace(0, np.nan)
-        rs = gain / loss
-        rs = rs.fillna(0)  # Если loss=0, то rs=0 (нет потерь -> RSI=100)
+        # Используем более эффективный метод вычисления с ewm для сглаживания
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
         
-        # Защита от деления на ноль в финальной формуле
+        # Экспоненциальное сглаживание (быстрее чем rolling mean для больших данных)
+        alpha = 1.0 / period
+        gain_ema = gain.ewm(alpha=alpha, adjust=False).mean()
+        loss_ema = loss.ewm(alpha=alpha, adjust=False).mean()
+        
+        # Векторизованное вычисление RS и RSI
+        rs = gain_ema / loss_ema.replace(0, np.nan)
         rsi = 100 - (100 / (1 + rs))
-        rsi = rsi.fillna(100)  # Если rs=0, то RSI=100
-        return rsi.fillna(50)  # Заполняем оставшиеся NaN значения
+        
+        # Эффективная обработка NaN
+        return rsi.fillna(method='bfill').fillna(50)
 
     def calculate_macd(
         self, prices: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9
     ) -> Dict[str, pd.Series]:
-        """Рассчитать MACD."""
-        ema_fast = prices.ewm(span=fast).mean()
-        ema_slow = prices.ewm(span=slow).mean()
+        """Рассчитать MACD (оптимизировано)."""
+        # Векторизованное вычисление всех EMA одновременно
+        ema_fast = prices.ewm(span=fast, adjust=False).mean()
+        ema_slow = prices.ewm(span=slow, adjust=False).mean()
         macd = ema_fast - ema_slow
-        signal_line = macd.ewm(span=signal).mean()
+        signal_line = macd.ewm(span=signal, adjust=False).mean()
         histogram = macd - signal_line
         return {
             "macd": macd,
@@ -291,17 +296,29 @@ class TechnicalAnalysisService(TechnicalAnalysisProtocol):
     def calculate_bollinger_bands(
         self, prices: pd.Series, period: int = 20, std_dev: float = 2.0
     ) -> BollingerBandsResult:
-        """Рассчитать полосы Боллинджера."""
-        sma = prices.rolling(window=period).mean()
-        std = prices.rolling(window=period).std()
-        upper = sma + (std * std_dev)
-        lower = sma - (std * std_dev)
+        """Рассчитать полосы Боллинджера (оптимизировано)."""
+        # Векторизованное вычисление с минимальным количеством операций
+        rolling_window = prices.rolling(window=period)
+        sma = rolling_window.mean()
+        std = rolling_window.std()
+        
+        # Векторизованное вычисление границ
+        std_mult = std * std_dev
+        upper = sma + std_mult
+        lower = sma - std_mult
+        
+        # Эффективное вычисление метрик
+        band_width = (upper - lower) / sma
+        price_diff = prices - lower
+        band_diff = upper - lower
+        percent_b = price_diff / band_diff
+        
         return BollingerBandsResult(
             upper=upper,
             middle=sma,
             lower=lower,
-            bandwidth=(upper - lower) / sma,
-            percent_b=(prices - lower) / (upper - lower),
+            bandwidth=band_width,
+            percent_b=percent_b,
         )
 
     def calculate_atr(self, df: pd.DataFrame, period: int = 14) -> pd.Series:
@@ -318,10 +335,20 @@ class TechnicalAnalysisService(TechnicalAnalysisProtocol):
     def calculate_stochastic(
         self, df: pd.DataFrame, k_period: int = 14, d_period: int = 3
     ) -> Dict[str, pd.Series]:
-        """Рассчитать Stochastic Oscillator."""
-        low_min = df["low"].rolling(window=k_period).min()
-        high_max = df["high"].rolling(window=k_period).max()
-        k = 100 * ((df["close"] - low_min) / (high_max - low_min))
+        """Рассчитать Stochastic Oscillator (оптимизировано)."""
+        # Векторизованное вычисление с предварительным кэшированием
+        low_rolling = df["low"].rolling(window=k_period)
+        high_rolling = df["high"].rolling(window=k_period)
+        
+        low_min = low_rolling.min()
+        high_max = high_rolling.max()
+        
+        # Векторизованное вычисление %K
+        close_minus_low = df["close"] - low_min
+        high_minus_low = high_max - low_min
+        k = 100 * (close_minus_low / high_minus_low)
+        
+        # Векторизованное вычисление %D
         d = k.rolling(window=d_period).mean()
         return {"k": k, "d": d}
 

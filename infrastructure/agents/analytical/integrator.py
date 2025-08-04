@@ -21,7 +21,9 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
 
     def __init__(self, config: Optional[IntegrationConfig] = None):
         self.config = config or IntegrationConfig()
-        self.cache: Dict[str, Any] = {}
+        self.context_cache: Dict[str, MarketMakerContext] = {}
+        self.recommendations_cache: Dict[str, Dict[str, Any]] = {}
+        self.analytical_cache: Dict[str, AnalyticalData] = {}
         self.cache_timestamps: Dict[str, datetime] = {}
         logger.info("AnalyticalIntegrator initialized")
 
@@ -70,7 +72,7 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
             # Проверяем кэш
             cache_key = f"context_{symbol}"
             if self._is_cache_valid(cache_key):
-                return self.cache[cache_key]
+                return self.context_cache[cache_key]
             # Получаем аналитические данные
             analytical_data = await self._get_analytical_data(symbol)
             # Определяем режим рынка
@@ -88,7 +90,7 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
                 timestamp=datetime.now(),
             )
             # Кэшируем результат
-            self._cache_result(cache_key, context)
+            self._cache_context(cache_key, context)
             return context
         except Exception as e:
             logger.error(f"Error getting market maker context for {symbol}: {e}")
@@ -107,7 +109,7 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
             # Проверяем кэш
             cache_key = f"recommendations_{symbol}"
             if self._is_cache_valid(cache_key):
-                return self.cache[cache_key]
+                return self.recommendations_cache[cache_key]
             # Получаем аналитические данные
             analytical_data = self._get_cached_analytical_data(symbol)
             recommendations = {
@@ -122,7 +124,7 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
                 "market_conditions": self._analyze_market_conditions(analytical_data),
             }
             # Кэшируем результат
-            self._cache_result(cache_key, recommendations)
+            self._cache_recommendations(cache_key, recommendations)
             return recommendations
         except Exception as e:
             logger.error(f"Error getting trading recommendations for {symbol}: {e}")
@@ -259,8 +261,8 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
         """Получение статистики интегратора."""
         try:
             return {
-                "cache_size": len(self.cache),
-                "cache_keys": list(self.cache.keys()),
+                "cache_size": len(self.context_cache) + len(self.recommendations_cache) + len(self.analytical_cache),
+                "cache_keys": list(self.context_cache.keys()) + list(self.recommendations_cache.keys()) + list(self.analytical_cache.keys()),
                 "last_cache_update": max(self.cache_timestamps.values()).isoformat() if self.cache_timestamps else None,
                 "config": {
                     "cache_ttl": self.config.cache_ttl,
@@ -416,28 +418,50 @@ class AnalyticalIntegrator(IAnalyticalIntegrator):
 
     def _is_cache_valid(self, cache_key: str) -> bool:
         """Проверяет валидность кэша."""
-        if cache_key not in self.cache or cache_key not in self.cache_timestamps:
+        if cache_key not in self.cache_timestamps:
+            return False
+        # Проверяем наличие в любом из кэшей
+        exists_in_cache = (cache_key in self.context_cache or 
+                          cache_key in self.recommendations_cache or 
+                          cache_key in self.analytical_cache)
+        if not exists_in_cache:
             return False
         elapsed = (datetime.now() - self.cache_timestamps[cache_key]).total_seconds()
         return elapsed < self.config.cache_ttl
 
-    def _cache_result(self, cache_key: str, result: Any) -> None:
-        """Кэширует результат."""
-        self.cache[cache_key] = result
+    def _cache_context(self, cache_key: str, context: MarketMakerContext) -> None:
+        """Кэширует контекст маркет-мейкера."""
+        self.context_cache[cache_key] = context
         self.cache_timestamps[cache_key] = datetime.now()
-        # Очистка старых записей
-        if len(self.cache) > self.config.max_cache_size:
+        self._cleanup_cache()
+
+    def _cache_recommendations(self, cache_key: str, recommendations: Dict[str, Any]) -> None:
+        """Кэширует рекомендации."""
+        self.recommendations_cache[cache_key] = recommendations
+        self.cache_timestamps[cache_key] = datetime.now()
+        self._cleanup_cache()
+
+    def _cleanup_cache(self) -> None:
+        """Очищает старые записи из кэша."""
+        total_cache_size = len(self.context_cache) + len(self.recommendations_cache) + len(self.analytical_cache)
+        if total_cache_size > self.config.max_cache_size:
             oldest_key = min(
                 self.cache_timestamps.keys(), key=lambda k: self.cache_timestamps[k]
             )
-            del self.cache[oldest_key]
+            # Удаляем из соответствующего кэша
+            if oldest_key in self.context_cache:
+                del self.context_cache[oldest_key]
+            elif oldest_key in self.recommendations_cache:
+                del self.recommendations_cache[oldest_key]
+            elif oldest_key in self.analytical_cache:
+                del self.analytical_cache[oldest_key]
             del self.cache_timestamps[oldest_key]
 
     def _get_cached_analytical_data(self, symbol: str) -> AnalyticalData:
         """Получает кэшированные аналитические данные."""
         cache_key = f"analytical_data_{symbol}"
         if self._is_cache_valid(cache_key):
-            return self.cache[cache_key]
+            return self.analytical_cache[cache_key]
         # Возвращаем пустые данные если нет в кэше
         return AnalyticalData()
 

@@ -327,7 +327,7 @@ class TestPositionManager:
         """Тест граничных случаев."""
         # Попытка открыть позицию с None в качестве символа
         result = position_manager.open_position(
-            symbol=None,  # type: ignore
+            symbol=None,
             side=PositionSide.LONG,
             size=1.0,
             entry_price=50000.0

@@ -6,7 +6,7 @@ import threading
 import time
 from datetime import datetime
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, TypeVar
+from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -33,7 +33,12 @@ def serialize_snapshot(data: Dict[str, Any], format_type: str) -> bytes:
 
 def deserialize_snapshot(data: bytes, format_type: str) -> Dict[str, Any]:
     """Deserialize snapshot."""
-    return json.loads(data.decode("utf-8"))
+    result = json.loads(data.decode("utf-8"))
+    if isinstance(result, dict):
+        return result
+    else:
+        # Если JSON не содержит объект, возвращаем пустой словарь
+        return {}
 
 
 def encrypt_data(data: bytes, key: str) -> bytes:
@@ -96,7 +101,7 @@ def retry_on_failure(max_attempts: int = 3, delay: float = 1.0) -> Callable[[F],
                 raise last_exception
             raise RuntimeError("Unknown error in retry_on_failure")
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator
 

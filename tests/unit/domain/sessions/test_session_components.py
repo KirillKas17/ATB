@@ -190,13 +190,13 @@ class TestSessionInfluenceAnalyzer:
         result = self.analyzer.analyze_session_influence(
             "BTCUSDT", market_data, self.session_profile
         )
-        assert isinstance(result, SessionAnalysisResult)  # type: ignore
+        assert isinstance(result, SessionAnalysisResult)
         assert result.session_type == SessionType.ASIAN
         assert result.session_phase in SessionPhase
-        assert isinstance(result.timestamp, Timestamp)  # type: ignore
-        assert isinstance(result.confidence, ConfidenceScore)  # type: ignore
-        assert isinstance(result.metrics, SessionMetrics)  # type: ignore
-        assert isinstance(result.market_conditions, MarketConditions)  # type: ignore
+        assert isinstance(result.timestamp, Timestamp)
+        assert isinstance(result.confidence, ConfidenceScore)
+        assert isinstance(result.metrics, SessionMetrics)
+        assert isinstance(result.market_conditions, MarketConditions)
         assert isinstance(result.predictions, dict)
         assert isinstance(result.risk_factors, list)
     def test_analyze_session_influence_metrics_validation(self) -> None:
@@ -207,7 +207,7 @@ class TestSessionInfluenceAnalyzer:
         )
         # Проверяем метрики
         metrics = result.metrics
-        assert isinstance(metrics, SessionMetrics)  # type: ignore
+        assert isinstance(metrics, SessionMetrics)
         assert isinstance(metrics.volume_change_percent, float)
         assert isinstance(metrics.volatility_change_percent, float)
         assert isinstance(metrics.price_direction_bias, float)
@@ -228,7 +228,7 @@ class TestSessionInfluenceAnalyzer:
         )
         # Проверяем рыночные условия
         conditions = result.market_conditions
-        assert isinstance(conditions, MarketConditions)  # type: ignore
+        assert isinstance(conditions, MarketConditions)
         assert isinstance(conditions.volatility, float)
         assert isinstance(conditions.volume, float)
         assert isinstance(conditions.spread, float)
@@ -507,7 +507,7 @@ class TestSessionOptimizer:
             liquidity=0.8,
             momentum=0.05,
             trend_strength=0.7,
-            market_regime=MarketRegime.TRENDING,  # type: ignore
+            market_regime=MarketRegime.TRENDING,
             session_intensity=SessionIntensity.HIGH  # Используем существующий атрибут
         )
     def _create_test_market_data(self) -> pd.DataFrame:
@@ -618,7 +618,7 @@ class TestSessionPredictor:
             liquidity=0.8,
             momentum=0.05,
             trend_strength=0.7,
-            market_regime=MarketRegime.TRENDING,  # type: ignore
+            market_regime=MarketRegime.TRENDING,
             session_intensity=SessionIntensity.HIGH  # Используем существующий атрибут
         )
 
@@ -729,7 +729,7 @@ class TestSessionRepositories:
         """Создает тестовый результат анализа."""
         return SessionAnalysisResult(
             session_type=SessionType.ASIAN,
-            session_phase=SessionPhase.ACTIVE,  # type: ignore
+            session_phase=SessionPhase.ACTIVE,
             timestamp=Timestamp.now(),
             confidence=ConfidenceScore(0.8),
             metrics=SessionMetrics(
@@ -753,7 +753,7 @@ class TestSessionRepositories:
                 liquidity=0.8,
                 momentum=0.05,
                 trend_strength=0.7,
-                market_regime=MarketRegime.TRENDING,  # type: ignore
+                market_regime=MarketRegime.TRENDING,
                 session_intensity=SessionIntensity.HIGH  # Используем существующий атрибут
             ),
             predictions={},

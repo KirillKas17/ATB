@@ -315,10 +315,11 @@ DEFAULT_BROKER_CONFIG = {
 
 
 # Валидаторы
-def validate_order_request_dict(request: OrderRequestDict) -> bool:
+def validate_order_request_dict(request: Dict[str, Any]) -> bool:
     """Валидировать словарь запроса на создание ордера."""
     required_fields = ["symbol", "side", "order_type", "quantity"]
 
+    # Проверка наличия всех обязательных полей
     for field in required_fields:
         if field not in request:
             return False
@@ -354,7 +355,7 @@ def validate_order_request_dict(request: OrderRequestDict) -> bool:
     return True
 
 
-def get_order_request_errors(request: OrderRequestDict) -> List[str]:
+def get_order_request_errors(request: Dict[str, Any]) -> List[str]:
     """Получить ошибки валидации запроса на создание ордера."""
     errors = []
 

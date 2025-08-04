@@ -8,11 +8,17 @@ from decimal import Decimal
 from enum import Enum
 from typing import Dict, Optional, Protocol, runtime_checkable
 from uuid import UUID, uuid4
+from datetime import datetime
+from decimal import Decimal
+from typing import Dict, Any, Optional
+from dataclasses import dataclass, field
 
+from loguru import logger
 from domain.types import AmountValue, PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.timestamp import Timestamp
+from domain.value_objects.percentage import Percentage
 
 
 class PortfolioStatus(Enum):
@@ -48,6 +54,9 @@ class Portfolio:
     used_margin: Money = field(
         default_factory=lambda: Money(Decimal("0"), Currency.USD)
     )
+    available_margin: Money = field(
+        default_factory=lambda: Money(Decimal("0"), Currency.USD)
+    )
     risk_profile: RiskProfile = RiskProfile.MODERATE
     max_leverage: Decimal = Decimal("10")
     created_at: Timestamp = field(default_factory=Timestamp.now)
@@ -55,7 +64,64 @@ class Portfolio:
     metadata: Dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        pass
+        """Пост-инициализация с валидацией и расчётом производных метрик."""
+        # Валидация консистентности данных
+        if self.total_equity.amount < 0:
+            raise ValueError("Total equity cannot be negative")
+        
+        if self.used_margin.amount < 0:
+            raise ValueError("Used margin cannot be negative")
+        
+        if self.used_margin.amount > self.total_equity.amount:
+            logger.warning("Used margin exceeds total equity - high risk detected")
+        
+        # Расчёт доступного маржина
+        self.available_margin = Money(
+            self.total_equity.amount - self.used_margin.amount,
+            self.total_equity.currency
+        )
+        
+        # Инициализация метаданных если они пусты
+        if not self.metadata:
+            self.metadata.update({
+                'created_at': datetime.now().isoformat(),
+                'risk_level': self._calculate_risk_level(),
+                'margin_health': self._assess_margin_health()
+            })
+    
+    def _calculate_risk_level(self) -> str:
+        """Расчёт уровня риска портфеля."""
+        if self.total_equity.amount == 0:
+            return "UNDEFINED"
+        
+        margin_ratio = self.get_margin_ratio()
+        
+        if margin_ratio < 10:
+            return "LOW"
+        elif margin_ratio < 30:
+            return "MODERATE"
+        elif margin_ratio < 60:
+            return "HIGH"
+        else:
+            return "EXTREME"
+    
+    def _assess_margin_health(self) -> str:
+        """Оценка здоровья маржи."""
+        if self.total_equity.amount == 0:
+            return "UNDEFINED"
+        
+        available_ratio = (self.available_margin.amount / self.total_equity.amount) * 100
+        
+        if available_ratio > 70:
+            return "EXCELLENT"
+        elif available_ratio > 50:
+            return "GOOD"
+        elif available_ratio > 30:
+            return "FAIR"
+        elif available_ratio > 10:
+            return "POOR"
+        else:
+            return "CRITICAL"
 
     def get_equity(self) -> AmountValue:
         return AmountValue(self.total_equity.amount)
@@ -116,10 +182,6 @@ class Portfolio:
     @property
     def is_closed(self) -> bool:
         return self.status == PortfolioStatus.CLOSED
-
-    @property
-    def available_margin(self) -> Money:
-        return Money(self.free_margin.amount, self.free_margin.currency)
 
     def update_equity(self, new_equity: Money) -> None:
         self.total_equity = new_equity

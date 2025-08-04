@@ -42,4 +42,4 @@ class CodeQualityNeuralNetwork(nn.Module):
         self.network = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.network(x)  # type: ignore[no-any-return]
+        return self.network(x)

@@ -10,9 +10,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Any
 
-import joblib  # type: ignore
-import psutil  # type: ignore
-import talib  # type: ignore
+import joblib
+import psutil
+import talib
 import yaml
 from loguru import logger
 from scipy import stats
@@ -21,7 +21,7 @@ from sklearn.preprocessing import StandardScaler
 from shared.numpy_utils import np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns  # type: ignore
+import seaborn as sns
 
 warnings.filterwarnings("ignore")
 

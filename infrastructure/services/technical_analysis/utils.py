@@ -65,7 +65,7 @@ def validate_indicator_data(data: pd.Series, min_points: int = 20) -> bool:
     if data.isna().all():
         return False
     # Проверяем на бесконечные значения
-    if np.isinf(data).any():
+    if np.isinf(data.values).any():
         return False
     return True
 

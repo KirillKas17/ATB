@@ -190,7 +190,7 @@ class SpanContext:
     def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None):
         self.name = name
         self.attributes = attributes or {}
-        self.span = None
+        self.span: Optional[Any] = None
 
     def __enter__(self) -> Any:
         if OPENTELEMETRY_AVAILABLE:
@@ -199,13 +199,12 @@ class SpanContext:
 
             # Set attributes
             for key, value in self.attributes.items():
-                if self.span is not None:
-                    self.span.set_attribute(key, str(value))
+                self.span.set_attribute(key, str(value))
 
             # Add request context attributes
             request_context = get_request_context()
             for key, value in request_context.items():
-                if value is not None and self.span is not None:
+                if value is not None:
                     self.span.set_attribute(f"context.{key}", value)
 
         return self.span
@@ -284,7 +283,7 @@ class AsyncSpanContext:
     def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None):
         self.name = name
         self.attributes = attributes or {}
-        self.span = None
+        self.span: Optional[Any] = None
 
     async def __aenter__(self) -> Any:
         if OPENTELEMETRY_AVAILABLE:
@@ -293,13 +292,12 @@ class AsyncSpanContext:
 
             # Set attributes
             for key, value in self.attributes.items():
-                if self.span is not None:
-                    self.span.set_attribute(key, str(value))
+                self.span.set_attribute(key, str(value))
 
             # Add request context attributes
             request_context = get_request_context()
             for key, value in request_context.items():
-                if value is not None and self.span is not None:
+                if value is not None:
                     self.span.set_attribute(f"context.{key}", value)
 
         return self.span

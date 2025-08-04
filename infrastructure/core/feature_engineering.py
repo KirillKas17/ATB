@@ -80,7 +80,7 @@ class FeatureEngineer:
 
     def generate_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Генерация полного набора признаков из рыночных данных.
+        Генерация полного набора признаков из рыночных данных (оптимизировано).
         Args:
             data: DataFrame с OHLCV данными
         Returns:
@@ -91,37 +91,68 @@ class FeatureEngineer:
                 logger.warning("Empty data provided for feature generation")
                 return pd.DataFrame()
             
+            # Кэширование для больших наборов данных
+            cache_key = f"features_{hash(tuple(data['close'].tail(20)))}"
+            if hasattr(self, '_features_cache') and cache_key in self._features_cache:
+                cached_result = self._features_cache[cache_key]
+                logger.info(f"Using cached features: {len(cached_result.columns)} features")
+                return cached_result
+            
+            if not hasattr(self, '_features_cache'):
+                self._features_cache = {}
+            
             features = pd.DataFrame(index=data.index)
             
+            # Пакетное добавление признаков для оптимизации
+            feature_batches = []
+            
             # Базовые признаки
-            features = self._add_basic_features(features, data)
+            batch_features = self._add_basic_features(pd.DataFrame(index=data.index), data)
+            feature_batches.append(batch_features)
             
             # Технические индикаторы
             if self.config.use_technical_indicators:
-                features = self._add_technical_indicators(features, data)
+                batch_features = self._add_technical_indicators(pd.DataFrame(index=data.index), data)
+                feature_batches.append(batch_features)
             
             # Статистические признаки
             if self.config.use_statistical_features:
-                features = self._add_statistical_features(features, data)
+                batch_features = self._add_statistical_features(pd.DataFrame(index=data.index), data)
+                feature_batches.append(batch_features)
             
             # Временные признаки
             if self.config.use_time_features:
-                features = self._add_time_features(features, data)
+                batch_features = self._add_time_features(pd.DataFrame(index=data.index), data)
+                feature_batches.append(batch_features)
             
             # Объемные признаки
             if self.config.use_volume_features:
-                features = self._add_volume_features(features, data)
+                batch_features = self._add_volume_features(pd.DataFrame(index=data.index), data)
+                feature_batches.append(batch_features)
             
             # Паттерны цен
             if self.config.use_price_patterns:
-                features = self._add_price_patterns(features, data)
+                batch_features = self._add_price_patterns(pd.DataFrame(index=data.index), data)
+                feature_batches.append(batch_features)
             
             # Микроструктурные признаки
             if self.config.use_market_microstructure:
-                features = self._add_microstructure_features(features, data)
+                batch_features = self._add_microstructure_features(pd.DataFrame(index=data.index), data)
+                feature_batches.append(batch_features)
+            
+            # Эффективное объединение всех batch'ей
+            features = pd.concat(feature_batches, axis=1)
             
             # Предобработка
             features = self._preprocess_features(features)
+            
+            # Кэширование результата с ограничением размера
+            if len(self._features_cache) > 20:
+                oldest_keys = list(self._features_cache.keys())[:10]
+                for key in oldest_keys:
+                    del self._features_cache[key]
+            
+            self._features_cache[cache_key] = features
             
             # Сохранение имен признаков
             self.feature_names = features.columns.tolist()
@@ -176,12 +207,19 @@ class FeatureEngineer:
             low = data["low"]
             volume = data["volume"]
             
-            # EMA
+            # Векторизованное вычисление EMA для всех периодов одновременно
+            ema_data = {}
             for period in self.config.ema_periods:
-                features[f"ema_{period}"] = close.ewm(span=period).mean()
-                features[f"ema_ratio_{period}"] = close / features[f"ema_{period}"]
+                ema_data[f"ema_{period}"] = close.ewm(span=period).mean()
             
-            # RSI
+            # Добавляем все EMA индикаторы и их отношения в batch режиме
+            for period in self.config.ema_periods:
+                ema_col = f"ema_{period}"
+                features[ema_col] = ema_data[ema_col]
+                features[f"ema_ratio_{period}"] = close / ema_data[ema_col]
+            
+            # Векторизованное вычисление RSI для всех периодов одновременно
+            rsi_data = {}
             for period in self.config.rsi_periods:
                 rsi_result = rsi(close, period)
                 # Безопасное извлечение значений
@@ -189,7 +227,11 @@ class FeatureEngineer:
                     rsi_values = rsi_result()
                 else:
                     rsi_values = rsi_result
-                features[f"rsi_{period}"] = rsi_values
+                rsi_data[f"rsi_{period}"] = rsi_values
+            
+            # Добавляем все RSI индикаторы в batch режиме
+            for period in self.config.rsi_periods:
+                features[f"rsi_{period}"] = rsi_data[f"rsi_{period}"]
             
             # MACD
             macd_result = macd(close, **self.config.macd_params)

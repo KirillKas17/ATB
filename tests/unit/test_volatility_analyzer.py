@@ -4,7 +4,7 @@ Unit тесты для VolatilityAnalyzer.
 анализ паттернов волатильности и прогнозирование изменений волатильности.
 """
 from shared.numpy_utils import np
-import pandas as pd  # type: ignore
+import pandas as pd
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import timedelta

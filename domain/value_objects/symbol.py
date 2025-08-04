@@ -117,6 +117,19 @@ class Symbol(BaseValueObject):
         """Строковое представление."""
         return self.value
     
+    def __eq__(self, other: Any) -> bool:
+        """Сравнение на равенство."""
+        if not isinstance(other, Symbol):
+            return False
+        return (self.value == other.value and 
+                self.base == other.base and 
+                self.quote == other.quote and 
+                self.exchange == other.exchange)
+    
+    def __hash__(self) -> int:
+        """Хеш для использования в словарях и множествах."""
+        return hash((self.value, self.base, self.quote, self.exchange))
+    
     def __repr__(self) -> str:
         """Подробное представление."""
         return f"Symbol(value={self.value}, base={self.base}, quote={self.quote})"

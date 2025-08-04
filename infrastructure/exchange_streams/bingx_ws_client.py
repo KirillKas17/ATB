@@ -12,7 +12,7 @@ try:
     WEBSOCKETS_AVAILABLE = True
 except ImportError:
     WEBSOCKETS_AVAILABLE = False
-    websockets = None  # type: ignore
+    websockets = None
 from loguru import logger
 
 from domain.value_objects.currency import Currency

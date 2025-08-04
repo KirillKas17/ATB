@@ -266,7 +266,7 @@ class MarketStreamAggregator:
                 try:
                     status[source_name]["client_status"] = source.client.get_status()
                 except Exception as e:
-                    status[source_name]["client_status"] = {"error": str(e)}  # type: ignore
+                    status[source_name]["client_status"] = {"error": str(e)}
         return status
 
     def get_aggregator_stats(self) -> Dict[str, Any]:

@@ -99,7 +99,7 @@ def perform_cwt(
     try:
         # Use pywt for CWT instead of scipy.signal.cwt
         coefficients, frequencies = pywt.cwt(data, scales, wavelet)
-        return coefficients
+        return np.asarray(coefficients)
     except Exception as e:
         logger.error(f"Error in CWT: {e}")
         return np.zeros((len(scales), len(data)))
@@ -129,7 +129,7 @@ def wavelet_denoising(
             coeffs_thresh.append(coeff_thresh)
         # Wavelet reconstruction
         denoised = pywt.waverec(coeffs_thresh, wavelet)
-        return denoised[: len(data)]  # Ensure same length
+        return np.asarray(denoised[: len(data)])  # Ensure same length
     except Exception as e:
         logger.error(f"Error in wavelet denoising: {e}")
         return data
@@ -291,8 +291,8 @@ def detect_wavelet_patterns(
                 pattern = {
                     "position": int(peak),
                     "scale": float(scale),
-                    "amplitude": float(np.abs(coeff_row[peak])),
-                    "phase": float(np.angle(coeff_row[peak])),
+                    "amplitude": float(np.abs(coeff_row[peak]).item()),
+                    "phase": float(np.angle(coeff_row[peak]).item()),
                     "type": "wavelet_peak",
                 }
                 patterns.append(pattern)
@@ -498,11 +498,11 @@ def analyze_phase_relationships(phase_matrix: np.ndarray) -> Dict[str, Any]:
         phase_coherence = calculate_phase_coherence(phase_matrix)
         
         return {
-            "mean_phase": float(mean_phase),
-            "phase_stability": float(phase_stability),
+            "mean_phase": float(mean_phase.item() if hasattr(mean_phase, 'item') else mean_phase),
+            "phase_stability": float(phase_stability.item() if hasattr(phase_stability, 'item') else phase_stability),
             "phase_cycles": phase_cycles,
-            "phase_coherence": float(phase_coherence),
-            "synchronization_index": float(np.abs(np.mean(np.exp(1j * phase_matrix))))
+            "phase_coherence": float(phase_coherence.item() if hasattr(phase_coherence, 'item') else phase_coherence),
+            "synchronization_index": float(np.abs(np.mean(np.exp(1j * phase_matrix))).item())
         }
         
     except Exception as e:

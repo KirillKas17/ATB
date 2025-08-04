@@ -89,7 +89,7 @@ class MarketSimulator(BaseMarketSimulator):
         # Инициализируем состояние для символа, если его нет
         if symbol not in self.market_state:
             self.market_state[symbol] = {
-                "current_price": float(self.config.initial_price.value),  # type: ignore
+                "current_price": float(self.config.initial_price.value),
                 "current_volume": 1000.0,
                 "current_regime": MarketRegimeType.UNKNOWN,
                 "volatility": getattr(self.config, 'volatility', 0.02),
@@ -180,7 +180,7 @@ class MarketSimulator(BaseMarketSimulator):
         # Инициализируем состояние для каждого символа
         for symbol in self.config.symbols:
             self.market_state[symbol] = {
-                "current_price": float(self.config.initial_price.value),  # type: ignore
+                "current_price": float(self.config.initial_price.value),
                 "current_volume": 1000.0,
                 "current_regime": MarketRegimeType.SIDEWAYS,
                 "volatility": getattr(self.config, 'volatility', 0.02),
@@ -188,7 +188,7 @@ class MarketSimulator(BaseMarketSimulator):
                 "mean_reversion": getattr(self.config, 'mean_reversion', 0.1),
                 "noise_level": getattr(self.config, 'noise_level', 0.005),
                 "regime_counter": 0.0,
-                "price_history": [float(self.config.initial_price.value)],  # type: ignore
+                "price_history": [float(self.config.initial_price.value)],
                 "volume_history": [1000.0],
                 "regime_history": [MarketRegimeType.SIDEWAYS],
             }
@@ -200,7 +200,7 @@ class MarketSimulator(BaseMarketSimulator):
         """Внутреннее обновление состояния рынка."""
         if symbol not in self.market_state:
             self.market_state[symbol] = {
-                "current_price": float(self.config.initial_price.value),  # type: ignore
+                "current_price": float(self.config.initial_price.value),
                 "current_volume": 1000.0,
                 "current_regime": MarketRegimeType.UNKNOWN,
                 "volatility": getattr(self.config, 'volatility', 0.02),
@@ -246,7 +246,7 @@ class MarketSimulator(BaseMarketSimulator):
             )
         # Применение mean reversion
         if self.market_state[symbol]["current_regime"] == MarketRegimeType.SIDEWAYS:
-            mean_price = float(self.config.initial_price.value)  # type: ignore
+            mean_price = float(self.config.initial_price.value)
             reversion_force = (
                 (mean_price - current_price)
                 * self.market_state[symbol]["mean_reversion"]

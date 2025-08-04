@@ -1288,7 +1288,7 @@ class PostgresPortfolioRepository(PortfolioRepositoryProtocol):
             portfolio_id=row["portfolio_id"],
             trading_pair=trading_pair,
             side=PositionSide(row["side"]),
-            volume=Volume(Decimal(str(row["volume"]))),
+            volume=Volume(Decimal(str(row["volume"])), Currency("USD")),
             entry_price=Price(Decimal(str(row["entry_price"])), Currency("USD")),
             current_price=Price(Decimal(str(row["current_price"])), Currency("USD")),
             created_at=row["created_at"],

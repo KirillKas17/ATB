@@ -6,14 +6,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-import joblib  # type: ignore
+import joblib
 from shared.numpy_utils import np
-import pandas as pd
-import ta  # type: ignore
-import umap  # type: ignore
+from typing import TYPE_CHECKING
+
+import ta
+import umap
 from loguru import logger
-from mlxtend.frequent_patterns import apriori, association_rules  # type: ignore
-from mlxtend.preprocessing import TransactionEncoder  # type: ignore
+from mlxtend.frequent_patterns import apriori, association_rules
+from mlxtend.preprocessing import TransactionEncoder
 from scipy import stats
 from scipy.signal import find_peaks
 from scipy.spatial.distance import cdist
@@ -25,10 +26,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
 from shared.models.ml_metrics import PatternMetrics
+from shared.safe_imports import pd, DataFrame, Series
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+
 
 
 @dataclass
@@ -142,18 +142,11 @@ class PatternDiscovery:
             scaler = StandardScaler()
             # Обработка пропущенных значений
             if isinstance(features, pd.DataFrame):
-                # Для pandas DataFrame используем fillna напрямую
-                if hasattr(features, 'fillna'):
-                    features_filled = features.fillna(0)
-                else:
-                    features_filled = features
+                features_filled = features.fillna(0)
             else:
                 # Для других типов данных создаем DataFrame
                 features_df = pd.DataFrame(features)
-                if hasattr(features_df, 'fillna'):
-                    features_filled = features_df.fillna(0)
-                else:
-                    features_filled = features_df
+                features_filled = features_df.fillna(0)
             features_scaled = pd.DataFrame(
                 scaler.fit_transform(features_filled),
                 columns=features.columns,
@@ -317,13 +310,13 @@ class PatternDiscovery:
         """Поиск паттернов в данных"""
         try:
             results = {}
-            for column, patterns_dict in self.patterns.items():
+            for column, patterns_data in self.patterns.items():
                 if column not in df.columns:
                     continue
                 series = df[column]
                 matches: List[Dict[str, Any]] = []
-                if isinstance(patterns_dict, dict):
-                    for pattern_id, pattern_data in patterns_dict.items():
+                if isinstance(patterns_data, dict):
+                    for pattern_id, pattern_data in patterns_data.items():
                         pattern = np.array(pattern_data["pattern"])
                         pattern_length = len(pattern)
                         for i in range(len(series) - pattern_length + 1):

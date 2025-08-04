@@ -436,7 +436,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         if not self._cache:
             return
         oldest_key = min(self._cache_ttl.keys(), key=lambda k: self._cache_ttl[k])
-        await self.invalidate_cache(oldest_key)  # type: ignore
+        await self.invalidate_cache(oldest_key)
 
     async def _cleanup_cache(self) -> None:
         """Очистить истекшие записи кэша."""
@@ -992,7 +992,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         while True:
             try:
                 await asyncio.sleep(60)  # Каждую минуту
-                await self._cleanup_cache()  # type: ignore
+                await self._cleanup_cache()
                 self._last_cleanup = datetime.now()
             except Exception as e:
                 self.logger.error(f"Background cleanup error: {e}")

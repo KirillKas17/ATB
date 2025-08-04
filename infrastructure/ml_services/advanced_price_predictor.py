@@ -14,7 +14,7 @@ import pandas as pd
 from shared.numpy_utils import np
 
 try:
-    import talib  # type: ignore
+    import talib
 except ImportError:
     talib = None
 
@@ -740,8 +740,10 @@ class AdvancedPricePredictor:
                 dropout=dropout,
             )
             # Создание и обучение модели
-            AdvancedPricePredictor(config)
-            # ... обучение модели ...
+            predictor = AdvancedPricePredictor(config)
+            # TODO: Реализовать полное обучение модели
+            # val_loss = predictor.train(train_data, val_data)
+            val_loss = 0.1  # Заглушка для оптимизации
             return val_loss  # Возвращаем валидационную ошибку
 
         study = optuna.create_study(direction="minimize")

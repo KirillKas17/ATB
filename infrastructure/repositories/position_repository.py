@@ -54,8 +54,10 @@ class InMemoryPositionRepository(PositionRepository):
         self._positions_by_status: Dict[str, List[EntityId]] = defaultdict(list)
         self._positions_by_side: Dict[str, List[EntityId]] = defaultdict(list)
         self._positions_by_portfolio: Dict[PortfolioId, List[EntityId]] = defaultdict(list)
-        self._cache: Dict[Union[UUID, str], Any] = {}
+        self._cache: Dict[Union[UUID, str], Position] = {}
+        self._list_cache: Dict[str, List[Position]] = {}
         self._cache_ttl: Dict[Union[UUID, str], datetime] = {}
+        self._list_cache_ttl: Dict[str, datetime] = {}
         self._cache_max_size = 1000
         self._cache_ttl_seconds = 300
         self._metrics = {
@@ -96,7 +98,7 @@ class InMemoryPositionRepository(PositionRepository):
         cached = await self.get_from_cache(str(entity_id))
         if cached:
             self._metrics["cache_hits"] = int(str(self._metrics.get("cache_hits", 0))) + 1
-            return cached  # type: ignore
+            return cached
         self._metrics["cache_misses"] = int(str(self._metrics.get("cache_misses", 0))) + 1
         position = self._positions.get(entity_id)
         if position:
@@ -109,16 +111,16 @@ class InMemoryPositionRepository(PositionRepository):
         """Получить позиции по торговой паре с оптимизацией."""
         symbol = str(trading_pair)
         cache_key = f"positions_by_pair:{symbol}:{open_only}"
-        cached = await self.get_from_cache(cache_key)
+        cached = await self.get_from_list_cache(cache_key)
         if cached:
-            return cached  # type: ignore
+            return cached
         entity_ids = self._positions_by_trading_pair.get(symbol, [])
         positions = [
             self._positions[eid] for eid in entity_ids if eid in self._positions
         ]
         if open_only:
             positions = [p for p in positions if p.is_open]
-        await self.set_cache(cache_key, positions, 60)
+        await self.set_list_cache(cache_key, positions, 60)
         return positions
 
     async def get_open_positions(
@@ -126,9 +128,9 @@ class InMemoryPositionRepository(PositionRepository):
     ) -> List[Position]:
         """Получить открытые позиции с аналитикой."""
         cache_key = f"open_positions:{str(trading_pair) if trading_pair else 'all'}"
-        cached = await self.get_from_cache(str(cache_key))
+        cached = await self.get_from_list_cache(cache_key)
         if cached:
-            return cached  # type: ignore
+            return cached
         entity_ids = self._positions_by_status.get("open", [])
         positions = [
             self._positions[eid] for eid in entity_ids if eid in self._positions
@@ -139,7 +141,7 @@ class InMemoryPositionRepository(PositionRepository):
         # Аналитика позиций
         for position in positions:
             await self._analyze_position_risk(position)
-        await self.set_cache(str(cache_key), positions, 30)
+        await self.set_list_cache(cache_key, positions, 30)
         return positions
 
     async def get_closed_positions(
@@ -425,7 +427,7 @@ class InMemoryPositionRepository(PositionRepository):
         if position.calculate_unrealized_pnl().value < -1000:  # Пример порога
             self.logger.warning(f"High risk position detected: {position.id}")
 
-    async def get_from_cache(self, key: Union[UUID, str]) -> Optional[Any]:
+    async def get_from_cache(self, key: Union[UUID, str]) -> Optional[Position]:
         """Получить данные из кэша."""
         if key in self._cache:
             if datetime.now() < self._cache_ttl.get(key, datetime.max):
@@ -435,7 +437,7 @@ class InMemoryPositionRepository(PositionRepository):
                 del self._cache_ttl[key]
         return None
 
-    async def set_cache(self, key: Union[UUID, str], value: Any, ttl: Optional[int] = None) -> None:
+    async def set_cache(self, key: Union[UUID, str], value: Position, ttl: Optional[int] = None) -> None:
         """Установить данные в кэш."""
         if ttl is None:
             ttl = self._cache_ttl_seconds
@@ -448,12 +450,41 @@ class InMemoryPositionRepository(PositionRepository):
         self._cache[key] = value
         self._cache_ttl[key] = datetime.now() + timedelta(seconds=ttl)
 
+    async def get_from_list_cache(self, key: str) -> Optional[List[Position]]:
+        """Получить список позиций из кэша."""
+        if key in self._list_cache:
+            if datetime.now() < self._list_cache_ttl.get(key, datetime.max):
+                return self._list_cache[key]
+            else:
+                del self._list_cache[key]
+                del self._list_cache_ttl[key]
+        return None
+
+    async def set_list_cache(self, key: str, value: List[Position], ttl: Optional[int] = None) -> None:
+        """Установить список позиций в кэш."""
+        if ttl is None:
+            ttl = self._cache_ttl_seconds
+        if len(self._list_cache) >= self._cache_max_size:
+            # Удаляем старые записи
+            oldest_key = min(self._list_cache_ttl.keys(), key=lambda k: self._list_cache_ttl[k])
+            del self._list_cache[oldest_key]
+            del self._list_cache_ttl[oldest_key]
+        
+        self._list_cache[key] = value
+        self._list_cache_ttl[key] = datetime.now() + timedelta(seconds=ttl)
+
     async def invalidate_cache(self, key: Union[UUID, str]) -> None:
         """Инвалидировать кэш по ключу."""
         if key in self._cache:
             del self._cache[key]
         if key in self._cache_ttl:
             del self._cache_ttl[key]
+        # Также проверяем списковый кэш
+        str_key = str(key)
+        if str_key in self._list_cache:
+            del self._list_cache[str_key]
+        if str_key in self._list_cache_ttl:
+            del self._list_cache_ttl[str_key]
 
     async def _background_cleanup(self) -> None:
         """Фоновая очистка кэша."""
@@ -568,7 +599,7 @@ class PostgresPositionRepository(PositionRepository):
             id=PositionId(UUID(row["id"])),
             symbol=Symbol(row["symbol"]),
             side=PositionSide(row["side"]),
-            quantity=Volume(Decimal(str(row["quantity"]))),
+            quantity=Volume(Decimal(str(row["quantity"])), Currency.USD),
             entry_price=Price(Decimal(str(row["entry_price"])), Currency.USD),
             current_price=Price(Decimal(str(row["current_price"])), Currency.USD),
             entry_time=row["entry_time"],

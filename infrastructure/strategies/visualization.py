@@ -3,7 +3,7 @@
 import pandas as pd
 from shared.numpy_utils import np
 import matplotlib.pyplot as plt
-import seaborn as sns  # type: ignore
+import seaborn as sns
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union

@@ -190,7 +190,7 @@ class TestMarketDataProcessor:
         if callable(data_with_anomaly):
             data_with_anomaly: pd.DataFrame = data_with_anomaly()  # type: ignore[no-redef]
         if hasattr(data_with_anomaly, 'loc') and hasattr(data_with_anomaly.index, '__getitem__') and len(data_with_anomaly.index) > 500:
-            data_with_anomaly.loc[data_with_anomaly.index[500], 'close'] = 100000  # type: ignore
+            data_with_anomaly.loc[data_with_anomaly.index[500], 'close'] = 100000
         # Обнаружение аномалий
         anomalies = market_data_processor.detect_market_anomalies(data_with_anomaly)
         # Проверки
@@ -293,8 +293,8 @@ class TestMarketDataProcessor:
         if callable(dirty_data):
             dirty_data = dirty_data()
         if hasattr(dirty_data, 'loc') and hasattr(dirty_data.index, '__getitem__') and len(dirty_data.index) > 1:
-            dirty_data.loc[dirty_data.index[0], 'close'] = np.nan  # type: ignore
-            dirty_data.loc[dirty_data.index[1], 'volume'] = -1000  # type: ignore
+            dirty_data.loc[dirty_data.index[0], 'close'] = np.nan
+            dirty_data.loc[dirty_data.index[1], 'volume'] = -1000
         # Очистка данных
         cleaned_data = market_data_processor.clean_market_data(dirty_data)
         # Проверки
@@ -302,8 +302,8 @@ class TestMarketDataProcessor:
         assert isinstance(cleaned_data, pd.DataFrame)
         assert len(cleaned_data) <= len(dirty_data)
         # Проверка, что нет некорректных значений
-        assert not cleaned_data.isna().any().any()  # type: ignore
-        assert (cleaned_data['volume'] >= 0).all()  # type: ignore
+        assert not cleaned_data.isna().any().any()
+        assert (cleaned_data['volume'] >= 0).all()
     def test_resample_market_data(self, market_data_processor: MarketDataProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест передискретизации рыночных данных."""
         # Передискретизация данных
@@ -349,7 +349,7 @@ class TestMarketDataProcessor:
         if callable(data_with_nan):
             data_with_nan = data_with_nan()
         if hasattr(data_with_nan, 'loc') and hasattr(data_with_nan.index, '__getitem__') and len(data_with_nan.index) > 1:
-            data_with_nan.loc[data_with_nan.index[1], 'close'] = np.nan  # type: ignore
+            data_with_nan.loc[data_with_nan.index[1], 'close'] = np.nan
         # Функции должны обрабатывать NaN значения
         cleaned_data = market_data_processor.clean_market_data(data_with_nan)
         assert len(cleaned_data) <= len(data_with_nan)

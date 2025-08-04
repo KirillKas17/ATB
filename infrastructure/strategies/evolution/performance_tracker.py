@@ -71,7 +71,7 @@ class PerformanceTracker:
             performances = [float(p["performance"]) if p["performance"] is not None else 0.0 for p in recent_performance]
             # Расчет тренда
             x = np.arange(len(performances))
-            slope = np.polyfit(x, performances, 1)[0]
+            slope = np.polyfit(x, np.array(performances), 1)[0]
             # Расчет волатильности
             volatility = np.std(performances)
             # Средняя производительность
@@ -111,7 +111,7 @@ class PerformanceTracker:
                     }
                 )
             # Сортировка по средней производительности
-            rankings.sort(key=lambda x: float(x["avg_performance"]) if x["avg_performance"] is not None else 0.0, reverse=True)
+            rankings.sort(key=lambda x: float(x["avg_performance"]) if x["avg_performance"] is not None and isinstance(x["avg_performance"], (int, float, str)) else 0.0, reverse=True)
             return rankings
         except Exception as e:
             logger.error(f"Error getting strategy ranking: {str(e)}")

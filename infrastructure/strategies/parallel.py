@@ -171,7 +171,7 @@ class ParallelProcessor:
             return best_result["params"]
         except Exception as e:
             logger.error(f"Error processing with optimization: {str(e)}")
-            return {}  # type: ignore
+            return {}
 
     def _evaluate_params(
         self, strategy: BaseStrategy, data: pd.DataFrame, params: Dict[str, Any]

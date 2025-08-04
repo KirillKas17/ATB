@@ -603,7 +603,7 @@ class TestMomentumAnalysis:
         with pytest.raises(ValueError, match="Momentum loss must be numeric"):
             MomentumAnalysis(
                 timestamp=timestamp,
-                momentum_loss="invalid",  # type: ignore
+                momentum_loss="invalid",
                 velocity_change=0.1,
                 acceleration=0.05,
                 volume_momentum=0.3,
@@ -618,7 +618,7 @@ class TestMomentumAnalysis:
             MomentumAnalysis(
                 timestamp=timestamp,
                 momentum_loss=0.2,
-                velocity_change="invalid",  # type: ignore
+                velocity_change="invalid",
                 acceleration=0.05,
                 volume_momentum=0.3,
                 price_momentum=0.15
@@ -970,7 +970,7 @@ class TestReversalSignal:
     def test_add_divergence_signal_invalid_type(self, sample_signal: ReversalSignal) -> None:
         """Тест добавления сигнала дивергенции с неверным типом."""
         with pytest.raises(TypeError, match="Expected DivergenceSignal"):
-            sample_signal.add_divergence_signal("invalid")  # type: ignore
+            sample_signal.add_divergence_signal("invalid")
 
     def test_add_candlestick_pattern(self, sample_signal: ReversalSignal) -> None:
         """Тест добавления свечного паттерна."""
@@ -992,7 +992,7 @@ class TestReversalSignal:
     def test_add_candlestick_pattern_invalid_type(self, sample_signal: ReversalSignal) -> None:
         """Тест добавления свечного паттерна с неверным типом."""
         with pytest.raises(TypeError, match="Expected CandlestickPattern"):
-            sample_signal.add_candlestick_pattern("invalid")  # type: ignore
+            sample_signal.add_candlestick_pattern("invalid")
 
     def test_update_momentum_analysis(self, sample_signal: ReversalSignal) -> None:
         """Тест обновления анализа импульса."""
@@ -1013,7 +1013,7 @@ class TestReversalSignal:
     def test_update_momentum_analysis_invalid_type(self, sample_signal: ReversalSignal) -> None:
         """Тест обновления анализа импульса с неверным типом."""
         with pytest.raises(TypeError, match="Expected MomentumAnalysis"):
-            sample_signal.update_momentum_analysis("invalid")  # type: ignore
+            sample_signal.update_momentum_analysis("invalid")
 
     def test_update_mean_reversion_band(self, sample_signal: ReversalSignal) -> None:
         """Тест обновления полосы возврата к среднему."""
@@ -1039,7 +1039,7 @@ class TestReversalSignal:
     def test_update_mean_reversion_band_invalid_type(self, sample_signal: ReversalSignal) -> None:
         """Тест обновления полосы возврата к среднему с неверным типом."""
         with pytest.raises(TypeError, match="Expected MeanReversionBand"):
-            sample_signal.update_mean_reversion_band("invalid")  # type: ignore
+            sample_signal.update_mean_reversion_band("invalid")
 
     def test_to_dict(self, sample_signal: ReversalSignal) -> None:
         """Тест преобразования в словарь."""

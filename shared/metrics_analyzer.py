@@ -483,7 +483,8 @@ class MetricsAnalyzer:
                     )
             df = pd.DataFrame(all_data)
             if hasattr(df, 'to_csv'):
-                return df.to_csv(index=False)
+                csv_result = df.to_csv(index=False)
+                return str(csv_result) if csv_result is not None else ""
             else:
                 # Альтернативный способ экспорта
                 import csv

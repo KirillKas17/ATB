@@ -119,10 +119,10 @@ class WindowModelTrainer:
                 if callable(df_dataframe):
                     df_dataframe = df_dataframe()
                 if hasattr(df_dataframe, 'iloc'):
-                    df = df_dataframe.iloc[:self.config.max_samples]  # type: ignore
+                    df = df_dataframe.iloc[:self.config.max_samples]
                 else:
                     # Альтернативный способ обрезки данных
-                    df = df_dataframe.head(self.config.max_samples)  # type: ignore
+                    df = df_dataframe.head(self.config.max_samples)
 
             X = df.drop(columns=["optimal_window"])
             y = df["optimal_window"]

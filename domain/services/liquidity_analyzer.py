@@ -7,15 +7,18 @@ import pandas as pd
 from pandas import Interval
 
 from domain.types.service_types import (
-    LiquidityAnalysisResult, LiquiditySweep, LiquidityZone,
+    LiquidityAnalysisResult, LiquiditySweep, LiquidityZone, LiquidityScore, LiquidityZoneType,
     TimestampValue, PriceValue, SweepType, ConfidenceLevel, VolumeValue
 )
+from decimal import Decimal
+from datetime import datetime
 
 
-class LiquidityZoneType:
-    SUPPORT = "support"
-    RESISTANCE = "resistance"
-    NEUTRAL = "neutral"
+# Используем LiquidityZoneType из domain.types.service_types
+# class LiquidityZoneType:
+#     SUPPORT = "support"
+#     RESISTANCE = "resistance"
+#     NEUTRAL = "neutral"
 
 
 class ILiquidityAnalyzer(ABC):
@@ -49,6 +52,9 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
             "lookback_period": 100,
         }
         self.logger = logging.getLogger(__name__)
+        # Кэши для оптимизации производительности
+        self._volume_levels_cache: Dict[str, List[Dict[str, Any]]] = {}
+        self._price_levels_cache: Dict[str, List[Dict[str, Any]]] = {}
 
     async def analyze_liquidity(
         self, market_data: pd.DataFrame, order_book: Dict[str, Any]
@@ -56,7 +62,15 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
         """Анализирует ликвидность на основе рыночных данных и ордербука"""
         try:
             if len(market_data) == 0:
-                return LiquidityAnalysisResult(liquidity_score=0.0, confidence=0.0)
+                return LiquidityAnalysisResult(
+                    liquidity_score=LiquidityScore(Decimal("0.0")),
+                    confidence=ConfidenceLevel(Decimal("0.0")),
+                    volume_score=0.0,
+                    order_book_score=0.0,
+                    volatility_score=0.0,
+                    zones=[],
+                    sweeps=[]
+                )
             # Анализ объема
             volume_analysis = self._analyze_volume_profile(market_data)
             # Анализ дисбаланса в ордербуке
@@ -71,15 +85,25 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
             )
             confidence = min(liquidity_score, 1.0)
             return LiquidityAnalysisResult(
-                liquidity_score=liquidity_score,
-                confidence=confidence,
+                liquidity_score=LiquidityScore(Decimal(str(liquidity_score))),
+                confidence=ConfidenceLevel(Decimal(str(confidence))),
                 volume_score=volume_analysis["volume_score"],
                 order_book_score=order_book_analysis["order_book_score"],
                 volatility_score=volatility_analysis["volatility_score"],
+                zones=[],  # TODO: реализовать создание зон ликвидности
+                sweeps=[]  # TODO: реализовать обнаружение ликвидных всплесков
             )
         except Exception as e:
             self.logger.error(f"Error analyzing liquidity: {str(e)}")
-            return LiquidityAnalysisResult(liquidity_score=0.0, confidence=0.0)
+            return LiquidityAnalysisResult(
+                liquidity_score=LiquidityScore(Decimal("0.0")),
+                confidence=ConfidenceLevel(Decimal("0.0")),
+                volume_score=0.0,
+                order_book_score=0.0,
+                volatility_score=0.0,
+                zones=[],
+                sweeps=[]
+            )
 
     async def identify_liquidity_zones(
         self, market_data: pd.DataFrame
@@ -100,11 +124,13 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
                 strength = self._calculate_zone_strength(level, market_data)
                 zones.append(
                     LiquidityZone(
-                        price=level["price"],
-                        type=zone_type,
+                        price=PriceValue(Decimal(str(level["price"]))),
+                        zone_type=zone_type,
                         strength=strength,
-                        volume=level.get("volume", 0),
+                        volume=VolumeValue(Decimal(str(level.get("volume", 0)))),
                         touches=level.get("touches", 0),
+                        timestamp=TimestampValue(datetime.now()),
+                        confidence=ConfidenceLevel(Decimal(str(strength)))
                     )
                 )
             return zones
@@ -133,10 +159,10 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
                     sweeps.append(
                         LiquiditySweep(
                             timestamp=TimestampValue(candle.name),
-                            price=PriceValue(float(candle["high"]) if hasattr(candle, "__getitem__") else 0.0),
+                            price=PriceValue(Decimal(str(float(candle["high"]) if hasattr(candle, "__getitem__") else 0.0))),
                             sweep_type=SweepType("sweep_high"),
-                            confidence=ConfidenceLevel(self._calculate_sweep_confidence(candle, "high")),
-                            volume=VolumeValue(0.0)
+                            confidence=ConfidenceLevel(Decimal(str(self._calculate_sweep_confidence(candle, "high")))),
+                            volume=VolumeValue(Decimal("0.0"))
                         )
                     )
                 # Проверка на sweep ниже
@@ -144,10 +170,10 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
                     sweeps.append(
                         LiquiditySweep(
                             timestamp=TimestampValue(candle.name),
-                            price=PriceValue(float(candle["low"]) if hasattr(candle, "__getitem__") else 0.0),
+                            price=PriceValue(Decimal(str(float(candle["low"]) if hasattr(candle, "__getitem__") else 0.0))),
                             sweep_type=SweepType("sweep_low"),
-                            confidence=ConfidenceLevel(self._calculate_sweep_confidence(candle, "low")),
-                            volume=VolumeValue(0.0)
+                            confidence=ConfidenceLevel(Decimal(str(self._calculate_sweep_confidence(candle, "low")))),
+                            volume=VolumeValue(Decimal("0.0"))
                         )
                     )
             return sweeps
@@ -204,15 +230,24 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
             return {"volatility_score": 0.0}
 
     def _find_volume_levels(self, market_data: pd.DataFrame) -> List[Dict[str, Any]]:
-        """Находит уровни на основе объема"""
+        """Находит уровни на основе объема (оптимизировано)"""
         levels: List[Dict[str, Any]] = []
         if "volume" not in market_data.columns or "close" not in market_data.columns:
             return levels
-        # Группировка по ценовым уровням
+        
+        # Кэширование для повторных вычислений
+        cache_key = f"volume_levels_{hash(tuple(market_data['close'].tail(10)))}"
+        if hasattr(self, '_volume_levels_cache') and cache_key in self._volume_levels_cache:
+            return self._volume_levels_cache[cache_key]
+        
+        if not hasattr(self, '_volume_levels_cache'):
+            self._volume_levels_cache = {}
+        
+        # Оптимизированная группировка по ценовым уровням
         price_bins = pd.cut(market_data["close"], bins=50)
-        volume_by_price = market_data.groupby(price_bins)["volume"].sum()
-        # Находим пики объема
-        threshold = float(volume_by_price.quantile(0.8))
+        volume_by_price = market_data.groupby(price_bins, observed=True)["volume"].sum()
+        # Векторизованное нахождение пиков объема
+        threshold = volume_by_price.quantile(0.8)
         high_volume_levels = volume_by_price[volume_by_price > threshold]
         for level, volume in high_volume_levels.items():
             try:
@@ -241,16 +276,35 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
             except (ValueError, TypeError, AttributeError):
                 # Если не удается привести к float или получить атрибуты, пропускаем
                 continue
+        
+        # Кэшируем результат с ограничением размера кэша
+        if len(self._volume_levels_cache) > 50:
+            oldest_keys = list(self._volume_levels_cache.keys())[:25]
+            for key in oldest_keys:
+                del self._volume_levels_cache[key]
+        
+        self._volume_levels_cache[cache_key] = levels
         return levels
 
     def _find_price_levels(self, market_data: pd.DataFrame) -> List[Dict[str, Any]]:
-        """Находит уровни на основе цен"""
+        """Находит уровни на основе цен (оптимизировано)"""
         levels: List[Dict[str, Any]] = []
         if "close" not in market_data.columns:
             return levels
-        # Находим локальные максимумы и минимумы
-        highs = market_data["high"].rolling(window=5, center=True).max()
-        lows = market_data["low"].rolling(window=5, center=True).min()
+        
+        # Кэширование для оптимизации
+        cache_key = f"price_levels_{hash(tuple(market_data['high'].tail(10)))}"
+        if hasattr(self, '_price_levels_cache') and cache_key in self._price_levels_cache:
+            return self._price_levels_cache[cache_key]
+        
+        if not hasattr(self, '_price_levels_cache'):
+            self._price_levels_cache = {}
+        
+        # Векторизованное нахождение локальных экстремумов
+        rolling_high = market_data["high"].rolling(window=5, center=True)
+        rolling_low = market_data["low"].rolling(window=5, center=True)
+        highs = rolling_high.max()
+        lows = rolling_low.min()
         # Группируем близкие уровни
         unique_highs = highs.dropna().unique()
         unique_lows = lows.dropna().unique()
@@ -270,11 +324,19 @@ class LiquidityAnalyzer(ILiquidityAnalyzer):
                     "touches": len(market_data[market_data["low"] <= low * 1.01]),
                 }
             )
+        
+        # Кэшируем результат с ограничением размера кэша
+        if len(self._price_levels_cache) > 50:
+            oldest_keys = list(self._price_levels_cache.keys())[:25]
+            for key in oldest_keys:
+                del self._price_levels_cache[key]
+        
+        self._price_levels_cache[cache_key] = levels
         return levels
 
     def _classify_zone_type(
         self, level: Dict[str, Any], market_data: pd.DataFrame
-    ) -> str:
+    ) -> LiquidityZoneType:
         """Классифицирует тип зоны"""
         current_price = market_data["close"].iloc[-1]
         level_price = level["price"]

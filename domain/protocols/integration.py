@@ -666,6 +666,26 @@ class IntegrationTestStrategyProtocol(StrategyProtocol):
     async def validate_strategy_integrity(self, strategy_id: StrategyId) -> bool:
         return True
 
+    def _calculate_max_drawdown(self, returns: List[float]) -> float:
+        """Вычисление максимальной просадки."""
+        return 0.05
+
+    def _calculate_profit_factor(self, trades: List[Dict[str, Any]]) -> float:
+        """Вычисление коэффициента прибыльности."""
+        return 1.5
+
+    def _calculate_sharpe_ratio(self, returns: List[float], risk_free_rate: float = 0.02) -> float:
+        """Вычисление коэффициента Шарпа."""
+        return 1.0
+
+    def _calculate_win_rate(self, trades: List[Dict[str, Any]]) -> float:
+        """Вычисление процента прибыльных сделок."""
+        return 0.6
+
+    def _validate_market_data(self, data: pd.DataFrame) -> bool:
+        """Валидация рыночных данных."""
+        return not data.empty
+
 
 class IntegrationTestRepositoryProtocol(RepositoryProtocol):
     """Тестовая реализация протокола репозитория для интеграционных тестов."""

@@ -3,7 +3,7 @@
 """
 
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 
 class StrategyError(Exception):
@@ -15,6 +15,7 @@ class StrategyError(Exception):
         strategy_id: Optional[str] = None,
         strategy_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
+        context: Optional[Dict[str, Any]] = None,
     ):
         """
         Инициализация исключения.
@@ -24,13 +25,25 @@ class StrategyError(Exception):
             strategy_id: ID стратегии
             strategy_name: Имя стратегии
             details: Дополнительные детали ошибки
+            context: Контекст ошибки (alias для details)
         """
         super().__init__(message)
         self.message = message
         self.strategy_id = strategy_id
         self.strategy_name = strategy_name
-        self.details = details or {}
+        # Поддерживаем и details, и context для совместимости
+        self.details = details or context or {}
         self.timestamp = None  # Будет установлено при логировании
+    
+    @property
+    def context(self) -> Dict[str, Any]:
+        """Alias для details для совместимости с тестами."""
+        return self.details
+    
+    @context.setter
+    def context(self, value: Dict[str, Any]) -> None:
+        """Setter для context."""
+        self.details = value
 
     def __str__(self) -> str:
         """Строковое представление исключения."""
@@ -676,7 +689,7 @@ class StrategyParameterError(StrategyError):
 # Функции-помощники для создания исключений
 def create_strategy_error(error_type: str, message: str, **kwargs: Any) -> StrategyError:
     """Создать исключение стратегии по типу."""
-    error_map = {
+    error_map: Dict[str, Type[StrategyError]] = {
         "creation": StrategyCreationError,
         "validation": StrategyValidationError,
         "execution": StrategyExecutionError,
@@ -698,7 +711,7 @@ def create_strategy_error(error_type: str, message: str, **kwargs: Any) -> Strat
     }
 
     error_class = error_map.get(error_type, StrategyError)
-    return error_class(message, **kwargs)  # type: ignore
+    return error_class(message, **kwargs)
 
 
 def is_strategy_error(exception: Exception) -> bool:

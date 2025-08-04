@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 import pandas as pd
 from loguru import logger
+from shared.numpy_utils import np
 
 from domain.advanced_analysis.advanced_prediction_engine import (
     AdvancedPredictionEngine,

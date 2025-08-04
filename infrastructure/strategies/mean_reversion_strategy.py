@@ -251,9 +251,9 @@ class MeanReversionStrategy(BaseStrategy):
         try:
             volume = data["volume"].iloc[-1]
             volume = float(volume) if volume is not None and not pd.isna(volume) else 0.0
-            depth = (data["ask_volume"] + data["bid_volume"]).iloc[-1]  # type: ignore
+            depth = (data["ask_volume"] + data["bid_volume"]).iloc[-1]
             depth = float(depth) if depth is not None and not pd.isna(depth) else 0.0
-            volume_spread = abs(data["ask_volume"] - data["bid_volume"]).iloc[-1]  # type: ignore
+            volume_spread = abs(data["ask_volume"] - data["bid_volume"]).iloc[-1]
             volume_spread = float(volume_spread) if volume_spread is not None and not pd.isna(volume_spread) else 0.0
             return {"volume": volume, "depth": depth, "volume_spread": volume_spread}
         except Exception as e:
@@ -275,18 +275,18 @@ class MeanReversionStrategy(BaseStrategy):
             std = data["close"].rolling(window=self._config.std_period).std()
             # Расчет Z-оценки
             z_score = (data["close"] - mean) / std
-            current_z_score = z_score.iloc[-1] if hasattr(z_score, "iloc") else z_score[-1]  # type: ignore
+            current_z_score = z_score.iloc[-1] if hasattr(z_score, "iloc") else z_score[-1]
             # Расчет силы возврата
             reversion_strength = abs(current_z_score) / z_score.std() if z_score.std() > 0 else 0.0
             # Расчет направления возврата
             reversion_direction = "up" if current_z_score < 0 else "down"
             # Расчет скорости возврата
-            reversion_speed = abs(z_score.diff().iloc[-1]) if len(z_score) > 1 else 0.0  # type: ignore
+            reversion_speed = abs(z_score.diff().iloc[-1]) if len(z_score) > 1 else 0.0
             # Расчет количества периодов отклонения
             deviation_periods = self._calculate_deviation_periods(z_score)
-            current_z_score = z_score.iloc[-1] if hasattr(z_score, "iloc") else z_score[-1]  # type: ignore
-            current_mean = mean.iloc[-1] if hasattr(mean, "iloc") else mean[-1]  # type: ignore
-            current_std = std.iloc[-1] if hasattr(std, "iloc") else std[-1]  # type: ignore
+            current_z_score = z_score.iloc[-1] if hasattr(z_score, "iloc") else z_score[-1]
+            current_mean = mean.iloc[-1] if hasattr(mean, "iloc") else mean[-1]
+            current_std = std.iloc[-1] if hasattr(std, "iloc") else std[-1]
             
             return {
                 "z_score": float(current_z_score) if current_z_score is not None and not pd.isna(current_z_score) else 0.0,
@@ -294,7 +294,7 @@ class MeanReversionStrategy(BaseStrategy):
                 "std": float(current_std) if current_std is not None and not pd.isna(current_std) else 0.0,
                 "strength": float(reversion_strength) if reversion_strength is not None and not pd.isna(reversion_strength) else 0.0,
                 "direction": reversion_direction,
-                "speed": float(reversion_speed) if reversion_speed is not None and not pd.isna(reversion_speed) else 0.0,  # type: ignore
+                "speed": float(reversion_speed) if reversion_speed is not None and not pd.isna(reversion_speed) else 0.0,
                 "deviation_periods": deviation_periods,
             }
         except Exception as e:
@@ -310,7 +310,7 @@ class MeanReversionStrategy(BaseStrategy):
             int: Количество периодов отклонения
         """
         try:
-            current_z = z_score.iloc[-1] if hasattr(z_score, "iloc") else z_score[-1]  # type: ignore
+            current_z = z_score.iloc[-1] if hasattr(z_score, "iloc") else z_score[-1]
             if pd.isna(current_z):
                 return 0
             periods = 0
@@ -441,7 +441,7 @@ class MeanReversionStrategy(BaseStrategy):
             slope = (ma - ma.shift(1)) / ma.shift(1)
             # Расчет силы тренда
             trend_strength = abs(slope).mean()
-            current_slope = slope.iloc[-1] if hasattr(slope, "iloc") else slope[-1]  # type: ignore
+            current_slope = slope.iloc[-1] if hasattr(slope, "iloc") else slope[-1]
             # Определение направления тренда
             trend_direction = "up" if current_slope > 0 else "down"
             return {
@@ -540,7 +540,7 @@ class MeanReversionStrategy(BaseStrategy):
             Optional[Signal] с сигналом или None
         """
         try:
-            current_price = data["close"].iloc[-1] if len(data["close"]) > 0 else 0.0  # type: ignore
+            current_price = data["close"].iloc[-1] if len(data["close"]) > 0 else 0.0
             current_price = float(current_price) if current_price is not None and not pd.isna(current_price) else 0.0
             if current_price <= 0:
                 return None
@@ -818,7 +818,7 @@ class MeanReversionStrategy(BaseStrategy):
             # Базовый размер позиции
             volatility_series = adaptive_params.get("volatility")
             if isinstance(volatility_series, pd.Series) and len(volatility_series) > 0:
-                volatility = volatility_series.iloc[-1] if hasattr(volatility_series, "iloc") else volatility_series[-1]  # type: ignore
+                volatility = volatility_series.iloc[-1] if hasattr(volatility_series, "iloc") else volatility_series[-1]
                 volatility = float(volatility) if volatility is not None and not pd.isna(volatility) else 0.0
             else:
                 volatility = 0.0
@@ -827,7 +827,7 @@ class MeanReversionStrategy(BaseStrategy):
             # Корректировка на Z-score
             z_score_series = adaptive_params.get("z_score")
             if isinstance(z_score_series, pd.Series) and len(z_score_series) > 0:
-                z_score = z_score_series.iloc[-1] if hasattr(z_score_series, "iloc") else z_score_series[-1]  # type: ignore
+                z_score = z_score_series.iloc[-1] if hasattr(z_score_series, "iloc") else z_score_series[-1]
                 z_score = float(z_score) if z_score is not None and not pd.isna(z_score) else 0.0
                 position_size *= 1 - abs(z_score) / 3.0
             # Корректировка на волатильность

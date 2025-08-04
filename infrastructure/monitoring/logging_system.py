@@ -17,7 +17,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Generator, List, Optional
 
 from loguru import logger
 
@@ -131,7 +131,7 @@ class StructuredLogger(LoggerProtocol):
                 context.extra[key] = value
 
     @contextmanager
-    def context(self, **kwargs: Any):
+    def context(self, **kwargs: Any) -> Generator[None, None, None]:
         """
         Контекстный менеджер для временного контекста.
         Args:
@@ -253,7 +253,7 @@ class StructuredLogger(LoggerProtocol):
             self.stats["warning_count"] += 1
 
     @contextmanager
-    def trace_operation(self, operation: str, **kwargs: Any):
+    def trace_operation(self, operation: str, **kwargs: Any) -> Generator[str, None, None]:
         """
         Трейсинг операции.
         Args:
@@ -378,7 +378,7 @@ def setup_logging(config: Dict[str, Any]) -> None:
     _global_logger = StructuredLogger(config)
 
     # Добавляем обработчик для отправки в систему мониторинга
-    def monitoring_handler(log_entry: LogEntry):
+    def monitoring_handler(log_entry: LogEntry) -> None:
         # Здесь можно добавить отправку в систему мониторинга
         pass
 

@@ -63,7 +63,7 @@ class MemorySymbolCache:
         """Сохранение профиля в кэш."""
         try:
             if not isinstance(profile, SymbolProfile):
-                raise ValidationError("Profile must be a SymbolProfile instance")
+                raise ValidationError("value", "", "validation", "Profile must be a SymbolProfile instance")
             cache_ttl = ttl or self.default_ttl
             entry = CacheEntry(data=profile, timestamp=datetime.now(), ttl=cache_ttl)
             self.cache[symbol] = entry

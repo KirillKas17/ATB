@@ -32,7 +32,7 @@ class MarketController:
         if self._market_service is None:
             # Создаем заглушку для MarketService, так как он требует репозиторий
             # В реальной реализации здесь должна быть правильная инициализация
-            self._market_service = MarketService(None, None)  # type: ignore
+            self._market_service = MarketService(None, None)
         return self._market_service
 
     async def get_ticker(self, symbol: str) -> Dict[str, Any]:

@@ -45,31 +45,31 @@ class SymbolDataValidator:
         """Валидация OHLCV данных."""
         try:
             if not isinstance(data, pd.DataFrame):
-                raise ValidationError("Market data must be a pandas DataFrame")
+                raise ValidationError("value", "", "validation", "Market data must be a pandas DataFrame")
             # Проверка обязательных колонок
             required_columns = ["open", "high", "low", "close", "volume"]
             missing_columns = [
                 col for col in required_columns if col not in data.columns
             ]
             if missing_columns:
-                raise ValidationError(f"Missing required columns: {missing_columns}")
+                raise ValidationError("value", "", "format", f"Missing required columns: {missing_columns}")
             # Проверка на пустые данные
             if len(data) == 0:
                 raise DataInsufficientError("Market data is empty")
             # Проверка на отрицательные значения
             for col in ["open", "high", "low", "close", "volume"]:
                 if (data[col] < 0).any():
-                    raise ValidationError(f"Negative values found in {col} column")
+                    raise ValidationError("value", "", "format", f"Negative values found in {col} column")
             # Проверка логики OHLC
             invalid_high = (data["high"] < data[["open", "close"]].max(axis=1)).any()
             invalid_low = (data["low"] > data[["open", "close"]].min(axis=1)).any()
             if invalid_high:
-                raise ValidationError("High price cannot be lower than open or close")
+                raise ValidationError("value", "", "validation", "High price cannot be lower than open or close")
             if invalid_low:
-                raise ValidationError("Low price cannot be higher than open or close")
+                raise ValidationError("value", "", "validation", "Low price cannot be higher than open or close")
             # Проверка на NaN значения
             if data[required_columns].isnull().any().any():
-                raise ValidationError("NaN values found in OHLCV data")
+                raise ValidationError("value", "", "validation", "NaN values found in OHLCV data")
             # Проверка минимального количества данных
             if len(data) < 20:
                 raise DataInsufficientError(
@@ -84,17 +84,17 @@ class SymbolDataValidator:
         """Валидация стакана заявок."""
         try:
             if not isinstance(order_book, dict):
-                raise ValidationError("Order book must be a dictionary")
+                raise ValidationError("value", "", "validation", "Order book must be a dictionary")
             # Проверка обязательных ключей
             required_keys = ["bids", "asks"]
             missing_keys = [key for key in required_keys if key not in order_book]
             if missing_keys:
-                raise ValidationError(f"Missing required keys: {missing_keys}")
+                raise ValidationError("value", "", "format", f"Missing required keys: {missing_keys}")
             bids = order_book.get("bids", [])
             asks = order_book.get("asks", [])
             # Проверка типов данных
             if not isinstance(bids, list) or not isinstance(asks, list):
-                raise ValidationError("Bids and asks must be lists")
+                raise ValidationError("value", "", "validation", "Bids and asks must be lists")
             # Проверка структуры данных
             for bid in bids:
                 if not isinstance(bid, (list, tuple)) or len(bid) < 2:
@@ -104,9 +104,9 @@ class SymbolDataValidator:
                 if not isinstance(bid[0], (int, float)) or not isinstance(
                     bid[1], (int, float)
                 ):
-                    raise ValidationError("Bid price and volume must be numbers")
+                    raise ValidationError("value", "", "validation", "Bid price and volume must be numbers")
                 if bid[0] <= 0 or bid[1] <= 0:
-                    raise ValidationError("Bid price and volume must be positive")
+                    raise ValidationError("value", "", "validation", "Bid price and volume must be positive")
             for ask in asks:
                 if not isinstance(ask, (list, tuple)) or len(ask) < 2:
                     raise ValidationError(
@@ -115,9 +115,9 @@ class SymbolDataValidator:
                 if not isinstance(ask[0], (int, float)) or not isinstance(
                     ask[1], (int, float)
                 ):
-                    raise ValidationError("Ask price and volume must be numbers")
+                    raise ValidationError("value", "", "validation", "Ask price and volume must be numbers")
                 if ask[0] <= 0 or ask[1] <= 0:
-                    raise ValidationError("Ask price and volume must be positive")
+                    raise ValidationError("value", "", "validation", "Ask price and volume must be positive")
             # Проверка логики стакана
             if bids and asks:
                 best_bid = max(bid[0] for bid in bids)
@@ -130,11 +130,11 @@ class SymbolDataValidator:
             if len(bids) > 1:
                 bid_prices = [bid[0] for bid in bids]
                 if bid_prices != sorted(bid_prices, reverse=True):
-                    raise ValidationError("Bids must be sorted in descending order")
+                    raise ValidationError("value", "", "validation", "Bids must be sorted in descending order")
             if len(asks) > 1:
                 ask_prices = [ask[0] for ask in asks]
                 if ask_prices != sorted(ask_prices):
-                    raise ValidationError("Asks must be sorted in ascending order")
+                    raise ValidationError("value", "", "validation", "Asks must be sorted in ascending order")
             return True
         except Exception as e:
             self.logger.error(f"Error validating order book: {e}")
@@ -146,11 +146,11 @@ class SymbolDataValidator:
             if pattern_memory is None:
                 return True  # Паттерны могут отсутствовать
             if not isinstance(pattern_memory, dict):
-                raise ValidationError("Pattern memory must be a dictionary")
+                raise ValidationError("value", "", "validation", "Pattern memory must be a dictionary")
             # Проверка структуры данных для каждого символа
             for symbol, patterns in pattern_memory.items():
                 if not isinstance(symbol, str):
-                    raise ValidationError("Symbol keys must be strings")
+                    raise ValidationError("value", "", "validation", "Symbol keys must be strings")
                 if not isinstance(patterns, dict):
                     raise ValidationError(
                         f"Pattern data for {symbol} must be a dictionary"
@@ -161,7 +161,7 @@ class SymbolDataValidator:
                     if field in patterns:
                         value = patterns[field]
                         if not isinstance(value, (int, float)):
-                            raise ValidationError(f"Field {field} must be a number")
+                            raise ValidationError("value", "", "format", f"Field {field} must be a number")
                         if not 0.0 <= value <= 1.0:
                             raise ValidationError(
                                 f"Field {field} must be between 0.0 and 1.0"
@@ -177,14 +177,14 @@ class SymbolDataValidator:
             if session_data is None:
                 return True  # Данные сессии могут отсутствовать
             if not isinstance(session_data, dict):
-                raise ValidationError("Session data must be a dictionary")
+                raise ValidationError("value", "", "validation", "Session data must be a dictionary")
             # Проверка обязательных полей
             required_fields = ["alignment", "activity", "volatility"]
             for field in required_fields:
                 if field in session_data:
                     value = session_data[field]
                     if not isinstance(value, (int, float)):
-                        raise ValidationError(f"Field {field} must be a number")
+                        raise ValidationError("value", "", "format", f"Field {field} must be a number")
                     if not 0.0 <= value <= 1.0:
                         raise ValidationError(
                             f"Field {field} must be between 0.0 and 1.0"
@@ -198,9 +198,9 @@ class SymbolDataValidator:
         """Валидация торгового символа."""
         try:
             if not isinstance(symbol, str):
-                raise ValidationError("Symbol must be a string")
+                raise ValidationError("value", "", "validation", "Symbol must be a string")
             if not symbol.strip():
-                raise ValidationError("Symbol cannot be empty")
+                raise ValidationError("value", "", "validation", "Symbol cannot be empty")
             # Проверка формата символа (базовая проверка)
             if len(symbol) < 3 or len(symbol) > 20:
                 raise ValidationError(
@@ -209,7 +209,7 @@ class SymbolDataValidator:
             # Проверка на допустимые символы
             allowed_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/")
             if not all(c in allowed_chars for c in symbol.upper()):
-                raise ValidationError("Symbol contains invalid characters")
+                raise ValidationError("value", "", "validation", "Symbol contains invalid characters")
             return True
         except Exception as e:
             self.logger.error(f"Error validating symbol: {e}")
@@ -219,16 +219,16 @@ class SymbolDataValidator:
         """Валидация конфигурации."""
         try:
             if not isinstance(config, dict):
-                raise ValidationError("Configuration must be a dictionary")
+                raise ValidationError("value", "", "validation", "Configuration must be a dictionary")
             # Проверка обязательных параметров
             required_params = ["min_volume_threshold", "max_spread_threshold"]
             for param in required_params:
                 if param in config:
                     value = config[param]
                     if not isinstance(value, (int, float)):
-                        raise ValidationError(f"Parameter {param} must be a number")
+                        raise ValidationError("value", "", "format", f"Parameter {param} must be a number")
                     if value <= 0:
-                        raise ValidationError(f"Parameter {param} must be positive")
+                        raise ValidationError("value", "", "format", f"Parameter {param} must be positive")
             # Проверка весов (если есть)
             weight_params = [
                 "alpha1_liquidity_score",
@@ -241,7 +241,7 @@ class SymbolDataValidator:
             weights = [config.get(param, 0.0) for param in weight_params]
             total_weight = sum(weights)
             if abs(total_weight - 1.0) > 1e-6:
-                raise ValidationError(f"Weights must sum to 1.0, got {total_weight}")
+                raise ValidationError("value", "", "format", f"Weights must sum to 1.0, got {total_weight}")
             return True
         except Exception as e:
             self.logger.error(f"Error validating configuration: {e}")

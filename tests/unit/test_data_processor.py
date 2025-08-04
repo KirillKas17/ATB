@@ -60,7 +60,7 @@ class TestDataProcessor:
         assert isinstance(cleaned_data, pd.DataFrame)
         assert len(cleaned_data) <= len(sample_dirty_data)
         # Проверка, что NaN значения обработаны
-        assert not cleaned_data.isna().all().any()  # type: ignore
+        assert not cleaned_data.isna().all().any()
         # Проверка, что данные не пустые
         assert len(cleaned_data) > 0
     def test_remove_duplicates(self, data_processor: DataProcessor, sample_market_data: pd.DataFrame) -> None:
@@ -91,7 +91,7 @@ class TestDataProcessor:
         assert isinstance(processed_data, pd.DataFrame)
         assert len(processed_data) == len(sample_dirty_data)
         # Проверка, что нет пропущенных значений
-        assert not processed_data.isna().any().any()  # type: ignore
+        assert not processed_data.isna().any().any()
     def test_remove_outliers(self, data_processor: DataProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест удаления выбросов."""
         # Добавление выбросов
@@ -185,10 +185,10 @@ class TestDataProcessor:
         assert len(returns) == len(sample_market_data)
         # Проверка, что первое значение NaN (нет предыдущего значения)
         if len(returns) > 0:
-            assert pd.isna(returns.iloc[0])  # type: ignore
+            assert pd.isna(returns.iloc[0])
         # Проверка, что остальные значения не NaN
         if len(returns) > 1:
-            assert not returns.iloc[1:].isna().all()  # type: ignore
+            assert not returns.iloc[1:].isna().all()
     def test_calculate_volatility(self, data_processor: DataProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест расчета волатильности."""
         # Расчет волатильности
@@ -288,7 +288,7 @@ class TestDataProcessor:
         assert isinstance(interpolated_data, pd.DataFrame)
         assert len(interpolated_data) == len(sample_dirty_data)
         # Проверка, что нет пропущенных значений
-        assert not interpolated_data.isna().any().any()  # type: ignore
+        assert not interpolated_data.isna().any().any()
     @pytest.mark.asyncio
     async def test_smooth_data(self, data_processor: DataProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест сглаживания данных."""
@@ -374,10 +374,10 @@ class TestDataProcessor:
             data_processor.cleanup()
         # Проверка, что ресурсы освобождены (если есть соответствующие атрибуты)
         if hasattr(data_processor, 'data_cleaners'):
-            assert data_processor.data_cleaners == {}  # type: ignore
+            assert data_processor.data_cleaners == {}
         if hasattr(data_processor, 'data_normalizers'):
-            assert data_processor.data_normalizers == {}  # type: ignore
+            assert data_processor.data_normalizers == {}
         if hasattr(data_processor, 'data_filters'):
-            assert data_processor.data_filters == {}  # type: ignore
+            assert data_processor.data_filters == {}
         if hasattr(data_processor, 'data_aggregators'):
             assert data_processor.data_aggregators == {}  # type: ignore 

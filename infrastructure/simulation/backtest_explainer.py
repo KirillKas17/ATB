@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from shared.numpy_utils import np
 import pandas as pd
 # from pandas import crosstab  # Исправлено: убираем неиспользуемый импорт
-import psutil  # type: ignore
-import seaborn as sns  # type: ignore
+import psutil
+import seaborn as sns
 import yaml
 from loguru import logger
 

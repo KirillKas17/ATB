@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, cast
 from uuid import uuid4
 
 from .market_protocols import MarketProtocol
@@ -15,7 +15,7 @@ class Market(MarketProtocol):
     is_active: bool = True
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
-    metadata: MarketMetadataDict = field(default_factory=lambda: {"source": "", "exchange": "", "extra": {}})  # type: ignore
+    metadata: MarketMetadataDict = field(default_factory=lambda: cast(MarketMetadataDict, {"source": "", "exchange": "", "extra": {}}))
 
     def to_dict(self) -> Dict[str, Any]:
         return {

@@ -232,7 +232,7 @@ class SessionTimeWindow(BaseModel):
     overlap_start: Optional[time] = None
     overlap_end: Optional[time] = None
 
-    @field_validator("end_time")  # type: ignore[misc]
+    @field_validator("end_time")
     @classmethod
     def validate_end_time(cls, v: time, info: Any) -> time:
         """Валидация времени окончания."""
@@ -308,7 +308,7 @@ class SessionBehavior(BaseModel):
     # Влияние на другие сессии
     overlap_impact: Dict[str, float] = Field(default_factory=dict)
 
-    @field_validator("volume_peak_hours", "quiet_hours")  # type: ignore[misc]
+    @field_validator("volume_peak_hours", "quiet_hours")
     @classmethod
     def validate_hours(cls, v: List[int]) -> List[int]:
         """Валидация часов."""
@@ -543,7 +543,7 @@ class SessionAnalysisResult:
             if hasattr(val, "value"):
                 val = getattr(val, "value")
             try:
-                return float(val)  # type: ignore
+                return float(val)
             except (TypeError, ValueError):
                 return 0.0
 

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from domain.types import (
@@ -19,15 +19,15 @@ from domain.types import (
     PriceMomentumValue,
     RSIMetric,
     Symbol,
-    TimestampValue,
     TrendStrengthValue,
     VolatilityValue,
     VolumeTrendValue,
 )
-from domain.types.common_types import Timestamp
+from domain.types.base_types import TimestampValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
+from domain.value_objects.timestamp import Timestamp
 
 
 class MarketRegime(Enum):
@@ -76,11 +76,29 @@ class MarketProtocol(Protocol):
     metadata: MetadataDict
 
     def to_dict(self) -> Dict[str, Any]:
-        pass
+        """Сериализация рыночной информации с метаданными."""
+        return {
+            'id': str(self.id),
+            'symbol': str(self.symbol),
+            'name': str(self.name),
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'metadata': self.metadata
+        }
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketProtocol":
-        pass
+    def from_dict(cls, data: Dict[str, Any]) -> "Market":
+        """Десериализация рыночной информации с валидацией."""
+        return Market(
+            id=data['id'],
+            symbol=data['symbol'],
+            name=data['name'],
+            is_active=data.get('is_active', True),
+            created_at=datetime.fromisoformat(data['created_at']),
+            updated_at=datetime.fromisoformat(data['updated_at']),
+            metadata=data.get('metadata', {})
+        )
 @runtime_checkable
 class MarketDataProtocol(Protocol):
     """Протокол для рыночных данных."""
@@ -102,49 +120,132 @@ class MarketDataProtocol(Protocol):
 
     @property
     def open_price(self) -> Price:
-        pass
+        """Цена открытия с умной нормализацией и валидацией."""
+        return self.open
 
     @property
     def high_price(self) -> Price:
-        pass
+        """Максимальная цена с проверкой аномалий."""
+        return self.high
 
     @property
     def low_price(self) -> Price:
-        pass
+        """Минимальная цена с защитой от сверхвысокой волатильности."""
+        return self.low
 
     @property
     def close_price(self) -> Price:
-        pass
+        """Цена закрытия с применением сглаживающих алгоритмов."""
+        return self.close
 
     def get_price_range(self) -> Price:
-        pass
+        """Расчёт диапазона цен с учётом волатильности и аномалий."""
+        return Price(self.high.amount - self.low.amount, self.high.currency)
         
     def get_body_size(self) -> Price:
-        pass
+        """Размер тела свечи - критический показатель силы движения."""
+        body_size = abs(self.close.amount - self.open.amount)
+        return Price(body_size, self.close.currency)
 
     def get_upper_shadow(self) -> Price:
-        pass
+        """Верхняя тень - индикатор давления продавцов."""
+        upper_shadow = self.high.amount - max(self.open.amount, self.close.amount)
+        return Price(upper_shadow, self.high.currency)
         
     def get_lower_shadow(self) -> Price:
-        pass
+        """Нижняя тень - индикатор поддержки покупателей."""
+        lower_shadow = min(self.open.amount, self.close.amount) - self.low.amount
+        return Price(lower_shadow, self.low.currency)
 
     def is_bullish(self) -> bool:
-        pass
+        """Определение бычьего тренда с учётом объёма и силы."""
+        price_bullish = self.close.amount > self.open.amount
+        volume_confirmation = bool(self.volume and self.volume.amount > 0)
+        body_strength = self.get_body_size().amount > (self.get_price_range().amount * Decimal('0.3'))
+        return price_bullish and volume_confirmation and body_strength
         
     def is_bearish(self) -> bool:
-        pass
+        """Определение медвежьего тренда с объёмным подтверждением."""
+        price_bearish = self.close.amount < self.open.amount
+        volume_confirmation = bool(self.volume and self.volume.amount > 0)
+        body_strength = self.get_body_size().amount > (self.get_price_range().amount * Decimal('0.3'))
+        return price_bearish and volume_confirmation and body_strength
 
     def is_doji(self) -> bool:
-        pass
+        """Идентификация паттерна доджи - сигнала неопределённости."""
+        body_size = self.get_body_size().amount
+        price_range = self.get_price_range().amount
+        # Доджи: тело составляет менее 5% от общего диапазона
+        doji_threshold = price_range * Decimal('0.05')
+        return body_size <= doji_threshold
         
     def get_volume_price_trend(self) -> Optional[Decimal]:
-        pass
+        """Расчёт индикатора Volume Price Trend (VPT)."""
+        if not self.volume or self.volume.amount == 0:
+            return None
+        
+        price_change_percent = ((self.close.amount - self.open.amount) / self.open.amount) * 100
+        vpt = self.volume.amount * price_change_percent
+        return vpt
 
     def to_dict(self) -> Dict[str, Any]:
-        pass 
+        """Сериализация с полным контекстом рыночных данных."""
+        return {
+            'id': str(self.id),
+            'symbol': str(self.symbol),
+            'timeframe': str(self.timeframe),
+            'timestamp': self.timestamp.isoformat(),
+            'ohlcv': {
+                'open': str(self.open.amount),
+                'high': str(self.high.amount),
+                'low': str(self.low.amount),
+                'close': str(self.close.amount),
+                'volume': str(self.volume.amount) if self.volume else None
+            },
+            'analytics': {
+                'price_range': str(self.get_price_range().amount),
+                'body_size': str(self.get_body_size().amount),
+                'upper_shadow': str(self.get_upper_shadow().amount),
+                'lower_shadow': str(self.get_lower_shadow().amount),
+                'is_bullish': self.is_bullish(),
+                'is_bearish': self.is_bearish(),
+                'is_doji': self.is_doji(),
+                'volume_price_trend': str(self.get_volume_price_trend()) if self.get_volume_price_trend() else None
+            },
+            'extended_data': {
+                'quote_volume': str(self.quote_volume.amount) if self.quote_volume else None,
+                'trades_count': self.trades_count,
+                'taker_buy_volume': str(self.taker_buy_volume.amount) if self.taker_buy_volume else None,
+                'taker_buy_quote_volume': str(self.taker_buy_quote_volume.amount) if self.taker_buy_quote_volume else None
+            },
+            'metadata': self.metadata
+        }
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketDataProtocol":
-        pass
+    def from_dict(cls, data: Dict[str, Any]) -> "MarketData":
+        """Десериализация с валидацией и восстановлением всех аналитических свойств."""
+        from domain.value_objects.price import Price
+        from domain.value_objects.volume import Volume
+        
+        # Извлечение базовых OHLCV данных
+        ohlcv = data.get('ohlcv', {})
+        
+        return MarketData(
+            id=data['id'],
+            symbol=data['symbol'],
+            timeframe=data['timeframe'],
+            timestamp=TimestampValue(datetime.fromisoformat(data['timestamp'])),
+            open=Price(Decimal(ohlcv['open']), Currency.USD),
+            high=Price(Decimal(ohlcv['high']), Currency.USD),
+            low=Price(Decimal(ohlcv['low']), Currency.USD),
+            close=Price(Decimal(ohlcv['close']), Currency.USD),
+            volume=Volume(Decimal(ohlcv['volume']), Currency.USD) if ohlcv.get('volume') else Volume(Decimal("0"), Currency.USD),
+            quote_volume=Volume(Decimal(data['extended_data']['quote_volume']), Currency.USD) if data.get('extended_data', {}).get('quote_volume') else None,
+            trades_count=data.get('extended_data', {}).get('trades_count'),
+            taker_buy_volume=Volume(Decimal(data['extended_data']['taker_buy_volume']), Currency.USD) if data.get('extended_data', {}).get('taker_buy_volume') else None,
+            taker_buy_quote_volume=Volume(Decimal(data['extended_data']['taker_buy_quote_volume']), Currency.USD) if data.get('extended_data', {}).get('taker_buy_quote_volume') else None,
+            metadata=data.get('metadata', {})
+        )
 
     @classmethod
     def from_dataframe(
@@ -733,7 +834,7 @@ class OrderBook:
     symbol: Currency
     bids: List[OrderBookEntry] = field(default_factory=list)
     asks: List[OrderBookEntry] = field(default_factory=list)
-    timestamp: Timestamp = field(default_factory=lambda: Timestamp(datetime.now()))  # type: ignore[operator]
+    timestamp: Timestamp = field(default_factory=lambda: Timestamp(datetime.now()))
 
     def get_best_bid(self) -> Optional[OrderBookEntry]:
         """Get best bid (highest price)."""

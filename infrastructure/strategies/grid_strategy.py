@@ -187,7 +187,7 @@ class GridStrategy(BaseStrategy):
             # Расчет волатильности как стандартного отклонения доходности
             returns = data["close"].pct_change()
             volatility = returns.std()
-            return float(volatility) if volatility is not None and not pd.isna(volatility) else 0.0  # type: ignore
+            return float(volatility) if volatility is not None and not pd.isna(volatility) else 0.0
         except Exception as e:
             logger.error(f"Error calculating volatility: {str(e)}")
             return 0.0
@@ -203,7 +203,7 @@ class GridStrategy(BaseStrategy):
         try:
             # Расчет спреда как разницы между ценами
             spread = (data["ask"] - data["bid"]).iloc[-1]
-            return float(spread) if spread is not None and not pd.isna(spread) else 0.0  # type: ignore
+            return float(spread) if spread is not None and not pd.isna(spread) else 0.0
         except Exception as e:
             logger.error(f"Error calculating spread: {str(e)}")
             return 0.0
@@ -224,9 +224,9 @@ class GridStrategy(BaseStrategy):
             # Расчет спреда объема
             volume_spread = abs(data["ask_volume"] - data["bid_volume"]).iloc[-1]
             return {
-                "volume": float(volume) if volume is not None and not pd.isna(volume) else 0.0,  # type: ignore
-                "depth": float(depth) if depth is not None and not pd.isna(depth) else 0.0,  # type: ignore
-                "volume_spread": float(volume_spread) if volume_spread is not None and not pd.isna(volume_spread) else 0.0  # type: ignore
+                "volume": float(volume) if volume is not None and not pd.isna(volume) else 0.0,
+                "depth": float(depth) if depth is not None and not pd.isna(depth) else 0.0,
+                "volume_spread": float(volume_spread) if volume_spread is not None and not pd.isna(volume_spread) else 0.0
             }
         except Exception as e:
             logger.error(f"Error analyzing liquidity: {str(e)}")
