@@ -97,7 +97,12 @@ class TradingVisualizer:
                 axes[1].grid(True)
             # Bollinger Bands
             if "bb_upper" in indicators and "bb_lower" in indicators and indicators["bb_upper"] is not None and indicators["bb_lower"] is not None:
-                close_data = data['close'] if isinstance(data, dict) else data.get('close', data)
+                if isinstance(data, dict):
+                    close_data = data['close']
+                elif hasattr(data, 'get'):
+                    close_data = data.get('close', data)
+                else:
+                    close_data = data
                 bb_upper_series = indicators["bb_upper"]
                 bb_lower_series = indicators["bb_lower"]
                 
