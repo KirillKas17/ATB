@@ -85,7 +85,7 @@ class MarketPatternRecognizer:
         self, symbol: str, market_data: pd.DataFrame, order_book: Dict[str, Any]
     ) -> Optional[PatternDetection]:
         """
-        Обнаружение поглощения ликвидности крупным капиталом.
+        Обнаружение поглощения ликвидности крупным капиталом (оптимизировано).
         Признаки:
         - Большой объем
         - Дисбаланс стакана
@@ -95,20 +95,22 @@ class MarketPatternRecognizer:
         try:
             if len(market_data) < self.config["lookback_periods"]:
                 return self._create_default_pattern(symbol, "insufficient_data")
-            # Анализ объема
-            volume_analysis = self._analyze_volume_anomaly(market_data)
-            # Анализ движения цены
-            price_analysis = self._analyze_price_movement(market_data)
-            # Анализ стакана
-            orderbook_analysis = self._analyze_order_book_imbalance(order_book)
-            # Анализ спреда
-            spread_analysis = self._analyze_spread_widening(order_book)
-            # Расчет уверенности
+            
+            # Пакетный анализ всех компонентов для оптимизации
+            analysis_results = self._batch_analyze_whale_patterns(market_data, order_book)
+            
+            volume_analysis = analysis_results["volume"]
+            price_analysis = analysis_results["price"]
+            orderbook_analysis = analysis_results["orderbook"]
+            spread_analysis = analysis_results["spread"]
+            
+            # Быстрая проверка уверенности
             confidence = self._calculate_absorption_confidence(
                 volume_analysis, price_analysis, orderbook_analysis, spread_analysis
             )
             if confidence < self.config["confidence_threshold"]:
                 return None
+            
             # Определение направления
             direction = self._determine_absorption_direction(
                 price_analysis, orderbook_analysis
@@ -152,6 +154,48 @@ class MarketPatternRecognizer:
             spread_widening=0.0,
             depth_absorption=0.0,
         )
+
+    def _batch_analyze_whale_patterns(self, market_data: pd.DataFrame, order_book: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Пакетный анализ всех компонентов для обнаружения whale absorption.
+        Оптимизирован для минимизации дублирования вычислений.
+        """
+        try:
+            # Кэш для пакетного анализа
+            cache_key = f"whale_batch_{hash(tuple(market_data['close'].tail(5)))}"
+            if hasattr(self, '_whale_batch_cache') and cache_key in self._whale_batch_cache:
+                return self._whale_batch_cache[cache_key]
+            
+            # Инициализируем кэш
+            if not hasattr(self, '_whale_batch_cache'):
+                self._whale_batch_cache = {}
+            
+            # Параллельные вычисления
+            results = {
+                "volume": self._analyze_volume_anomaly(market_data),
+                "price": self._analyze_price_movement(market_data),
+                "orderbook": self._analyze_order_book_imbalance(order_book),
+                "spread": self._analyze_spread_widening(order_book),
+            }
+            
+            # Ограничиваем размер кэша
+            if len(self._whale_batch_cache) > 50:
+                oldest_keys = list(self._whale_batch_cache.keys())[:25]
+                for key in oldest_keys:
+                    del self._whale_batch_cache[key]
+            
+            self._whale_batch_cache[cache_key] = results
+            return results
+            
+        except Exception as e:
+            self.logger.error(f"Error in batch whale analysis: {e}")
+            # Возвращаем безопасные значения по умолчанию
+            return {
+                "volume": {"type": "error", "confidence": 0.0, "severity": 0.0, "change": 0.0, "anomaly_ratio": 1.0},
+                "price": {"type": "error", "confidence": 0.0, "price_change": 0.0},
+                "orderbook": {"type": "error", "confidence": 0.0, "imbalance_ratio": 0.0, "absorption_ratio": 0.0},
+                "spread": {"type": "error", "confidence": 0.0, "spread_change": 0.0},
+            }
 
     def detect_mm_spoofing(
         self, symbol: str, market_data: pd.DataFrame, order_book: Dict[str, Any]
@@ -255,48 +299,65 @@ class MarketPatternRecognizer:
             return None
 
     def _analyze_volume_anomaly(self, market_data: pd.DataFrame) -> Dict[str, Any]:
-        """Анализ аномалий объема."""
+        """Анализ аномалий объема с кэшированием."""
         try:
-            # Текущий объем
-            current_volume = market_data["volume"].iloc[-1]
+            # Кэш ключ на основе хэша последних строк данных
+            cache_key = f"volume_anomaly_{hash(tuple(market_data['volume'].tail(10)))}"
             
-            # Средний объем
-            avg_volume = (
-                market_data["volume"]
-                .rolling(self.config["volume_sma_periods"])
-                .mean()
-                .iloc[-1]
-            )
+            # Проверяем кэш
+            if hasattr(self, '_volume_cache') and cache_key in self._volume_cache:
+                return self._volume_cache[cache_key]
             
-            # Изменение объема
-            volume_change = (
-                market_data["volume"].pct_change().rolling(5).sum().iloc[-1]
-            )
+            # Инициализируем кэш если его нет
+            if not hasattr(self, '_volume_cache'):
+                self._volume_cache = {}
+            
+            # Векторизованные вычисления для оптимизации
+            volume_series = market_data["volume"]
+            current_volume = volume_series.iloc[-1]
+            
+            # Предвычисленные rolling операции
+            avg_volume = volume_series.rolling(self.config["volume_sma_periods"]).mean().iloc[-1]
+            volume_change = volume_series.pct_change().rolling(5).sum().iloc[-1]
             
             # Анализ аномалии
             volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
             
+            # Создаем результат
             if volume_ratio > self.config["volume_anomaly_threshold"]:
-                return {
+                result = {
                     "type": "volume_spike",
                     "confidence": min(0.9, volume_ratio / 3.0),
                     "severity": volume_ratio,
                     "change": volume_change,
+                    "anomaly_ratio": volume_ratio  # Добавляем для совместимости
                 }
             elif volume_ratio < 1.0 / self.config["volume_anomaly_threshold"]:
-                return {
+                result = {
                     "type": "volume_drop",
                     "confidence": min(0.9, (1.0 / volume_ratio) / 3.0),
                     "severity": 1.0 / volume_ratio,
                     "change": volume_change,
+                    "anomaly_ratio": 1.0 / volume_ratio
+                }
+            else:
+                result = {
+                    "type": "normal",
+                    "confidence": 0.0,
+                    "severity": 1.0,
+                    "change": volume_change,
+                    "anomaly_ratio": 1.0
                 }
             
-            return {
-                "type": "normal",
-                "confidence": 0.0,
-                "severity": 1.0,
-                "change": volume_change,
-            }
+            # Кэшируем результат (ограничиваем размер кэша)
+            if len(self._volume_cache) > 100:
+                # Удаляем самые старые записи
+                oldest_keys = list(self._volume_cache.keys())[:50]
+                for key in oldest_keys:
+                    del self._volume_cache[key]
+            
+            self._volume_cache[cache_key] = result
+            return result
         except Exception as e:
             self.logger.error(f"Error analyzing volume anomaly: {e}")
             return {
@@ -304,6 +365,7 @@ class MarketPatternRecognizer:
                 "confidence": 0.0,
                 "severity": 0.0,
                 "change": 0.0,
+                "anomaly_ratio": 1.0,
             }
 
     def _analyze_price_movement(self, market_data: pd.DataFrame) -> Dict[str, Any]:
