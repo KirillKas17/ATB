@@ -31,6 +31,8 @@ from domain.market.liquidity_gravity import (
     OrderBookSnapshot
 )
 from domain.value_objects.timestamp import Timestamp
+from domain.value_objects.price import Price
+from domain.value_objects.volume import Volume
 from shared.models.example_types import (
     LiquidityGravitySignal,
     ExampleResult,
@@ -199,20 +201,21 @@ class OrderBookSimulator:
         for i in range(10):
             price = base_price * (1 - (i + 1) * 0.001)
             volume = np.random.uniform(0.1, 2.0)
-            bids.append((price, volume))
+            bids.append((Price(Decimal(str(price))), Volume(Decimal(str(volume)))))
         
         # Создаем аски (продавцы)
         asks = []
         for i in range(10):
             price = base_price * (1 + (i + 1) * 0.001)
             volume = np.random.uniform(0.1, 2.0)
-            asks.append((price, volume))
+            asks.append((Price(Decimal(str(price))), Volume(Decimal(str(volume)))))
         
         return OrderBookSnapshot(
+            exchange="example",
             symbol=symbol,
             bids=bids,
             asks=asks,
-            timestamp=datetime.now()
+            timestamp=Timestamp(datetime.now())
         )
     
     def generate_high_gravity_order_book(self, symbol: str) -> OrderBookSnapshot:
@@ -224,19 +227,20 @@ class OrderBookSimulator:
         for i in range(5):
             price = base_price * (1 - (i + 1) * 0.0001)  # Очень близко к цене
             volume = np.random.uniform(5.0, 20.0)  # Большие объемы
-            bids.append((price, volume))
+            bids.append((Price(Decimal(str(price))), Volume(Decimal(str(volume)))))
         
         asks = []
         for i in range(5):
             price = base_price * (1 + (i + 1) * 0.0001)  # Очень близко к цене
             volume = np.random.uniform(5.0, 20.0)  # Большие объемы
-            asks.append((price, volume))
+            asks.append((Price(Decimal(str(price))), Volume(Decimal(str(volume)))))
         
         return OrderBookSnapshot(
+            exchange="example",
             symbol=symbol,
             bids=bids,
             asks=asks,
-            timestamp=datetime.now()
+            timestamp=Timestamp(datetime.now())
         )
     
     def generate_stress_test_order_book(self, symbol: str) -> OrderBookSnapshot:
@@ -252,7 +256,7 @@ class OrderBookSimulator:
             else:  # Остальные - маленькие объемы
                 price = base_price * (1 - (i + 1) * 0.002)
                 volume = np.random.uniform(0.01, 0.1)
-            bids.append((price, volume))
+            bids.append((Price(Decimal(str(price))), Volume(Decimal(str(volume)))))
         
         asks = []
         for i in range(10):
@@ -262,13 +266,14 @@ class OrderBookSimulator:
             else:  # Остальные - маленькие объемы
                 price = base_price * (1 + (i + 1) * 0.002)
                 volume = np.random.uniform(0.01, 0.1)
-            asks.append((price, volume))
+            asks.append((Price(Decimal(str(price))), Volume(Decimal(str(volume)))))
         
         return OrderBookSnapshot(
+            exchange="example",
             symbol=symbol,
             bids=bids,
             asks=asks,
-            timestamp=datetime.now()
+            timestamp=Timestamp(datetime.now())
         )
 
 
@@ -309,8 +314,8 @@ class LiquidityGravityExample(BaseExample):
             extreme_risk_count = sum(1 for s in scenarios if s.get("risk_level") == "extreme")
             
             # Расчет метрик
-            avg_gravity = np.mean([s.get("gravity_score", 0) for s in scenarios])
-            avg_spread_impact = np.mean([s.get("spread_impact", 0) for s in scenarios])
+            avg_gravity = Decimal(str(np.mean([s.get("gravity_score", 0) for s in scenarios]) or 0))
+            avg_spread_impact = Decimal(str(np.mean([s.get("spread_impact", 0) for s in scenarios]) or 0))
             
             duration = time.time() - start_time
             
@@ -516,7 +521,7 @@ def test_edge_cases() -> None:
         symbol="BTC/USDT",
         bids=[],
         asks=[],
-        timestamp=datetime.now()
+        timestamp=Timestamp(datetime.now())
     )
     
     analyzer = LiquidityAnalyzer()

@@ -191,8 +191,15 @@ class SessionManager:
         if timestamp is None:
             timestamp = Timestamp.now()
         context = self.session_marker.get_session_context(timestamp).to_dict()
-        # Приводим к ожидаемому типу
-        return {k: v for k, v in context.items() if isinstance(v, (str, float, int))}
+        # Приводим к ожидаемому типу с преобразованием
+        filtered_context: Dict[str, Union[str, float, int]] = {}
+        for k, v in context.items():
+            if isinstance(v, (str, float, int)):
+                filtered_context[k] = v
+            elif v is not None:
+                # Попытаемся преобразовать в строку если не None
+                filtered_context[k] = str(v)
+        return filtered_context
 
     def get_session_profile(
         self, session_type: SessionType
@@ -256,8 +263,15 @@ class SessionManager:
                 stats = self.data_repository.get_session_statistics(
                     session_type, lookback_days
                 )
-                # Приводим к ожидаемому типу
-                return {k: v for k, v in stats.items() if isinstance(v, (str, float, int))}
+                # Приводим к ожидаемому типу с преобразованием
+                filtered_stats: Dict[str, Union[str, float, int]] = {}
+                for k, v in stats.items():
+                    if isinstance(v, (str, float, int)):
+                        filtered_stats[k] = v
+                    elif v is not None:
+                        # Попытаемся преобразовать в строку если не None
+                        filtered_stats[k] = str(v)
+                return filtered_stats
             return {}
         except Exception as e:
             logger.error(
@@ -281,13 +295,11 @@ class SessionManager:
                 if isinstance(v, (str, float, int, bool)) or v is None:
                     result[k] = v
             
-            result.update(
-                {
-                    "success_rate": self.state.get_success_rate(),
-                    "cache_hit_rate": self.state.get_cache_hit_rate(),
-                    "config": typed_config,
-                }
-            )
+            # Добавляем метрики и конфигурацию отдельно
+            result["success_rate"] = self.state.get_success_rate()
+            result["cache_hit_rate"] = self.state.get_cache_hit_rate() 
+            result["config"] = typed_config
+            
             return result
         except Exception as e:
             logger.error(f"Error getting manager statistics: {e}")
