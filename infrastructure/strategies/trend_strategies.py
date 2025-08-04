@@ -414,7 +414,7 @@ class TrendStrategy(BaseStrategy):
             is_valid, error_msg = self.validate_data(data)
             if not is_valid:
                 raise ValueError(f"Invalid data: {error_msg}")
-            df = self._calculate_indicators(data.copy())  # type: ignore
+            df = self._calculate_indicators(data.copy())
             # Используем только последние валидные данные для анализа
             # Находим первую строку без NaN в ключевых индикаторах
             key_columns = [
@@ -424,14 +424,14 @@ class TrendStrategy(BaseStrategy):
             ]  # Убираем ADX и ATR, так как они требуют больше данных
             valid_mask = df[key_columns].notna().all(axis=1)
             logger.info(
-                f"Original data shape: {data.shape}, After indicators: {df.shape}, Valid points: {valid_mask.sum()}"  # type: ignore
+                f"Original data shape: {data.shape}, After indicators: {df.shape}, Valid points: {valid_mask.sum()}"
             )
             if valid_mask.sum() < 5:  # Уменьшаем минимальное количество точек
                 raise ValueError(
                     f"Insufficient data for analysis: {valid_mask.sum()} points available"
                 )
             # Используем только валидные данные
-            df = df[valid_mask].copy()  # type: ignore
+            df = df[valid_mask].copy()
             # Определение тренда
             trend_up = df["ema_fast"].iloc[-1] > df["ema_slow"].iloc[-1]
             trend = "up" if trend_up else "down"
@@ -470,7 +470,7 @@ class TrendStrategy(BaseStrategy):
             # Возвращаем словарь вместо StrategyAnalysis
             return {
                 "strategy_id": f"trend_{id(self)}",
-                "timestamp": pd.Timestamp.now(),  # type: ignore
+                "timestamp": pd.Timestamp.now(),
                 "market_data": data,
                 "indicators": indicators,
                 "signals": signals,
@@ -503,7 +503,7 @@ class TrendStrategy(BaseStrategy):
             logger.error(f"Error in analyze: {str(e)}")
             raise
 
-    def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:  # type: ignore
+    def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:
         """
         Генерация торгового сигнала на основе трендовой логики и индикаторов.
         Args:
@@ -514,8 +514,8 @@ class TrendStrategy(BaseStrategy):
         from domain.types.strategy_types import Signal as DomainSignal
 
         try:
-            df = self._calculate_indicators(data.copy())  # type: ignore
-            if df.shape[0] < max(self._trend_config.ema_fast, self._trend_config.ema_slow):  # type: ignore
+            df = self._calculate_indicators(data.copy())
+            if df.shape[0] < max(self._trend_config.ema_fast, self._trend_config.ema_slow):
                 return None
             # Определение тренда
             trend_up = df["ema_fast"].iloc[-1] > df["ema_slow"].iloc[-1]
@@ -531,7 +531,7 @@ class TrendStrategy(BaseStrategy):
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
                 return DomainSignal(
-                    direction="long",  # type: ignore
+                    direction="long",
                     entry_price=entry_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
@@ -546,7 +546,7 @@ class TrendStrategy(BaseStrategy):
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
                 return DomainSignal(
-                    direction="short",  # type: ignore
+                    direction="short",
                     entry_price=entry_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
@@ -575,18 +575,18 @@ def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
             return None
         # Определение тренда по EMA
         ema_trend = (
-            data["ema_fast"].iloc[-1]  # type: ignore
-            > data["ema_medium"].iloc[-1]  # type: ignore
-            > data["ema_slow"].iloc[-1]  # type: ignore
+            data["ema_fast"].iloc[-1]
+            > data["ema_medium"].iloc[-1]
+            > data["ema_slow"].iloc[-1]
         )
         # Проверка кроссовера MACD
         macd_cross_up = (
-            data["macd"].iloc[-2] < data["macd_signal"].iloc[-2]  # type: ignore
-            and data["macd"].iloc[-1] > data["macd_signal"].iloc[-1]  # type: ignore
+            data["macd"].iloc[-2] < data["macd_signal"].iloc[-2]
+            and data["macd"].iloc[-1] > data["macd_signal"].iloc[-1]
         )
         macd_cross_down = (
-            data["macd"].iloc[-2] > data["macd_signal"].iloc[-2]  # type: ignore
-            and data["macd"].iloc[-1] < data["macd_signal"].iloc[-1]  # type: ignore
+            data["macd"].iloc[-2] > data["macd_signal"].iloc[-2]
+            and data["macd"].iloc[-1] < data["macd_signal"].iloc[-1]
         )
         # Генерация сигнала
         if ema_trend and macd_cross_up:
@@ -601,7 +601,7 @@ def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
         
         # Безопасный вызов функций
         if callable(stop_loss_func):
-            stop_loss = stop_loss_func(data, data["close"].iloc[-1], side)  # type: ignore
+            stop_loss = stop_loss_func(data, data["close"].iloc[-1], side)
         else:
             stop_loss = 0.0
             

@@ -347,7 +347,7 @@ class TestMarketProfilesIntegration:
         storage = container.market_maker_storage()
         # Тест с некорректными данными
         with pytest.raises(Exception):
-            await storage.save_pattern("", None)  # type: ignore
+            await storage.save_pattern("", None)
         # Тест с несуществующим символом
         patterns = await storage.get_patterns_by_symbol("NONEXISTENT")
         assert len(patterns) == 0

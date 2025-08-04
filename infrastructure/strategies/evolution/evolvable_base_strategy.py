@@ -167,7 +167,7 @@ class EvolvableBaseStrategy(BaseStrategy):
             logger.error(f"Error in evolutionary analysis: {str(e)}")
             raise
 
-    def generate_signal(self, data: pd.DataFrame) -> Optional[DomainSignal]:  # type: ignore
+    def generate_signal(self, data: pd.DataFrame) -> Optional[DomainSignal]:
         """
         Генерация эволюционного торгового сигнала.
         Args:

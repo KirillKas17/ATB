@@ -149,7 +149,7 @@ class TestPatternAnalyzer:
         """Тест обработки ошибок."""
         # Тест с некорректными данными
         with pytest.raises(Exception):
-            await analyzer.analyze_pattern("", None)  # type: ignore
+            await analyzer.analyze_pattern("", None)
     def test_config_validation(self) -> None:
         """Тест валидации конфигурации."""
         config = AnalysisConfig(
@@ -445,6 +445,6 @@ class TestSuccessRateAnalyzer:
         """Тест обработки ошибок."""
         # Тест с некорректными данными
         with pytest.raises(Exception):
-            await analyzer.calculate_success_rate("", None, None)  # type: ignore
+            await analyzer.calculate_success_rate("", None, None)
 if __name__ == "__main__":
     pytest.main([__file__, "-v"]) 

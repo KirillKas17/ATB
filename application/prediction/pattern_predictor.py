@@ -175,7 +175,7 @@ class PatternPredictor:
             # Создаем запрос
             request = PredictionRequest(
                 symbol=pattern_detection.symbol,
-                pattern_type=pattern_detection.pattern_type,  # type: ignore
+                pattern_type=pattern_detection.pattern_type,
                 current_features=features,
                 confidence_threshold=self.config["confidence_threshold"],
                 min_similar_cases=self.config["min_similar_cases"],
@@ -464,28 +464,28 @@ class PatternPredictor:
             # Риск уверенности
             if prediction.confidence < 0.5:
                 risk_assessment["confidence_risk"] = "high"
-                risk_assessment["specific_risks"].append("low_confidence")  # type: ignore
+                risk_assessment["specific_risks"].append("low_confidence")
             elif prediction.confidence > 0.8:
                 risk_assessment["confidence_risk"] = "low"
 
             # Риск качества данных
             if prediction.similar_cases_count < 5:
                 risk_assessment["data_quality_risk"] = "high"
-                risk_assessment["specific_risks"].append("insufficient_data")  # type: ignore
+                risk_assessment["specific_risks"].append("insufficient_data")
 
             if prediction.success_rate < 0.6:
                 risk_assessment["data_quality_risk"] = "high"
-                risk_assessment["specific_risks"].append("low_success_rate")  # type: ignore
+                risk_assessment["specific_risks"].append("low_success_rate")
 
             # Рыночный риск
             features = request.current_features
             if features.volatility > 0.03:
                 risk_assessment["market_risk"] = "high"
-                risk_assessment["specific_risks"].append("high_volatility")  # type: ignore
+                risk_assessment["specific_risks"].append("high_volatility")
 
             if features.external_sync:
                 risk_assessment["market_risk"] = "high"
-                risk_assessment["specific_risks"].append("external_sync")  # type: ignore
+                risk_assessment["specific_risks"].append("external_sync")
 
             # Общий уровень риска
             risk_factors = [
@@ -559,18 +559,18 @@ class PatternPredictor:
                 recommendations["risk_adjustment"] = 1.0 / prediction.confidence
 
                 # Обоснование
-                recommendations["reasoning"].append(  # type: ignore
+                recommendations["reasoning"].append(
                     f"High confidence: {prediction.confidence:.3f}"
                 )
-                recommendations["reasoning"].append(  # type: ignore
+                recommendations["reasoning"].append(
                     f"Success rate: {prediction.success_rate:.3f}"
                 )
-                recommendations["reasoning"].append(  # type: ignore
+                recommendations["reasoning"].append(
                     f"Similar cases: {prediction.similar_cases_count}"
                 )
 
             else:
-                recommendations["reasoning"].append(  # type: ignore
+                recommendations["reasoning"].append(
                     "Insufficient confidence or data quality"
                 )
 
@@ -578,13 +578,13 @@ class PatternPredictor:
             if market_context:
                 if market_context.get("market_regime") == "volatile":
                     recommendations["position_size"] = "small"
-                    recommendations["reasoning"].append(  # type: ignore
+                    recommendations["reasoning"].append(
                         "High volatility - reducing position size"
                     )
 
                 if market_context.get("liquidity_conditions") == "poor":
                     recommendations["entry_timing"] = "gradual"
-                    recommendations["reasoning"].append(  # type: ignore
+                    recommendations["reasoning"].append(
                         "Poor liquidity - gradual entry recommended"
                     )
 

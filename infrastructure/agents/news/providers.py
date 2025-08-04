@@ -8,7 +8,7 @@ from typing import List
 
 import aiohttp
 import feedparser
-import pandas as pd  # type: ignore
+import pandas as pd
 
 from infrastructure.agents.social_media.agent_social_media import SocialMediaAgent
 
@@ -17,8 +17,8 @@ from shared.logging import setup_logger
 from .types import NewsItem, NewsSource
 
 # Type aliases для pandas
-DataFrame = pd.DataFrame  # type: ignore
-Series = pd.Series  # type: ignore
+DataFrame = pd.DataFrame
+Series = pd.Series
 
 logger = setup_logger(__name__)
 

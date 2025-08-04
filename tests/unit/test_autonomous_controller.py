@@ -229,14 +229,14 @@ class TestAutonomousController:
         # Создание тестового события
         test_event = Event(
             name="market.update",
-            type=EventType.MARKET_DATA_UPDATED,  # type: ignore
+            type=EventType.MARKET_DATA_UPDATED,
             data={"symbol": "BTCUSDT", "price": 50000.0},
             metadata=EventMetadata(
                 source="test",
                 correlation_id=None,
                 user_id=None,
                 session_id=None
-            )  # type: ignore
+            )
         )
         
         # Проверка, что контроллер может обрабатывать события

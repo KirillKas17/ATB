@@ -9,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-import pandas as pd  # type: ignore
+import pandas as pd
 from shared.numpy_utils import np
 from loguru import logger
 

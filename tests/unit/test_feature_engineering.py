@@ -260,7 +260,7 @@ class TestFeatureEngineer:
         assert len(preprocessed_features) == len(features)
         
         # Проверка, что нет NaN значений
-        assert not preprocessed_features.isna().any().any()  # type: ignore
+        assert not preprocessed_features.isna().any().any()
 
     def test_save_and_load_features(self, feature_engineer: FeatureEngineer, sample_market_data: pd.DataFrame, tmp_path) -> None:
         """Тест сохранения и загрузки признаков."""

@@ -7,6 +7,8 @@
 import asyncio
 import logging
 from abc import ABC, abstractmethod
+
+from loguru import logger
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal

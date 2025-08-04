@@ -125,7 +125,7 @@ class ExampleExchangeProtocol(ExchangeProtocol):
         cache_key = f"market_data_{symbol}_{timeframe}_{limit}"
         cached_data = self.cache.get(cache_key)
         if cached_data:
-            return cached_data  # type: ignore
+            return cached_data
         # Симуляция получения данных
         market_data = []
         for i in range(limit):

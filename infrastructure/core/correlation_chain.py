@@ -5,7 +5,7 @@ from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 from scipy import stats
-from statsmodels.tsa.stattools import acf, coint, grangercausalitytests  # type: ignore
+from statsmodels.tsa.stattools import acf, coint, grangercausalitytests
 
 
 @dataclass

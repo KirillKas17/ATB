@@ -96,7 +96,7 @@ class InMemoryPositionRepository(PositionRepository):
         cached = await self.get_from_cache(str(entity_id))
         if cached:
             self._metrics["cache_hits"] = int(str(self._metrics.get("cache_hits", 0))) + 1
-            return cached  # type: ignore
+            return cached
         self._metrics["cache_misses"] = int(str(self._metrics.get("cache_misses", 0))) + 1
         position = self._positions.get(entity_id)
         if position:
@@ -111,7 +111,7 @@ class InMemoryPositionRepository(PositionRepository):
         cache_key = f"positions_by_pair:{symbol}:{open_only}"
         cached = await self.get_from_cache(cache_key)
         if cached:
-            return cached  # type: ignore
+            return cached
         entity_ids = self._positions_by_trading_pair.get(symbol, [])
         positions = [
             self._positions[eid] for eid in entity_ids if eid in self._positions
@@ -128,7 +128,7 @@ class InMemoryPositionRepository(PositionRepository):
         cache_key = f"open_positions:{str(trading_pair) if trading_pair else 'all'}"
         cached = await self.get_from_cache(str(cache_key))
         if cached:
-            return cached  # type: ignore
+            return cached
         entity_ids = self._positions_by_status.get("open", [])
         positions = [
             self._positions[eid] for eid in entity_ids if eid in self._positions
@@ -568,7 +568,7 @@ class PostgresPositionRepository(PositionRepository):
             id=PositionId(UUID(row["id"])),
             symbol=Symbol(row["symbol"]),
             side=PositionSide(row["side"]),
-            quantity=Volume(Decimal(str(row["quantity"]))),
+            quantity=Volume(Decimal(str(row["quantity"])), Currency.USD),
             entry_price=Price(Decimal(str(row["entry_price"])), Currency.USD),
             current_price=Price(Decimal(str(row["current_price"])), Currency.USD),
             entry_time=row["entry_time"],

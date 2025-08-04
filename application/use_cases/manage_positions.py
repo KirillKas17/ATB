@@ -24,7 +24,7 @@ from domain.entities.trading import Trade
 from domain.entities.trading_pair import TradingPair
 from domain.repositories.portfolio_repository import PortfolioRepository
 from domain.repositories.position_repository import PositionRepository
-# from domain.repositories.trade_repository import TradeRepository  # type: ignore
+# from domain.repositories.trade_repository import TradeRepository
 from domain.types import (
     AmountValue,
     EntityId,
@@ -73,7 +73,7 @@ class PositionManagementUseCase:
         self,
         position_repository: PositionRepository,
         portfolio_repository: PortfolioRepository,
-        trade_repository: Any,  # type: ignore
+        trade_repository: Any,
     ):
         self.position_repository = position_repository
         self.portfolio_repository = portfolio_repository
@@ -101,7 +101,7 @@ class PositionManagementUseCase:
             )
 
             # Сохранение позиции - используем правильный тип
-            success = await self.position_repository.save(position)  # type: ignore
+            success = await self.position_repository.save(position)
             
             if success:
                 return CreatePositionResponse(
@@ -157,7 +157,7 @@ class PositionManagementUseCase:
             
             return UpdatePositionResponse(
                 success=True,
-                position=updated_position,  # type: ignore
+                position=updated_position,
                 message="Position updated successfully",
             )
 
@@ -205,16 +205,16 @@ class PositionManagementUseCase:
             # Создание записи о сделке
             trade = Trade(
                 id=TradeId(uuid4()),
-                # portfolio_id=position.portfolio_id,  # type: ignore
-                # trading_pair=position.trading_pair,  # type: ignore
-                # side=OrderSide.SELL if position.side == PositionSide.LONG else OrderSide.BUY,  # type: ignore
-                # volume=close_volume,  # type: ignore
-                # price=close_price,  # type: ignore
-                # timestamp=Timestamp.now(),  # type: ignore
+                # portfolio_id=position.portfolio_id,
+                # trading_pair=position.trading_pair,
+                # side=OrderSide.SELL if position.side == PositionSide.LONG else OrderSide.BUY,
+                # volume=close_volume,
+                # price=close_price,
+                # timestamp=Timestamp.now(),
             )
             
             # Сохранение сделки
-            # await self.trade_repository.save(trade)  # type: ignore
+            # await self.trade_repository.save(trade)
             
             # Обновление позиции
             updated_position = await self.position_repository.update(position)
@@ -246,27 +246,27 @@ class PositionManagementUseCase:
             
             if request.portfolio_id:
                 # Получение позиций по портфелю
-                # portfolio_positions = await self.position_repository.get_by_portfolio_id(  # type: ignore
+                # portfolio_positions = await self.position_repository.get_by_portfolio_id(
                 #     PortfolioId(request.portfolio_id)
                 # )
                 # positions = portfolio_positions
-                positions = []  # type: ignore
+                positions = []
             elif hasattr(request, 'trading_pair') and request.trading_pair:
                 # Получение позиций по торговой паре
                 symbol = Symbol(request.trading_pair)
                 trading_pair = TradingPair(symbol, Currency.USDT, Currency.USDT)
-                # positions = await self.position_repository.get_by_trading_pair(  # type: ignore
+                # positions = await self.position_repository.get_by_trading_pair(
                 #     trading_pair
                 # )
-                positions = []  # type: ignore
+                positions = []
             else:
                 # Получение всех позиций
                 if hasattr(request, 'open_only') and request.open_only:
-                    # positions = await self.position_repository.get_open_positions()  # type: ignore
-                    positions = []  # type: ignore
+                    # positions = await self.position_repository.get_open_positions()
+                    positions = []
                 else:
-                    # positions = await self.position_repository.get_all()  # type: ignore
-                    positions = []  # type: ignore
+                    # positions = await self.position_repository.get_all()
+                    positions = []
 
             # Фильтрация по стороне
             if hasattr(request, 'side') and request.side:
@@ -362,14 +362,14 @@ class PositionManagementUseCase:
 
             if portfolio_id:
                 # Статистика по портфелю
-                # positions = await self.position_repository.get_by_portfolio_id(  # type: ignore
+                # positions = await self.position_repository.get_by_portfolio_id(
                 #     PortfolioId(portfolio_id)
                 # )
-                positions = []  # type: ignore
+                positions = []
             else:
                 # Общая статистика
-                # positions = await self.position_repository.get_open_positions()  # type: ignore
-                positions = []  # type: ignore
+                # positions = await self.position_repository.get_open_positions()
+                positions = []
 
             for position in positions:
                 total_positions += 1
@@ -384,8 +384,8 @@ class PositionManagementUseCase:
                 else:
                     short_positions += 1
 
-                # total_pnl += getattr(position, "total_pnl", Money(0)).amount  # type: ignore
-                # total_volume += position.volume.to_decimal()  # type: ignore
+                # total_pnl += getattr(position, "total_pnl", Money(0)).amount
+                # total_volume += position.volume.to_decimal()
 
             return {
                 "total_positions": total_positions,
@@ -410,6 +410,6 @@ class DefaultPositionManagementUseCase(PositionManagementUseCase):
         self,
         position_repository: PositionRepository,
         portfolio_repository: PortfolioRepository,
-        trade_repository: Any,  # type: ignore
+        trade_repository: Any,
     ):
         super().__init__(position_repository, portfolio_repository, trade_repository)

@@ -106,9 +106,9 @@ class TestCombinedPredictor:
         
         # Исправление: добавляем метод к классу если его нет
         if not hasattr(predictor, '_calculate_weighted_average'):
-            predictor._calculate_weighted_average = _calculate_weighted_average  # type: ignore
+            predictor._calculate_weighted_average = _calculate_weighted_average
         
-        weighted_avg = predictor._calculate_weighted_average(values, weights)  # type: ignore
+        weighted_avg = predictor._calculate_weighted_average(values, weights)
         expected = 1.0 * 0.5 + 2.0 * 0.3 + 3.0 * 0.2
         assert weighted_avg == expected
     
@@ -125,7 +125,7 @@ class TestCombinedPredictor:
         
         monkeypatch.setattr(predictor, '_determine_consensus_direction', _determine_consensus_direction)
         
-        consensus = predictor._determine_consensus_direction(directions, confidences)  # type: ignore
+        consensus = predictor._determine_consensus_direction(directions, confidences)
         assert consensus == "bullish"
     
     def test_determine_consensus_direction_neutral(self, predictor: CombinedPredictor, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -143,7 +143,7 @@ class TestCombinedPredictor:
         
         monkeypatch.setattr(predictor, '_determine_consensus_direction', _determine_consensus_direction)
         
-        consensus = predictor._determine_consensus_direction(directions, confidences)  # type: ignore
+        consensus = predictor._determine_consensus_direction(directions, confidences)
         assert consensus == "neutral"
     
     def test_get_technical_prediction(self, predictor: CombinedPredictor, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -160,7 +160,7 @@ class TestCombinedPredictor:
         
         monkeypatch.setattr(predictor, '_get_technical_prediction', _get_technical_prediction)
         
-        result = predictor._get_technical_prediction(market_data)  # type: ignore
+        result = predictor._get_technical_prediction(market_data)
         assert result["direction"] == "bullish"
         assert result["confidence"] == 0.7
         assert result["strength"] == 0.8
@@ -179,7 +179,7 @@ class TestCombinedPredictor:
         
         monkeypatch.setattr(predictor, '_get_pattern_prediction', _get_pattern_prediction)
         
-        result = predictor._get_pattern_prediction(market_data)  # type: ignore
+        result = predictor._get_pattern_prediction(market_data)
         assert "patterns" in result
         assert result["confidence"] == 0.6
         assert result["direction"] == "bearish"
@@ -198,7 +198,7 @@ class TestCombinedPredictor:
         
         monkeypatch.setattr(predictor, '_get_ml_prediction', _get_ml_prediction)
         
-        result = predictor._get_ml_prediction(market_data)  # type: ignore
+        result = predictor._get_ml_prediction(market_data)
         assert result["prediction"] == 0.75
         assert result["confidence"] == 0.8
         assert result["model"] == "transformer"
@@ -245,7 +245,7 @@ class TestPatternPredictor:
         market_context = {"volatility": 0.02, "trend": "bullish"}
         
         result = predictor.predict_with_custom_features(
-            symbol, PatternType.DOUBLE_TOP, features, market_context  # type: ignore
+            symbol, PatternType.DOUBLE_TOP, features, market_context
         )
         
         # Проверяем, что результат может быть None или EnhancedPredictionResult
@@ -261,9 +261,9 @@ class TestPatternPredictor:
         
         # Исправление: добавляем метод к классу если его нет
         if not hasattr(predictor, '_analyze_pattern_confidence'):
-            predictor._analyze_pattern_confidence = _analyze_pattern_confidence  # type: ignore
+            predictor._analyze_pattern_confidence = _analyze_pattern_confidence
         
-        confidence = predictor._analyze_pattern_confidence(patterns)  # type: ignore
+        confidence = predictor._analyze_pattern_confidence(patterns)
         assert confidence == 0.7
     
     def test_calculate_pattern_weight(self, predictor: PatternPredictor, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -278,9 +278,9 @@ class TestPatternPredictor:
         
         # Исправление: добавляем метод к классу если его нет
         if not hasattr(predictor, '_calculate_pattern_weight'):
-            predictor._calculate_pattern_weight = _calculate_pattern_weight  # type: ignore
+            predictor._calculate_pattern_weight = _calculate_pattern_weight
         
-        weight = predictor._calculate_pattern_weight(pattern)  # type: ignore
+        weight = predictor._calculate_pattern_weight(pattern)
         assert weight == 0.9  # 0.5 + 0.8 * 0.5
     
     def test_get_pattern_history(self, predictor: PatternPredictor, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -296,9 +296,9 @@ class TestPatternPredictor:
         
         # Исправление: добавляем метод к классу если его нет
         if not hasattr(predictor, 'get_pattern_history'):
-            predictor.get_pattern_history = get_pattern_history  # type: ignore
+            predictor.get_pattern_history = get_pattern_history
         
-        history = predictor.get_pattern_history(symbol)  # type: ignore
+        history = predictor.get_pattern_history(symbol)
         assert len(history) == 2
         assert history[0]["type"] == "double_top"
         assert history[1]["type"] == "support_level"
@@ -352,7 +352,7 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, '_analyze_signal_strength', _analyze_signal_strength)
         
-        strength = controller._analyze_signal_strength(signal_data)  # type: ignore
+        strength = controller._analyze_signal_strength(signal_data)
         assert 0.0 <= strength <= 1.0
     
     @pytest.mark.asyncio
@@ -370,7 +370,7 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, '_calculate_reversal_probability', _calculate_reversal_probability)
         
-        probability = controller._calculate_reversal_probability(market_data, signal_strength)  # type: ignore
+        probability = controller._calculate_reversal_probability(market_data, signal_strength)
         assert 0.0 <= probability <= 1.0
     
     @pytest.mark.asyncio
@@ -395,7 +395,7 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, '_determine_overall_direction', _determine_overall_direction)
         
-        direction = controller._determine_overall_direction(signals)  # type: ignore
+        direction = controller._determine_overall_direction(signals)
         assert direction == "bullish"
     
     @pytest.mark.asyncio
@@ -419,7 +419,7 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, '_determine_overall_direction', _determine_overall_direction)
         
-        direction = controller._determine_overall_direction(signals)  # type: ignore
+        direction = controller._determine_overall_direction(signals)
         assert direction == "neutral"
     
     @pytest.mark.asyncio
@@ -436,7 +436,7 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, 'get_reversal_history', get_reversal_history)
         
-        history = controller.get_reversal_history(symbol)  # type: ignore
+        history = controller.get_reversal_history(symbol)
         assert len(history) == 2
         assert history[0]["direction"] == "bullish"
         assert history[1]["direction"] == "bearish"
@@ -453,9 +453,9 @@ class TestReversalController:
         
         # Исправление: добавляем метод к классу если его нет
         if not hasattr(controller, '_validate_signal_data'):
-            controller._validate_signal_data = _validate_signal_data  # type: ignore
+            controller._validate_signal_data = _validate_signal_data
         
-        is_valid = controller._validate_signal_data(signal_data)  # type: ignore
+        is_valid = controller._validate_signal_data(signal_data)
         assert is_valid is True
     
     @pytest.mark.asyncio
@@ -470,7 +470,7 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, '_validate_signal_data', _validate_signal_data)
         
-        is_valid = controller._validate_signal_data(signal_data)  # type: ignore
+        is_valid = controller._validate_signal_data(signal_data)
         assert is_valid is False
     
     @pytest.mark.asyncio
@@ -485,5 +485,5 @@ class TestReversalController:
         
         monkeypatch.setattr(controller, '_validate_signal_data', _validate_signal_data)
         
-        is_valid = controller._validate_signal_data(signal_data)  # type: ignore
+        is_valid = controller._validate_signal_data(signal_data)
         assert is_valid is False 

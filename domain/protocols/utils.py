@@ -79,7 +79,7 @@ def retry_on_error(
             else:
                 raise ProtocolError("Retry exhausted without specific exception")
 
-        return wrapper  # type: ignore
+        return wrapper
 
     return decorator
 
@@ -104,7 +104,7 @@ def timeout(seconds: float) -> Callable[[F], F]:
                     operation=func.__name__,
                 )
 
-        return wrapper  # type: ignore
+        return wrapper
 
     return decorator
 

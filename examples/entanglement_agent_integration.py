@@ -42,19 +42,19 @@ class EntanglementAwareMetaController(MetaControllerAgent):
 
     async def coordinate_agents(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Координация агентов."""
-        return await super().coordinate_agents(context)  # type: ignore
+        return await super().coordinate_agents(context)
 
     async def add_agent(self, agent_id: str, agent: Any) -> bool:
         """Добавление агента."""
-        return await super().add_agent(agent_id, agent)  # type: ignore
+        return await super().add_agent(agent_id, agent)
 
     async def remove_agent(self, agent_id: str) -> bool:
         """Удаление агента."""
-        return await super().remove_agent(agent_id)  # type: ignore
+        return await super().remove_agent(agent_id)
 
     async def get_agent_status(self, agent_id: str) -> Optional[Dict[str, Any]]:
         """Получение статуса агента."""
-        return await super().get_agent_status(agent_id)  # type: ignore
+        return await super().get_agent_status(agent_id)
 
     def get_entanglement_insights(self, symbol: str) -> Dict[str, Any]:
         """Получение инсайтов по запутанности для символа."""

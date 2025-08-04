@@ -44,24 +44,24 @@ class TestEvolutionCache:
         assert "Некорректная конфигурация кэша" in str(exc_info.value)
     def test_set_get_candidate(self, cache: EvolutionCache, sample_candidate: StrategyCandidate) -> None:
         """Тест установки и получения кандидата стратегии."""
-        cache.set_candidate(str(sample_candidate.id), sample_candidate)  # type: ignore
-        retrieved = cache.get_candidate(str(sample_candidate.id))  # type: ignore
+        cache.set_candidate(str(sample_candidate.id), sample_candidate)
+        retrieved = cache.get_candidate(str(sample_candidate.id))
         assert retrieved is not None
         assert retrieved.id == sample_candidate.id
         assert retrieved.name == sample_candidate.name
         assert retrieved.strategy_type == sample_candidate.strategy_type
     def test_get_candidate_not_found(self, cache: EvolutionCache) -> None:
         """Тест получения несуществующего кандидата."""
-        retrieved = cache.get_candidate(str(uuid4()))  # type: ignore
+        retrieved = cache.get_candidate(str(uuid4()))
         assert retrieved is None
     def test_get_candidate_expired(self, cache: EvolutionCache, sample_candidate: StrategyCandidate) -> None:
         """Тест получения истекшего кандидата."""
-        cache.set_candidate(str(sample_candidate.id), sample_candidate)  # type: ignore
+        cache.set_candidate(str(sample_candidate.id), sample_candidate)
         # Установить время истечения в прошлое
-        cache._cache[str(sample_candidate.id)]["expires_at"] = datetime.now() - timedelta(seconds=1)  # type: ignore
-        retrieved = cache.get_candidate(str(sample_candidate.id))  # type: ignore
+        cache._cache[str(sample_candidate.id)]["expires_at"] = datetime.now() - timedelta(seconds=1)
+        retrieved = cache.get_candidate(str(sample_candidate.id))
         assert retrieved is None
-        assert str(sample_candidate.id) not in cache._cache  # type: ignore
+        assert str(sample_candidate.id) not in cache._cache
     def test_set_get_evaluation(self, cache: EvolutionCache, sample_evaluation: StrategyEvaluationResult) -> None:
         """Тест установки и получения результата оценки."""
         cache.set_evaluation(sample_evaluation.id, sample_evaluation)

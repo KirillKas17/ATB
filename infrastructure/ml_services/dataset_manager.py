@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
-from sklearn.preprocessing import MinMaxScaler, StandardScaler  # type: ignore
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from shared.unified_cache import get_cache_manager
 
@@ -226,17 +226,17 @@ class DatasetManager:
         df["rsi"] = 100 - (100 / (1 + rs))
         # Bollinger Bands
         for window in [20]:
-            sma = df["close"].rolling(window=window).mean()  # type: ignore
-            std = df["close"].rolling(window=window).std()  # type: ignore
+            sma = df["close"].rolling(window=window).mean()
+            std = df["close"].rolling(window=window).std()
             df[f"bb_upper_{window}"] = sma + (std * 2)
             df[f"bb_lower_{window}"] = sma - (std * 2)
         # MACD
-        ema12 = df["close"].ewm(span=12).mean()  # type: ignore
-        ema26 = df["close"].ewm(span=26).mean()  # type: ignore
+        ema12 = df["close"].ewm(span=12).mean()
+        ema26 = df["close"].ewm(span=26).mean()
         df["macd"] = ema12 - ema26
-        df["macd_signal"] = df["macd"].ewm(span=9).mean()  # type: ignore
+        df["macd_signal"] = df["macd"].ewm(span=9).mean()
         # Объемные индикаторы
-        df["volume_sma"] = df["volume"].rolling(window=20).mean()  # type: ignore
+        df["volume_sma"] = df["volume"].rolling(window=20).mean()
         df["volume_ratio"] = df["volume"] / df["volume_sma"]
         return df
 
@@ -245,7 +245,7 @@ class DatasetManager:
         # Простая целевая переменная - изменение цены через N периодов
         target_periods = 5
         df[self.preprocessing_config["target_column"]] = (
-            df["close"].shift(-target_periods) / df["close"] - 1  # type: ignore
+            df["close"].shift(-target_periods) / df["close"] - 1
         )
         return df
 
@@ -272,23 +272,23 @@ class DatasetManager:
                 df_pandas = pd.DataFrame(df)
             # Безопасное индексирование
             if hasattr(df_pandas, 'iloc'):
-                df_pandas.loc[:, feature_columns] = scaler.fit_transform(df_pandas[feature_columns])  # type: ignore
+                df_pandas.loc[:, feature_columns] = scaler.fit_transform(df_pandas[feature_columns])
                 # Обновляем исходный df
                 for col in feature_columns:
                     if hasattr(df, 'loc'):
-                        df.loc[:, col] = df_pandas[col]  # type: ignore
+                        df.loc[:, col] = df_pandas[col]
                     else:
-                        df[col] = df_pandas[col]  # type: ignore
+                        df[col] = df_pandas[col]
         return df
 
     def _create_temporal_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Создание временных признаков."""
         if hasattr(df, 'index') and isinstance(df.index, pd.DatetimeIndex):
-            df["hour"] = df.index.hour  # type: ignore
-            df["day_of_week"] = df.index.dayofweek  # type: ignore
-            df["day_of_month"] = df.index.day  # type: ignore
-            df["month"] = df.index.month  # type: ignore
-            df["quarter"] = df.index.quarter  # type: ignore
+            df["hour"] = df.index.hour
+            df["day_of_week"] = df.index.dayofweek
+            df["day_of_month"] = df.index.day
+            df["month"] = df.index.month
+            df["quarter"] = df.index.quarter
         return df
 
     async def create_sequences(
@@ -310,8 +310,8 @@ class DatasetManager:
         # Создаем последовательности
         X, y = [], []
         for i in range(len(df) - sequence_length):
-            X.append(df[feature_columns].iloc[i:i + sequence_length].values)  # type: ignore
-            y.append(df[target_column].iloc[i + sequence_length])  # type: ignore
+            X.append(df[feature_columns].iloc[i:i + sequence_length].values)
+            y.append(df[target_column].iloc[i + sequence_length])
         return np.array(X), np.array(y)
 
     async def split_dataset(
@@ -352,11 +352,11 @@ class DatasetManager:
         }
         # Проверка пропущенных значений
         for col in df.columns:
-            missing_count = df[col].isnull().sum()  # type: ignore
+            missing_count = df[col].isnull().sum()
             validation_results["missing_values"][col] = missing_count
         # Проверка типов данных
         for col in df.columns:
-            validation_results["data_types"][col] = str(df[col].dtype)  # type: ignore
+            validation_results["data_types"][col] = str(df[col].dtype)
         # Статистика числовых колонок
         numeric_columns = df.select_dtypes(include=[np.number]).columns
         for col in numeric_columns:
@@ -406,7 +406,7 @@ class DatasetManager:
                     "start": str(df.index.min()) if len(df) > 0 else None,
                     "end": str(df.index.max()) if len(df) > 0 else None,
                 },
-                "memory_usage": df.memory_usage(deep=True).sum(),  # type: ignore
+                "memory_usage": df.memory_usage(deep=True).sum(),
                 "cached": symbol in self._dataset_cache,
             }
             return info

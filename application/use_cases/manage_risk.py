@@ -84,8 +84,8 @@ class RiskManagementUseCase:
         """Оценка риска портфеля."""
         try:
             # Получение позиций портфеля
-            # portfolio_positions = await self.portfolio_repository.get_all_positions(request.portfolio_id)  # type: ignore
-            portfolio_positions = []  # type: ignore
+            # portfolio_positions = await self.portfolio_repository.get_all_positions(request.portfolio_id)
+            portfolio_positions = []
             positions = [p for p in portfolio_positions if isinstance(p, Position)]
 
             if not positions:
@@ -174,8 +174,8 @@ class RiskManagementUseCase:
         """Проверка лимитов риска."""
         try:
             # Получение позиций портфеля
-            # portfolio_positions = await self.portfolio_repository.get_all_positions(request.portfolio_id)  # type: ignore
-            portfolio_positions = []  # type: ignore
+            # portfolio_positions = await self.portfolio_repository.get_all_positions(request.portfolio_id)
+            portfolio_positions = []
             positions = [p for p in portfolio_positions if isinstance(p, Position)]
 
             if not positions:

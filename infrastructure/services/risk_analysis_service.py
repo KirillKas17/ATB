@@ -15,21 +15,21 @@ import pandas as pd
 from dataclasses import dataclass
 
 from domain.entities.risk_metrics import RiskMetrics
-from domain.types.risk_types import RiskReport  # type: ignore
-from domain.types.risk_types import StressTestResult  # type: ignore
-from domain.types.risk_types import PortfolioRisk  # type: ignore
-from domain.types.risk_types import PositionRisk  # type: ignore
-from domain.types.risk_types import RiskOptimizationResult  # type: ignore
-from domain.types.risk_types import PortfolioOptimizationMethod  # type: ignore
+from domain.types.risk_types import RiskReport
+from domain.types.risk_types import StressTestResult
+from domain.types.risk_types import PortfolioRisk
+from domain.types.risk_types import PositionRisk
+from domain.types.risk_types import RiskOptimizationResult
+from domain.types.risk_types import PortfolioOptimizationMethod
 from domain.services.risk_analysis import AdvancedRiskAnalysisService, risk_analysis_service
-# from domain.services.risk_analysis_service import RiskAnalysisService  # type: ignore
+# from domain.services.risk_analysis_service import RiskAnalysisService
 from domain.types.risk_types import RiskMetrics as DomainRiskMetrics
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
-# from infrastructure.cache.cache_config import CacheConfig  # type: ignore
+# from infrastructure.cache.cache_config import CacheConfig
 from infrastructure.shared.cache import CacheManager, CacheConfig
 from shared.logging import LoggerMixin
-# from shared.risk_calculations import (  # type: ignore
+# from shared.risk_calculations import (
 #     calc_volatility,
 #     calc_sharpe,
 #     calc_sortino,

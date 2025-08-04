@@ -3,15 +3,17 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+if TYPE_CHECKING:
+    from pandas import DataFrame, Series
+else:
+    DataFrame = pd.DataFrame
+    Series = pd.Series
 
 # Настройка логирования
 logger = logging.getLogger(__name__)
@@ -65,20 +67,28 @@ class TradingVisualizer:
         try:
             fig, axes = plt.subplots(4, 1, figsize=self.figsize)
             # RSI
-            if "rsi" in indicators:
-                axes[0].plot(indicators["rsi"].values, label="RSI", color="purple")
+            if "rsi" in indicators and indicators["rsi"] is not None:
+                rsi_series = indicators["rsi"]
+                axes[0].plot(rsi_series.values if hasattr(rsi_series, 'values') else rsi_series, label="RSI", color="purple")
                 axes[0].axhline(y=70, color="r", linestyle="--", alpha=0.7)
                 axes[0].axhline(y=30, color="g", linestyle="--", alpha=0.7)
                 axes[0].set_ylabel("RSI")
                 axes[0].legend()
                 axes[0].grid(True)
             # MACD
-            if "macd" in indicators and "macd_signal" in indicators:
-                axes[1].plot(indicators["macd"].values, label="MACD", color="blue")
-                axes[1].plot(indicators["macd_signal"].values, label="Signal", color="red")
-                axes[1].bar(
-                    range(len(indicators["macd_histogram"])),
-                    indicators["macd_histogram"].values.astype(float),
+            if "macd" in indicators and "macd_signal" in indicators and indicators["macd"] is not None and indicators["macd_signal"] is not None:
+                macd_series = indicators["macd"]
+                macd_signal_series = indicators["macd_signal"]
+                macd_hist_series = indicators.get("macd_histogram")
+                
+                axes[1].plot(macd_series.values if hasattr(macd_series, 'values') else macd_series, label="MACD", color="blue")
+                axes[1].plot(macd_signal_series.values if hasattr(macd_signal_series, 'values') else macd_signal_series, label="Signal", color="red")
+                
+                if macd_hist_series is not None:
+                    hist_values = macd_hist_series.values if hasattr(macd_hist_series, 'values') else macd_hist_series
+                    axes[1].bar(
+                        range(len(hist_values)),
+                        hist_values.astype(float) if hasattr(hist_values, 'astype') else [float(x) for x in hist_values],
                     label="Histogram",
                     alpha=0.3,
                 )
@@ -86,18 +96,25 @@ class TradingVisualizer:
                 axes[1].legend()
                 axes[1].grid(True)
             # Bollinger Bands
-            if "bb_upper" in indicators and "bb_lower" in indicators:
-                axes[2].plot(data['close'].values, label="Price", color="black")
+            if "bb_upper" in indicators and "bb_lower" in indicators and indicators["bb_upper"] is not None and indicators["bb_lower"] is not None:
+                close_data = data['close'] if isinstance(data, dict) else data.get('close', data)
+                bb_upper_series = indicators["bb_upper"]
+                bb_lower_series = indicators["bb_lower"]
+                
+                axes[2].plot(close_data.values if hasattr(close_data, 'values') else close_data, label="Price", color="black")
                 axes[2].plot(
-                    indicators["bb_upper"].values, label="Upper BB", color="red", alpha=0.7
+                    bb_upper_series.values if hasattr(bb_upper_series, 'values') else bb_upper_series, label="Upper BB", color="red", alpha=0.7
                 )
                 axes[2].plot(
-                    indicators["bb_lower"].values, label="Lower BB", color="red", alpha=0.7
+                    bb_lower_series.values if hasattr(bb_lower_series, 'values') else bb_lower_series, label="Lower BB", color="red", alpha=0.7
                 )
+                
+                upper_values = bb_upper_series.values if hasattr(bb_upper_series, 'values') else bb_upper_series
+                lower_values = bb_lower_series.values if hasattr(bb_lower_series, 'values') else bb_lower_series
                 axes[2].fill_between(
-                    range(len(data)),
-                    indicators["bb_upper"].values,
-                    indicators["bb_lower"].values,
+                    range(len(upper_values)),
+                    upper_values,
+                    lower_values,
                     alpha=0.1,
                     color="red",
                 )

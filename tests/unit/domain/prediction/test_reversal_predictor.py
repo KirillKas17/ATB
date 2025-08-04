@@ -213,7 +213,7 @@ class TestReversalPredictor:
         """Тест обработки исключений."""
         invalid_data = "invalid_data"
         
-        result = predictor.predict_reversal("BTC/USDT", invalid_data)  # type: ignore
+        result = predictor.predict_reversal("BTC/USDT", invalid_data)
         assert result is None
 
     def test_analyze_divergences(self, predictor: ReversalPredictor, sample_ohlcv_data: pd.DataFrame) -> None:
@@ -232,7 +232,7 @@ class TestReversalPredictor:
 
     def test_analyze_divergences_exception(self, predictor: ReversalPredictor) -> None:
         """Тест анализа дивергенций с исключением."""
-        result = predictor._analyze_divergences("invalid_data")  # type: ignore
+        result = predictor._analyze_divergences("invalid_data")
         assert result == []
 
     def test_detect_rsi_divergences_bearish(
@@ -722,7 +722,7 @@ class TestReversalPredictorIntegration:
         # Тестируем с некорректными данными
         invalid_data = "invalid_data"
         
-        result = predictor.predict_reversal("BTC/USDT", invalid_data)  # type: ignore
+        result = predictor.predict_reversal("BTC/USDT", invalid_data)
         assert result is None
         
         # Тестируем с пустыми данными

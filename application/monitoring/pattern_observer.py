@@ -243,7 +243,7 @@ class PatternObserver:
             observation_state = ObservationState(
                 pattern_id=pattern_id,
                 symbol=pattern_detection.symbol,
-                pattern_type=pattern_detection.pattern_type,  # type: ignore
+                pattern_type=pattern_detection.pattern_type,
                 start_timestamp=getattr(pattern_detection, 'timestamp', Timestamp(datetime.now())),
                 start_price=initial_data.get("price", 0.0),
                 start_volume=initial_data.get("volume", 0.0),
@@ -432,7 +432,7 @@ class PatternObserver:
             # Рассчитываем волатильность
             if len(observation.price_changes) >= 2:
                 volatility = np.std(observation.price_changes[-10:])  # Последние 10 изменений
-                observation.volatilities.append(volatility)  # type: ignore
+                observation.volatilities.append(volatility)
 
             # Увеличиваем счетчик периодов
             observation.elapsed_periods += 1
@@ -501,7 +501,7 @@ class PatternObserver:
             # Рассчитываем волатильность
             volatility = 0.0
             if observation.volatilities:
-                volatility = float(np.mean(observation.volatilities))  # type: ignore
+                volatility = float(np.mean(observation.volatilities))
 
             # Анализируем профиль объема
             volume_profile = "normal"
@@ -612,7 +612,7 @@ class PatternObserver:
             snapshot = PatternSnapshot(
                 pattern_id=pattern_id,
                 symbol=pattern_detection.symbol,
-                pattern_type=pattern_detection.pattern_type,  # type: ignore
+                pattern_type=pattern_detection.pattern_type,
                 timestamp=getattr(pattern_detection, 'timestamp', Timestamp(datetime.now())),
                 price=market_data.get("price", 0.0),
                 volume=market_data.get("volume", 0.0),
@@ -631,7 +631,7 @@ class PatternObserver:
             return PatternSnapshot(
                 pattern_id="",
                 symbol="",
-                pattern_type=PatternType.UNKNOWN,  # type: ignore
+                pattern_type=PatternType.UNKNOWN,
                 timestamp=Timestamp(datetime.now()),
                 price=0.0,
                 volume=0.0,

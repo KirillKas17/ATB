@@ -1068,7 +1068,7 @@ class EntityControllerImpl(BaseEntityController):
                 "results": None,
                 "metrics": None,
             }
-            return experiment  # type: ignore
+            return experiment
         except Exception as e:
             self.logger.error(f"Ошибка при создании эксперимента: {e}")
             return None

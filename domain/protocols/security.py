@@ -28,7 +28,7 @@ from uuid import UUID, uuid4
 logger = logging.getLogger(__name__)
 
 try:
-    import bcrypt  # type: ignore
+    import bcrypt
 
     BCRYPT_AVAILABLE = True
 except ImportError:

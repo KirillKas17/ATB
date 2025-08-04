@@ -19,7 +19,7 @@ class AnalyzerConfig:
 
     # Основные параметры
     analyzer_type: str = "standard"  # "standard", "influence", "advanced"
-    enabled_features: List[str] = None  # type: ignore
+    enabled_features: List[str] = None
     analysis_interval_minutes: int = 5
     cache_enabled: bool = True
     cache_ttl_minutes: int = 30

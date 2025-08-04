@@ -646,7 +646,7 @@ class PairsTradingStrategy(BaseStrategy):
             high_low = data["high"] - data["low"]
             high_close = np.abs(data["high"] - data["close"].shift())
             low_close = np.abs(data["low"] - data["close"].shift())
-            ranges = pd.concat([high_low, high_close, low_close], axis=1)  # type: ignore
+            ranges = pd.concat([high_low, high_close, low_close], axis=1)
             true_range = np.max(ranges, axis=1)
             atr = true_range.rolling(window=self._config.atr_period).mean()
             return {

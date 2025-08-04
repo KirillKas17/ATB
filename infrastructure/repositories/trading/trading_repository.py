@@ -115,7 +115,7 @@ class InMemoryTradingRepository(TradingRepositoryProtocol):
                     "risk_level": account_data.risk_level,
                 }
                 business_validation = business_validator.validate_order_business_rules(
-                    order.to_dict(), account_dict  # type: ignore
+                    order.to_dict(), account_dict
                 )
                 if not business_validation.is_valid:
                     return RepositoryResult(
@@ -1326,7 +1326,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                         order_id=OrderId(UUID(row['order_id'])),
                         trading_pair=str(symbol_str),
                         side=TradingOrderSide(row['side']),
-                        quantity=Volume(Decimal(str(row['quantity']))),
+                        quantity=Volume(Decimal(str(row['quantity'])), Currency.USD),
                         price=Price(Decimal(str(row['price'])), Currency.USD),
                         commission=Money(Decimal(str(row.get('fee', 0))), Currency.USD),
                         timestamp=cast(BaseTimestampValue, row['timestamp'])
@@ -1375,7 +1375,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                         order_id=OrderId(UUID(row['order_id'])),
                         trading_pair=str(symbol_str),
                         side=TradingOrderSide(row['side']),
-                        quantity=Volume(Decimal(str(row['quantity']))),
+                        quantity=Volume(Decimal(str(row['quantity'])), Currency.USD),
                         price=Price(Decimal(str(row['price'])), Currency.USD),
                         commission=Money(Decimal(str(row.get('fee', 0))), Currency.USD),
                         timestamp=cast(BaseTimestampValue, row['timestamp'])
@@ -1412,7 +1412,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                         order_id=OrderId(UUID(row['order_id'])),
                         trading_pair=str(symbol_str),
                         side=TradingOrderSide(row['side']),
-                        quantity=Volume(Decimal(str(row['quantity']))),
+                        quantity=Volume(Decimal(str(row['quantity'])), Currency.USD),
                         price=Price(Decimal(str(row['price'])), Currency.USD),
                         commission=Money(Decimal(str(row.get('fee', 0))), Currency.USD),
                         timestamp=cast(BaseTimestampValue, row['timestamp'])

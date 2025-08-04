@@ -239,9 +239,9 @@ class MirrorNeuronSignalExample(BaseExample):
         df = df.dropna()
         
         return {
-            'features': df[['returns', 'volatility', 'volume_ma', 'price_ma', 'trend', 'volume_spike']].values,  # type: ignore
-            'targets': df['returns'].shift(-1).dropna().values,  # type: ignore
-            'timestamps': df.index[:-1].values  # type: ignore
+            'features': df[['returns', 'volatility', 'volume_ma', 'price_ma', 'trend', 'volume_spike']].values,
+            'targets': df['returns'].shift(-1).dropna().values,
+            'timestamps': df.index[:-1].values
         }
     
     async def analyze_market_patterns(self) -> List[Dict[str, Any]]:

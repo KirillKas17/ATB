@@ -231,9 +231,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             # Проверка спреда
             try:
                 if len(data) > 0 and all(col in data.columns for col in ["high", "low", "close"]):
-                    high = data["high"].iloc[-1]  # type: ignore
-                    low = data["low"].iloc[-1]  # type: ignore
-                    close = data["close"].iloc[-1]  # type: ignore
+                    high = data["high"].iloc[-1]
+                    low = data["low"].iloc[-1]
+                    close = data["close"].iloc[-1]
                     if high is not None and not pd.isna(high) and low is not None and not pd.isna(low) and close is not None and not pd.isna(close) and close > 0:
                         spread = (high - low) / close
                         spread = float(spread) if spread is not None and not pd.isna(spread) else 0.0
@@ -297,7 +297,7 @@ class RegimeAdaptiveStrategy(BaseStrategy):
         try:
             try:
                 if len(data) > 0 and "close" in data.columns:
-                    current_price = data["close"].iloc[-1]  # type: ignore
+                    current_price = data["close"].iloc[-1]
                     current_price = float(current_price) if current_price is not None and not pd.isna(current_price) else 0.0
                 else:
                     return None
@@ -520,13 +520,13 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             # Расчет волатильности
             returns = data["close"].pct_change()
             volatility = returns.std()
-            volatility = float(volatility) if volatility is not None and not pd.isna(volatility) else 0.0  # type: ignore
+            volatility = float(volatility) if volatility is not None and not pd.isna(volatility) else 0.0
             # Расчет тренда
             sma_20 = data["close"].rolling(window=20).mean()
             sma_50 = data["close"].rolling(window=50).mean()
             sma_20_last = sma_20.iloc[-1]
             sma_50_last = sma_50.iloc[-1]
-            if sma_20_last is not None and not pd.isna(sma_20_last) and sma_50_last is not None and not pd.isna(sma_50_last) and sma_50_last > 0:  # type: ignore
+            if sma_20_last is not None and not pd.isna(sma_20_last) and sma_50_last is not None and not pd.isna(sma_50_last) and sma_50_last > 0:
                 trend_strength = abs(sma_20_last - sma_50_last) / sma_50_last
             else:
                 trend_strength = 0.0
@@ -552,9 +552,9 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
             )
             dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
-            adx = dx.rolling(window=14).mean()  # type: ignore
-            adx_last = adx.iloc[-1] if hasattr(adx, 'iloc') else adx[-1]  # type: ignore
-            adx_last = float(adx_last) if adx_last is not None and not pd.isna(adx_last) else 0.0  # type: ignore
+            adx = dx.rolling(window=14).mean()
+            adx_last = adx.iloc[-1] if hasattr(adx, 'iloc') else adx[-1]
+            adx_last = float(adx_last) if adx_last is not None and not pd.isna(adx_last) else 0.0
             # Определение режима
             if trend_strength > 0.02 and adx_last > 25:  # type: ignore[operator]
                 return "trend"
@@ -643,7 +643,7 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 / tr.rolling(window=params["adx_period"]).mean()
             )
             dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
-            adx = dx.rolling(window=params["adx_period"]).mean()  # type: ignore
+            adx = dx.rolling(window=params["adx_period"]).mean()
             # Волатильность
             returns = data["close"].pct_change()
             volatility = returns.rolling(window=20).std()
@@ -652,18 +652,18 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 data["volume"].rolling(window=self._config.volume_ma_period).mean()
             )
             return {
-                "rsi": float(rsi.iloc[-1]) if rsi.iloc[-1] is not None and not pd.isna(rsi.iloc[-1]) else 50.0,  # type: ignore
-                "bb_upper": float(bb_upper.iloc[-1]) if bb_upper.iloc[-1] is not None and not pd.isna(bb_upper.iloc[-1]) else 0.0,  # type: ignore
-                "bb_middle": float(bb_middle.iloc[-1]) if bb_middle.iloc[-1] is not None and not pd.isna(bb_middle.iloc[-1]) else 0.0,  # type: ignore
-                "bb_lower": float(bb_lower.iloc[-1]) if bb_lower.iloc[-1] is not None and not pd.isna(bb_lower.iloc[-1]) else 0.0,  # type: ignore
-                "macd": float(macd.iloc[-1]) if macd.iloc[-1] is not None and not pd.isna(macd.iloc[-1]) else 0.0,  # type: ignore
-                "macd_signal": float(macd_signal.iloc[-1]) if macd_signal.iloc[-1] is not None and not pd.isna(macd_signal.iloc[-1]) else 0.0,  # type: ignore
-                "atr": float(atr.iloc[-1]) if atr.iloc[-1] is not None and not pd.isna(atr.iloc[-1]) else 0.0,  # type: ignore
-                "adx": float(adx.iloc[-1]) if adx.iloc[-1] is not None and not pd.isna(adx.iloc[-1]) else 0.0,  # type: ignore
-                "plus_di": float(plus_di.iloc[-1]) if plus_di.iloc[-1] is not None and not pd.isna(plus_di.iloc[-1]) else 0.0,  # type: ignore
-                "minus_di": float(minus_di.iloc[-1]) if minus_di.iloc[-1] is not None and not pd.isna(minus_di.iloc[-1]) else 0.0,  # type: ignore
-                "volatility": float(volatility.iloc[-1]) if volatility.iloc[-1] is not None and not pd.isna(volatility.iloc[-1]) else 0.0,  # type: ignore
-                "volume_ma": float(volume_ma.iloc[-1]) if volume_ma.iloc[-1] is not None and not pd.isna(volume_ma.iloc[-1]) else 0.0,  # type: ignore
+                "rsi": float(rsi.iloc[-1]) if rsi.iloc[-1] is not None and not pd.isna(rsi.iloc[-1]) else 50.0,
+                "bb_upper": float(bb_upper.iloc[-1]) if bb_upper.iloc[-1] is not None and not pd.isna(bb_upper.iloc[-1]) else 0.0,
+                "bb_middle": float(bb_middle.iloc[-1]) if bb_middle.iloc[-1] is not None and not pd.isna(bb_middle.iloc[-1]) else 0.0,
+                "bb_lower": float(bb_lower.iloc[-1]) if bb_lower.iloc[-1] is not None and not pd.isna(bb_lower.iloc[-1]) else 0.0,
+                "macd": float(macd.iloc[-1]) if macd.iloc[-1] is not None and not pd.isna(macd.iloc[-1]) else 0.0,
+                "macd_signal": float(macd_signal.iloc[-1]) if macd_signal.iloc[-1] is not None and not pd.isna(macd_signal.iloc[-1]) else 0.0,
+                "atr": float(atr.iloc[-1]) if atr.iloc[-1] is not None and not pd.isna(atr.iloc[-1]) else 0.0,
+                "adx": float(adx.iloc[-1]) if adx.iloc[-1] is not None and not pd.isna(adx.iloc[-1]) else 0.0,
+                "plus_di": float(plus_di.iloc[-1]) if plus_di.iloc[-1] is not None and not pd.isna(plus_di.iloc[-1]) else 0.0,
+                "minus_di": float(minus_di.iloc[-1]) if minus_di.iloc[-1] is not None and not pd.isna(minus_di.iloc[-1]) else 0.0,
+                "volatility": float(volatility.iloc[-1]) if volatility.iloc[-1] is not None and not pd.isna(volatility.iloc[-1]) else 0.0,
+                "volume_ma": float(volume_ma.iloc[-1]) if volume_ma.iloc[-1] is not None and not pd.isna(volume_ma.iloc[-1]) else 0.0,
             }
         except Exception as e:
             logger.error(f"Error calculating indicators: {str(e)}")
@@ -690,7 +690,7 @@ class RegimeAdaptiveStrategy(BaseStrategy):
             volatility = "high" if indicators["volatility"] > 0.015 else "low"
             # Объем
             current_volume = data["volume"].iloc[-1]
-            current_volume = float(current_volume) if current_volume is not None and not pd.isna(current_volume) else 0.0  # type: ignore
+            current_volume = float(current_volume) if current_volume is not None and not pd.isna(current_volume) else 0.0
             volume = "high" if current_volume > indicators["volume_ma"] else "low"
             # Перекупленность/перепроданность
             overbought = indicators["rsi"] > 30

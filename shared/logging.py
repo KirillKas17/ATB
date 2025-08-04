@@ -283,7 +283,7 @@ def log_execution_time(func: F) -> F:
             )
             raise
 
-    return wrapper  # type: ignore
+    return wrapper
 
 
 def async_log_execution_time(func: F) -> F:
@@ -308,7 +308,7 @@ def async_log_execution_time(func: F) -> F:
             )
             raise
 
-    return wrapper  # type: ignore
+    return wrapper
 
 
 def log_trade(trade_data: Dict[str, Any]) -> None:

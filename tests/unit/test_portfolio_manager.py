@@ -166,7 +166,7 @@ class TestPortfolioManager:
             # Проверка диагонали (должна быть 1.0)
             for i in range(len(correlation_matrix)):
                 if hasattr(correlation_matrix, 'iloc'):
-                    assert correlation_matrix.iloc[i, i] == pytest.approx(1.0, abs=1e-6)  # type: ignore
+                    assert correlation_matrix.iloc[i, i] == pytest.approx(1.0, abs=1e-6)
     
     @pytest.mark.asyncio
     async def test_get_portfolio_metrics(self, portfolio_manager: PortfolioManager, sample_portfolio: dict) -> None:

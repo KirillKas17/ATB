@@ -20,7 +20,7 @@ except ImportError:
     logger.warning("PyTorch не установлен, нейронные сети недоступны")
 
 try:
-    import onnxruntime as ort  # type: ignore
+    import onnxruntime as ort
 except ImportError:
     ort = None
     logger.warning("ONNX Runtime не установлен, ONNX модели недоступны")
@@ -115,7 +115,7 @@ class AIEnhancementEngine(BaseAIEnhancement):
     def _load_onnx_model(self, model_name: str, model_path: Path) -> Any:
         """Загрузка ONNX модели."""
         try:
-            import onnx  # type: ignore
+            import onnx
 
             # Проверка модели ONNX
             onnx_model = onnx.load(str(model_path))

@@ -25,7 +25,7 @@ class TestPatternObserver:
     def observer(self, mock_repositories: tuple[Mock, Mock, Mock]) -> PatternObserver:
         """Создает экземпляр наблюдателя."""
         pattern_repo, market_repo, alert_repo = mock_repositories
-        return PatternObserver()  # type: ignore
+        return PatternObserver()
     @pytest.fixture
     def sample_market_data(self) -> list[dict[str, Any]]:
         """Создает образец рыночных данных."""
@@ -42,7 +42,7 @@ class TestPatternObserver:
         timeframe = "1h"
         market_repo.get_market_data.return_value = sample_market_data
         pattern_repo.get_patterns.return_value = []
-        result = await observer.observe_patterns(symbol, timeframe)  # type: ignore
+        result = await observer.observe_patterns(symbol, timeframe)
         assert "symbol" in result
         assert "patterns_detected" in result
         assert "alerts_generated" in result
@@ -55,7 +55,7 @@ class TestPatternObserver:
     @pytest.mark.asyncio
     async def test_detect_patterns(self, observer: PatternObserver, sample_market_data: list[dict[str, Any]]) -> None:
         """Тест обнаружения паттернов."""
-        patterns = observer._detect_patterns(sample_market_data)  # type: ignore
+        patterns = observer._detect_patterns(sample_market_data)
         assert isinstance(patterns, list)
         for pattern in patterns:
             assert "type" in pattern
@@ -76,7 +76,7 @@ class TestPatternObserver:
             {"close": "48000", "high": "49000"},
             {"close": "50000", "high": "51000"}
         ]
-        patterns = observer._detect_double_top(market_data)  # type: ignore
+        patterns = observer._detect_double_top(market_data)
         assert isinstance(patterns, list)
         for pattern in patterns:
             assert pattern["type"] == "double_top"
@@ -93,7 +93,7 @@ class TestPatternObserver:
             {"close": "52000", "low": "51000"},
             {"close": "49000", "low": "48000"}
         ]
-        patterns = observer._detect_double_bottom(market_data)  # type: ignore
+        patterns = observer._detect_double_bottom(market_data)
         assert isinstance(patterns, list)
         for pattern in patterns:
             assert pattern["type"] == "double_bottom"
@@ -110,7 +110,7 @@ class TestPatternObserver:
             {"close": "49000", "high": "50000"},
             {"close": "51000", "high": "52000"}
         ]
-        patterns = observer._detect_head_and_shoulders(market_data)  # type: ignore
+        patterns = observer._detect_head_and_shoulders(market_data)
         assert isinstance(patterns, list)
         for pattern in patterns:
             assert pattern["type"] == "head_and_shoulders"
@@ -128,7 +128,7 @@ class TestPatternObserver:
             {"close": "51500", "high": "51600", "low": "50500"},
             {"close": "52000", "high": "51800", "low": "51000"}
         ]
-        patterns = observer._detect_triangle_patterns(market_data)  # type: ignore
+        patterns = observer._detect_triangle_patterns(market_data)
         assert isinstance(patterns, list)
         for pattern in patterns:
             assert pattern["type"] in ["ascending_triangle", "descending_triangle", "symmetrical_triangle"]
@@ -144,7 +144,7 @@ class TestPatternObserver:
             "price_levels": [51000, 52000],
             "volume_profile": [1000, 1200]
         }
-        confidence = observer._calculate_pattern_confidence(pattern)  # type: ignore
+        confidence = observer._calculate_pattern_confidence(pattern)
         assert isinstance(confidence, (int, float))
         assert 0 <= confidence <= 1
     @pytest.mark.asyncio
@@ -160,7 +160,7 @@ class TestPatternObserver:
             }
         ]
         alert_repo.create_alert.return_value = True
-        alerts = await observer._generate_pattern_alerts(symbol, patterns)  # type: ignore
+        alerts = await observer._generate_pattern_alerts(symbol, patterns)
         assert isinstance(alerts, list)
         for alert in alerts:
             assert "type" in alert
@@ -183,7 +183,7 @@ class TestPatternObserver:
             "price_levels": [51000, 52000]
         }
         pattern_repo.save_pattern.return_value = True
-        result = await observer._save_pattern_observation(symbol, pattern)  # type: ignore
+        result = await observer._save_pattern_observation(symbol, pattern)
         assert result is True
         pattern_repo.save_pattern.assert_called_once()
     @pytest.mark.asyncio
@@ -198,7 +198,7 @@ class TestPatternObserver:
             {"timestamp": "2024-01-02", "pattern": "support_level", "success": False}
         ]
         pattern_repo.get_patterns.return_value = mock_history
-        history = await observer.get_pattern_history(symbol, timeframe, days)  # type: ignore
+        history = await observer.get_pattern_history(symbol, timeframe, days)
         assert isinstance(history, list)
         assert len(history) == 2
         for entry in history:
@@ -210,12 +210,12 @@ class TestPatternObserver:
     def test_validate_market_data(self, observer: PatternObserver, sample_market_data: list[dict[str, Any]]) -> None:
         """Тест валидации рыночных данных."""
         # Корректные данные
-        assert observer._validate_market_data(sample_market_data) is True  # type: ignore
+        assert observer._validate_market_data(sample_market_data) is True
         # Некорректные данные - пустой список
-        assert observer._validate_market_data([]) is False  # type: ignore
+        assert observer._validate_market_data([]) is False
         # Некорректные данные - недостаточно точек
         short_data = [{"close": "50000"}]
-        assert observer._validate_market_data(short_data) is False  # type: ignore
+        assert observer._validate_market_data(short_data) is False
     @pytest.mark.asyncio
     async def test_calculate_pattern_statistics(self, observer: PatternObserver) -> None:
         """Тест расчета статистики паттернов."""
@@ -228,7 +228,7 @@ class TestPatternObserver:
         total_patterns = len(patterns)
         successful_patterns = sum(1 for p in patterns if p.get("success", False))
         success_rate = successful_patterns / total_patterns if total_patterns > 0 else 0
-        average_confidence = sum(float(p.get("confidence", 0)) for p in patterns) / total_patterns if total_patterns > 0 else 0  # type: ignore
+        average_confidence = sum(float(p.get("confidence", 0)) for p in patterns) / total_patterns if total_patterns > 0 else 0
         
         stats = {
             "total_patterns": total_patterns,
@@ -319,7 +319,7 @@ class TestPatternObserver:
         # Создаем простую сводку
         total_patterns = len(patterns)
         total_alerts = len(alerts)
-        high_confidence_patterns = sum(1 for p in patterns if float(p.get("confidence", 0)) > 0.7)  # type: ignore
+        high_confidence_patterns = sum(1 for p in patterns if float(p.get("confidence", 0)) > 0.7)
         high_severity_alerts = sum(1 for a in alerts if str(a.get("severity", "")) == "HIGH")
         pattern_types = list(set(p.get("type", "") for p in patterns))
         

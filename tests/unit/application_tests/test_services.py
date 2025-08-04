@@ -25,7 +25,7 @@ from application.services.implementations.cache_service_impl import CacheService
 try:
     from application.services.implementations.notification_service_impl import NotificationServiceImpl
 except ImportError:
-    NotificationServiceImpl = object  # type: ignore
+    NotificationServiceImpl = object
 class TestMarketServiceImpl:
     """Тесты для MarketServiceImpl."""
     def setup_method(self) -> Any:

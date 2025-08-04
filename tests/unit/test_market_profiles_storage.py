@@ -103,7 +103,7 @@ class TestMarketMakerStorage:
     @pytest.mark.asyncio
     async def test_save_pattern_invalid_data(self, storage) -> None:
         """Тест сохранения некорректных данных."""
-        result = await storage.save_pattern("", None)  # type: ignore
+        result = await storage.save_pattern("", None)
         assert result is False
     @pytest.mark.asyncio
     async def test_get_patterns_by_symbol_empty(self, storage) -> None:
@@ -243,7 +243,7 @@ class TestMarketMakerStorage:
     async def test_error_handling(self, storage) -> None:
         """Тест обработки ошибок."""
         # Тест с некорректными данными
-        result = await storage.save_pattern("", None)  # type: ignore
+        result = await storage.save_pattern("", None)
         assert result is False
         # Тест с несуществующим символом
         patterns = await storage.get_patterns_by_symbol("NONEXISTENT")

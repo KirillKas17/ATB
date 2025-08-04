@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import aiofiles  # type: ignore
+import aiofiles
 import joblib
 import pandas as pd
 import psutil

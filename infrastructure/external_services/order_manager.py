@@ -784,7 +784,7 @@ class ProductionOrderManager(ExchangeProtocol):
         """Создание ордера."""
         # Исправление: изменяем сигнатуру для соответствия протоколу
         from domain.value_objects.volume import Volume
-        quantity_volume = Volume(order.quantity.amount, order.quantity.currency)  # type: ignore
+        quantity_volume = Volume(order.quantity.amount, order.quantity.currency)
         result = await self.place_order(
             symbol=order.symbol,
             side=order.side,

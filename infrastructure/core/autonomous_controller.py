@@ -38,7 +38,7 @@ class AutonomousController:
         self.metrics = MetricsCollector(event_bus)
         self.cache_manager = get_cache_manager()
         # Исправление: используем правильный тип EventBus
-        self.circuit_breaker = CircuitBreaker(event_bus)  # type: ignore
+        self.circuit_breaker = CircuitBreaker(event_bus)
         # ML компоненты
         self.live_adaptation = LiveAdaptation()
         self.meta_learning = MetaLearning()

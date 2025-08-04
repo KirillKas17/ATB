@@ -773,10 +773,10 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             if not self.arb_config.use_sentiment:
                 return None
             # Расчет настроений на основе объема и цены
-            volume_change = data["volume"].pct_change()  # type: ignore
-            price_change = data["close"].pct_change()  # type: ignore
+            volume_change = data["volume"].pct_change()
+            price_change = data["close"].pct_change()
             # Корреляция между объемом и ценой
-            correlation = volume_change.corr(price_change)  # type: ignore
+            correlation = volume_change.corr(price_change)
             # Нормализация
             sentiment = (correlation + 1) / 2
             return sentiment

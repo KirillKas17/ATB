@@ -695,12 +695,12 @@ async def handle_trading_event(event: EventDataType) -> None:
         
         if event_type == 'ORDER_CREATED' and isinstance(data, dict):
             # Обработка создания ордера
-            order_data: OrderDataDict = data  # type: ignore
+            order_data: OrderDataDict = data
             print(f"Order created: {order_data['symbol']}")
         
         elif event_type == 'TRADE_EXECUTED' and isinstance(data, dict):
             # Обработка исполнения сделки
-            trade_data: TradeDataDict = data  # type: ignore
+            trade_data: TradeDataDict = data
             print(f"Trade executed: {trade_data['symbol']} at {trade_data['price']}")
 
 

@@ -104,8 +104,8 @@ class TestTechnicalAnalysis:
         assert len(middle) == len(sample_data)
         assert len(lower) == len(sample_data)
         # Проверка, что upper >= middle >= lower
-        assert (upper >= middle).all()  # type: ignore
-        assert (middle >= lower).all()  # type: ignore
+        assert (upper >= middle).all()
+        assert (middle >= lower).all()
         # Проверка, что middle = SMA
         sma_20 = TechnicalIndicators.calculate_sma(sample_data['close'], 20)
         np.testing.assert_array_almost_equal(middle.to_numpy(), sma_20.to_numpy(), decimal=10)

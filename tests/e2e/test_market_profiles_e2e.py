@@ -371,7 +371,7 @@ class TestMarketProfilesE2E:
                 timestamp=datetime.now() + timedelta(seconds=i),
                 features=features,
                 confidence=Confidence(0.7 + (i % 10) * 0.02),
-                context={"market_regime": "trending", "session": "asian"}  # type: ignore
+                context={"market_regime": "trending", "session": "asian"}
             )
             # Сохраняем паттерн
             success = await storage.save_pattern("BTCUSDT", pattern)
@@ -454,7 +454,7 @@ class TestMarketProfilesE2E:
         # Тест 1: Некорректные данные
         print("🔍 Тест 1: Некорректные данные")
         try:
-            await storage.save_pattern("", None)  # type: ignore
+            await storage.save_pattern("", None)
             assert False, "Должна была возникнуть ошибка"
         except Exception:
             print("✅ Ошибка корректно обработана")
@@ -466,7 +466,7 @@ class TestMarketProfilesE2E:
         # Тест 3: Некорректный анализ
         print("🔍 Тест 3: Некорректный анализ")
         try:
-            await analyzer.analyze_pattern("", None)  # type: ignore
+            await analyzer.analyze_pattern("", None)
             assert False, "Должна была возникнуть ошибка"
         except Exception:
             print("✅ Ошибка анализа корректно обработана")

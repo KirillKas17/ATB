@@ -164,8 +164,8 @@ class TechnicalRegimeClassifier(RegimeClassifier):
     def _calculate_rsi(self, prices: pd.Series, period: int = 14) -> pd.Series:
         """Рассчитать RSI."""
         delta = prices.diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()  # type: ignore
-        loss = (delta.where(delta < 0, 0)).rolling(window=period).mean()  # type: ignore
+        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+        loss = (delta.where(delta < 0, 0)).rolling(window=period).mean()
         rs = gain / loss
         rsi = 100 - (100 / (1 + rs))
         return rsi
@@ -290,7 +290,7 @@ class MarketRegimeAgent:
         try:
             backup_data = {
                 "agent_id": self.agent_id,
-                "timestamp": Timestamp.now().isoformat(),  # type: ignore
+                "timestamp": Timestamp.now().isoformat(),
                 "state": {
                     symbol: {
                         "symbol": state.symbol,

@@ -8,7 +8,7 @@ from threading import Lock
 from typing import Any, Dict, List, Optional, Literal, Union, cast
 
 import backoff
-import ccxt  # type: ignore
+import ccxt
 from loguru import logger
 
 from domain.exceptions import (

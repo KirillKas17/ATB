@@ -23,8 +23,8 @@ try:
     from sqlalchemy import text
     HAS_SQLALCHEMY = True
 except ImportError:
-    AsyncSession = None  # type: ignore
-    AsyncEngine = None  # type: ignore
+    AsyncSession = None
+    AsyncEngine = None
     HAS_SQLALCHEMY = False
 
 logger = logging.getLogger(__name__)

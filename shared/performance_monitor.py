@@ -435,9 +435,9 @@ class PerformanceMonitor:
             "by_metric": defaultdict(int),
         }
         for alert in filtered_alerts:
-            summary["by_level"][alert.level.value] += 1  # type: ignore
-            summary["by_component"][alert.component] += 1  # type: ignore
-            summary["by_metric"][alert.metric_name] += 1  # type: ignore
+            summary["by_level"][alert.level.value] += 1
+            summary["by_component"][alert.component] += 1
+            summary["by_metric"][alert.metric_name] += 1
         return summary
 
     async def _cleanup_old_data(self) -> None:

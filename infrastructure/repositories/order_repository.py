@@ -612,7 +612,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                     await self.cache_service.invalidate(f"order:{order.id}")
                 return self._row_to_order(result)
 
-        return await self._execute_with_retry(_save_operation, order)  # type: ignore
+        return await self._execute_with_retry(_save_operation, order)
 
     async def get_by_id(self, entity_id: Union[UUID, str]) -> Optional[Order]:
         """Получить ордер по ID с кэшированием."""
@@ -624,7 +624,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             cached = await self.cache_service.get(cache_key)
             if cached:
                 self._metrics["cache_hits"] += 1
-                return cached  # type: ignore
+                return cached
             self._metrics["cache_misses"] += 1
 
         async def _get_operation(conn: Any) -> Optional[Order]:
@@ -638,7 +638,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 return order
             return None
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_by_trading_pair(
         self, trading_pair: TradingPair, status: Optional[OrderStatus] = None
@@ -654,7 +654,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 results = await conn.fetch(query, str(trading_pair))
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_active_orders(
         self, trading_pair: Optional[TradingPair] = None
@@ -682,7 +682,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 results = await conn.fetch(query, active_statuses)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_orders_by_status(self, status: str) -> List[Order]:
         """Получить ордеры по статусу."""
@@ -692,7 +692,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             results = await conn.fetch(query, status)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_orders_by_side(
         self, side: OrderSide, trading_pair: Optional[TradingPair] = None
@@ -708,7 +708,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 results = await conn.fetch(query, side.value)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_orders_by_type(
         self, order_type: OrderType, trading_pair: Optional[TradingPair] = None
@@ -724,7 +724,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 results = await conn.fetch(query, order_type.value)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_orders_by_date_range(
         self,
@@ -753,7 +753,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 results = await conn.fetch(query, start_date, end_date)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def update(self, order: Order) -> Order:
         """Обновить ордер."""
@@ -790,7 +790,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                     await self.cache_service.invalidate(f"order:{order.id}")
                 return self._row_to_order(result)
 
-        return await self._execute_with_retry(_update_operation)  # type: ignore
+        return await self._execute_with_retry(_update_operation)
 
     async def delete(self, entity_id: Union[UUID, str]) -> bool:
         """Удалить ордер."""
@@ -858,7 +858,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 result = await conn.fetchval(query)
                 return result or 0
 
-        return await self._execute_with_retry(_count_operation)  # type: ignore
+        return await self._execute_with_retry(_count_operation)
 
     async def get_filled_orders(
         self,
@@ -890,7 +890,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             results = await conn.fetch(query, *params)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_cancelled_orders(
         self,
@@ -922,7 +922,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             results = await conn.fetch(query, *params)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_rejected_orders(
         self,
@@ -954,7 +954,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             results = await conn.fetch(query, *params)
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def get_statistics(
         self,
@@ -995,7 +995,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             result = await conn.fetchrow(query, *params)
             return dict(result) if result else {}
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def cleanup_expired_orders(self, before_date: datetime) -> int:
         """Очистить устаревшие ордеры."""
@@ -1006,7 +1006,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
                 result = await conn.execute(query, before_date)
                 return int(result.split()[-1]) if result else 0
 
-        return await self._execute_with_retry(_cleanup_operation)  # type: ignore
+        return await self._execute_with_retry(_cleanup_operation)
 
     async def create(self, order: Order) -> Order:
         """Создать новый ордер."""
@@ -1022,7 +1022,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             results = await conn.fetch(query, str(portfolio_id))
             return [self._row_to_order(row) for row in results]
 
-        return await self._execute_with_retry(_get_operation)  # type: ignore
+        return await self._execute_with_retry(_get_operation)
 
     async def count_by_portfolio_id(self, portfolio_id: OrderId) -> int:
         """Подсчитать ордеры по ID портфеля."""
@@ -1033,7 +1033,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             )
             return result or 0
 
-        return await self._execute_with_retry(_count_operation)  # type: ignore
+        return await self._execute_with_retry(_count_operation)
 
     async def find_by_id(self, id: OrderId) -> Optional[Order]:
         """Найти ордер по ID."""
@@ -1055,7 +1055,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             result = await conn.fetch(query, *params)
             return [self._row_to_order(row) for row in result]
 
-        return await self._execute_with_retry(_find_operation)  # type: ignore
+        return await self._execute_with_retry(_find_operation)
 
     async def find_by_criteria(
         self, criteria: Dict, limit: Optional[int] = None, offset: Optional[int] = None
@@ -1076,7 +1076,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
             result = await conn.fetch(query, *params)
             return [self._row_to_order(row) for row in result]
 
-        return await self._execute_with_retry(_find_operation)  # type: ignore
+        return await self._execute_with_retry(_find_operation)
 
     def _row_to_order(self, row: Any) -> Order:
         """Преобразование строки БД в объект Order."""

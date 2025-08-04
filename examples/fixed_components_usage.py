@@ -15,7 +15,7 @@ from infrastructure.strategies.consolidated_strategy import (
     ConsolidatedStrategy, StrategyConfig, StrategyType, MarketRegime
 )
 # from infrastructure.entity_system.perception.dependency_resolver import (
-#     DependencyResolver, DependencyResolution  # type: ignore
+#     DependencyResolver, DependencyResolution
 # )
 from domain.types.repository_types import RepositoryOperation
 
