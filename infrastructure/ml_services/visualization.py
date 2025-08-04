@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns  # type: ignore
+import seaborn as sns
 
 # Type aliases
 DataFrame = pd.DataFrame

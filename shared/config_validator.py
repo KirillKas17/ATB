@@ -56,7 +56,7 @@ class BaseConfigValidator:
             self.issues.clear()
             # Базовая валидация структуры
             if not isinstance(config, dict):
-                self.add_issue(
+                self.add_issue(  # type: ignore[unreachable]
                     ConfigSeverity.CRITICAL,
                     "Configuration must be a dictionary",
                     "root",
@@ -463,7 +463,7 @@ class ConfigValidator:
                 current[key] = {}
             current = current[key]
             if not isinstance(current, dict):
-                current = {}
+                current = {}  # type: ignore[unreachable]
         current[keys[-1]] = value
 
     def get_issues_summary(self) -> Dict[str, Any]:

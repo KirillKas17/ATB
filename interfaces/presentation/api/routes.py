@@ -51,7 +51,7 @@ strategy_router = APIRouter()
 
 
 # Trading routes
-@trading_router.post("/orders", response_model=OrderResponse)  # type: ignore[misc]
+@trading_router.post("/orders", response_model=OrderResponse)
 async def create_order(request: CreateOrderRequest) -> OrderResponse:
     """Создать ордер."""
     try:
@@ -70,7 +70,7 @@ async def create_order(request: CreateOrderRequest) -> OrderResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@trading_router.get("/orders", response_model=List[OrderResponse])  # type: ignore[misc]
+@trading_router.get("/orders", response_model=List[OrderResponse])
 async def get_orders(symbol: Optional[str] = None, status: Optional[str] = None) -> List[OrderResponse]:
     """Получить список ордеров."""
     try:
@@ -80,7 +80,7 @@ async def get_orders(symbol: Optional[str] = None, status: Optional[str] = None)
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@trading_router.get("/orders/{order_id}", response_model=OrderResponse)  # type: ignore[misc]
+@trading_router.get("/orders/{order_id}", response_model=OrderResponse)
 async def get_order(order_id: str) -> OrderResponse:
     """Получить ордер по ID."""
     try:
@@ -99,7 +99,7 @@ async def get_order(order_id: str) -> OrderResponse:
         raise HTTPException(status_code=404, detail="Order not found")
 
 
-@trading_router.delete("/orders/{order_id}")  # type: ignore[misc]
+@trading_router.delete("/orders/{order_id}")
 async def cancel_order(order_id: str) -> Dict[str, str]:
     """Отменить ордер."""
     try:
@@ -110,7 +110,7 @@ async def cancel_order(order_id: str) -> Dict[str, str]:
 
 
 # Portfolio routes
-@portfolio_router.get("/", response_model=PortfolioResponse)  # type: ignore[misc]
+@portfolio_router.get("/", response_model=PortfolioResponse)
 async def get_portfolio() -> PortfolioResponse:
     """Получить портфель."""
     try:
@@ -122,7 +122,7 @@ async def get_portfolio() -> PortfolioResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@portfolio_router.get("/positions")  # type: ignore[misc]
+@portfolio_router.get("/positions")
 async def get_positions() -> List[Dict[str, Any]]:
     """Получить позиции."""
     try:
@@ -133,7 +133,7 @@ async def get_positions() -> List[Dict[str, Any]]:
 
 
 # Strategy routes
-@strategy_router.get("/", response_model=List[StrategyResponse])  # type: ignore[misc]
+@strategy_router.get("/", response_model=List[StrategyResponse])
 async def get_strategies() -> List[StrategyResponse]:
     """Получить список стратегий."""
     try:
@@ -143,7 +143,7 @@ async def get_strategies() -> List[StrategyResponse]:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@strategy_router.get("/{strategy_id}", response_model=StrategyResponse)  # type: ignore[misc]
+@strategy_router.get("/{strategy_id}", response_model=StrategyResponse)
 async def get_strategy(strategy_id: str) -> StrategyResponse:
     """Получить стратегию по ID."""
     try:
@@ -159,7 +159,7 @@ async def get_strategy(strategy_id: str) -> StrategyResponse:
         raise HTTPException(status_code=404, detail="Strategy not found")
 
 
-@strategy_router.post("/{strategy_id}/activate")  # type: ignore[misc]
+@strategy_router.post("/{strategy_id}/activate")
 async def activate_strategy(strategy_id: str) -> Dict[str, str]:
     """Активировать стратегию."""
     try:
@@ -169,7 +169,7 @@ async def activate_strategy(strategy_id: str) -> Dict[str, str]:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@strategy_router.post("/{strategy_id}/deactivate")  # type: ignore[misc]
+@strategy_router.post("/{strategy_id}/deactivate")
 async def deactivate_strategy(strategy_id: str) -> Dict[str, str]:
     """Деактивировать стратегию."""
     try:
