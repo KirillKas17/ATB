@@ -4,7 +4,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from ..entities.trading_pair import TradingPair
 
@@ -156,7 +156,7 @@ class TradingPairRepository(ABC):
         """
 
     @abstractmethod
-    async def get_statistics(self) -> Dict:
+    async def get_statistics(self) -> Dict[str, Any]:
         """
         Получение статистики по торговым парам
 

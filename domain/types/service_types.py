@@ -26,6 +26,7 @@ from typing import (
     TypeVar,
     Union,
     runtime_checkable,
+    TypeAlias,
 )
 
 import pandas as pd
@@ -49,9 +50,9 @@ from domain.types import (
 # БАЗОВЫЕ ТИПЫ ДЛЯ СЕРВИСОВ
 # ============================================================================
 # Типы для рыночных данных
-MarketDataFrame = pd.DataFrame
+MarketDataFrame: TypeAlias = pd.DataFrame
 OrderBookData = Dict[str, Any]
-HistoricalData = pd.DataFrame
+HistoricalData: TypeAlias = pd.DataFrame
 FeatureVector = List[float]
 # Типы для метрик
 VolatilityValue = NewType("VolatilityValue", Decimal)

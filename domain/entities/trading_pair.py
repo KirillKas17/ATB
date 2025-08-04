@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, Optional, Protocol, runtime_checkable
+from typing import Dict, Optional, Protocol, runtime_checkable, Any
 
 from domain.types import TradingPair as TradingPairType
 from domain.types import VolumePrecision, Symbol, PricePrecision
@@ -53,9 +53,9 @@ class TradingPairProtocol(Protocol):
     def deactivate(self) -> None: ...
     def activate(self) -> None: ...
     def update_precision(self, price_precision: int, volume_precision: int) -> None: ...
-    def to_dict(self) -> Dict: ...
+    def to_dict(self) -> Dict[str, Any]: ...
     @classmethod
-    def from_dict(cls, data: Dict) -> "TradingPairProtocol": ...
+    def from_dict(cls, data: Dict[str, Any]) -> "TradingPairProtocol": ...
 @dataclass
 class TradingPair:
     """
@@ -155,7 +155,7 @@ class TradingPair:
         self.volume_precision = VolumePrecision(volume_precision)
         self.updated_at = datetime.now()
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Преобразование в словарь"""
         return {
             "symbol": str(self.symbol),
@@ -175,7 +175,7 @@ class TradingPair:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "TradingPair":
+    def from_dict(cls, data: Dict[str, Any]) -> "TradingPair":
         """Создание из словаря"""
         base_currency = Currency.from_string(data["base_currency"]) if data.get("base_currency") else None
         quote_currency = Currency.from_string(data["quote_currency"]) if data.get("quote_currency") else None

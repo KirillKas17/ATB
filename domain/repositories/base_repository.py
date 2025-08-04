@@ -23,6 +23,7 @@ from typing import (
     runtime_checkable,
     Callable,
     ContextManager,
+    Deque,
 )
 from uuid import UUID
 from collections import deque
@@ -114,7 +115,7 @@ class BaseRepository(ABC, Generic[T]):
         self._state = RepositoryState.INITIALIZING
         # Метрики и статистика
         self._operation_count = 0
-        self._query_times: deque = deque(maxlen=1000)
+        self._query_times: Deque[float] = deque(maxlen=1000)
         self._error_count = 0  # Добавляем недостающий атрибут
         self._last_error: Optional[str] = None
         self._startup_time = datetime.now()

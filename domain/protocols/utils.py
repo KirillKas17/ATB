@@ -7,7 +7,7 @@ import asyncio
 import functools
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, Awaitable
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, Awaitable, Tuple, Type
 from uuid import UUID
 
 from domain.exceptions.protocol_exceptions import (
@@ -44,7 +44,7 @@ def retry_on_error(
     max_retries: int = 3,
     delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions: tuple = (ProtocolError,),
+    exceptions: Tuple[Type[Exception], ...] = (ProtocolError,),
 ) -> Callable[[F], F]:
     """
     Декоратор для повторных попыток при ошибках.
@@ -341,7 +341,7 @@ async def with_timeout(
 
 
 async def batch_operation(
-    items: List[Any], operation: Callable, batch_size: int = 10, max_concurrent: int = 5
+    items: List[Any], operation: Callable[[Any], Awaitable[Any]], batch_size: int = 10, max_concurrent: int = 5
 ) -> List[Any]:
     """
     Пакетная обработка элементов.

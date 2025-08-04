@@ -61,7 +61,7 @@ class ValueObjectFactory:
         Args:
             config: Конфигурация фабрики
         """
-        self._registry: Dict[str, Type[ValueObject]] = {
+        self._registry: Dict[str, Type[Any]] = {
             "Money": Money,
             "Price": Price,
             "Volume": Volume,
@@ -178,6 +178,10 @@ class ValueObjectFactory:
                 currency_obj = Currency.from_string(currency)
             else:
                 currency_obj = currency
+
+            # Если валюта не указана, используем USD по умолчанию
+            if currency_obj is None:
+                currency_obj = Currency.USD
 
             if isinstance(value, str):
                 value_decimal = Decimal(value.replace(",", ""))
