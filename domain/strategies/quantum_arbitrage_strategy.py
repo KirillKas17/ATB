@@ -10,9 +10,11 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union
 from enum import Enum
 import concurrent.futures
+from uuid import uuid4
 
 from shared.numpy_utils import np
 import pandas as pd
@@ -29,9 +31,12 @@ from domain.entities.signal import Signal, SignalType
 from domain.entities.strategy import Strategy, StrategyType
 from domain.entities.trading_pair import TradingPair
 from domain.strategies.base_strategy import BaseStrategy, StrategyMetrics
+from domain.types.strategy_types import StrategyId
+from domain.value_objects.money import Money
+from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
-from domain.value_objects.currency import Currency
+from domain.entities.symbol import Symbol
 from domain.intelligence.quantum_pattern_analyzer import (
     QuantumPatternAnalyzer, 
     MultidimensionalPattern,
@@ -140,7 +145,9 @@ class QuantumArbitrageStrategy(BaseStrategy):
         enable_ml_predictions: bool = True,
         max_concurrent_opportunities: int = 5
     ):
-        super().__init__(strategy_id, StrategyType.ARBITRAGE)
+        # Создаем правильный StrategyId
+        strategy_id_obj = StrategyId(strategy_id) if isinstance(strategy_id, str) else strategy_id
+        super().__init__(strategy_id_obj, {"type": "ARBITRAGE"})
         
         self.min_profit_threshold = min_profit_threshold
         self.max_risk_level = max_risk_level
@@ -743,11 +750,11 @@ class QuantumArbitrageStrategy(BaseStrategy):
                 # Проверка условий арбитража
                 if abs(profit_percentage) > self.min_profit_threshold and is_anomaly:
                     risk_level = self._assess_temporal_arbitrage_risk(
-                        profit_percentage, anomaly_score, history
+                        profit_percentage, history
                     )
                     
                     confidence = self._calculate_temporal_arbitrage_confidence(
-                        profit_percentage, anomaly_score
+                        profit_percentage
                     )
                     
                     # Оценка временного окна на основе волатильности
@@ -931,7 +938,7 @@ class QuantumArbitrageStrategy(BaseStrategy):
         return TradingPair(
             base_currency=Currency.BTC,  # Заглушка
             quote_currency=Currency.USD,
-            symbol=symbol
+            symbol=Symbol(symbol)
         )
     
     def _create_trading_pair_from_currencies(self, base: str, quote: str) -> TradingPair:
@@ -939,7 +946,7 @@ class QuantumArbitrageStrategy(BaseStrategy):
         return TradingPair(
             base_currency=Currency(base) if hasattr(Currency, base) else Currency.BTC,
             quote_currency=Currency(quote) if hasattr(Currency, quote) else Currency.USD,
-            symbol=f"{base}{quote}"
+            symbol=Symbol(f"{base}{quote}")
         )
     
     async def _create_execution_plans(
@@ -1078,11 +1085,11 @@ class QuantumArbitrageStrategy(BaseStrategy):
                 signal_type = SignalType.BUY if step['action'] == 'buy' else SignalType.SELL
                 
                 signal = Signal(
-                    strategy_id=self.strategy_id,
-                    trading_pair=opportunity.trading_pairs[0],  # Упрощение
+                    strategy_id=self.strategy_id.value if hasattr(self.strategy_id, 'value') else self.strategy_id,
+                    trading_pair=str(opportunity.trading_pairs[0].symbol),  # Строка
                     signal_type=signal_type,
-                    confidence=opportunity.confidence_score,
-                    price=Price(step.get('price', 0), Currency.USD),
+                    confidence=Decimal(str(opportunity.confidence_score)),
+                    price=Money(Decimal(str(step.get('price', 0))), Currency.USD),
                     quantity=Decimal('1.0'),  # Упрощение
                     metadata={
                         'arbitrage_type': opportunity.arbitrage_type.value,
@@ -1122,3 +1129,47 @@ class QuantumArbitrageStrategy(BaseStrategy):
             'ml_models_trained': self._ml_models_trained,
             'quantum_analyzer_stats': self.quantum_analyzer.get_analysis_statistics()
         }
+    
+    def _assess_triangular_arbitrage_risk(self, rates: List[float], profit: float) -> RiskLevel:
+        """Оценка риска треугольного арбитража."""
+        # Расчёт на основе волатильности курсов и размера прибыли
+        rate_volatility = np.std(rates) if len(rates) > 1 else 0.0
+        
+        if profit > 0.01 and rate_volatility < 0.05:  # 1% прибыль, низкая волатильность
+            return RiskLevel.LOW
+        elif profit > 0.005:  # 0.5% прибыль
+            return RiskLevel.MEDIUM
+        else:
+            return RiskLevel.HIGH
+    
+    def _calculate_triangular_arbitrage_confidence(self, rates: List[float]) -> float:
+        """Расчёт уверенности в треугольном арбитраже."""
+        if len(rates) < 3:
+            return 0.0
+        
+        # Расчёт на основе стабильности курсов
+        rate_stability = 1.0 - min(np.std(rates), 0.5)  # Ограничиваем максимальную нестабильность
+        final_amount = rates[0] * rates[1] * rates[2]
+        profit_score = min(final_amount - 1.0, 0.1) * 10  # Нормализуем прибыль
+        
+        return min(rate_stability * profit_score, 1.0)
+    
+    def _assess_temporal_arbitrage_risk(self, price_difference: float, time_window: int) -> RiskLevel:
+        """Оценка риска временного арбитража."""
+        # Больший временной интервал = выше риск
+        time_risk = min(time_window / 3600, 1.0)  # Нормализуем к часам
+        price_risk = min(abs(price_difference) / 0.1, 1.0)  # Нормализуем к 10%
+        
+        combined_risk = (time_risk + price_risk) / 2
+        
+        if combined_risk < 0.3:
+            return RiskLevel.LOW
+        elif combined_risk < 0.6:
+            return RiskLevel.MEDIUM
+        else:
+            return RiskLevel.HIGH
+    
+    def _calculate_temporal_arbitrage_confidence(self, price_difference: float) -> float:
+        """Расчёт уверенности во временном арбитраже."""
+        # Чем больше разность цен, тем выше уверенность
+        return min(abs(price_difference) / 0.05, 1.0)  # Нормализуем к 5%

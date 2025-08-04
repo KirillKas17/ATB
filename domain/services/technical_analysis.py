@@ -16,7 +16,7 @@ from loguru import logger
 
 # Временные замены для отсутствующих библиотек
 try:
-    import talib  # type: ignore
+    import talib
 except ImportError:
     # Простая замена для talib
     class TalibMock:

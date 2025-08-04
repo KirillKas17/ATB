@@ -46,13 +46,13 @@ class StrategyUtils:
         errors = []
         if not isinstance(parameters, dict):
             errors.append("Parameters must be a dictionary")
-            return errors  # type: ignore[unreachable]
-        else:
-            # Проверяем обязательные поля
-            required_fields = ["confidence_threshold", "risk_level", "max_position_size"]
-            for field in required_fields:
-                if field not in parameters:
-                    errors.append(f"Missing required field: {field}")
+            return errors
+        
+        # Проверяем обязательные поля
+        required_fields = ["confidence_threshold", "risk_level", "max_position_size"]
+        for field in required_fields:
+            if field not in parameters:
+                errors.append(f"Missing required field: {field}")
             
             # Проверяем confidence_threshold
             if "confidence_threshold" in parameters:
@@ -72,7 +72,7 @@ class StrategyUtils:
                 except (ValueError, TypeError):
                     errors.append("risk_level must be a valid number")
             
-            return errors
+        return errors
 
     @staticmethod
     def merge_parameters(
@@ -277,7 +277,7 @@ def validate_trading_pair(trading_pair: str) -> bool:
         bool: True если валидна
     """
     if not isinstance(trading_pair, str):
-        return False  # type: ignore[unreachable]
+        return False
     # Паттерн для валидации торговых пар
     pattern = re.compile(r"^[A-Z0-9]+/[A-Z0-9]+$")
     if not pattern.match(trading_pair):
@@ -831,7 +831,7 @@ def calculate_rsi(prices: List[float], period: int = 14) -> List[float]:
         down = (down * (period - 1) + downval) / period
         rs = up / down if down != 0 else 0
         rsi[i] = 100.0 - 100.0 / (1.0 + rs)
-    return rsi.tolist()  # type: ignore[no-any-return]
+    return [float(x) for x in rsi.tolist()]
 
 
 def calculate_macd(

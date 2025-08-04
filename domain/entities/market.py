@@ -834,7 +834,7 @@ class OrderBook:
     symbol: Currency
     bids: List[OrderBookEntry] = field(default_factory=list)
     asks: List[OrderBookEntry] = field(default_factory=list)
-    timestamp: Timestamp = field(default_factory=lambda: Timestamp(datetime.now()))  # type: ignore[operator]
+    timestamp: Timestamp = field(default_factory=lambda: Timestamp(datetime.now()))
 
     def get_best_bid(self) -> Optional[OrderBookEntry]:
         """Get best bid (highest price)."""

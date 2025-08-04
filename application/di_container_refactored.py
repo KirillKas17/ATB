@@ -115,12 +115,12 @@ from domain.symbols.validators import SymbolValidator
 from domain.symbols.cache import SymbolCacheManager
 # from domain.sessions.factories import SessionRepositoryConfig
 try:
-    from domain.sessions.implementations import SessionService
+    from domain.sessions.implementations import SessionMetrics as SessionService  # Временно используем SessionMetrics
 except ImportError:
     from safe_import_wrapper import SafeImportMock
     SessionService = SafeImportMock("SessionService")
 try:
-    from infrastructure.agents.market_maker.agent import MarketMakerAgent as MarketMakerModelAgent
+    from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
 except ImportError:
     from safe_import_wrapper import SafeImportMock
     MarketMakerModelAgent = SafeImportMock("MarketMakerModelAgent")

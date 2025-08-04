@@ -19,7 +19,7 @@ try:
 
     WEBSOCKETS_AVAILABLE = True
 except ImportError:
-    websockets = None  # type: ignore
+    websockets = None
     WEBSOCKETS_AVAILABLE = False
 
 
@@ -170,30 +170,30 @@ class BaseExchangeConnector(ABC):
         normalized_quote_currency = self._normalize_currency(quote_currency)
         
         if normalized_base_currency is None or normalized_quote_currency is None:
-            return []  # type: ignore[unreachable]
-        else:
-            # Обработка данных
-            result = []
-            for price_str, volume_str in data:
-                try:
-                    # Проверяем, что строки содержат только цифры и точку
-                    if not str(price_str).replace(".", "").replace("-", "").isdigit():
-                        logger.warning(f"Invalid price format: {price_str}")
-                        continue
-                    if not str(volume_str).replace(".", "").replace("-", "").isdigit():
-                        logger.warning(f"Invalid volume format: {volume_str}")
-                        continue
-                    price = Decimal(str(price_str))
-                    volume = Decimal(str(volume_str))
-                    result.append(
-                        (
-                            Price(price, normalized_base_currency, normalized_quote_currency),
-                            Volume(volume, normalized_quote_currency),
-                        )
-                    )
-                except (ValueError, TypeError, InvalidOperation):
-                    logger.warning(f"Invalid price/volume data: {price_str}, {volume_str}")
+            return []
+        
+        # Обработка данных
+        result = []
+        for price_str, volume_str in data:
+            try:
+                # Проверяем, что строки содержат только цифры и точку
+                if not str(price_str).replace(".", "").replace("-", "").isdigit():
+                    logger.warning(f"Invalid price format: {price_str}")
                     continue
+                if not str(volume_str).replace(".", "").replace("-", "").isdigit():
+                    logger.warning(f"Invalid volume format: {volume_str}")
+                    continue
+                price = Decimal(str(price_str))
+                volume = Decimal(str(volume_str))
+                result.append(
+                    (
+                        Price(price, normalized_base_currency, normalized_quote_currency),
+                        Volume(volume, normalized_quote_currency),
+                    )
+                )
+            except (ValueError, TypeError, InvalidOperation):
+                logger.warning(f"Invalid price/volume data: {price_str}, {volume_str}")
+                continue
             return result
 
     def _get_current_timestamp(self) -> Timestamp:
