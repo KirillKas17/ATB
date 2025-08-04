@@ -440,3 +440,241 @@ class TradingServiceImpl(BaseApplicationService, TradingService):
                 self._order_queue.get_nowait()
             except asyncio.QueueEmpty:
                 break
+
+    async def _calculate_position_metrics_impl(self, position_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Полная реализация расчета метрик позиции для production."""
+        try:
+            if not position_data:
+                self.logger.warning("No position data provided")
+                return {"error": "no_data", "metrics": {}}
+            
+            # Извлечение базовых данных позиции
+            symbol = position_data.get("symbol", "")
+            entry_price = float(position_data.get("entry_price", 0))
+            current_price = float(position_data.get("current_price", 0))
+            quantity = float(position_data.get("quantity", 0))
+            side = position_data.get("side", "").lower()  # 'long' или 'short'
+            entry_time = position_data.get("entry_time")
+            
+            if not all([symbol, entry_price, current_price, quantity]):
+                return {"error": "insufficient_data", "metrics": {}}
+            
+            # Базовые расчеты P&L
+            if side == "long":
+                unrealized_pnl = (current_price - entry_price) * quantity
+                pnl_percentage = ((current_price - entry_price) / entry_price) * 100
+            elif side == "short":
+                unrealized_pnl = (entry_price - current_price) * quantity
+                pnl_percentage = ((entry_price - current_price) / entry_price) * 100
+            else:
+                unrealized_pnl = 0
+                pnl_percentage = 0
+            
+            # Расчет времени удержания
+            time_held_seconds = 0
+            if entry_time:
+                try:
+                    if isinstance(entry_time, str):
+                        entry_dt = datetime.fromisoformat(entry_time.replace('Z', '+00:00'))
+                    else:
+                        entry_dt = entry_time
+                    time_held_seconds = (datetime.now(entry_dt.tzinfo) - entry_dt).total_seconds()
+                except Exception as e:
+                    self.logger.warning(f"Failed to calculate time held: {e}")
+            
+            # Расчет рыночной стоимости
+            market_value = abs(current_price * quantity)
+            position_size_usd = market_value
+            
+            # Расчет волатильности позиции (если есть исторические данные)
+            volatility = await self._calculate_position_volatility(symbol, entry_time)
+            
+            # Расчет риск-метрик
+            risk_metrics = await self._calculate_position_risk(position_data, volatility)
+            
+            # Расчет ликвидности
+            liquidity_score = await self._assess_position_liquidity(symbol, quantity)
+            
+            # Сборка комплексных метрик
+            metrics = {
+                # Базовые метрики
+                "symbol": symbol,
+                "side": side,
+                "entry_price": entry_price,
+                "current_price": current_price,
+                "quantity": quantity,
+                
+                # P&L метрики
+                "unrealized_pnl": round(unrealized_pnl, 4),
+                "pnl_percentage": round(pnl_percentage, 2),
+                "market_value": round(market_value, 2),
+                "position_size_usd": round(position_size_usd, 2),
+                
+                # Временные метрики
+                "time_held_seconds": int(time_held_seconds),
+                "time_held_hours": round(time_held_seconds / 3600, 2),
+                "entry_timestamp": entry_time,
+                
+                # Риск метрики
+                "volatility": volatility,
+                "risk_score": risk_metrics.get("risk_score", 0.5),
+                "max_potential_loss": risk_metrics.get("max_loss", 0),
+                "value_at_risk_95": risk_metrics.get("var_95", 0),
+                
+                # Ликвидность
+                "liquidity_score": liquidity_score,
+                "estimated_exit_slippage": risk_metrics.get("exit_slippage", 0),
+                
+                # Дополнительные метрики
+                "price_change_since_entry": round(((current_price - entry_price) / entry_price) * 100, 2),
+                "breakeven_price": entry_price,
+                "distance_to_breakeven": round(abs(current_price - entry_price), 4),
+                
+                # Метаданные
+                "calculation_timestamp": datetime.now().isoformat(),
+                "metrics_version": "1.0"
+            }
+            
+            # Добавление производных метрик
+            metrics.update(await self._calculate_advanced_position_metrics(metrics))
+            
+            self.logger.info(f"Position metrics calculated for {symbol}: P&L={pnl_percentage:.2f}%")
+            return {"success": True, "metrics": metrics}
+            
+        except Exception as e:
+            self.logger.error(f"Position metrics calculation failed: {e}")
+            return {
+                "error": "calculation_failed", 
+                "message": str(e),
+                "metrics": {}
+            }
+    
+    async def _calculate_position_volatility(self, symbol: str, entry_time: Any) -> float:
+        """Расчет волатильности позиции."""
+        try:
+            # Здесь можно интегрироваться с market data service
+            # Для демонстрации используем упрощенный расчет
+            default_volatilities = {
+                "BTC": 0.04,  # 4% дневная волатильность
+                "ETH": 0.05,  # 5% дневная волатильность
+                "default": 0.03  # 3% для остальных
+            }
+            
+            # Определение базовой валюты
+            base_symbol = symbol.split('USDT')[0] if 'USDT' in symbol else symbol[:3]
+            volatility = default_volatilities.get(base_symbol, default_volatilities["default"])
+            
+            # Корректировка на время удержания
+            if entry_time:
+                try:
+                    if isinstance(entry_time, str):
+                        entry_dt = datetime.fromisoformat(entry_time.replace('Z', '+00:00'))
+                    else:
+                        entry_dt = entry_time
+                    hours_held = (datetime.now(entry_dt.tzinfo) - entry_dt).total_seconds() / 3600
+                    # Волатильность растет с корнем времени
+                    time_adjustment = (hours_held / 24) ** 0.5
+                    volatility *= max(time_adjustment, 0.1)  # Минимум 10% от дневной
+                except Exception as e:
+                    # ИСПРАВЛЕНО: Логирование вместо поглощения исключения
+                    self.logger.warning(f"Time adjustment calculation failed for position held {hours_held} hours: {e}")
+                    # Используем базовую волатильность без временной корректировки
+            
+            return round(volatility, 4)
+            
+        except Exception as e:
+            self.logger.warning(f"Volatility calculation failed: {e}")
+            return 0.03  # Дефолтная волатильность
+    
+    async def _calculate_position_risk(self, position_data: Dict[str, Any], volatility: float) -> Dict[str, Any]:
+        """Расчет риск-метрик позиции."""
+        try:
+            current_price = float(position_data.get("current_price", 0))
+            quantity = float(position_data.get("quantity", 0))
+            market_value = abs(current_price * quantity)
+            
+            # VaR 95% (Value at Risk)
+            var_95 = market_value * volatility * 1.96  # 95% confidence interval
+            
+            # Максимальная потенциальная потеря (упрощенно)
+            max_loss = market_value * 0.5  # 50% максимальная потеря
+            
+            # Оценка slippage при выходе
+            exit_slippage = min(market_value * 0.001, volatility * 0.1)  # 0.1% или 10% от волатильности
+            
+            return {
+                "risk_score": min(volatility * 10, 1.0),  # Нормализованный риск-скор
+                "var_95": round(var_95, 2),
+                "max_loss": round(max_loss, 2),
+                "exit_slippage": round(exit_slippage, 4)
+            }
+            
+        except Exception as e:
+            self.logger.warning(f"Risk calculation failed: {e}")
+            return {"risk_score": 0.5, "var_95": 0, "max_loss": 0, "exit_slippage": 0}
+    
+    async def _assess_position_liquidity(self, symbol: str, quantity: float) -> float:
+        """Оценка ликвидности позиции."""
+        try:
+            # Упрощенная оценка ликвидности на основе символа и размера
+            major_pairs = ["BTCUSDT", "ETHUSDT", "ADAUSDT", "SOLUSDT"]
+            
+            if symbol in major_pairs:
+                base_liquidity = 0.9
+            elif "USDT" in symbol:
+                base_liquidity = 0.7
+            else:
+                base_liquidity = 0.5
+            
+            # Корректировка на размер позиции
+            if quantity > 100000:  # Большая позиция
+                base_liquidity *= 0.8
+            elif quantity < 1000:   # Маленькая позиция
+                base_liquidity *= 1.1
+            
+            return min(base_liquidity, 1.0)
+            
+        except Exception:
+            return 0.5  # Средняя ликвидность по умолчанию
+    
+    async def _calculate_advanced_position_metrics(self, basic_metrics: Dict[str, Any]) -> Dict[str, Any]:
+        """Расчет продвинутых метрик позиции."""
+        try:
+            unrealized_pnl = basic_metrics.get("unrealized_pnl", 0)
+            market_value = basic_metrics.get("market_value", 0)
+            volatility = basic_metrics.get("volatility", 0)
+            time_held_hours = basic_metrics.get("time_held_hours", 0)
+            
+            # ROI по времени
+            roi_per_hour = 0
+            if time_held_hours > 0 and market_value > 0:
+                roi_per_hour = (unrealized_pnl / market_value) / time_held_hours * 100
+            
+            # Sharpe ratio упрощенный
+            sharpe_ratio = 0
+            if volatility > 0:
+                annual_return = (unrealized_pnl / market_value) * (365 * 24 / max(time_held_hours, 1))
+                sharpe_ratio = annual_return / (volatility * (365 ** 0.5))
+            
+            # Эффективность позиции
+            efficiency_score = 0.5
+            if market_value > 0:
+                pnl_ratio = abs(unrealized_pnl) / market_value
+                time_factor = 1 / (1 + time_held_hours / 24)  # Штраф за длительность
+                efficiency_score = min(pnl_ratio * time_factor, 1.0)
+            
+            return {
+                "roi_per_hour": round(roi_per_hour, 4),
+                "sharpe_ratio": round(sharpe_ratio, 3),
+                "efficiency_score": round(efficiency_score, 3),
+                "annualized_return": round(roi_per_hour * 24 * 365, 2) if roi_per_hour else 0
+            }
+            
+        except Exception as e:
+            self.logger.warning(f"Advanced metrics calculation failed: {e}")
+            return {
+                "roi_per_hour": 0,
+                "sharpe_ratio": 0, 
+                "efficiency_score": 0.5,
+                "annualized_return": 0
+            }

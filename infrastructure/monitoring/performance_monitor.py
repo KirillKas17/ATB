@@ -194,96 +194,37 @@ class PerformanceMonitor(MetricCollectorProtocol):
         """Получение метрик приложения."""
         return self.app_metrics.copy()
 
-    def _monitoring_loop(self) -> None:
-        """Основной цикл мониторинга."""
-        while self.is_running:
-            try:
-                self._collect_system_metrics()
-                self._collect_app_metrics()
-                self._check_system_alerts()
-                time.sleep(5)  # Обновляем каждые 5 секунд
-            except Exception as e:
-                logger.error(f"Error in monitoring loop: {e}")
-                time.sleep(10)  # Увеличиваем интервал при ошибке
-
-    def _collect_system_metrics(self) -> None:
-        """Сбор системных метрик."""
+    def get_metric_value(self, metric_name: str) -> Optional[float]:
+        """Получение значения метрики."""
         try:
-            # CPU
-            cpu_percent = psutil.cpu_percent(interval=1)
-            self.system_metrics["cpu_usage"] = cpu_percent
-            self.record_gauge("system.cpu_usage", cpu_percent)
-            # Memory
-            memory = psutil.virtual_memory()
-            memory_percent = memory.percent
-            self.system_metrics["memory_usage"] = memory_percent
-            self.record_gauge("system.memory_usage", memory_percent)
-            # Disk
-            disk = psutil.disk_usage("/")
-            disk_percent = (disk.used / disk.total) * 100
-            self.system_metrics["disk_usage"] = disk_percent
-            self.record_gauge("system.disk_usage", disk_percent)
-            # Network
-            network = psutil.net_io_counters()
-            self.system_metrics["network_io"]["bytes_sent"] = network.bytes_sent
-            self.system_metrics["network_io"]["bytes_recv"] = network.bytes_recv
-            self.record_gauge("system.network.bytes_sent", network.bytes_sent)
-            self.record_gauge("system.network.bytes_recv", network.bytes_recv)
-        except Exception as e:
-            logger.error(f"Error collecting system metrics: {e}")
-
-    def _collect_app_metrics(self) -> None:
-        """Сбор метрик приложения."""
-        try:
-            # Обновляем метрики приложения
-            self.record_gauge("app.request_count", self.app_metrics["request_count"])
-            self.record_gauge("app.error_count", self.app_metrics["error_count"])
-            self.record_gauge(
-                "app.avg_response_time", self.app_metrics["avg_response_time"]
-            )
-            self.record_gauge(
-                "app.active_connections", self.app_metrics["active_connections"]
-            )
-            self.record_gauge("app.queue_size", self.app_metrics["queue_size"])
-        except Exception as e:
-            logger.error(f"Error collecting app metrics: {e}")
-
-    def _check_system_alerts(self) -> None:
+            if metric_name in self.system_metrics:
+                value = self.system_metrics[metric_name]
+                return float(value) if value is not None else None
+            return None
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error getting metric {metric_name}: {e}")
+            return None
+    
+    async def _check_system_alerts(self) -> None:
         """Проверка системных алертов."""
         try:
-            # CPU алерты
-            cpu_usage = float(self.system_metrics["cpu_usage"])
-            if cpu_usage > 80.0:
-                get_alert_manager().create_alert(
-                    title="High CPU Usage",
-                    message=f"CPU usage is {cpu_usage:.1f}%",
-                    severity=AlertSeverity.WARNING,
-                    metric_name="cpu_usage",
-                    threshold=80.0,
-                    current_value=cpu_usage,
-                )
-            # Memory алерты
-            memory_usage = float(self.system_metrics["memory_usage"])
-            if memory_usage > 85.0:
-                get_alert_manager().create_alert(
-                    title="High Memory Usage",
-                    message=f"Memory usage is {memory_usage:.1f}%",
-                    severity=AlertSeverity.WARNING,
-                    metric_name="memory_usage",
-                    threshold=85.0,
-                    current_value=memory_usage,
-                )
-            # Disk алерты
-            disk_usage = float(self.system_metrics["disk_usage"])
-            if disk_usage > 90.0:
-                get_alert_manager().create_alert(
-                    title="High Disk Usage",
-                    message=f"Disk usage is {disk_usage:.1f}%",
-                    severity=AlertSeverity.ERROR,
-                    metric_name="disk_usage",
-                    threshold=90.0,
-                    current_value=disk_usage,
-                )
+            # Проверка критических метрик
+            critical_metrics = [
+                ('cpu_usage', 90.0),
+                ('memory_usage', 85.0),
+                ('error_rate', 5.0)
+            ]
+            
+            for metric_name, threshold in critical_metrics:
+                current_value = self.get_metric_value(metric_name)
+                if current_value is not None and isinstance(current_value, (int, float)):
+                    if current_value > threshold:
+                        await self.alert_manager.create_alert(
+                            title=f"High {metric_name}",
+                            message=f"{metric_name} is {current_value}%, threshold: {threshold}%",
+                            severity="high",
+                            current_value=float(current_value)  # Явное приведение к float
+                        )
         except Exception as e:
             logger.error(f"Error checking system alerts: {e}")
 

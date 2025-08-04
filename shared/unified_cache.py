@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Callable
 import pandas as pd
 import numpy as np
+import time
 
 from loguru import logger
 
@@ -151,22 +152,75 @@ class UnifiedCache:
         self._persistence_task = asyncio.create_task(self._periodic_persistence())
 
     async def _periodic_cleanup(self) -> None:
-        """Периодическая очистка кэша."""
+        """Периодическая очистка кэша с адаптивными интервалами."""
+        base_interval = 300  # 5 минут базовый интервал
+        current_interval = base_interval
+        consecutive_errors = 0
+        
         while True:
             try:
-                await asyncio.sleep(300)  # Каждые 5 минут
-                await self._cleanup_expired()
+                await asyncio.sleep(current_interval)
+                
+                # Адаптивная логика: увеличиваем интервал при низкой нагрузке
+                cache_size = len(self._cache)
+                if cache_size < 100:
+                    current_interval = min(base_interval * 2, 600)  # До 10 минут
+                elif cache_size > 500:
+                    current_interval = max(base_interval // 2, 60)  # Минимум 1 минута
+                else:
+                    current_interval = base_interval
+                
+                expired_count = await self._cleanup_expired()
+                logger.debug(f"Cleaned {expired_count} expired cache entries")
+                
+                # Сбрасываем счетчик ошибок при успешном выполнении
+                consecutive_errors = 0
+                
             except Exception as e:
-                logger.error(f"Error in periodic cleanup: {e}")
+                consecutive_errors += 1
+                # Экспоненциальная задержка при ошибках
+                error_delay = min(60 * (2 ** consecutive_errors), 1800)  # Максимум 30 минут
+                logger.error(f"Error in periodic cleanup (attempt {consecutive_errors}): {e}")
+                await asyncio.sleep(error_delay)
 
     async def _periodic_persistence(self) -> None:
-        """Периодическое сохранение кэша."""
+        """Периодическое сохранение кэша с умным мониторингом."""
+        base_interval = 600  # 10 минут базовый интервал
+        current_interval = base_interval
+        consecutive_errors = 0
+        last_save_time = 0
+        
         while True:
             try:
-                await asyncio.sleep(600)  # Каждые 10 минут
-                await self._save_persistent_cache()
+                await asyncio.sleep(current_interval)
+                
+                # Проверяем, есть ли изменения для сохранения
+                current_time = time.time()
+                cache_size = len(self._cache)
+                
+                # Адаптивные интервалы на основе активности
+                if cache_size == 0:
+                    current_interval = base_interval * 3  # Увеличиваем при пустом кэше
+                elif cache_size > 1000:
+                    current_interval = base_interval // 2  # Чаще сохраняем при большом кэше
+                else:
+                    current_interval = base_interval
+                
+                # Сохраняем только если прошло достаточно времени с последнего сохранения
+                if current_time - last_save_time >= 300:  # Минимум 5 минут между сохранениями
+                    await self._save_persistent_cache()
+                    last_save_time = current_time
+                    logger.debug(f"Persisted cache with {cache_size} entries")
+                
+                # Сбрасываем счетчик ошибок при успешном выполнении
+                consecutive_errors = 0
+                
             except Exception as e:
-                logger.error(f"Error in periodic persistence: {e}")
+                consecutive_errors += 1
+                # Экспоненциальная задержка при ошибках
+                error_delay = min(120 * (2 ** consecutive_errors), 3600)  # Максимум 1 час
+                logger.error(f"Error in periodic persistence (attempt {consecutive_errors}): {e}")
+                await asyncio.sleep(error_delay)
 
     def _generate_key(self, *args: Any, **kwargs: Any) -> str:
         """Генерация ключа кэша."""
@@ -230,7 +284,7 @@ class UnifiedCache:
             entry.get_size() for entry in self._cache.values()
         )
 
-    async def _cleanup_expired(self) -> None:
+    async def _cleanup_expired(self) -> int:
         """Очистка истекших записей."""
         with self._lock:
             expired_keys = [
@@ -238,8 +292,7 @@ class UnifiedCache:
             ]
             for key in expired_keys:
                 del self._cache[key]
-            if expired_keys:
-                logger.info(f"Cleaned up {len(expired_keys)} expired cache entries")
+            return len(expired_keys)
 
     def exists(self, key: str) -> bool:
         """Проверить существование ключа."""

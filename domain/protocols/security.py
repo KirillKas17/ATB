@@ -613,13 +613,13 @@ class SecurityManager:
         for key, value in data.items():
             if isinstance(value, str) and self._is_sensitive_field(key):
                 try:
-                    decrypted_data[key] = self.crypto_manager.decrypt_string(value)
-                except Exception:
-                    decrypted_data[key] = (
-                        value  # Возвращаем как есть если не удалось расшифровать
-                    )
-            else:
-                decrypted_data[key] = value
+                    if isinstance(value, str) and self._looks_encrypted(value):
+                        decrypted_data[key] = self._decrypt_value(value)
+                except Exception as e:
+                    logger.warning(f"Failed to decrypt value for key '{key}': {e}")
+                    # Оставляем зашифрованное значение если не удалось расшифровать
+            elif isinstance(value, dict):
+                self._decrypt_nested_dict(value)
         return decrypted_data
 
     def _is_sensitive_field(self, field_name: str) -> bool:

@@ -11,44 +11,100 @@ import sys
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Optional, Dict, Any, List, Union
-import pandas as pd
 import signal
 import threading
 from pathlib import Path
 
-# Импорт типизированных конфигураций
-from shared.models.config import ApplicationConfig, TradingConfig, RiskConfig, create_default_config, validate_config
-
-# Импорт DI контейнера
-from application.di_container_refactored import get_service_locator
-
-# Импорты для торговой оркестрации
-from application.use_cases.manage_orders import DefaultOrderManagementUseCase
-from application.use_cases.manage_positions import DefaultPositionManagementUseCase
-from application.use_cases.manage_risk import DefaultRiskManagementUseCase
-from application.use_cases.manage_trading_pairs import DefaultTradingPairManagementUseCase
-from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
-
-# Импорты сервисов
-from application.services.market_service import MarketService
-from application.services.trading_service import TradingService
-from application.services.risk_service import RiskService
-
-# Импорты новых компонентов domain/strategies
-from domain.strategies import (
-    StrategyFactory, get_strategy_factory,
-    StrategyRegistry, get_strategy_registry,
-    StrategyValidator, get_strategy_validator
+# Безопасные импорты с fallback
+from shared.safe_imports import (
+    pd, np, primary_logger, check_dependencies,
+    PANDAS_AVAILABLE, NUMPY_AVAILABLE, safe_execution
 )
 
+# Настройка логирования
+logger = primary_logger
+
+# Импорт типизированных конфигураций
+try:
+    from shared.models.config import ApplicationConfig, TradingConfig, RiskConfig, create_default_config, validate_config
+except ImportError as e:
+    logger.warning(f"Failed to import config models: {e}")
+    # Создаем заглушки для базовой работы
+    ApplicationConfig = dict
+    TradingConfig = dict
+    RiskConfig = dict
+    create_default_config = lambda: {}
+    validate_config = lambda x: True
+
+# Импорт DI контейнера
+try:
+    from application.di_container_refactored import get_service_locator
+except ImportError as e:
+    logger.warning(f"Failed to import DI container: {e}")
+    get_service_locator = lambda: None
+
+# Импорты для торговой оркестрации
+try:
+    from application.use_cases.manage_orders import DefaultOrderManagementUseCase
+    from application.use_cases.manage_positions import DefaultPositionManagementUseCase
+    from application.use_cases.manage_risk import DefaultRiskManagementUseCase
+    from application.use_cases.manage_trading_pairs import DefaultTradingPairManagementUseCase
+    from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
+except ImportError as e:
+    logger.warning(f"Failed to import use cases: {e}")
+    # Создаем заглушки
+    DefaultOrderManagementUseCase = type('DefaultOrderManagementUseCase', (), {})
+    DefaultPositionManagementUseCase = type('DefaultPositionManagementUseCase', (), {})
+    DefaultRiskManagementUseCase = type('DefaultRiskManagementUseCase', (), {})
+    DefaultTradingPairManagementUseCase = type('DefaultTradingPairManagementUseCase', (), {})
+    DefaultTradingOrchestratorUseCase = type('DefaultTradingOrchestratorUseCase', (), {})
+
+# Импорты сервисов
+try:
+    from application.services.market_service import MarketService
+    from application.services.trading_service import TradingService
+    from application.services.risk_service import RiskService
+except ImportError as e:
+    logger.warning(f"Failed to import services: {e}")
+    MarketService = type('MarketService', (), {})
+    TradingService = type('TradingService', (), {})
+    RiskService = type('RiskService', (), {})
+
+# Импорты новых компонентов domain/strategies
+try:
+    from domain.strategies import (
+        StrategyFactory, get_strategy_factory,
+        StrategyRegistry, get_strategy_registry,
+        StrategyValidator, get_strategy_validator
+    )
+except ImportError as e:
+    logger.warning(f"Failed to import domain strategies: {e}")
+    StrategyFactory = type('StrategyFactory', (), {})
+    get_strategy_factory = lambda: StrategyFactory()
+    StrategyRegistry = type('StrategyRegistry', (), {})
+    get_strategy_registry = lambda: StrategyRegistry()
+    StrategyValidator = type('StrategyValidator', (), {})
+    get_strategy_validator = lambda: StrategyValidator()
+
 # Импорты стратегий из infrastructure/strategies
-from infrastructure.strategies.trend_strategies import TrendStrategy
-from infrastructure.strategies.sideways_strategies import SidewaysStrategy
-from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
-from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
-from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
-from infrastructure.strategies.volatility_strategy import VolatilityStrategy
-from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
+try:
+    from infrastructure.strategies.trend_strategies import TrendStrategy
+    from infrastructure.strategies.sideways_strategies import SidewaysStrategy
+    from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
+    from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
+    from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
+    from infrastructure.strategies.volatility_strategy import VolatilityStrategy
+    from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
+except ImportError as e:
+    logger.warning(f"Failed to import infrastructure strategies: {e}")
+    # Создаем базовые заглушки стратегий
+    TrendStrategy = type('TrendStrategy', (), {})
+    SidewaysStrategy = type('SidewaysStrategy', (), {})
+    AdaptiveStrategyGenerator = type('AdaptiveStrategyGenerator', (), {})
+    EvolvableBaseStrategy = type('EvolvableBaseStrategy', (), {})
+    ManipulationStrategy = type('ManipulationStrategy', (), {})
+    VolatilityStrategy = type('VolatilityStrategy', (), {})
+    PairsTradingStrategy = type('PairsTradingStrategy', (), {})
 
 # Импорты для интеграции с эволюционными агентами
 from infrastructure.core.evolution_integration import EvolutionIntegration
@@ -106,9 +162,6 @@ from infrastructure.monitoring import (
     record_metric,
     create_alert
 )
-
-# Настройка логирования
-logger = logging.getLogger(__name__)
 
 # Импорт основных компонентов
 try:

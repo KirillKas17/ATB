@@ -8,6 +8,7 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from datetime import datetime
 
 from loguru import logger
 
@@ -600,109 +601,124 @@ class EntanglementMonitor:
                     shifted2 = returns2[:len(shifted1)]
                 else:
                     # Сдвигаем второй ряд влево
+                    shifted1 = returns1[:len(returns2) - shift]
                     shifted2 = returns2[shift:]
-                    shifted1 = returns1[:len(shifted2)]
                 
                 if len(shifted1) < 2 or len(shifted2) < 2:
                     continue
                 
                 # Рассчитываем корреляцию для данного сдвига
                 correlation = self.calculate_correlation(shifted1, shifted2)
+                
                 if abs(correlation) > abs(max_correlation):
                     max_correlation = correlation
                     best_shift = shift
             
-            # Нормализуем сдвиг относительно длины данных
-            normalized_shift = best_shift / len(returns1) if len(returns1) > 0 else 0.0
+            # Нормализуем фазовый сдвиг к [-1, 1]
+            return best_shift / max(max_shift, 1) if max_shift > 0 else 0.0
             
-            return normalized_shift
         except Exception as e:
             logger.error(f"Error calculating phase shift: {e}")
             return 0.0
 
     def calculate_entanglement_score(self, correlation: float, phase_shift: float, volatility_ratio: float) -> float:
-        """Расчет оценки запутанности."""
+        """Расчет общего score запутанности на основе компонентов."""
         try:
-            # Нормализуем входные параметры
-            # Корреляция уже в диапазоне [-1, 1]
-            # Фазовый сдвиг нормализуем к [0, 1]
-            normalized_phase_shift = abs(phase_shift)
-            # Отношение волатильности нормализуем к [0, 1]
-            normalized_volatility_ratio = min(volatility_ratio, 1.0) if volatility_ratio > 0 else 0.0
+            # Веса для различных компонентов
+            correlation_weight = 0.5  # Основной фактор
+            phase_weight = 0.3        # Синхронность движений
+            volatility_weight = 0.2   # Схожесть волатильности
             
-            # Веса для компонентов (можно настраивать)
-            correlation_weight = 0.5
-            phase_shift_weight = 0.3
-            volatility_weight = 0.2
+            # Нормализуем компоненты
+            correlation_component = abs(correlation) * correlation_weight
             
-            # Рассчитываем взвешенную сумму
-            score = (
-                correlation_weight * abs(correlation) +
-                phase_shift_weight * (1.0 - normalized_phase_shift) +  # Меньший сдвиг = больше запутанность
-                volatility_weight * normalized_volatility_ratio
-            )
+            # Фазовый сдвиг: меньший сдвиг = выше запутанность
+            phase_component = (1.0 - abs(phase_shift)) * phase_weight
+            
+            # Волатильность: чем ближе к 1, тем выше запутанность
+            volatility_component = (1.0 - abs(volatility_ratio - 1.0)) * volatility_weight
+            
+            # Общий score
+            entanglement_score = correlation_component + phase_component + volatility_component
+            
+            # Бонус за высокую корреляцию и низкий фазовый сдвиг
+            if abs(correlation) > 0.8 and abs(phase_shift) < 0.2:
+                entanglement_score *= 1.2  # 20% бонус
             
             # Ограничиваем результат в диапазоне [0, 1]
-            return max(0.0, min(1.0, score))
+            return max(0.0, min(1.0, entanglement_score))
+            
         except Exception as e:
             logger.error(f"Error calculating entanglement score: {e}")
             return 0.0
 
-    def detect_correlation_clusters(self, correlation_matrix: Dict[str, Dict[str, float]], threshold: float = 0.6) -> List[List[str]]:
-        """Обнаружение кластеров корреляции."""
+    def detect_correlation_clusters(self, correlation_matrix: Dict[str, Dict[str, float]], threshold: float = 0.6) -> List[Dict[str, Any]]:
+        """Обнаружение кластеров сильно коррелированных символов."""
         try:
             if not correlation_matrix:
                 return []
             
             symbols = list(correlation_matrix.keys())
-            if len(symbols) < 2:
-                return []
-            
-            # Строим граф корреляций
-            clusters = []
             visited = set()
+            clusters = []
             
-            for symbol in symbols:
+            def dfs(symbol: str, current_cluster: List[str], threshold: float) -> None:
+                """Поиск в глубину для формирования кластера."""
                 if symbol in visited:
-                    continue
+                    return
                 
-                # Начинаем новый кластер
-                cluster = [symbol]
                 visited.add(symbol)
+                current_cluster.append(symbol)
                 
-                # Ищем все связанные символы
-                to_visit = [symbol]
-                while to_visit:
-                    current = to_visit.pop(0)
+                # Ищем связанные символы
+                for other_symbol in symbols:
+                    if (other_symbol not in visited and 
+                        other_symbol in correlation_matrix.get(symbol, {}) and
+                        abs(correlation_matrix[symbol][other_symbol]) >= threshold):
+                        dfs(other_symbol, current_cluster, threshold)
+            
+            # Формируем кластеры
+            for symbol in symbols:
+                if symbol not in visited:
+                    cluster = []
+                    dfs(symbol, cluster, threshold)
                     
-                    for other_symbol in symbols:
-                        if other_symbol in visited:
-                            continue
+                    if len(cluster) > 1:  # Кластер должен содержать минимум 2 символа
+                        # Рассчитываем статистики кластера
+                        correlations_in_cluster = []
+                        for i, sym1 in enumerate(cluster):
+                            for j, sym2 in enumerate(cluster):
+                                if i < j:  # Избегаем дублирования
+                                    corr = correlation_matrix.get(sym1, {}).get(sym2, 0.0)
+                                    correlations_in_cluster.append(abs(corr))
                         
-                        # Проверяем корреляцию в обе стороны
-                        correlation1 = correlation_matrix.get(current, {}).get(other_symbol, 0.0)
-                        correlation2 = correlation_matrix.get(other_symbol, {}).get(current, 0.0)
-                        max_correlation = max(abs(correlation1), abs(correlation2))
+                        avg_correlation = sum(correlations_in_cluster) / len(correlations_in_cluster) if correlations_in_cluster else 0.0
+                        min_correlation = min(correlations_in_cluster) if correlations_in_cluster else 0.0
+                        max_correlation = max(correlations_in_cluster) if correlations_in_cluster else 0.0
                         
-                        if max_correlation >= threshold:
-                            cluster.append(other_symbol)
-                            visited.add(other_symbol)
-                            to_visit.append(other_symbol)
-                
-                # Добавляем кластер только если он содержит более одного символа
-                if len(cluster) > 1:
-                    clusters.append(cluster)
+                        clusters.append({
+                            "symbols": cluster,
+                            "size": len(cluster),
+                            "avg_correlation": avg_correlation,
+                            "min_correlation": min_correlation,
+                            "max_correlation": max_correlation,
+                            "strength": "strong" if avg_correlation >= 0.8 else "moderate"
+                        })
+            
+            # Сортируем кластеры по силе корреляции
+            clusters.sort(key=lambda x: x["avg_correlation"], reverse=True)
             
             return clusters
+            
         except Exception as e:
             logger.error(f"Error detecting correlation clusters: {e}")
             return []
 
     def calculate_volatility_ratio(self, prices1: List[Any], prices2: List[Any]) -> float:
-        """Расчет отношения волатильности."""
+        """Расчет отношения волатильности между двумя рядами цен."""
         try:
             if not self.validate_data(prices1) or not self.validate_data(prices2):
-                return 1.0
+                return 1.0  # Нейтральное отношение
             
             # Выравниваем длины
             min_length = min(len(prices1), len(prices2))
@@ -719,301 +735,383 @@ class EntanglementMonitor:
             except (ValueError, TypeError):
                 return 1.0
             
-            # Рассчитываем returns
+            # Рассчитываем returns (изменения цен)
             returns1 = [(p1[i] - p1[i-1]) / p1[i-1] if p1[i-1] != 0 else 0 for i in range(1, len(p1))]
             returns2 = [(p2[i] - p2[i-1]) / p2[i-1] if p2[i-1] != 0 else 0 for i in range(1, len(p2))]
             
-            # Рассчитываем стандартные отклонения (волатильность)
-            if len(returns1) < 2 or len(returns2) < 2:
+            if not returns1 or not returns2:
                 return 1.0
             
+            # Рассчитываем стандартные отклонения (волатильность)
             mean1 = sum(returns1) / len(returns1)
             mean2 = sum(returns2) / len(returns2)
             
-            variance1 = sum((r - mean1) ** 2 for r in returns1) / (len(returns1) - 1)
-            variance2 = sum((r - mean2) ** 2 for r in returns2) / (len(returns2) - 1)
-            
-            if variance1 == 0 or variance2 == 0:
-                return 1.0
+            variance1 = sum((r - mean1) ** 2 for r in returns1) / len(returns1)
+            variance2 = sum((r - mean2) ** 2 for r in returns2) / len(returns2)
             
             volatility1 = variance1 ** 0.5
             volatility2 = variance2 ** 0.5
             
-            # Рассчитываем отношение волатильности
-            ratio = volatility1 / volatility2 if volatility2 != 0 else 1.0
+            # Избегаем деления на ноль
+            if volatility2 == 0:
+                return 1.0 if volatility1 == 0 else float('inf')
             
-            # Ограничиваем результат разумными пределами
+            ratio = volatility1 / volatility2
+            
+            # Ограничиваем экстремальные значения
             return max(0.1, min(10.0, ratio))
+            
         except Exception as e:
             logger.error(f"Error calculating volatility ratio: {e}")
             return 1.0
 
-    async def monitor_changes(self, symbol1: str, symbol2: str, timeframe: str, window_size: int) -> Dict[str, Any]:
-        """Мониторинг изменений запутанности."""
+    async def monitor_changes(self, symbols: List[str], timeframe: str, callback: Optional[callable] = None) -> Dict[str, Any]:
+        """Мониторинг изменений в корреляциях в реальном времени."""
         try:
-            # Получаем текущую оценку запутанности
+            if not symbols or len(symbols) < 2:
+                return {"error": "Need at least 2 symbols to monitor"}
+            
+            monitoring_state = {
+                "symbols": symbols,
+                "timeframe": timeframe,
+                "start_time": datetime.now(),
+                "observations": [],
+                "changes_detected": [],
+                "is_active": True
+            }
+            
+            previous_correlations = {}
+            change_threshold = 0.1  # Порог для обнаружения значимых изменений
+            
+            # Начальное измерение
+            initial_analysis = await self.analyze_correlations(symbols, timeframe)
+            if "correlation_matrix" in initial_analysis:
+                previous_correlations = initial_analysis["correlation_matrix"]
+            
+            observation_count = 0
+            max_observations = 10  # Ограничиваем количество наблюдений
+            
+            while monitoring_state["is_active"] and observation_count < max_observations:
+                await asyncio.sleep(30)  # Интервал мониторинга 30 секунд
+                
+                # Новое измерение
+                current_analysis = await self.analyze_correlations(symbols, timeframe)
+                
+                if "correlation_matrix" not in current_analysis:
+                    continue
+                
+                current_correlations = current_analysis["correlation_matrix"]
+                changes = []
+                
+                # Обнаруживаем изменения
+                for symbol1 in symbols:
+                    for symbol2 in symbols:
+                        if symbol1 >= symbol2:  # Избегаем дублирования
+                            continue
+                        
+                        prev_corr = previous_correlations.get(symbol1, {}).get(symbol2, 0.0)
+                        curr_corr = current_correlations.get(symbol1, {}).get(symbol2, 0.0)
+                        
+                        change = abs(curr_corr - prev_corr)
+                        
+                        if change >= change_threshold:
+                            change_info = {
+                                "symbol1": symbol1,
+                                "symbol2": symbol2,
+                                "previous_correlation": prev_corr,
+                                "current_correlation": curr_corr,
+                                "change": curr_corr - prev_corr,
+                                "timestamp": datetime.now().isoformat()
+                            }
+                            changes.append(change_info)
+                            monitoring_state["changes_detected"].append(change_info)
+                
+                # Сохраняем наблюдение
+                observation = {
+                    "timestamp": datetime.now().isoformat(),
+                    "correlation_matrix": current_correlations,
+                    "changes": changes,
+                    "observation_id": observation_count
+                }
+                monitoring_state["observations"].append(observation)
+                
+                # Вызываем callback, если предоставлен
+                if callback and changes:
+                    try:
+                        await callback(changes, current_analysis)
+                    except Exception as e:
+                        logger.warning(f"Callback error in monitoring: {e}")
+                
+                previous_correlations = current_correlations
+                observation_count += 1
+            
+            monitoring_state["is_active"] = False
+            monitoring_state["end_time"] = datetime.now()
+            
+            return {
+                "monitoring_state": monitoring_state,
+                "total_observations": observation_count,
+                "total_changes": len(monitoring_state["changes_detected"]),
+                "significant_changes": [
+                    change for change in monitoring_state["changes_detected"] 
+                    if abs(change["change"]) >= 0.2
+                ]
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in monitor_changes: {e}")
+            return {"error": str(e)}
+
+    async def detect_breakdown(self, symbol1: str, symbol2: str, timeframe: str, threshold: float = 0.3) -> Dict[str, Any]:
+        """Обнаружение распада корреляции между двумя символами."""
+        try:
+            # Получаем исторические данные для анализа тренда
             current_analysis = await self.analyze_entanglement(symbol1, symbol2, timeframe)
+            
+            if "error" in current_analysis:
+                return {
+                    "breakdown_detected": False,
+                    "error": current_analysis["error"]
+                }
+            
+            current_correlation = current_analysis.get("correlation", 0.0)
             current_entanglement = current_analysis.get("entanglement_score", 0.0)
             
-            # Получаем исторические данные
-            history = self.get_entanglement_history(limit=window_size)
+            # Получаем исторические данные корреляции из кэша/логов
+            history = await self.get_entanglement_history(symbol1, symbol2, limit=20)
             
-            # Извлекаем исторические оценки запутанности для данной пары
-            historical_scores = []
-            for event in history:
-                if (event.get("symbol1") == symbol1 and event.get("symbol2") == symbol2) or \
-                   (event.get("symbol1") == symbol2 and event.get("symbol2") == symbol1):
-                    historical_scores.append(event.get("entanglement_score", 0.0))
+            if len(history) < 3:
+                return {
+                    "breakdown_detected": False,
+                    "current_correlation": current_correlation,
+                    "current_entanglement": current_entanglement,
+                    "message": "Insufficient historical data"
+                }
             
-            # Рассчитываем тренд
-            trend = self.calculate_trend(historical_scores)
+            # Анализируем тренд
+            recent_scores = [entry.get("entanglement_score", 0.0) for entry in history[-5:]]
+            earlier_scores = [entry.get("entanglement_score", 0.0) for entry in history[:5]]
             
-            # Определяем, есть ли значительные изменения
-            change_detected = False
-            change_magnitude = 0.0
+            recent_avg = sum(recent_scores) / len(recent_scores) if recent_scores else 0.0
+            earlier_avg = sum(earlier_scores) / len(earlier_scores) if earlier_scores else 0.0
             
-            if len(historical_scores) >= 2:
-                recent_score = historical_scores[-1] if historical_scores else current_entanglement
-                previous_score = historical_scores[-2] if len(historical_scores) >= 2 else recent_score
-                change_magnitude = abs(current_entanglement - previous_score)
-                
-                # Считаем изменение значительным, если оно больше 0.1
-                change_detected = change_magnitude > 0.1
+            # Определяем распад
+            decline = earlier_avg - recent_avg
+            breakdown_detected = (
+                decline >= threshold and 
+                current_entanglement < 0.4 and
+                abs(current_correlation) < 0.3
+            )
             
-            # Проверяем на разрыв запутанности
-            breakdown_detected = self.detect_breakdown(historical_scores + [current_entanglement])
+            # Рассчитываем дополнительные метрики
+            volatility_in_correlation = 0.0
+            if len(recent_scores) > 1:
+                mean_recent = sum(recent_scores) / len(recent_scores)
+                volatility_in_correlation = sum((score - mean_recent) ** 2 for score in recent_scores) / len(recent_scores)
+                volatility_in_correlation = volatility_in_correlation ** 0.5
             
             return {
-                "current_entanglement": current_entanglement,
-                "entanglement_trend": trend,
-                "change_detected": change_detected,
-                "change_magnitude": change_magnitude,
                 "breakdown_detected": breakdown_detected,
-                "historical_scores_count": len(historical_scores),
-                "symbol1": symbol1,
-                "symbol2": symbol2,
-                "timeframe": timeframe,
-                "window_size": window_size
+                "current_correlation": current_correlation,
+                "current_entanglement": current_entanglement,
+                "decline": decline,
+                "recent_average": recent_avg,
+                "earlier_average": earlier_avg,
+                "volatility": volatility_in_correlation,
+                "confidence": min(1.0, decline / threshold) if breakdown_detected else 0.0,
+                "threshold": threshold,
+                "history_points": len(history)
             }
+            
         except Exception as e:
-            logger.error(f"Error monitoring changes: {e}")
+            logger.error(f"Error detecting breakdown: {e}")
             return {
-                "current_entanglement": 0.0,
-                "entanglement_trend": "unknown",
-                "change_detected": False,
-                "change_magnitude": 0.0,
+                "breakdown_detected": False,
                 "error": str(e)
             }
 
-    def detect_breakdown(self, historical_scores: List[float], threshold: float = 0.5) -> bool:
-        """Продвинутое обнаружение разрыва запутанности."""
-        import numpy as np
-        
-        if len(historical_scores) < 3:
-            return False
-        
-        scores_array = np.array(historical_scores)
-        
-        # 1. Проверка текущего значения ниже порога
-        current_below_threshold = scores_array[-1] < threshold
-        
-        # 2. Статистический анализ изменений
-        if len(scores_array) >= 10:
-            # Анализ тренда последних периодов
-            recent_scores = scores_array[-10:]
-            trend_slope = np.polyfit(range(len(recent_scores)), recent_scores, 1)[0]
-            
-            # Резкое снижение тренда
-            sharp_decline = trend_slope < -0.05
-            
-            # Анализ волатильности
-            volatility = np.std(recent_scores)
-            mean_score = np.mean(recent_scores)
-            
-            # Высокая волатильность с низким средним
-            unstable_pattern = volatility > 0.15 and mean_score < threshold
-            
-            # Комбинированная оценка разрыва
-            breakdown_detected = (
-                current_below_threshold and 
-                (sharp_decline or unstable_pattern)
-            )
-        else:
-            # Для коротких серий используем простой анализ
-            recent_decline = (
-                len(scores_array) >= 3 and
-                scores_array[-1] < scores_array[-2] < scores_array[-3] and
-                scores_array[-1] < threshold * 0.8  # Более строгий порог
-            )
-            breakdown_detected = current_below_threshold or recent_decline
-        
-        return breakdown_detected
-
-    def calculate_trend(self, historical_scores: List[float]) -> str:
-        """Продвинутый расчет тренда запутанности."""
-        import numpy as np
-        from scipy import stats
-        
-        if len(historical_scores) < 3:
-            return "insufficient_data"
-        
-        scores_array = np.array(historical_scores)
-        
+    def calculate_trend(self, data: List[Any], window: int = 5) -> Dict[str, Any]:
+        """Расчет тренда в данных с использованием скользящего окна."""
         try:
-            # Статистический анализ тренда с помощью регрессии
-            x = np.arange(len(scores_array))
-            slope, intercept, r_value, p_value, std_err = stats.linregress(x, scores_array)
+            if not data or len(data) < 2:
+                return {
+                    "trend": "insufficient_data",
+                    "slope": 0.0,
+                    "strength": 0.0,
+                    "direction": "none"
+                }
             
-            # Определение статистической значимости тренда
-            significant = p_value < 0.05
+            # Конвертируем в числовые значения
+            try:
+                numeric_data = [float(d) for d in data]
+            except (ValueError, TypeError):
+                return {
+                    "trend": "invalid_data",
+                    "slope": 0.0,
+                    "strength": 0.0,
+                    "direction": "none"
+                }
             
-            # Классификация тренда
-            if significant:
-                if slope > 0.01:  # Значимый положительный тренд
-                    trend_strength = min(abs(slope) * 100, 1.0)  # Нормализация силы тренда
-                    if trend_strength > 0.5:
-                        return "strongly_increasing"
-                    else:
-                        return "increasing"
-                elif slope < -0.01:  # Значимый отрицательный тренд
-                    trend_strength = min(abs(slope) * 100, 1.0)
-                    if trend_strength > 0.5:
-                        return "strongly_decreasing"
-                    else:
-                        return "decreasing"
-                else:
-                    return "stable"
+            if len(numeric_data) < window:
+                window = len(numeric_data)
+            
+            # Рассчитываем скользящие средние
+            moving_averages = []
+            for i in range(window - 1, len(numeric_data)):
+                window_data = numeric_data[i - window + 1:i + 1]
+                avg = sum(window_data) / len(window_data)
+                moving_averages.append(avg)
+            
+            if len(moving_averages) < 2:
+                return {
+                    "trend": "insufficient_smoothed_data",
+                    "slope": 0.0,
+                    "strength": 0.0,
+                    "direction": "none"
+                }
+            
+            # Линейная регрессия на скользящих средних
+            n = len(moving_averages)
+            x_values = list(range(n))
+            y_values = moving_averages
+            
+            # Рассчитываем коэффициенты линейной регрессии
+            sum_x = sum(x_values)
+            sum_y = sum(y_values)
+            sum_xy = sum(x_values[i] * y_values[i] for i in range(n))
+            sum_x_squared = sum(x * x for x in x_values)
+            
+            # Избегаем деления на ноль
+            denominator = n * sum_x_squared - sum_x ** 2
+            if denominator == 0:
+                slope = 0.0
             else:
-                # Если тренд статистически не значим, анализируем волатильность
-                volatility = np.std(scores_array)
-                if volatility > 0.2:
-                    return "volatile"
-                else:
-                    return "stable"
-                    
-        except Exception:
-            # Fallback на простой анализ
-            if len(historical_scores) >= 2:
-                if historical_scores[-1] > historical_scores[0]:
-                    return "increasing"
-                elif historical_scores[-1] < historical_scores[0]:
-                    return "decreasing"
-                else:
-                    return "stable"
-            return "unknown"
+                slope = (n * sum_xy - sum_x * sum_y) / denominator
+            
+            # Рассчитываем силу тренда (R²)
+            if n > 1:
+                y_mean = sum_y / n
+                ss_tot = sum((y - y_mean) ** 2 for y in y_values)
+                ss_res = sum((y_values[i] - (slope * x_values[i] + (sum_y - slope * sum_x) / n)) ** 2 for i in range(n))
+                
+                r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+                strength = max(0.0, min(1.0, r_squared))
+            else:
+                strength = 0.0
+            
+            # Определяем направление тренда
+            if abs(slope) < 1e-6:
+                direction = "sideways"
+                trend_type = "stable"
+            elif slope > 0:
+                direction = "upward"
+                trend_type = "bullish" if strength > 0.5 else "weak_bullish"
+            else:
+                direction = "downward"
+                trend_type = "bearish" if strength > 0.5 else "weak_bearish"
+            
+            return {
+                "trend": trend_type,
+                "slope": slope,
+                "strength": strength,
+                "direction": direction,
+                "moving_averages": moving_averages,
+                "data_points": len(numeric_data),
+                "window_size": window
+            }
+            
+        except Exception as e:
+            logger.error(f"Error calculating trend: {e}")
+            return {
+                "trend": "error",
+                "slope": 0.0,
+                "strength": 0.0,
+                "direction": "none",
+                "error": str(e)
+            }
 
-    def validate_data(self, data: Any) -> bool:
-        """Продвинутая валидация входных данных."""
-        import numpy as np
-        
+    def validate_data(self, data: List[Any]) -> bool:
+        """Валидация данных для анализа."""
         try:
-            # Проверка на None
-            if data is None:
+            if not data or len(data) < 2:
                 return False
             
-            # Проверка типов данных
-            if isinstance(data, (list, tuple, np.ndarray)):
-                if len(data) == 0:
-                    return False
-                
-                # Проверка на числовые значения
+            # Проверяем, что данные можно конвертировать в числа
+            numeric_count = 0
+            for item in data:
                 try:
-                    numeric_data = np.array(data, dtype=float)
-                    
-                    # Проверка на NaN и бесконечность
-                    if np.any(np.isnan(numeric_data)) or np.any(np.isinf(numeric_data)):
-                        return False
-                    
-                    # Проверка на минимальную длину для анализа
-                    if len(numeric_data) < 2:
-                        return False
-                    
-                    # Проверка на разумный диапазон значений (для цен)
-                    if np.any(numeric_data < 0):  # Отрицательные цены недопустимы
-                        return False
-                    
-                    # Проверка на экстремальные значения
-                    if np.any(numeric_data > 1e10):  # Слишком большие значения
-                        return False
-                    
-                    # Проверка на константные данные
-                    if np.std(numeric_data) == 0:
-                        return False  # Все значения одинаковые
-                    
-                    return True
-                    
+                    float(item)
+                    numeric_count += 1
                 except (ValueError, TypeError):
-                    return False
+                    continue
             
-            # Для других типов данных
-            elif isinstance(data, (int, float)):
-                return not (np.isnan(data) or np.isinf(data) or data < 0)
+            # Требуем минимум 80% валидных данных
+            valid_ratio = numeric_count / len(data)
+            return valid_ratio >= 0.8 and numeric_count >= 2
             
-            else:
-                return False
-                
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error validating data: {e}")
             return False
-        return True
 
-    def calculate_confidence_interval(self, prices1: List[Any], prices2: List[Any], confidence_level: float) -> Dict[str, float]:
-        """Расчет доверительного интервала."""
+    def calculate_confidence_interval(self, prices1: List[Any], prices2: List[Any], confidence_level: float = 0.95) -> Dict[str, float]:
+        """Расчет доверительного интервала для корреляции."""
         try:
             if not self.validate_data(prices1) or not self.validate_data(prices2):
-                return {"lower_bound": 0.0, "upper_bound": 1.0}
+                return {
+                    "lower_bound": 0.0,
+                    "upper_bound": 0.0,
+                    "confidence_level": confidence_level,
+                    "valid": False
+                }
             
             # Выравниваем длины
             min_length = min(len(prices1), len(prices2))
             if min_length < 3:
-                return {"lower_bound": 0.0, "upper_bound": 1.0}
-            
-            prices1 = prices1[-min_length:]
-            prices2 = prices2[-min_length:]
-            
-            # Конвертируем в числовые значения
-            try:
-                p1 = [float(p) for p in prices1]
-                p2 = [float(p) for p in prices2]
-            except (ValueError, TypeError):
-                return {"lower_bound": 0.0, "upper_bound": 1.0}
+                return {
+                    "lower_bound": 0.0,
+                    "upper_bound": 0.0,
+                    "confidence_level": confidence_level,
+                    "valid": False
+                }
             
             # Рассчитываем корреляцию
-            correlation = self.calculate_correlation(p1, p2)
+            correlation = self.calculate_correlation(prices1, prices2)
             
-            # Рассчитываем доверительный интервал для корреляции Пирсона
-            # Используем преобразование Фишера
-            if abs(correlation) >= 1.0:
-                return {"lower_bound": correlation, "upper_bound": correlation}
-            
-            # Преобразование Фишера
-            z = 0.5 * math.log((1 + correlation) / (1 - correlation))
-            
-            # Стандартная ошибка
-            se = 1.0 / math.sqrt(min_length - 3)
-            
-            # Z-score для доверительного уровня
-            if confidence_level == 0.95:
-                z_score = 1.96
-            elif confidence_level == 0.99:
-                z_score = 2.58
-            elif confidence_level == 0.90:
-                z_score = 1.645
+            # Фишеровское z-преобразование
+            if abs(correlation) >= 0.9999:
+                # Обрабатываем крайние случаи
+                fisher_z = 5.0 if correlation > 0 else -5.0
             else:
-                # Приближенное значение для других уровней
-                z_score = 1.96
+                fisher_z = 0.5 * math.log((1 + correlation) / (1 - correlation))
             
-            # Доверительный интервал для z
-            z_lower = z - z_score * se
-            z_upper = z + z_score * se
+            # Стандартная ошибка для z-преобразованной корреляции
+            standard_error = 1.0 / math.sqrt(min_length - 3) if min_length > 3 else 1.0
             
-            # Обратное преобразование Фишера
-            def fisher_inverse(z_val):
-                return (math.exp(2 * z_val) - 1) / (math.exp(2 * z_val) + 1)
+            # Z-значение для заданного уровня доверия
+            # Приблизительные значения для стандартного нормального распределения
+            z_values = {
+                0.90: 1.645,
+                0.95: 1.96,
+                0.99: 2.576
+            }
+            z_critical = z_values.get(confidence_level, 1.96)
             
-            lower_bound = fisher_inverse(z_lower)
-            upper_bound = fisher_inverse(z_upper)
+            # Доверительный интервал для z-преобразованной корреляции
+            z_lower = fisher_z - z_critical * standard_error
+            z_upper = fisher_z + z_critical * standard_error
             
-            # Ограничиваем результат в диапазоне [-1, 1]
+            # Обратное преобразование в корреляцию
+            def inverse_fisher_z(z):
+                try:
+                    exp_2z = math.exp(2 * z)
+                    return (exp_2z - 1) / (exp_2z + 1)
+                except OverflowError:
+                    return 1.0 if z > 0 else -1.0
+            
+            lower_bound = inverse_fisher_z(z_lower)
+            upper_bound = inverse_fisher_z(z_upper)
+            
+            # Ограничиваем значения в допустимом диапазоне
             lower_bound = max(-1.0, min(1.0, lower_bound))
             upper_bound = max(-1.0, min(1.0, upper_bound))
             
@@ -1022,11 +1120,20 @@ class EntanglementMonitor:
                 "upper_bound": upper_bound,
                 "correlation": correlation,
                 "confidence_level": confidence_level,
-                "sample_size": min_length
+                "standard_error": standard_error,
+                "sample_size": min_length,
+                "valid": True
             }
+            
         except Exception as e:
             logger.error(f"Error calculating confidence interval: {e}")
-            return {"lower_bound": 0.0, "upper_bound": 1.0}
+            return {
+                "lower_bound": 0.0,
+                "upper_bound": 0.0,
+                "confidence_level": confidence_level,
+                "valid": False,
+                "error": str(e)
+            }
 
     async def _get_historical_prices(self, symbol: str, timeframe: str) -> List[float]:
         """Получение исторических цен для символа."""

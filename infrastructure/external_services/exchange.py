@@ -546,7 +546,16 @@ class Exchange:
         try:
             if symbol in self.positions:
                 position = self.positions[symbol]
-                position.current_price = data["close"].iloc[-1]
+                # ИСПРАВЛЕНО: Безопасная проверка наличия данных перед обращением к iloc
+                if "close" not in data:
+                    logger.warning(f"No 'close' price data for symbol {symbol}")
+                    return
+                close_series = data["close"]
+                if len(close_series) == 0:
+                    logger.warning(f"Empty close price series for symbol {symbol}")
+                    return
+                
+                position.current_price = close_series.iloc[-1]
                 position.unrealized_pnl = (
                     position.current_price - position.entry_price
                 ) * position.quantity

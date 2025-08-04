@@ -121,18 +121,55 @@ class PerformanceMonitor:
         return None
 
     async def _monitoring_loop(self) -> None:
-        """Основной цикл мониторинга."""
+        """Основной цикл мониторинга с адаптивными интервалами."""
+        base_interval = 30  # 30 секунд базовый интервал
+        current_interval = base_interval
+        consecutive_errors = 0
+        high_load_threshold = 0.8  # Порог высокой нагрузки
+        
         try:
             while self.monitoring_active:
+                loop_start_time = time.time()
+                
                 try:
+                    # Сбор метрик с адаптивным расписанием
                     if self.system_metrics_enabled:
                         await self._collect_system_metrics()
-                    await self._check_thresholds()
-                    await self._cleanup_old_data()
-                    await asyncio.sleep(30)  # Проверка каждые 30 секунд
+                    
+                    # Проверка пороговых значений
+                    threshold_violations = await self._check_thresholds()
+                    
+                    # Очистка старых данных (реже при низкой нагрузке)
+                    if len(self.metrics) > 100:  # Очищаем только при накоплении данных
+                        await self._cleanup_old_data()
+                    
+                    # Адаптивный интервал на основе нагрузки системы
+                    if hasattr(self, 'current_cpu_usage'):
+                        cpu_usage = getattr(self, 'current_cpu_usage', 0.5)
+                        if cpu_usage > high_load_threshold or threshold_violations:
+                            # Увеличиваем частоту мониторинга при высокой нагрузке
+                            current_interval = max(base_interval // 2, 10)
+                        elif cpu_usage < 0.3:
+                            # Уменьшаем частоту при низкой нагрузке
+                            current_interval = min(base_interval * 2, 120)
+                        else:
+                            current_interval = base_interval
+                    
+                    consecutive_errors = 0
+                    
+                    # Вычисляем оставшееся время до следующего цикла
+                    loop_duration = time.time() - loop_start_time
+                    sleep_time = max(current_interval - loop_duration, 1)
+                    
+                    await asyncio.sleep(sleep_time)
+                    
                 except Exception as e:
-                    logger.error(f"Error in monitoring loop: {e}")
-                    await asyncio.sleep(10)  # Уменьшенная задержка при ошибке
+                    consecutive_errors += 1
+                    # Экспоненциальная задержка при ошибках
+                    error_delay = min(10 * (2 ** consecutive_errors), 300)
+                    logger.error(f"Error in monitoring loop (attempt {consecutive_errors}): {e}")
+                    await asyncio.sleep(error_delay)
+                    
         except asyncio.CancelledError:
             logger.info("Monitoring loop cancelled")
         return None

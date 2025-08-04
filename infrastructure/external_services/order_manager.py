@@ -72,8 +72,13 @@ class OrderTracker:
                 oldest_order = min(self.orders.values(), key=lambda o: o.created_at)
                 await self._remove_order(oldest_order.id)
             self.orders[order.id] = order
-            self.order_history.append(order)
-            self.metrics["total_orders"] += 1
+                    # ИСПРАВЛЕНО: Ограничиваем размер истории заказов для предотвращения утечки памяти
+        self.order_history.append(order)
+        if len(self.order_history) > 10000:  # Максимум 10К заказов в истории
+            # Удаляем старые заказы (оставляем последние 5К)
+            self.order_history = self.order_history[-5000:]
+            logger.debug("Order history truncated to prevent memory leak")
+        self.metrics["total_orders"] += 1
             self.metrics["open_orders"] += 1
 
     async def update_order(self, order_id: OrderId, updates: Dict[str, Any]) -> bool:

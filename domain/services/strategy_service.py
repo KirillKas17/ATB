@@ -567,6 +567,8 @@ class StrategyService:
         self._strategies: Dict[str, StrategyBase] = {}
         self._strategy_lock = asyncio.Lock()
         self._performance_history: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        # ИСПРАВЛЕНО: Добавлена защита для глобальных метрик
+        self._metrics_lock = asyncio.Lock()
         self._global_metrics = {
             'total_strategies': 0,
             'active_strategies': 0,
@@ -595,7 +597,9 @@ class StrategyService:
                 # Добавление наблюдателя за изменениями
                 strategy.add_observer(self._strategy_event_handler)
                 
-                self._global_metrics['total_strategies'] += 1
+                # ИСПРАВЛЕНО: Защищенное обновление метрик
+                async with self._metrics_lock:
+                    self._global_metrics['total_strategies'] += 1
                 
                 logger.info(f"Registered strategy {strategy.strategy_id} of type {strategy.strategy_type.value}")
                 return strategy.strategy_id
@@ -608,13 +612,17 @@ class StrategyService:
         """Запуск стратегии."""
         strategy = await self._get_strategy(strategy_id)
         await strategy.start()
-        self._global_metrics['active_strategies'] += 1
+        # ИСПРАВЛЕНО: Защищенное обновление метрик
+        async with self._metrics_lock:
+            self._global_metrics['active_strategies'] += 1
     
     async def pause_strategy(self, strategy_id: str) -> None:
         """Приостановка стратегии."""
         strategy = await self._get_strategy(strategy_id)
         await strategy.pause()
-        self._global_metrics['active_strategies'] -= 1
+        # ИСПРАВЛЕНО: Защищенное обновление метрик
+        async with self._metrics_lock:
+            self._global_metrics['active_strategies'] -= 1
     
     async def stop_strategy(self, strategy_id: str) -> None:
         """Остановка стратегии."""

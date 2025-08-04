@@ -1071,3 +1071,25 @@ class TaskScheduler:
         except Exception as e:
             logger.warning(f"Ошибка оценки рисков: {e}")
             return {}
+
+    def _get_execution_time_metric(self) -> float:
+        """Получение метрики времени выполнения."""
+        try:
+            completed_tasks = [
+                t for t in self.task_history 
+                if t.status == "completed" and t.execution_time is not None
+            ]
+            if completed_tasks:
+                execution_times = [t.execution_time for t in completed_tasks if t.execution_time is not None]
+                # Безопасное преобразование к float
+                safe_times = []
+                for time_val in execution_times:
+                    if time_val is not None:
+                        safe_times.append(float(time_val))
+                
+                if safe_times:
+                    return float(sum(safe_times) / len(safe_times))
+            return 0.0
+        except Exception as e:
+            logger.warning(f"Ошибка расчёта среднего времени выполнения: {e}")
+            return 0.0

@@ -640,5 +640,7 @@ class BehaviorHistoryRepository(IBehaviorHistoryStorage):
         try:
             if hasattr(self, "executor"):
                 self.executor.shutdown(wait=False)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to cleanup expired behavior records: {e}")
+            # Возвращаем 0 при ошибке, но логируем проблему
+            return 0

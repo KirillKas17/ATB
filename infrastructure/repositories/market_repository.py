@@ -1022,47 +1022,75 @@ class PostgresMarketRepository(MarketRepositoryProtocol):
             return MarketRegime.UNKNOWN
 
     def _build_where_clause(self, filters: List[ProtocolQueryFilter]) -> tuple[str, List[Any]]:
-        """Построить WHERE условие для фильтров."""
+        """Построить WHERE условие для фильтров - ИСПРАВЛЕНО: добавлена валидация полей."""
+        # БЕЗОПАСНОСТЬ: Список разрешенных полей для предотвращения SQL injection
+        ALLOWED_FIELDS = {
+            'id', 'symbol', 'timestamp', 'open', 'high', 'low', 'close', 'volume',
+            'created_at', 'updated_at', 'exchange', 'interval', 'bid', 'ask',
+            'bid_volume', 'ask_volume', 'last_price', 'last_volume'
+        }
+        
         conditions = []
         params = []
         param_count = 0
         
         for filter_item in filters:
+            # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Валидация имени поля
+            if filter_item.field not in ALLOWED_FIELDS:
+                logger.warning(f"Attempt to use unauthorized field in query: {filter_item.field}")
+                continue  # Пропускаем небезопасные поля
+                
             param_count += 1
+            # Используем проверенное имя поля
+            safe_field = filter_item.field  # Теперь мы знаем что оно безопасно
+            
             if filter_item.operator == QueryOperator.EQUALS:
-                conditions.append(f"{filter_item.field} = ${param_count}")
+                conditions.append(f"{safe_field} = ${param_count}")
                 params.append(filter_item.value)
             elif filter_item.operator == QueryOperator.NOT_EQUALS:
-                conditions.append(f"{filter_item.field} != ${param_count}")
+                conditions.append(f"{safe_field} != ${param_count}")
                 params.append(filter_item.value)
             elif filter_item.operator == QueryOperator.GREATER_THAN:
-                conditions.append(f"{filter_item.field} > ${param_count}")
+                conditions.append(f"{safe_field} > ${param_count}")
                 params.append(filter_item.value)
             elif filter_item.operator == QueryOperator.LESS_THAN:
-                conditions.append(f"{filter_item.field} < ${param_count}")
+                conditions.append(f"{safe_field} < ${param_count}")
                 params.append(filter_item.value)
             elif filter_item.operator == QueryOperator.LIKE:
-                conditions.append(f"{filter_item.field} ILIKE ${param_count}")
+                conditions.append(f"{safe_field} ILIKE ${param_count}")
                 params.append(f"%{filter_item.value}%")
             elif filter_item.operator == QueryOperator.IN:
-                conditions.append(f"{filter_item.field} = ANY(${param_count})")
+                conditions.append(f"{safe_field} = ANY(${param_count})")
                 params.append(filter_item.value)
         
         where_clause = " AND ".join(conditions) if conditions else "1=1"
         return where_clause, params
 
     def _build_order_clause(self, sort_orders: List[Any]) -> str:
-        """Построить ORDER BY условие."""
+        """Построить ORDER BY условие - ИСПРАВЛЕНО: добавлена валидация полей."""
         if not sort_orders:
             return ""
         
+        # БЕЗОПАСНОСТЬ: Те же разрешенные поля что и для WHERE
+        ALLOWED_FIELDS = {
+            'id', 'symbol', 'timestamp', 'open', 'high', 'low', 'close', 'volume',
+            'created_at', 'updated_at', 'exchange', 'interval', 'bid', 'ask',
+            'bid_volume', 'ask_volume', 'last_price', 'last_volume'
+        }
+        
         order_parts = []
         for sort_order in sort_orders:
-            direction = "DESC" if sort_order.direction == "desc" else "ASC"
-            field = getattr(sort_order, 'field', 'timestamp') # Use getattr to handle different sort order types
+            direction = "DESC" if getattr(sort_order, 'direction', 'asc') == "desc" else "ASC"
+            field = getattr(sort_order, 'field', 'timestamp')
+            
+            # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Валидация поля для ORDER BY
+            if field not in ALLOWED_FIELDS:
+                logger.warning(f"Attempt to use unauthorized field in ORDER BY: {field}")
+                field = 'timestamp'  # Fallback к безопасному полю
+                
             order_parts.append(f"{field} {direction}")
         
-        return f" ORDER BY {', '.join(order_parts)}"
+        return f" ORDER BY {', '.join(order_parts)}" if order_parts else ""
 
     async def close(self) -> None:
         """Закрыть соединения."""

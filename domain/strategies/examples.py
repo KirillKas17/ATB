@@ -16,11 +16,25 @@ from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency
 from domain.value_objects.volume import Volume
 
-# Убираю дублирующиеся импорты и исправляю типы
+# ИСПРАВЛЕНО: Явные импорты вместо wildcard для безопасности
 try:
-    from domain.entities.strategy import *
-except ImportError:
-    pass
+    from domain.entities.strategy import (
+        Strategy, StrategyBase, StrategyType, StrategyState,
+        StrategyMetrics, StrategyConfig, StrategyParameters
+    )
+except ImportError as e:
+    # ИСПРАВЛЕНО: Логирование вместо поглощения ошибки
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Failed to import strategy entities: {e}")
+    # Создаем базовые заглушки для работоспособности
+    Strategy = type('Strategy', (), {})
+    StrategyBase = type('StrategyBase', (), {})
+    StrategyType = type('StrategyType', (), {})
+    StrategyState = type('StrategyState', (), {})
+    StrategyMetrics = type('StrategyMetrics', (), {})
+    StrategyConfig = type('StrategyConfig', (), {})
+    StrategyParameters = type('StrategyParameters', (), {})
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)

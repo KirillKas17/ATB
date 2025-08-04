@@ -16,6 +16,7 @@ from domain.services.market_metrics import MarketMetricsService
 from domain.services.technical_analysis import TechnicalAnalysisService
 from domain.types import Symbol, TimestampValue
 from domain.value_objects.price import Price
+from shared.validation import validate_input, validate_market_data
 
 
 class MarketServiceImpl(BaseApplicationService, MarketService):
@@ -61,6 +62,7 @@ class MarketServiceImpl(BaseApplicationService, MarketService):
                 return False
         return True
 
+    @validate_input(symbol="symbol")
     async def get_market_data(self, symbol: Symbol) -> Optional[MarketData]:
         """Получение рыночных данных."""
         return await self._execute_with_metrics(
@@ -85,6 +87,7 @@ class MarketServiceImpl(BaseApplicationService, MarketService):
             return market_data
         return None
 
+    @validate_input(symbol="symbol", timeframe="timeframe")
     async def get_historical_data(
         self,
         symbol: Symbol,
@@ -128,6 +131,7 @@ class MarketServiceImpl(BaseApplicationService, MarketService):
             )
         return result
 
+    @validate_input(symbol="symbol")
     async def get_current_price(self, symbol: Symbol) -> Optional[Price]:
         """Получение текущей цены."""
         return await self._execute_with_metrics(
@@ -151,6 +155,7 @@ class MarketServiceImpl(BaseApplicationService, MarketService):
             return market_data.close
         return None
 
+    @validate_input(symbol="symbol")
     async def get_order_book(
         self, symbol: Symbol, depth: int = 10
     ) -> Optional[Dict[str, Any]]:

@@ -1096,5 +1096,6 @@ class MarketMakerStorage(IPatternStorage):
         try:
             if hasattr(self, "executor"):
                 self.executor.shutdown(wait=False)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to cleanup market maker storage: {e}")
+            # Продолжаем работу, но логируем ошибку
