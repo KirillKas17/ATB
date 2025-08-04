@@ -3,7 +3,7 @@ Value Object для торгового символа.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 import re
 
 from domain.value_objects.base_value_object import BaseValueObject
@@ -25,7 +25,7 @@ class Symbol(BaseValueObject):
     quote: Optional[str] = None
     exchange: Optional[str] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация и парсинг символа."""
         if not self.value:
             raise ValueError("Symbol value cannot be empty")
@@ -41,7 +41,7 @@ class Symbol(BaseValueObject):
                 object.__setattr__(self, 'base', parsed[0])
                 object.__setattr__(self, 'quote', parsed[1])
     
-    def _parse_symbol(self, symbol: str) -> Optional[tuple[str, str]]:
+    def _parse_symbol(self, symbol: str) -> Optional[Tuple[str, str]]:
         """Парсинг символа на base и quote валюты."""
         symbol = symbol.upper()
         

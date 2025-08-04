@@ -128,7 +128,7 @@ class MarketStateManager:
         self.states[-1]
         prices = [s.price for s in self.states[-self.volatility_window :]]
         # Расчет тренда
-        trend = np.polyfit(range(len(prices)), prices, 1)[0]
+        trend = np.polyfit(np.arange(len(prices)), np.array(prices), 1)[0]
         # Расчет волатильности
         volatility = np.std(prices) / np.mean(prices)
         # Определение режима
@@ -241,7 +241,7 @@ class MarketStateManager:
         prices = [s.price for s in self.states[-self.volatility_window :]]
         volatility = float(np.std(prices) / np.mean(prices))
         momentum = float((latest.price - prices[0]) / prices[0])
-        trend_strength = float(abs(np.polyfit(range(len(prices)), prices, 1)[0]))
+        trend_strength = float(abs(np.polyfit(np.arange(len(prices)), np.array(prices), 1)[0]))
         volume_trend = float(
             np.mean([s.volume for s in self.states[-5:]])
             / np.mean([s.volume for s in self.states[-10:-5]])

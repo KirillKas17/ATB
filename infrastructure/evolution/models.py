@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlmodel import Field, SQLModel
 
 
-class StrategyCandidateModel(SQLModel, table=True):
+class StrategyCandidateModel(SQLModel, table=True):  # type: ignore[call-arg]
     """Модель для хранения кандидатов стратегий."""
 
     __tablename__ = "strategy_candidates"
@@ -35,7 +35,7 @@ class StrategyCandidateModel(SQLModel, table=True):
     meta_data: str  # JSON string
 
 
-class StrategyEvaluationModel(SQLModel, table=True):
+class StrategyEvaluationModel(SQLModel, table=True):  # type: ignore[call-arg]
     """Модель для хранения результатов оценки стратегий."""
 
     __tablename__ = "strategy_evaluations"
@@ -80,7 +80,7 @@ class StrategyEvaluationModel(SQLModel, table=True):
     meta_data: str  # JSON string
 
 
-class EvolutionContextModel(SQLModel, table=True):
+class EvolutionContextModel(SQLModel, table=True):  # type: ignore[call-arg]
     """Модель для хранения контекстов эволюции."""
 
     __tablename__ = "evolution_contexts"

@@ -308,6 +308,20 @@ class PatternDiscovery:
                     pattern_frequencies={
                         str(k): v[1]["metrics"]["frequency"] for k, v in sorted_patterns_list.items()
                     },
+                    pattern_returns={
+                        str(k): v[1]["metrics"].get("mean_return", 0.0) for k, v in sorted_patterns_list.items()
+                    },
+                    pattern_win_rates={
+                        str(k): v[1]["metrics"].get("win_rate", 0.0) for k, v in sorted_patterns_list.items()
+                    },
+                    pattern_sharpe={
+                        str(k): v[1]["metrics"].get("sharpe", 0.0) for k, v in sorted_patterns_list.items()
+                    },
+                    pattern_drawdown={
+                        str(k): v[1]["metrics"].get("max_drawdown", 0.0) for k, v in sorted_patterns_list.items()
+                    },
+                    last_update=datetime.now(),
+                    confidence=0.8  # Default confidence
                 )
                 self.metrics[column] = pattern_metrics_obj
         except Exception as e:

@@ -9,6 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
+import numpy as np
 import pandas as pd  # type: ignore
 from loguru import logger
 
@@ -417,10 +418,10 @@ class SignalProcessor:
             "expected_drawdown": self._calculate_expected_drawdown(
                 context.volatility, position_size
             ),
-            "sharpe_ratio": self._calculate_sharpe_ratio(
+            "sharpe_ratio": self._calculate_sharpe_ratio_momentum(
                 context.momentum, context.volatility
             ),
-            "sortino_ratio": self._calculate_sortino_ratio(
+            "sortino_ratio": self._calculate_sortino_ratio_momentum(
                 context.momentum, context.volatility
             ),
             "max_position_risk": position_size * context.volatility,
@@ -455,7 +456,7 @@ class SignalProcessor:
         """
         return position_size * volatility * 0.5
 
-    def _calculate_sharpe_ratio(self, momentum: float, volatility: float) -> float:
+    def _calculate_sharpe_ratio_momentum(self, momentum: float, volatility: float) -> float:
         """
         Расчет коэффициента Шарпа.
 
@@ -470,7 +471,7 @@ class SignalProcessor:
             return momentum / volatility
         return 0.0
 
-    def _calculate_sortino_ratio(self, momentum: float, volatility: float) -> float:
+    def _calculate_sortino_ratio_momentum(self, momentum: float, volatility: float) -> float:
         """
         Расчет коэффициента Сортино.
 

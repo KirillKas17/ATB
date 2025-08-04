@@ -2,7 +2,34 @@
 Базовые исключения домена.
 """
 
-from typing import Optional, Any
+from typing import Optional, Any, Dict
+
+
+# Алиас для совместимости с тестами
+BaseDomainException = type("DomainException", (Exception,), {})
+
+
+def _format_error_message(message: str, context: Optional[Dict[str, Any]] = None) -> str:
+    """Форматирование сообщения об ошибке с контекстом."""
+    if context:
+        context_str = ", ".join(f"{k}={v}" for k, v in context.items())
+        return f"{message} (context: {context_str})"
+    return message
+
+
+def _get_error_context(error: Exception) -> Dict[str, Any]:
+    """Получение контекста ошибки."""
+    context = {
+        "error_type": type(error).__name__,
+        "error_message": str(error)
+    }
+    
+    # Добавляем дополнительные атрибуты ошибки если они есть
+    for attr in ["field", "value", "entity_type", "entity_id"]:
+        if hasattr(error, attr):
+            context[attr] = getattr(error, attr)
+    
+    return context
 
 
 class DomainException(Exception):
@@ -105,6 +132,18 @@ class BusinessRuleError(DomainException):
     """Исключение для нарушений бизнес-правил."""
 
     pass
+
+
+# Алиас для совместимости с тестами
+BusinessRuleViolationError = BusinessRuleError
+
+
+class ConfigurationError(DomainException):
+    """Исключение для ошибок конфигурации."""
+    
+    def __init__(self, message: str = "Configuration error", config_key: Optional[str] = None):
+        self.config_key = config_key
+        super().__init__(f"{message}: {config_key}" if config_key else message)
 
 
 class InsufficientFundsError(DomainException):
@@ -257,7 +296,11 @@ class EntitySaveError(RepositoryError):
 
 class ValidationError(DomainException):
     """Исключение для ошибок валидации."""
-    def __init__(self, message: str = "Validation error", field: Optional[str] = None, value: Optional[Any] = None):
+    def __init__(self, message: str = "Validation error", field: Optional[str] = None, value: Optional[Any] = None, rule: Optional[str] = None):
         self.field = field
         self.value = value
-        super().__init__(f"{message}: {field} = {value}")
+        self.rule = rule
+        detail = f": {field} = {value}" if field else ""
+        if rule:
+            detail += f" (rule: {rule})"
+        super().__init__(f"{message}{detail}")

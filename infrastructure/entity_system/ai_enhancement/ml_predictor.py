@@ -394,7 +394,7 @@ class MLPredictor:
                 try:
                     perf_pred = self.models["performance"].predict(X)[0]
                     predictions["performance_score"] = float(
-                        np.clip(perf_pred, 0.0, 1.0)
+                        np.clip(perf_pred, 0.0, 1.0).item()
                     )
                     confidence_scores["performance"] = (
                         self._calculate_prediction_confidence("performance", X)
@@ -407,7 +407,7 @@ class MLPredictor:
                 try:
                     maint_pred = self.models["maintainability"].predict(X)[0]
                     predictions["maintainability_score"] = float(
-                        np.clip(maint_pred, 0.0, 1.0)
+                        np.clip(maint_pred, 0.0, 1.0).item()
                     )
                     confidence_scores["maintainability"] = (
                         self._calculate_prediction_confidence("maintainability", X)
@@ -419,7 +419,7 @@ class MLPredictor:
             if "quality" in self.models:
                 try:
                     qual_pred = self.models["quality"].predict(X)[0]
-                    predictions["quality_score"] = float(np.clip(qual_pred, 0.0, 1.0))
+                    predictions["quality_score"] = float(np.clip(qual_pred, 0.0, 1.0).item())
                     confidence_scores["quality"] = (
                         self._calculate_prediction_confidence("quality", X)
                     )
@@ -461,7 +461,7 @@ class MLPredictor:
                 # Использование метрик модели для оценки уверенности
                 metrics = self.model_metrics[model_name]
                 confidence = (metrics.r2_score + metrics.cross_val_score) / 2
-                return float(np.clip(confidence, 0.0, 1.0))
+                return float(np.clip(confidence, 0.0, 1.0).item())
         except Exception as e:
             logger.error(f"Ошибка расчёта уверенности для {model_name}: {e}")
         return 0.5

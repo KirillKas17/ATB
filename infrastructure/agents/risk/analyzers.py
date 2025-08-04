@@ -6,6 +6,9 @@ import numpy as np
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+# Импорты для корректной типизации numpy функций
+from numpy import percentile, maximum, minimum, mean, std, cov, var, corrcoef
+
 from .types import RiskConfig, RiskLevel, RiskLimits, RiskMetrics
 
 
@@ -55,7 +58,7 @@ class DefaultRiskCalculator(IRiskCalculator):
             for pos in positions:
                 if "returns" in pos:
                     returns.extend(pos["returns"])
-            volatility = np.std(returns) if returns else 0.0  # type: ignore[attr-defined]
+            volatility = std(returns) if returns else 0.0
             # Расчет VaR
             var_95 = self.calculate_var(np.array(returns), 0.95) if returns else 0.0
             # Расчет максимальной просадки
@@ -119,7 +122,7 @@ class DefaultRiskCalculator(IRiskCalculator):
                 return 0.0
             # Используем исторический VaR
             var_percentile = (1 - confidence_level) * 100
-            var = np.percentile(returns, var_percentile)
+            var = percentile(returns, var_percentile)
             return float(abs(var))
         except Exception:
             return 0.0
@@ -130,11 +133,11 @@ class DefaultRiskCalculator(IRiskCalculator):
             if len(equity_curve) == 0:
                 return 0.0
             # Расчет кумулятивных максимумов
-            peak = np.maximum.accumulate(equity_curve)
+            peak = maximum.accumulate(equity_curve)
             # Расчет просадки
             drawdown = (equity_curve - peak) / peak
             # Максимальная просадка
-            max_dd = abs(np.min(drawdown))
+            max_dd = abs(minimum(drawdown))
             return float(max_dd)
         except Exception:
             return 0.0
@@ -182,8 +185,8 @@ class RiskMetricsCalculator:
                 returns - risk_free_rate / 252
             )  # Дневная безрисковая ставка
             sharpe = (
-                np.mean(excess_returns) / np.std(excess_returns)
-                if np.std(excess_returns) > 0
+                mean(excess_returns) / std(excess_returns)
+                if std(excess_returns) > 0
                 else 0.0
             )
             return float(sharpe * np.sqrt(252))  # Годовой коэффициент Шарпа
@@ -201,9 +204,9 @@ class RiskMetricsCalculator:
             downside_returns = excess_returns[excess_returns < 0]
             if len(downside_returns) == 0:
                 return 0.0
-            downside_deviation = np.std(downside_returns)
+            downside_deviation = std(downside_returns)
             sortino = (
-                np.mean(excess_returns) / downside_deviation
+                mean(excess_returns) / downside_deviation
                 if downside_deviation > 0
                 else 0.0
             )
@@ -216,7 +219,7 @@ class RiskMetricsCalculator:
         try:
             if len(returns) == 0 or max_dd == 0:
                 return 0.0
-            annual_return = np.mean(returns) * 252
+            annual_return = mean(returns) * 252
             calmar = annual_return / max_dd
             return float(calmar)
         except Exception:
@@ -234,8 +237,8 @@ class RiskMetricsCalculator:
             portfolio_returns = portfolio_returns[:min_length]
             market_returns = market_returns[:min_length]
             # Расчет ковариации и дисперсии
-            covariance = np.cov(portfolio_returns, market_returns)[0, 1]
-            market_variance = np.var(market_returns)
+            covariance = cov(portfolio_returns, market_returns)[0, 1]
+            market_variance = var(market_returns)
             beta = covariance / market_variance if market_variance > 0 else 1.0
             return float(beta)
         except Exception:
@@ -259,7 +262,7 @@ class RiskMetricsCalculator:
                         # Убеждаемся, что массивы одинаковой длины
                         min_length = min(len(returns1), len(returns2))
                         if min_length > 0:
-                            corr = np.corrcoef(
+                            corr = corrcoef(
                                 returns1[:min_length], returns2[:min_length]
                             )[0, 1]
                             correlation_matrix[symbol1][symbol2] = (
@@ -291,8 +294,8 @@ class RiskMetricsCalculator:
                 "beta": self.calculate_beta(
                     np.array(returns), np.array(market_returns)
                 ),
-                "volatility": np.std(returns) if returns else 0.0,
-                "annualized_return": np.mean(returns) * 252 if returns else 0.0,
+                "volatility": std(returns) if returns else 0.0,
+                "annualized_return": mean(returns) * 252 if returns else 0.0,
                 "win_rate": self._calculate_win_rate(returns),
                 "profit_factor": self._calculate_profit_factor(returns),
                 "max_consecutive_losses": self._calculate_max_consecutive_losses(
