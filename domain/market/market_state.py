@@ -25,7 +25,7 @@ class MarketState(MarketStateProtocol):
     bollinger_lower: Optional[float] = None
     bollinger_middle: Optional[float] = None
     atr: Optional[float] = None
-    metadata: MarketMetadataDict = field(default_factory=lambda: {"source": "", "exchange": "", "extra": {}})  # type: ignore
+    metadata: MarketMetadataDict = field(default_factory=lambda: {"source": "", "exchange": "", "extra": {}})
 
     def is_trending(self) -> bool:
         return self.regime in {MarketRegime.TRENDING_UP, MarketRegime.TRENDING_DOWN}

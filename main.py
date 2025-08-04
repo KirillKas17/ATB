@@ -30,18 +30,18 @@ try:
 except ImportError as e:
     logger.warning(f"Failed to import config models: {e}")
     # Создаем заглушки для базовой работы
-    ApplicationConfig = dict
-    TradingConfig = dict
-    RiskConfig = dict
-    create_default_config = lambda: {}
-    validate_config = lambda x: True
+    ApplicationConfig = dict  # type: ignore[misc,assignment]
+    TradingConfig = dict  # type: ignore[misc,assignment]
+    RiskConfig = dict  # type: ignore[misc,assignment]
+    create_default_config = lambda: {}  # type: ignore[assignment,return-value]
+    validate_config = lambda x: True  # type: ignore[assignment,return-value]
 
 # Импорт DI контейнера
 try:
     from application.di_container_refactored import get_service_locator
 except ImportError as e:
     logger.warning(f"Failed to import DI container: {e}")
-    get_service_locator = lambda: None
+    get_service_locator = lambda: None  # type: ignore[assignment,return-value]
 
 # Импорты для торговой оркестрации
 try:
@@ -53,11 +53,11 @@ try:
 except ImportError as e:
     logger.warning(f"Failed to import use cases: {e}")
     # Создаем заглушки
-    DefaultOrderManagementUseCase = type('DefaultOrderManagementUseCase', (), {})
-    DefaultPositionManagementUseCase = type('DefaultPositionManagementUseCase', (), {})
-    DefaultRiskManagementUseCase = type('DefaultRiskManagementUseCase', (), {})
-    DefaultTradingPairManagementUseCase = type('DefaultTradingPairManagementUseCase', (), {})
-    DefaultTradingOrchestratorUseCase = type('DefaultTradingOrchestratorUseCase', (), {})
+    DefaultOrderManagementUseCase = type('DefaultOrderManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+    DefaultPositionManagementUseCase = type('DefaultPositionManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+    DefaultRiskManagementUseCase = type('DefaultRiskManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+    DefaultTradingPairManagementUseCase = type('DefaultTradingPairManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+    DefaultTradingOrchestratorUseCase = type('DefaultTradingOrchestratorUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
 
 # Импорты сервисов
 try:
@@ -66,9 +66,9 @@ try:
     from application.services.risk_service import RiskService
 except ImportError as e:
     logger.warning(f"Failed to import services: {e}")
-    MarketService = type('MarketService', (), {})
-    TradingService = type('TradingService', (), {})
-    RiskService = type('RiskService', (), {})
+    MarketService = type('MarketService', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+    TradingService = type('TradingService', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+    RiskService = type('RiskService', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
 
 # Импорты новых компонентов domain/strategies
 try:
@@ -79,11 +79,11 @@ try:
     )
 except ImportError as e:
     logger.warning(f"Failed to import domain strategies: {e}")
-    StrategyFactory = type('StrategyFactory', (), {})
+    StrategyFactory = type('StrategyFactory', (), {})  # type: ignore[misc,assignment]
     get_strategy_factory = lambda: StrategyFactory()
-    StrategyRegistry = type('StrategyRegistry', (), {})
+    StrategyRegistry = type('StrategyRegistry', (), {})  # type: ignore[misc,assignment]
     get_strategy_registry = lambda: StrategyRegistry()
-    StrategyValidator = type('StrategyValidator', (), {})
+    StrategyValidator = type('StrategyValidator', (), {})  # type: ignore[misc,assignment]
     get_strategy_validator = lambda: StrategyValidator()
 
 # Импорты стратегий из infrastructure/strategies
@@ -98,13 +98,13 @@ try:
 except ImportError as e:
     logger.warning(f"Failed to import infrastructure strategies: {e}")
     # Создаем базовые заглушки стратегий
-    TrendStrategy = type('TrendStrategy', (), {})
-    SidewaysStrategy = type('SidewaysStrategy', (), {})
-    AdaptiveStrategyGenerator = type('AdaptiveStrategyGenerator', (), {})
-    EvolvableBaseStrategy = type('EvolvableBaseStrategy', (), {})
-    ManipulationStrategy = type('ManipulationStrategy', (), {})
-    VolatilityStrategy = type('VolatilityStrategy', (), {})
-    PairsTradingStrategy = type('PairsTradingStrategy', (), {})
+    TrendStrategy = type('TrendStrategy', (), {})  # type: ignore[misc,assignment]
+    SidewaysStrategy = type('SidewaysStrategy', (), {})  # type: ignore[misc,assignment]
+    AdaptiveStrategyGenerator = type('AdaptiveStrategyGenerator', (), {})  # type: ignore[misc,assignment]
+    EvolvableBaseStrategy = type('EvolvableBaseStrategy', (), {})  # type: ignore[misc,assignment]
+    ManipulationStrategy = type('ManipulationStrategy', (), {})  # type: ignore[misc,assignment]
+    VolatilityStrategy = type('VolatilityStrategy', (), {})  # type: ignore[misc,assignment]
+    PairsTradingStrategy = type('PairsTradingStrategy', (), {})  # type: ignore[misc,assignment]
 
 # Импорты для интеграции с эволюционными агентами
 from infrastructure.core.evolution_integration import EvolutionIntegration

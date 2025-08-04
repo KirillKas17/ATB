@@ -1132,7 +1132,7 @@ class SessionRepository(SessionRepositoryProtocol):
                 for row in rows:
                     if row and len(row) >= 5:
                         op_type = row[0] if row[0] else "unknown"
-                        metrics[op_type] = {  # type: ignore
+                        metrics[op_type] = {
                             "avg_execution_time_ms": row[1] if row[1] else 0.0,
                             "total_operations": row[2] if row[2] else 0,
                             "successful_operations": row[3] if row[3] else 0,

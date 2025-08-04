@@ -13,7 +13,7 @@ from shared.abstractions.base_service import BaseService
 try:
     import psutil
 except ImportError:
-    psutil = None  # type: ignore
+    psutil = None
 
 
 @dataclass

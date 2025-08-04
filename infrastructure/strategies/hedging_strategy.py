@@ -9,7 +9,7 @@ from loguru import logger
 
 # Проверка наличия talib
 try:
-    import talib  # type: ignore
+    import talib
     TALIB_AVAILABLE = True
 except ImportError:
     TALIB_AVAILABLE = False
@@ -587,7 +587,7 @@ class HedgingStrategy(BaseStrategy):
             high_max = data["high"].max()
             low_min = data["low"].min()
             close_mean = data["close"].mean()
-            if high_max is not None and not pd.isna(high_max) and low_min is not None and not pd.isna(low_min) and close_mean is not None and not pd.isna(close_mean) and close_mean > 0:  # type: ignore
+            if high_max is not None and not pd.isna(high_max) and low_min is not None and not pd.isna(low_min) and close_mean is not None and not pd.isna(close_mean) and close_mean > 0:
                 price_range = (high_max - low_min) / close_mean
                 if price_range < 0.02:
                     return "ranging"
@@ -604,24 +604,24 @@ class HedgingStrategy(BaseStrategy):
             # Простой анализ настроений на основе объема и цены
             if len(data) < self._config.sentiment_lookback:
                 return None
-            recent_data = data.tail(self._config.sentiment_lookback) if len(data) >= self._config.sentiment_lookback else data.copy()  # type: ignore
+            recent_data = data.tail(self._config.sentiment_lookback) if len(data) >= self._config.sentiment_lookback else data.copy()
             close_last = recent_data["close"].iloc[-1]
             close_first = recent_data["close"].iloc[0]
             volume_last = recent_data["volume"].iloc[-1]
             volume_first = recent_data["volume"].iloc[0]
             
-            if close_last is not None and not pd.isna(close_last) and close_first is not None and not pd.isna(close_first) and close_first > 0:  # type: ignore
+            if close_last is not None and not pd.isna(close_last) and close_first is not None and not pd.isna(close_first) and close_first > 0:
                 price_trend = (close_last / close_first) - 1
             else:
                 price_trend = 0.0
                 
-            if volume_last is not None and not pd.isna(volume_last) and volume_first is not None and not pd.isna(volume_first) and volume_first > 0:  # type: ignore
+            if volume_last is not None and not pd.isna(volume_last) and volume_first is not None and not pd.isna(volume_first) and volume_first > 0:
                 volume_trend = (volume_last / volume_first) - 1
             else:
                 volume_trend = 0.0
                 
             sentiment = (price_trend + volume_trend) / 2
-            return float(sentiment) if sentiment is not None and not pd.isna(sentiment) else 0.0  # type: ignore
+            return float(sentiment) if sentiment is not None and not pd.isna(sentiment) else 0.0
         except Exception as e:
             logger.error(f"Error analyzing sentiment: {str(e)}")
             return None
@@ -714,7 +714,7 @@ class HedgingStrategy(BaseStrategy):
             high_low = data["high"] - data["low"]
             high_close = np.abs(data["high"] - data["close"].shift())
             low_close = np.abs(data["low"] - data["close"].shift())
-            ranges = pd.concat([high_low, high_close, low_close], axis=1)  # type: ignore
+            ranges = pd.concat([high_low, high_close, low_close], axis=1)
             true_range = ranges.max(axis=1)
             atr = true_range.rolling(window=period).mean()
             return atr.fillna(0)  # Заполняем NaN значения
@@ -729,7 +729,7 @@ class HedgingStrategy(BaseStrategy):
             high_low = data["high"] - data["low"]
             high_close = np.abs(data["high"] - data["close"].shift())
             low_close = np.abs(data["low"] - data["close"].shift())
-            ranges = pd.concat([high_low, high_close, low_close], axis=1)  # type: ignore
+            ranges = pd.concat([high_low, high_close, low_close], axis=1)
             true_range = ranges.max(axis=1)
             adx = true_range.rolling(window=period).mean()
             return adx.fillna(0)  # Заполняем NaN значения

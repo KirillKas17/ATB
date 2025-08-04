@@ -12,7 +12,7 @@ from shared.numpy_utils import np
 
 # # import talib  # Временно закомментировано из-за проблем с установкой на Windows  # Временно закомментировано из-за проблем с установкой на Windows
 try:
-    import talib  # type: ignore
+    import talib
 except ImportError:
     talib = None
 try:
@@ -23,7 +23,7 @@ except ImportError:
     torch = None
     nn = None
     TORCH_AVAILABLE = False
-from deap import base, creator, tools  # type: ignore
+from deap import base, creator, tools
 from loguru import logger
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler

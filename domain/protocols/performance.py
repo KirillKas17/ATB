@@ -43,7 +43,7 @@ except ImportError:
     PSUTIL_AVAILABLE = False
     psutil = None
 try:
-    import memory_profiler  # type: ignore
+    import memory_profiler
 
     MEMORY_PROFILER_AVAILABLE = True
 except ImportError:

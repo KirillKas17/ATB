@@ -395,7 +395,7 @@ class OptimizedDatabase:
                         side = str(row[2]).lower()
                         if side not in ["buy", "sell"]:
                             side = "buy"
-                        side = SignalTypeType(side)  # type: ignore
+                        side = SignalTypeType(side)
                         # Корректно создаём executed_at
                         ts = row[5]
                         if hasattr(ts, 'to_pydatetime'):

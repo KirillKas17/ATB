@@ -16,6 +16,10 @@ from infrastructure.strategies.momentum_strategy import MomentumStrategy
 from infrastructure.strategies.scalping_strategy import ScalpingStrategy
 from domain.intelligence.entanglement_detector import EntanglementDetector
 from domain.intelligence.mirror_detector import MirrorDetector
+# Новые продвинутые модули
+from domain.strategies.quantum_arbitrage_strategy import QuantumArbitrageStrategy
+from domain.intelligence.pattern_analyzer import QuantumPatternAnalyzer
+from domain.prediction.neural_market_predictor import NeuralMarketPredictor
 from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
 
 logger = logging.getLogger(__name__)
@@ -30,6 +34,9 @@ class StrategyIntegrationManager:
         self.entanglement_detector = EntanglementDetector()
         self.mirror_detector = MirrorDetector()
         self.market_maker_agent = MarketMakerModelAgent()
+        # Новые продвинутые модули
+        self.quantum_pattern_analyzer = QuantumPatternAnalyzer()
+        self.neural_market_predictor = NeuralMarketPredictor()
         
     async def initialize_strategies(self) -> None:
         """Инициализация всех доступных стратегий."""
@@ -42,11 +49,17 @@ class StrategyIntegrationManager:
                 'manipulation': ManipulationStrategy({}),
                 'mean_reversion': MeanReversionStrategy({}),
                 'momentum': MomentumStrategy({}),
-                'scalping': ScalpingStrategy({})
+                'scalping': ScalpingStrategy({}),
+                # Новая квантовая арбитражная стратегия
+                'quantum_arbitrage': QuantumArbitrageStrategy(
+                    strategy_id='quantum_arbitrage_default',
+                    min_profit_threshold=0.001,
+                    enable_ml_predictions=True
+                )
             })
             
             # Активация базовых стратегий
-            self.active_strategies = ['trend', 'mean_reversion', 'momentum']
+            self.active_strategies = ['trend', 'mean_reversion', 'momentum', 'quantum_arbitrage']
             
             logger.info(f"Initialized {len(self.strategies)} strategies")
             logger.info(f"Active strategies: {self.active_strategies}")

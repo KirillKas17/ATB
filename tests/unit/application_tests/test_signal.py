@@ -31,7 +31,7 @@ class TestSessionSignalEngine:
         """Создает mock маркера сессий."""
         marker = Mock()
         context = MarketSessionContext(
-            primary_session=None,  # type: ignore
+            primary_session=None,
         )
         marker.get_session_context = Mock(return_value=context)
         return marker
@@ -63,16 +63,16 @@ class TestSessionSignalEngine:
         """Создает образец результата анализа влияния сессии."""
         return SessionInfluenceResult(
             symbol="BTC/USD",
-            session_type=SessionType.LONDON,  # type: ignore
-            session_phase=SessionPhase.ACTIVE,  # type: ignore
+            session_type=SessionType.LONDON,
+            session_phase=SessionPhase.ACTIVE,
             timestamp=Timestamp.now(),
-            influence_metrics={},  # type: ignore
+            influence_metrics={},
             predicted_volatility=0.2,
             predicted_volume=0.3,
             predicted_direction="bullish",
             confidence=0.8,
             market_context={},
-            historical_patterns={}  # type: ignore
+            historical_patterns={}
         )
 
     @pytest.mark.asyncio
@@ -82,7 +82,7 @@ class TestSessionSignalEngine:
         timestamp = Timestamp.now()
         
         # Настраиваем mock
-        engine.session_analyzer.analyze_session_influence.return_value = sample_influence_result  # type: ignore
+        engine.session_analyzer.analyze_session_influence.return_value = sample_influence_result
         
         result = await engine.generate_signal(symbol, sample_market_data, timestamp)
         
@@ -190,7 +190,7 @@ class TestSessionSignalEngine:
         """Тест генерации базового результата влияния."""
         symbol = "BTC/USD"
         context = MarketSessionContext(
-            primary_session=None,  # type: ignore
+            primary_session=None,
         )
         timestamp = Timestamp.now()
         

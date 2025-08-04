@@ -13,6 +13,11 @@ from domain.strategies.base_strategies import (
     ArbitrageStrategy,
 )
 
+# Новые продвинутые модули
+from domain.strategies.quantum_arbitrage_strategy import QuantumArbitrageStrategy
+# from domain.intelligence.pattern_analyzer import QuantumPatternAnalyzer  # Временно отключен
+from domain.prediction.neural_market_predictor import NeuralMarketPredictor
+
 # Фабрика и реестр
 from .strategy_factory import StrategyFactory, get_strategy_factory, register_strategy
 from .strategy_registry import StrategyRegistry, get_strategy_registry
@@ -105,6 +110,10 @@ __all__ = [
     "BreakoutStrategy",
     "ScalpingStrategy",
     "ArbitrageStrategy",
+    # Новые продвинутые модули
+    "QuantumArbitrageStrategy",
+    # "QuantumPatternAnalyzer",  # Временно отключен
+    "NeuralMarketPredictor",
     # Реализации стратегий
     "TrendFollowingStrategyImpl",
     "MeanReversionStrategyImpl",

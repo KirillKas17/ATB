@@ -507,7 +507,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
                     }
                 )
                 
-                return signal  # type: ignore
+                return signal
             
             return None
             

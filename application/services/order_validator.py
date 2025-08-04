@@ -80,7 +80,7 @@ class OrderValidator:
             if hasattr(order.price, 'amount'):
                 price_value = order.price.amount
             else:
-                price_value = order.price  # type: ignore
+                price_value = order.price
             if price_value <= 0:
                 errors.append("Order price must be positive")
         return errors
@@ -94,12 +94,12 @@ class OrderValidator:
         if hasattr(order.price, 'amount'):
             order_price = order.price.amount if order.price else Decimal("0")
         else:
-            order_price = order.price if order.price else Decimal("0")  # type: ignore
+            order_price = order.price if order.price else Decimal("0")
         
         if hasattr(order.quantity, 'amount'):
             quantity_value = order.quantity.amount
         else:
-            quantity_value = order.quantity  # type: ignore
+            quantity_value = order.quantity
             
         order_value = quantity_value * order_price
         if order_value < min_size:
@@ -116,7 +116,7 @@ class OrderValidator:
             if hasattr(order.price, 'amount'):
                 order_price_value = order.price.amount
             else:
-                order_price_value = order.price  # type: ignore
+                order_price_value = order.price
                 
             # Проверка разумности цены относительно текущей
             price_diff_ratio = abs(order_price_value - current_price) / current_price
@@ -138,19 +138,19 @@ class OrderValidator:
             if hasattr(order.price, 'amount'):
                 price_value = order.price.amount
             else:
-                price_value = order.price  # type: ignore
+                price_value = order.price
                 
             if hasattr(order.quantity, 'amount'):
                 quantity_value = order.quantity.amount
             else:
-                quantity_value = order.quantity  # type: ignore
+                quantity_value = order.quantity
                 
             # Проверка достаточности средств
             required_funds = quantity_value * price_value
             if hasattr(portfolio.free_margin, 'amount'):
                 free_margin_value = portfolio.free_margin.amount
             else:
-                free_margin_value = portfolio.free_margin  # type: ignore
+                free_margin_value = portfolio.free_margin
                 
             if free_margin_value < required_funds:
                 errors.append(
@@ -165,7 +165,7 @@ class OrderValidator:
         if hasattr(portfolio.total_balance, 'amount'):
             total_balance_value = portfolio.total_balance.amount
         else:
-            total_balance_value = portfolio.total_balance  # type: ignore
+            total_balance_value = portfolio.total_balance
             
         max_position_size = total_balance_value * Decimal(
             self.config.get("max_position_size_ratio", "0.2")
@@ -174,12 +174,12 @@ class OrderValidator:
         if hasattr(order.price, 'amount'):
             price_value = order.price.amount if order.price else Decimal("0")
         else:
-            price_value = order.price if order.price else Decimal("0")  # type: ignore
+            price_value = order.price if order.price else Decimal("0")
             
         if hasattr(order.quantity, 'amount'):
             quantity_value = order.quantity.amount
         else:
-            quantity_value = order.quantity  # type: ignore
+            quantity_value = order.quantity
             
         order_value = quantity_value * price_value
         if order_value > max_position_size:
@@ -204,7 +204,7 @@ class OrderValidator:
                 if hasattr(order.price, 'amount'):
                     price_value = order.price.amount
                 else:
-                    price_value = order.price  # type: ignore
+                    price_value = order.price
                 stop_distance = abs(price_value - entry_price) / entry_price
                 if stop_distance > max_stop_distance:
                     errors.append(f"Stop loss distance {stop_distance:.2%} exceeds maximum {max_stop_distance:.2%}")
@@ -224,7 +224,7 @@ class OrderValidator:
             if hasattr(order.price, 'amount'):
                 price_value = order.price.amount
             else:
-                price_value = order.price  # type: ignore
+                price_value = order.price
             tp_distance = abs(price_value - entry_price) / entry_price
             if tp_distance < min_tp_distance:
                 errors.append(
@@ -243,19 +243,19 @@ class OrderValidator:
             if hasattr(order.price, 'amount'):
                 price_value = order.price.amount if order.price else Decimal("0")
             else:
-                price_value = order.price if order.price else Decimal("0")  # type: ignore
+                price_value = order.price if order.price else Decimal("0")
                 
             if hasattr(order.quantity, 'amount'):
                 quantity_value = order.quantity.amount
             else:
-                quantity_value = order.quantity  # type: ignore
+                quantity_value = order.quantity
                 
             total_value += quantity_value * price_value
             
         if hasattr(portfolio.free_margin, 'amount'):
             free_margin_value = portfolio.free_margin.amount
         else:
-            free_margin_value = portfolio.free_margin  # type: ignore
+            free_margin_value = portfolio.free_margin
             
         if total_value > free_margin_value:
             errors.append(
@@ -266,7 +266,7 @@ class OrderValidator:
             if hasattr(order.price, 'amount'):
                 current_price = order.price.amount if order.price else Decimal("0")
             else:
-                current_price = order.price if order.price else Decimal("0")  # type: ignore
+                current_price = order.price if order.price else Decimal("0")
             is_valid, order_errors = self.validate_order(
                 order, portfolio, current_price
             )

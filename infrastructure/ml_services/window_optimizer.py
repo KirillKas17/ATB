@@ -5,10 +5,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import joblib  # type: ignore
+import joblib
 from shared.numpy_utils import np
 import optuna
-import pandas as pd  # type: ignore
+import pandas as pd
 from loguru import logger
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score

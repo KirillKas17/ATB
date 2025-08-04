@@ -261,11 +261,11 @@ class Backtester:
                     symbol=market_point.symbol,
                     timestamp=market_point.timestamp,
                     timeframe="1m",  # Добавляем недостающий параметр timeframe
-                    open=float(market_point.open.value) if hasattr(market_point.open, 'value') else float(market_point.open),  # type: ignore
-                    high=float(market_point.high.value) if hasattr(market_point.high, 'value') else float(market_point.high),  # type: ignore
-                    low=float(market_point.low.value) if hasattr(market_point.low, 'value') else float(market_point.low),  # type: ignore
-                    close=float(market_point.close.value) if hasattr(market_point.close, 'value') else float(market_point.close),  # type: ignore
-                    volume=float(market_point.volume.value) if hasattr(market_point.volume, 'value') else float(market_point.volume),  # type: ignore
+                    open=float(market_point.open.value) if hasattr(market_point.open, 'value') else float(market_point.open),
+                    high=float(market_point.high.value) if hasattr(market_point.high, 'value') else float(market_point.high),
+                    low=float(market_point.low.value) if hasattr(market_point.low, 'value') else float(market_point.low),
+                    close=float(market_point.close.value) if hasattr(market_point.close, 'value') else float(market_point.close),
+                    volume=float(market_point.volume.value) if hasattr(market_point.volume, 'value') else float(market_point.volume),
                     metadata=market_point.metadata
                 )
                 self.market_state.update(infrastructure_market_data)

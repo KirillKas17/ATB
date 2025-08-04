@@ -1,7 +1,7 @@
 """Тесты для профиля символа."""
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from domain.symbols.symbol_profile import SymbolProfile, VolumeProfile, PriceStructure, OrderBookMetricsData, PatternMetricsData, SessionMetricsData  # type: ignore
+from domain.symbols.symbol_profile import SymbolProfile, VolumeProfile, PriceStructure, OrderBookMetricsData, PatternMetricsData, SessionMetricsData
 from domain.types import MarketPhase, VolumeValue, PriceValue, SpreadValue, ConfidenceValue
 def test_symbol_profile_creation() -> None:
     profile = SymbolProfile(

@@ -6,14 +6,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-import joblib  # type: ignore
+import joblib
 from shared.numpy_utils import np
 import pandas as pd
-import ta  # type: ignore
-import umap  # type: ignore
+import ta
+import umap
 from loguru import logger
-from mlxtend.frequent_patterns import apriori, association_rules  # type: ignore
-from mlxtend.preprocessing import TransactionEncoder  # type: ignore
+from mlxtend.frequent_patterns import apriori, association_rules
+from mlxtend.preprocessing import TransactionEncoder
 from scipy import stats
 from scipy.signal import find_peaks
 from scipy.spatial.distance import cdist

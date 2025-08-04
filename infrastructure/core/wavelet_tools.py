@@ -3,7 +3,7 @@
 from typing import List, Tuple, Union, Optional
 
 from shared.numpy_utils import np
-import pywt  # type: ignore
+import pywt
 from scipy.stats import entropy
 
 __all__ = ["perform_dwt", "perform_cwt", "reconstruct_dwt", "extract_wavelet_features"]

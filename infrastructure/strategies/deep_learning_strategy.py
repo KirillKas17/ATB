@@ -5,11 +5,11 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
-from sklearn.preprocessing import StandardScaler  # type: ignore
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint  # type: ignore
-from tensorflow.keras.layers import LSTM, Dense, Dropout  # type: ignore
-from tensorflow.keras.models import Sequential, load_model  # type: ignore
-from tensorflow.keras.optimizers import Adam  # type: ignore
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.optimizers import Adam
 
 from .base_strategy import BaseStrategy, Signal
 
@@ -247,19 +247,19 @@ class DeepLearningStrategy(BaseStrategy):
             # Нормализация признаков
             features = {
                 "returns": float(returns.iloc[-1]) if returns.iloc[-1] is not None and not pd.isna(returns.iloc[-1]) else 0.0,
-                "log_returns": float(log_returns.iloc[-1]) if log_returns.iloc[-1] is not None and not pd.isna(log_returns.iloc[-1]) else 0.0,  # type: ignore
-                "volatility": float(volatility.iloc[-1]) if volatility.iloc[-1] is not None and not pd.isna(volatility.iloc[-1]) else 0.0,  # type: ignore
-                "volume_ratio": float(volume_ratio.iloc[-1]) if volume_ratio.iloc[-1] is not None and not pd.isna(volume_ratio.iloc[-1]) else 1.0,  # type: ignore
-                "rsi": float(rsi.iloc[-1]) if len(rsi) > 0 and rsi.iloc[-1] is not None and not pd.isna(rsi.iloc[-1]) else 50.0,  # type: ignore
-                "macd": float(macd.iloc[-1]) if len(macd) > 0 and macd.iloc[-1] is not None and not pd.isna(macd.iloc[-1]) else 0.0,  # type: ignore
-                "macd_signal": float(signal.iloc[-1]) if len(signal) > 0 and signal.iloc[-1] is not None and not pd.isna(signal.iloc[-1]) else 0.0,  # type: ignore
-                "macd_hist": float(hist.iloc[-1]) if len(hist) > 0 and hist.iloc[-1] is not None and not pd.isna(hist.iloc[-1]) else 0.0,  # type: ignore
+                "log_returns": float(log_returns.iloc[-1]) if log_returns.iloc[-1] is not None and not pd.isna(log_returns.iloc[-1]) else 0.0,
+                "volatility": float(volatility.iloc[-1]) if volatility.iloc[-1] is not None and not pd.isna(volatility.iloc[-1]) else 0.0,
+                "volume_ratio": float(volume_ratio.iloc[-1]) if volume_ratio.iloc[-1] is not None and not pd.isna(volume_ratio.iloc[-1]) else 1.0,
+                "rsi": float(rsi.iloc[-1]) if len(rsi) > 0 and rsi.iloc[-1] is not None and not pd.isna(rsi.iloc[-1]) else 50.0,
+                "macd": float(macd.iloc[-1]) if len(macd) > 0 and macd.iloc[-1] is not None and not pd.isna(macd.iloc[-1]) else 0.0,
+                "macd_signal": float(signal.iloc[-1]) if len(signal) > 0 and signal.iloc[-1] is not None and not pd.isna(signal.iloc[-1]) else 0.0,
+                "macd_hist": float(hist.iloc[-1]) if len(hist) > 0 and hist.iloc[-1] is not None and not pd.isna(hist.iloc[-1]) else 0.0,
                 "bollinger_position": (
-                    float((data["close"].iloc[-1] - lower_band.iloc[-1]) / (upper_band.iloc[-1] - lower_band.iloc[-1]))  # type: ignore
-                    if len(upper_band) > 0 and len(lower_band) > 0 and upper_band.iloc[-1] is not None and not pd.isna(upper_band.iloc[-1]) and lower_band.iloc[-1] is not None and not pd.isna(lower_band.iloc[-1]) and (upper_band.iloc[-1] - lower_band.iloc[-1]) != 0  # type: ignore
+                    float((data["close"].iloc[-1] - lower_band.iloc[-1]) / (upper_band.iloc[-1] - lower_band.iloc[-1]))
+                    if len(upper_band) > 0 and len(lower_band) > 0 and upper_band.iloc[-1] is not None and not pd.isna(upper_band.iloc[-1]) and lower_band.iloc[-1] is not None and not pd.isna(lower_band.iloc[-1]) and (upper_band.iloc[-1] - lower_band.iloc[-1]) != 0
                     else 0.5
                 ),
-                "atr": float(atr.iloc[-1]) if len(atr) > 0 and atr.iloc[-1] is not None and not pd.isna(atr.iloc[-1]) else 0.0,  # type: ignore
+                "atr": float(atr.iloc[-1]) if len(atr) > 0 and atr.iloc[-1] is not None and not pd.isna(atr.iloc[-1]) else 0.0,
             }
             return features
         except Exception as e:
@@ -276,14 +276,14 @@ class DeepLearningStrategy(BaseStrategy):
         """
         try:
             delta = data["close"].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=self._config.rsi_period).mean()  # type: ignore
-            loss = (-delta.where(delta < 0, 0)).rolling(window=self._config.rsi_period).mean()  # type: ignore
+            gain = (delta.where(delta > 0, 0)).rolling(window=self._config.rsi_period).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=self._config.rsi_period).mean()
             rs = gain / loss
             rsi = 100 - (100 / (1 + rs))
             return rsi
         except Exception as e:
             logger.error(f"Error calculating RSI: {str(e)}")
-            return pd.Series()  # type: ignore
+            return pd.Series()
 
     def _calculate_macd(
         self, data: pd.DataFrame
@@ -304,7 +304,7 @@ class DeepLearningStrategy(BaseStrategy):
             return macd, signal, histogram
         except Exception as e:
             logger.error(f"Error calculating MACD: {str(e)}")
-            return pd.Series(), pd.Series(), pd.Series()  # type: ignore
+            return pd.Series(), pd.Series(), pd.Series()
 
     def _calculate_bollinger_bands(
         self, data: pd.DataFrame
@@ -324,7 +324,7 @@ class DeepLearningStrategy(BaseStrategy):
             return upper_band, lower_band
         except Exception as e:
             logger.error(f"Error calculating Bollinger Bands: {str(e)}")
-            return pd.Series(), pd.Series()  # type: ignore
+            return pd.Series(), pd.Series()
 
     def _calculate_atr(self, data: pd.DataFrame) -> pd.Series:
         """
@@ -338,12 +338,12 @@ class DeepLearningStrategy(BaseStrategy):
             high_low = data["high"] - data["low"]
             high_close = np.abs(data["high"] - data["close"].shift())
             low_close = np.abs(data["low"] - data["close"].shift())
-            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)  # type: ignore
+            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
             atr = true_range.rolling(window=self._config.atr_period).mean()
             return atr
         except Exception as e:
             logger.error(f"Error calculating ATR: {str(e)}")
-            return pd.Series()  # type: ignore
+            return pd.Series()
 
     def _generate_trading_signal(
         self,
@@ -615,7 +615,7 @@ class DeepLearningStrategy(BaseStrategy):
             # Расчет признаков для всей последовательности
             features = []
             for i in range(len(data) - self._config.sequence_length):
-                window_data = data.iloc[i : i + self._config.sequence_length]  # type: ignore
+                window_data = data.iloc[i : i + self._config.sequence_length]
                 window_features = self._calculate_features(window_data)
                 features.append(list(window_features.values()))
             # Преобразование в массив
@@ -647,13 +647,13 @@ class DeepLearningStrategy(BaseStrategy):
             # ATR
             atr = self._calculate_atr(data)
             return {
-                "rsi": rsi.iloc[-1] if len(rsi) > 0 else 50.0,  # type: ignore
-                "macd": macd.iloc[-1] if len(macd) > 0 else 0.0,  # type: ignore
-                "macd_signal": signal.iloc[-1] if len(signal) > 0 else 0.0,  # type: ignore
-                "macd_hist": hist.iloc[-1] if len(hist) > 0 else 0.0,  # type: ignore
-                "bollinger_upper": upper_band.iloc[-1] if len(upper_band) > 0 else 0.0,  # type: ignore
-                "bollinger_lower": lower_band.iloc[-1] if len(lower_band) > 0 else 0.0,  # type: ignore
-                "atr": atr.iloc[-1] if len(atr) > 0 else 0.0,  # type: ignore
+                "rsi": rsi.iloc[-1] if len(rsi) > 0 else 50.0,
+                "macd": macd.iloc[-1] if len(macd) > 0 else 0.0,
+                "macd_signal": signal.iloc[-1] if len(signal) > 0 else 0.0,
+                "macd_hist": hist.iloc[-1] if len(hist) > 0 else 0.0,
+                "bollinger_upper": upper_band.iloc[-1] if len(upper_band) > 0 else 0.0,
+                "bollinger_lower": lower_band.iloc[-1] if len(lower_band) > 0 else 0.0,
+                "atr": atr.iloc[-1] if len(atr) > 0 else 0.0,
             }
         except Exception as e:
             logger.error(f"Error calculating indicators: {str(e)}")
@@ -675,13 +675,13 @@ class DeepLearningStrategy(BaseStrategy):
             trend_direction = "up" if indicators["macd_hist"] > 0 else "down"
             # Волатильность
             volatility = (
-                "high" if indicators["atr"] > data["close"].iloc[-1] * 0.01 else "low"  # type: ignore
+                "high" if indicators["atr"] > data["close"].iloc[-1] * 0.01 else "low"
             )
             # Объем
             volume_state = (
                 "high"
-                if data["volume"].iloc[-1]  # type: ignore
-                > data["volume"].rolling(window=20).mean().iloc[-1]  # type: ignore
+                if data["volume"].iloc[-1]
+                > data["volume"].rolling(window=20).mean().iloc[-1]
                 else "low"
             )
             return {
@@ -761,7 +761,7 @@ class DeepLearningStrategy(BaseStrategy):
             # Расчет признаков
             features = []
             for i in range(len(data) - self._config.sequence_length):
-                window_data = data.iloc[i : i + self._config.sequence_length]  # type: ignore
+                window_data = data.iloc[i : i + self._config.sequence_length]
                 window_features = self._calculate_features(window_data)
                 features.append(list(window_features.values()))
             # Создание DataFrame с признаками
@@ -769,12 +769,12 @@ class DeepLearningStrategy(BaseStrategy):
             # Расчет целевой переменной
             future_returns = (
                 data["close"]
-                .pct_change(self._config.prediction_horizon)  # type: ignore
-                .shift(-self._config.prediction_horizon)  # type: ignore
+                .pct_change(self._config.prediction_horizon)
+                .shift(-self._config.prediction_horizon)
             )
-            target = pd.get_dummies((future_returns > 0).astype(int))  # type: ignore
+            target = pd.get_dummies((future_returns > 0).astype(int))
             # Удаление NaN значений
-            valid_indices = ~(features_df.isna().any(axis=1) | target.isna().any(axis=1))  # type: ignore
+            valid_indices = ~(features_df.isna().any(axis=1) | target.isna().any(axis=1))
             X = features_df[valid_indices].values
             y = target[valid_indices].values
             # Масштабирование признаков

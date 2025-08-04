@@ -218,7 +218,7 @@ class ManipulationStrategy(BaseStrategy):
             logger.error(f"Error analyzing anomalies: {str(e)}")
             return {"volume_anomaly": False, "price_anomaly": False}
 
-    def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:  # type: ignore
+    def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:
         """
         Генерация торгового сигнала.
         Args:

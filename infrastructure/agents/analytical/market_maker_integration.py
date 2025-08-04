@@ -257,10 +257,12 @@ class MarketMakerAnalyticalIntegration:
         try:
             # Сначала проверяем kwargs
             if "symbol" in kwargs:
-                return kwargs["symbol"]
+                symbol = kwargs["symbol"]
+                return str(symbol) if symbol is not None else None
             # Затем проверяем первый позиционный аргумент
             if args and len(args) > 0:
-                return args[0]
+                arg = args[0]
+                return str(arg) if arg is not None else None
             return None
         except Exception as e:
             logger.error(f"Error extracting symbol from args: {e}")
@@ -270,11 +272,14 @@ class MarketMakerAnalyticalIntegration:
         """Извлекает символ из данных."""
         try:
             if isinstance(data, dict):
-                return data.get("symbol")
+                symbol = data.get("symbol")
+                return str(symbol) if symbol is not None else None
             elif hasattr(data, "symbol"):
-                return getattr(data, "symbol")
+                symbol = getattr(data, "symbol")
+                return str(symbol) if symbol is not None else None
             elif hasattr(data, "__dict__"):
-                return getattr(data, "symbol", None)
+                symbol = getattr(data, "symbol", None)
+                return str(symbol) if symbol is not None else None
             return None
         except Exception as e:
             logger.error(f"Error extracting symbol from data: {e}")

@@ -383,7 +383,7 @@ class MonitoringDashboard:
 
 
 def create_monitoring_dashboard(system_monitor: SystemMonitor, event_bus: EventBus, 
-                               cache_manager: CacheManager) -> MonitoringDashboard:  # type: ignore
+                               cache_manager: CacheManager) -> MonitoringDashboard:
     """Создание дашборда мониторинга."""
     return MonitoringDashboard(system_monitor, event_bus, cache_manager)
 

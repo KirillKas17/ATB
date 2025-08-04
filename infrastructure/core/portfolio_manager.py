@@ -357,7 +357,7 @@ class PortfolioManager:
             Dict[str, float]: Словарь с корреляциями
         """
         # Возвращаем только flat dict[str, float]
-        return {k: float(v) for k, v in self.correlation_matrix.items()}  # type: ignore
+        return {k: float(v) for k, v in self.correlation_matrix.items()}
 
     async def update_correlations(self, price_data: Dict[str, pd.Series]) -> None:
         """
@@ -633,7 +633,7 @@ class PortfolioManager:
 
             # Оптимизация - исправляем вызов minimize
             from scipy.optimize import minimize
-            result = minimize(  # type: ignore
+            result = minimize(
                 objective,
                 initial_weights,
                 method="SLSQP",
@@ -741,7 +741,7 @@ class PortfolioManager:
 
             # Оптимизация - исправляем вызов minimize
             from scipy.optimize import minimize
-            result = minimize(  # type: ignore
+            result = minimize(
                 objective,
                 initial_weights,
                 method="SLSQP",
@@ -843,7 +843,7 @@ class PortfolioManager:
 
                 # Оптимизация - исправляем вызов minimize
                 from scipy.optimize import minimize
-                result = minimize(  # type: ignore
+                result = minimize(
                     objective,
                     initial_weights,
                     method="SLSQP",

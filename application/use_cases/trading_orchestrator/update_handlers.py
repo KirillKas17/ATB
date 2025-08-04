@@ -2,7 +2,7 @@
 Модуль для обработчиков обновления различных компонентов торговой системы.
 """
 
-from typing import List
+from typing import List, Dict, Any
 
 from loguru import logger
 
@@ -10,7 +10,7 @@ from loguru import logger
 class UpdateHandlers:
     """Класс для обработки обновлений различных компонентов системы."""
 
-    def __init__(self, orchestrator):
+    def __init__(self, orchestrator: Any) -> None:
         """Инициализация обработчиков обновлений."""
         self.orchestrator = orchestrator
 
@@ -61,11 +61,13 @@ class UpdateHandlers:
                 if self.orchestrator.session_service:
                     # Получаем рыночные данные для анализа (в реальной реализации здесь был бы вызов получения данных)
                     # Пока используем заглушку
-                    market_data = None  # В реальной реализации здесь были бы данные
-                    if market_data is not None:
-                        await self.orchestrator.session_service.analyze_session_influence(
-                            symbol, market_data
-                        )
+                    # TODO: Реализовать получение market_data
+                    # market_data = await get_market_data(symbol)
+                    # if market_data is not None:
+                    #     await self.orchestrator.session_service.analyze_session_influence(
+                    #         symbol, market_data
+                    #     )
+                    pass  # Временная заглушка
                 elif self.orchestrator.session_influence_analyzer:  # deprecated
                     await self.orchestrator.session_influence_analyzer.analyze_influence(
                         symbol

@@ -603,9 +603,9 @@ class PostgresRiskRepository(RiskRepositoryProtocol):
             profile_id = RiskProfileId(UUID(str(entity_id)))
             query = "DELETE FROM risk_profiles WHERE id = $1"
             result = await conn.execute(query, str(profile_id))
-            return result == "DELETE 1"
+            return str(result) == "DELETE 1"
         result = await self._execute_with_retry(_delete_operation)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result) if isinstance(result, (bool, str, int)) else False
 
     async def get_risk_manager(self, manager_id: str) -> Optional[RiskManager]:
         """Получить менеджера рисков."""
@@ -658,9 +658,9 @@ class PostgresRiskRepository(RiskRepositoryProtocol):
                 risk_limits.get("stop_loss_method", "atr"),
                 risk_limits.get("take_profit_method", "atr")
             )
-            return result == "UPDATE 1"
+            return str(result) == "UPDATE 1"
         result = await self._execute_with_retry(_update_operation)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result) if isinstance(result, (bool, str, int)) else False
 
     async def get_risk_metrics(
         self, 
@@ -714,9 +714,9 @@ class PostgresRiskRepository(RiskRepositoryProtocol):
             profile_id = RiskProfileId(UUID(str(entity_id)))
             query = "UPDATE risk_profiles SET deleted_at = NOW() WHERE id = $1"
             result = await conn.execute(query, str(profile_id))
-            return result == "UPDATE 1"
+            return str(result) == "UPDATE 1"
         result = await self._execute_with_retry(_soft_delete_operation)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result) if isinstance(result, (bool, str, int)) else False
 
     async def restore(self, entity_id: Union[UUID, str]) -> bool:
         """Восстановить сущность."""
@@ -725,9 +725,9 @@ class PostgresRiskRepository(RiskRepositoryProtocol):
             profile_id = RiskProfileId(UUID(str(entity_id)))
             query = "UPDATE risk_profiles SET deleted_at = NULL WHERE id = $1"
             result = await conn.execute(query, str(profile_id))
-            return result == "UPDATE 1"
+            return str(result) == "UPDATE 1"
         result = await self._execute_with_retry(_restore_operation)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result) if isinstance(result, (bool, str, int)) else False
 
     async def find_by(self, filters: List[QueryFilter], options: Optional[QueryOptions] = None) -> List[RiskProfile]:
         """Найти сущности по фильтрам."""

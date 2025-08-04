@@ -277,7 +277,7 @@ class MarketMakerStorage(IPatternStorage):
         def compress_features(data: Dict[str, Any]) -> bytes:
             return self._compress_data(data)
         features_blob = await asyncio.get_event_loop().run_in_executor(
-            self.executor, compress_features, features_dict  # type: ignore
+            self.executor, compress_features, features_dict
         )
         # Сериализуем контекст
         context_json = json.dumps(pattern.context, default=str)

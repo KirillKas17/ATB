@@ -160,7 +160,7 @@ class TestLiquidityAnalyzer:
         assert isinstance(sweeps, list)
         # Проверяем, что все сметания имеют правильную структуру
         for sweep in sweeps:
-            assert isinstance(sweep, LiquiditySweep)  # type: ignore
+            assert isinstance(sweep, LiquiditySweep)
             assert "timestamp" in sweep
             assert "price" in sweep
             assert "type" in sweep

@@ -56,7 +56,7 @@ class BaseConfigValidator:
             self.issues.clear()
             # Базовая валидация структуры
             if not isinstance(config, dict):
-                self.add_issue(
+                self.add_issue(  # type: ignore[unreachable]
                     ConfigSeverity.CRITICAL,
                     "Configuration must be a dictionary",
                     "root",
@@ -174,14 +174,14 @@ class ApplicationConfig(BaseModel):
     )
 
     @validator("environment")
-    def validate_environment(cls, v):
+    def validate_environment(cls, v: str) -> str:
         allowed = ["development", "staging", "production", "testing"]
         if v not in allowed:
             raise ValueError(f"Environment must be one of {allowed}")
         return v
 
     @validator("logging_level")
-    def validate_logging_level(cls, v):
+    def validate_logging_level(cls, v: str) -> str:
         allowed = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if v.upper() not in allowed:
             raise ValueError(f"Logging level must be one of {allowed}")
@@ -222,13 +222,13 @@ class TradingConfig(BaseModel):
     retry_delay: float = Field(default=1.0, gt=0, description="Задержка повтора")
 
     @validator("max_position_size")
-    def validate_max_position_size(cls, v, values):
+    def validate_max_position_size(cls, v: float, values: Dict[str, Any]) -> float:
         if "min_position_size" in values and v < values["min_position_size"]:
             raise ValueError("Max position size must be greater than min position size")
         return v
 
     @validator("take_profit_percent")
-    def validate_take_profit(cls, v, values):
+    def validate_take_profit(cls, v: float, values: Dict[str, Any]) -> float:
         if "stop_loss_percent" in values and v <= values["stop_loss_percent"]:
             raise ValueError("Take profit must be greater than stop loss")
         return v
@@ -256,7 +256,7 @@ class DatabaseConfig(BaseModel):
     ssl_key: Optional[str] = Field(None, description="SSL ключ")
 
     @validator("database_type")
-    def validate_database_type(cls, v):
+    def validate_database_type(cls, v: str) -> str:
         allowed = ["postgresql", "mysql", "sqlite", "mongodb"]
         if v.lower() not in allowed:
             raise ValueError(f"Database type must be one of {allowed}")
@@ -269,21 +269,19 @@ class ExchangeConfig(BaseModel):
     # Основные настройки
     exchange_name: str = Field(..., description="Название биржи")
     api_key: str = Field(..., description="API ключ")
-    secret_key: str = Field(..., description="Секретный ключ")
-    passphrase: Optional[str] = Field(None, description="Парольная фраза")
-    # Настройки подключения
+    api_secret: str = Field(..., description="API секрет")
+    api_passphrase: Optional[str] = Field(None, description="API пассфраза")
     sandbox: bool = Field(default=False, description="Песочница")
+    rate_limit: int = Field(default=1000, gt=0, description="Лимит запросов")
     timeout: int = Field(default=30, gt=0, description="Таймаут запросов")
-    rate_limit: int = Field(default=100, gt=0, description="Лимит запросов")
-    # Настройки торговли
-    trading_pairs: List[str] = Field(default_factory=list, description="Торговые пары")
+    # Торговые настройки
     min_order_size: Dict[str, float] = Field(
         default_factory=dict, description="Минимальные размеры ордеров"
     )
     fees: Dict[str, float] = Field(default_factory=dict, description="Комиссии")
 
     @validator("exchange_name")
-    def validate_exchange_name(cls, v):
+    def validate_exchange_name(cls, v: str) -> str:
         allowed = ["binance", "bybit", "okx", "kucoin", "bitget"]
         if v.lower() not in allowed:
             raise ValueError(f"Exchange name must be one of {allowed}")
@@ -465,7 +463,7 @@ class ConfigValidator:
                 current[key] = {}
             current = current[key]
             if not isinstance(current, dict):
-                current = {}
+                current = {}  # type: ignore[unreachable]
         current[keys[-1]] = value
 
     def get_issues_summary(self) -> Dict[str, Any]:

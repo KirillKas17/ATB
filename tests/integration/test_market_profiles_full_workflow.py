@@ -479,7 +479,7 @@ class TestMarketProfilesFullWorkflow:
         # Симулируем ошибку и восстановление
         try:
             # Попытка некорректной операции
-            await storage.save_pattern("", None)  # type: ignore
+            await storage.save_pattern("", None)
         except Exception:
             # Ошибка ожидаема
             pass

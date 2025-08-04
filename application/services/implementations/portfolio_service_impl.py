@@ -99,7 +99,7 @@ class PortfolioServiceImpl(BaseApplicationService, PortfolioService):
             positions = await self.portfolio_repository.get_all_positions(EntityId(portfolio_id))
             # Используем domain-сервис для расчёта - приводим к совместимому типу
             weights_result = self.portfolio_analysis_service.calculate_weights(
-                positions  # type: ignore
+                positions
             )
             return weights_result.weights
         except Exception as e:
@@ -167,7 +167,7 @@ class PortfolioServiceImpl(BaseApplicationService, PortfolioService):
             # Получаем позиции портфеля
             positions = await self.portfolio_repository.get_all_positions(EntityId(portfolio_id))
             # Используем domain-сервис для расчёта
-            pnl = self.portfolio_analysis_service.calculate_pnl(positions)  # type: ignore
+            pnl = self.portfolio_analysis_service.calculate_pnl(positions)
             # Обновляем статистику
             self._portfolio_stats["total_pnl_calculations"] = int(self._portfolio_stats.get("total_pnl_calculations", 0)) + 1
             return pnl
@@ -207,7 +207,7 @@ class PortfolioServiceImpl(BaseApplicationService, PortfolioService):
             # Используем domain-сервис для расчёта всех метрик
             portfolio_metrics = (
                 self.portfolio_analysis_service.calculate_portfolio_metrics(
-                    positions, historical_returns  # type: ignore
+                    positions, historical_returns
                 )
             )
             # Извлекаем значения для создания PortfolioMetrics

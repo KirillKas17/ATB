@@ -14,7 +14,7 @@ import pandas as pd
 from shared.numpy_utils import np
 
 try:
-    import talib  # type: ignore
+    import talib
 except ImportError:
     talib = None
 

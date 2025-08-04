@@ -257,7 +257,7 @@ class TestMLPipeline:
         # Проверка, что загруженная модель работает
         predictions_original = ml_pipeline.predict(model, X[:10])
         predictions_loaded = ml_pipeline.predict(loaded_model, X[:10])
-        np.testing.assert_array_almost_equal(predictions_original, predictions_loaded)  # type: ignore
+        np.testing.assert_array_almost_equal(predictions_original, predictions_loaded)
     def test_model_comparison(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест сравнения моделей."""
         X, y = sample_training_data

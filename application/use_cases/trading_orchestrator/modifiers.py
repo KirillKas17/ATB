@@ -2,13 +2,14 @@
 Модуль для модификаторов торговой системы.
 """
 
+from typing import Any
 from loguru import logger
 
 
 class Modifiers:
-    """Класс для применения модификаторов к торговым решениям."""
+    """Класс для применения модификаторов торговой системы."""
 
-    def __init__(self, orchestrator):
+    def __init__(self, orchestrator: Any) -> None:
         """Инициализация модификаторов."""
         self.orchestrator = orchestrator
 

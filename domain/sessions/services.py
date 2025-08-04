@@ -118,7 +118,7 @@ class SessionService:
             # Проверяем кэш
             cached_context = self.cache.get(cache_key)
             if cached_context and isinstance(cached_context, dict):
-                return cached_context  # type: ignore
+                return cached_context
             # Получаем контекст
             context = self.session_marker.get_session_context(timestamp)
             if context and hasattr(context, 'to_dict'):
@@ -133,7 +133,7 @@ class SessionService:
                 }
             # Кэшируем результат на 5 минут
             self.cache.set(cache_key, context_dict, ttl=300)
-            return context_dict  # type: ignore
+            return context_dict
         except Exception as e:
             logger.error(f"Failed to get session context: {e}")
             return {
@@ -196,7 +196,7 @@ class SessionService:
             # Проверяем кэш
             cached_prediction = self.cache.get(cache_key)
             if cached_prediction and isinstance(cached_prediction, dict):
-                return cached_prediction  # type: ignore
+                return cached_prediction
             # Получаем профиль сессии
             profile = self.registry.get_profile(session_type)
             if not profile:

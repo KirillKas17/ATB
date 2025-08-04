@@ -285,7 +285,7 @@ class BaseExample(ABC):
         # Создание DataFrame
         # Исправлено: используем правильные pandas функции
         timestamps = pd.date_range(
-            start=datetime.now() - pd.Timedelta(days=periods),  # type: ignore
+            start=datetime.now() - pd.Timedelta(days=periods),
             periods=periods,
             freq='1min'
         )

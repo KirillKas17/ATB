@@ -187,8 +187,8 @@ class SessionDataRepository:
                 "session_type": session_type.value,
                 "period_days": lookback_days,
                 "total_analyses": len(analyses),
-                "phases": phases,  # type: ignore
-                "risk_factors": risk_factors,  # type: ignore
+                "phases": phases,
+                "risk_factors": risk_factors,
             }
         except Exception as e:
             logger.error(f"Failed to get session analysis summary: {e}")

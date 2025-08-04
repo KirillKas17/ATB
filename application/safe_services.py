@@ -14,8 +14,8 @@ class SafeTradingService:
     
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.active = True
-        self.orders = []
-        self.positions = []
+        self.orders: List[Any] = []
+        self.positions: List[Any] = []
         
     def start_trading_session(self) -> Dict[str, Any]:
         return {"status": "started", "timestamp": datetime.now()}

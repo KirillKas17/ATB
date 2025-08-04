@@ -11,7 +11,7 @@ from loguru import logger
 from shared.numpy_utils import np
 
 try:
-    import toml  # type: ignore
+    import toml
 
     TOML_AVAILABLE = True
 except ImportError:

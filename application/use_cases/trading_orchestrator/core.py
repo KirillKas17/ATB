@@ -382,7 +382,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
             # Создаем стратегию на основе ID
             if "adaptive" in strategy_id:
                 from infrastructure.strategies.adaptive_strategy_generator import AdaptiveStrategyGenerator
-                return AdaptiveStrategyGenerator(  # type: ignore
+                return AdaptiveStrategyGenerator(
                     market_regime_agent=None,
                     meta_learner=None,
                     backtest_results={},
@@ -391,16 +391,16 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
                 )
             elif "manipulation" in strategy_id:
                 from infrastructure.strategies.manipulation_strategy import ManipulationStrategy
-                return ManipulationStrategy()  # type: ignore
+                return ManipulationStrategy()
             elif "sideways" in strategy_id:
                 from infrastructure.strategies.sideways_strategy import SidewaysStrategy
-                return SidewaysStrategy()  # type: ignore
+                return SidewaysStrategy()
             elif "trend" in strategy_id:
                 from infrastructure.strategies.trend_strategies import TrendStrategy
-                return TrendStrategy()  # type: ignore
+                return TrendStrategy()
             elif "volatility" in strategy_id:
                 from infrastructure.strategies.volatility_strategy import VolatilityStrategy
-                return VolatilityStrategy()  # type: ignore
+                return VolatilityStrategy()
             else:
                 logger.warning(f"Unknown strategy type: {strategy_id}")
                 return None

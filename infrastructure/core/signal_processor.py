@@ -9,7 +9,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-import pandas as pd  # type: ignore
+import pandas as pd
+from shared.numpy_utils import np
 from loguru import logger
 
 
@@ -32,7 +33,7 @@ class Signal:
     priority: int = 0  # приоритет сигнала
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Инициализация после создания объекта."""
         if self.metadata is None:
             self.metadata = {}
@@ -989,9 +990,9 @@ class SignalProcessor:
         # Расчет продвинутых метрик производительности
         
         profit_factor = self._calculate_profit_factor(trades)
-        sharpe_ratio = self._calculate_sharpe_ratio([t["return"] for t in trades])
+        sharpe_ratio = self._calculate_sharpe_ratio_from_returns([t["return"] for t in trades])
         max_drawdown = self._calculate_max_drawdown([t["return"] for t in trades])
-        sortino_ratio = self._calculate_sortino_ratio([t["return"] for t in trades])
+        sortino_ratio = self._calculate_sortino_ratio_from_returns([t["return"] for t in trades])
         calmar_ratio = self._calculate_calmar_ratio([t["return"] for t in trades])
         
         return {
@@ -1056,7 +1057,16 @@ class SignalProcessor:
             current_time = datetime.now()
             
             for signal in self.signals:
-                signal_time = signal.get("timestamp", current_time)
+                # Проверяем тип сигнала и извлекаем данные соответственно
+                if isinstance(signal, Signal):
+                    signal_time = signal.timestamp
+                    signal_symbol = getattr(signal, 'symbol', None)
+                    signal_dict = signal.to_dict()
+                else:
+                    signal_time = signal.get("timestamp", current_time)
+                    signal_symbol = signal.get("symbol")
+                    signal_dict = signal
+                    
                 if isinstance(signal_time, str):
                     try:
                         signal_time = datetime.fromisoformat(signal_time.replace('Z', '+00:00'))
@@ -1064,14 +1074,14 @@ class SignalProcessor:
                         signal_time = current_time
                 
                 # Фильтр по символу
-                if signal.get("symbol") == symbol:
+                if signal_symbol == symbol:
                     # Добавляем дополнительную аналитику
-                    enhanced_signal = signal.copy()
+                    enhanced_signal = signal_dict.copy()
                     enhanced_signal.update({
                         "age_hours": (current_time - signal_time).total_seconds() / 3600,
-                        "relevance_score": self._calculate_signal_relevance(signal, current_time),
-                        "confidence_trend": self._calculate_confidence_trend(signal),
-                        "performance_impact": self._estimate_performance_impact(signal)
+                        "relevance_score": self._calculate_signal_relevance(signal_dict, current_time),
+                        "confidence_trend": self._calculate_confidence_trend(signal_dict),
+                        "performance_impact": self._estimate_performance_impact(signal_dict)
                     })
                     filtered_signals.append(enhanced_signal)
             
@@ -1184,8 +1194,8 @@ class SignalProcessor:
         except Exception:
             return 1.0
 
-    def _calculate_sharpe_ratio(self, returns: List[float]) -> float:
-        """Расчет коэффициента Шарпа."""
+    def _calculate_sharpe_ratio_from_returns(self, returns: List[float]) -> float:
+        """Расчет коэффициента Шарпа на основе возвратов."""
         try:
             if not returns or len(returns) < 2:
                 return 0.0
@@ -1202,8 +1212,8 @@ class SignalProcessor:
         except Exception:
             return 0.0
 
-    def _calculate_sortino_ratio(self, returns: List[float]) -> float:
-        """Расчет коэффициента Сортино."""
+    def _calculate_sortino_ratio_from_returns(self, returns: List[float]) -> float:
+        """Расчет коэффициента Сортино на основе возвратов."""
         try:
             if not returns or len(returns) < 2:
                 return 0.0

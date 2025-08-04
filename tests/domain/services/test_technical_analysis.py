@@ -140,8 +140,8 @@ class TestDefaultTechnicalAnalysisService:
         valid_rsi = rsi.dropna()
         if len(valid_rsi) > 0:
             # Исправлено: используем правильные операции с Series
-            assert (valid_rsi >= 0).all()  # type: ignore
-            assert (valid_rsi <= 100).all()  # type: ignore
+            assert (valid_rsi >= 0).all()
+            assert (valid_rsi <= 100).all()
     def test_calculate_rsi_invalid_data(self, service: DefaultTechnicalAnalysisService) -> None:
         """Тест расчета RSI с невалидными данными."""
         empty_series = pd.Series([])
@@ -186,7 +186,7 @@ class TestDefaultTechnicalAnalysisService:
         valid_atr = atr.dropna()
         if len(valid_atr) > 0:
             # Исправлено: используем правильные операции с Series
-            assert (valid_atr >= 0).all()  # type: ignore
+            assert (valid_atr >= 0).all()
     def test_calculate_ema(self, service: DefaultTechnicalAnalysisService, sample_data: pd.DataFrame) -> None:
         """Тест расчета EMA."""
         ema = service.calculate_ema(sample_data['close'], period=20)
@@ -194,7 +194,7 @@ class TestDefaultTechnicalAnalysisService:
         assert len(ema) == len(sample_data)
         # EMA не должна быть пустой
         # Исправлено: используем правильные методы pandas
-        assert not ema.isna().all()  # type: ignore
+        assert not ema.isna().all()
     def test_calculate_volume_profile(self, service: DefaultTechnicalAnalysisService, sample_data: pd.DataFrame) -> None:
         """Тест расчета профиля объема."""
         vp_result = service.calculate_volume_profile(sample_data, bins=24)

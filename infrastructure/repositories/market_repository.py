@@ -5,6 +5,8 @@
 import asyncio
 import logging
 from collections import defaultdict
+
+from loguru import logger
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, AsyncIterator, Dict, List, Optional, Sequence, Union, Coroutine, AsyncContextManager

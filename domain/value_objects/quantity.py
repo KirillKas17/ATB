@@ -28,13 +28,15 @@ class Quantity(BaseValueObject):
     
     def __post_init__(self) -> None:
         """Валидация quantity после создания."""
+        # Валидация и конвертация value
         if not isinstance(self.value, Decimal):
-            try:
+            try:  # type: ignore[unreachable]
                 # Конвертируем в Decimal если возможно
                 object.__setattr__(self, 'value', Decimal(str(self.value)))
             except (InvalidOperation, ValueError) as e:
                 raise ValidationError(f"Invalid quantity value: {e}")
         
+        # Остальные валидации
         if self.value <= 0:
             raise ValidationError("Quantity must be positive")
         
@@ -166,7 +168,7 @@ class Quantity(BaseValueObject):
     def is_equal_to(self, other: 'Quantity') -> bool:
         """Сравнение равенства с учетом точности."""
         if not isinstance(other, Quantity):
-            return False
+            return False  # type: ignore[unreachable]
         
         # Сравниваем с учетом минимальной точности
         min_precision = min(self.precision, other.precision)

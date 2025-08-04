@@ -43,7 +43,7 @@ from infrastructure.monitoring import (
     start_monitoring,
     stop_monitoring,
 )
-from infrastructure.simulation.backtester import Backtester  # type: ignore
+from infrastructure.simulation.backtester import Backtester
 
 # Импорты модуля симуляции
 from infrastructure.simulation.simulator import MarketSimulator

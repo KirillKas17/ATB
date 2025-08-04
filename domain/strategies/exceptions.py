@@ -3,7 +3,7 @@
 """
 
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 
 class StrategyError(Exception):
@@ -676,7 +676,7 @@ class StrategyParameterError(StrategyError):
 # Функции-помощники для создания исключений
 def create_strategy_error(error_type: str, message: str, **kwargs: Any) -> StrategyError:
     """Создать исключение стратегии по типу."""
-    error_map = {
+    error_map: Dict[str, Type[StrategyError]] = {
         "creation": StrategyCreationError,
         "validation": StrategyValidationError,
         "execution": StrategyExecutionError,
@@ -698,7 +698,7 @@ def create_strategy_error(error_type: str, message: str, **kwargs: Any) -> Strat
     }
 
     error_class = error_map.get(error_type, StrategyError)
-    return error_class(message, **kwargs)  # type: ignore
+    return error_class(message, **kwargs)
 
 
 def is_strategy_error(exception: Exception) -> bool:

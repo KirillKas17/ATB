@@ -157,7 +157,7 @@ def _group_price_levels(
     """Группировка ценовых уровней по толерантности."""
     grouped = {}
     if isinstance(price_series, pd.Series):
-        sorted_prices = price_series.sort_values()  # type: ignore
+        sorted_prices = price_series.sort_values()
     else:
         # Альтернативный способ сортировки для не-pandas объектов
         sorted_prices = pd.Series(sorted(price_series))
@@ -201,7 +201,7 @@ def detect_trend_direction(
     sma_short = _safe_extract_series(calc_sma(close, short_period))
     sma_long = _safe_extract_series(calc_sma(close, long_period))
     
-    if float(sma_short.iloc[-1]) > float(sma_long.iloc[-1]):  # type: ignore
+    if float(sma_short.iloc[-1]) > float(sma_long.iloc[-1]):
         methods.append(TrendDirection.UP)
     else:
         methods.append(TrendDirection.DOWN)
@@ -213,13 +213,13 @@ def detect_trend_direction(
     
     if len(recent_highs) >= 2 and len(recent_lows) >= 2:
         if (
-            float(recent_highs.iloc[-1]) > float(recent_highs.iloc[-2])  # type: ignore
-            and float(recent_lows.iloc[-1]) > float(recent_lows.iloc[-2])  # type: ignore
+            float(recent_highs.iloc[-1]) > float(recent_highs.iloc[-2])
+            and float(recent_lows.iloc[-1]) > float(recent_lows.iloc[-2])
         ):
             methods.append(TrendDirection.UP)
         elif (
-            float(recent_highs.iloc[-1]) < float(recent_highs.iloc[-2])  # type: ignore
-            and float(recent_lows.iloc[-1]) < float(recent_lows.iloc[-2])  # type: ignore
+            float(recent_highs.iloc[-1]) < float(recent_highs.iloc[-2])
+            and float(recent_lows.iloc[-1]) < float(recent_lows.iloc[-2])
         ):
             methods.append(TrendDirection.DOWN)
         else:
@@ -331,13 +331,13 @@ def _detect_double_top(
     if len(recent_highs) < 2:
         return None
     # Проверяем последние две вершины
-    peak1 = recent_highs.iloc[-2]  # type: ignore
-    peak2 = recent_highs.iloc[-1]  # type: ignore
+    peak1 = recent_highs.iloc[-2]
+    peak2 = recent_highs.iloc[-1]
     # Проверяем, что вершины близки по цене
     if abs(peak1 - peak2) / peak1 <= tolerance:
         # Проверяем, что между вершинами есть впадина
-        valley_idx = recent_highs.index[-2]  # type: ignore
-        valley_price = low.loc[valley_idx : recent_highs.index[-1]].min()  # type: ignore
+        valley_idx = recent_highs.index[-2]
+        valley_price = low.loc[valley_idx : recent_highs.index[-1]].min()
         if valley_price < min(peak1, peak2):
             return {
                 "pattern": "DOUBLE_TOP",
@@ -359,13 +359,13 @@ def _detect_double_bottom(
     if len(recent_lows) < 2:
         return None
     # Проверяем последние два дна
-    bottom1 = recent_lows.iloc[-2]  # type: ignore
-    bottom2 = recent_lows.iloc[-1]  # type: ignore
+    bottom1 = recent_lows.iloc[-2]
+    bottom2 = recent_lows.iloc[-1]
     # Проверяем, что дна близки по цене
     if abs(bottom1 - bottom2) / bottom1 <= tolerance:
         # Проверяем, что между днами есть пик
-        peak_idx = recent_lows.index[-2]  # type: ignore
-        peak_price = high.loc[peak_idx : recent_lows.index[-1]].max()  # type: ignore
+        peak_idx = recent_lows.index[-2]
+        peak_price = high.loc[peak_idx : recent_lows.index[-1]].max()
         if peak_price > max(bottom1, bottom2):
             return {
                 "pattern": "DOUBLE_BOTTOM",
@@ -400,8 +400,8 @@ def _detect_head_shoulders(
             and abs(left_shoulder - right_shoulder) / left_shoulder < 0.1
         ):
             # Находим линию шеи
-            neckline_start = low.loc[peak_indices[-5]]  # type: ignore
-            neckline_end = low.loc[peak_indices[-1]]  # type: ignore
+            neckline_start = low.loc[peak_indices[-5]]
+            neckline_end = low.loc[peak_indices[-1]]
             return {
                 "pattern": "HEAD_AND_SHOULDERS",
                 "left_shoulder": left_shoulder,
@@ -437,8 +437,8 @@ def _detect_inverse_head_shoulders(
             and abs(left_shoulder - right_shoulder) / left_shoulder < 0.1
         ):
             # Находим линию шеи
-            neckline_start = high.loc[bottom_indices[-5]]  # type: ignore
-            neckline_end = high.loc[bottom_indices[-1]]  # type: ignore
+            neckline_start = high.loc[bottom_indices[-5]]
+            neckline_end = high.loc[bottom_indices[-1]]
             return {
                 "pattern": "INVERSE_HEAD_AND_SHOULDERS",
                 "left_shoulder": left_shoulder,
@@ -530,7 +530,7 @@ def _fit_trend_line(x: pd.Index, y: np.ndarray) -> Tuple[float, float]:
     if hasattr(x, '__len__'):
         x_length = len(x)
     else:
-        x_length = len(x.tolist())  # type: ignore
+        x_length = len(x.tolist())
     
     if x_length < 2:
         return 0.0, 0.0
@@ -589,8 +589,8 @@ def detect_breakouts(
 ) -> List[Dict[str, Any]]:
     """Обнаружение пробоев уровней."""
     breakouts = []
-    current_price = close.iloc[-1]  # type: ignore
-    current_volume = volume.iloc[-1] if volume is not None else None  # type: ignore
+    current_price = close.iloc[-1]
+    current_volume = volume.iloc[-1] if volume is not None else None
     # Проверяем пробои уровней сопротивления
     for level in support_resistance_levels["resistance"]:
         if current_price > level.price * (1 + 0.01):  # 1% выше уровня
@@ -635,9 +635,9 @@ def calculate_pivot_points(
     ):
         return {}
     # Используем последние данные
-    prev_high = high.iloc[-2]  # type: ignore
-    prev_low = low.iloc[-2]  # type: ignore
-    prev_close = close.iloc[-2]  # type: ignore
+    prev_high = high.iloc[-2]
+    prev_low = low.iloc[-2]
+    prev_close = close.iloc[-2]
     # Классические точки разворота
     pivot = (prev_high + prev_low + prev_close) / 3
     r1 = 2 * pivot - prev_low
@@ -669,13 +669,13 @@ def identify_consolidation_zones(
         consolidation_start = None
         consolidation_end = None
         for i in range(len(low_volatility)):
-            if low_volatility.iloc[i] and consolidation_start is None:  # type: ignore
+            if low_volatility.iloc[i] and consolidation_start is None:
                 consolidation_start = i
-            elif not low_volatility.iloc[i] and consolidation_start is not None:  # type: ignore
+            elif not low_volatility.iloc[i] and consolidation_start is not None:
                 consolidation_end = i
                 if consolidation_end - consolidation_start >= min_periods:
-                    zone_high = high.iloc[consolidation_start:consolidation_end].max()  # type: ignore
-                    zone_low = low.iloc[consolidation_start:consolidation_end].min()  # type: ignore
+                    zone_high = high.iloc[consolidation_start:consolidation_end].max()
+                    zone_low = low.iloc[consolidation_start:consolidation_end].min()
                     consolidation_zones.append(
                         {
                             "start": consolidation_start,
@@ -724,7 +724,7 @@ def analyze_market_structure(
         "consolidation_zones": consolidation_zones,
         "breakouts": breakouts,
         "fibonacci_levels": fibonacci_levels,
-        "analysis_timestamp": close.index[-1],  # type: ignore
+        "analysis_timestamp": close.index[-1],
     }
 
 
@@ -787,7 +787,7 @@ def detect_divergence_patterns(
             {
                 "type": "bullish_divergence",
                 "strength": bullish_div.get("strength", 0.7),
-                "timestamp": price.index[-1],  # type: ignore
+                "timestamp": price.index[-1],
                 "description": "Price making lower lows while indicator making higher lows",
             }
         )
@@ -798,7 +798,7 @@ def detect_divergence_patterns(
             {
                 "type": "bearish_divergence",
                 "strength": bearish_div.get("strength", 0.7),
-                "timestamp": price.index[-1],  # type: ignore
+                "timestamp": price.index[-1],
                 "description": "Price making higher highs while indicator making lower highs",
             }
         )

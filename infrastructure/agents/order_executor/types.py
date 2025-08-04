@@ -319,6 +319,7 @@ def validate_order_request_dict(request: OrderRequestDict) -> bool:
     """Валидировать словарь запроса на создание ордера."""
     required_fields = ["symbol", "side", "order_type", "quantity"]
 
+    # Проверка наличия всех обязательных полей
     for field in required_fields:
         if field not in request:
             return False

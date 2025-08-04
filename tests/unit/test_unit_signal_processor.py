@@ -5,15 +5,15 @@ Unit тесты для SignalProcessor.
 """
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-import numpy as np  # type: ignore
-import pandas as pd  # type: ignore
+import numpy as np
+import pandas as pd
 from datetime import datetime, timedelta
 from decimal import Decimal
 from infrastructure.core.signal_processor import SignalProcessor
 
 # Type aliases для pandas
-DataFrame = pd.DataFrame  # type: ignore
-Series = pd.Series  # type: ignore
+DataFrame = pd.DataFrame
+Series = pd.Series
 
 class TestSignalProcessor:
     """Тесты для SignalProcessor."""

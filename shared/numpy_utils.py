@@ -170,7 +170,7 @@ except ImportError:
             step = (stop - start) / (num - 1)
             return [start + i * step for i in range(num)]
     
-    np = MockNumpy()  # type: ignore
+    np = MockNumpy()
 
 # If numpy is available, use real numpy
 if HAS_NUMPY:

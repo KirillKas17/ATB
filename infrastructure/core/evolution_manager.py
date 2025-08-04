@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Union, Callable
 
 from shared.numpy_utils import np
 import torch
-from deap import algorithms, base, creator, tools  # type: ignore
+from deap import algorithms, base, creator, tools
 from loguru import logger
 
 from infrastructure.core.efficiency_validator import efficiency_validator
@@ -24,7 +24,7 @@ from infrastructure.core.efficiency_validator import efficiency_validator
 try:
     import optuna
 except ImportError:
-    optuna = None  # type: ignore
+    optuna = None
     logger.warning("Optuna не установлен, оптимизация гиперпараметров недоступна")
 
 

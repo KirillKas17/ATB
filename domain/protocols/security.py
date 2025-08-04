@@ -28,7 +28,7 @@ from uuid import UUID, uuid4
 logger = logging.getLogger(__name__)
 
 try:
-    import bcrypt  # type: ignore
+    import bcrypt
 
     BCRYPT_AVAILABLE = True
 except ImportError:
@@ -150,7 +150,8 @@ class CryptoManager:
         """Сгенерировать новый ключ."""
         if not CRYPTOGRAPHY_AVAILABLE:
             return os.urandom(32)
-        return Fernet.generate_key()
+        key = Fernet.generate_key()
+        return bytes(key) if isinstance(key, (bytes, bytearray)) else os.urandom(32)
 
     def derive_key(self, password: str, salt: bytes) -> bytes:
         """Вывести ключ из пароля."""
@@ -174,7 +175,8 @@ class CryptoManager:
         if key is None:
             key = self.master_key
         fernet = Fernet(key)
-        return fernet.encrypt(data)
+        encrypted = fernet.encrypt(data)
+        return bytes(encrypted) if isinstance(encrypted, (bytes, bytearray)) else data
 
     def decrypt_data(self, encrypted_data: bytes, key: Optional[bytes] = None) -> bytes:
         """Расшифровать данные."""
@@ -190,7 +192,8 @@ class CryptoManager:
         if key is None:
             key = self.master_key
         fernet = Fernet(key)
-        return fernet.decrypt(encrypted_data)
+        decrypted = fernet.decrypt(encrypted_data)
+        return bytes(decrypted) if isinstance(decrypted, (bytes, bytearray)) else encrypted_data
 
     def encrypt_string(self, text: str, key: Optional[bytes] = None) -> str:
         """Зашифровать строку."""

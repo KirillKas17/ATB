@@ -261,7 +261,7 @@ class StrategyValidator:
                     f"Invalid time horizon: {time_horizon}. Valid horizons: {valid_horizons}"
                 )
         elif isinstance(time_horizon, Enum):
-            pass  # type: ignore[unreachable]
+            pass  # Енумы всегда валидны
         else:
             errors.append("Time horizon must be a string or Enum")
         return errors
@@ -277,7 +277,7 @@ class StrategyValidator:
                     f"Invalid market condition: {condition}. Valid conditions: {valid_conditions}"
                 )
         elif isinstance(condition, Enum):
-            pass  # type: ignore[unreachable]
+            pass  # Енумы всегда валидны
         else:
             errors.append("Market condition must be a string or Enum")
         return errors
@@ -316,7 +316,7 @@ class StrategyValidator:
             return errors
         elif not trading_pairs:
             errors.append("At least one trading pair is required")
-            return errors  # type: ignore[unreachable]
+            return errors  # Енумы всегда валидны
         else:
             if len(trading_pairs) > 50:
                 errors.append("Too many trading pairs (max 50)")
@@ -337,7 +337,7 @@ class StrategyValidator:
             return errors
         elif len(metadata) > 100:
             errors.append("Too many metadata entries (max 100)")
-            return errors  # type: ignore[unreachable]
+            return errors  # Енумы всегда валидны
         else:
             for key, value in metadata.items():
                 if not isinstance(key, str):
@@ -346,7 +346,7 @@ class StrategyValidator:
                     errors.append("Metadata key is too long (max 50 characters)")
                 elif not isinstance(value, (str, int, float, bool, list, dict)):
                     errors.append("Metadata values must be basic types")
-            return errors  # type: ignore[unreachable]
+            return errors  # Енумы всегда валидны
 
 
 class ParameterValidator:

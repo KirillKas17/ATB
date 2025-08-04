@@ -274,7 +274,7 @@ class CoreStrategy:
         if current_price > ema * (1 + (self.trend_threshold or 0)):
             signals.append(
                 Signal(
-                    pair=str(self.pair),  # type: ignore
+                    pair=str(self.pair),
                     action="buy",
                     price=current_price,
                     size=self.position_size or 1.0,
@@ -285,7 +285,7 @@ class CoreStrategy:
         elif current_price < ema * (1 - (self.trend_threshold or 0)):
             signals.append(
                 Signal(
-                    pair=str(self.pair),  # type: ignore
+                    pair=str(self.pair),
                     action="sell",
                     price=current_price,
                     size=self.position_size or 1.0,
@@ -303,7 +303,7 @@ class CoreStrategy:
         """
         if df is None or df.empty:
             return
-        params_dict = df.iloc[0].to_dict()  # type: ignore
+        params_dict = df.iloc[0].to_dict()
         self.parameters = {str(k): v for k, v in params_dict.items()}
         logger.info(f"Updated strategy parameters: {self.parameters}")
 

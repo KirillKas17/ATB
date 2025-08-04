@@ -13,11 +13,16 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, Tuple, runtime_checkable
+from uuid import uuid4
 
 from shared.numpy_utils import np
 import pandas as pd
 from scipy import stats
 from sklearn.ensemble import RandomForestClassifier
+
+from domain.entities.signal import Signal, SignalType, SignalStrength
+from domain.value_objects.currency import Currency
+from domain.value_objects.money import Money
 from sklearn.preprocessing import StandardScaler
 
 from domain.entities.market import MarketData
@@ -338,11 +343,10 @@ class SignalGenerationProtocolImpl(ABC):
         
         # Создание сигнала
         signal = Signal(
-            id=SignalId(str(hashlib.md5(f"{strategy_id}_{datetime.now()}".encode()).hexdigest()[:16])),
-            type=signal_type,
+            id=uuid4(),
+            signal_type=signal_type,
             strength=strength,
-            price=PriceValue(market_data["close"].iloc[-1]),
-            volume=VolumeValue(1.0),  # Будет рассчитано позже
+            price=Money(Decimal(str(market_data["close"].iloc[-1])), Currency.USD),
             timestamp=datetime.now(),
             metadata={
                 "composite_score": composite_score,
@@ -527,7 +531,7 @@ class SignalGenerationProtocolImpl(ABC):
             min_confidence = filters["min_confidence"]
             filtered_signals = [
                 signal for signal in filtered_signals
-                if signal.metadata.get("confidence", 0.0) >= min_confidence
+                if self._get_numeric_value(signal.metadata.get("confidence", 0.0)) >= self._get_numeric_value(min_confidence)
             ]
         
         # Фильтрация по максимальному риску
@@ -535,7 +539,7 @@ class SignalGenerationProtocolImpl(ABC):
             max_risk = filters["max_risk"]
             filtered_signals = [
                 signal for signal in filtered_signals
-                if signal.metadata.get("risk_score", 1.0) <= max_risk
+                if self._get_numeric_value(signal.metadata.get("risk_score", 1.0)) <= self._get_numeric_value(max_risk)
             ]
         
         # Фильтрация по типу сигнала
@@ -543,7 +547,7 @@ class SignalGenerationProtocolImpl(ABC):
             allowed_types = filters["allowed_types"]
             filtered_signals = [
                 signal for signal in filtered_signals
-                if signal.type.value in allowed_types
+                if signal.signal_type.value in allowed_types
             ]
         
         # Фильтрация по рыночным условиям
@@ -627,9 +631,9 @@ class SignalGenerationProtocolImpl(ABC):
         recent_prices = market_data["close"].tail(20)
         trend = (recent_prices.iloc[-1] - recent_prices.iloc[0]) / recent_prices.iloc[0]
         
-        if signal.type == SignalType.BUY and trend < -0.05:
+        if signal.signal_type == SignalType.BUY and trend < -0.05:
             return False
-        if signal.type == SignalType.SELL and trend > 0.05:
+        if signal.signal_type == SignalType.SELL and trend > 0.05:
             return False
         
         return True
@@ -656,7 +660,9 @@ class SignalGenerationProtocolImpl(ABC):
         max_risk = risk_limits.get("max_risk_per_trade", 0.02)
         signal_risk = signal.metadata.get("risk_score", 0.5)
         
-        return signal_risk <= max_risk
+        if isinstance(signal_risk, (int, float, Decimal)):
+            return float(signal_risk) <= float(max_risk)
+        return False
 
     async def _validate_volatility_conditions(
         self, signal: Signal, market_data: pd.DataFrame
@@ -730,14 +736,14 @@ class SignalGenerationProtocolImpl(ABC):
         self, original: Signal, optimized: Signal
     ) -> Dict[str, Tuple[Any, Any]]:
         """Определение изменений параметров."""
-        changes = {}
+        changes: Dict[str, Tuple[Any, Any]] = {}
         
         # Сравнение основных параметров
         if original.price != optimized.price:
             changes["price"] = (original.price, optimized.price)
         
-        if original.volume != optimized.volume:
-            changes["volume"] = (original.volume, optimized.volume)
+        if original.quantity != optimized.quantity:
+            changes["quantity"] = (original.quantity, optimized.quantity)
         
         if original.strength != optimized.strength:
             changes["strength"] = (original.strength, optimized.strength)
@@ -768,4 +774,18 @@ class SignalGenerationProtocolImpl(ABC):
         self, signals: List[Signal], market_data: pd.DataFrame
     ) -> List[Signal]:
         """Фильтрация по качеству с машинным обучением."""
-        return signals 
+        return signals
+
+    def _get_numeric_value(self, value: Any) -> float:
+        """Безопасное извлечение числового значения."""
+        if isinstance(value, (int, float)):
+            return float(value)
+        elif isinstance(value, Decimal):
+            return float(value)
+        elif isinstance(value, str):
+            try:
+                return float(value)
+            except (ValueError, TypeError):
+                return 0.0
+        else:
+            return 0.0 
