@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """Движок генерации сигналов влияния торговых сессий."""
 import asyncio
+import logging
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Literal, Optional
 import pandas as pd
 
 from loguru import logger
+from shared.numpy_utils import np
 
 from domain.sessions.session_influence_analyzer import (
     SessionInfluenceAnalyzer,

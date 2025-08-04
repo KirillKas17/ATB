@@ -215,7 +215,7 @@ class SyntraConfig:
             "custom_settings": self.custom_settings,
         }
 
-    def update_from_dict(self, config_dict: Dict[str, Any]):
+    def update_from_dict(self, config_dict: Dict[str, Any]) -> None:
         """Обновление конфигурации из словаря с безопасным преобразованием типов."""
         for key, value in config_dict.items():
             if hasattr(self, key):
@@ -317,7 +317,7 @@ class ConfigManager:
             logger.error(f"Failed to load configuration: {e}")
             raise ConfigurationError(f"Configuration loading failed: {e}")
 
-    def _apply_environment_variables(self, config: SyntraConfig):
+    def _apply_environment_variables(self, config: SyntraConfig) -> None:
         """Применение переменных окружения к конфигурации."""
         # Основные настройки
         config.environment = os.getenv("ENVIRONMENT", config.environment)

@@ -6,7 +6,7 @@
 import sys
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Union, Type, Callable
+from typing import Any, Dict, List, Optional, Union, Type, Callable, TypeVar
 from dataclasses import dataclass
 from functools import wraps
 
@@ -27,14 +27,16 @@ class ImportStatus:
     fallback_used: bool
     error_message: Optional[str] = None
 
+T = TypeVar('T')
+
 class SafeImportManager:
     """Менеджер безопасных импортов с fallback стратегиями."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.import_status: Dict[str, ImportStatus] = {}
         self.fallbacks: Dict[str, Any] = {}
     
-    def safe_import(self, module_name: str, fallback: Any = None, required: bool = False):
+    def safe_import(self, module_name: str, fallback: Any = None, required: bool = False) -> Any:
         """Безопасный импорт модуля с fallback."""
         try:
             module = __import__(module_name)
@@ -261,7 +263,7 @@ def require_dependency(dependency_name: str) -> bool:
     logger.error(f"Critical dependency {dependency_name} is not available")
     return False
 
-def safe_function_call(func: Callable, *args, **kwargs) -> Any:
+def safe_function_call(func: Callable[..., T], *args: Any, **kwargs: Any) -> Optional[T]:
     """Безопасный вызов функции с обработкой ошибок."""
     try:
         return func(*args, **kwargs)

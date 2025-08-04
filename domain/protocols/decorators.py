@@ -413,7 +413,7 @@ def validate_input(validation_schema: Type[BaseModel]) -> Callable[[F], F]:
                 validated_args = validation_schema(*args, **kwargs)
                 return await func(*validated_args.dict())
             except Exception as e:
-                raise ProtocolValidationError(f"Validation failed for {func.__name__}: {e}")
+                raise ProtocolValidationError("value", "", "format", f"Validation failed for {func.__name__}: {e}")
 
         @wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -422,7 +422,7 @@ def validate_input(validation_schema: Type[BaseModel]) -> Callable[[F], F]:
                 validated_args = validation_schema(*args, **kwargs)
                 return func(*validated_args.dict())
             except Exception as e:
-                raise ProtocolValidationError(f"Validation failed for {func.__name__}: {e}")
+                raise ProtocolValidationError("value", "", "format", f"Validation failed for {func.__name__}: {e}")
 
         return cast(F, async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper)
 
