@@ -451,7 +451,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
         try:
             results = []
             base_portfolio_value = portfolio_data.get('total_value', 1000000)
-            weights = np.array(list(portfolio_data.get('weights', {}).values()))
+            weights = list(portfolio_data.get('weights', {}).values())
             asset_prices = portfolio_data.get('current_prices', {})
             
             if len(weights) == 0 or not asset_prices:

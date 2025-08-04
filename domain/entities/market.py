@@ -29,17 +29,6 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 
-# Импорты для типизации
-if TYPE_CHECKING:
-    from domain.value_objects.currency import Currency
-    from domain.value_objects.price import Price
-    from domain.value_objects.volume import Volume
-else:
-    # Импорты для runtime
-    from domain.value_objects.currency import Currency
-    from domain.value_objects.price import Price
-    from domain.value_objects.volume import Volume
-
 
 class MarketRegime(Enum):
     """Рыночные режимы."""
@@ -86,9 +75,12 @@ class MarketProtocol(Protocol):
     updated_at: datetime
     metadata: MetadataDict
 
-    def to_dict(self) -> Dict[str, Any]: ...
+    def to_dict(self) -> Dict[str, Any]:
+        pass
+    
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketProtocol": ...
+    def from_dict(cls, data: Dict[str, Any]) -> "MarketProtocol":
+        pass
 @runtime_checkable
 class MarketDataProtocol(Protocol):
     """Протокол для рыночных данных."""
@@ -109,28 +101,57 @@ class MarketDataProtocol(Protocol):
     metadata: MetadataDict
 
     @property
-    def open_price(self) -> Price: ...
+    def open_price(self) -> Price:
+        pass
+
     @property
-    def high_price(self) -> Price: ...
+    def high_price(self) -> Price:
+        pass
+
     @property
-    def low_price(self) -> Price: ...
+    def low_price(self) -> Price:
+        pass
+
     @property
-    def close_price(self) -> Price: ...
-    def get_price_range(self) -> Price: ...
-    def get_body_size(self) -> Price: ...
-    def get_upper_shadow(self) -> Price: ...
-    def get_lower_shadow(self) -> Price: ...
-    def is_bullish(self) -> bool: ...
-    def is_bearish(self) -> bool: ...
-    def is_doji(self) -> bool: ...
-    def get_volume_price_trend(self) -> Optional[Decimal]: ...
-    def to_dict(self) -> Dict[str, Any]: ...
+    def close_price(self) -> Price:
+        pass
+
+    def get_price_range(self) -> Price:
+        pass
+        
+    def get_body_size(self) -> Price:
+        pass
+
+    def get_upper_shadow(self) -> Price:
+        pass
+        
+    def get_lower_shadow(self) -> Price:
+        pass
+
+    def is_bullish(self) -> bool:
+        pass
+        
+    def is_bearish(self) -> bool:
+        pass
+
+    def is_doji(self) -> bool:
+        pass
+        
+    def get_volume_price_trend(self) -> Optional[Decimal]:
+        pass
+
+    def to_dict(self) -> Dict[str, Any]:
+        pass 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketDataProtocol": ...
+    def from_dict(cls, data: Dict[str, Any]) -> "MarketDataProtocol":
+        pass
+
     @classmethod
     def from_dataframe(
         cls, df: pd.DataFrame, symbol: str, timeframe: Timeframe
-    ) -> List["MarketDataProtocol"]: ...
+    ) -> List["MarketDataProtocol"]:
+        pass
+
 @runtime_checkable
 class MarketStateProtocol(Protocol):
     """Протокол для состояния рынка."""
@@ -154,17 +175,37 @@ class MarketStateProtocol(Protocol):
     atr: Optional[ATRMetric]
     metadata: MetadataDict
 
-    def is_trending(self) -> bool: ...
-    def is_sideways(self) -> bool: ...
-    def is_volatile(self) -> bool: ...
-    def is_breakout(self) -> bool: ...
-    def get_trend_direction(self) -> Optional[str]: ...
-    def get_price_position(self, current_price: Price) -> Optional[str]: ...
-    def is_overbought(self) -> bool: ...
-    def is_oversold(self) -> bool: ...
-    def to_dict(self) -> Dict[str, Any]: ...
+    def is_trending(self) -> bool:
+        pass
+
+    def is_sideways(self) -> bool:
+        pass
+
+    def is_volatile(self) -> bool:
+        pass
+
+    def is_breakout(self) -> bool:
+        pass
+
+    def get_trend_direction(self) -> Optional[str]:
+        pass
+
+    def get_price_position(self, current_price: Price) -> Optional[str]:
+        pass
+
+    def is_overbought(self) -> bool:
+        pass
+
+    def is_oversold(self) -> bool:
+        pass
+
+    def to_dict(self) -> Dict[str, Any]:
+        pass
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MarketStateProtocol": ...
+    def from_dict(cls, data: Dict[str, Any]) -> "MarketStateProtocol":
+        pass
+
 @dataclass
 class Market:
     """Рынок."""

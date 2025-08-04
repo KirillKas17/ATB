@@ -742,7 +742,7 @@ class TestSystemMonitor:
 class TestMonitoringDecorators:
     """Тесты для декораторов мониторинга."""
 
-    def test_monitor_protocol_decorator(self):
+    async def test_monitor_protocol_decorator(self):
         """Тест декоратора мониторинга протокола."""
         @monitor_protocol("test_protocol")
         async def test_function():
@@ -751,7 +751,7 @@ class TestMonitoringDecorators:
         result = await test_function()
         assert result == "success"
 
-    def test_alert_on_error_decorator(self):
+    async def test_alert_on_error_decorator(self):
         """Тест декоратора алерта при ошибке."""
         @alert_on_error("test_protocol", AlertLevel.ERROR)
         async def test_function():
@@ -760,7 +760,7 @@ class TestMonitoringDecorators:
         result = await test_function()
         assert result == "success"
 
-    def test_alert_on_error_decorator_with_exception(self):
+    async def test_alert_on_error_decorator_with_exception(self):
         """Тест декоратора алерта при ошибке с исключением."""
         @alert_on_error("test_protocol", AlertLevel.ERROR)
         async def test_function():

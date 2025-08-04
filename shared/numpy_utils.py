@@ -3,8 +3,10 @@ Numpy utilities with fallback implementations
 """
 
 from typing import Any, List, Union
+import builtins
 
 try:
+    import numpy as np
     HAS_NUMPY = True
 except ImportError:
     HAS_NUMPY = False
@@ -37,19 +39,19 @@ except ImportError:
                 return 0.0
             mean = sum(arr) / len(arr)
             variance = sum((x - mean) ** 2 for x in arr) / len(arr)
-            return variance ** 0.5
+            return float(variance ** 0.5)
         
         @staticmethod
         def min(data: Any) -> float:
             """Get minimum value"""
             arr = list(data) if not isinstance(data, list) else data
-            return min(arr) if arr else 0.0
+            return builtins.min(arr) if arr else 0.0
         
         @staticmethod
         def max(data: Any) -> float:
             """Get maximum value"""
             arr = list(data) if not isinstance(data, list) else data
-            return max(arr) if arr else 0.0
+            return builtins.max(arr) if arr else 0.0
         
         @staticmethod
         def percentile(data: Any, percentile: float) -> float:
@@ -59,7 +61,7 @@ except ImportError:
                 return 0.0
             sorted_arr = sorted(arr)
             idx = int(len(sorted_arr) * percentile / 100)
-            return sorted_arr[min(idx, len(sorted_arr) - 1)]
+            return float(sorted_arr[builtins.min(idx, len(sorted_arr) - 1)])
         
         @staticmethod
         def var(data: Any) -> float:
@@ -68,7 +70,7 @@ except ImportError:
             if not arr:
                 return 0.0
             mean = sum(arr) / len(arr)
-            return sum((x - mean) ** 2 for x in arr) / len(arr)
+            return float(sum((x - mean) ** 2 for x in arr) / len(arr))
         
         @staticmethod
         def cov(data1: Any, data2: Any = None) -> Any:
@@ -127,7 +129,7 @@ except ImportError:
                     return []
                 result = [arr[0]]
                 for i in range(1, len(arr)):
-                    result.append(max(result[-1], arr[i]))
+                    result.append(builtins.max(result[-1], arr[i]))
                 return result
         
         class random:
@@ -169,6 +171,11 @@ except ImportError:
             return [start + i * step for i in range(num)]
     
     np = MockNumpy()  # type: ignore
+
+# If numpy is available, use real numpy
+if HAS_NUMPY:
+    import numpy
+    np = numpy
 
 # Export types and constants
 ArrayLike = Union[List[float], List[int], Any]
