@@ -18,7 +18,7 @@ from sklearn.cluster import DBSCAN, KMeans
 from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
-from domain.types.messaging_types import Event as MessagingEvent
+from domain.type_definitions.messaging_types import Event as MessagingEvent
 from infrastructure.messaging.event_bus import EventBus
 
 # Type aliases
@@ -441,7 +441,7 @@ class RegimeDiscovery:
         """Публикация событий о режимах."""
         try:
             if self.current_regime:
-                from domain.types.messaging_types import EventPriority as MessagingEventPriority, EventName, EventType as MessagingEventType
+                from domain.type_definitions.messaging_types import EventPriority as MessagingEventPriority, EventName, EventType as MessagingEventType
                 event = MessagingEvent(
                     name=EventName("system.health_check"),
                     type=MessagingEventType.SYSTEM_HEALTH_CHECK,  # Исправляю тип EventType

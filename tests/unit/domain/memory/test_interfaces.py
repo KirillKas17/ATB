@@ -18,7 +18,7 @@ from domain.memory.interfaces import (
 )
 from domain.memory.entities import PatternSnapshot, PatternOutcome, PredictionResult
 from domain.memory.types import MarketFeatures, MemoryStatistics
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 
 class DummyPatternMemoryRepository(IPatternMemoryRepository):
     def save_snapshot(self, pattern_id, snapshot): return True

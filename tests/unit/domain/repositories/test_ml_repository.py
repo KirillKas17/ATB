@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from domain.entities.ml import Model, ModelType, Prediction
 from domain.repositories.ml_repository import MLRepository, InMemoryMLRepository
-from domain.types.base_types import EntityId
+from domain.type_definitions.base_types import EntityId
 from domain.exceptions.base_exceptions import ValidationError
 
 

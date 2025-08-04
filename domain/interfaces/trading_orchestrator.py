@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Protocol
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from domain.types.trading_types import TradingConfig
+from domain.type_definitions.trading_types import TradingConfig
 
 class OrchestratorMode(Enum):
     """Режимы работы оркестратора."""

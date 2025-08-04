@@ -13,7 +13,7 @@ from domain.entities.order import Order, OrderStatus
 from domain.entities.trading import Trade
 from domain.repositories.trading_repository import TradingRepository
 from domain.services.signal_service import SignalService
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     PortfolioId,
     PriceValue,
@@ -123,7 +123,7 @@ class TradingServiceImpl(BaseApplicationService, TradingService):
         """Реализация отмены ордера."""
         try:
             # Получаем ордер из кэша или репозитория
-            from domain.types import EntityId
+            from domain.type_definitions import EntityId
             order = await self.trading_repository.get_order(EntityId(UUID(str(order_id))))
             if not order:
                 self.logger.error(f"Order {order_id} not found")
@@ -177,7 +177,7 @@ class TradingServiceImpl(BaseApplicationService, TradingService):
                     return order.status
 
             # Получаем из репозитория
-            from domain.types import EntityId
+            from domain.type_definitions import EntityId
             order = await self.trading_repository.get_order(EntityId(UUID(str(order_id))))
             if order:
                 # Обновляем кэш

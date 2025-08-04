@@ -16,7 +16,7 @@ from domain.value_objects import (
     TradingPair,
     ValueObjectFactory, factory
 )
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     ValidationResult, PrecisionMode, PrecisionConfig,
     ValueObjectEvent, ValueObjectEventData, ValueObjectMetrics
 )

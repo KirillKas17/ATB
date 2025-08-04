@@ -23,7 +23,7 @@ from domain.exceptions import (
     OrderNotFoundError,
 )
 from domain.protocols.exchange_protocol import ExchangeProtocol
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     PriceValue,
     Symbol,
@@ -32,7 +32,7 @@ from domain.types import (
     TradingPair,
     VolumeValue,
 )
-from domain.types.external_service_types import ConnectionConfig, OrderRequest, OrderSide as ExternalOrderSide, OrderType as ExternalOrderType
+from domain.type_definitions.external_service_types import ConnectionConfig, OrderRequest, OrderSide as ExternalOrderSide, OrderType as ExternalOrderType
 from domain.value_objects import Currency, Money, Price, Volume
 from domain.value_objects.timestamp import Timestamp
 
@@ -982,7 +982,7 @@ class OrderManager(ProductionOrderManager):
     def __init__(self, config: Optional[ConnectionConfig] = None):
         if config is None:
             # Создаём дефолтную конфигурацию
-            from domain.types.external_service_types import ConnectionConfig
+            from domain.type_definitions.external_service_types import ConnectionConfig
             config = ConnectionConfig(
                 timeout=30.0,
                 max_retries=3,

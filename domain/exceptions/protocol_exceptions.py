@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
-from domain.types import (
+from domain.type_definitions import (
     ModelId,
     OrderId,
     PortfolioId,

@@ -16,7 +16,7 @@ from typing import Dict, Any, List, Optional
 from unittest.mock import Mock, AsyncMock
 import pandas as pd
 
-from domain.types.service_types import (
+from domain.type_definitions.service_types import (
     # Базовые типы
     MarketDataFrame,
     OrderBookData,
@@ -68,7 +68,7 @@ from domain.types.service_types import (
     SpreadAnalysisProtocol,
     MLPredictionProtocol
 )
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     PerformanceScore,

@@ -14,7 +14,7 @@ from loguru import logger
 from shared.numpy_utils import np
 
 from domain.market_maker.mm_pattern import MarketMakerPattern
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     BookPressure,
     OrderImbalance,
     PriceReaction,

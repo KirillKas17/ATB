@@ -17,7 +17,7 @@ from infrastructure.strategies.consolidated_strategy import (
 # from infrastructure.entity_system.perception.dependency_resolver import (
 #     DependencyResolver, DependencyResolution
 # )
-from domain.types.repository_types import RepositoryOperation
+from domain.type_definitions.repository_types import RepositoryOperation
 
 
 async def example_consolidated_strategy():

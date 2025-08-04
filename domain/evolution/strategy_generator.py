@@ -13,9 +13,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from domain.entities.strategy import StrategyType
-from domain.types.technical_types import SignalType
-from domain.types.strategy_types import StrategyType as StrategyTypeFromTypes
-from domain.types import EntryCondition, ExitCondition
+from domain.type_definitions.technical_types import SignalType
+from domain.type_definitions.strategy_types import StrategyType as StrategyTypeFromTypes
+from domain.type_definitions import EntryCondition, ExitCondition
 from domain.evolution.strategy_model import (
     EntryRule,
     ExitRule,
@@ -26,7 +26,7 @@ from domain.evolution.strategy_model import (
     StrategyCandidate,
 )
 from domain.evolution.strategy_model import EvolutionContext
-from domain.types.evolution_types import FilterParameters, IndicatorParameters
+from domain.type_definitions.evolution_types import FilterParameters, IndicatorParameters
 
 
 class StrategyGenerator:

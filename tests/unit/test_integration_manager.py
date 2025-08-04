@@ -6,7 +6,7 @@ Unit тесты для IntegrationManager.
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.core.integration_manager import IntegrationManager
-from domain.types.messaging_types import Event, EventType, EventPriority, EventMetadata
+from domain.type_definitions.messaging_types import Event, EventType, EventPriority, EventMetadata
 import time
 
 class TestIntegrationManager:

@@ -19,7 +19,7 @@ from uuid import uuid4
 from domain.entities.trading import Position, PositionSide
 from domain.entities.trading_pair import TradingPair
 from domain.repositories.position_repository import PositionRepository
-from domain.types.repository_types import QueryFilter
+from domain.type_definitions.repository_types import QueryFilter
 from domain.exceptions.base_exceptions import ValidationError
 
 

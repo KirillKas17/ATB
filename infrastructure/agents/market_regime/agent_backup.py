@@ -19,7 +19,7 @@ from uuid import uuid4
 
 from loguru import logger
 
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.value_objects.timestamp import Timestamp
 
 

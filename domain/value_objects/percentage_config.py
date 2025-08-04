@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
-from domain.types.value_object_types import PERCENTAGE_PRECISION
+from domain.type_definitions.value_object_types import PERCENTAGE_PRECISION
 
 
 @dataclass(frozen=True)

@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 
 from loguru import logger
-from domain.types import AmountValue, PortfolioId
+from domain.type_definitions import AmountValue, PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.timestamp import Timestamp

@@ -24,8 +24,8 @@ from domain.protocols.repository_protocol import (
     RepositoryState,
     TransactionProtocol,
 )
-from domain.types.protocol_types import HealthCheckDict, PerformanceMetricsDict
-from domain.types import PortfolioId, PositionId, Symbol
+from domain.type_definitions.protocol_types import HealthCheckDict, PerformanceMetricsDict
+from domain.type_definitions import PortfolioId, PositionId, Symbol
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price

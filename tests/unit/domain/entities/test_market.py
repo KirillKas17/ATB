@@ -22,7 +22,7 @@ from domain.entities.market import (
     OrderBook, OrderBookEntry, Trade, MarketSnapshot,
     MarketRegime, Timeframe, MarketProtocol, MarketDataProtocol, MarketStateProtocol
 )
-from domain.types import (
+from domain.type_definitions import (
     MarketId, MarketName, Symbol, MetadataDict, TimestampValue,
     VolatilityValue, TrendStrengthValue, VolumeTrendValue, PriceMomentumValue,
     RSIMetric, MACDMetric, ATRMetric
@@ -30,7 +30,7 @@ from domain.types import (
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
-from domain.types.common_types import Timestamp
+from domain.type_definitions.common_types import Timestamp
 
 
 class TestMarket:

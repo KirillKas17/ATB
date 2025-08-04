@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch, MagicMock
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-from domain.types import StrategyId, TradingPair, RiskLevel, ConfidenceLevel
+from domain.type_definitions import StrategyId, TradingPair, RiskLevel, ConfidenceLevel
 from domain.entities.strategy import StrategyType, StrategyStatus
 from domain.entities.market import MarketData, OrderBook, Trade
 from domain.strategies.strategy_interface import StrategyInterface

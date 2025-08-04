@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.monitoring_types import TraceProtocol, TraceSpan
+from domain.type_definitions.monitoring_types import TraceProtocol, TraceSpan
 
 
 class PerformanceTracer(TraceProtocol):

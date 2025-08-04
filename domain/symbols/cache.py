@@ -7,7 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from domain.types import (
+from domain.type_definitions import (
     MarketPhaseResult,
     OpportunityScoreResult,
     SymbolProfileCache,

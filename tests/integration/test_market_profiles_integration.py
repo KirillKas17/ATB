@@ -17,7 +17,7 @@ from infrastructure.market_profiles.interfaces.storage_interfaces import (
 from domain.market_maker.mm_pattern import (
     MarketMakerPattern, PatternFeatures, PatternResult, PatternOutcome, PatternMemory
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     BookPressure, VolumeDelta, PriceReaction, SpreadChange,
     OrderImbalance, LiquidityDepth, TimeDuration, VolumeConcentration,
     PriceVolatility, MarketMicrostructure, Confidence, Accuracy,

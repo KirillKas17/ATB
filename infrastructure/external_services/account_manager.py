@@ -11,8 +11,8 @@ from domain.entities.order import Order, OrderStatus
 from domain.entities.position import Position
 from domain.exceptions.base_exceptions import RepositoryError
 from domain.protocols.exchange_protocol import ExchangeProtocol
-from domain.types import OrderId
-from domain.types.external_service_types import (
+from domain.type_definitions import OrderId
+from domain.type_definitions.external_service_types import (
     APIKey,
     APISecret,
     ConnectionConfig,

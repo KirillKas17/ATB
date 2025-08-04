@@ -8,7 +8,7 @@ from loguru import logger
 from decimal import Decimal
 
 from domain.services.technical_analysis import DefaultTechnicalAnalysisService
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     MarketContext,
     MarketRegime,
     Signal as DomainSignal,

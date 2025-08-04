@@ -6,7 +6,7 @@ from typing import Optional, Dict, List, Union
 
 from loguru import logger
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     MarketConditions,
     MarketRegime,
     SessionIntensity,

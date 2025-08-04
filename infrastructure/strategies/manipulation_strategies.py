@@ -11,7 +11,7 @@ from infrastructure.core.technical_analysis import (
     calculate_volume_delta,
     calculate_vwap,
 )
-from domain.types.strategy_types import Signal, StrategyDirection
+from domain.type_definitions.strategy_types import Signal, StrategyDirection
 
 from .base_strategy import BaseStrategy
 
@@ -226,7 +226,7 @@ class ManipulationStrategy(BaseStrategy):
         Returns:
             Optional[Signal] с сигналом или None
         """
-        from domain.types.strategy_types import Signal as DomainSignal
+        from domain.type_definitions.strategy_types import Signal as DomainSignal
 
         try:
             analysis = self.analyze(data)
@@ -256,7 +256,7 @@ class ManipulationStrategy(BaseStrategy):
             take_profit = self._calculate_take_profit(data, side)
             
             # Создаем объект Signal
-            from domain.types.strategy_types import StrategyDirection
+            from domain.type_definitions.strategy_types import StrategyDirection
             direction = StrategyDirection.LONG if side == "buy" else StrategyDirection.SHORT
             return DomainSignal(
                 direction=direction,

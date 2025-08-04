@@ -15,7 +15,7 @@ from domain.strategies.strategy_interface import (
     StrategyAnalysisResult,
     StrategyInterface,
 )
-from domain.types import ConfidenceLevel
+from domain.type_definitions import ConfidenceLevel
 from shared.exception_handler import (
     ExceptionCategory,
     ExceptionSeverity,

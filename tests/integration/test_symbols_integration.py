@@ -9,7 +9,7 @@ from domain.symbols import (
     SymbolProfile, MarketPhaseClassifier,
     OpportunityScoreCalculator, SymbolValidator, MemorySymbolCache
 )
-from domain.types.symbol_types import MarketPhase
+from domain.type_definitions.symbol_types import MarketPhase
 from application.symbol_selection.opportunity_selector import DynamicOpportunityAwareSymbolSelector
 from application.symbol_selection.types import DOASSConfig, SymbolSelectionResult
 from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase

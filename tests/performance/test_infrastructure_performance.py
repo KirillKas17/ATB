@@ -23,7 +23,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.trading_pair import TradingPair
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
-from domain.types import OrderId, VolumeValue, create_trading_pair
+from domain.type_definitions import OrderId, VolumeValue, create_trading_pair
 
 class PerformanceMetrics:
     """Класс для сбора метрик производительности."""

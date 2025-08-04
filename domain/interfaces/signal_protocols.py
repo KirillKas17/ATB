@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     MarketConditions,
     MarketRegime,
     SessionIntensity,

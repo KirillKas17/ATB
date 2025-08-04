@@ -4,7 +4,7 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.spread_analyzer import SpreadAnalyzer, ISpreadAnalyzer
-from domain.types.ml_types import SpreadAnalysisResult, SpreadMovementPrediction
+from domain.type_definitions.ml_types import SpreadAnalysisResult, SpreadMovementPrediction
 import pandas as pd
 from shared.numpy_utils import np
 

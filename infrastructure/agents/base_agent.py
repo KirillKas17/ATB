@@ -10,7 +10,7 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, List, Optional, Protocol, runtime_checkable
 
-from domain.types.agent_types import (
+from domain.type_definitions.agent_types import (
     AgentConfig,
     AgentId,
     AgentMetrics,

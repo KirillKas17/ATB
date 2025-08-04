@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.monitoring_types import Alert, Metric, TraceSpan
+from domain.type_definitions.monitoring_types import Alert, Metric, TraceSpan
 
 
 class MonitoringDashboard:

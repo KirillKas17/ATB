@@ -29,7 +29,7 @@ from domain.evolution.strategy_model import (
     EvolutionStatus,
     StrategyCandidate
 )
-from domain.types.evolution_types import (
+from domain.type_definitions.evolution_types import (
     AccuracyScore,
     ConsistencyScore,
     EntryCondition,

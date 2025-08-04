@@ -13,8 +13,8 @@ from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 
-from domain.types import Symbol
-from domain.types.base_types import TimestampValue
+from domain.type_definitions import Symbol
+from domain.type_definitions.base_types import TimestampValue
 from domain.value_objects.price import Price
 from domain.entities.market import MarketData
 from domain.repositories.market_repository import MarketRepository

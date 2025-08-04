@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from loguru import logger
 
 from domain.market_maker.mm_pattern import PatternMemory, PatternOutcome, PatternResult
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Accuracy,
     AverageReturn,
     MarketMakerPatternType,

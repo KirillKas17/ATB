@@ -11,7 +11,7 @@ from domain.entities.portfolio import Portfolio
 from domain.entities.position import Position
 from domain.exceptions import DomainError
 from domain.protocols.repository_protocol import PortfolioRepositoryProtocol
-from domain.types import PortfolioId
+from domain.type_definitions import PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.percentage import Percentage

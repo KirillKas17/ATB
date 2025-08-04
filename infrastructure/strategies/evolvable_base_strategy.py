@@ -16,7 +16,7 @@ import torch.nn as nn
 from loguru import logger
 from decimal import Decimal
 
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     EvolutionMetrics,
     MarketRegime,
     Signal as DomainSignal,

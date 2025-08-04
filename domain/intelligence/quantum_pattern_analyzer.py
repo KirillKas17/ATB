@@ -27,7 +27,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.manifold import TSNE
 
-from domain.types.intelligence_types import (
+from domain.type_definitions.intelligence_types import (
     AnalysisMetadata,
     CorrelationMatrix,
     PatternComplexity,

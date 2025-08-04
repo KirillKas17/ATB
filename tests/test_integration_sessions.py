@@ -4,7 +4,7 @@
 import pytest
 import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType,
     SessionPhase,
     SessionProfile,

@@ -18,8 +18,8 @@ from domain.exceptions import (
     InvalidOrderError,
     NetworkError,
 )
-from domain.types import OrderId
-from domain.types.external_service_types import (
+from domain.type_definitions import OrderId
+from domain.type_definitions.external_service_types import (
     ConnectionStatus,
     ExchangeCredentials,
     ExchangeName,

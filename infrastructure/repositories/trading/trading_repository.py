@@ -17,9 +17,9 @@ from domain.entities.order import Order, OrderId, OrderSide, OrderStatus, OrderT
 from domain.entities.position import Position, PositionId, PositionSide
 from domain.entities.trading import Trade, OrderSide as TradingOrderSide
 
-from domain.types import Symbol, VolumeValue, PortfolioId, StrategyId, SignalId, TradeId, OrderId as DomainOrderId, TimestampValue, TradingPair as TradingPairType
+from domain.type_definitions import Symbol, VolumeValue, PortfolioId, StrategyId, SignalId, TradeId, OrderId as DomainOrderId, TimestampValue, TradingPair as TradingPairType
 from domain.entities.trading_pair import TradingPair
-from domain.types.base_types import TimestampValue as BaseTimestampValue
+from domain.type_definitions.base_types import TimestampValue as BaseTimestampValue
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price

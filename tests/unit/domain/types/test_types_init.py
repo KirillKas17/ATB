@@ -14,7 +14,7 @@ from decimal import Decimal
 from uuid import UUID, uuid4
 from unittest.mock import Mock
 
-from domain.types import (
+from domain.type_definitions import (
     StrategyId, PortfolioId, OrderId, PositionId, SignalId, TradeId,
     AccountId, MarketId, Symbol, TradingPair, MarketName, ExchangeName,
     PriceValue, VolumeValue, AmountValue, MoneyValue,
@@ -449,11 +449,11 @@ class TestTypeValidation:
     def test_invalid_datetime_for_timestamp(self):
         """Тест обработки невалидных значений для TimestampValue."""
         with pytest.raises(TypeError):
-            from domain.types import TimestampValue
+            from domain.type_definitions import TimestampValue
             TimestampValue("invalid_datetime")
         
         with pytest.raises(TypeError):
-            from domain.types import TimestampValue
+            from domain.type_definitions import TimestampValue
             TimestampValue(None)
 
     def test_invalid_string_for_symbol_types(self):

@@ -17,7 +17,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.confidence_score import ConfidenceScore
 from domain.value_objects.signal_strength_score import SignalStrengthScore
 from domain.value_objects.timestamp import Timestamp
-from domain.types import OHLCVData  # Исправление: правильный импорт OHLCVData
+from domain.type_definitions import OHLCVData  # Исправление: правильный импорт OHLCVData
 from domain.prediction.prediction_config import PredictionConfig
 from application.prediction.reversal_controller import ReversalController
 from infrastructure.data.price_pattern_extractor import PricePatternExtractor

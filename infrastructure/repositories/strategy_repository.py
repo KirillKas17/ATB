@@ -39,9 +39,9 @@ from domain.protocols.repository_protocol import (
     HealthCheckDict,
     TransactionProtocol,
 )
-from domain.types.repository_types import QueryFilter
-from domain.types import ModelId, PredictionId, StrategyId
-from domain.types.repository_types import (
+from domain.type_definitions.repository_types import QueryFilter
+from domain.type_definitions import ModelId, PredictionId, StrategyId
+from domain.type_definitions.repository_types import (
     PerformanceMetrics,
     HealthCheckResult,
     CacheKey,

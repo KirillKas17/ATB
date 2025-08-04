@@ -15,7 +15,7 @@ from domain.intelligence.mirror_detector import (
     MirrorDetector,
     MirrorSignal,
 )
-from domain.types.intelligence_types import CorrelationMethod
+from domain.type_definitions.intelligence_types import CorrelationMethod
 from domain.value_objects.timestamp import Timestamp
 
 

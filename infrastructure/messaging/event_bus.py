@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional, Set, TypedDict, Union
 
 from loguru import logger
 
-from domain.types.messaging_types import (
+from domain.type_definitions.messaging_types import (
     Event,
     EventBusConfig,
     EventBusError,

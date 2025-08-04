@@ -26,11 +26,11 @@ from domain.market_maker.mm_pattern import MarketMakerPattern
 from domain.services.pattern_discovery import Pattern
 from domain.sessions.session_influence_analyzer import SessionInfluenceResult
 from domain.sessions.session_marker import MarketSessionContext
-from domain.types.ml_types import AggregatedSignal as TradeDecision
+from domain.type_definitions.ml_types import AggregatedSignal as TradeDecision
 from domain.value_objects.percentage import Percentage
 from domain.value_objects.signal import Signal
-from domain.types.session_types import SessionType
-from domain.types.base_types import RiskLevel, SignalDirection, TradingPair
+from domain.type_definitions.session_types import SessionType
+from domain.type_definitions.base_types import RiskLevel, SignalDirection, TradingPair
 from domain.entities.signal import Signal
 
 

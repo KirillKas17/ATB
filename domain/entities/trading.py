@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, Union
 from uuid import UUID, uuid4
 
-from domain.types import MetadataDict
+from domain.type_definitions import MetadataDict
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price

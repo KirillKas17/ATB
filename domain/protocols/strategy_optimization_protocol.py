@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 import pandas as pd
 
-from domain.types import StrategyId
-from domain.types.protocol_types import StrategyAdaptationRules
+from domain.type_definitions import StrategyId
+from domain.type_definitions.protocol_types import StrategyAdaptationRules
 
 
 @runtime_checkable

@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.symbols.market_phase_classifier import MarketPhaseClassifier, PhaseDetectionConfig
-from domain.types import MarketPhase, ValidationError, MarketDataFrame
+from domain.type_definitions import MarketPhase, ValidationError, MarketDataFrame
 def test_market_phase_classifier_init() -> None:
     clf = MarketPhaseClassifier()
     assert clf is not None

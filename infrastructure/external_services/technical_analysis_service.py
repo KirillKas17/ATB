@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from domain.entities.market import MarketData
 from domain.exceptions import TechnicalAnalysisError
 from domain.protocols.exchange_protocol import ExchangeProtocol
-from domain.types.external_service_types import ConnectionConfig, OrderRequest
+from domain.type_definitions.external_service_types import ConnectionConfig, OrderRequest
 
 
 class TechnicalAnalysisServiceAdapter(ExchangeProtocol):

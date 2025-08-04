@@ -12,7 +12,7 @@ from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.entities.position import Position
 from domain.value_objects.volume import Volume
 from domain.entities.trading_pair import TradingPair
-from domain.types import OrderId, PortfolioId, PositionId, PositionSide, Symbol, VolumeValue
+from domain.type_definitions import OrderId, PortfolioId, PositionId, PositionSide, Symbol, VolumeValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price
@@ -202,7 +202,7 @@ class TradingEntityConverter:
     ) -> Order:
         """Преобразование OrderModel в Order."""
         try:
-            from domain.types import TradingPair as TradingPairType
+            from domain.type_definitions import TradingPair as TradingPairType
             
             return Order(
                 id=OrderId(UUID(model.id)) if model.id else OrderId(uuid4()),
@@ -342,8 +342,8 @@ class TradingEntityConverter:
         """Преобразование PositionModel в Position."""
         try:
             from domain.entities.position import PositionSide as DomainPositionSide
-            from domain.types import TradingPair as TradingPairType
-            from domain.types import PortfolioId
+            from domain.type_definitions import TradingPair as TradingPairType
+            from domain.type_definitions import PortfolioId
             return Position(
                 id=PositionId(UUID(model.id)),
                 portfolio_id=PortfolioId(UUID(portfolio_id)) if portfolio_id else PortfolioId(uuid4()),

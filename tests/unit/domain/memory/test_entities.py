@@ -16,7 +16,7 @@ from domain.memory.entities import (
     PatternSnapshot, PatternOutcome, PredictionResult, PatternCluster, PatternAnalysis, MemoryOptimizationResult
 )
 from domain.memory.types import MarketFeatures, OutcomeType, PredictionDirection
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 from domain.value_objects.timestamp import Timestamp
 
 def make_market_features():

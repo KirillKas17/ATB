@@ -1,6 +1,6 @@
 """Тесты для калькулятора opportunity score."""
 from domain.symbols.opportunity_score import OpportunityScoreCalculator
-from domain.types import MarketDataFrame, OrderBookData
+from domain.type_definitions import MarketDataFrame, OrderBookData
 def test_opportunity_score_calculator_init() -> None:
     calc = OpportunityScoreCalculator()
     assert calc is not None

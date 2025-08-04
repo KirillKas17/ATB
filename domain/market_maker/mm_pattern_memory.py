@@ -19,7 +19,7 @@ from domain.market_maker.mm_pattern import (
     PatternOutcome,
     PatternResult,
 )
-from domain.types.market_maker_types import PatternMemoryDict
+from domain.type_definitions.market_maker_types import PatternMemoryDict
 
 
 class IPatternMemoryRepository(Protocol):

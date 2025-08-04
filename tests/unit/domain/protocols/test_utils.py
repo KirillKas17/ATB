@@ -39,7 +39,7 @@ from domain.exceptions.protocol_exceptions import (
     RetryExhaustedError,
     TimeoutError,
 )
-from domain.types import (
+from domain.type_definitions import (
     ModelId,
     OrderId,
     PortfolioId,

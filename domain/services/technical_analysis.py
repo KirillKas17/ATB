@@ -107,7 +107,7 @@ except ImportError:
 
 from domain.entities.market import MarketData, TechnicalIndicator
 from domain.exceptions import TechnicalAnalysisError
-from domain.types.technical_types import (
+from domain.type_definitions.technical_types import (
     BollingerBandsResult,
     MarketStructure,
     MarketStructureResult,

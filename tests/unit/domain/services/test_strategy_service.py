@@ -23,7 +23,7 @@ from domain.services.strategy_service import (
 )
 from domain.entities.strategy import Strategy, StrategyStatus, StrategyType
 from domain.exceptions import StrategyExecutionError
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     StrategyValidationResult,
     StrategyOptimizationResult,
     StrategyPerformanceResult

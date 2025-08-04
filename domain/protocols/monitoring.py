@@ -15,10 +15,10 @@ from uuid import UUID, uuid4
 
 from shared.numpy_utils import np
 
-from domain.types.infrastructure_types import (
+from domain.type_definitions.infrastructure_types import (
     SystemMetrics,
 )
-from domain.types.common_types import HealthStatus
+from domain.type_definitions.common_types import HealthStatus
 from shared.models.example_types import PerformanceMetrics
 
 

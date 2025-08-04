@@ -23,7 +23,7 @@ from domain.protocols.repository_protocol import (
     PortfolioRepositoryProtocol,
     TradingRepositoryProtocol,
 )
-from domain.types import (
+from domain.type_definitions import (
     MetadataDict,
     OrderId,
     PortfolioId,

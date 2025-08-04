@@ -17,7 +17,7 @@ import time
 from shared.numpy_utils import np
 import pandas as pd
 
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume as Quantity

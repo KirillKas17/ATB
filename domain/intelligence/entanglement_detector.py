@@ -9,7 +9,7 @@ from shared.numpy_utils import np
 
 # Настройка логгера
 logger = logging.getLogger(__name__)
-from domain.types.intelligence_types import (
+from domain.type_definitions.intelligence_types import (
     AnalysisMetadata,
     CorrelationMatrix,
     CorrelationMethod,

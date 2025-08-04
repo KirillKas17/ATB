@@ -4,7 +4,7 @@
 """
 from typing import Any, Dict, Optional, Protocol
 
-from domain.types.session_types import SessionProfile, SessionType
+from domain.type_definitions.session_types import SessionProfile, SessionType
 
 
 class SessionOptimizerProtocol(Protocol):

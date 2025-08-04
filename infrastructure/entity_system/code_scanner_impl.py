@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 from loguru import logger
 
-from domain.types.entity_system_types import BaseCodeScanner, CodeStructure
+from domain.type_definitions.entity_system_types import BaseCodeScanner, CodeStructure
 
 
 class CodeScannerImpl(BaseCodeScanner):

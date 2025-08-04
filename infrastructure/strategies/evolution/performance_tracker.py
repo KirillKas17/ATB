@@ -9,7 +9,7 @@ from loguru import logger
 from shared.numpy_utils import np
 import pandas as pd
 
-from domain.types.strategy_types import StrategyMetrics
+from domain.type_definitions.strategy_types import StrategyMetrics
 
 
 class PerformanceRecord(TypedDict):

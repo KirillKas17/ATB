@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Union
 from uuid import uuid4
 
-from domain.types.base_types import (
+from domain.type_definitions.base_types import (
     AmountType,
     CurrencyCode,
     TimestampValue,

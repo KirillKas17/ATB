@@ -27,7 +27,7 @@ from sklearn.preprocessing import StandardScaler
 
 from domain.entities.market import MarketData
 from domain.entities.signal import Signal, SignalType, SignalStrength
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     PriceValue,
     SignalId,
@@ -35,7 +35,7 @@ from domain.types import (
     Symbol,
     VolumeValue,
 )
-from domain.types.protocol_types import SignalFilterDict
+from domain.type_definitions.protocol_types import SignalFilterDict
 from domain.exceptions import StrategyExecutionError
 from domain.exceptions.base_exceptions import DomainException
 

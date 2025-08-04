@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from loguru import logger
 
-from domain.types.messaging_types import Event as MessagingEvent, EventPriority as MessagingEventPriority, EventName, EventType
+from domain.type_definitions.messaging_types import Event as MessagingEvent, EventPriority as MessagingEventPriority, EventName, EventType
 from infrastructure.messaging.event_bus import EventBus
 
 

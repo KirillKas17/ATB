@@ -14,7 +14,7 @@ from domain.entities.market import MarketData
 from domain.repositories.market_repository import MarketRepository
 from domain.services.market_metrics import MarketMetricsService
 from domain.services.technical_analysis import TechnicalAnalysisService
-from domain.types import Symbol, TimestampValue
+from domain.type_definitions import Symbol, TimestampValue
 from domain.value_objects.price import Price
 from shared.validation import validate_input, validate_market_data
 

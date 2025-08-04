@@ -5,7 +5,7 @@ import os
 import shutil
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from domain.types.session_types import SessionType, SessionProfile, SessionBehavior, SessionTimeWindow
+from domain.type_definitions.session_types import SessionType, SessionProfile, SessionBehavior, SessionTimeWindow
 from domain.sessions.repositories import SessionConfigurationRepository
 from datetime import time
 

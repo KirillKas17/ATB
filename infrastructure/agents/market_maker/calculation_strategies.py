@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Protocol, runtime_checkable
 
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume as Quantity
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 
 
 @dataclass

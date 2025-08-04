@@ -8,7 +8,7 @@ from uuid import UUID
 
 from domain.entities.strategy import Strategy, StrategyStatus, StrategyType
 from domain.repositories.base_repository import BaseRepository
-from domain.types.repository_types import EntityId, QueryOptions, QueryFilter
+from domain.type_definitions.repository_types import EntityId, QueryOptions, QueryFilter
 
 
 class StrategyRepository(BaseRepository[Strategy]):

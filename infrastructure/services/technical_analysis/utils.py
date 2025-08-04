@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union
 
-from domain.types.technical_types import (
+from domain.type_definitions.technical_types import (
     TechnicalAnalysisReport,
     TechnicalIndicatorResult,
     MarketStructureResult,

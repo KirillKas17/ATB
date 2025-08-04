@@ -31,7 +31,7 @@ from domain.entities.signal import Signal, SignalType
 from domain.entities.strategy import Strategy, StrategyType
 from domain.entities.trading_pair import TradingPair
 from domain.strategies.base_strategy import BaseStrategy, StrategyMetrics
-from domain.types.strategy_types import StrategyId
+from domain.type_definitions.strategy_types import StrategyId
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price

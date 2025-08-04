@@ -32,7 +32,7 @@ class TestSymbolAnalytics:
         """Тест добавления продвинутой аналитики."""
         from application.symbol_selection.types import SymbolSelectionResult
         from domain.symbols import SymbolProfile
-        from domain.types import Symbol
+        from domain.type_definitions import Symbol
         
         # Создаем тестовые данные
         result = SymbolSelectionResult()
@@ -53,7 +53,7 @@ class TestSymbolAnalytics:
 
     def test_calculate_opportunity_score_from_metrics(self, analytics: SymbolAnalytics) -> None:
         """Тест расчета opportunity score из метрик."""
-        from domain.types.symbol_types import MarketPhase
+        from domain.type_definitions.symbol_types import MarketPhase
         
         metrics = {
             "volatility": 0.02,
@@ -105,7 +105,7 @@ class TestSymbolCache:
     def test_update_cache(self, cache: SymbolCache) -> None:
         """Тест обновления кэша."""
         from domain.symbols import SymbolProfile
-        from domain.types import Symbol
+        from domain.type_definitions import Symbol
         
         profiles = {
             "BTC/USDT": SymbolProfile(symbol=Symbol("BTC/USDT")),
@@ -118,7 +118,7 @@ class TestSymbolCache:
     def test_get_cached_profile(self, cache: SymbolCache) -> None:
         """Тест получения кэшированного профиля."""
         from domain.symbols import SymbolProfile
-        from domain.types import Symbol
+        from domain.type_definitions import Symbol
         
         symbol = "BTC/USDT"
         profile = SymbolProfile(symbol=Symbol(symbol))
@@ -155,7 +155,7 @@ class TestSymbolCache:
     def test_get_cached_profiles(self, cache: SymbolCache) -> None:
         """Тест получения всех кэшированных профилей."""
         from domain.symbols import SymbolProfile
-        from domain.types import Symbol
+        from domain.type_definitions import Symbol
         
         profiles = {
             "BTC/USDT": SymbolProfile(symbol=Symbol("BTC/USDT")),

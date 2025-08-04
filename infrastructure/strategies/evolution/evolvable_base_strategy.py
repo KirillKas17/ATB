@@ -20,7 +20,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 from loguru import logger
 
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     MarketRegime,
     Signal as DomainSignal,
     StrategyAnalysis,

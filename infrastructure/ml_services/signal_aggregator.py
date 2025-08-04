@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Optional
 
 from shared.numpy_utils import np
 
-from domain.types.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType, TradingSignal
+from domain.type_definitions.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType, TradingSignal
 
 # Настройка логирования
 logger = logging.getLogger(__name__)

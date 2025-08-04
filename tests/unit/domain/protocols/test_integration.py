@@ -51,7 +51,7 @@ from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
-from domain.types import (
+from domain.type_definitions import (
     Symbol,
     OrderId,
     TradingPair,
@@ -66,7 +66,7 @@ from domain.types import (
     QueryOptions,
 )
 from domain.protocols.strategy_protocol import MarketRegime
-from domain.types.protocol_types import (
+from domain.type_definitions.protocol_types import (
     PatternDetectionResult,
     SignalFilterDict,
     StrategyAdaptationRules,

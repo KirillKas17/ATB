@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union, cast
 import psutil
 from loguru import logger
 
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     AnalysisResult,
     BaseEntityController,
     CodeStructure,

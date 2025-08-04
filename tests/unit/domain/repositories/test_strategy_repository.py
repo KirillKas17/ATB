@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from domain.entities.strategy import Strategy, StrategyStatus, StrategyType
 from domain.repositories.strategy_repository import StrategyRepository, InMemoryStrategyRepository
-from domain.types.repository_types import EntityId, QueryOptions, QueryFilter
+from domain.type_definitions.repository_types import EntityId, QueryOptions, QueryFilter
 from domain.exceptions.base_exceptions import ValidationError
 
 

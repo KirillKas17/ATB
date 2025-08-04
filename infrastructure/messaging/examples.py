@@ -18,7 +18,7 @@ from loguru import logger
 from .event_bus import EventBus
 from .message_queue import MessageQueue
 from .websocket_service import WebSocketService
-from domain.types.messaging_types import (
+from domain.type_definitions.messaging_types import (
     ErrorHandler,
     Event,
     EventBusConfig,

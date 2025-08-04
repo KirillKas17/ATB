@@ -12,8 +12,8 @@ from application.services.base_service import BaseApplicationService
 from application.types import CreateOrderRequest
 from application.protocols.service_protocols import PerformanceMetrics, PortfolioMetrics
 from domain.value_objects.balance import Balance
-from domain.types import PortfolioId, Symbol
-from domain.types.repository_types import EntityId
+from domain.type_definitions import PortfolioId, Symbol
+from domain.type_definitions.repository_types import EntityId
 from domain.entities.portfolio import Portfolio
 from domain.repositories.portfolio_repository import PortfolioRepository
 from domain.services.portfolio_analysis import PortfolioAnalysisService

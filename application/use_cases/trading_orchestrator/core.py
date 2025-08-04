@@ -102,8 +102,8 @@ from .update_handlers import UpdateHandlers
 from domain.strategies.base_strategy import BaseStrategy
 from domain.repositories.position_repository import PositionRepository
 from domain.repositories.portfolio_repository import PortfolioRepository
-from domain.types import EntityId
-from domain.types import Symbol
+from domain.type_definitions import EntityId
+from domain.type_definitions import Symbol
 from domain.value_objects.money import Money, Currency
 from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price
@@ -500,7 +500,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
                 raise TradingOrchestrationError("Session service not available")
 
             # Создаем сессию - исправляем метод
-            from domain.types import SessionType  # type: ignore[attr-defined]
+            from domain.type_definitions import SessionType  # type: ignore[attr-defined]
             from domain.value_objects.timestamp import Timestamp
             session = await self.session_service.get_session_phase(  # type: ignore[misc]
                 SessionType.TRADING, 
@@ -519,7 +519,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
                 return False
 
             # Останавливаем сессию - исправляем метод
-            from domain.types import SessionType  # type: ignore[attr-defined]
+            from domain.type_definitions import SessionType  # type: ignore[attr-defined]
             from domain.value_objects.timestamp import Timestamp
             return await self.session_service.get_session_phase(  # type: ignore[misc]
                 SessionType.TRADING, 
@@ -610,7 +610,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
             # Исправляем атрибуты Signal и типы Order
             from domain.entities.order import Order, OrderType, OrderStatus, OrderSide
             from domain.value_objects.signal_type import SignalType
-            from domain.types import VolumeValue
+            from domain.type_definitions import VolumeValue
             
             # Преобразуем SignalType в OrderSide
             side = OrderSide.BUY if signal.signal_type.value == "buy" else OrderSide.SELL
@@ -642,7 +642,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
         """Создание ордера для ребалансировки."""
         try:
             from domain.entities.order import Order, OrderType, OrderStatus, OrderSide
-            from domain.types import VolumeValue
+            from domain.type_definitions import VolumeValue
             
             # Определяем сторону ордера
             side = OrderSide.BUY if weight_diff > 0 else OrderSide.SELL

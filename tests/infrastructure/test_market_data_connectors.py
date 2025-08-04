@@ -26,7 +26,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
-from domain.types.value_object_types import CurrencyCode
+from domain.type_definitions.value_object_types import CurrencyCode
 class TestBaseExchangeConnector:
     """Тесты для базового абстрактного коннектора."""
     def test_abstract_class_cannot_be_instantiated(self) -> None:

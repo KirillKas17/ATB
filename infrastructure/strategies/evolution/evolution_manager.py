@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from loguru import logger
 
-from domain.types.strategy_types import EvolutionConfig, EvolutionMetrics
+from domain.type_definitions.strategy_types import EvolutionConfig, EvolutionMetrics
 
 
 class EvolutionRecord(TypedDict):

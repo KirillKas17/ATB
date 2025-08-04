@@ -15,7 +15,7 @@ from unittest.mock import Mock, AsyncMock
 
 from domain.interfaces.pattern_analyzer import IPatternAnalyzer
 from domain.market_maker.mm_pattern import MarketMakerPattern, PatternMemory, PatternResult
-from domain.types.market_maker_types import Confidence, SimilarityScore
+from domain.type_definitions.market_maker_types import Confidence, SimilarityScore
 
 
 class TestIPatternAnalyzer:

@@ -25,7 +25,7 @@ from typing import (
 )
 
 # Импорты базовых типов
-from domain.types.base_types import (
+from domain.type_definitions.base_types import (
     AmountType,
     CurrencyCode,
     TimestampValue,

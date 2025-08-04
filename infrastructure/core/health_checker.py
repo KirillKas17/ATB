@@ -14,8 +14,8 @@ from typing import Any, Dict, List, Optional, Set
 import psutil
 from loguru import logger
 
-from domain.types.infrastructure_types import SystemMetrics
-from domain.types.messaging_types import Event as MessagingEvent, EventPriority as MessagingEventPriority, EventName, EventType
+from domain.type_definitions.infrastructure_types import SystemMetrics
+from domain.type_definitions.messaging_types import Event as MessagingEvent, EventPriority as MessagingEventPriority, EventName, EventType
 from infrastructure.messaging.event_bus import EventBus
 
 

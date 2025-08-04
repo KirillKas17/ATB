@@ -25,7 +25,7 @@ from domain.market_maker.mm_pattern import (
     MarketMakerPatternType,
     PatternFeatures
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Symbol,
     OrderBookLevel,
     TradeData,

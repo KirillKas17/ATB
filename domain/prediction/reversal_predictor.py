@@ -16,7 +16,7 @@ from domain.prediction.reversal_signal import (
     MomentumAnalysis,
     ReversalSignal,
 )
-from domain.types.prediction_types import (
+from domain.type_definitions.prediction_types import (
     CandlestickPatternType,
     ConfidenceScore,
     DivergenceType,

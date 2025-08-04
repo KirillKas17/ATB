@@ -24,8 +24,8 @@ from domain.repositories.base_repository import (
     TransactionProtocol,
 )
 from domain.protocols.repository_protocol import RepositoryState
-from domain.types.protocol_types import HealthCheckDict, PerformanceMetricsDict
-from domain.types import RiskProfileId, PortfolioId
+from domain.type_definitions.protocol_types import HealthCheckDict, PerformanceMetricsDict
+from domain.type_definitions import RiskProfileId, PortfolioId
 from domain.protocols.repository_protocol import RepositoryProtocol
 
 class RiskRepositoryProtocol(RepositoryProtocol[RiskProfile]):

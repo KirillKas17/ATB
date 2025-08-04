@@ -9,7 +9,7 @@ from domain.strategies.strategy_interface import (
     StrategyInterface,
 )
 from domain.strategies.strategy_types import MeanReversionParams
-from domain.types import ConfidenceLevel, RiskLevel, StrategyId
+from domain.type_definitions import ConfidenceLevel, RiskLevel, StrategyId
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 

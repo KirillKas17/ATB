@@ -7,7 +7,7 @@ from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
 
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceValue,
     ConfigurationError,
     DataInsufficientError,

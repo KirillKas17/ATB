@@ -4,7 +4,7 @@
 """
 from typing import Protocol
 import pandas as pd
-from domain.types.session_types import SessionAnalysisResult, SessionProfile
+from domain.type_definitions.session_types import SessionAnalysisResult, SessionProfile
 
 # Type alias для pandas
 DataFrame = pd.DataFrame

@@ -17,7 +17,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from domain.entities.position import Position, PositionSide
-from domain.types import PositionId, PortfolioId, VolumeValue, AmountValue, Symbol
+from domain.type_definitions import PositionId, PortfolioId, VolumeValue, AmountValue, Symbol
 from uuid import UUID
 from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price

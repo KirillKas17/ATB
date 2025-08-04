@@ -23,7 +23,7 @@ from domain.entities.market import MarketData, MarketState
 from domain.entities.signal import Signal, SignalType, SignalStrength
 from domain.entities.strategy import StrategyStatus, StrategyType
 from domain.entities.strategy_performance import StrategyPerformance
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     PerformanceScore,

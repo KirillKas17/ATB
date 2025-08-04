@@ -29,7 +29,7 @@ from domain.entities.signal import Signal
 from domain.entities.trading import Trade
 
 # Domain types
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     OrderId,

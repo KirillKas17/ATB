@@ -10,7 +10,7 @@ from domain.value_objects import (
     Signal, SignalType, SignalStrength, TradingPair
 )
 from domain.value_objects.factory import ValueObjectFactory, factory
-from domain.types.value_object_types import ValidationContext
+from domain.type_definitions.value_object_types import ValidationContext
 class TestCurrencyIndustrial:
     """Тесты для промышленной реализации Currency."""
     def test_currency_creation(self) -> None:

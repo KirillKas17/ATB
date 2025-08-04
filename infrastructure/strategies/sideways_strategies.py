@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Tuple, Any
 
 from loguru import logger
 
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     MarketRegime,
     Signal,
     StrategyAnalysis,
@@ -20,7 +20,7 @@ from infrastructure.core.technical_analysis import (
 )
 
 from infrastructure.strategies.base_strategy import BaseStrategy, Signal
-from domain.types.strategy_types import StrategyDirection, MarketRegime
+from domain.type_definitions.strategy_types import StrategyDirection, MarketRegime
 
 
 class SidewaysStrategy(BaseStrategy):

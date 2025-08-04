@@ -10,11 +10,11 @@ from shared.numpy_utils import np
 import pandas as pd
 from scipy import stats
 
-from domain.types import MarketDataFrame
-from domain.types import OrderBookData
+from domain.type_definitions import MarketDataFrame
+from domain.type_definitions import OrderBookData
 from domain.exceptions import ConfigurationError
-from domain.types import MarketPhaseClassifierProtocol
-from domain.types import MarketPhase, MarketPhaseResult, ConfidenceValue
+from domain.type_definitions import MarketPhaseClassifierProtocol
+from domain.type_definitions import MarketPhase, MarketPhaseResult, ConfidenceValue
 
 logger = logging.getLogger(__name__)
 

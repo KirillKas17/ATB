@@ -3,7 +3,7 @@ import pytest
 from application.di_container_refactored import get_service_locator
 from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 from domain.sessions.services import SessionService
-from domain.types.session_types import SessionType, MarketRegime, SessionIntensity
+from domain.type_definitions.session_types import SessionType, MarketRegime, SessionIntensity
 import pandas as pd
 
 

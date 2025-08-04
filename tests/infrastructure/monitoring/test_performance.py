@@ -22,7 +22,7 @@ from infrastructure.monitoring.monitoring_performance import (
     start_monitoring,
     stop_monitoring,
 )
-from domain.types.monitoring_types import MetricType, AlertSeverity
+from domain.type_definitions.monitoring_types import MetricType, AlertSeverity
 class TestMonitoringPerformance:
     """Тесты производительности системы мониторинга."""
     def test_metric_recording_performance(self, performance_test_data) -> None:

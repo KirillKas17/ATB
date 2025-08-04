@@ -4,8 +4,8 @@ from uuid import UUID
 
 from domain.entities.portfolio_fixed import Balance, Portfolio, Position
 from domain.protocols.repository_protocol import RepositoryProtocol
-from domain.types.repository_types import EntityId
-from domain.types import PortfolioId
+from domain.type_definitions.repository_types import EntityId
+from domain.type_definitions import PortfolioId
 from domain.value_objects.currency import Currency
 
 

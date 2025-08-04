@@ -21,7 +21,7 @@ from domain.intelligence.market_pattern_recognizer import (
     MarketPatternRecognizer,
     PatternDetection
 )
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money

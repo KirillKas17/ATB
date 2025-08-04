@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 import pandas as pd
 from loguru import logger
 
-from domain.types import (
+from domain.type_definitions import (
     DataInsufficientError,
     MarketDataError,
     MarketDataFrame,

@@ -6,9 +6,9 @@ import hashlib
 from datetime import datetime, timedelta, timezone
 from typing import Any, ClassVar, Optional, Union
 
-from domain.types.base_types import TimestampValue
+from domain.type_definitions.base_types import TimestampValue
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     NumericType,
     TimeValueObject,
     TimeValueObjectProtocol,

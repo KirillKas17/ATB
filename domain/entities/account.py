@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 from uuid import uuid4
 
-from domain.types import AccountId
+from domain.type_definitions import AccountId
 
 
 @runtime_checkable

@@ -8,7 +8,7 @@ from decimal import Decimal
 from uuid import uuid4
 from domain.entities.market import MarketData, MarketState
 from domain.entities.strategy import StrategyType, StrategyStatus
-from domain.types import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
+from domain.type_definitions import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
 from domain.strategies.base_strategies import (
     TrendFollowingStrategy,
     MeanReversionStrategy,

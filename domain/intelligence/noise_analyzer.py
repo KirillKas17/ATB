@@ -8,7 +8,7 @@ from loguru import logger
 from scipy import stats
 from scipy.signal import welch
 
-from domain.types.intelligence_types import (
+from domain.type_definitions.intelligence_types import (
     AnalysisMetadata,
     NoiseAnalysisConfig,
     NoiseAnalysisResult,

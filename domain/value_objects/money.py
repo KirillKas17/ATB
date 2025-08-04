@@ -6,13 +6,13 @@ import hashlib
 from decimal import Decimal
 from typing import Any, ClassVar, Dict, Optional, Union, cast
 
-from domain.types.base_types import (
+from domain.type_definitions.base_types import (
     CurrencyCode,
     MoneyAmount,
     NumericType,
 )
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     MAX_MONEY_AMOUNT,
     MIN_MONEY_AMOUNT,
     MONEY_PRECISION,

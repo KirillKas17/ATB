@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     SignalId,
     SignalScore,
     ValidationResult,

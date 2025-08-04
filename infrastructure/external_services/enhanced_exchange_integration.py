@@ -12,7 +12,7 @@ from loguru import logger
 from .exchanges.default_factory import DefaultExchangeFactory, create_default_binance, create_default_bybit
 from .market_data import MarketDataProvider
 from .order_manager import OrderManager
-from domain.types.trading_types import Signal, TradingPair, OrderInfo, Position, Trade, MarketData as DomainMarketData
+from domain.type_definitions.trading_types import Signal, TradingPair, OrderInfo, Position, Trade, MarketData as DomainMarketData
 
 
 @dataclass

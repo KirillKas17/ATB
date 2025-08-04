@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from domain.types.agent_types import AgentConfig, ProcessingResult, AgentType
+from domain.type_definitions.agent_types import AgentConfig, ProcessingResult, AgentType
 from infrastructure.agents.base_agent import AgentStatus, BaseAgent
 from shared.logging import setup_logger
 

@@ -19,7 +19,7 @@ from application.types import (
 from domain.entities.position import Position, PositionSide
 from domain.repositories.portfolio_repository import PortfolioRepository
 from domain.repositories.position_repository import PositionRepository
-from domain.types import (
+from domain.type_definitions import (
     AmountValue,
     EntityId,
     PortfolioId,
@@ -428,7 +428,7 @@ class RiskManagementUseCase:
             # Получение позиций портфеля
             portfolio_id_obj = PortfolioId(UUID(portfolio_id))
             # Исправление: передаем правильный тип EntityId
-            from domain.types.repository_types import EntityId as RepositoryEntityId
+            from domain.type_definitions.repository_types import EntityId as RepositoryEntityId
             portfolio_positions = await self.portfolio_repository.get_all_positions(RepositoryEntityId(portfolio_id_obj))
             positions = [p for p in portfolio_positions if isinstance(p, Position)]
 

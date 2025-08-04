@@ -16,7 +16,7 @@ from infrastructure.services.market_conditions_analyzer import (
 )
 from domain.entities.market import MarketData
 from domain.value_objects.currency import Price, Volume
-from domain.types.base_types import Symbol
+from domain.type_definitions.base_types import Symbol
 
 
 class TestMarketConditionsAnalyzer:

@@ -10,11 +10,11 @@
 
 # Экспорт типов из evolution_types
 from domain.entities.signal import SignalType
-from domain.types.strategy_types import StrategyType
-from domain.types.evolution_types import (
+from domain.type_definitions.strategy_types import StrategyType
+from domain.type_definitions.evolution_types import (
     EvolutionConfig,  # NewType; Literal; Final constants; TypedDict; Protocol; Enum; Dataclass
 )
-from domain.types.evolution_types import (
+from domain.type_definitions.evolution_types import (
     DEFAULT_CROSSOVER_RATE,
     DEFAULT_ELITE_SIZE,
     DEFAULT_GENERATIONS,

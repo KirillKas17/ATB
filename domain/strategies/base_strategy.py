@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 from domain.entities.market import MarketData
 from domain.entities.signal import Signal
 from domain.entities.strategy import StrategyType
-from domain.types import StrategyId, TradingPair
+from domain.type_definitions import StrategyId, TradingPair
 
 
 @dataclass

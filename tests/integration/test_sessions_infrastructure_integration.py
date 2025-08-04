@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
 from datetime import datetime, timedelta
 from unittest.mock import Mock, AsyncMock, patch
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType, SessionPhase, SessionAnalysisResult, SessionMetrics, MarketConditions, MarketRegime, ConfidenceScore, SessionIntensity
 )
 from domain.value_objects.timestamp import Timestamp

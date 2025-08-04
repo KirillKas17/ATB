@@ -25,7 +25,7 @@ from domain.entities.trading_pair import TradingPair
 from domain.repositories.portfolio_repository import PortfolioRepository
 from domain.repositories.position_repository import PositionRepository
 # from domain.repositories.trade_repository import TradeRepository
-from domain.types import (
+from domain.type_definitions import (
     AmountValue,
     EntityId,
     PortfolioId,
@@ -41,7 +41,7 @@ from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 
 logger = logging.getLogger(__name__)
 
@@ -300,7 +300,7 @@ class PositionManagementUseCase:
 
             # Создание метрик позиции
             from domain.entities.position import PositionSide as DomainPositionSide
-            from domain.types import VolumeValue, PriceValue, AmountValue, TimestampValue
+            from domain.type_definitions import VolumeValue, PriceValue, AmountValue, TimestampValue
             metrics = PositionMetrics(
                 position_id=PositionId(UUID(str(position_id))),
                 side=DomainPositionSide(position.side.value),
