@@ -11,8 +11,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 from shared.numpy_utils import np
 
-from domain.types.intelligence_types import PatternDetection
-from domain.types.intelligence_types import PatternType
+from domain.type_definitions.intelligence_types import PatternDetection
+from domain.type_definitions.intelligence_types import PatternType
 from domain.memory.pattern_memory import PatternMemory
 from domain.value_objects.timestamp import Timestamp
 

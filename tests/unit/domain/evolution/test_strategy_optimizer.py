@@ -26,7 +26,7 @@ from domain.evolution.strategy_model import (
     EntryCondition,
     ExitCondition
 )
-from domain.types.evolution_types import (
+from domain.type_definitions.evolution_types import (
     FitnessScore,
     FitnessWeights,
     StrategyPerformance

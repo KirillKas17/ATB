@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
 from infrastructure.ml_services.decision_reasoner import DecisionReasoner
-from domain.types.decision_types import TradeDecision
+from domain.type_definitions.decision_types import TradeDecision
 from infrastructure.agents.agent_context_refactored import AgentContext
 from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 from application.di_container import DIContainer, ContainerConfig

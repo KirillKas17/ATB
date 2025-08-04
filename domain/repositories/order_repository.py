@@ -10,8 +10,8 @@ from uuid import UUID
 from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.entities.trading_pair import TradingPair
 from domain.repositories.base_repository import BaseRepository, RepositoryError
-from domain.types import OrderId
-from domain.types.repository_types import EntityId, QueryOptions, QueryFilter
+from domain.type_definitions import OrderId
+from domain.type_definitions.repository_types import EntityId, QueryOptions, QueryFilter
 
 
 class OrderRepository(BaseRepository[Order]):

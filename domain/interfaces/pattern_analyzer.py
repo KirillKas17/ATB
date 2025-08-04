@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Protocol, runtime_checkable
 from domain.market_maker.mm_pattern import (
     MarketMakerPattern, PatternMemory, PatternResult
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Confidence, SimilarityScore
 )
 

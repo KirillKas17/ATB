@@ -11,7 +11,7 @@ from typing import Tuple
 
 from shared.numpy_utils import np
 
-from domain.types.entity_system_types import FitnessScore, GeneDict
+from domain.type_definitions.entity_system_types import FitnessScore, GeneDict
 
 
 class Individual:

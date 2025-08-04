@@ -15,7 +15,7 @@ from domain.intelligence.noise_analyzer import NoiseAnalysisResult
 from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
 from infrastructure.agents.analytical.types import AnalyticalIntegrationConfig
 from domain.value_objects.timestamp import Timestamp
-from domain.types.intelligence_types import NoiseType
+from domain.type_definitions.intelligence_types import NoiseType
 
 
 async def main():

@@ -19,15 +19,15 @@ from domain.entities.trade import Trade
 from domain.entities.market import MarketData
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
-from domain.types import (
+from domain.type_definitions import (
     StrategyId, SignalId, PriceValue, VolumeValue, ConfidenceLevel,
     PerformanceMetrics
 )
-from domain.types.protocol_types import (
+from domain.type_definitions.protocol_types import (
     MarketAnalysisResult, PatternDetectionResult, SignalFilterDict,
     StrategyAdaptationRules, StrategyErrorContext
 )
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.strategy_types import StrategyType
 
 
 class StrategyProtocolImpl(StrategyProtocol):

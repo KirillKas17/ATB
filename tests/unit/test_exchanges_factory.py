@@ -4,7 +4,7 @@ Unit тесты для ExchangeServiceFactory
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from unittest.mock import patch
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ExchangeType, ExchangeCredentials, ConnectionConfig
 )
 from infrastructure.external_services.exchanges.factory import ExchangeServiceFactory

@@ -13,9 +13,9 @@ from application.services.base_service import BaseApplicationService
 from domain.entities.market import MarketData
 from domain.repositories.ml_repository import MLRepository
 from domain.services.ml_predictor import MLPredictor
-from domain.types import ConfidenceLevel, Symbol, MetadataDict
-from domain.types.repository_types import EntityId
-from domain.types.base_types import TimestampValue
+from domain.type_definitions import ConfidenceLevel, Symbol, MetadataDict
+from domain.type_definitions.repository_types import EntityId
+from domain.type_definitions.base_types import TimestampValue
 from uuid import UUID, uuid4
 
 
@@ -97,7 +97,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         prediction_result = self.ml_predictor.predict(prepared_features)
         if prediction_result:
             # Создаем MLPrediction
-            from domain.types import TimestampValue
+            from domain.type_definitions import TimestampValue
             ml_prediction = MLPrediction(
                 model_id=model.id,
                 symbol=symbol,

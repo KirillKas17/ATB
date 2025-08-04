@@ -17,7 +17,7 @@ from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.currency import Currency
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from infrastructure.repositories.trading import InMemoryTradingRepository
 
 

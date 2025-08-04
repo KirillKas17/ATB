@@ -14,7 +14,7 @@ from domain.entities.strategy import Strategy
 from domain.entities.trade import Trade
 from domain.entities.trading_pair import TradingPair
 from domain.entities.trading_session import TradingSession
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     PortfolioId,
     PositionId,

@@ -5,7 +5,7 @@
 from typing import Optional, Dict, Any
 from loguru import logger
 
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ConnectionConfig,
     ExchangeCredentials,
     ExchangeType,

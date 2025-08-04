@@ -35,7 +35,7 @@ from domain.exceptions.protocol_exceptions import (
     TimeoutError,
     TransactionError,
 )
-from domain.types.repository_types import (
+from domain.type_definitions.repository_types import (
     BulkOperationResult,
     CacheEvictionStrategy,
     CacheKey,

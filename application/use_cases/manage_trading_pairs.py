@@ -25,7 +25,7 @@ from domain.entities.market import MarketData, OrderBook
 from domain.entities.trading_pair import TradingPair, PairStatus
 from domain.repositories.market_repository import MarketRepository
 from domain.repositories.trading_pair_repository import TradingPairRepository
-from domain.types import Symbol, PriceValue, VolumeValue, PricePrecision, VolumePrecision
+from domain.type_definitions import Symbol, PriceValue, VolumeValue, PricePrecision, VolumePrecision
 from domain.value_objects.currency import Currency
 from domain.value_objects.percentage import Percentage
 from domain.value_objects.volume import Volume

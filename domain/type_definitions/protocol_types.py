@@ -22,7 +22,7 @@ from typing import (
 )
 from uuid import UUID
 
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     ModelId,

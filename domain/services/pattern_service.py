@@ -13,7 +13,7 @@ from shared.numpy_utils import np
 from scipy.signal import find_peaks
 
 from domain.entities.pattern import Pattern, PatternConfidence
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 

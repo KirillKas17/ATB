@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Protocol, runtime_checkable, Optional
 
-from domain.types import StrategyId
-from domain.types.protocol_types import StrategyErrorContext
+from domain.type_definitions import StrategyId
+from domain.type_definitions.protocol_types import StrategyErrorContext
 
 
 @runtime_checkable

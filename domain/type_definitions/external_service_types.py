@@ -21,7 +21,7 @@ from typing import (
     runtime_checkable,
 )
 
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     ModelId,

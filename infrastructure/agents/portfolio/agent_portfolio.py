@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.agent_types import ProcessingResult, AgentType, AgentConfig
+from domain.type_definitions.agent_types import ProcessingResult, AgentType, AgentConfig
 from infrastructure.agents.base_agent import AgentStatus, BaseAgent
 from infrastructure.core.portfolio_manager import PortfolioManager
 from infrastructure.core.position_manager import PositionManager

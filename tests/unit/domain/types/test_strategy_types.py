@@ -18,7 +18,7 @@ from typing import Dict, Any, List, Optional
 from unittest.mock import Mock, AsyncMock
 import pandas as pd
 
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     StrategyDirection,
     StrategyType,
     MarketRegime,

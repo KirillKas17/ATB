@@ -2,7 +2,7 @@
 from typing import cast
 from domain.symbols.cache import MemorySymbolCache
 from domain.symbols.symbol_profile import SymbolProfile, VolumeProfile, PriceStructure, OrderBookMetricsData, PatternMetricsData, SessionMetricsData
-from domain.types import MarketPhase, VolumeValue, PriceValue, SpreadValue, ConfidenceValue
+from domain.type_definitions import MarketPhase, VolumeValue, PriceValue, SpreadValue, ConfidenceValue
 def test_memory_symbol_cache_basic() -> None:
     cache = MemorySymbolCache(default_ttl=1)
     profile = SymbolProfile(

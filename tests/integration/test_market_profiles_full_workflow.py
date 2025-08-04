@@ -21,7 +21,7 @@ from domain.market_maker.mm_pattern import (
     MarketMakerPattern, PatternFeatures, MarketMakerPatternType,
     PatternResult, PatternOutcome, PatternMemory
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     BookPressure, VolumeDelta, PriceReaction, SpreadChange,
     OrderImbalance, LiquidityDepth, TimeDuration, VolumeConcentration,
     PriceVolatility, MarketMicrostructure, Confidence, Accuracy,

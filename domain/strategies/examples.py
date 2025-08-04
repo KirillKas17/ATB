@@ -10,7 +10,7 @@ from unittest.mock import Mock
 import pandas as pd
 
 from domain.entities.strategy_interface import StrategyInterface
-from domain.types import RiskLevel, ConfidenceLevel, StrategyId
+from domain.type_definitions import RiskLevel, ConfidenceLevel, StrategyId
 from domain.entities.strategy import StrategyType
 from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency

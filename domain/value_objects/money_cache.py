@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Dict, Optional, Union
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     CurrencyCode,
     NumericType,
     generate_cache_key,

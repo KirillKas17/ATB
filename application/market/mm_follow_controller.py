@@ -16,7 +16,7 @@ from domain.market_maker.mm_pattern_classifier import (
     TradeSnapshot,
 )
 from domain.market_maker.mm_pattern_memory import IPatternMemoryRepository
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 
 
 @dataclass
@@ -144,7 +144,7 @@ class MarketMakerFollowController(IMMFollowController):
         """Обработка паттерна и генерация сигнала следования"""
         try:
             # Классифицируем паттерн
-            from domain.types.market_maker_types import Symbol as MarketMakerSymbol
+            from domain.type_definitions.market_maker_types import Symbol as MarketMakerSymbol
             pattern = self.pattern_classifier.classify_pattern(
                 MarketMakerSymbol(symbol), order_book, trades
             )

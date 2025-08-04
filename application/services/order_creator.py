@@ -13,7 +13,7 @@ from domain.exceptions import (
     InvalidOrderError,
     OrderManagementError,
 )
-from domain.types import OrderId, TradingPair, VolumeValue, PortfolioId
+from domain.type_definitions import OrderId, TradingPair, VolumeValue, PortfolioId
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp

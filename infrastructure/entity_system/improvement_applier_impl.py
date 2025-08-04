@@ -2,7 +2,7 @@ import random
 
 from loguru import logger
 
-from domain.types.entity_system_types import BaseImprovementApplier, Improvement
+from domain.type_definitions.entity_system_types import BaseImprovementApplier, Improvement
 
 
 class ImprovementApplierImpl(BaseImprovementApplier):

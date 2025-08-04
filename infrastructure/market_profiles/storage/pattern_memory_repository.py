@@ -26,7 +26,7 @@ from domain.market_maker.mm_pattern import (
     PatternResult,
     PatternContext,
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Accuracy,
     AverageReturn,
     Confidence,
@@ -534,7 +534,7 @@ class PatternMemoryRepository(IPatternStorage):
             "timestamp": features_data.get("timestamp", datetime.now().isoformat())
         }
         # Приводим к правильному типу PatternFeaturesDict
-        from domain.types.market_maker_types import PatternFeaturesDict
+        from domain.type_definitions.market_maker_types import PatternFeaturesDict
         # Исправление: используем правильные ключи для PatternFeaturesDict
         typed_dict: PatternFeaturesDict = {
             "book_pressure": float(pattern_features_dict.get("book_pressure", 0.0)),

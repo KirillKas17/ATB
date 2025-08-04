@@ -14,12 +14,12 @@ from uuid import UUID
 
 from domain.protocols.strategy_protocol_impl import StrategyProtocolImpl
 from domain.protocols.market_analysis_protocol import MarketRegime
-from domain.types.protocol_types import (
+from domain.type_definitions.protocol_types import (
     MarketAnalysisResult, PatternDetectionResult, SignalFilterDict, 
     StrategyAdaptationRules
 )
-from domain.types import PerformanceMetrics
-from domain.types.protocol_types import StrategyErrorContext
+from domain.type_definitions import PerformanceMetrics
+from domain.type_definitions.protocol_types import StrategyErrorContext
 from domain.entities.strategy import Strategy
 from domain.protocols.market_analysis_protocol import StrategyState
 from domain.entities.order import Order
@@ -27,10 +27,10 @@ from domain.entities.position import Position
 from domain.entities.trade import Trade
 from domain.entities.market import MarketData
 from domain.entities.signal import Signal, SignalType, SignalStrength
-from domain.types import StrategyId, Symbol, ConfidenceLevel, PriceValue, VolumeValue, SignalId
+from domain.type_definitions import StrategyId, Symbol, ConfidenceLevel, PriceValue, VolumeValue, SignalId
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.strategy_types import StrategyType
 from domain.exceptions.base_exceptions import ValidationError
 
 

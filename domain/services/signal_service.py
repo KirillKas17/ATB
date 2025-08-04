@@ -22,8 +22,8 @@ from typing import (
 
 from domain.entities.signal import Signal, SignalStrength, SignalType
 from domain.entities.strategy import Strategy
-from domain.types import MarketDataFrame
-from domain.types.signal_types import (
+from domain.type_definitions import MarketDataFrame
+from domain.type_definitions.signal_types import (
     SignalAggregationResult,
     SignalAnalysisResult,
     SignalValidationResult,

@@ -8,7 +8,7 @@
 from decimal import Decimal
 from typing import Any, Dict, List
 
-from domain.types.risk_types import PortfolioRisk, RiskLevel
+from domain.type_definitions.risk_types import PortfolioRisk, RiskLevel
 
 __all__ = [
     'generate_risk_recommendations', 'generate_rebalancing_suggestions',

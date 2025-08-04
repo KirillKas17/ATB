@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.entity_system_types import FitnessScore, GeneDict
+from domain.type_definitions.entity_system_types import FitnessScore, GeneDict
 
 from ..genetic.engine import EvolutionEngine
 

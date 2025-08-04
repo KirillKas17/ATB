@@ -30,7 +30,7 @@ from shared.models.example_types import (
     StrategyExecutor,
     RiskManager
 )
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.value_objects.timestamp import Timestamp
 
 __module__ = "examples.base_example"

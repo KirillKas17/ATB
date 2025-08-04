@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 
 from loguru import logger
 
-from domain.types import (
+from domain.type_definitions import (
     DataInsufficientError,
     MarketPhase,
     PriceStructureMetrics,

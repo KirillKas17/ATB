@@ -6,12 +6,12 @@ import hashlib
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Optional, Union
 
-from domain.types.base_types import (
+from domain.type_definitions.base_types import (
     PercentageValue,
     NumericType,
 )
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     MAX_PERCENTAGE,
     MIN_PERCENTAGE,
     PERCENTAGE_PRECISION,

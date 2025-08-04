@@ -10,7 +10,7 @@ from shared.numpy_utils import np
 from datetime import datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
-from domain.types import StrategyId, PortfolioId
+from domain.type_definitions import StrategyId, PortfolioId
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from infrastructure.core.backtest_manager import BacktestManager

@@ -80,7 +80,7 @@ class MarketController:
             market_data_list = []
             
             for candle in ohlcv_data:
-                from domain.types import TimestampValue
+                from domain.type_definitions import TimestampValue
                 market_data = MarketData(
                     timestamp=TimestampValue(datetime.fromtimestamp(candle["timestamp"] / 1000)),
                     open=candle["open"],

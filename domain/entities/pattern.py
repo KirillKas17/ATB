@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Dict
 from uuid import UUID, uuid4
 
-from domain.types.pattern_types import PatternType as BasePatternType
+from domain.type_definitions.pattern_types import PatternType as BasePatternType
 
 
 class PatternConfidence(Enum):

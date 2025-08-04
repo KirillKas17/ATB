@@ -17,7 +17,7 @@ from domain.exceptions import TradingError
 # from domain.services.enhanced_trading import EnhancedTradingService
 from domain.value_objects import Currency, Money
 
-# from domain.types.trading_types import (
+# from domain.type_definitions.trading_types import (
 #     StrategyType, ExecutionAlgorithm
 # )
 # Импорты из декомпозированных модулей

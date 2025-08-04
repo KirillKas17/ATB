@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.entity_system_types import EvolutionStats, FitnessScore, GeneDict
+from domain.type_definitions.entity_system_types import EvolutionStats, FitnessScore, GeneDict
 
 from .individual import Individual
 from .population import Population

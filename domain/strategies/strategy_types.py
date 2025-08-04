@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Dict, Final, List, Literal, Optional, Union
 from uuid import UUID
 
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MetadataDict,
     PerformanceScore,

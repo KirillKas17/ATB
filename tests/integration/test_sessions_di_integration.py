@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, AsyncMock
 from typing import Dict, Any
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType, SessionPhase, SessionIntensity, MarketRegime,
     SessionMetrics, MarketConditions, SessionAnalysisResult
 )

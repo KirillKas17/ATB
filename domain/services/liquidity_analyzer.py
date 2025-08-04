@@ -6,7 +6,7 @@ from shared.numpy_utils import np
 import pandas as pd
 from pandas import Interval
 
-from domain.types.service_types import (
+from domain.type_definitions.service_types import (
     LiquidityAnalysisResult, LiquiditySweep, LiquidityZone, LiquidityScore, LiquidityZoneType,
     TimestampValue, PriceValue, SweepType, ConfidenceLevel, VolumeValue
 )

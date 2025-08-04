@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List
 
 from loguru import logger
 
-from domain.types.entity_system_types import BaseEvolutionEngine
+from domain.type_definitions.entity_system_types import BaseEvolutionEngine
 
 
 class EvolutionEngineImpl(BaseEvolutionEngine):

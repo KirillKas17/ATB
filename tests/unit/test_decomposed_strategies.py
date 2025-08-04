@@ -10,7 +10,7 @@ from infrastructure.strategies.trend_strategies import TrendStrategy
 from infrastructure.strategies.sideways_strategies import SidewaysStrategy
 from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
 from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
-from domain.types.strategy_types import StrategyType, MarketRegime
+from domain.type_definitions.strategy_types import StrategyType, MarketRegime
 class TestDecomposedStrategies:
     """Тесты для декомпозированных стратегий"""
     @pytest.fixture

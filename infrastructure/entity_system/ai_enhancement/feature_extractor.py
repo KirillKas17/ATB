@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from shared.numpy_utils import np
 
-from domain.types.entity_system_types import CodeStructure
+from domain.type_definitions.entity_system_types import CodeStructure
 
 
 class CodeFeatureExtractor:

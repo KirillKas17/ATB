@@ -6,12 +6,12 @@ import hashlib
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from domain.types.base_types import (
+from domain.type_definitions.base_types import (
     CurrencyCode,
     CurrencyPair,
 )
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     ValidationResult,
     ValueObject,
     ValueObjectDict,

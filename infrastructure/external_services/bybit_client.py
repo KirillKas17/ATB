@@ -17,7 +17,7 @@ from domain.entities.position import Position
 from domain.entities.trade import Trade
 from domain.exceptions import ConnectionError, ExchangeError
 from domain.protocols.exchange_protocol import ConnectionStatus, ExchangeProtocol
-from domain.types import (
+from domain.type_definitions import (
     OrderId,
     PortfolioId,
     PriceValue,
@@ -29,7 +29,7 @@ from domain.types import (
 )
 from domain.value_objects import Currency, Money, Price, Volume
 from domain.value_objects.timestamp import Timestamp
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     APIKey,
     APISecret,
     ConnectionConfig,

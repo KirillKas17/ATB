@@ -12,8 +12,8 @@ from uuid import UUID
 from loguru import logger
 
 from domain.entities.ml import Model, ModelStatus, ModelType, PredictionType
-from domain.types import ModelId
-from domain.types.external_service_types import (
+from domain.type_definitions import ModelId
+from domain.type_definitions.external_service_types import (
     FeatureName,
     MLModelConfig,
     ModelName,
@@ -21,7 +21,7 @@ from domain.types.external_service_types import (
     ModelVersion,
     TargetName,
 )
-from domain.types.protocol_types import ModelStatusType
+from domain.type_definitions.protocol_types import ModelStatusType
 from infrastructure.external_services.ml_services import (
     FeatureEngineer,
     MLServiceConfig,

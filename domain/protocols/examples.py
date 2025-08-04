@@ -41,7 +41,7 @@ from domain.protocols.utils import (
     timeout,
     validate_symbol,
 )
-from domain.types import (
+from domain.type_definitions import (
     ModelId,
     OrderId,
     PortfolioId,

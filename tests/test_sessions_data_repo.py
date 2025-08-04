@@ -6,7 +6,7 @@ import shutil
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import datetime, timedelta, timezone
-from domain.types.session_types import SessionType, SessionPhase, SessionAnalysisResult, SessionMetrics, MarketConditions, ConfidenceScore, MarketRegime, SessionIntensity
+from domain.type_definitions.session_types import SessionType, SessionPhase, SessionAnalysisResult, SessionMetrics, MarketConditions, ConfidenceScore, MarketRegime, SessionIntensity
 from domain.value_objects.timestamp import Timestamp
 from domain.sessions.repositories import SessionDataRepository
 

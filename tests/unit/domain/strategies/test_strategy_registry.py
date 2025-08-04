@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from domain.strategies import get_strategy_registry
 from domain.strategies.exceptions import StrategyNotFoundError, StrategyDuplicateError
 from domain.entities.strategy import StrategyType
-from domain.types import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
+from domain.type_definitions import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
 
 class MockStrategy:
     def __init__(self, strategy_id, name, strategy_type, trading_pairs, parameters, risk_level, confidence_threshold) -> Any:

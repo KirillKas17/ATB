@@ -43,19 +43,19 @@ class TestSessionServiceIntegration:
     def test_predict_session_behavior(self) -> None:
         service = get_session_service()
         # Используем SessionType и MarketConditions из domain.types.session_types
-        from domain.types.session_types import SessionType
+        from domain.type_definitions.session_types import SessionType
         market_conditions = {'volatility': 1.0, 'volume': 1000.0, 'market_regime': Mock(value='bull')}
         prediction = service.predict_session_behavior(SessionType.ASIAN, market_conditions)
         assert isinstance(prediction, dict)
         assert 'predicted_volatility' in prediction
     def test_get_session_recommendations(self) -> None:
         service = get_session_service()
-        from domain.types.session_types import SessionType
+        from domain.type_definitions.session_types import SessionType
         recs = service.get_session_recommendations('BTCUSDT', SessionType.ASIAN)
         assert isinstance(recs, list)
     def test_get_session_statistics(self) -> None:
         service = get_session_service()
-        from domain.types.session_types import SessionType
+        from domain.type_definitions.session_types import SessionType
         stats = service.get_session_statistics(SessionType.ASIAN)
         assert isinstance(stats, dict)
     def test_is_transition_period(self) -> None:
@@ -68,17 +68,17 @@ class TestSessionServiceIntegration:
         assert isinstance(transitions, list)
     def test_update_session_profile(self) -> None:
         service = get_session_service()
-        from domain.types.session_types import SessionType
+        from domain.type_definitions.session_types import SessionType
         ok = service.update_session_profile(SessionType.ASIAN, {'foo': 'bar'})
         assert isinstance(ok, bool)
     def test_get_session_overlap(self) -> None:
         service = get_session_service()
-        from domain.types.session_types import SessionType
+        from domain.type_definitions.session_types import SessionType
         overlap = service.get_session_overlap(SessionType.ASIAN, SessionType.LONDON)
         assert isinstance(overlap, float)
     def test_get_session_phase(self) -> None:
         service = get_session_service()
-        from domain.types.session_types import SessionType
+        from domain.type_definitions.session_types import SessionType
         phase = service.get_session_phase(SessionType.ASIAN)
         assert phase is None or isinstance(phase, str)
     def test_get_next_session_change(self) -> None:

@@ -12,7 +12,7 @@ Series = pd.Series
 DataFrame = pd.DataFrame
 
 # Импорт доменных типов
-from domain.types.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType
+from domain.type_definitions.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType
 
 from .candle_patterns import CandlePatternAnalyzer
 from .explanation import DecisionExplainer

@@ -14,7 +14,7 @@ from domain.entities.position import Position, PositionSide
 from domain.entities.risk import RiskManager
 from domain.entities.signal import Signal
 from domain.protocols.repository_protocol import PortfolioRepositoryProtocol
-from domain.types import PortfolioId, TradingPair, VolumeValue, PriceValue
+from domain.type_definitions import PortfolioId, TradingPair, VolumeValue, PriceValue
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.price import Price, Currency
 

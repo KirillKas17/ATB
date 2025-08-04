@@ -23,7 +23,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
 from domain.entities.market import MarketData
-from domain.types import (
+from domain.type_definitions import (
     ConfidenceLevel,
     MarketRegimeValue,
     PriceValue,
@@ -31,8 +31,8 @@ from domain.types import (
     TimestampValue,
     VolumeValue,
 )
-from domain.types.protocol_types import MarketAnalysisResult, PatternDetectionResult
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.protocol_types import MarketAnalysisResult, PatternDetectionResult
+from domain.type_definitions.strategy_types import StrategyType
 from domain.exceptions import StrategyExecutionError
 from domain.exceptions.base_exceptions import DomainException
 

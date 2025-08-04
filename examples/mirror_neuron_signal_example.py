@@ -20,7 +20,7 @@ import pandas as pd
 from loguru import logger
 
 from domain.entities.signal import Signal, SignalType, SignalStrength
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.value_objects.timestamp import Timestamp
 from shared.models.example_types import ExampleConfig, ExampleResult, ExampleMode
 from examples.base_example import BaseExample, register_example

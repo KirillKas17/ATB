@@ -1,5 +1,5 @@
 from datetime import datetime
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     BaseEntityController,
     EntityState,
     OperationMode,

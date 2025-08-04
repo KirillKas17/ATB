@@ -59,7 +59,7 @@ from infrastructure.simulation.types import (
     Symbol,
 )
 from shared.unified_cache import get_cache_manager
-from domain.types.monitoring_types import Alert, AlertSeverity, Metric, TraceSpan
+from domain.type_definitions.monitoring_types import Alert, AlertSeverity, Metric, TraceSpan
 
 
 class IntegrationManager:

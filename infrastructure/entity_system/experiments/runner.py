@@ -9,7 +9,7 @@ from shared.numpy_utils import np
 from loguru import logger
 from scipy import stats
 
-from domain.types.entity_system_types import ExperimentData, ExperimentResult
+from domain.type_definitions.entity_system_types import ExperimentData, ExperimentResult
 
 
 class ExperimentMetadata:

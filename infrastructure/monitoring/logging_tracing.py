@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from typing import Any, Dict, Optional
 
-from domain.types.monitoring_types import LogContext, LogEntry, LogLevel
+from domain.type_definitions.monitoring_types import LogContext, LogEntry, LogLevel
 from infrastructure.monitoring.logging_system import StructuredLogger
 
 

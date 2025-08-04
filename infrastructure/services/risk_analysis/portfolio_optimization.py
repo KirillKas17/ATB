@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Tuple
 
 from scipy.optimize import Bounds, LinearConstraint, minimize
 
-from domain.types.risk_types import PortfolioOptimizationMethod
+from domain.type_definitions.risk_types import PortfolioOptimizationMethod
 
 __all__ = [
     "optimize_portfolio_weights",

@@ -26,13 +26,13 @@ from domain.evolution.strategy_model import (
     EntryCondition,
     ExitCondition
 )
-from domain.types.evolution_types import (
+from domain.type_definitions.evolution_types import (
     FitnessScore,
     FitnessWeights,
     StrategyPerformance
 )
-from domain.types.technical_types import SignalType
-from domain.types.strategy_types import StrategyType
+from domain.type_definitions.technical_types import SignalType
+from domain.type_definitions.strategy_types import StrategyType
 from domain.exceptions.base_exceptions import ValidationError
 
 

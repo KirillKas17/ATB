@@ -11,7 +11,7 @@ from infrastructure.market_profiles.models.storage_models import (
     StorageStatistics, PatternMetadata, BehaviorRecord, SuccessMapEntry,
     StorageStatus
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Confidence, SimilarityScore, Accuracy
 )
 class TestStorageConfig:

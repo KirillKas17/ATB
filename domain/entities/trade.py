@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any, Dict, Optional, Protocol, runtime_checkable
 from uuid import uuid4
 
-from domain.types import MetadataDict, SignalTypeType, Symbol, TimestampValue, TradeId
+from domain.type_definitions import MetadataDict, SignalTypeType, Symbol, TimestampValue, TradeId
 
 from ..value_objects.currency import Currency
 from ..value_objects.money import Money

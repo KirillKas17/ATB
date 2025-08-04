@@ -17,7 +17,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from domain.entities.order import Order, OrderType, OrderSide, OrderStatus
-from domain.types import OrderId, PortfolioId, StrategyId, SignalId, Symbol, TradingPair, VolumeValue
+from domain.type_definitions import OrderId, PortfolioId, StrategyId, SignalId, Symbol, TradingPair, VolumeValue
 from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency

@@ -4,7 +4,7 @@
 """
 from typing import Any, Dict, Protocol
 import pandas as pd
-from domain.types.session_types import SessionMetrics, SessionProfile
+from domain.type_definitions.session_types import SessionMetrics, SessionProfile
 
 
 class SessionMetricsCalculatorProtocol(Protocol):

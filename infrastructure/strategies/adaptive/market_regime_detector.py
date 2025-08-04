@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 from loguru import logger
 import pandas as pd
 
-from domain.types.strategy_types import MarketRegime
+from domain.type_definitions.strategy_types import MarketRegime
 # Убираем неправильный импорт - MarketRegimeAgent не существует в этом модуле
 # from infrastructure.agents.market_regime import MarketRegimeAgent
 

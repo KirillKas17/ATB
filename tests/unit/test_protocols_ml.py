@@ -29,7 +29,7 @@ from domain.protocols.ml_protocol import (
 from domain.entities.market import MarketData, Price, Volume
 from domain.entities.ml import Model, Prediction, PredictionType
 from domain.value_objects.currency import Currency
-from domain.types import Symbol, TimestampValue, ModelId
+from domain.type_definitions import Symbol, TimestampValue, ModelId
 from uuid import uuid4
 
 # Определяем недостающие типы для тестов

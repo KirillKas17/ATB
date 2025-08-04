@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from domain.exceptions import RiskAnalysisError
 from domain.protocols.exchange_protocol import ExchangeProtocol
-from domain.types.external_service_types import ConnectionConfig, OrderRequest, Symbol, OrderSide, OrderType, VolumeValue, PortfolioId
+from domain.type_definitions.external_service_types import ConnectionConfig, OrderRequest, Symbol, OrderSide, OrderType, VolumeValue, PortfolioId
 from uuid import uuid4
 from decimal import Decimal
 

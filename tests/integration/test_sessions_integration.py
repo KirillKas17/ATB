@@ -6,7 +6,7 @@ from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionType, SessionPhase, SessionProfile, SessionBehavior, SessionTimeWindow,
     MarketConditions, MarketRegime, SessionIntensity, SessionAnalysisResult,
     SessionMetrics, ConfidenceScore

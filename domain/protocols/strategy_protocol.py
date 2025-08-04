@@ -7,10 +7,10 @@ import logging
 from abc import ABC
 from typing import Dict, Optional, TypeVar, Any
 
-from domain.types import StrategyId
+from domain.type_definitions import StrategyId
 from domain.entities.strategy import Strategy
 from domain.entities.signal import Signal
-from domain.types import PerformanceMetrics
+from domain.type_definitions import PerformanceMetrics
 from domain.protocols.market_analysis_protocol import MarketAnalysisProtocolImpl
 from domain.protocols.signal_generation_protocol import SignalGenerationProtocolImpl
 from domain.protocols.strategy_execution_protocol import StrategyExecutionProtocolImpl

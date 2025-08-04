@@ -8,7 +8,7 @@ from application.prediction.combined_predictor import CombinedPredictor, Combine
 from application.prediction.pattern_predictor import PatternPredictor, EnhancedPredictionResult
 from application.prediction.reversal_controller import ReversalController
 from domain.value_objects.timestamp import Timestamp
-from domain.types.intelligence_types import PatternDetection, PatternType
+from domain.type_definitions.intelligence_types import PatternDetection, PatternType
 from domain.protocols.agent_protocols import AgentContextProtocol
 
 class TestCombinedPredictor:

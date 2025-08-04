@@ -10,7 +10,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-from domain.types.technical_types import (
+from domain.type_definitions.technical_types import (
     PatternType,
     SupportResistanceLevel,
     TrendDirection,

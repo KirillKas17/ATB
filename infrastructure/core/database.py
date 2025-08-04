@@ -33,7 +33,7 @@ from domain.entities.market import MarketData
 from domain.entities.trading import Trade, OrderSide
 from domain.value_objects.price import Price
 from domain.value_objects.money import Money
-from domain.types import TradeId, TimestampValue, Symbol, TradingPair
+from domain.type_definitions import TradeId, TimestampValue, Symbol, TradingPair
 from domain.value_objects.currency import Currency
 from domain.value_objects.volume import Volume
 # from domain.value_objects.metadata import MetadataDict

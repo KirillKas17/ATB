@@ -11,7 +11,7 @@ import aiohttp
 from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
 from domain.entities.portfolio_fixed import Balance, Position
 from domain.exceptions import ExchangeError
-from domain.types import OrderId, VolumeValue
+from domain.type_definitions import OrderId, VolumeValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price

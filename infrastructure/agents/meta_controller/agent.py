@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from domain.types.agent_types import AgentConfig, ProcessingResult, AgentType
+from domain.type_definitions.agent_types import AgentConfig, ProcessingResult, AgentType
 from infrastructure.agents.base_agent import AgentStatus, BaseAgent
 from shared.logging import setup_logger
 

@@ -18,7 +18,7 @@ from domain.protocols.exchange_protocol import ExchangeProtocol
 from domain.protocols.ml_protocol import MLProtocol
 from domain.protocols.strategy_protocol import StrategyProtocol
 from domain.protocols.repository_protocol import RepositoryProtocol
-from domain.types import (
+from domain.type_definitions import (
     OrderId, TradeId, PositionId, StrategyId, ModelId, PredictionId,
     PortfolioId, RiskProfileId, Symbol, TradingPair, PriceValue, VolumeValue, TimestampValue
 )

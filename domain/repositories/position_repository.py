@@ -10,7 +10,7 @@ from uuid import UUID
 
 from domain.entities.trading import Position, PositionSide
 from domain.protocols.repository_protocol import QueryFilter, RepositoryProtocol
-from domain.types import TradingPair
+from domain.type_definitions import TradingPair
 
 
 class PositionRepository(RepositoryProtocol):

@@ -12,7 +12,7 @@ from uuid import UUID
 from domain.entities.ml import Model, ModelStatus, ModelType, Prediction, PredictionType
 from domain.exceptions import MLModelError
 from domain.repositories.ml_repository import MLRepository
-from domain.types.repository_types import EntityId
+from domain.type_definitions.repository_types import EntityId
 
 
 class MLService:

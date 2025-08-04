@@ -9,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from domain.types.risk_types import PortfolioRisk, StressTestResult
+from domain.type_definitions.risk_types import PortfolioRisk, StressTestResult
 from domain.value_objects import Currency, Money
 
 __all__ = [

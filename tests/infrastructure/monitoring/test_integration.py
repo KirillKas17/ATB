@@ -19,7 +19,7 @@ from infrastructure.monitoring.monitoring_performance import (
     start_monitoring,
     stop_monitoring,
 )
-from domain.types.monitoring_types import MetricType, AlertSeverity
+from domain.type_definitions.monitoring_types import MetricType, AlertSeverity
 from datetime import timedelta
 from infrastructure.monitoring.monitoring_alerts import AlertRule
 # from infrastructure.monitoring.monitoring_dashboard import ChartConfig  # Исправлено: убираем неиспользуемый импорт

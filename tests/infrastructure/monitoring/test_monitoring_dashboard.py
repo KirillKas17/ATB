@@ -21,7 +21,7 @@ from infrastructure.monitoring.monitoring_dashboard import (
     get_performance_summary,
     get_alert_summary
 )
-from domain.types.monitoring_types import Metric, Alert, AlertSeverity
+from domain.type_definitions.monitoring_types import Metric, Alert, AlertSeverity
 
 # Локальные определения для тестов
 @dataclass

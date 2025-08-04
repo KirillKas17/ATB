@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
-from domain.types import MetadataDict
+from domain.type_definitions import MetadataDict
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp

@@ -13,7 +13,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from domain.entities.trading import OrderId, Position, Trade
-from domain.types import Symbol
+from domain.type_definitions import Symbol
 from domain.entities.market import MarketData
 
 

@@ -13,7 +13,7 @@ from loguru import logger
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 
-from domain.types.entity_system_types import OperationMode, OptimizationLevel
+from domain.type_definitions.entity_system_types import OperationMode, OptimizationLevel
 
 # Импорт необходимых компонентов
 from ..ai_enhancement import (  # type: ignore[attr-defined]

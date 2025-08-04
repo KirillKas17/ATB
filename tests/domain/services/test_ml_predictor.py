@@ -4,7 +4,7 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.ml_predictor import MLPredictor
-from domain.types.ml_types import PredictionResult, ModelPerformance, FeatureImportance
+from domain.type_definitions.ml_types import PredictionResult, ModelPerformance, FeatureImportance
 import pandas as pd
 from shared.numpy_utils import np
 

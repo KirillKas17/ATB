@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional
 from unittest.mock import Mock, patch, MagicMock
 
 from domain.services.market_metrics import MarketMetricsService, _safe_float, _safe_series
-from domain.types.market_metrics_types import (
+from domain.type_definitions.market_metrics_types import (
     VolatilityMetrics,
     TrendMetrics,
     VolumeMetrics,

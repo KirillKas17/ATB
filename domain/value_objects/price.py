@@ -7,13 +7,13 @@ from decimal import Decimal
 from typing import Any, Dict, Optional, Tuple, Union
 
 from .currency import Currency
-from domain.types.base_types import (
+from domain.type_definitions.base_types import (
     CurrencyCode,
     PriceLevel,
     NumericType,
 )
 
-from domain.types.value_object_types import (
+from domain.type_definitions.value_object_types import (
     MAX_PRICE,
     MIN_PRICE,
     PRICE_PRECISION,

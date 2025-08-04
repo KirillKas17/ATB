@@ -18,7 +18,7 @@ from application.market.mm_follow_controller import MarketMakerFollowController
 # from application.use_cases.trading_orchestrator import TradingOrchestratorUseCase
 from unittest.mock import Mock, AsyncMock
 from application.use_cases.execute_strategy_request import ExecuteStrategyRequest, ExecuteStrategyResponse
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Symbol, Confidence
 )
 
@@ -258,7 +258,7 @@ class TestMMPatternIntegration:
         assert success is True
     def test_pattern_features_serialization(self) -> None:
         """Тест сериализации признаков паттерна."""
-        from domain.types.market_maker_types import (
+        from domain.type_definitions.market_maker_types import (
             BookPressure, VolumeDelta, PriceReaction, SpreadChange, 
             OrderImbalance, LiquidityDepth, TimeDuration, 
             VolumeConcentration, PriceVolatility
@@ -289,7 +289,7 @@ class TestMMPatternIntegration:
         assert features.market_microstructure["avg_trade_size"] == 123.0
     def test_pattern_serialization(self) -> None:
         """Тест сериализации паттерна."""
-        from domain.types.market_maker_types import (
+        from domain.type_definitions.market_maker_types import (
             BookPressure, VolumeDelta, PriceReaction, SpreadChange, 
             OrderImbalance, LiquidityDepth, TimeDuration, 
             VolumeConcentration, PriceVolatility

@@ -15,7 +15,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from loguru import logger
 
-from domain.types.monitoring_types import (
+from domain.type_definitions.monitoring_types import (
     Alert,
     AlertHandlerProtocol,
     AlertSeverity,

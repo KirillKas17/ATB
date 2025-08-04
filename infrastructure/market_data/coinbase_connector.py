@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from domain.types.value_object_types import CurrencyCode
+from domain.type_definitions.value_object_types import CurrencyCode
 from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import Timestamp
 from shared.models.orderbook import OrderBookUpdate

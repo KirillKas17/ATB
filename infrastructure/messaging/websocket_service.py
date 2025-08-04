@@ -18,7 +18,7 @@ from typing import Any, DefaultDict, Dict, List, Optional, Set, Union
 
 from loguru import logger
 
-from domain.types.messaging_types import (
+from domain.type_definitions.messaging_types import (
     ConnectionID,
     TopicName,
     WebSocketCommand,

@@ -10,7 +10,7 @@ from domain.sessions.interfaces import (
     SessionMetricsAnalyzer,
     SessionRegistry,
 )
-from domain.types.session_types import MarketConditions, SessionType
+from domain.type_definitions.session_types import MarketConditions, SessionType
 from domain.value_objects.timestamp import Timestamp
 
 

@@ -8,7 +8,7 @@ from uuid import UUID
 
 from domain.entities.order import Order, OrderSide, OrderType
 from domain.entities.portfolio import Portfolio
-from domain.types import PortfolioId
+from domain.type_definitions import PortfolioId
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume

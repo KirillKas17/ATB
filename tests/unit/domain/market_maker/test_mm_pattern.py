@@ -23,7 +23,7 @@ from domain.market_maker.mm_pattern import (
     _empty_market_microstructure,
     _empty_pattern_context
 )
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     MarketMakerPatternType,
     PatternOutcome,
     PatternConfidence,

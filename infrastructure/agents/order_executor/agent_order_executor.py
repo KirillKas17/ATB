@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from domain.types.agent_types import AgentConfig, AgentStatus, ProcessingResult, AgentType
+from domain.type_definitions.agent_types import AgentConfig, AgentStatus, ProcessingResult, AgentType
 from infrastructure.agents.base_agent import BaseAgent
 
 logger = logging.getLogger(__name__)

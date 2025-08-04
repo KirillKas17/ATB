@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP
 from typing import Any
 
-from domain.types.value_object_types import PRICE_PRECISION
+from domain.type_definitions.value_object_types import PRICE_PRECISION
 
 
 @dataclass(frozen=True)

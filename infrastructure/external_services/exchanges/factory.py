@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from domain.types.external_service_types import (
+from domain.type_definitions.external_service_types import (
     ConnectionConfig,
     ExchangeCredentials,
     ExchangeType,

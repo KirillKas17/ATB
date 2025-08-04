@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from domain.entities.order import OrderSide, OrderStatus, OrderType
-from domain.types import TimeInForceType
+from domain.type_definitions import TimeInForceType
 
 __all__ = [
     "create_market_order",

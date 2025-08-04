@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 from domain.prediction.reversal_predictor import PredictionConfig, ReversalPredictor
 from domain.prediction.reversal_signal import ReversalSignal
 from domain.protocols.agent_protocols import AgentContextProtocol
-from domain.types.prediction_types import OrderBookData
+from domain.type_definitions.prediction_types import OrderBookData
 
 # from infrastructure.core.analysis.global_prediction_engine import GlobalPredictionEngine  # Временно закомментировано
 from shared.logging import get_logger

@@ -10,7 +10,7 @@ from loguru import logger
 from domain.entities.market import MarketData
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
-from domain.types import TimestampValue
+from domain.type_definitions import TimestampValue
 from domain.value_objects.currency import Currency
 
 
@@ -88,7 +88,7 @@ class DataProcessor:
                 else:
                     timestamp = idx if isinstance(idx, datetime) else datetime.now()
                 
-                from domain.types import Symbol, MetadataDict
+                from domain.type_definitions import Symbol, MetadataDict
                 from domain.value_objects.currency import Currency
                 from decimal import Decimal
                 

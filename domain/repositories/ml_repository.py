@@ -8,7 +8,7 @@ from uuid import UUID
 
 from domain.entities.ml import Model, ModelType, Prediction
 from domain.protocols.repository_protocol import RepositoryProtocol
-from domain.types import EntityId  # type: ignore[attr-defined]
+from domain.type_definitions import EntityId  # type: ignore[attr-defined]
 
 
 class MLRepository(RepositoryProtocol):

@@ -6,7 +6,7 @@ from typing import List
 from datetime import timedelta
 
 from domain.sessions.interfaces import BaseSessionTransitionManager, SessionRegistry
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionMetrics,
     SessionPhase,
     SessionTransition,

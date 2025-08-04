@@ -20,7 +20,7 @@ logging.basicConfig(
 # Добавление корневой директории в путь
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     EntitySystemConfig,
     OperationMode,
     OptimizationLevel,

@@ -9,7 +9,7 @@ from domain.memory.types import (
     MemoryStatistics,
     SimilarityMetrics,
 )
-from domain.types.pattern_types import PatternType
+from domain.type_definitions.pattern_types import PatternType
 
 
 class IPatternMemoryRepository(Protocol):

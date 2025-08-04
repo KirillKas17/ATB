@@ -23,8 +23,8 @@ from scipy import stats
 
 from domain.intelligence.mirror_detector import MirrorDetector
 from domain.strategy_advisor.mirror_map_builder import MirrorMapBuilder, MirrorMap
-from domain.types import Symbol, TradingPair
-from domain.types.intelligence_types import Timestamp, AnalysisMetadata
+from domain.type_definitions import Symbol, TradingPair
+from domain.type_definitions.intelligence_types import Timestamp, AnalysisMetadata
 from shared.models.example_types import (
     MirrorSignal, 
     TradingSignal, 

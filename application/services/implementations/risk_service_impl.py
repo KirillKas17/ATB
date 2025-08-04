@@ -13,7 +13,7 @@ from application.types import CreateOrderRequest
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import Timestamp
-from domain.types import PortfolioId, EntityId
+from domain.type_definitions import PortfolioId, EntityId
 from domain.entities.risk_metrics import RiskMetrics
 from infrastructure.repositories.risk_repository import RiskRepositoryProtocol as RiskRepository
 from domain.services.risk_analysis import RiskAnalysisService, RiskLimits
@@ -48,7 +48,7 @@ class RiskServiceImpl(BaseApplicationService, RiskService):
 
     async def assess_portfolio_risk(self, portfolio_id: PortfolioId) -> RiskMetrics:
         """Оценка риска портфеля через domain/services/risk_analysis.py."""
-        from domain.types.risk_types import RiskMetrics as DomainRiskMetrics
+        from domain.type_definitions.risk_types import RiskMetrics as DomainRiskMetrics
         cache_key = str(portfolio_id)
         if cache_key in self._risk_cache:
             cached_risk = self._risk_cache[cache_key]

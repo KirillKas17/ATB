@@ -14,7 +14,7 @@ from shared.numpy_utils import np
 
 from domain.exceptions import TechnicalAnalysisError
 from domain.services.technical_analysis import TechnicalAnalysisService
-from domain.types.technical_types import (
+from domain.type_definitions.technical_types import (
     TechnicalIndicatorResult,
     PatternType,
     SignalStrength,
@@ -201,7 +201,7 @@ class TechnicalAnalysisServiceImpl(TechnicalAnalysisService):
         std_dev: Optional[float] = None,
     ) -> 'BollingerBandsResult':
         """Расчёт полос Боллинджера."""
-        from domain.types.technical_types import BollingerBandsResult
+        from domain.type_definitions.technical_types import BollingerBandsResult
         try:
             if not validate_indicator_data(prices, self.config.min_data_points):
                 return BollingerBandsResult(

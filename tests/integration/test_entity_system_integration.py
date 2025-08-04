@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, Any, Generator
 from unittest.mock import Mock, AsyncMock
 
-from domain.types.entity_system_types import (
+from domain.type_definitions.entity_system_types import (
     EntitySystemConfig,
     OperationMode,
     OptimizationLevel,

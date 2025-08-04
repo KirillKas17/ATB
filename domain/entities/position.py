@@ -9,9 +9,9 @@ from enum import Enum
 from typing import Any, Dict, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from domain.types import AmountValue, PortfolioId, PositionId, PriceValue, Symbol
-from domain.types import TradingPair as TradingPairType
-from domain.types import VolumeValue
+from domain.type_definitions import AmountValue, PortfolioId, PositionId, PriceValue, Symbol
+from domain.type_definitions import TradingPair as TradingPairType
+from domain.type_definitions import VolumeValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 from domain.value_objects.price import Price

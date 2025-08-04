@@ -26,7 +26,7 @@ from domain.services.technical_analysis import (
     IndicatorType
 )
 from domain.entities.market import MarketData, TechnicalIndicator
-from domain.types.technical_types import (
+from domain.type_definitions.technical_types import (
     BollingerBandsResult,
     MarketStructure,
     MarketStructureResult,

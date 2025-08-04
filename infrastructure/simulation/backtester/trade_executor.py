@@ -20,7 +20,7 @@ from domain.entities.trading import (
     SignalType,
     Trade,
 )
-from domain.types import TradeId
+from domain.type_definitions import TradeId
 from domain.value_objects import Price as DomainPrice, Volume as DomainVolume
 from domain.value_objects.price import Price
 
@@ -147,7 +147,7 @@ class TradeExecutor:
             if new_position:
                 # Создаем Trade для открытия позиции
                 from domain.value_objects.money import Money
-                from domain.types import MetadataDict, TradeId
+                from domain.type_definitions import MetadataDict, TradeId
                 from domain.value_objects.trading_pair import TradingPair
                 from domain.value_objects.currency import Currency
                 from uuid import uuid4
@@ -250,7 +250,7 @@ class TradeExecutor:
             
             # Создание позиции
             from domain.value_objects.volume import Volume
-            from domain.types import MetadataDict, Symbol
+            from domain.type_definitions import MetadataDict, Symbol
             from domain.value_objects.trading_pair import TradingPair
             
             position = Position(
@@ -324,7 +324,7 @@ class TradeExecutor:
             
             # Создание сделки закрытия
             from domain.value_objects.money import Money
-            from domain.types import MetadataDict, TradeId
+            from domain.type_definitions import MetadataDict, TradeId
             from domain.value_objects.order_id import OrderId
             from domain.value_objects.trading_pair import TradingPair
             from domain.value_objects.currency import Currency

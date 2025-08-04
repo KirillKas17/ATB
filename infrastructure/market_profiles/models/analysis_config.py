@@ -5,7 +5,7 @@
 from dataclasses import dataclass, field
 from typing import Dict
 
-from domain.types.market_maker_types import (
+from domain.type_definitions.market_maker_types import (
     Accuracy,
     BookPressure,
     Confidence,

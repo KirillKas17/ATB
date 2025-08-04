@@ -6,7 +6,7 @@ import pandas as pd
 from loguru import logger
 
 from domain.services.technical_analysis import DefaultTechnicalAnalysisService
-from domain.types.strategy_types import (
+from domain.type_definitions.strategy_types import (
     MarketRegime,
     Signal,
     StrategyAnalysis,
@@ -403,7 +403,7 @@ class TrendStrategy(BaseStrategy):
         Returns:
             dict[str, Any]: Результат анализа
         """
-        from domain.types.strategy_types import (
+        from domain.type_definitions.strategy_types import (
             MarketRegime,
             StrategyAnalysis,
             StrategyMetrics,
@@ -511,7 +511,7 @@ class TrendStrategy(BaseStrategy):
         Returns:
             Optional[Signal]: Торговый сигнал или None
         """
-        from domain.types.strategy_types import Signal as DomainSignal
+        from domain.type_definitions.strategy_types import Signal as DomainSignal
 
         try:
             df = self._calculate_indicators(data.copy())

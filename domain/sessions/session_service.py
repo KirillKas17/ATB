@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Union, Any
 import pandas as pd
 from loguru import logger
 
-from domain.types.session_types import (
+from domain.type_definitions.session_types import (
     SessionAnalysisResult,
     SessionProfile,
     SessionType,

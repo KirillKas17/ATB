@@ -7,7 +7,7 @@ from shared.numpy_utils import np
 
 from loguru import logger
 
-from domain.types.strategy_types import MarketRegime
+from domain.type_definitions.strategy_types import MarketRegime
 
 
 class StrategySelector:

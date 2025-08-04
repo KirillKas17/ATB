@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
-from domain.types import (
+from domain.type_definitions import (
     ATRMetric,
     MACDMetric,
     MarketId,
@@ -23,7 +23,7 @@ from domain.types import (
     VolatilityValue,
     VolumeTrendValue,
 )
-from domain.types.base_types import TimestampValue
+from domain.type_definitions.base_types import TimestampValue
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume

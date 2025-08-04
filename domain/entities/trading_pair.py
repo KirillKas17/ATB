@@ -9,8 +9,8 @@ from decimal import Decimal
 from enum import Enum
 from typing import Dict, Optional, Protocol, runtime_checkable, Any
 
-from domain.types import TradingPair as TradingPairType
-from domain.types import VolumePrecision, Symbol, PricePrecision
+from domain.type_definitions import TradingPair as TradingPairType
+from domain.type_definitions import VolumePrecision, Symbol, PricePrecision
 
 from ..value_objects.currency import Currency
 from ..value_objects.price import Price

@@ -12,7 +12,7 @@ from .backup import EvolutionBackup
 from .migration import EvolutionMigration
 
 if TYPE_CHECKING:
-    from domain.types.evolution_types import (
+    from domain.type_definitions.evolution_types import (
         AccuracyScore,
         ComplexityScore,
         ConsistencyScore,
