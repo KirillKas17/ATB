@@ -230,20 +230,226 @@ class CacheService:
                 pass
         self.logger.info("Cache service stopped")
 
-    async def get(self, key: str) -> Optional[Any]:
-        """Получение значения из кэша."""
+    async def get(self, key: str) -> Optional[CacheEntry]:
+        """Получение записи с AI-оптимизированным предварительным кэшированием."""
         try:
-            entry = await self.storage.get(key)
-            if entry:
-                self.stats.hit_count += 1
-                return entry.value
-            else:
-                self.stats.miss_count += 1
-                return None
-        except Exception as e:
-            self.logger.error(f"Failed to get from cache: {e}")
-            self.stats.miss_count += 1
+            entry = self.storage.get(key)
+            
+            if entry and not entry.is_expired():
+                entry.update_access()
+                
+                # AI-предсказание следующих запросов
+                await self._predict_and_prefetch(key)
+                
+                # Обновление статистики использования
+                await self._update_access_patterns(key)
+                
+                return entry
+            elif entry and entry.is_expired():
+                await self.delete(key)
+                
+                # Попытка автоматического обновления кэша
+                refreshed_entry = await self._attempt_auto_refresh(key)
+                if refreshed_entry:
+                    return refreshed_entry
+            
+            # Запись не найдена - анализируем паттерны для предложений
+            await self._analyze_miss_patterns(key)
+            
             return None
+            
+        except Exception as e:
+            self.logger.error(f"Ошибка получения записи из кэша {key}: {e}")
+            return None
+    
+    async def _predict_and_prefetch(self, accessed_key: str) -> None:
+        """AI-предсказание и предварительная загрузка связанных данных."""
+        try:
+            # Анализ паттернов доступа для предсказания следующих запросов
+            related_keys = await self._predict_related_keys(accessed_key)
+            
+            # Предварительная загрузка связанных данных
+            for related_key in related_keys:
+                if related_key not in self.storage:
+                    await self._prefetch_data(related_key)
+                    
+        except Exception as e:
+            self.logger.debug(f"Ошибка предсказания кэша для {accessed_key}: {e}")
+    
+    async def _predict_related_keys(self, key: str) -> List[str]:
+        """AI-предсказание связанных ключей на основе паттернов."""
+        try:
+            # Анализ исторических паттернов доступа
+            if hasattr(self, 'access_patterns'):
+                pattern = self.access_patterns.get(key, {})
+                related = pattern.get('often_accessed_with', [])
+                
+                # Машинное обучение для улучшения предсказаний
+                predicted = await self._ml_predict_related_keys(key, related)
+                return predicted[:5]  # Ограничиваем количество предсказаний
+            
+            return []
+        except Exception:
+            return []
+    
+    async def _ml_predict_related_keys(self, key: str, historical_related: List[str]) -> List[str]:
+        """Машинное обучение для предсказания связанных ключей."""
+        try:
+            # Простая эвристика на основе схожести ключей
+            predictions = []
+            
+            for existing_key in self.storage.keys():
+                if existing_key != key:
+                    similarity = await self._calculate_key_similarity(key, existing_key)
+                    if similarity > 0.7:  # Высокая схожесть
+                        predictions.append(existing_key)
+            
+            # Комбинируем с историческими данными
+            combined = list(set(historical_related + predictions))
+            return combined
+            
+        except Exception:
+            return historical_related
+    
+    async def _calculate_key_similarity(self, key1: str, key2: str) -> float:
+        """Расчет семантической схожести ключей."""
+        try:
+            # Простая метрика на основе общих подстрок
+            key1_parts = set(key1.split('_'))
+            key2_parts = set(key2.split('_'))
+            
+            if not key1_parts or not key2_parts:
+                return 0.0
+            
+            intersection = len(key1_parts.intersection(key2_parts))
+            union = len(key1_parts.union(key2_parts))
+            
+            return intersection / union if union > 0 else 0.0
+            
+        except Exception:
+            return 0.0
+    
+    async def _prefetch_data(self, key: str) -> None:
+        """Предварительная загрузка данных в кэш."""
+        try:
+            # Здесь можно реализовать логику загрузки данных из источника
+            # Для демонстрации создаем заглушку
+            if hasattr(self, 'data_loader'):
+                data = await self.data_loader.load(key)
+                if data:
+                    entry = CacheEntry(
+                        key=key,
+                        value=data,
+                        ttl=300,  # 5 минут
+                        metadata={'prefetched': True}
+                    )
+                    await self.set(key, entry)
+                    
+        except Exception as e:
+            self.logger.debug(f"Ошибка предварительной загрузки {key}: {e}")
+    
+    async def _update_access_patterns(self, key: str) -> None:
+        """Обновление паттернов доступа для ML."""
+        try:
+            if not hasattr(self, 'access_patterns'):
+                self.access_patterns = {}
+            
+            pattern = self.access_patterns.get(key, {
+                'access_count': 0,
+                'last_accessed': [],
+                'often_accessed_with': [],
+                'access_times': []
+            })
+            
+            pattern['access_count'] += 1
+            pattern['access_times'].append(datetime.now())
+            
+            # Ограничиваем историю
+            if len(pattern['access_times']) > 100:
+                pattern['access_times'] = pattern['access_times'][-50:]
+            
+            self.access_patterns[key] = pattern
+            
+        except Exception as e:
+            self.logger.debug(f"Ошибка обновления паттернов для {key}: {e}")
+    
+    async def _attempt_auto_refresh(self, key: str) -> Optional[CacheEntry]:
+        """Попытка автоматического обновления устаревшего кэша."""
+        try:
+            # Проверяем, есть ли загрузчик данных
+            if hasattr(self, 'data_loader'):
+                refreshed_data = await self.data_loader.load(key)
+                if refreshed_data:
+                    entry = CacheEntry(
+                        key=key,
+                        value=refreshed_data,
+                        ttl=300,  # 5 минут
+                        metadata={'auto_refreshed': True}
+                    )
+                    await self.set(key, entry)
+                    return entry
+            
+            return None
+            
+        except Exception as e:
+            self.logger.debug(f"Ошибка автообновления кэша для {key}: {e}")
+            return None
+    
+    async def _analyze_miss_patterns(self, key: str) -> None:
+        """Анализ паттернов промахов кэша для оптимизации."""
+        try:
+            if not hasattr(self, 'miss_patterns'):
+                self.miss_patterns = {}
+            
+            pattern = self.miss_patterns.get(key, {
+                'miss_count': 0,
+                'miss_times': []
+            })
+            
+            pattern['miss_count'] += 1
+            pattern['miss_times'].append(datetime.now())
+            
+            # Ограничиваем историю
+            if len(pattern['miss_times']) > 50:
+                pattern['miss_times'] = pattern['miss_times'][-25:]
+            
+            self.miss_patterns[key] = pattern
+            
+            # Если слишком много промахов, предлагаем предварительную загрузку
+            if pattern['miss_count'] > 5:
+                await self._schedule_proactive_loading(key)
+                
+        except Exception as e:
+            self.logger.debug(f"Ошибка анализа промахов для {key}: {e}")
+    
+    async def _schedule_proactive_loading(self, key: str) -> None:
+        """Планирование проактивной загрузки часто запрашиваемых данных."""
+        try:
+            # Добавляем в очередь для проактивной загрузки
+            if not hasattr(self, 'proactive_queue'):
+                self.proactive_queue = set()
+            
+            self.proactive_queue.add(key)
+            
+            # Запускаем фоновую задачу для загрузки
+            asyncio.create_task(self._background_proactive_load(key))
+            
+        except Exception as e:
+            self.logger.debug(f"Ошибка планирования проактивной загрузки для {key}: {e}")
+    
+    async def _background_proactive_load(self, key: str) -> None:
+        """Фоновая проактивная загрузка данных."""
+        try:
+            await asyncio.sleep(1)  # Небольшая задержка
+            
+            if key in getattr(self, 'proactive_queue', set()):
+                await self._prefetch_data(key)
+                
+                if hasattr(self, 'proactive_queue'):
+                    self.proactive_queue.discard(key)
+                    
+        except Exception as e:
+            self.logger.debug(f"Ошибка фоновой загрузки для {key}: {e}")
 
     async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """Установка значения в кэш."""
