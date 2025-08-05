@@ -37,7 +37,9 @@ from domain.value_objects.timestamp import Timestamp
 # ============================================================================
 # FIXTURES
 # ============================================================================
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_order() -> Order:
     """Фикстура для тестового ордера."""
     return Order(
@@ -49,7 +51,9 @@ def sample_order() -> Order:
         price=Price(Decimal("50000"), Currency.USD),
         status=OrderStatus.PENDING
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_signal() -> Signal:
     """Фикстура для тестового сигнала."""
     return Signal(
@@ -62,7 +66,9 @@ def sample_signal() -> Signal:
         price=Money(Decimal("50000"), Currency.USD),
         quantity=Decimal("0.001")
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_model() -> Model:
     """Фикстура для тестовой модели."""
     return Model(
@@ -75,7 +81,9 @@ def sample_model() -> Model:
         features=["price", "volume"],
         target="next_price"
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_market_data() -> List[MarketData]:
     """Фикстура для тестовых рыночных данных."""
     return [
@@ -373,23 +381,31 @@ class TestMLProtocol:
 # ============================================================================
 class TestProtocolUtils:
     """Тесты для утилит протоколов."""
-    def test_validate_symbol_valid(self: "TestProtocolUtils") -> None:
+
+
+def test_validate_symbol_valid(self: "TestProtocolUtils") -> None:
         """Тест валидации корректного символа."""
         symbol_str = "BTCUSDT"
         symbol = validate_symbol(symbol_str)
         # Проверяем, что это Symbol, но не используем isinstance с NewType
         assert str(symbol) == symbol_str
-    def test_validate_symbol_invalid(self: "TestProtocolUtils") -> None:
+
+
+def test_validate_symbol_invalid(self: "TestProtocolUtils") -> None:
         """Тест валидации некорректного символа."""
         with pytest.raises(ValidationError):
             validate_symbol("")  # Пустой символ
         with pytest.raises(ValidationError):
             validate_symbol("A" * 25)  # Слишком длинный символ
-    def test_validate_symbol_wrong_type(self: "TestProtocolUtils") -> None:
+
+
+def test_validate_symbol_wrong_type(self: "TestProtocolUtils") -> None:
         """Тест валидации символа неправильного типа."""
         with pytest.raises(ValidationError):
             validate_symbol(123)  # Не строка
-    def test_protocol_cache(self: "TestProtocolUtils") -> None:
+
+
+def test_protocol_cache(self: "TestProtocolUtils") -> None:
         """Тест кэша протоколов."""
         cache = ProtocolCache(ttl_seconds=1)
         # Установка значения
@@ -402,7 +418,9 @@ class TestProtocolUtils:
         time.sleep(1.1)
         expired_value = cache.get("test_key")
         assert expired_value is None
-    def test_protocol_metrics(self: "TestProtocolUtils") -> None:
+
+
+def test_protocol_metrics(self: "TestProtocolUtils") -> None:
         """Тест метрик протоколов."""
         metrics = ProtocolMetrics()
         # Запись метрик

@@ -11,7 +11,9 @@ from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
-    def test_order_creation() -> None:
+
+
+def test_order_creation() -> None:
     order = Order(
         id=uuid4(),
         strategy_id=uuid4(),
@@ -37,7 +39,9 @@ from domain.value_objects.volume import Volume
     assert order.order_type == OrderType.LIMIT
     assert order.status == OrderStatus.OPEN
     assert order.quantity == Decimal("1.0")
-    def test_trade_creation() -> None:
+
+
+def test_trade_creation() -> None:
     trade = Trade(
         id="trade_001",
         symbol="BTC/USDT",
@@ -55,7 +59,9 @@ from domain.value_objects.volume import Volume
     assert trade.price.value == Decimal("50000")
     assert trade.volume.value == Decimal("1.0")
     assert trade.fee.value == Decimal("25")
-    def test_position_creation() -> None:
+
+
+def test_position_creation() -> None:
     pair = TradingPair(symbol="BTC/USDT", base_currency=Currency.BTC, quote_currency=Currency.USDT)
     position = Position(
         id="pos_001",
@@ -82,7 +88,9 @@ from domain.value_objects.volume import Volume
     assert position.volume.value == Decimal("0.5")
     assert position.entry_price.value == Decimal("50000")
     assert position.current_price.value == Decimal("51000")
-    def test_order_status_transitions() -> None:
+
+
+def test_order_status_transitions() -> None:
     order = Order(
         id=uuid4(),
         strategy_id=uuid4(),
@@ -107,7 +115,9 @@ from domain.value_objects.volume import Volume
     assert order.status == OrderStatus.FILLED
     order.status = OrderStatus.CANCELLED
     assert order.status == OrderStatus.CANCELLED
-    def test_trade_metadata() -> None:
+
+
+def test_trade_metadata() -> None:
     trade = Trade(
         id="trade_002",
         symbol="BTC/USDT",
@@ -120,7 +130,9 @@ from domain.value_objects.volume import Volume
         metadata={"note": "test"}
     )
     assert trade.metadata["note"] == "test"
-    def test_position_pnl() -> None:
+
+
+def test_position_pnl() -> None:
     pair = TradingPair(symbol="BTC/USDT", base_currency=Currency.BTC, quote_currency=Currency.USDT)
     position = Position(
         id="pos_002",

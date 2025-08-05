@@ -6,7 +6,9 @@ import functools
 import logging
 import time
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Optional, Generator
+from typing import Any, Callable, Dict, Optional, Generator, TypeVar
+
+F = TypeVar('F', bound=Callable[..., Any])
 
 try:
     from opentelemetry import trace
@@ -96,10 +98,10 @@ def trace_function(
     name: Optional[str] = None,
     attributes: Optional[Dict[str, Any]] = None,
     record_exceptions: bool = True,
-) -> Callable[[Callable], Callable]:
+) -> Callable[[F], F]:
     """Decorator to trace function execution."""
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: F) -> F:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             tracer = get_tracer()
@@ -138,10 +140,10 @@ def trace_async_function(
     name: Optional[str] = None,
     attributes: Optional[Dict[str, Any]] = None,
     record_exceptions: bool = True,
-) -> Callable[[Callable], Callable]:
+) -> Callable[[F], F]:
     """Decorator to trace async function execution."""
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: F) -> F:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             tracer = get_tracer()

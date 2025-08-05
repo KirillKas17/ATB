@@ -33,7 +33,7 @@ def serialize_snapshot(data: Dict[str, Any], format_type: str) -> bytes:
 
 def deserialize_snapshot(data: bytes, format_type: str) -> Dict[str, Any]:
     """Deserialize snapshot."""
-    result = json.loads(data.decode("utf-8"))
+    result: Any = json.loads(data.decode("utf-8"))
     if isinstance(result, dict):
         return result
     else:
