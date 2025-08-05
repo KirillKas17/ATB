@@ -724,7 +724,7 @@ class PatternDiscovery:
                 distances = distances / std_mean
             # Расчет оценки
             score = np.exp(-distances).mean()
-            return score
+            return float(score)
         except Exception as e:
             logger.error(f"Error evaluating cluster: {str(e)}")
             return 0.0
@@ -813,21 +813,20 @@ class PatternDiscovery:
                     except Exception as e:
                         logger.warning(f"Error calculating spearman correlation for {col}: {e}")
                         spearman_scores[col] = 0.0
-                importance_scores["spearman"] = spearman_scores
+                # Добавляем spearman scores напрямую в importance_scores
+                importance_scores.update(spearman_scores)
             if method in ["mutual_info", "all"]:
                 # Mutual Information
                 mi_scores = mutual_info_regression(features, target)
-                importance_scores["mutual_info"] = dict(
-                    zip(features.columns, mi_scores)
-                )
+                # Добавляем mutual info scores напрямую
+                importance_scores.update(dict(zip(features.columns, mi_scores)))
             if method in ["permutation", "all"]:
                 # Permutation Importance
                 base_model = self._get_base_model()
                 base_model.fit(features, target)
                 perm_importance = permutation_importance(base_model, features, target)
-                importance_scores["permutation"] = dict(
-                    zip(features.columns, perm_importance.importances_mean)
-                )
+                # Добавляем permutation scores напрямую
+                importance_scores.update(dict(zip(features.columns, perm_importance.importances_mean)))
             # Cache results
             self.importance_cache[symbol] = importance_scores
             return importance_scores

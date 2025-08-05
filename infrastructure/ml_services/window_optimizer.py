@@ -231,11 +231,11 @@ class WindowSizeOptimizer:
                 model.fit(X_train, y_train)
                 score = model.score(X_val, y_val)
                 scores.append(score)
-            return np.mean(scores)
+            return float(np.mean(scores))
 
         study = optuna.create_study(direction="maximize")
         study.optimize(objective, n_trials=self.config.n_trials)
-        return study.best_params
+        return dict(study.best_params)
 
     def fit(self, X: DataFrame, y: Series) -> None:
         """Обучение моделей"""

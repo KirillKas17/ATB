@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import optuna
 import pandas as pd
+from pandas import DataFrame, Series
 from shared.numpy_utils import np
 
 try:
@@ -46,9 +47,7 @@ else:
     CosineAnnealingWarmRestarts = None
     DataLoader = None
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+# Type aliases imported above
 
 warnings.filterwarnings("ignore")
 
@@ -165,7 +164,7 @@ class MultiHeadAttention(nn.Module):
         context = (
             context.transpose(1, 2).contiguous().view(batch_size, seq_len, self.d_model)
         )
-        return self.w_o(context)  # type: ignore[no-any-return]
+        return self.w_o(context)
 
 
 class GraphConvolutionalLayer(nn.Module):
@@ -189,7 +188,7 @@ class GraphConvolutionalLayer(nn.Module):
         support = torch.matmul(x, self.weight)
         output = torch.matmul(adj, support)
         output = output + self.bias
-        return F.relu(self.dropout(output))  # type: ignore[no-any-return]
+        return F.relu(self.dropout(output))
 
 
 class GraphNeuralNetwork(nn.Module):
@@ -214,7 +213,7 @@ class GraphNeuralNetwork(nn.Module):
     def forward(self, x: Tensor, adj: Tensor) -> Tensor:
         for layer in self.layers:
             x = layer(x, adj)
-        return self.norm(x)  # type: ignore[no-any-return]
+        return self.norm(x)
 
 
 class TemporalFusionTransformer(nn.Module):
@@ -252,7 +251,7 @@ class TemporalFusionTransformer(nn.Module):
         # Attention
         attended = self.attention(lstm_out, mask)
         # Выходной слой
-        output = self.output_layer(attended[:, -1, :])  # type: ignore[no-any-return]
+        output = self.output_layer(attended[:, -1, :])
         return output
 
 
@@ -271,7 +270,7 @@ class NeuralODE(nn.Module):
 
     def forward(self, t: Tensor, x: Tensor) -> Tensor:
         tx = torch.cat([t.unsqueeze(-1), x], dim=-1)
-        return self.net(tx)  # type: ignore[no-any-return]
+        return self.net(tx)
 
 
 class AdvancedTransformer(nn.Module):
@@ -353,7 +352,7 @@ class AdvancedTransformer(nn.Module):
             [transformer_out[:, -1, :], gnn_out[:, -1, :], ode_out[:, -1, :]], dim=-1
         )
         # Выходной слой
-        output = self.output_projection(combined)  # type: ignore[no-any-return]
+        output = self.output_projection(combined)
         return output
 
 
@@ -383,7 +382,7 @@ class MetaLearner(nn.Module):
         adapted = x
         for layer in self.fast_adaptation:
             adapted = layer(adapted + task_params)
-        return adapted  # type: ignore[no-any-return]
+        return adapted
 
 
 class AdvancedPricePredictor:
@@ -446,9 +445,9 @@ class AdvancedPricePredictor:
                 elif hasattr(dt_index.hour, 'values'):
                     features["hour"] = dt_index.hour.values
                 else:
-                    features["hour"] = [x.hour for x in dt_index]  # type: ignore[attr-defined]
+                    features["hour"] = [x.hour for x in dt_index]
             else:
-                features["hour"] = [x.hour for x in dt_index]  # type: ignore[attr-defined]
+                features["hour"] = [x.hour for x in dt_index]
             
             if hasattr(dt_index, 'dayofweek'):
                 # Исправление: безопасное получение значений из DatetimeIndex
@@ -457,9 +456,9 @@ class AdvancedPricePredictor:
                 elif hasattr(dt_index.dayofweek, 'values'):
                     features["day_of_week"] = dt_index.dayofweek.values
                 else:
-                    features["day_of_week"] = [x.dayofweek for x in dt_index]  # type: ignore[attr-defined]
+                    features["day_of_week"] = [x.dayofweek for x in dt_index]
             else:
-                features["day_of_week"] = [x.dayofweek for x in dt_index]  # type: ignore[attr-defined]
+                features["day_of_week"] = [x.dayofweek for x in dt_index]
             
             if hasattr(dt_index, 'month'):
                 # Исправление: безопасное получение значений из DatetimeIndex
@@ -468,21 +467,21 @@ class AdvancedPricePredictor:
                 elif hasattr(dt_index.month, 'values'):
                     features["month"] = dt_index.month.values
                 else:
-                    features["month"] = [x.month for x in dt_index]  # type: ignore[attr-defined]
+                    features["month"] = [x.month for x in dt_index]
             else:
-                features["month"] = [x.month for x in dt_index]  # type: ignore[attr-defined]
+                features["month"] = [x.month for x in dt_index]
         else:
             # Исправление: проверяем итерируемость перед итерацией
             if hasattr(dt_index, '__iter__') and not isinstance(dt_index, pd.Timestamp):
-                features["hour"] = [x.hour for x in dt_index]  # type: ignore[attr-defined]
-                features["day_of_week"] = [x.dayofweek for x in dt_index]  # type: ignore[attr-defined]
-                features["month"] = [x.month for x in dt_index]  # type: ignore[attr-defined]
+                features["hour"] = [x.hour for x in dt_index]
+                features["day_of_week"] = [x.dayofweek for x in dt_index]
+                features["month"] = [x.month for x in dt_index]
             else:
                 # Одиночный Timestamp
                 if isinstance(dt_index, pd.Timestamp):
-                    features["hour"] = [dt_index.hour]  # type: ignore[attr-defined]
-                    features["day_of_week"] = [dt_index.dayofweek]  # type: ignore[attr-defined]
-                    features["month"] = [dt_index.month]  # type: ignore[attr-defined]
+                    features["hour"] = [dt_index.hour]
+                    features["day_of_week"] = [dt_index.dayofweek]
+                    features["month"] = [dt_index.month]
                 else:
                     # Fallback для других типов
                     features["hour"] = [0]
@@ -674,7 +673,7 @@ class AdvancedPricePredictor:
         ensemble_confidence = float(np.mean(confidences))
         # Обратная нормализация
         ensemble_pred = self.target_scaler.inverse_transform(ensemble_pred)
-        return ensemble_pred[0], ensemble_confidence  # type: ignore[no-any-return]
+        return ensemble_pred[0], ensemble_confidence
 
     def _calculate_confidence(self, prediction: torch.Tensor) -> float:
         """Расчет уверенности в предсказании"""
