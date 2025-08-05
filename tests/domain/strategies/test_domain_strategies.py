@@ -81,11 +81,11 @@ def test_strategy_interface_methods(self) -> None:
         )
         # Тест получения параметров
         params = strategy.get_parameters()
-    self.assertIsInstance(params, dict)
-    self.assertIn("confidence_threshold", params)
+        self.assertIsInstance(params, dict)
+        self.assertIn("confidence_threshold", params)
         # Тест получения производительности
         performance = strategy.get_performance()
-    self.assertIsInstance(performance, dict)
+        self.assertIsInstance(performance, dict)
         # Тест получения статуса
         status = strategy.get_status()
     self.assertIsInstance(status, StrategyStatus)

@@ -144,7 +144,7 @@ class StrategyValidator:
         return errors
 
     @staticmethod
-    def validate_parameters(parameters: Dict[str, Any]) -> List[str]:
+    def validate_parameters(parameters: Dict[str, Any], strategy_type: Optional[str] = None) -> List[str]:
         """
         Валидировать параметры стратегии.
         Args:
@@ -347,6 +347,29 @@ class StrategyValidator:
                 elif not isinstance(value, (str, int, float, bool, list, dict)):
                     errors.append("Metadata values must be basic types")
             return errors  # Енумы всегда валидны
+
+    @staticmethod
+    def validate_trading_pairs(trading_pairs: List[str]) -> List[str]:
+        """
+        Валидировать торговые пары.
+        Args:
+            trading_pairs: Список торговых пар
+        Returns:
+            List[str]: Список ошибок валидации
+        """
+        errors = []
+        if not trading_pairs:
+            errors.append("Trading pairs list cannot be empty")
+        
+        for pair in trading_pairs:
+            if not isinstance(pair, str):
+                errors.append(f"Trading pair must be string: {pair}")
+                continue
+            
+            if not re.match(r'^[A-Z]{3,10}/[A-Z]{3,10}$', pair):
+                errors.append(f"Invalid trading pair format: {pair}")
+        
+        return errors
 
 
 class ParameterValidator:

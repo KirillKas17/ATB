@@ -44,6 +44,25 @@ class SignalDirection(Enum):
     BEARISH = "bearish"
 
 
+class PatternComplexity(Enum):
+    """Уровни сложности паттернов."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    EXTREME = "extreme"
+
+
+class QuantumState(Enum):
+    """Квантовые состояния для паттерн-анализа."""
+
+    SUPERPOSITION = "superposition"
+    ENTANGLED = "entangled"
+    COHERENT = "coherent"
+    DECOHERENT = "decoherent"
+    COLLAPSED = "collapsed"
+
+
 class CorrelationMethod(Enum):
     """Методы корреляции."""
 
