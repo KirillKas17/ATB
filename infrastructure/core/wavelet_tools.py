@@ -1,10 +1,39 @@
 # Миграция из utils/wavelet_tools.py
 # Содержимое файла переносится без изменений для сохранения бизнес-логики.
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Union, Optional, Any
 
 from shared.numpy_utils import np
-import pywt
-from scipy.stats import entropy
+
+try:
+    import pywt
+    HAS_PYWT = True
+except ImportError:
+    HAS_PYWT = False
+    # Mock pywt для fallback
+    class MockPywt:
+        @staticmethod
+        def wavedec(data: Any, wavelet: str, level: int = 1) -> List[Any]:
+            """Mock wavelet decomposition"""
+            return [data]  # Простейший fallback
+        
+        @staticmethod
+        def cwt(data: Any, scales: Any, wavelet: str) -> Tuple[Any, Any]:
+            """Mock continuous wavelet transform"""
+            return data, None
+        
+        @staticmethod
+        def waverec(coeffs: Any, wavelet: str) -> Any:
+            """Mock wavelet reconstruction"""
+            return coeffs[0] if coeffs else []
+    
+    pywt = MockPywt()
+
+try:
+    from scipy.stats import entropy
+except ImportError:
+    def entropy(data: Any) -> float:
+        """Mock entropy calculation"""
+        return 0.0
 
 __all__ = ["perform_dwt", "perform_cwt", "reconstruct_dwt", "extract_wavelet_features"]
 

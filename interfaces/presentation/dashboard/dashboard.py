@@ -1,9 +1,12 @@
-class Dashboard:
-    def __init__(self):
-        self.data = {}
+from typing import Any, Dict
 
-    def update_data(self, new_data):
+
+class Dashboard:
+    def __init__(self) -> None:
+        self.data: Dict[str, Any] = {}
+
+    def update_data(self, new_data: Dict[str, Any]) -> None:
         self.data.update(new_data)
 
-    def get_data(self):
+    def get_data(self) -> Dict[str, Any]:
         return self.data

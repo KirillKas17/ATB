@@ -11,9 +11,9 @@ from typing import Any, Callable, Dict, Optional
 from shared.abstractions.base_service import BaseService
 
 try:
-    import psutil
+    import psutil  # type: ignore[import-untyped]
 except ImportError:
-    psutil = None
+    psutil = None  # type: ignore[assignment]
 
 
 @dataclass
@@ -105,7 +105,7 @@ class BaseApplicationService(BaseService, ABC):
         self.logger.info(f"Metrics reset for service {self.service_name}")
 
     async def _execute_with_metrics(
-        self, operation_name: str, operation: Callable, *args, **kwargs
+        self, operation_name: str, operation: Callable[..., Any], *args: Any, **kwargs: Any
     ) -> Any:
         """Выполнение операции с метриками."""
         start_time = datetime.now()

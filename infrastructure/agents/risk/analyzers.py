@@ -121,8 +121,8 @@ class DefaultRiskCalculator(IRiskCalculator):
                 return 0.0
             # Используем исторический VaR
             var_percentile = (1 - confidence_level) * 100
-            var = np.percentile(returns, var_percentile)
-            return float(abs(var))
+            var_value = np.percentile(returns, var_percentile)
+            return float(abs(var_value))
         except Exception:
             return 0.0
 
@@ -136,8 +136,9 @@ class DefaultRiskCalculator(IRiskCalculator):
             # Расчет просадки
             drawdown = (equity_curve - peak) / peak
             # Максимальная просадка
-            max_dd = abs(np.min(drawdown))
-            return float(max_dd)
+            min_drawdown = np.min(drawdown)
+            max_dd = abs(float(min_drawdown))
+            return max_dd
         except Exception:
             return 0.0
 
@@ -183,12 +184,14 @@ class RiskMetricsCalculator:
             excess_returns = (
                 returns - risk_free_rate / 252
             )  # Дневная безрисковая ставка
+            excess_mean = float(np.mean(excess_returns))
+            excess_std = float(np.std(excess_returns))
             sharpe = (
-                np.mean(excess_returns) / np.std(excess_returns)
-                if np.std(excess_returns) > 0
+                excess_mean / excess_std
+                if excess_std > 0
                 else 0.0
             )
-            return float(sharpe * np.sqrt(252))  # Годовой коэффициент Шарпа
+            return float(sharpe * float(np.sqrt(252)))  # Годовой коэффициент Шарпа
         except Exception:
             return 0.0
 
@@ -203,13 +206,14 @@ class RiskMetricsCalculator:
             downside_returns = excess_returns[excess_returns < 0]
             if len(downside_returns) == 0:
                 return 0.0
-            downside_deviation = np.std(downside_returns)
+            downside_deviation = float(np.std(downside_returns))
+            excess_mean = float(np.mean(excess_returns))
             sortino = (
-                np.mean(excess_returns) / downside_deviation
+                excess_mean / downside_deviation
                 if downside_deviation > 0
                 else 0.0
             )
-            return float(sortino * np.sqrt(252))
+            return float(sortino * float(np.sqrt(252)))
         except Exception:
             return 0.0
 
@@ -218,7 +222,7 @@ class RiskMetricsCalculator:
         try:
             if len(returns) == 0 or max_dd == 0:
                 return 0.0
-            annual_return = np.mean(returns) * 252
+            annual_return = float(np.mean(returns)) * 252
             calmar = annual_return / max_dd
             return float(calmar)
         except Exception:

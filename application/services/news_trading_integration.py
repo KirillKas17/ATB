@@ -139,7 +139,7 @@ class NewsTradingIntegration(BaseModel):
             + social_sentiment * self.sentiment_weights["social"]
             + technical_sentiment * self.sentiment_weights["technical"]
         )
-        return np.clip(combined, -1.0, 1.0)
+        return float(np.clip(combined, -1.0, 1.0))
 
     def _determine_signal_direction(self, sentiment: float) -> str:
         """Определяет направление сигнала на основе сентимента."""
@@ -170,7 +170,7 @@ class NewsTradingIntegration(BaseModel):
         ):
             agreement_boost = 0.2
         strength = base_strength + volatility_boost + agreement_boost
-        return np.clip(strength, 0.0, 1.0)
+        return float(np.clip(strength, 0.0, 1.0))
 
     def _calculate_confidence(
         self,
@@ -190,7 +190,7 @@ class NewsTradingIntegration(BaseModel):
                 1.0 - abs(news_data.sentiment_score - social_data.sentiment_score) / 2
             )
             confidence = (confidence + sentiment_agreement) / 2
-        return np.clip(confidence, 0.0, 1.0)
+        return float(np.clip(confidence, 0.0, 1.0))
 
     def _calculate_adjustments(
         self, fear_greed_index: float, sentiment: float, volatility: float
@@ -207,7 +207,7 @@ class NewsTradingIntegration(BaseModel):
         sentiment_boost = abs(sentiment) * 0.3
         volatility_penalty = volatility * 0.2
         position_multiplier = 1.0 + sentiment_boost - volatility_penalty
-        return risk_multiplier, np.clip(position_multiplier, 0.5, 2.0)
+        return risk_multiplier, float(np.clip(position_multiplier, 0.5, 2.0))
 
     def _extract_trending_topics(
         self, news_data: NewsSentimentData, social_data: Optional[SocialSentimentResult]
