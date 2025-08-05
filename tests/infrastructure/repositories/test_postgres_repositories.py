@@ -34,7 +34,7 @@ class TestPostgresOrderRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_order(self) -> Any:
+    def sample_order(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample order."""
         return Order(
             id=uuid4(),
@@ -158,7 +158,7 @@ class TestPostgresPositionRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_position(self) -> Any:
+    def sample_position(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample position."""
         return Position(
             id=uuid4(),
@@ -209,7 +209,7 @@ class TestPostgresMarketRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample market data."""
         return MarketData(
             id=uuid4(),
@@ -254,7 +254,7 @@ class TestPostgresStrategyRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_strategy(self) -> Any:
+    def sample_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample strategy."""
         return Strategy(
             id=uuid4(),
@@ -301,7 +301,7 @@ class TestPostgresPortfolioRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_portfolio(self) -> Any:
+    def sample_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample portfolio."""
         return Portfolio(
             id=uuid4(),
@@ -348,7 +348,7 @@ class TestPostgresRiskRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_risk_profile(self) -> Any:
+    def sample_risk_profile(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample risk profile."""
         return RiskProfile(
             id=uuid4(),
@@ -399,7 +399,7 @@ class TestPostgresMLRepository:
         repo._pool = AsyncMock()
         return repo
     @pytest.fixture
-    def sample_model(self) -> Any:
+    def sample_model(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample ML model."""
         return Model(
             id=uuid4(),
@@ -449,18 +449,18 @@ class TestPostgresMLRepository:
 class TestRepositoryIntegration:
     """Integration tests for repositories."""
     @pytest.mark.integration
-    async def test_repository_transactions(self) -> None:
+    def test_repository_transactions(self: "TestRepositoryIntegration") -> None:
         """Test repository transactions."""
         # This would require a real database connection
         # For now, we'll test the transaction interface
         pass
     @pytest.mark.integration
-    async def test_repository_cache_integration(self) -> None:
+    def test_repository_cache_integration(self: "TestRepositoryIntegration") -> None:
         """Test repository cache integration."""
         # This would test the interaction between repositories and cache
         pass
     @pytest.mark.integration
-    async def test_repository_metrics_integration(self) -> None:
+    def test_repository_metrics_integration(self: "TestRepositoryIntegration") -> None:
         """Test repository metrics integration."""
         # This would test the metrics collection
         pass
@@ -468,32 +468,32 @@ class TestRepositoryIntegration:
 class TestRepositoryPerformance:
     """Performance tests for repositories."""
     @pytest.mark.performance
-    async def test_bulk_operations_performance(self) -> None:
+    def test_bulk_operations_performance(self: "TestRepositoryPerformance") -> None:
         """Test bulk operations performance."""
         # This would measure the performance of bulk operations
         pass
     @pytest.mark.performance
-    async def test_cache_performance(self) -> None:
+    def test_cache_performance(self: "TestRepositoryPerformance") -> None:
         """Test cache performance."""
         # This would measure cache hit/miss rates
         pass
     @pytest.mark.performance
-    async def test_connection_pool_performance(self) -> None:
+    def test_connection_pool_performance(self: "TestRepositoryPerformance") -> None:
         """Test connection pool performance."""
         # This would measure connection pool efficiency
         pass
 # Edge cases and error handling
 class TestRepositoryEdgeCases:
     """Edge cases and error handling tests."""
-    async def test_connection_timeout(self) -> None:
+    def test_connection_timeout(self: "TestRepositoryEdgeCases") -> None:
         """Test connection timeout handling."""
         pass
-    async def test_database_unavailable(self) -> None:
+    def test_database_unavailable(self: "TestRepositoryEdgeCases") -> None:
         """Test database unavailable handling."""
         pass
-    async def test_invalid_data_handling(self) -> None:
+    def test_invalid_data_handling(self: "TestRepositoryEdgeCases") -> None:
         """Test invalid data handling."""
         pass
-    async def test_concurrent_access(self) -> None:
+    def test_concurrent_access(self: "TestRepositoryEdgeCases") -> None:
         """Test concurrent access handling."""
         pass 

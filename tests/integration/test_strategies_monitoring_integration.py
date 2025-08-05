@@ -16,16 +16,16 @@ from domain.entities.market import MarketData, OrderBook, Trade
 class TestStrategyMonitoringIntegration:
     """Интеграционные тесты для мониторинга стратегий."""
     @pytest.fixture
-    def factory(self) -> Any:
+    def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_factory()
     @pytest.fixture
-    def registry(self) -> Any:
+    def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_registry()
     @pytest.fixture
-    def validator(self) -> Any:
+    def validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_validator()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает тестовые рыночные данные."""
         return MarketData(
             symbol="BTC/USDT",

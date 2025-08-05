@@ -11,11 +11,11 @@ from shared.numpy_utils import np
 class TestMLPredictor:
     """Тесты для сервиса ML предсказаний."""
     @pytest.fixture
-    def ml_predictor(self) -> Any:
+    def ml_predictor(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса ML предсказаний."""
         return MLPredictor()
     @pytest.fixture
-    def sample_training_data(self) -> Any:
+    def sample_training_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными данными для обучения."""
         dates = pd.date_range('2024-01-01', periods=1000, freq='1H')
         np.random.seed(42)
@@ -37,7 +37,7 @@ class TestMLPredictor:
             'target': np.random.choice([0, 1], 1000, p=[0.7, 0.3])  # Бинарная цель
         }, index=dates)
     @pytest.fixture
-    def sample_prediction_data(self) -> Any:
+    def sample_prediction_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с данными для предсказания."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)
@@ -385,7 +385,7 @@ class TestMLPredictor:
             result = results.get()
             # assert isinstance(result, PredictionResult)  # TypedDict не поддерживает isinstance
             assert "predictions" in result
-    def test_ml_predictor_config_customization(self) -> None:
+    def test_ml_predictor_config_customization(self: "TestMLPredictor") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "model_type": "random_forest",
@@ -435,57 +435,57 @@ class TestMLPredictor:
         assert extended_performance >= 0.0
         assert base_performance >= 0.0 
 
-def test_prediction_validation(self) -> None:
-    """Тест валидации предсказаний."""
-    predictor = MLPredictor()
-    
-    # Создаем валидное предсказание
-    valid_prediction = {
-        "symbol": "BTC/USD",
-        "prediction_type": "price",
-        "value": 50000.0,
-        "confidence": 0.8,
-        "timestamp": "2024-01-01T00:00:00"
-    }
-    
-    # Проверяем валидацию
-    is_valid = predictor._validate_prediction(valid_prediction)
-    assert is_valid is True
-    
-    # Создаем невалидное предсказание
-    invalid_prediction = {
-        "symbol": "BTC/USD",
-        # Отсутствует prediction_type
-        "value": 50000.0
-    }
-    
-    # Проверяем валидацию
-    is_valid = predictor._validate_prediction(invalid_prediction)
-    assert is_valid is False
+    def test_prediction_validation(self) -> None:
+        """Тест валидации предсказаний."""
+        predictor = MLPredictor()
+        
+        # Создаем валидное предсказание
+        valid_prediction = {
+            "symbol": "BTC/USD",
+            "prediction_type": "price",
+            "value": 50000.0,
+            "confidence": 0.8,
+            "timestamp": "2024-01-01T00:00:00"
+        }
+        
+        # Проверяем валидацию
+        is_valid = predictor._validate_prediction(valid_prediction)
+        assert is_valid is True
+        
+        # Создаем невалидное предсказание
+        invalid_prediction = {
+            "symbol": "BTC/USD",
+            # Отсутствует prediction_type
+            "value": 50000.0
+        }
+        
+        # Проверяем валидацию
+        is_valid = predictor._validate_prediction(invalid_prediction)
+        assert is_valid is False
 
-def test_prediction_processing(self) -> None:
-    """Тест обработки предсказаний."""
-    predictor = MLPredictor()
-    
-    # Создаем предсказание
-    prediction_data = {
-        "symbol": "BTC/USD",
-        "prediction_type": "price",
-        "value": 50000.0,
-        "confidence": 0.8,
-        "timestamp": "2024-01-01T00:00:00"
-    }
-    
-    # Обрабатываем предсказание
-    result = predictor._process_prediction(prediction_data)
-    
-    assert result is not None
-    assert hasattr(result, 'symbol')
-    assert hasattr(result, 'prediction_type')
-    assert hasattr(result, 'value')
+    def test_prediction_processing(self) -> None:
+        """Тест обработки предсказаний."""
+        predictor = MLPredictor()
+        
+        # Создаем предсказание
+        prediction_data = {
+            "symbol": "BTC/USD",
+            "prediction_type": "price",
+            "value": 50000.0,
+            "confidence": 0.8,
+            "timestamp": "2024-01-01T00:00:00"
+        }
+        
+        # Обрабатываем предсказание
+        result = predictor._process_prediction(prediction_data)
+        
+        assert result is not None
+        assert hasattr(result, 'symbol')
+        assert hasattr(result, 'prediction_type')
+        assert hasattr(result, 'value')
 
-def test_model_validation(self) -> None:
-    """Тест валидации модели."""
+    def test_model_validation(self) -> None:
+        """Тест валидации модели."""
     predictor = MLPredictor()
     
     # Создаем валидную модель
@@ -511,8 +511,8 @@ def test_model_validation(self) -> None:
     is_valid = predictor._validate_model(invalid_model)
     assert is_valid is False
 
-def test_prediction_aggregation(self) -> None:
-    """Тест агрегации предсказаний."""
+    def test_prediction_aggregation(self) -> None:
+        """Тест агрегации предсказаний."""
     predictor = MLPredictor()
     
     # Создаем несколько предсказаний
@@ -541,8 +541,8 @@ def test_prediction_aggregation(self) -> None:
     assert hasattr(aggregated, 'prediction_type')
     assert hasattr(aggregated, 'value')
 
-def test_model_integrity_check(self) -> None:
-    """Тест проверки целостности модели."""
+    def test_model_integrity_check(self) -> None:
+        """Тест проверки целостности модели."""
     predictor = MLPredictor()
     
     # Создаем модель

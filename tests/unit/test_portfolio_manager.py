@@ -16,12 +16,12 @@ class TestPortfolioManager:
     """Тесты для PortfolioManager."""
     
     @pytest.fixture
-    def event_bus(self) -> Any:
+    def event_bus(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для event bus."""
         return Mock()
     
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для конфигурации."""
         return {
             "portfolio": {

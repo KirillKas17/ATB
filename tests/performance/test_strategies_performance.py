@@ -29,15 +29,15 @@ from domain.strategies.validators import StrategyValidator
 class TestStrategyPerformance:
     """Тесты производительности стратегий."""
     @pytest.fixture
-    def factory(self) -> Any:
+    def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать фабрику стратегий."""
         return StrategyFactory()
     @pytest.fixture
-    def registry(self) -> Any:
+    def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реестр стратегий."""
         return StrategyRegistry()
     @pytest.fixture
-    def large_market_dataset(self) -> Any:
+    def large_market_dataset(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать большой набор рыночных данных."""
         dataset = []
         base_price = Decimal("50000")
@@ -296,7 +296,7 @@ class TestStrategyPerformance:
         assert total_time < 10, f"Total execution time too slow: {total_time}"
         assert avg_execution_time < 1, f"Average thread execution time too slow: {avg_execution_time}"
         assert total_signals > 0, "No signals generated in concurrent execution"
-    def test_strategy_utils_performance(self) -> None:
+    def test_strategy_utils_performance(self: "TestStrategyPerformance") -> None:
         """Тест производительности утилит стратегий."""
         utils = StrategyUtils()
         # Создаем большой набор данных для тестирования
@@ -322,7 +322,7 @@ class TestStrategyPerformance:
         # Проверяем, что все утилиты работают достаточно быстро
         for utility_name, execution_time in performance_results.items():
             assert execution_time < 1.0, f"{utility_name} too slow: {execution_time} seconds"
-    def test_strategy_validator_performance(self) -> None:
+    def test_strategy_validator_performance(self: "TestStrategyPerformance") -> None:
         """Тест производительности валидатора стратегий."""
         validator = StrategyValidator()
         # Создаем много конфигураций для валидации
@@ -359,7 +359,7 @@ class TestStrategyPerformance:
         assert max_validation_time < 0.01, f"Max validation time too slow: {max_validation_time}"
 class TestStrategyScalability:
     """Тесты масштабируемости стратегий."""
-    def test_strategy_factory_scalability(self) -> None:
+    def test_strategy_factory_scalability(self: "TestStrategyScalability") -> None:
         """Тест масштабируемости фабрики стратегий."""
         factory = StrategyFactory()
         # Регистрируем много типов стратегий
@@ -390,7 +390,7 @@ class TestStrategyScalability:
         print(f"  Strategy types: 100")
         print(f"  Average creation time: {avg_creation_time:.6f} seconds")
         assert avg_creation_time < 0.01, f"Creation time too slow: {avg_creation_time}"
-    def test_strategy_registry_scalability(self) -> None:
+    def test_strategy_registry_scalability(self: "TestStrategyScalability") -> None:
         """Тест масштабируемости реестра стратегий."""
         registry = StrategyRegistry()
         # Регистрируем много стратегий

@@ -26,7 +26,7 @@ from infrastructure.evolution.models import (
 )
 class TestCandidateSerializers:
     """Тесты для сериализации StrategyCandidate"""
-    def test_candidate_to_model_conversion(self) -> None:
+    def test_candidate_to_model_conversion(self: "TestCandidateSerializers") -> None:
         """Тест конвертации StrategyCandidate в StrategyCandidateModel"""
         # Arrange
         candidate = StrategyCandidate(
@@ -66,7 +66,7 @@ class TestCandidateSerializers:
         assert model.max_positions == 5
         assert model.min_holding_time == 300
         assert model.max_holding_time == 3600
-    def test_model_to_candidate_conversion(self) -> None:
+    def test_model_to_candidate_conversion(self: "TestCandidateSerializers") -> None:
         """Тест конвертации StrategyCandidateModel в StrategyCandidate"""
         # Arrange
         candidate_id = uuid4()
@@ -111,7 +111,7 @@ class TestCandidateSerializers:
         assert candidate.min_holding_time == 300
         assert candidate.max_holding_time == 3600
         assert candidate.metadata == {"meta1": "value1"}
-    def test_candidate_round_trip(self) -> None:
+    def test_candidate_round_trip(self: "TestCandidateSerializers") -> None:
         """Тест полного цикла сериализации StrategyCandidate"""
         # Arrange
         original_candidate = StrategyCandidate(
@@ -156,7 +156,7 @@ class TestCandidateSerializers:
         assert restored_candidate.metadata == original_candidate.metadata
 class TestEvaluationSerializers:
     """Тесты для сериализации StrategyEvaluationResult"""
-    def test_evaluation_to_model_conversion(self) -> None:
+    def test_evaluation_to_model_conversion(self: "TestEvaluationSerializers") -> None:
         """Тест конвертации StrategyEvaluationResult в StrategyEvaluationModel"""
         # Arrange
         evaluation = StrategyEvaluationResult(
@@ -225,7 +225,7 @@ class TestEvaluationSerializers:
         assert model.is_approved is True
         assert model.approval_reason == "Good performance"
         assert model.evaluation_time == datetime(2024, 1, 3, 12, 0, 0, tzinfo=timezone.utc)
-    def test_model_to_evaluation_conversion(self) -> None:
+    def test_model_to_evaluation_conversion(self: "TestEvaluationSerializers") -> None:
         """Тест конвертации StrategyEvaluationModel в StrategyEvaluationResult"""
         # Arrange
         evaluation_id = uuid4()
@@ -300,7 +300,7 @@ class TestEvaluationSerializers:
         assert evaluation.metadata == {"meta1": "value1"}
 class TestContextSerializers:
     """Тесты для сериализации EvolutionContext"""
-    def test_context_to_model_conversion(self) -> None:
+    def test_context_to_model_conversion(self: "TestContextSerializers") -> None:
         """Тест конвертации EvolutionContext в EvolutionContextModel"""
         # Arrange
         context = EvolutionContext(
@@ -345,7 +345,7 @@ class TestContextSerializers:
         assert model.max_exit_rules == 3
         assert model.created_at == datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         assert model.updated_at == datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc)
-    def test_model_to_context_conversion(self) -> None:
+    def test_model_to_context_conversion(self: "TestContextSerializers") -> None:
         """Тест конвертации EvolutionContextModel в EvolutionContext"""
         # Arrange
         context_id = uuid4()
@@ -392,7 +392,7 @@ class TestContextSerializers:
         assert context.created_at == datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         assert context.updated_at == datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc)
         assert context.metadata == {"meta1": "value1"}
-    def test_context_round_trip(self) -> None:
+    def test_context_round_trip(self: "TestContextSerializers") -> None:
         """Тест полного цикла сериализации EvolutionContext"""
         # Arrange
         original_context = EvolutionContext(
@@ -441,7 +441,7 @@ class TestContextSerializers:
         assert restored_context.metadata == original_context.metadata
 class TestSerializersEdgeCases:
     """Тесты граничных случаев для сериализаторов"""
-    def test_candidate_with_complex_metadata(self) -> None:
+    def test_candidate_with_complex_metadata(self: "TestSerializersEdgeCases") -> None:
         """Тест сериализации StrategyCandidate со сложными метаданными"""
         # Arrange
         complex_metadata = {
@@ -475,7 +475,7 @@ class TestSerializersEdgeCases:
         restored_candidate = model_to_candidate(model)
         # Assert
         assert restored_candidate.metadata == complex_metadata
-    def test_evaluation_with_extreme_values(self) -> None:
+    def test_evaluation_with_extreme_values(self: "TestSerializersEdgeCases") -> None:
         """Тест сериализации StrategyEvaluationResult с экстремальными значениями"""
         # Arrange
         evaluation = StrategyEvaluationResult(

@@ -274,7 +274,7 @@ class TestSessionSignalEngine:
         await engine.stop()
         assert engine._running is False
 
-    def test_signal_to_dict(self) -> None:
+    def test_signal_to_dict(self: "TestSessionSignalEngine") -> None:
         """Тест преобразования сигнала в словарь."""
         signal = SessionInfluenceSignal(
             symbol="BTC/USD",

@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from simulation.backtester.core import Backtest, Trade
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -22,7 +22,7 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-@pytest.fixture
+    @pytest.fixture
 def backtest_config() -> Any:
     """Фикстура с конфигурацией бэктеста"""
     return {
@@ -33,7 +33,7 @@ def backtest_config() -> Any:
         "stop_loss": 0.02,
         "take_profit": 0.05,
     }
-@pytest.fixture
+    @pytest.fixture
 def backtest(backtest_config, mock_market_data) -> Any:
     """Фикстура с экземпляром бэктеста"""
     return Backtest(data=mock_market_data, config=backtest_config)

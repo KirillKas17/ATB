@@ -235,7 +235,7 @@ class TestSystemMonitor:
         assert hasattr(health, 'status')
 class TestMonitoringConfig:
     """Тесты для MonitoringConfig."""
-    def test_monitoring_config_creation(self) -> None:
+    def test_monitoring_config_creation(self: "TestMonitoringConfig") -> None:
         """Тест создания конфигурации мониторинга."""
         config = MonitoringConfig(
             enabled=True,
@@ -250,7 +250,7 @@ class TestMonitoringConfig:
         assert config.alert_thresholds["cpu_usage"] == 80.0
         assert config.retention_days == 30
         assert config.log_level == "INFO"
-    def test_monitoring_config_validation(self) -> None:
+    def test_monitoring_config_validation(self: "TestMonitoringConfig") -> None:
         """Тест валидации конфигурации мониторинга."""
         # Валидная конфигурация
         valid_config = MonitoringConfig(
@@ -276,7 +276,7 @@ class TestMonitoringConfig:
             )
 class TestMetricData:
     """Тесты для MetricData."""
-    def test_metric_data_creation(self) -> None:
+    def test_metric_data_creation(self: "TestMetricData") -> None:
         """Тест создания данных метрики."""
         metric_data = MetricData(
             name="test_metric",
@@ -288,7 +288,7 @@ class TestMetricData:
         assert metric_data.value == 42.0
         assert metric_data.tags["service"] == "test"
         assert metric_data.tags["version"] == "1.0"
-    def test_metric_data_validation(self) -> None:
+    def test_metric_data_validation(self: "TestMetricData") -> None:
         """Тест валидации данных метрики."""
         # Валидные данные
         valid_metric = MetricData(
@@ -310,7 +310,7 @@ class TestMetricData:
             )
 class TestAlertData:
     """Тесты для AlertData."""
-    def test_alert_data_creation(self) -> None:
+    def test_alert_data_creation(self: "TestAlertData") -> None:
         """Тест создания данных алерта."""
         alert_data = AlertData(
             level=AlertLevel.WARNING,
@@ -323,7 +323,7 @@ class TestAlertData:
         assert alert_data.message == "Test alert message"
         assert alert_data.source == "test_service"
         assert alert_data.details["metric"] == "cpu_usage"
-    def test_alert_data_validation(self) -> None:
+    def test_alert_data_validation(self: "TestAlertData") -> None:
         """Тест валидации данных алерта."""
         # Валидные данные
         valid_alert = AlertData(
@@ -347,7 +347,7 @@ class TestAlertData:
             )
 class TestHealthStatus:
     """Тесты для HealthStatus."""
-    def test_health_status_creation(self) -> None:
+    def test_health_status_creation(self: "TestHealthStatus") -> None:
         """Тест создания статуса здоровья."""
         health_status = HealthStatus(
             status="healthy",
@@ -362,7 +362,7 @@ class TestHealthStatus:
         assert health_status.status == "healthy"
         assert health_status.message == "System is healthy"
         assert len(health_status.checks) == 3
-    def test_health_status_validation(self) -> None:
+    def test_health_status_validation(self: "TestHealthStatus") -> None:
         """Тест валидации статуса здоровья."""
         # Валидный статус
         valid_status = HealthStatus(
@@ -383,7 +383,7 @@ class TestHealthStatus:
             )
 class TestMonitoringErrors:
     """Тесты для ошибок мониторинга."""
-    def test_monitoring_error_creation(self) -> None:
+    def test_monitoring_error_creation(self: "TestMonitoringErrors") -> None:
         """Тест создания ошибок мониторинга."""
         error = MonitoringError("Monitoring failed")
         assert str(error) == "Monitoring failed"
@@ -393,7 +393,7 @@ class TestMonitoringErrors:
         assert str(alert_error) == "Alert sending failed"
         health_error = HealthCheckError("Health check failed")
         assert str(health_error) == "Health check failed"
-    def test_error_inheritance(self) -> None:
+    def test_error_inheritance(self: "TestMonitoringErrors") -> None:
         """Тест иерархии ошибок."""
         assert issubclass(MetricsError, MonitoringError)
         assert issubclass(AlertError, MonitoringError)
@@ -401,7 +401,7 @@ class TestMonitoringErrors:
 class TestMonitoringIntegration:
     """Интеграционные тесты мониторинга."""
     @pytest.mark.asyncio
-    async def test_full_monitoring_workflow(self) -> None:
+    def test_full_monitoring_workflow(self: "TestMonitoringIntegration") -> None:
         """Тест полного рабочего процесса мониторинга."""
         # Создаем компоненты мониторинга
         metrics_collector = MetricsCollector()
@@ -452,7 +452,7 @@ class TestMonitoringIntegration:
         assert isinstance(perf_metrics_list, list)
         assert isinstance(sys_metrics, list)
     @pytest.mark.asyncio
-    async def test_concurrent_monitoring_operations(self) -> None:
+    def test_concurrent_monitoring_operations(self: "TestMonitoringIntegration") -> None:
         """Тест конкурентных операций мониторинга."""
         metrics_collector = MetricsCollector()
         alert_manager = AlertManager()

@@ -26,7 +26,7 @@ class TestRedisCache:
         cache._redis = AsyncMock()
         return cache
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
         return {
             "key": "value",
@@ -150,7 +150,7 @@ class TestDiskCache:
         cache = DiskCache("/tmp/test_cache")
         return cache
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
         return {
             "key": "value",
@@ -250,7 +250,7 @@ class TestHybridCache:
         cache = HybridCache(primary_cache, secondary_cache)
         return cache
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
         return {
             "key": "value",
@@ -345,8 +345,9 @@ class TestHybridCache:
         assert result["secondary"]["status"] == "healthy"
 class TestCacheIntegration:
     """Integration tests for cache services."""
+    
     @pytest.mark.integration
-    async def test_cache_with_complex_objects(self) -> None:
+    def test_cache_with_complex_objects(self: "TestCacheIntegration") -> None:
         """Test cache with complex domain objects."""
         # Arrange
         order = Order(
@@ -369,47 +370,58 @@ class TestCacheIntegration:
         assert result.id == order.id
         assert result.trading_pair == order.trading_pair
     @pytest.mark.integration
-    async def test_cache_eviction_policy(self) -> None:
+    def test_cache_eviction_policy(self: "TestCacheIntegration") -> None:
         """Test cache eviction policy."""
         # This would test LRU or other eviction policies
         pass
     @pytest.mark.integration
-    async def test_cache_compression(self) -> None:
+    def test_cache_compression(self: "TestCacheIntegration") -> None:
         """Test cache compression for large objects."""
         # This would test compression functionality
         pass
+
+
 class TestCachePerformance:
     """Performance tests for cache services."""
+    
     @pytest.mark.performance
-    async def test_cache_throughput(self) -> None:
+    def test_cache_throughput(self: "TestCachePerformance") -> None:
         """Test cache throughput."""
         # This would measure operations per second
         pass
+    
     @pytest.mark.performance
-    async def test_cache_latency(self) -> None:
+    def test_cache_latency(self: "TestCachePerformance") -> None:
         """Test cache latency."""
         # This would measure response times
         pass
+    
     @pytest.mark.performance
-    async def test_cache_memory_usage(self) -> None:
+    def test_cache_memory_usage(self: "TestCachePerformance") -> None:
         """Test cache memory usage."""
         # This would measure memory consumption
         pass
+
+
 class TestCacheEdgeCases:
     """Edge cases and error handling tests."""
-    async def test_cache_with_large_objects(self) -> None:
+    
+    def test_cache_with_large_objects(self: "TestCacheEdgeCases") -> None:
         """Test cache with very large objects."""
         # This would test handling of large data
         pass
-    async def test_cache_with_special_characters(self) -> None:
+    
+    def test_cache_with_special_characters(self: "TestCacheEdgeCases") -> None:
         """Test cache with special characters in keys."""
         # This would test key encoding/decoding
         pass
-    async def test_cache_concurrent_access(self) -> None:
+    
+    def test_cache_concurrent_access(self: "TestCacheEdgeCases") -> None:
         """Test cache with concurrent access."""
         # This would test thread safety
         pass
-    async def test_cache_network_partition(self) -> None:
+    
+    def test_cache_network_partition(self: "TestCacheEdgeCases") -> None:
         """Test cache behavior during network partition."""
-        # This would test distributed cache behavior
+        # This would test network failure scenarios
         pass 

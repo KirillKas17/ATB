@@ -99,7 +99,7 @@ class TestEntanglementDetector:
             }
         }
 
-    def test_initialization_default_config(self) -> None:
+    def test_initialization_default_config(self: "TestEntanglementDetector") -> None:
         """Тест инициализации с дефолтной конфигурацией."""
         detector = EntanglementDetector()
         
@@ -397,7 +397,7 @@ class TestEntanglementDetector:
         assert detector.statistics["average_processing_time_ms"] == 0.0
         assert detector.statistics["last_analysis_timestamp"] is None
 
-    def test_advanced_metrics_disabled(self) -> None:
+    def test_advanced_metrics_disabled(self: "TestEntanglementDetector") -> None:
         """Тест работы с отключенными расширенными метриками."""
         detector = EntanglementDetector(enable_advanced_metrics=False)
         
@@ -407,7 +407,7 @@ class TestEntanglementDetector:
         # Расширенные метрики не должны быть в metadata
         assert "advanced_metrics" not in result.metadata
 
-    def test_cross_correlation_disabled(self) -> None:
+    def test_cross_correlation_disabled(self: "TestEntanglementDetector") -> None:
         """Тест работы с отключенной кросс-корреляцией."""
         detector = EntanglementDetector(enable_cross_correlation=False)
         

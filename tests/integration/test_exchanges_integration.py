@@ -17,7 +17,7 @@ from infrastructure.external_services.exchanges.binance_exchange_service import 
 class TestExchangesIntegration:
     """Интеграционные тесты для exchanges."""
     @pytest.fixture
-    def sample_credentials(self) -> Any:
+    def sample_credentials(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример учетных данных."""
         return ExchangeCredentials(
             api_key="test_key",
@@ -27,7 +27,7 @@ class TestExchangesIntegration:
             sandbox=True
         )
     @pytest.fixture
-    def sample_connection_config(self) -> Any:
+    def sample_connection_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример конфигурации соединения."""
         return ConnectionConfig(
             rate_limit=100,
@@ -36,7 +36,7 @@ class TestExchangesIntegration:
             retry_attempts=3
         )
     @pytest.fixture
-    def sample_market_data_request(self) -> Any:
+    def sample_market_data_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример запроса рыночных данных."""
         return MarketDataRequest(
             symbol=Symbol("BTC/USDT"),
@@ -44,7 +44,7 @@ class TestExchangesIntegration:
             limit=100
         )
     @pytest.fixture
-    def sample_order_request(self) -> Any:
+    def sample_order_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример запроса на размещение ордера."""
         return OrderRequest(
             symbol=Symbol("BTC/USDT"),

@@ -19,7 +19,7 @@ class TestBusinessLogicValidation:
     """Тесты валидации бизнес-логики."""
     
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового AgentContext."""
         return AgentContext(
             symbol="BTCUSDT",
@@ -30,7 +30,7 @@ class TestBusinessLogicValidation:
         )
     
     @pytest.fixture
-    def trading_orchestrator(self) -> Any:
+    def trading_orchestrator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового TradingOrchestrator."""
         return DefaultTradingOrchestratorUseCase(
             order_repository=Mock(),

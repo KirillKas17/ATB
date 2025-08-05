@@ -31,7 +31,7 @@ from domain.type_definitions.market_maker_types import (
 class TestMarketProfilesFullWorkflow:
     """Тесты полного workflow market_profiles."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
@@ -50,7 +50,7 @@ class TestMarketProfilesFullWorkflow:
             "max_workers": 2
         }
     @pytest.fixture
-    def analysis_config(self) -> Any:
+    def analysis_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация анализа."""
         # return AnalysisConfig(
         #     min_confidence=Confidence(0.6),
@@ -101,7 +101,7 @@ class TestMarketProfilesFullWorkflow:
             "success_analyzer": success_analyzer
         }
     @pytest.fixture
-    def sample_patterns(self) -> Any:
+    def sample_patterns(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образцы паттернов для тестов."""
         base_features = PatternFeatures(
             book_pressure=BookPressure(0.7),

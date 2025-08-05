@@ -14,10 +14,10 @@ from domain.value_objects.volume import Volume
 from domain.value_objects.timestamp import Timestamp
 class TestBaseConnector:
     """Тесты базового коннектора."""
-    def test_base_connector_initialization(self) -> None:
+    def test_base_connector_initialization(self: "TestBaseConnector") -> None:
         """Тест инициализации базового коннектора."""
         # Создаем тестовый коннектор
-        class TestConnector(BaseExchangeConnector):
+class TestConnector(BaseExchangeConnector):
             def get_websocket_url(self, symbol: str) -> str:
                 return f"wss://test.com/ws/{symbol}"
             def get_subscription_message(self, symbol: str) -> Dict[str, Any]:
@@ -35,9 +35,9 @@ class TestBaseConnector:
         assert connector.max_reconnect_attempts == 5
         assert connector.reconnect_delay == 1.0
         assert connector._websocket is None
-    def test_normalize_symbol(self) -> None:
+    def test_normalize_symbol(self: "TestBaseConnector") -> None:
         """Тест нормализации символа."""
-        class TestConnector(BaseExchangeConnector):
+class TestConnector(BaseExchangeConnector):
             def get_websocket_url(self, symbol: str) -> str:
                 return f"wss://test.com/ws/{symbol}"
             def get_subscription_message(self, symbol: str) -> Dict[str, Any]:
@@ -49,9 +49,9 @@ class TestBaseConnector:
         assert connector._normalize_symbol("BTCUSDT") == "btcusdt"
         assert connector._normalize_symbol("ETHUSD") == "ethusd"
         assert connector._normalize_symbol("ADA-BTC") == "ada-btc"
-    def test_parse_price_volume_pairs(self) -> None:
+    def test_parse_price_volume_pairs(self: "TestBaseConnector") -> None:
         """Тест парсинга пар цена-объем."""
-        class TestConnector(BaseExchangeConnector):
+class TestConnector(BaseExchangeConnector):
             def get_websocket_url(self, symbol: str) -> str:
                 return f"wss://test.com/ws/{symbol}"
             def get_subscription_message(self, symbol: str) -> Dict[str, Any]:
@@ -71,9 +71,9 @@ class TestBaseConnector:
         assert isinstance(result[0][1], Volume)
         assert result[0][0].amount == Decimal("50000.00")
         assert result[0][1].amount == Decimal("1.5")
-    def test_parse_price_volume_pairs_invalid_data(self) -> None:
+    def test_parse_price_volume_pairs_invalid_data(self: "TestBaseConnector") -> None:
         """Тест парсинга некорректных данных."""
-        class TestConnector(BaseExchangeConnector):
+class TestConnector(BaseExchangeConnector):
             def get_websocket_url(self, symbol: str) -> str:
                 return f"wss://test.com/ws/{symbol}"
             def get_subscription_message(self, symbol: str) -> Dict[str, Any]:
@@ -93,19 +93,19 @@ class TestBaseConnector:
         assert result[0][1].amount == Decimal("1.5")
 class TestBinanceConnector:
     """Тесты коннектора Binance."""
-    def test_binance_connector_initialization(self) -> None:
+    def test_binance_connector_initialization(self: "TestBinanceConnector") -> None:
         """Тест инициализации коннектора Binance."""
         connector = BinanceConnector()
         assert connector.exchange_name == "binance"
         assert connector.api_key is None
         assert connector.api_secret is None
-    def test_get_websocket_url(self) -> None:
+    def test_get_websocket_url(self: "TestBinanceConnector") -> None:
         """Тест получения WebSocket URL."""
         connector = BinanceConnector()
         url = connector.get_websocket_url("BTCUSDT")
         expected_url = "wss://stream.binance.com:9443/ws/btcusdt@depth20@100ms"
         assert url == expected_url
-    def test_get_subscription_message(self) -> None:
+    def test_get_subscription_message(self: "TestBinanceConnector") -> None:
         """Тест получения сообщения подписки."""
         connector = BinanceConnector()
         message = connector.get_subscription_message("BTCUSDT")
@@ -115,7 +115,7 @@ class TestBinanceConnector:
             "id": 1
         }
         assert message == expected_message
-    def test_parse_order_book_update_valid(self) -> None:
+    def test_parse_order_book_update_valid(self: "TestBinanceConnector") -> None:
         """Тест парсинга валидного обновления ордербука."""
         connector = BinanceConnector()
         # Тестовые данные Binance
@@ -141,7 +141,7 @@ class TestBinanceConnector:
         assert result.bids[0][1].amount == Decimal("1.5")
         assert result.asks[0][0].amount == Decimal("50001.00")
         assert result.asks[0][1].amount == Decimal("1.0")
-    def test_parse_order_book_update_invalid_event(self) -> None:
+    def test_parse_order_book_update_invalid_event(self: "TestBinanceConnector") -> None:
         """Тест парсинга с неверным типом события."""
         connector = BinanceConnector()
         message = {
@@ -152,7 +152,7 @@ class TestBinanceConnector:
         }
         result = connector.parse_order_book_update(message)
         assert result is None
-    def test_parse_order_book_update_missing_data(self) -> None:
+    def test_parse_order_book_update_missing_data(self: "TestBinanceConnector") -> None:
         """Тест парсинга с отсутствующими данными."""
         connector = BinanceConnector()
         message = {
@@ -164,7 +164,7 @@ class TestBinanceConnector:
         }
         result = connector.parse_order_book_update(message)
         assert result is None
-    def test_parse_order_book_update_no_data_key(self) -> None:
+    def test_parse_order_book_update_no_data_key(self: "TestBinanceConnector") -> None:
         """Тест парсинга без ключа data."""
         connector = BinanceConnector()
         message = {
@@ -172,7 +172,7 @@ class TestBinanceConnector:
         }
         result = connector.parse_order_book_update(message)
         assert result is None
-    def test_connect(self) -> None:
+    def test_connect(self: "TestBinanceConnector") -> None:
         """Тест подключения к бирже."""
         # Создаем коннектор
         connector = BinanceConnector()
@@ -189,19 +189,19 @@ class TestBinanceConnector:
         assert "btcusdt@depth20@100ms" in sub_msg["params"]
 class TestCoinbaseConnector:
     """Тесты коннектора Coinbase."""
-    def test_coinbase_connector_initialization(self) -> None:
+    def test_coinbase_connector_initialization(self: "TestCoinbaseConnector") -> None:
         """Тест инициализации коннектора Coinbase."""
         connector = CoinbaseConnector()
         assert connector.exchange_name == "coinbase"
         assert connector.api_key is None
         assert connector.api_secret is None
-    def test_get_websocket_url(self) -> None:
+    def test_get_websocket_url(self: "TestCoinbaseConnector") -> None:
         """Тест получения WebSocket URL."""
         connector = CoinbaseConnector()
         url = connector.get_websocket_url("BTC-USD")
         expected_url = "wss://ws-feed.exchange.coinbase.com"
         assert url == expected_url
-    def test_get_subscription_message(self) -> None:
+    def test_get_subscription_message(self: "TestCoinbaseConnector") -> None:
         """Тест получения сообщения подписки."""
         connector = CoinbaseConnector()
         message = connector.get_subscription_message("BTC-USD")
@@ -211,7 +211,7 @@ class TestCoinbaseConnector:
             "channels": ["level2"]
         }
         assert message == expected_message
-    def test_parse_order_book_update_valid(self) -> None:
+    def test_parse_order_book_update_valid(self: "TestCoinbaseConnector") -> None:
         """Тест парсинга валидного обновления ордербука."""
         connector = CoinbaseConnector()
         # Тестовые данные Coinbase
@@ -229,7 +229,7 @@ class TestCoinbaseConnector:
         assert len(result.asks) == 2
         assert result.bids[0][0].amount == Decimal("50000.00")
         assert result.bids[0][1].amount == Decimal("1.5")
-    def test_parse_order_book_update_invalid_type(self) -> None:
+    def test_parse_order_book_update_invalid_type(self: "TestCoinbaseConnector") -> None:
         """Тест парсинга с неверным типом сообщения."""
         connector = CoinbaseConnector()
         message = {
@@ -238,7 +238,7 @@ class TestCoinbaseConnector:
         }
         result = connector.parse_order_book_update(message)
         assert result is None
-    def test_parse_order_book_update_missing_data(self) -> None:
+    def test_parse_order_book_update_missing_data(self: "TestCoinbaseConnector") -> None:
         """Тест парсинга с отсутствующими данными."""
         connector = CoinbaseConnector()
         message = {
@@ -250,19 +250,19 @@ class TestCoinbaseConnector:
         assert result is None
 class TestKrakenConnector:
     """Тесты коннектора Kraken."""
-    def test_kraken_connector_initialization(self) -> None:
+    def test_kraken_connector_initialization(self: "TestKrakenConnector") -> None:
         """Тест инициализации коннектора Kraken."""
         connector = KrakenConnector()
         assert connector.exchange_name == "kraken"
         assert connector.api_key is None
         assert connector.api_secret is None
-    def test_get_websocket_url(self) -> None:
+    def test_get_websocket_url(self: "TestKrakenConnector") -> None:
         """Тест получения WebSocket URL."""
         connector = KrakenConnector()
         url = connector.get_websocket_url("XBT/USD")
         expected_url = "wss://ws.kraken.com"
         assert url == expected_url
-    def test_get_subscription_message(self) -> None:
+    def test_get_subscription_message(self: "TestKrakenConnector") -> None:
         """Тест получения сообщения подписки."""
         connector = KrakenConnector()
         message = connector.get_subscription_message("XBT/USD")
@@ -275,7 +275,7 @@ class TestKrakenConnector:
             }
         }
         assert message == expected_message
-    def test_parse_order_book_update_valid(self) -> None:
+    def test_parse_order_book_update_valid(self: "TestKrakenConnector") -> None:
         """Тест парсинга валидного обновления ордербука."""
         connector = KrakenConnector()
         # Тестовые данные Kraken (правильный формат)
@@ -296,7 +296,7 @@ class TestKrakenConnector:
         assert len(result.asks) == 2
         assert result.bids[0][0].amount == Decimal("50000.00")
         assert result.bids[0][1].amount == Decimal("1.5")
-    def test_parse_order_book_update_invalid_event(self) -> None:
+    def test_parse_order_book_update_invalid_event(self: "TestKrakenConnector") -> None:
         """Тест парсинга с неверным типом события."""
         connector = KrakenConnector()
         message = {
@@ -305,7 +305,7 @@ class TestKrakenConnector:
         }
         result = connector.parse_order_book_update(message)
         assert result is None
-    def test_parse_order_book_update_missing_data(self) -> None:
+    def test_parse_order_book_update_missing_data(self: "TestKrakenConnector") -> None:
         """Тест парсинга с отсутствующими данными."""
         connector = KrakenConnector()
         message = {
@@ -317,7 +317,7 @@ class TestKrakenConnector:
         assert result is None
 class TestOrderBookIntegration:
     """Интеграционные тесты ордербука."""
-    def test_order_book_update_creation(self) -> None:
+    def test_order_book_update_creation(self: "TestOrderBookIntegration") -> None:
         """Тест создания обновления ордербука."""
         # Создаем тестовые данные
         bids = [
@@ -347,7 +347,7 @@ class TestOrderBookIntegration:
         assert update.timestamp == timestamp
         assert update.sequence_id == 123
         assert update.meta["test"] is True
-    def test_order_book_update_serialization(self) -> None:
+    def test_order_book_update_serialization(self: "TestOrderBookIntegration") -> None:
         """Тест сериализации обновления ордербука."""
         # Создаем тестовые данные
         bids = [

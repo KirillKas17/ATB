@@ -21,7 +21,7 @@ class TestAgentContext:
         context = AgentContext(symbol="BTC/USDT")
         return context
     @pytest.fixture
-    def sample_order(self) -> Any:
+    def sample_order(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample order."""
         return Order(
             id=uuid4(),
@@ -35,7 +35,7 @@ class TestAgentContext:
             updated_at=datetime.now()
         )
     @pytest.fixture
-    def sample_position(self) -> Any:
+    def sample_position(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample position."""
         return Position(
             id=uuid4(),
@@ -48,7 +48,7 @@ class TestAgentContext:
             updated_at=datetime.now()
         )
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample market data."""
         return MarketData(
             id=uuid4(),
@@ -254,55 +254,70 @@ class TestAgentContext:
         assert "memory_usage" in health
         assert "data_counts" in health
         assert health["status"] == "healthy"
+
+
 class TestAgentContextIntegration:
     """Integration tests for AgentContext."""
+    
     @pytest.mark.integration
-    async def test_context_with_real_data(self) -> None:
+    def test_context_with_real_data(self: "TestAgentContextIntegration") -> None:
         """Test context with real market data."""
         # This would test with actual market data feeds
         pass
+    
     @pytest.mark.integration
-    async def test_context_with_multiple_agents(self) -> None:
+    def test_context_with_multiple_agents(self: "TestAgentContextIntegration") -> None:
         """Test context with multiple agents accessing simultaneously."""
         # This would test multi-agent scenarios
         pass
     @pytest.mark.integration
-    async def test_context_persistence(self) -> None:
+    def test_context_persistence(self: "TestAgentContextIntegration") -> None:
         """Test context persistence across sessions."""
         # This would test saving/loading context state
         pass
+
+
 class TestAgentContextPerformance:
     """Performance tests for AgentContext."""
+    
     @pytest.mark.performance
-    async def test_context_data_insertion_performance(self) -> None:
+    def test_context_data_insertion_performance(self: "TestAgentContextPerformance") -> None:
         """Test performance of data insertion."""
         # This would measure insertion speed
         pass
+    
     @pytest.mark.performance
-    async def test_context_query_performance(self) -> None:
+    def test_context_query_performance(self: "TestAgentContextPerformance") -> None:
         """Test performance of data queries."""
         # This would measure query speed
         pass
+    
     @pytest.mark.performance
-    async def test_context_memory_usage(self) -> None:
+    def test_context_memory_usage(self: "TestAgentContextPerformance") -> None:
         """Test context memory usage."""
         # This would measure memory consumption
         pass
+
+
 class TestAgentContextEdgeCases:
     """Edge cases and error handling tests."""
-    async def test_context_with_invalid_data(self) -> None:
+    
+    def test_context_with_invalid_data(self: "TestAgentContextEdgeCases") -> None:
         """Test context with invalid data."""
         # This would test error handling for invalid data
         pass
-    async def test_context_with_duplicate_data(self) -> None:
+    
+    def test_context_with_duplicate_data(self: "TestAgentContextEdgeCases") -> None:
         """Test context with duplicate data."""
         # This would test duplicate handling
         pass
-    async def test_context_with_missing_data(self) -> None:
+    
+    def test_context_with_missing_data(self: "TestAgentContextEdgeCases") -> None:
         """Test context with missing data."""
         # This would test handling of missing data
         pass
-    async def test_context_under_high_load(self) -> None:
-        """Test context under high load."""
-        # This would test performance under stress
+    
+    def test_context_under_high_load(self: "TestAgentContextEdgeCases") -> None:
+        """Test context under high load conditions."""
+        # This would test high load scenarios
         pass 

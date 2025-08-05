@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import pytest
 from unittest.mock import Mock, patch
 from core.controllers.market_controller import MarketController
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from domain.entities import MarketData
@@ -13,7 +13,7 @@ else:
         from domain.entities import MarketData
     except ImportError:
         class MarketData:
-            def __init__(self, timestamp: datetime, open: float, high: float, low: float, close: float, volume: float, pair: str) -> Any:
+            def __init__(self, timestamp: datetime, open: float, high: float, low: float, close: float, volume: float, pair: str) -> None:
                 self.timestamp = timestamp
                 self.open = open
                 self.high = high

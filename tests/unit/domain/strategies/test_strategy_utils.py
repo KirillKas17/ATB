@@ -6,10 +6,10 @@ from domain.strategies.utils import StrategyUtils
 from domain.entities.market import MarketData, OrderBook, Trade
 class TestStrategyUtils:
     @pytest.fixture
-    def utils(self) -> Any:
+    def utils(self: "TestEvolvableMarketMakerAgent") -> Any:
         return StrategyUtils()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает тестовые рыночные данные."""
         data = []
         base_price = Decimal("50000")

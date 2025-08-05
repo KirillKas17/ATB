@@ -31,11 +31,11 @@ from domain.strategies.validators import StrategyValidator
 class TestStrategyFactoryIntegration:
     """Интеграционные тесты для фабрики стратегий."""
     @pytest.fixture
-    def factory(self) -> Any:
+    def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать фабрику стратегий."""
         return StrategyFactory()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать тестовые рыночные данные."""
         return MarketData(
             symbol="BTC/USDT",
@@ -120,11 +120,11 @@ class TestStrategyFactoryIntegration:
 class TestStrategyRegistryIntegration:
     """Интеграционные тесты для реестра стратегий."""
     @pytest.fixture
-    def registry(self) -> Any:
+    def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реестр стратегий."""
         return StrategyRegistry()
     @pytest.fixture
-    def sample_strategy(self) -> Any:
+    def sample_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать тестовую стратегию."""
         return TrendFollowingStrategy(
             strategy_id=StrategyId(uuid4()),
@@ -262,15 +262,15 @@ class TestStrategyRegistryIntegration:
 class TestStrategyWorkflowIntegration:
     """Интеграционные тесты для полного workflow стратегий."""
     @pytest.fixture
-    def factory(self) -> Any:
+    def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать фабрику стратегий."""
         return get_strategy_factory()
     @pytest.fixture
-    def registry(self) -> Any:
+    def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реестр стратегий."""
         return get_strategy_registry()
     @pytest.fixture
-    def market_data_series(self) -> Any:
+    def market_data_series(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать серию рыночных данных."""
         data_series = []
         base_price = Decimal("50000")
@@ -479,11 +479,11 @@ class TestStrategyWorkflowIntegration:
 class TestStrategyUtilsIntegration:
     """Интеграционные тесты для утилит стратегий."""
     @pytest.fixture
-    def utils(self) -> Any:
+    def utils(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать утилиты стратегий."""
         return StrategyUtils()
     @pytest.fixture
-    def validator(self) -> Any:
+    def validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать валидатор стратегий."""
         return StrategyValidator()
     def test_strategy_validation_integration(self, validator) -> None:

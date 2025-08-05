@@ -51,7 +51,7 @@ class TestLiquidityGravityIntegration:
         return OrderBookSnapshot(
             bids=bids, asks=asks, timestamp=datetime.fromtimestamp(time.time()), symbol="BTC/USDT"
         )
-    def test_full_pipeline_integration(self) -> None:
+    def test_full_pipeline_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест полной интеграции системы."""
         # Создание ордербука
         order_book = self.create_test_order_book(spread_percentage=0.1)
@@ -83,7 +83,7 @@ class TestLiquidityGravityIntegration:
         )
         assert isinstance(adjusted_aggression, float)
         assert 0.0 <= adjusted_aggression <= 1.0
-    def test_agent_state_evolution(self) -> None:
+    def test_agent_state_evolution(self: "TestLiquidityGravityIntegration") -> None:
         """Тест эволюции состояния агента."""
         agent_id = "evolution_test_agent"
         # Установка базовой агрессивности
@@ -123,7 +123,7 @@ class TestLiquidityGravityIntegration:
         high_risk_aggression = np.mean(aggressions[6:])
         # Агрессивность должна быть ниже при высоком риске
         assert high_risk_aggression <= low_risk_aggression
-    def test_risk_threshold_behavior(self) -> None:
+    def test_risk_threshold_behavior(self: "TestLiquidityGravityIntegration") -> None:
         """Тест поведения на разных порогах риска."""
         agent_id = "threshold_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 1.0)
@@ -145,7 +145,7 @@ class TestLiquidityGravityIntegration:
         )
         assert high_risk_result.risk_level in ["high", "extreme", "critical"]
         assert high_risk_result.agent_aggression < 0.9  # Сниженная агрессивность
-    def test_filter_decision_logic(self) -> None:
+    def test_filter_decision_logic(self: "TestLiquidityGravityIntegration") -> None:
         """Тест логики принятия решений фильтром."""
         agent_id = "filter_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 0.8)
@@ -165,7 +165,7 @@ class TestLiquidityGravityIntegration:
         )
         # Может быть False в зависимости от настроек
         assert isinstance(should_proceed, bool)
-    def test_aggression_adjustment_consistency(self) -> None:
+    def test_aggression_adjustment_consistency(self: "TestLiquidityGravityIntegration") -> None:
         """Тест консистентности корректировки агрессивности."""
         agent_id = "adjustment_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 0.8)
@@ -189,7 +189,7 @@ class TestLiquidityGravityIntegration:
         assert all(0.0 <= agg <= 1.0 for agg in adjusted_aggressions)
         # Проверка, что корректировка консистентна
         assert len(set(adjusted_aggressions)) > 1  # Должны быть разные значения
-    def test_performance_integration(self) -> None:
+    def test_performance_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест производительности интеграции."""
         # Создание большого количества ордербуков
         order_books = []
@@ -233,7 +233,7 @@ class TestLiquidityGravityIntegration:
             assert isinstance(result["risk_level"], str)
             assert isinstance(result["aggression"], float)
             assert isinstance(result["should_proceed"], bool)
-    def test_error_handling_integration(self) -> None:
+    def test_error_handling_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест обработки ошибок в интеграции."""
         agent_id = "error_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 0.8)
@@ -267,7 +267,7 @@ class TestLiquidityGravityIntegration:
             invalid_order_book, agent_id
         )
         assert isinstance(risk_result, type(risk_result))
-    def test_configuration_integration(self) -> None:
+    def test_configuration_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции конфигурации."""
         # Создание кастомной конфигурации
         custom_gravity_config = LiquidityGravityConfig(
@@ -305,7 +305,7 @@ class TestLiquidityGravityIntegration:
         )
         assert isinstance(custom_risk_result.risk_level, str)
         assert isinstance(custom_risk_result.agent_aggression, float)
-    def test_multi_agent_integration(self) -> None:
+    def test_multi_agent_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции с несколькими агентами."""
         agents = ["agent_1", "agent_2", "agent_3"]
         # Настройка разных агентов
@@ -340,7 +340,7 @@ class TestLiquidityGravityIntegration:
         # Проверка, что более агрессивные агенты имеют более высокую агрессивность
         aggressions = [result["aggression"] for result in agent_results.values()]
         assert len(set(aggressions)) >= 1  # Должны быть разные значения
-    def test_statistics_integration(self) -> None:
+    def test_statistics_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции статистики."""
         agent_id = "stats_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 0.8)
@@ -369,7 +369,7 @@ class TestLiquidityGravityIntegration:
         assert "base_aggression" in agent_state_stats
         assert "risk_level" in agent_state_stats
         assert "gravity_history_length" in agent_state_stats
-    def test_recovery_mechanism_integration(self) -> None:
+    def test_recovery_mechanism_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции механизма восстановления."""
         agent_id = "recovery_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 0.8)

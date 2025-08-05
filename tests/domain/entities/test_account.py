@@ -44,7 +44,7 @@ class TestAccount:
         assert account.metadata["user_id"] == "user_123"
         assert account.metadata["tier"] == "premium"
 
-    def test_account_default_values(self) -> None:
+    def test_account_default_values(self: "TestAccount") -> None:
         """Тест значений по умолчанию."""
         account = Account()
         assert account.account_id is not None
@@ -68,7 +68,7 @@ class TestAccount:
         balance = account.get_balance("LTC")
         assert balance is None
 
-    def test_get_balance_empty_account(self) -> None:
+    def test_get_balance_empty_account(self: "TestAccount") -> None:
         """Тест получения баланса из пустого аккаунта."""
         account = Account()
         balance = account.get_balance("BTC")
@@ -119,7 +119,7 @@ class TestAccount:
         assert restored_account.is_active == account.is_active
         assert restored_account.metadata == account.metadata
 
-    def test_from_dict_with_defaults(self) -> None:
+    def test_from_dict_with_defaults(self: "TestAccount") -> None:
         """Тест создания из словаря с значениями по умолчанию."""
         data = {
             "account_id": "test_account_002",
@@ -173,7 +173,7 @@ class TestBalance:
         assert balance.available == Decimal("1.5")
         assert balance.locked == Decimal("0.1")
 
-    def test_balance_default_values(self) -> None:
+    def test_balance_default_values(self: "TestBalance") -> None:
         """Тест значений по умолчанию."""
         balance = Balance(currency="ETH")
         assert balance.currency == "ETH"
@@ -184,12 +184,12 @@ class TestBalance:
         """Тест свойства total."""
         assert balance.total == Decimal("1.6")  # 1.5 + 0.1
 
-    def test_total_property_zero_values(self) -> None:
+    def test_total_property_zero_values(self: "TestBalance") -> None:
         """Тест свойства total с нулевыми значениями."""
         balance = Balance(currency="ETH")
         assert balance.total == Decimal("0")
 
-    def test_total_property_negative_values(self) -> None:
+    def test_total_property_negative_values(self: "TestBalance") -> None:
         """Тест свойства total с отрицательными значениями."""
         balance = Balance(
             currency="ETH",
@@ -215,7 +215,7 @@ class TestBalance:
         assert restored_balance.available == balance.available
         assert restored_balance.locked == balance.locked
 
-    def test_from_dict_with_string_values(self) -> None:
+    def test_from_dict_with_string_values(self: "TestBalance") -> None:
         """Тест создания из словаря со строковыми значениями."""
         data = {
             "currency": "ETH",
@@ -242,7 +242,7 @@ class TestBalance:
         assert hasattr(balance, 'to_dict')
         assert hasattr(balance, 'from_dict')
 
-    def test_balance_equality(self) -> None:
+    def test_balance_equality(self: "TestBalance") -> None:
         """Тест равенства балансов."""
         balance1 = Balance(currency="BTC", available=Decimal("1.0"), locked=Decimal("0.1"))
         balance2 = Balance(currency="BTC", available=Decimal("1.0"), locked=Decimal("0.1"))
@@ -269,7 +269,7 @@ class TestBalance:
 class TestAccountBalanceIntegration:
     """Тесты интеграции Account и Balance."""
 
-    def test_account_with_multiple_balances(self) -> None:
+    def test_account_with_multiple_balances(self: "TestAccountBalanceIntegration") -> None:
         """Тест аккаунта с несколькими балансами."""
         balances = [
             Balance(currency="BTC", available=Decimal("1.0"), locked=Decimal("0.1")),
@@ -288,7 +288,7 @@ class TestAccountBalanceIntegration:
         assert account.get_balance("ETH").available == Decimal("10.0")
         assert account.get_balance("USDT").available == Decimal("1000.0")
 
-    def test_account_balance_operations(self) -> None:
+    def test_account_balance_operations(self: "TestAccountBalanceIntegration") -> None:
         """Тест операций с балансами аккаунта."""
         account = Account(
             account_id="test_account",
@@ -307,7 +307,7 @@ class TestAccountBalanceIntegration:
         btc_balance = account.get_balance("BTC")
         assert btc_balance.total == Decimal("2.5")  # 2.0 + 0.5
 
-    def test_account_serialization_with_balances(self) -> None:
+    def test_account_serialization_with_balances(self: "TestAccountBalanceIntegration") -> None:
         """Тест сериализации аккаунта с балансами."""
         account = Account(
             account_id="test_account",

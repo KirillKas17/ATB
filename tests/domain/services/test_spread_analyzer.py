@@ -11,11 +11,11 @@ from shared.numpy_utils import np
 class TestSpreadAnalyzer:
     """Тесты для сервиса анализа спредов."""
     @pytest.fixture
-    def spread_analyzer(self) -> Any:
+    def spread_analyzer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса анализа спредов."""
         return SpreadAnalyzer()
     @pytest.fixture
-    def sample_order_book(self) -> Any:
+    def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерным ордербуком."""
         return {
             "bids": [
@@ -31,7 +31,7 @@ class TestSpreadAnalyzer:
             "timestamp": "2024-01-01T12:00:00Z"
         }
     @pytest.fixture
-    def sample_historical_data(self) -> Any:
+    def sample_historical_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с историческими данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)

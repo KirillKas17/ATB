@@ -44,12 +44,12 @@ class SecretManager:
 
 class TestSecretManagement:
     """Тесты управления секретами."""
-    def test_secret_manager_initialization(self) -> None:
+    def test_secret_manager_initialization(self: "TestSecretManagement") -> None:
         """Тест инициализации менеджера секретов."""
         secret_manager = SecretManager()
         assert secret_manager is not None
     
-    def test_api_key_encryption(self) -> None:
+    def test_api_key_encryption(self: "TestSecretManagement") -> None:
         """Тест шифрования API ключей."""
         secret_manager = SecretManager()
         # Тестовый API ключ
@@ -62,7 +62,7 @@ class TestSecretManagement:
         decrypted_key = secret_manager.decrypt_secret(encrypted_key)
         assert decrypted_key == test_api_key
     
-    def test_secret_rotation(self) -> None:
+    def test_secret_rotation(self: "TestSecretManagement") -> None:
         """Тест ротации секретов."""
         secret_manager = SecretManager()
         # Создаем старый ключ
@@ -77,7 +77,7 @@ class TestSecretManagement:
         assert secret_manager.decrypt_secret(encrypted_old) == old_key
         assert secret_manager.decrypt_secret(encrypted_new) == new_key
     
-    def test_environment_variable_validation(self) -> None:
+    def test_environment_variable_validation(self: "TestSecretManagement") -> None:
         """Тест валидации переменных окружения."""
         secret_manager = SecretManager()
         # Тестируем отсутствующие переменные
@@ -89,7 +89,7 @@ class TestSecretManagement:
             with pytest.raises(ValueError):
                 secret_manager.get_required_secret("EMPTY_API_KEY")
     
-    def test_secret_strength_validation(self) -> None:
+    def test_secret_strength_validation(self: "TestSecretManagement") -> None:
         """Тест проверки силы секретов."""
         secret_manager = SecretManager()
         # Слабый секрет
@@ -102,7 +102,7 @@ class TestSecretManagement:
 
 class TestInputValidation:
     """Тесты валидации входных данных."""
-    def test_order_validation(self) -> None:
+    def test_order_validation(self: "TestInputValidation") -> None:
         """Тест валидации ордеров."""
         # Валидный ордер ID
         valid_order_id = OrderId("test_order")
@@ -112,7 +112,7 @@ class TestInputValidation:
         with pytest.raises(ValueError):
             OrderId("")
     
-    def test_money_validation(self) -> None:
+    def test_money_validation(self: "TestInputValidation") -> None:
         """Тест валидации денежных значений."""
         # Валидные значения
         valid_money = Money(100.0, Currency.USDT)
@@ -125,7 +125,7 @@ class TestInputValidation:
         with pytest.raises(ValueError):
             Money(float('nan'), Currency.USDT)  # NaN
     
-    def test_trading_pair_validation(self) -> None:
+    def test_trading_pair_validation(self: "TestInputValidation") -> None:
         """Тест валидации торговых пар."""
         # Валидные пары
         valid_pairs = [
@@ -146,7 +146,7 @@ class TestInputValidation:
 class TestSQLInjection:
     """Тесты защиты от SQL инъекций."""
     @pytest.mark.asyncio
-    async def test_sql_injection_protection(self) -> None:
+    def test_sql_injection_protection(self: "TestSQLInjection") -> None:
         """Тест защиты от SQL инъекций."""
         from infrastructure.core.optimized_database import OptimizedDatabase
         database = OptimizedDatabase("sqlite:///test_security.db")
@@ -172,7 +172,7 @@ class TestSQLInjection:
             # Если произошла ошибка, она должна быть не связана с SQL инъекцией
             assert "DROP TABLE" not in str(e)
     
-    def test_parameterized_queries(self) -> None:
+    def test_parameterized_queries(self: "TestSQLInjection") -> None:
         """Тест использования параметризованных запросов."""
         # Проверяем, что в коде используются параметризованные запросы
         # Это должно быть проверено в репозиториях
@@ -186,7 +186,7 @@ class TestSQLInjection:
 
 class TestAuthentication:
     """Тесты аутентификации."""
-    def test_api_signature_validation(self) -> None:
+    def test_api_signature_validation(self: "TestAuthentication") -> None:
         """Тест валидации подписи API."""
         # Тестовые данные
         api_key = "test_api_key"
@@ -210,7 +210,7 @@ class TestAuthentication:
         wrong_signature = "wrong_signature"
         assert signature != wrong_signature
     
-    def test_timestamp_validation(self) -> None:
+    def test_timestamp_validation(self: "TestAuthentication") -> None:
         """Тест валидации временных меток."""
         current_time = int(time.time() * 1000)
         # Валидная временная метка (в пределах 5 минут)
@@ -234,7 +234,7 @@ class TestAuthentication:
 
 class TestAuthorization:
     """Тесты авторизации."""
-    def test_permission_checking(self) -> None:
+    def test_permission_checking(self: "TestAuthorization") -> None:
         """Тест проверки разрешений."""
         # Симуляция пользователя с разрешениями
         user_permissions = {
@@ -249,7 +249,7 @@ class TestAuthorization:
         assert not self._check_permission(user_permissions, 'delete_trades')
         assert not self._check_permission(user_permissions, 'admin_access')
     
-    def test_role_based_access(self) -> None:
+    def test_role_based_access(self: "TestAuthorization") -> None:
         """Тест ролевого доступа."""
         # Определяем роли
         roles = {
@@ -276,7 +276,7 @@ class TestAuthorization:
 
 class TestDataIntegrity:
     """Тесты целостности данных."""
-    def test_data_validation(self) -> None:
+    def test_data_validation(self: "TestDataIntegrity") -> None:
         """Тест валидации данных."""
         # Валидные данные
         valid_data = {
@@ -299,7 +299,7 @@ class TestDataIntegrity:
         }
         assert not self._validate_trade_data(invalid_data2)
     
-    def test_data_sanitization(self) -> None:
+    def test_data_sanitization(self: "TestDataIntegrity") -> None:
         """Тест санитизации данных."""
         # Данные с потенциально опасными символами
         dirty_data = {
@@ -344,7 +344,7 @@ class TestDataIntegrity:
 
 class TestRateLimiting:
     """Тесты ограничения скорости запросов."""
-    def test_rate_limiter(self) -> None:
+    def test_rate_limiter(self: "TestRateLimiting") -> None:
         """Тест ограничителя скорости."""
         rate_limiter = RateLimiter(max_requests=10, window_seconds=60)
         # Выполняем запросы в пределах лимита
@@ -355,7 +355,7 @@ class TestRateLimiting:
         # Запрос от другого пользователя должен пройти
         assert rate_limiter.allow_request("user2")
     
-    def test_rate_limiter_reset(self) -> None:
+    def test_rate_limiter_reset(self: "TestRateLimiting") -> None:
         """Тест сброса ограничителя скорости."""
         rate_limiter = RateLimiter(max_requests=5, window_seconds=1)
         # Выполняем 5 запросов
@@ -394,7 +394,7 @@ class RateLimiter:
 
 class TestEncryption:
     """Тесты шифрования."""
-    def test_data_encryption(self) -> None:
+    def test_data_encryption(self: "TestEncryption") -> None:
         """Тест шифрования данных."""
         from cryptography.fernet import Fernet
         # Генерируем ключ
@@ -409,7 +409,7 @@ class TestEncryption:
         assert decrypted_data == sensitive_data
         assert encrypted_data != sensitive_data.encode()
     
-    def test_secure_random_generation(self) -> None:
+    def test_secure_random_generation(self: "TestEncryption") -> None:
         """Тест генерации безопасных случайных чисел."""
         import secrets
         # Генерируем случайные данные

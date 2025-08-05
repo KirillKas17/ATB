@@ -13,7 +13,7 @@ class DummyStrategy:
     def get_params(self) -> Any:
         return self._params
 
-def test_factory_creates_strategy() -> None:
+    def test_factory_creates_strategy() -> None:
     factory = get_strategy_factory()
     strategy = factory.create_strategy(
         name="trend_following",
@@ -28,7 +28,7 @@ def test_factory_creates_strategy() -> None:
     assert getattr(strategy, "trading_pairs") == ["BTC/USDT"]
     assert getattr(strategy, "parameters")["sma_period"] == 20
 
-def test_factory_raises_on_invalid_type() -> None:
+    def test_factory_raises_on_invalid_type() -> None:
     factory = get_strategy_factory()
     with pytest.raises(StrategyCreationError):
         factory.create_strategy(
@@ -39,7 +39,7 @@ def test_factory_raises_on_invalid_type() -> None:
             confidence_threshold=Decimal("0.5")
         )
 
-def test_factory_registers_custom_strategy() -> None:
+    def test_factory_registers_custom_strategy() -> None:
     factory = get_strategy_factory()
     class CustomStrategy(DummyStrategy):
         pass

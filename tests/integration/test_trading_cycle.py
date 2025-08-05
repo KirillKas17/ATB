@@ -23,7 +23,7 @@ class TestTradingCycleIntegration:
     """Тесты полного торгового цикла."""
 
     @pytest.fixture
-    def mock_repositories(self) -> Any:
+    def mock_repositories(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок репозиториев."""
         return {
             'order_repository': Mock(),
@@ -34,7 +34,7 @@ class TestTradingCycleIntegration:
         }
 
     @pytest.fixture
-    def mock_services(self) -> Any:
+    def mock_services(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок сервисов."""
         return {
             'enhanced_trading_service': Mock(),
@@ -42,7 +42,7 @@ class TestTradingCycleIntegration:
         }
 
     @pytest.fixture
-    def mock_modules(self) -> Any:
+    def mock_modules(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок модулей."""
         return {
             'noise_analyzer': Mock(),
@@ -80,7 +80,7 @@ class TestTradingCycleIntegration:
         return orchestrator
 
     @pytest.fixture
-    def mock_strategy(self) -> Any:
+    def mock_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок стратегии."""
         strategy = Mock(spec=Strategy)
         strategy.id = "test_strategy_1"
@@ -107,7 +107,7 @@ class TestTradingCycleIntegration:
         return strategy
 
     @pytest.fixture
-    def mock_portfolio(self) -> Any:
+    def mock_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок портфеля."""
         portfolio = Mock(spec=Portfolio)
         portfolio.id = "test_portfolio_1"
@@ -116,7 +116,7 @@ class TestTradingCycleIntegration:
         return portfolio
 
     @pytest.fixture
-    def execute_request(self) -> Any:
+    def execute_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание запроса на выполнение стратегии."""
         return ExecuteStrategyRequest(
             strategy_id="test_strategy_1",
@@ -128,7 +128,7 @@ class TestTradingCycleIntegration:
         )
 
     @pytest.mark.asyncio
-    async def test_full_trading_cycle(self, trading_orchestrator, mock_strategy, 
+    async def test_full_trading_cycle(self, trading_orchestrator, mock_strategy,
                                     mock_portfolio, execute_request, mock_repositories) -> None:
         """Тест полного торгового цикла."""
         # Настраиваем моки
@@ -373,7 +373,7 @@ class TestSignalProcessingIntegration:
     """Тесты интеграции обработки сигналов."""
 
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового AgentContext."""
         return AgentContext(
             symbol="BTCUSDT",

@@ -61,7 +61,7 @@ class TestSymbolsIntegration:
         assert hasattr(service_locator, 'get_service')
         assert hasattr(service_locator, 'get_use_case')
     @pytest.mark.asyncio
-    async def test_market_phase_classifier_integration(self) -> None:
+    def test_market_phase_classifier_integration(self: "TestSymbolsIntegration") -> None:
         """Тест интеграции MarketPhaseClassifier."""
         classifier = MarketPhaseClassifier()
         # Тестируем классификацию рыночной фазы
@@ -69,7 +69,7 @@ class TestSymbolsIntegration:
         assert classifier is not None
         assert hasattr(classifier, 'classify_market_phase')
     @pytest.mark.asyncio
-    async def test_opportunity_score_calculator_integration(self) -> None:
+    def test_opportunity_score_calculator_integration(self: "TestSymbolsIntegration") -> None:
         """Тест интеграции OpportunityScoreCalculator."""
         calculator = OpportunityScoreCalculator()
         # Тестируем расчет оценки возможностей
@@ -97,14 +97,14 @@ class TestSymbolsIntegration:
         assert 0.0 <= result <= 1.0
 
     @pytest.mark.asyncio
-    async def test_symbol_validator_integration(self) -> None:
+    def test_symbol_validator_integration(self: "TestSymbolsIntegration") -> None:
         """Тест интеграции SymbolValidator."""
         validator = SymbolValidator()
         # Тестируем валидацию символов
         assert validator is not None
         assert hasattr(validator, 'validate_symbol')
     @pytest.mark.asyncio
-    async def test_symbol_cache_integration(self) -> None:
+    def test_symbol_cache_integration(self: "TestSymbolsIntegration") -> None:
         """Тест интеграции SymbolCache."""
         cache = MemorySymbolCache()
         # Тестируем кэширование символов
@@ -246,7 +246,7 @@ class TestSymbolsIntegration:
         assert mock_symbol_profile.order_book_metrics is not None
         assert mock_symbol_profile.pattern_metrics is not None
         assert mock_symbol_profile.session_metrics is not None
-    def test_symbol_types_integration(self) -> None:
+    def test_symbol_types_integration(self: "TestSymbolsIntegration") -> None:
         """Тест интеграции типов символов."""
         # Тестируем перечисление MarketPhase
         assert MarketPhase.BREAKOUT_ACTIVE in MarketPhase
@@ -259,7 +259,7 @@ class TestSymbolsIntegration:
             assert isinstance(phase.value, str)
             assert len(phase.value) > 0
     @pytest.mark.asyncio
-    async def test_symbol_cache_performance(self) -> None:
+    def test_symbol_cache_performance(self: "TestSymbolsIntegration") -> None:
         """Тест производительности кэша символов."""
         cache = MemorySymbolCache()
         # Тестируем производительность кэша
@@ -274,7 +274,7 @@ class TestSymbolsIntegration:
         # Кэш должен быть быстрым (менее 1 секунды для 1000 операций)
         assert execution_time < 1.0
     @pytest.mark.asyncio
-    async def test_symbol_validation_performance(self) -> None:
+    def test_symbol_validation_performance(self: "TestSymbolsIntegration") -> None:
         """Тест производительности валидации символов."""
         validator = SymbolValidator()
         # Тестируем производительность валидации
@@ -287,7 +287,7 @@ class TestSymbolsIntegration:
         execution_time = end_time - start_time
         # Валидация должна быть быстрой
         assert execution_time < 1.0
-    def test_symbol_modules_imports(self) -> None:
+    def test_symbol_modules_imports(self: "TestSymbolsIntegration") -> None:
         """Тест импортов модулей symbols."""
         # Проверяем, что все модули можно импортировать
         try:
@@ -298,7 +298,7 @@ class TestSymbolsIntegration:
             assert True
         except ImportError as e:
             pytest.fail(f"Failed to import symbols modules: {e}")
-    def test_symbol_selection_imports(self) -> None:
+    def test_symbol_selection_imports(self: "TestSymbolsIntegration") -> None:
         """Тест импортов модулей symbol_selection."""
         # Проверяем, что все модули можно импортировать
         try:

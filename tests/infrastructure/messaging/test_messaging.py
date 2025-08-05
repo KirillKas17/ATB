@@ -27,7 +27,7 @@ from infrastructure.messaging import (
 # ============================================================================
 # Фикстуры для тестов
 # ============================================================================
-@pytest.fixture
+    @pytest.fixture
 def event_bus() -> Any:
     """Фикстура для EventBus."""
     config = EventBusConfig(
@@ -52,7 +52,7 @@ def event_bus() -> Any:
     mock_bus.publish = AsyncMock(return_value=True)
     mock_bus.get_performance_metrics = Mock(return_value={'total_errors': 0})
     return mock_bus
-@pytest.fixture
+    @pytest.fixture
 def message_queue() -> Any:
     """Фикстура для MessageQueue."""
     config = MessageQueueConfig(
@@ -76,7 +76,7 @@ def message_queue() -> Any:
     mock_queue.publish = AsyncMock(return_value=True)
     mock_queue.get_performance_metrics = Mock(return_value={'total_messages': 0})
     return mock_queue
-@pytest.fixture
+    @pytest.fixture
 def websocket_service() -> Any:
     """Фикстура для WebSocketService."""
     config = WebSocketServiceConfig(
@@ -124,7 +124,7 @@ class TestEventBus:
         await event_bus.start()
         # Создаем обработчик
         events_received = []
-        async def test_handler(event: Event) -> None:
+    async def test_handler(event: Event) -> None:
             events_received.append(event)
         # Подписываемся на событие
         handler_id = event_bus.subscribe(EventName("test.event"), test_handler)
@@ -145,7 +145,7 @@ class TestEventBus:
         await event_bus.start()
         # Создаем обработчик
         events_received = []
-        async def test_handler(event: Event) -> None:
+    async def test_handler(event: Event) -> None:
             events_received.append(event)
         # Подписываемся на событие
         event_bus.subscribe(EventName("test.event"), test_handler)
@@ -171,7 +171,7 @@ class TestEventBus:
         await event_bus.start()
         # Создаем обработчик
         events_received = []
-        async def test_handler(event: Event) -> None:
+    async def test_handler(event: Event) -> None:
             events_received.append(event)
         # Подписываемся на событие
         event_bus.subscribe(EventName("test.event"), test_handler)
@@ -231,7 +231,7 @@ class TestEventBus:
         """Тест метрик EventBus."""
         await event_bus.start()
         # Создаем обработчик
-        async def test_handler(event: Event) -> None:
+    async def test_handler(event: Event) -> None:
             await asyncio.sleep(0.01)
         # Подписываемся на событие
         event_bus.subscribe(EventName("test.event"), test_handler)
@@ -275,7 +275,7 @@ class TestMessageQueue:
         await message_queue.start()
         # Создаем обработчик
         messages_received = []
-        async def test_handler(message: Message) -> None:
+    async def test_handler(message: Message) -> None:
             messages_received.append(message)
         # Подписываемся на тему
         handler_id = await message_queue.subscribe(TopicName("test.topic"), test_handler)
@@ -296,7 +296,7 @@ class TestMessageQueue:
         await message_queue.start()
         # Создаем обработчик
         messages_received = []
-        async def test_handler(message: Message) -> None:
+    async def test_handler(message: Message) -> None:
             messages_received.append(message)
         # Подписываемся на тему
         await message_queue.subscribe(TopicName("test.topic"), test_handler)
@@ -320,7 +320,7 @@ class TestMessageQueue:
         await message_queue.start()
         # Создаем обработчик
         messages_received = []
-        async def test_handler(message: Message) -> None:
+    async def test_handler(message: Message) -> None:
             messages_received.append(message)
         # Подписываемся на тему
         await message_queue.subscribe(TopicName("test.topic"), test_handler)
@@ -370,7 +370,7 @@ class TestMessageQueue:
         """Тест метрик MessageQueue."""
         await message_queue.start()
         # Создаем обработчик
-        async def test_handler(message: Message) -> None:
+    async def test_handler(message: Message) -> None:
             await asyncio.sleep(0.01)
         # Подписываемся на тему
         await message_queue.subscribe(TopicName("test.topic"), test_handler)
@@ -511,7 +511,7 @@ class TestIntegration:
 class TestPerformance:
     """Тесты производительности."""
     @pytest.mark.asyncio
-    async def test_event_bus_performance(self) -> None:
+    def test_event_bus_performance(self: "TestPerformance") -> None:
         """Тест производительности EventBus."""
         config = EventBusConfig(
             max_workers=4,
@@ -542,7 +542,7 @@ class TestPerformance:
         assert processing_time < 1.0  # Должно обработаться быстро
         await event_bus.stop()
     @pytest.mark.asyncio
-    async def test_message_queue_performance(self) -> None:
+    def test_message_queue_performance(self: "TestPerformance") -> None:
         """Тест производительности MessageQueue."""
         config = MessageQueueConfig(
             max_size=1000,

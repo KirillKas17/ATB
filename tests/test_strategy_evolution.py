@@ -16,7 +16,7 @@ from domain.evolution import (EntryRule, EvolutionContext, EvolutionStatus,
 from infrastructure.evolution import StrategyStorage
 class TestStrategyModel:
     """Тесты для моделей стратегий."""
-    def test_strategy_candidate_creation(self) -> None:
+    def test_strategy_candidate_creation(self: "TestStrategyModel") -> None:
         """Тест создания кандидата стратегии."""
         candidate = StrategyCandidate(
             name="Test Strategy",
@@ -30,7 +30,7 @@ class TestStrategyModel:
         assert candidate.generation == 0
         assert len(candidate.indicators) == 0
         assert len(candidate.filters) == 0
-    def test_strategy_candidate_with_indicators(self) -> None:
+    def test_strategy_candidate_with_indicators(self: "TestStrategyModel") -> None:
         """Тест кандидата стратегии с индикаторами."""
         candidate = StrategyCandidate()
         indicator = IndicatorConfig(
@@ -43,7 +43,7 @@ class TestStrategyModel:
         assert len(candidate.indicators) == 1
         assert candidate.indicators[0].name == "SMA"
         assert candidate.indicators[0].parameters["period"] == 20
-    def test_strategy_candidate_with_filters(self) -> None:
+    def test_strategy_candidate_with_filters(self: "TestStrategyModel") -> None:
         """Тест кандидата стратегии с фильтрами."""
         candidate = StrategyCandidate()
         filter_config = FilterConfig(
@@ -56,7 +56,7 @@ class TestStrategyModel:
         assert len(candidate.filters) == 1
         assert candidate.filters[0].name == "VolatilityFilter"
         assert candidate.filters[0].parameters["min_atr"] == 0.01
-    def test_strategy_candidate_with_rules(self) -> None:
+    def test_strategy_candidate_with_rules(self: "TestStrategyModel") -> None:
         """Тест кандидата стратегии с правилами."""
         candidate = StrategyCandidate()
         entry_rule = EntryRule(
@@ -73,7 +73,7 @@ class TestStrategyModel:
         assert len(candidate.exit_rules) == 1
         assert candidate.entry_rules[0].signal_type == SignalType.BUY
         assert candidate.exit_rules[0].stop_loss_pct == Decimal("0.02")
-    def test_strategy_candidate_serialization(self) -> None:
+    def test_strategy_candidate_serialization(self: "TestStrategyModel") -> None:
         """Тест сериализации кандидата стратегии."""
         candidate = StrategyCandidate(
             name="Test Strategy", strategy_type=StrategyType.MEAN_REVERSION
@@ -93,7 +93,7 @@ class TestStrategyModel:
         assert restored.indicators[0].name == candidate.indicators[0].name
 class TestEvolutionContext:
     """Тесты для контекста эволюции."""
-    def test_evolution_context_creation(self) -> None:
+    def test_evolution_context_creation(self: "TestEvolutionContext") -> None:
         """Тест создания контекста эволюции."""
         context = EvolutionContext(
             name="Test Evolution",
@@ -108,7 +108,7 @@ class TestEvolutionContext:
         assert context.generations == 100
         assert context.mutation_rate == Decimal("0.1")
         assert context.min_accuracy == Decimal("0.82")
-    def test_evolution_context_serialization(self) -> None:
+    def test_evolution_context_serialization(self: "TestEvolutionContext") -> None:
         """Тест сериализации контекста эволюции."""
         context = EvolutionContext(
             name="Test Context", population_size=30, generations=50
@@ -120,13 +120,13 @@ class TestEvolutionContext:
         assert restored.generations == context.generations
 class TestStrategyGenerator:
     """Тесты для генератора стратегий."""
-    def test_generator_creation(self) -> None:
+    def test_generator_creation(self: "TestStrategyGenerator") -> None:
         """Тест создания генератора."""
         context = EvolutionContext(population_size=50, generations=100)
         generator = StrategyGenerator(context)
         assert generator.context == context
         assert generator.generation_count == 0
-    def test_random_strategy_generation(self) -> None:
+    def test_random_strategy_generation(self: "TestStrategyGenerator") -> None:
         """Тест генерации случайной стратегии."""
         context = EvolutionContext()
         generator = StrategyGenerator(context)
@@ -137,14 +137,14 @@ class TestStrategyGenerator:
         assert len(strategy.filters) > 0
         assert len(strategy.entry_rules) > 0
         assert len(strategy.exit_rules) > 0
-    def test_population_generation(self) -> None:
+    def test_population_generation(self: "TestStrategyGenerator") -> None:
         """Тест генерации популяции."""
         context = EvolutionContext(population_size=10)
         generator = StrategyGenerator(context)
         population = generator.generate_population()
         assert len(population) == 10
         assert all(isinstance(s, StrategyCandidate) for s in population)
-    def test_crossover_strategies(self) -> None:
+    def test_crossover_strategies(self: "TestStrategyGenerator") -> None:
         """Тест скрещивания стратегий."""
         context = EvolutionContext()
         generator = StrategyGenerator(context)
@@ -156,7 +156,7 @@ class TestStrategyGenerator:
         assert child.strategy_type in [parent1.strategy_type, parent2.strategy_type]
         assert len(child.indicators) > 0
         assert len(child.parent_ids) == 2
-    def test_mutation_strategy(self) -> None:
+    def test_mutation_strategy(self: "TestStrategyGenerator") -> None:
         """Тест мутации стратегии."""
         context = EvolutionContext()
         generator = StrategyGenerator(context)
@@ -166,11 +166,11 @@ class TestStrategyGenerator:
         assert mutated.mutation_count == 0  # Счетчик увеличивается в генераторе
 class TestStrategyFitnessEvaluator:
     """Тесты для оценщика эффективности."""
-    def test_evaluator_creation(self) -> None:
+    def test_evaluator_creation(self: "TestStrategyFitnessEvaluator") -> None:
         """Тест создания оценщика."""
         evaluator = StrategyFitnessEvaluator()
         assert evaluator.evaluation_results == {}
-    def test_evaluate_strategy(self) -> None:
+    def test_evaluate_strategy(self: "TestStrategyFitnessEvaluator") -> None:
         """Тест оценки стратегии."""
         evaluator = StrategyFitnessEvaluator()
         # Создать тестовую стратегию
@@ -201,7 +201,7 @@ class TestStrategyFitnessEvaluator:
         assert result.total_trades >= 0
         assert result.accuracy >= 0
         assert result.profitability >= 0
-    def test_fitness_score_calculation(self) -> None:
+    def test_fitness_score_calculation(self: "TestStrategyFitnessEvaluator") -> None:
         """Тест расчета fitness score."""
         StrategyFitnessEvaluator()
         # Создать результат оценки
@@ -216,7 +216,7 @@ class TestStrategyFitnessEvaluator:
         fitness = result.get_fitness_score()
         assert isinstance(fitness, Decimal)
         assert fitness > 0
-    def test_approval_criteria_check(self) -> None:
+    def test_approval_criteria_check(self: "TestStrategyFitnessEvaluator") -> None:
         """Тест проверки критериев одобрения."""
         context = EvolutionContext(
             min_accuracy=Decimal("0.8"),
@@ -238,12 +238,12 @@ class TestStrategyFitnessEvaluator:
         assert result.is_approved == True
 class TestStrategySelector:
     """Тесты для селектора стратегий."""
-    def test_selector_creation(self) -> None:
+    def test_selector_creation(self: "TestStrategySelector") -> None:
         """Тест создания селектора."""
         context = EvolutionContext()
         selector = StrategySelector(context)
         assert selector.context == context
-    def test_select_by_fitness(self) -> None:
+    def test_select_by_fitness(self: "TestStrategySelector") -> None:
         """Тест отбора по fitness."""
         context = EvolutionContext()
         selector = StrategySelector(context)
@@ -268,7 +268,7 @@ class TestStrategySelector:
         )
         assert len(selected) == 3
         assert all(isinstance(s, StrategyCandidate) for s in selected)
-    def test_multi_criteria_selection(self) -> None:
+    def test_multi_criteria_selection(self: "TestStrategySelector") -> None:
         """Тест многокритериального отбора."""
         context = EvolutionContext()
         selector = StrategySelector(context)
@@ -289,7 +289,7 @@ class TestStrategySelector:
             candidates, evaluations, n=2, selection_method="multi_criteria"
         )
         assert len(selected) == 2
-    def test_selection_statistics(self) -> None:
+    def test_selection_statistics(self: "TestStrategySelector") -> None:
         """Тест статистики отбора."""
         context = EvolutionContext()
         selector = StrategySelector(context)
@@ -312,11 +312,11 @@ class TestStrategySelector:
         assert "fitness_stats" in stats
 class TestStrategyStorage:
     """Тесты для хранилища стратегий."""
-    def test_storage_creation(self) -> None:
+    def test_storage_creation(self: "TestStrategyStorage") -> None:
         """Тест создания хранилища."""
         storage = StrategyStorage(":memory:")  # In-memory database
         assert storage.engine is not None
-    def test_save_and_retrieve_candidate(self) -> None:
+    def test_save_and_retrieve_candidate(self: "TestStrategyStorage") -> None:
         """Тест сохранения и извлечения кандидата."""
         storage = StrategyStorage(":memory:")
         # Создать кандидата
@@ -330,7 +330,7 @@ class TestStrategyStorage:
         assert retrieved is not None
         assert retrieved.name == candidate.name
         assert retrieved.strategy_type == candidate.strategy_type
-    def test_save_and_retrieve_evaluation(self) -> None:
+    def test_save_and_retrieve_evaluation(self: "TestStrategyStorage") -> None:
         """Тест сохранения и извлечения оценки."""
         storage = StrategyStorage(":memory:")
         # Создать оценку
@@ -347,7 +347,7 @@ class TestStrategyStorage:
         assert retrieved is not None
         assert retrieved.strategy_id == evaluation.strategy_id
         assert retrieved.accuracy == evaluation.accuracy
-    def test_storage_statistics(self) -> None:
+    def test_storage_statistics(self: "TestStrategyStorage") -> None:
         """Тест статистики хранилища."""
         storage = StrategyStorage(":memory:")
         # Добавить тестовые данные
@@ -365,7 +365,7 @@ class TestStrategyStorage:
         assert stats["approved_evaluations"] == 1
 class TestEvolutionOrchestrator:
     """Тесты для оркестратора эволюции."""
-    def test_orchestrator_creation(self) -> None:
+    def test_orchestrator_creation(self: "TestEvolutionOrchestrator") -> None:
         """Тест создания оркестратора."""
         context = EvolutionContext()
         # Мок репозитория
@@ -391,7 +391,7 @@ class TestEvolutionOrchestrator:
         )
         assert orchestrator.context == context
         assert orchestrator.current_generation == 0
-    def test_single_generation(self) -> None:
+    def test_single_generation(self: "TestEvolutionOrchestrator") -> None:
         """Тест одного поколения эволюции."""
         context = EvolutionContext(population_size=5, generations=1)
         class MockRepository:

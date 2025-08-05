@@ -17,7 +17,7 @@ from infrastructure.external_services.ml.model_manager import ModelManager
 class TestModelManager:
     """Тесты для ModelManager."""
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
         return MLServiceConfig(
             models_dir="/tmp/test_models",
@@ -29,7 +29,7 @@ class TestModelManager:
         """Экземпляр ModelManager."""
         return ModelManager(config)
     @pytest.fixture
-    def sample_model_config(self) -> Any:
+    def sample_model_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример конфигурации модели."""
         return MLModelConfig(
             name="test_model",

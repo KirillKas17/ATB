@@ -12,8 +12,8 @@ from domain.services.strategy_service import DefaultStrategyService
 from domain.services.pattern_discovery import PatternDiscovery
 from domain.services.risk_analysis import DefaultRiskAnalysisService
 
-@pytest.mark.asyncio
-async def test_domain_services_integration() -> None:
+    @pytest.mark.asyncio
+    async def test_domain_services_integration() -> None:
     locator = get_service_locator()
     # Проверяем, что все сервисы доступны через DI
     assert isinstance(locator.get_service(MarketMetricsService), MarketMetricsService)

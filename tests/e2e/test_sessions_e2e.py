@@ -38,7 +38,7 @@ class TestSessionsE2E:
         self.data_repo = SessionDataRepository()
         self.config_repo = SessionConfigurationRepository()
     @pytest.mark.e2e
-    def test_complete_session_analysis_workflow(self) -> None:
+    def test_complete_session_analysis_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест полного рабочего процесса анализа сессии."""
         # Шаг 1: Инициализация системы
         assert self.registry is not None
@@ -82,7 +82,7 @@ class TestSessionsE2E:
         assert len(retrieved_analyses) > 0
         assert any(a.timestamp == analysis.timestamp for a in retrieved_analyses)
     @pytest.mark.e2e
-    def test_multi_session_analysis_workflow(self) -> None:
+    def test_multi_session_analysis_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест анализа множественных сессий."""
         # Шаг 1: Анализ всех типов сессий
         market_data = self._create_realistic_market_data()
@@ -114,7 +114,7 @@ class TestSessionsE2E:
             assert "session_type" in summary
             assert summary["session_type"] == session_type.value
     @pytest.mark.e2e
-    def test_session_optimization_workflow(self) -> None:
+    def test_session_optimization_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест оптимизации сессий."""
         # Шаг 1: Получение профиля сессии
         session_profile = self.registry.get_profile(SessionType.LONDON)
@@ -147,7 +147,7 @@ class TestSessionsE2E:
         assert retrieved_profile is not None
         assert retrieved_profile.session_type == optimized_profile.session_type
     @pytest.mark.e2e
-    def test_session_prediction_workflow(self) -> None:
+    def test_session_prediction_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест предсказания сессий."""
         # Шаг 1: Получение текущего контекста
         context = self.service.get_current_session_context()
@@ -194,7 +194,7 @@ class TestSessionsE2E:
                 )
                 assert isinstance(future_analysis, SessionAnalysisResult)
     @pytest.mark.e2e
-    def test_session_manager_workflow(self) -> None:
+    def test_session_manager_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест управления сессиями."""
         # Шаг 1: Регистрация анализаторов
         for session_type in SessionType:
@@ -218,7 +218,7 @@ class TestSessionsE2E:
             assert "session_type" in statistics
             assert statistics["session_type"] == session_type.value
     @pytest.mark.e2e
-    def test_session_service_complete_workflow(self) -> None:
+    def test_session_service_complete_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест полного рабочего процесса SessionService."""
         # Шаг 1: Получение текущего контекста
         context = self.service.get_current_session_context()
@@ -261,7 +261,7 @@ class TestSessionsE2E:
         assert "status" in health_check
         assert health_check["status"] in ["healthy", "warning", "error"]
     @pytest.mark.e2e
-    def test_session_data_persistence_workflow(self) -> None:
+    def test_session_data_persistence_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест персистентности данных сессий."""
         # Шаг 1: Создание тестовых данных
         session_profile = self.registry.get_profile(SessionType.ASIAN)

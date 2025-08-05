@@ -15,10 +15,10 @@ from domain.value_objects.timestamp import Timestamp
 class TestMarketPatternRecognizer:
     """Тесты для MarketPatternRecognizer"""
     @pytest.fixture
-    def recognizer(self) -> Any:
+    def recognizer(self: "TestEvolvableMarketMakerAgent") -> Any:
         return MarketPatternRecognizer()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         dates = pd.date_range(start='2024-01-01', periods=100, freq='1min')
         data = {
             'timestamp': dates,
@@ -30,7 +30,7 @@ class TestMarketPatternRecognizer:
         }
         return pd.DataFrame(data)
     @pytest.fixture
-    def sample_order_book(self) -> Any:
+    def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         return {
             'bids': [
                 {'price': 50000, 'size': 1.5},
@@ -50,7 +50,7 @@ class TestMarketPatternRecognizer:
         assert 'volume_threshold' in recognizer.config
         assert 'price_impact_threshold' in recognizer.config
         assert 'confidence_threshold' in recognizer.config
-    def test_recognizer_with_custom_config(self) -> None:
+    def test_recognizer_with_custom_config(self: "TestMarketPatternRecognizer") -> None:
         """Тест инициализации с пользовательской конфигурацией"""
         custom_config = {
             'volume_threshold': 2000000,
@@ -107,7 +107,7 @@ class TestMarketPatternRecognizer:
         assert result is None
 class TestPatternDetection:
     """Тесты для PatternDetection"""
-    def test_pattern_detection_creation(self) -> None:
+    def test_pattern_detection_creation(self: "TestPatternDetection") -> None:
         """Тест создания PatternDetection"""
         detection = PatternDetection(
             pattern_type=PatternType.WHALE_ABSORPTION,
@@ -129,7 +129,7 @@ class TestPatternDetection:
         assert detection.strength == 2.5
         assert detection.direction == "up"
         assert detection.metadata["test"] == "data"
-    def test_pattern_detection_to_dict(self) -> None:
+    def test_pattern_detection_to_dict(self: "TestPatternDetection") -> None:
         """Тест преобразования PatternDetection в словарь"""
         detection = PatternDetection(
             pattern_type=PatternType.MM_SPOOFING,
@@ -153,7 +153,7 @@ class TestPatternDetection:
         assert result["direction"] == "down"
 class TestPatternType:
     """Тесты для PatternType"""
-    def test_pattern_type_values(self) -> None:
+    def test_pattern_type_values(self: "TestPatternType") -> None:
         """Тест значений типов паттернов"""
         assert PatternType.WHALE_ABSORPTION.value == "whale_absorption"
         assert PatternType.MM_SPOOFING.value == "mm_spoofing"

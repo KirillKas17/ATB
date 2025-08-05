@@ -711,7 +711,7 @@ def create_strategy_error(error_type: str, message: str, **kwargs: Any) -> Strat
     }
 
     error_class = error_map.get(error_type, StrategyError)
-    return error_class(message, **kwargs)
+    return error_class(message, **kwargs)  # type: ignore[no-any-return]
 
 
 def is_strategy_error(exception: Exception) -> bool:

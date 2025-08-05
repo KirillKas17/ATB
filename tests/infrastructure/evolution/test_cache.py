@@ -14,14 +14,14 @@ from infrastructure.evolution.types import CacheKey
 
 class TestEvolutionCache:
     """Тесты для EvolutionCache."""
-    def test_init_default_config(self) -> None:
+    def test_init_default_config(self: "TestEvolutionCache") -> None:
         """Тест инициализации с конфигурацией по умолчанию."""
         cache = EvolutionCache()
         assert cache.max_size == 1000
         assert cache.ttl == 300
         assert cache.strategy == "lru"
         assert len(cache._cache) == 0
-    def test_init_custom_config(self) -> None:
+    def test_init_custom_config(self: "TestEvolutionCache") -> None:
         """Тест инициализации с пользовательской конфигурацией."""
         config = {
             "cache_size": 500,
@@ -32,7 +32,7 @@ class TestEvolutionCache:
         assert cache.max_size == 500
         assert cache.ttl == 600
         assert cache.strategy == "fifo"
-    def test_init_invalid_config(self) -> None:
+    def test_init_invalid_config(self: "TestEvolutionCache") -> None:
         """Тест инициализации с некорректной конфигурацией."""
         config = {
             "cache_size": -1,  # Некорректный размер
@@ -150,7 +150,7 @@ class TestEvolutionCache:
         assert stats["custom_data"] == 1
         assert stats["hit_rate"] == 0.0
         assert stats["miss_rate"] == 0.0
-    def test_lru_eviction(self) -> None:
+    def test_lru_eviction(self: "TestEvolutionCache") -> None:
         """Тест вытеснения по LRU стратегии."""
         config = {
             "cache_size": 2,
@@ -174,7 +174,7 @@ class TestEvolutionCache:
         assert CacheKey("key2") in cache._cache
         assert CacheKey("key3") not in cache._cache
         assert CacheKey("key4") in cache._cache
-    def test_fifo_eviction(self) -> None:
+    def test_fifo_eviction(self: "TestEvolutionCache") -> None:
         """Тест вытеснения по FIFO стратегии."""
         config = {
             "cache_size": 2,
@@ -198,7 +198,7 @@ class TestEvolutionCache:
         assert CacheKey("key2") not in cache._cache
         assert CacheKey("key3") in cache._cache
         assert CacheKey("key4") in cache._cache
-    def test_ttl_expiration(self) -> None:
+    def test_ttl_expiration(self: "TestEvolutionCache") -> None:
         """Тест истечения по TTL."""
         config = {
             "cache_size": 100,
@@ -223,7 +223,7 @@ class TestEvolutionCache:
         stats = cache.get_stats()
         assert stats["hit_rate"] == 0.5
         assert stats["miss_rate"] == 0.5
-    def test_cache_size_limit(self) -> None:
+    def test_cache_size_limit(self: "TestEvolutionCache") -> None:
         """Тест ограничения размера кэша."""
         config = {
             "cache_size": 1,

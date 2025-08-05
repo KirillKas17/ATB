@@ -28,15 +28,15 @@ from domain.strategies.exceptions import (
 class TestStrategyE2E:
     """End-to-End тесты для стратегий."""
     @pytest.fixture
-    def factory(self) -> Any:
+    def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать фабрику стратегий."""
         return get_strategy_factory()
     @pytest.fixture
-    def registry(self) -> Any:
+    def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реестр стратегий."""
         return get_strategy_registry()
     @pytest.fixture
-    def realistic_market_data(self) -> Any:
+    def realistic_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реалистичные рыночные данные."""
         data_series = []
         base_price = Decimal("50000")

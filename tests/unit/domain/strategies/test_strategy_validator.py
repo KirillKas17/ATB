@@ -27,7 +27,7 @@ class MockStrategy:
         return self._risk_level
     def get_confidence_threshold(self) -> Any:
         return self._confidence_threshold
-def test_validator_validates_correct_strategy() -> None:
+    def test_validator_validates_correct_strategy() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -46,7 +46,7 @@ def test_validator_validates_correct_strategy() -> None:
     assert result.is_valid is True
     assert len(result.errors) == 0
     assert len(result.warnings) == 0
-def test_validator_detects_empty_trading_pairs() -> None:
+    def test_validator_detects_empty_trading_pairs() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -61,7 +61,7 @@ def test_validator_detects_empty_trading_pairs() -> None:
     assert result.is_valid is False
     assert len(result.errors) > 0
     assert any("trading pairs" in error.lower() for error in result.errors)
-def test_validator_detects_invalid_parameters() -> None:
+    def test_validator_detects_invalid_parameters() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -80,7 +80,7 @@ def test_validator_detects_invalid_parameters() -> None:
     assert result.is_valid is False
     assert len(result.errors) > 0
     assert any("parameter" in error.lower() for error in result.errors)
-def test_validator_detects_invalid_confidence_threshold() -> None:
+    def test_validator_detects_invalid_confidence_threshold() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -95,7 +95,7 @@ def test_validator_detects_invalid_confidence_threshold() -> None:
     assert result.is_valid is False
     assert len(result.errors) > 0
     assert any("confidence" in error.lower() for error in result.errors)
-def test_validator_detects_invalid_risk_level() -> None:
+    def test_validator_detects_invalid_risk_level() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -110,7 +110,7 @@ def test_validator_detects_invalid_risk_level() -> None:
     assert result.is_valid is False
     assert len(result.errors) > 0
     assert any("risk" in error.lower() for error in result.errors)
-def test_validator_detects_missing_required_parameters() -> None:
+    def test_validator_detects_missing_required_parameters() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -125,7 +125,7 @@ def test_validator_detects_missing_required_parameters() -> None:
     assert result.is_valid is False
     assert len(result.errors) > 0
     assert any("parameter" in error.lower() for error in result.errors)
-def test_validator_validates_trend_following_parameters() -> None:
+    def test_validator_validates_trend_following_parameters() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -146,7 +146,7 @@ def test_validator_validates_trend_following_parameters() -> None:
     result = validator.validate_strategy(strategy)
     assert result.is_valid is True
     assert len(result.errors) == 0
-def test_validator_validates_mean_reversion_parameters() -> None:
+    def test_validator_validates_mean_reversion_parameters() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -166,7 +166,7 @@ def test_validator_validates_mean_reversion_parameters() -> None:
     result = validator.validate_strategy(strategy)
     assert result.is_valid is True
     assert len(result.errors) == 0
-def test_validator_generates_warnings_for_suboptimal_parameters() -> None:
+    def test_validator_generates_warnings_for_suboptimal_parameters() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -185,7 +185,7 @@ def test_validator_generates_warnings_for_suboptimal_parameters() -> None:
     assert result.is_valid is True  # Стратегия валидна
     assert len(result.warnings) > 0  # Но есть предупреждения
     assert any("period" in warning.lower() for warning in result.warnings)
-def test_validator_validates_multiple_trading_pairs() -> None:
+    def test_validator_validates_multiple_trading_pairs() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),
@@ -203,7 +203,7 @@ def test_validator_validates_multiple_trading_pairs() -> None:
     result = validator.validate_strategy(strategy)
     assert result.is_valid is True
     assert len(result.errors) == 0
-def test_validator_detects_duplicate_trading_pairs() -> None:
+    def test_validator_detects_duplicate_trading_pairs() -> None:
     validator = get_strategy_validator()
     strategy = MockStrategy(
         strategy_id=StrategyId(uuid4()),

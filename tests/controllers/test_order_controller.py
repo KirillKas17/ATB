@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import pytest
 from unittest.mock import Mock, patch
 from core.controllers.order_controller import OrderController
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from domain.entities import Order, Position
@@ -14,7 +14,7 @@ else:
     except ImportError:
         # Создаем заглушки для тестирования
         class Order:
-            def __init__(self, id: str, pair: str, type: str, side: str, price: float, size: float, status: str, timestamp: datetime) -> Any:
+            def __init__(self, id: str, pair: str, type: str, side: str, price: float, size: float, status: str, timestamp: datetime) -> None:
                 self.id = id
                 self.pair = pair
                 self.type = type
@@ -24,7 +24,7 @@ else:
                 self.status = status
                 self.timestamp = timestamp
         class Position:
-            def __init__(self, pair: str, side: str, size: float, entry_price: float, current_price: float, pnl: float, leverage: float, entry_time: datetime) -> Any:
+            def __init__(self, pair: str, side: str, size: float, entry_price: float, current_price: float, pnl: float, leverage: float, entry_time: datetime) -> None:
                 self.pair = pair
                 self.side = side
                 self.size = size

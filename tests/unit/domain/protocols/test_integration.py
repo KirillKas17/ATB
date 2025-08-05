@@ -785,47 +785,47 @@ class TestIntegrationTests:
     """Тесты интеграционных функций."""
 
     @pytest.mark.asyncio
-    async def test_exchange_protocol_integration(self):
+    async def test_exchange_protocol_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции протокола биржи."""
         await test_exchange_protocol_integration()
 
     @pytest.mark.asyncio
-    async def test_ml_protocol_integration(self):
+    async def test_ml_protocol_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции ML протокола."""
         await test_ml_protocol_integration()
 
     @pytest.mark.asyncio
-    async def test_strategy_protocol_integration(self):
+    async def test_strategy_protocol_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции протокола стратегии."""
         await test_strategy_protocol_integration()
 
     @pytest.mark.asyncio
-    async def test_repository_protocol_integration(self):
+    async def test_repository_protocol_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции протокола репозитория."""
         await test_repository_protocol_integration()
 
     @pytest.mark.asyncio
-    async def test_trading_system_integration(self):
+    async def test_trading_system_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции торговой системы."""
         await test_trading_system_integration()
 
     @pytest.mark.asyncio
-    async def test_protocol_decorators_integration(self):
+    async def test_protocol_decorators_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции декораторов протоколов."""
         await test_protocol_decorators_integration()
 
     @pytest.mark.asyncio
-    async def test_protocol_validators_integration(self):
+    async def test_protocol_validators_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции валидаторов протоколов."""
         await test_protocol_validators_integration()
 
     @pytest.mark.asyncio
-    async def test_protocol_monitoring_integration(self):
+    async def test_protocol_monitoring_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции мониторинга протоколов."""
         await test_protocol_monitoring_integration()
 
     @pytest.mark.asyncio
-    async def test_protocol_performance_integration(self):
+    async def test_protocol_performance_integration(self: "TestIntegrationTests") -> None:
         """Тест интеграции производительности протоколов."""
         await test_protocol_performance_integration()
 
@@ -833,7 +833,7 @@ class TestIntegrationTests:
 class TestIntegrationUtilities:
     """Тесты утилит интеграции."""
 
-    async def test_run_all_integration_tests(self):
+    async def test_run_all_integration_tests(self: "TestIntegrationUtilities") -> None:
         """Тест запуска всех интеграционных тестов."""
         results = await run_all_integration_tests()
         assert isinstance(results, list)
@@ -842,7 +842,7 @@ class TestIntegrationUtilities:
 class TestIntegrationErrorHandling:
     """Тесты обработки ошибок интеграции."""
 
-    async def test_exchange_protocol_error_handling(self):
+    async def test_exchange_protocol_error_handling(self: "TestIntegrationErrorHandling") -> None:
         """Тест обработки ошибок протокола биржи."""
         exchange_protocol = IntegrationTestExchangeProtocol()
         
@@ -850,7 +850,7 @@ class TestIntegrationErrorHandling:
         with pytest.raises(Exception):
             await exchange_protocol.get_market_data("")  # Пустой символ
 
-    async def test_ml_protocol_error_handling(self):
+    async def test_ml_protocol_error_handling(self: "TestIntegrationErrorHandling") -> None:
         """Тест обработки ошибок ML протокола."""
         ml_protocol = IntegrationTestMLProtocol()
         
@@ -858,7 +858,7 @@ class TestIntegrationErrorHandling:
         with pytest.raises(Exception):
             await ml_protocol.predict(uuid4(), {})  # Несуществующая модель
 
-    async def test_strategy_protocol_error_handling(self):
+    async def test_strategy_protocol_error_handling(self: "TestIntegrationErrorHandling") -> None:
         """Тест обработки ошибок протокола стратегии."""
         strategy_protocol = IntegrationTestStrategyProtocol()
         
@@ -868,7 +868,7 @@ class TestIntegrationErrorHandling:
                 pd.DataFrame(), DomainStrategyType.MOMENTUM
             )  # Пустые данные
 
-    async def test_repository_protocol_error_handling(self):
+    async def test_repository_protocol_error_handling(self: "TestIntegrationErrorHandling") -> None:
         """Тест обработки ошибок протокола репозитория."""
         repository_protocol = IntegrationTestRepositoryProtocol()
         
@@ -880,7 +880,7 @@ class TestIntegrationErrorHandling:
 class TestIntegrationPerformance:
     """Тесты производительности интеграции."""
 
-    async def test_trading_cycle_performance(self):
+    async def test_trading_cycle_performance(self: "TestIntegrationPerformance") -> None:
         """Тест производительности торгового цикла."""
         trading_system = TradingSystemIntegration()
         await trading_system.initialize()
@@ -893,7 +893,7 @@ class TestIntegrationPerformance:
         duration = (end_time - start_time).total_seconds()
         assert duration < 5.0  # Цикл должен выполняться менее 5 секунд
 
-    async def test_bulk_operations_performance(self):
+    async def test_bulk_operations_performance(self: "TestIntegrationPerformance") -> None:
         """Тест производительности пакетных операций."""
         repository_protocol = IntegrationTestRepositoryProtocol()
         

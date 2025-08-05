@@ -12,15 +12,15 @@ from application.di_container import DIContainer, ContainerConfig
 class TestMarketPatternRecognizerIntegration:
     """Тесты интеграции MarketPatternRecognizer."""
     @pytest.fixture
-    def market_pattern_recognizer(self) -> Any:
+    def market_pattern_recognizer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра MarketPatternRecognizer."""
         return MarketPatternRecognizer()
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание AgentContext."""
         return AgentContext(symbol="BTCUSDT")
     @pytest.fixture
-    def mock_repositories(self) -> Any:
+    def mock_repositories(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание моков репозиториев."""
         return {
             "order_repository": Mock(),
@@ -37,7 +37,7 @@ class TestMarketPatternRecognizerIntegration:
             **mock_repositories,
             market_pattern_recognizer=market_pattern_recognizer
         )
-    def test_di_container_integration(self) -> None:
+    def test_di_container_integration(self: "TestMarketPatternRecognizerIntegration") -> None:
         """Тест интеграции в DI контейнер."""
         config = ContainerConfig(market_pattern_recognition_enabled=True)
         container = DIContainer(config)
@@ -486,7 +486,7 @@ class TestMarketPatternRecognizerIntegration:
         # Проверяем, что сигнал был модифицирован
         assert modified_signal.confidence > 0.8
         assert modified_signal.strength > Decimal("1.0")
-    def test_di_container_trading_orchestrator_creation(self) -> None:
+    def test_di_container_trading_orchestrator_creation(self: "TestMarketPatternRecognizerIntegration") -> None:
         """Тест создания TradingOrchestrator через DI контейнер."""
         config = ContainerConfig(
             market_pattern_recognition_enabled=True,
@@ -499,7 +499,7 @@ class TestMarketPatternRecognizerIntegration:
         # Проверяем, что MarketPatternRecognizer добавлен
         assert orchestrator.market_pattern_recognizer is not None
         assert isinstance(orchestrator.market_pattern_recognizer, MarketPatternRecognizer)
-    def test_di_container_trading_orchestrator_creation_disabled(self) -> None:
+    def test_di_container_trading_orchestrator_creation_disabled(self: "TestMarketPatternRecognizerIntegration") -> None:
         """Тест создания TradingOrchestrator без MarketPatternRecognizer."""
         config = ContainerConfig(market_pattern_recognition_enabled=False)
         container = DIContainer(config)

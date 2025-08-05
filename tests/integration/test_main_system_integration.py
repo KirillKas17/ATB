@@ -432,7 +432,7 @@ class TestMainSystemIntegration:
 class TestMainSystemErrorHandling:
     """Тесты обработки ошибок в основной системе."""
     @pytest.mark.asyncio
-    async def test_agent_initialization_errors(self) -> None:
+    def test_agent_initialization_errors(self: "TestMainSystemErrorHandling") -> None:
         """Тест ошибок инициализации агентов."""
         with patch('infrastructure.agents.evolvable_market_maker.EvolvableMarketMakerAgent.__init__', 
                   side_effect=Exception("Initialization error")):
@@ -443,7 +443,7 @@ class TestMainSystemErrorHandling:
             except Exception as e:
                 logger.info(f"Expected initialization error handled: {e}")
     @pytest.mark.asyncio
-    async def test_agent_operation_errors(self) -> None:
+    def test_agent_operation_errors(self: "TestMainSystemErrorHandling") -> None:
         """Тест ошибок операций агентов."""
         integration = EvolutionIntegration()
         await integration.initialize_agents()
@@ -458,7 +458,7 @@ class TestMainSystemErrorHandling:
             except Exception as e:
                 logger.info(f"Agent {agent_name} handled operation error: {e}")
     @pytest.mark.asyncio
-    async def test_system_recovery(self) -> None:
+    def test_system_recovery(self: "TestMainSystemErrorHandling") -> None:
         """Тест восстановления системы после ошибок."""
         integration = EvolutionIntegration()
         # Симуляция ошибки и восстановления

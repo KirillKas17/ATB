@@ -22,22 +22,22 @@ from application.di_container_refactored import get_service_locator
 class TestStrategiesMainCycleIntegration:
     """Интеграционные тесты для проверки интеграции с основным циклом."""
     @pytest.fixture
-    def service_locator(self) -> Any:
+    def service_locator(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_service_locator()
     @pytest.fixture
     def trading_orchestrator(self, service_locator) -> Any:
         return service_locator.get_use_case(DefaultTradingOrchestratorUseCase)
     @pytest.fixture
-    def strategy_factory(self) -> Any:
+    def strategy_factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_factory()
     @pytest.fixture
-    def strategy_registry(self) -> Any:
+    def strategy_registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_registry()
     @pytest.fixture
-    def strategy_validator(self) -> Any:
+    def strategy_validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_validator()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает тестовые рыночные данные."""
         return MarketData(
             symbol="BTC/USDT",

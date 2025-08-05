@@ -28,7 +28,7 @@ class TestOrderbookFilter:
                 {"price": "50003", "quantity": "0.3"}
             ]
         }
-    def test_filter_by_price_range(self) -> None:
+    def test_filter_by_price_range(self: "TestOrderbookFilter") -> None:
         """Тест фильтрации по диапазону цен."""
         filter_instance = OrderBookPreFilter()
         
@@ -44,7 +44,7 @@ class TestOrderbookFilter:
         assert filtered_orderbook is not None
         assert hasattr(filtered_orderbook, 'bids')
         assert hasattr(filtered_orderbook, 'asks')
-    def test_filter_by_quantity_threshold(self) -> None:
+    def test_filter_by_quantity_threshold(self: "TestOrderbookFilter") -> None:
         """Тест фильтрации по порогу количества."""
         filter_instance = OrderBookPreFilter()
         
@@ -60,7 +60,7 @@ class TestOrderbookFilter:
         assert filtered_orderbook is not None
         assert len(filtered_orderbook.bids) > 0
         assert len(filtered_orderbook.asks) > 0
-    def test_filter_by_spread(self) -> None:
+    def test_filter_by_spread(self: "TestOrderbookFilter") -> None:
         """Тест фильтрации по спреду."""
         filter_instance = OrderBookPreFilter()
         
@@ -80,7 +80,7 @@ class TestOrderbookFilter:
             best_ask = filtered_orderbook.asks[0][0].amount
             spread = best_ask - best_bid
             assert spread > 0
-    def test_filter_by_depth(self) -> None:
+    def test_filter_by_depth(self: "TestOrderbookFilter") -> None:
         """Тест фильтрации по глубине."""
         filter_instance = OrderBookPreFilter()
         
@@ -96,7 +96,7 @@ class TestOrderbookFilter:
         assert filtered_orderbook is not None
         assert len(filtered_orderbook.bids) >= 3
         assert len(filtered_orderbook.asks) >= 3
-    def test_remove_outliers(self) -> None:
+    def test_remove_outliers(self: "TestOrderbookFilter") -> None:
         """Тест удаления выбросов."""
         filter_instance = OrderBookPreFilter()
         
@@ -113,7 +113,7 @@ class TestOrderbookFilter:
         # Проверяем, что выбросы обработаны
         assert len(filtered_orderbook.bids) > 0
         assert len(filtered_orderbook.asks) > 0
-    def test_normalize_orderbook(self) -> None:
+    def test_normalize_orderbook(self: "TestOrderbookFilter") -> None:
         """Тест нормализации ордербука."""
         filter_instance = OrderBookPreFilter()
         
@@ -131,7 +131,7 @@ class TestOrderbookFilter:
         for bid in filtered_orderbook.bids:
             assert bid[0].amount > 0
             assert bid[1].amount > 0
-    def test_calculate_orderbook_metrics(self) -> None:
+    def test_calculate_orderbook_metrics(self: "TestOrderbookFilter") -> None:
         """Тест расчета метрик ордербука."""
         filter_instance = OrderBookPreFilter()
         
@@ -151,7 +151,7 @@ class TestOrderbookFilter:
         assert stats is not None
         assert isinstance(stats, dict)
         assert "total_processed" in stats
-    def test_filter_invalid_data(self) -> None:
+    def test_filter_invalid_data(self: "TestOrderbookFilter") -> None:
         """Тест фильтрации невалидных данных."""
         filter_instance = OrderBookPreFilter()
         
@@ -169,7 +169,7 @@ class TestOrderbookFilter:
         for bid in filtered_orderbook.bids:
             assert bid[0].amount > 0
             assert bid[1].amount > 0
-    def test_apply_multiple_filters(self) -> None:
+    def test_apply_multiple_filters(self: "TestOrderbookFilter") -> None:
         """Тест применения множественных фильтров."""
         filter_instance = OrderBookPreFilter()
         

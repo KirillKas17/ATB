@@ -19,7 +19,7 @@ class TestSessionServiceOrchestratorIntegration:
         service.mark_session = AsyncMock()
         return service
     @pytest.fixture
-    def mock_trading_service(self) -> Any:
+    def mock_trading_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает мок TradingService."""
         service = Mock()
         service.execute_order = AsyncMock()
@@ -58,14 +58,14 @@ class TestSessionServiceOrchestratorIntegration:
         await orchestrator.update_handlers.update_session_marker(["BTCUSDT"])
         # Проверяем, что session_service был вызван
         mock_session_service.get_current_session_context.assert_called()
-    def test_session_service_factory_creates_valid_service(self) -> None:
+    def test_session_service_factory_creates_valid_service(self: "TestSessionServiceOrchestratorIntegration") -> None:
         """Тест, что фабрика создает валидный SessionService."""
         service = get_session_service()
         assert isinstance(service, SessionService)
         assert service.registry is not None
         assert service.session_marker is not None
         assert service.influence_analyzer is not None
-    def test_orchestrator_backward_compatibility(self) -> None:
+    def test_orchestrator_backward_compatibility(self: "TestSessionServiceOrchestratorIntegration") -> None:
         """Тест обратной совместимости orchestrator'а."""
         # Создаем orchestrator без session_service (старый способ)
         orchestrator_old = Mock()
@@ -77,7 +77,7 @@ class TestSessionServiceOrchestratorIntegration:
         assert hasattr(orchestrator_old, 'session_marker')
         assert hasattr(orchestrator_old, 'session_influence_analyzer')
         assert orchestrator_old.session_service is None
-    def test_orchestrator_new_way_priority(self) -> None:
+    def test_orchestrator_new_way_priority(self: "TestSessionServiceOrchestratorIntegration") -> None:
         """Тест, что новый способ создания имеет приоритет."""
         session_service = get_session_service()
         trading_service = Mock()

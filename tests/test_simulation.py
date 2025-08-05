@@ -7,7 +7,7 @@ from simulation.backtest_explainer import BacktestExplainer
 from simulation.backtester import Backtester
 from simulation.market_simulator import MarketSimulator
 # Фикстуры
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -22,7 +22,7 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-@pytest.fixture
+    @pytest.fixture
 def mock_strategy() -> Any:
     """Фикстура с тестовой стратегией"""
     strategy = Mock()
@@ -32,7 +32,7 @@ def mock_strategy() -> Any:
         ]
     )
     return strategy
-@pytest.fixture
+    @pytest.fixture
 def backtester() -> Any:
     """Фикстура с бэктестером"""
     return Backtester(
@@ -44,11 +44,11 @@ def backtester() -> Any:
             "risk_per_trade": 0.02,
         }
     )
-@pytest.fixture
+    @pytest.fixture
 def market_simulator() -> Any:
     """Фикстура с симулятором рынка"""
     return MarketSimulator(volatility=0.02, trend_strength=0.5, noise_level=0.01)
-@pytest.fixture
+    @pytest.fixture
 def backtest_explainer() -> Any:
     """Фикстура с объяснителем бэктеста"""
     return BacktestExplainer(min_trades=10, confidence_threshold=0.7)

@@ -17,7 +17,7 @@ class TestPortfolio:
     """Тесты для Portfolio entity."""
 
     @pytest.fixture
-    def sample_portfolio(self) -> Any:
+    def sample_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерным портфелем."""
         return Portfolio(
             id=uuid4(),
@@ -27,7 +27,7 @@ class TestPortfolio:
             used_margin=Money(Decimal("0"), Currency.USD)
         )
 
-    def test_portfolio_creation(self) -> None:
+    def test_portfolio_creation(self: "TestPortfolio") -> None:
         """Тест создания портфеля."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -42,7 +42,7 @@ class TestPortfolio:
         assert portfolio.free_margin.amount == Decimal("8000")
         assert portfolio.used_margin.amount == Decimal("0")
 
-    def test_portfolio_total_value(self) -> None:
+    def test_portfolio_total_value(self: "TestPortfolio") -> None:
         """Тест получения общей стоимости портфеля."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -56,7 +56,7 @@ class TestPortfolio:
         assert portfolio.balance.amount == Decimal("10000")
         assert portfolio.total_balance.amount == Decimal("10000")
 
-    def test_portfolio_margin_ratio(self) -> None:
+    def test_portfolio_margin_ratio(self: "TestPortfolio") -> None:
         """Тест расчета коэффициента маржи."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -69,7 +69,7 @@ class TestPortfolio:
         margin_ratio = portfolio.get_margin_ratio()
         assert margin_ratio == Decimal("50")  # 5000/10000 * 100
 
-    def test_portfolio_margin_call(self) -> None:
+    def test_portfolio_margin_call(self: "TestPortfolio") -> None:
         """Тест проверки маржин-колла."""
         # Создаем портфель с низким уровнем маржи
         portfolio = Portfolio(
@@ -84,7 +84,7 @@ class TestPortfolio:
         assert margin_ratio == Decimal("120")  # 6000/5000 * 100
         assert portfolio.used_margin.amount > portfolio.total_equity.amount
 
-    def test_portfolio_status_operations(self) -> None:
+    def test_portfolio_status_operations(self: "TestPortfolio") -> None:
         """Тест операций со статусом портфеля."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -110,7 +110,7 @@ class TestPortfolio:
         assert portfolio.is_closed
         assert not portfolio.is_active
 
-    def test_portfolio_validation_empty_id(self) -> None:
+    def test_portfolio_validation_empty_id(self: "TestPortfolio") -> None:
         """Тест валидации пустого ID."""
         # Portfolio использует UUID, поэтому пустой ID не может быть передан
         # Этот тест проверяет, что Portfolio корректно обрабатывает UUID
@@ -123,7 +123,7 @@ class TestPortfolio:
         )
         assert portfolio.id is not None
 
-    def test_portfolio_validation_empty_name(self) -> None:
+    def test_portfolio_validation_empty_name(self: "TestPortfolio") -> None:
         """Тест валидации пустого имени."""
         # Portfolio позволяет пустое имя, поэтому этот тест проверяет это поведение
         portfolio = Portfolio(
@@ -135,7 +135,7 @@ class TestPortfolio:
         )
         assert portfolio.name == ""
 
-    def test_portfolio_risk_profile(self) -> None:
+    def test_portfolio_risk_profile(self: "TestPortfolio") -> None:
         """Тест профиля риска."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -149,7 +149,7 @@ class TestPortfolio:
         assert portfolio.risk_profile == RiskProfile.AGGRESSIVE
         assert portfolio.risk_profile.value == "aggressive"
 
-    def test_portfolio_leverage(self) -> None:
+    def test_portfolio_leverage(self: "TestPortfolio") -> None:
         """Тест максимального плеча."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -163,7 +163,7 @@ class TestPortfolio:
         assert portfolio.max_leverage == Decimal("20")
         assert portfolio.leverage == Decimal("20")
 
-    def test_portfolio_update_operations(self) -> None:
+    def test_portfolio_update_operations(self: "TestPortfolio") -> None:
         """Тест операций обновления."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -185,7 +185,7 @@ class TestPortfolio:
         assert portfolio.free_margin == new_free_margin
         assert portfolio.used_margin == new_used_margin
 
-    def test_portfolio_properties(self) -> None:
+    def test_portfolio_properties(self: "TestPortfolio") -> None:
         """Тест свойств портфеля."""
         portfolio = Portfolio(
             id=uuid4(),
@@ -216,7 +216,7 @@ class TestPortfolio:
         assert "updated_at" in portfolio_dict
         assert "metadata" in portfolio_dict
 
-    def test_from_dict(self) -> None:
+    def test_from_dict(self: "TestPortfolio") -> None:
         """Тест создания из словаря."""
         data = {
             "id": str(uuid4()),

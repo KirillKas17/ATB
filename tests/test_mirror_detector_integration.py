@@ -22,7 +22,7 @@ from domain.value_objects.currency import Currency
 class TestMirrorDetectorIntegration:
     """Тесты интеграции MirrorDetector в TradingOrchestrator"""
     @pytest.fixture
-    def mock_mirror_detector(self) -> Any:
+    def mock_mirror_detector(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок MirrorDetector"""
         detector = Mock(spec=MirrorDetector)
         # Мок для build_correlation_matrix
@@ -35,7 +35,7 @@ class TestMirrorDetectorIntegration:
         detector.build_correlation_matrix.return_value = mock_correlation_matrix
         return detector
     @pytest.fixture
-    def mock_price_data(self) -> Any:
+    def mock_price_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок данных о ценах"""
         dates = pd.date_range(start='2024-01-01', end='2024-01-31', freq='1H')
         # Создаем коррелированные данные
@@ -312,7 +312,7 @@ class TestMirrorDetectorIntegration:
 class TestMirrorDetectorPerformance:
     """Тесты производительности MirrorDetector."""
     @pytest.mark.asyncio
-    async def test_mirror_detection_performance(self) -> None:
+    def test_mirror_detection_performance(self: "TestMirrorDetectorPerformance") -> None:
         """Тест производительности детекции зеркальных сигналов."""
         import time
         # Arrange
@@ -338,7 +338,7 @@ class TestMirrorDetectorPerformance:
 class TestMirrorDetectorIntegrationWithRealData:
     """Тесты интеграции с реальными данными."""
     @pytest.mark.asyncio
-    async def test_mirror_detection_with_realistic_data(self) -> None:
+    def test_mirror_detection_with_realistic_data(self: "TestMirrorDetectorIntegrationWithRealData") -> None:
         """Тест детекции зеркальных сигналов с реалистичными данными."""
         # Arrange
         detector = MirrorDetector()
@@ -367,7 +367,7 @@ class TestMirrorDetectorIntegrationWithRealData:
         correlation = correlation_matrix.get_correlation("BTCUSDT", "ETHUSDT")
         assert abs(correlation) > 0.5  # Должна быть обнаружена сильная корреляция
     @pytest.mark.asyncio
-    async def test_mirror_signal_detection(self) -> None:
+    def test_mirror_signal_detection(self: "TestMirrorDetectorIntegrationWithRealData") -> None:
         """Тест обнаружения зеркального сигнала."""
         # Arrange
         detector = MirrorDetector()

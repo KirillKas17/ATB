@@ -33,7 +33,7 @@ from application.symbol_selection.opportunity_selector import DynamicOpportunity
 class TestSymbolsPerformanceE2E:
     """E2E тесты производительности для системы анализа символов."""
     @pytest.fixture
-    def performance_components(self) -> Any:
+    def performance_components(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с компонентами для тестов производительности."""
         return {
             'validator': SymbolValidator(),
@@ -43,7 +43,7 @@ class TestSymbolsPerformanceE2E:
             'doass': DynamicOpportunityAwareSymbolSelector()
         }
     @pytest.fixture
-    def large_dataset(self) -> Any:
+    def large_dataset(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с большим набором данных для тестирования производительности."""
         np.random.seed(42)
         # Генерируем данные для 100 символов

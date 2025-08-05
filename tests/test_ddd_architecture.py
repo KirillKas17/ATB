@@ -35,7 +35,7 @@ from shared.exceptions import InsufficientFundsError
 class TestDomainEntities:
     """Тесты доменных сущностей"""
 
-    def test_order_creation(self) -> None:
+    def test_order_creation(self: "TestDomainEntities") -> None:
         """Тест создания ордера"""
         order = Order(
             trading_pair="BTCUSDT",
@@ -53,7 +53,7 @@ class TestDomainEntities:
         assert order.status == OrderStatus.PENDING
         assert order.is_active is True
 
-    def test_order_fill(self) -> None:
+    def test_order_fill(self: "TestDomainEntities") -> None:
         """Тест заполнения ордера"""
         order = Order(
             trading_pair="BTCUSDT",
@@ -78,7 +78,7 @@ class TestDomainEntities:
         assert order.status == OrderStatus.FILLED
         assert order.remaining_quantity.value == Decimal("0")
 
-    def test_order_cancel(self) -> None:
+    def test_order_cancel(self: "TestDomainEntities") -> None:
         """Тест отмены ордера"""
         order = Order(
             trading_pair="BTCUSDT",
@@ -93,7 +93,7 @@ class TestDomainEntities:
         assert order.status == OrderStatus.CANCELLED
         assert order.is_active is False
 
-    def test_position_creation(self) -> None:
+    def test_position_creation(self: "TestDomainEntities") -> None:
         """Тест создания позиции"""
         position = Position(
             trading_pair="BTCUSDT",
@@ -110,7 +110,7 @@ class TestDomainEntities:
         assert position.current_price.value == Decimal("51000")
         assert position.is_open is True
 
-    def test_position_pnl_calculation(self) -> None:
+    def test_position_pnl_calculation(self: "TestDomainEntities") -> None:
         """Тест расчета PnL позиции"""
         # Длинная позиция с прибылью
         long_position = Position(
@@ -140,7 +140,7 @@ class TestDomainEntities:
             "-10"
         )  # (50000-51000)*0.001
 
-    def test_portfolio_creation(self) -> None:
+    def test_portfolio_creation(self: "TestDomainEntities") -> None:
         """Тест создания портфеля"""
         portfolio = Portfolio(
             account_id="test_account",
@@ -152,7 +152,7 @@ class TestDomainEntities:
         assert portfolio.total_equity.value == Decimal("10000")
         assert portfolio.free_margin.value == Decimal("10000")
 
-    def test_risk_manager_creation(self) -> None:
+    def test_risk_manager_creation(self: "TestDomainEntities") -> None:
         """Тест создания менеджера рисков"""
         risk_profile = RiskProfile(
             name="Test Profile",
@@ -167,7 +167,7 @@ class TestDomainEntities:
         assert risk_manager.risk_profile.name == "Test Profile"
         assert risk_manager.risk_profile.max_position_size.value == Decimal("1000")
 
-    def test_strategy_creation(self) -> None:
+    def test_strategy_creation(self: "TestDomainEntities") -> None:
         """Тест создания стратегии"""
         strategy = Strategy(
             name="Test Strategy",
@@ -181,7 +181,7 @@ class TestDomainEntities:
         assert "BTCUSDT" in strategy.trading_pairs
         assert strategy.status.value == "active"
 
-    def test_signal_creation(self) -> None:
+    def test_signal_creation(self: "TestDomainEntities") -> None:
         """Тест создания сигнала"""
         signal = Signal(
             strategy_id=uuid4(),
@@ -204,7 +204,7 @@ class TestRepositories:
     """Тесты репозиториев"""
 
     @pytest.mark.asyncio
-    async def test_trading_repository(self) -> None:
+    def test_trading_repository(self: "TestRepositories") -> None:
         """Тест репозитория торговых операций"""
         repo = InMemoryTradingRepository()
 
@@ -243,7 +243,7 @@ class TestRepositories:
         assert retrieved_order is None
 
     @pytest.mark.asyncio
-    async def test_portfolio_repository(self) -> None:
+    def test_portfolio_repository(self: "TestRepositories") -> None:
         """Тест репозитория портфеля"""
         repo = InMemoryPortfolioRepository()
 
@@ -313,7 +313,7 @@ class TestApplicationServices:
     """Тесты сервисов приложения"""
 
     @pytest.mark.asyncio
-    async def test_trading_service_creation(self) -> None:
+    def test_trading_service_creation(self: "TestApplicationServices") -> None:
         """Тест создания торгового сервиса"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -336,7 +336,7 @@ class TestApplicationServices:
         assert service.risk_manager == risk_manager
 
     @pytest.mark.asyncio
-    async def test_create_order_success(self) -> None:
+    def test_create_order_success(self: "TestApplicationServices") -> None:
         """Тест успешного создания ордера"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -386,7 +386,7 @@ class TestApplicationServices:
         assert order.quantity.value == Decimal("0.001")
 
     @pytest.mark.asyncio
-    async def test_create_order_insufficient_funds(self) -> None:
+    def test_create_order_insufficient_funds(self: "TestApplicationServices") -> None:
         """Тест создания ордера с недостаточными средствами"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -431,7 +431,7 @@ class TestApplicationServices:
             )
 
     @pytest.mark.asyncio
-    async def test_execute_order(self) -> None:
+    def test_execute_order(self: "TestApplicationServices") -> None:
         """Тест исполнения ордера"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -483,7 +483,7 @@ class TestApplicationServices:
         assert updated_order.status == OrderStatus.FILLED
 
     @pytest.mark.asyncio
-    async def test_cancel_order(self) -> None:
+    def test_cancel_order(self: "TestApplicationServices") -> None:
         """Тест отмены ордера"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -524,7 +524,7 @@ class TestApplicationServices:
         assert cancelled_order.is_active is False
 
     @pytest.mark.asyncio
-    async def test_get_portfolio_summary(self) -> None:
+    def test_get_portfolio_summary(self: "TestApplicationServices") -> None:
         """Тест получения сводки портфеля"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -581,7 +581,7 @@ class TestApplicationServices:
 class TestRiskManagement:
     """Тесты управления рисками"""
 
-    def test_risk_limit_creation(self) -> None:
+    def test_risk_limit_creation(self: "TestRiskManagement") -> None:
         """Тест создания лимита риска"""
         limit = RiskLimit(
             risk_type=RiskType.POSITION_SIZE,
@@ -596,7 +596,7 @@ class TestRiskManagement:
         assert limit.warning_threshold == Decimal("800")
         assert limit.critical_threshold == Decimal("900")
 
-    def test_risk_limit_violation_check(self) -> None:
+    def test_risk_limit_violation_check(self: "TestRiskManagement") -> None:
         """Тест проверки нарушения лимита риска"""
         limit = RiskLimit(
             risk_type=RiskType.POSITION_SIZE,
@@ -621,7 +621,7 @@ class TestRiskManagement:
         violation = limit.check_violation()
         assert violation == RiskLevel.CRITICAL
 
-    def test_risk_manager_violations(self) -> None:
+    def test_risk_manager_violations(self: "TestRiskManagement") -> None:
         """Тест нарушений в менеджере рисков"""
         risk_profile = RiskProfile(
             max_position_size=Money(Decimal("1000"), Currency.USD),
@@ -648,7 +648,7 @@ class TestRiskManagement:
         assert violations[0]["risk_level"] == "critical"
         assert violations[0]["current_value"] == 950.0
 
-    def test_risk_manager_trade_validation(self) -> None:
+    def test_risk_manager_trade_validation(self: "TestRiskManagement") -> None:
         """Тест валидации сделки в менеджере рисков"""
         risk_profile = RiskProfile(
             max_position_size=Money(Decimal("1000"), Currency.USD),
@@ -687,7 +687,7 @@ class TestRiskManagement:
 class TestValueObjects:
     """Тесты объектов-значений"""
 
-    def test_money_operations(self) -> None:
+    def test_money_operations(self: "TestValueObjects") -> None:
         """Тест операций с деньгами"""
         money1 = Money(Decimal("100"), Currency.USD)
         money2 = Money(Decimal("200"), Currency.USD)
@@ -705,7 +705,7 @@ class TestValueObjects:
         result = money1 * 2
         assert result.value == Decimal("200")
 
-    def test_price_operations(self) -> None:
+    def test_price_operations(self: "TestValueObjects") -> None:
         """Тест операций с ценой"""
         price = Price(Decimal("50000"))
         volume = Volume(Decimal("0.001"))
@@ -715,7 +715,7 @@ class TestValueObjects:
         assert result.value == Decimal("50")
         assert result.currency == Currency.USD
 
-    def test_volume_operations(self) -> None:
+    def test_volume_operations(self: "TestValueObjects") -> None:
         """Тест операций с объемом"""
         volume1 = Volume(Decimal("0.001"))
         volume2 = Volume(Decimal("0.002"))
@@ -728,7 +728,7 @@ class TestValueObjects:
         result = volume2 - volume1
         assert result.value == Decimal("0.001")
 
-    def test_percentage_operations(self) -> None:
+    def test_percentage_operations(self: "TestValueObjects") -> None:
         """Тест операций с процентами"""
         percentage = Percentage(Decimal("20"))
 

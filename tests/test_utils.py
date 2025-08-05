@@ -10,7 +10,7 @@ from shared.math_utils import calculate_drawdown, calculate_sharpe_ratio
 from shared.visualization import (plot_equity_curve, plot_indicators,
                                   plot_trades)
 # Фикстуры
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
@@ -25,11 +25,11 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-@pytest.fixture
+    @pytest.fixture
 def technical_analysis_service() -> Any:
     """Фикстура с сервисом технического анализа"""
     return DefaultTechnicalAnalysisService()
-@pytest.fixture
+    @pytest.fixture
 def mock_trades() -> Any:
     """Фикстура с тестовыми сделками"""
     return [
@@ -89,18 +89,18 @@ class TestMathUtils:
         assert 0 <= win_rate <= 1
 # Тесты для логирования
 class TestLogging:
-    def test_setup_logger(self) -> None:
+    def test_setup_logger(self: "TestLogging") -> None:
         """Тест настройки логгера"""
         logger = setup_logger("test_logger", "test.log")
         assert logger is not None
         assert logger.name == "test_logger"
-    def test_log_trade(self) -> None:
+    def test_log_trade(self: "TestLogging") -> None:
         """Тест логирования сделки"""
         trade = {"symbol": "BTC/USDT", "side": "buy", "price": 50000, "size": 0.1}
         with patch("logging.Logger.info") as mock_info:
             log_trade(trade)
             mock_info.assert_called_once()
-    def test_log_error(self) -> None:
+    def test_log_error(self: "TestLogging") -> None:
         """Тест логирования ошибки"""
         error = Exception("Test error")
         with patch("logging.Logger.error") as mock_error:
@@ -108,7 +108,7 @@ class TestLogging:
             mock_error.assert_called_once()
 # Тесты для загрузки данных
 class TestDataLoader:
-    def test_load_market_data(self) -> None:
+    def test_load_market_data(self: "TestDataLoader") -> None:
         """Тест загрузки рыночных данных"""
         with patch("pandas.read_csv") as mock_read_csv:
             mock_read_csv.return_value = pd.DataFrame({"close": [100, 101, 102]})

@@ -33,7 +33,7 @@ class TestEvolutionBackup:
         assert backup.max_backups == 5
         assert backup.compression_enabled is False
         assert backup.encryption_enabled is True
-    def test_init_invalid_config(self) -> None:
+    def test_init_invalid_config(self: "TestEvolutionBackup") -> None:
         """Тест инициализации с некорректной конфигурацией."""
         config = {
             "backup_dir": "/invalid/path",

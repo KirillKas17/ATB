@@ -10,11 +10,11 @@ from domain.type_definitions.ml_types import PatternResult, PatternType, Pattern
 class TestPatternDiscovery:
     """Тесты для сервиса обнаружения паттернов."""
     @pytest.fixture
-    def pattern_discovery(self) -> Any:
+    def pattern_discovery(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса обнаружения паттернов."""
         return PatternDiscovery()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)
@@ -30,7 +30,7 @@ class TestPatternDiscovery:
             'bollinger_lower': np.random.uniform(49000, 50000, 100)
         }, index=dates)
     @pytest.fixture
-    def sample_pattern_data(self) -> Any:
+    def sample_pattern_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с данными, содержащими паттерны."""
         dates = pd.date_range('2024-01-01', periods=50, freq='1H')
         np.random.seed(42)
@@ -351,7 +351,7 @@ class TestPatternDiscovery:
         for _ in range(3):
             result = results.get()
             assert isinstance(result, list)
-    def test_pattern_discovery_config_customization(self) -> None:
+    def test_pattern_discovery_config_customization(self: "TestPatternDiscovery") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "pattern_threshold": 0.8,

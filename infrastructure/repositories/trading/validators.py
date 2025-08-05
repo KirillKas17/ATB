@@ -219,7 +219,7 @@ class TradingDataValidator:
         errors: List[str] = []
         if not side:
             errors.append("Order side cannot be empty")
-            return errors  # type: ignore[unreachable]
+            return errors
         else:
             try:
                 if isinstance(side, str):
@@ -237,7 +237,7 @@ class TradingDataValidator:
         errors: List[str] = []
         if not order_type:
             errors.append("Order type cannot be empty")
-            return errors  # type: ignore[unreachable]
+            return errors
         else:
             try:
                 if isinstance(order_type, str):
@@ -335,13 +335,13 @@ class TradingDataValidator:
         errors: List[str] = []
         if not isinstance(precision, int):
             errors.append("Precision must be an integer")
-            return errors  # type: ignore[unreachable]
+            return errors
         if precision < 0:
             errors.append("Precision cannot be negative")
-            return errors  # type: ignore[unreachable]
+            return errors
         elif precision > 20:
             errors.append("Precision cannot exceed 20")
-            return errors  # type: ignore[unreachable]
+            return errors
         return errors
 
     def _validate_name(self, name: str) -> List[str]:

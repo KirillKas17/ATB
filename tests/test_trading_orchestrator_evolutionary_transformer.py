@@ -9,7 +9,7 @@ from domain.strategy_modifiers import StrategyModifiers
 class TestTradingOrchestratorEvolutionaryTransformer:
     """Тесты интеграции EvolutionaryTransformer в TradingOrchestrator"""
     @pytest.fixture
-    def mock_evolutionary_transformer(self) -> Any:
+    def mock_evolutionary_transformer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок EvolutionaryTransformer"""
         mock = Mock(spec=EvolutionaryTransformer)
         mock.analyze_market_data.return_value = {
@@ -22,7 +22,7 @@ class TestTradingOrchestratorEvolutionaryTransformer:
         }
         return mock
     @pytest.fixture
-    def mock_agent_context(self) -> Any:
+    def mock_agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок AgentContext"""
         mock = Mock(spec=AgentContext)
         mock.evolutionary_transformer_result = None
@@ -33,7 +33,7 @@ class TestTradingOrchestratorEvolutionaryTransformer:
         )
         return mock
     @pytest.fixture
-    def mock_market_data(self) -> Any:
+    def mock_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок MarketData"""
         mock = Mock(spec=MarketData)
         mock.get_ohlcv_data.return_value = {
@@ -197,7 +197,7 @@ class TestTradingOrchestratorEvolutionaryTransformer:
         result = trading_orchestrator._update_evolutionary_transformer("BTCUSDT", "1h", invalid_market_data)
         # Проверяем, что метод корректно обработал некорректные данные
         assert result is None or result == {}
-    def test_evolutionary_transformer_configuration_integration(self) -> None:
+    def test_evolutionary_transformer_configuration_integration(self: "TestTradingOrchestratorEvolutionaryTransformer") -> None:
         """Тест интеграции конфигурации EvolutionaryTransformer"""
         # Проверяем, что EvolutionaryTransformer регистрируется в DI контейнере
         with patch('application.di_container.get_evolutionary_transformer') as mock_get:

@@ -14,7 +14,7 @@ from domain.type_definitions.strategy_types import StrategyType, MarketRegime
 class TestDecomposedStrategies:
     """Тесты для декомпозированных стратегий"""
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание корректных тестовых данных"""
         dates = pd.date_range('2024-01-01', periods=100, freq='1h')
         np.random.seed(42)
@@ -167,7 +167,7 @@ class TestDecomposedStrategies:
         is_valid, error_msg = strategy.validate_data(sample_data)
         assert is_valid is True
         assert error_msg == ""
-    def test_strategy_data_validation_invalid(self) -> None:
+    def test_strategy_data_validation_invalid(self: "TestDecomposedStrategies") -> None:
         """Тест валидации некорректных данных"""
         strategy = TrendStrategy()
         # Пустые данные
@@ -218,7 +218,7 @@ class TestDecomposedStrategies:
         assert len(analysis.market_data) == len(sample_data)
         assert analysis.confidence >= 0.0 and analysis.confidence <= 1.0
         assert analysis.market_regime in MarketRegime
-    def test_strategy_error_handling(self) -> None:
+    def test_strategy_error_handling(self: "TestDecomposedStrategies") -> None:
         """Тест обработки ошибок в стратегиях"""
         strategy = TrendStrategy()
         # Тест с None данными

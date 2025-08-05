@@ -533,7 +533,7 @@ class TestMessageQueue:
 class TestIntegrationConfig:
     """Тесты для конфигурации интеграции."""
     
-    def test_integration_config_creation(self) -> None:
+    def test_integration_config_creation(self: "TestIntegrationConfig") -> None:
         """Тест создания конфигурации интеграции."""
         config = {
             "enabled": True,
@@ -554,7 +554,7 @@ class TestIntegrationConfig:
         assert config["monitoring_enabled"] is True
         assert config["log_level"] == "INFO"
 
-    def test_integration_config_validation(self) -> None:
+    def test_integration_config_validation(self: "TestIntegrationConfig") -> None:
         """Тест валидации конфигурации интеграции."""
         config = {
             "enabled": True,
@@ -580,21 +580,21 @@ class TestIntegrationConfig:
 class TestIntegrationErrors:
     """Тесты для ошибок интеграции."""
     
-    def test_integration_error_creation(self) -> None:
+    def test_integration_error_creation(self: "TestIntegrationErrors") -> None:
         """Тест создания ошибки интеграции."""
         error_message = "Integration failed"
         error = ConnectionError(error_message)
         assert str(error) == error_message
         assert isinstance(error, ConnectionError)
 
-    def test_error_inheritance(self) -> None:
+    def test_error_inheritance(self: "TestIntegrationErrors") -> None:
         """Тест наследования ошибок."""
         error = ConnectionError("Test error")
         assert isinstance(error, Exception)
         assert isinstance(error, ConnectionError)
 
 class TestIntegrationTestExchangeProtocol:
-    def test_exchange_protocol_implementation(self) -> None:
+    def test_exchange_protocol_implementation(self: "TestIntegrationTestExchangeProtocol") -> None:
         """Тест реализации протокола биржи."""
         # Создаем мок вместо абстрактного класса
         exchange_protocol = Mock()
@@ -613,7 +613,7 @@ class TestIntegrationTestExchangeProtocol:
         assert result is True
 
 class TestIntegrationTestMLProtocol:
-    def test_ml_protocol_implementation(self) -> None:
+    def test_ml_protocol_implementation(self: "TestIntegrationTestMLProtocol") -> None:
         """Тест реализации ML протокола."""
         # Создаем мок вместо абстрактного класса
         ml_protocol = Mock()
@@ -632,7 +632,7 @@ class TestIntegrationTestMLProtocol:
         assert validation is True
 
 class TestIntegrationTestRepositoryProtocol:
-    def test_repository_protocol_implementation(self) -> None:
+    def test_repository_protocol_implementation(self: "TestIntegrationTestRepositoryProtocol") -> None:
         """Тест реализации протокола репозитория."""
         # Создаем мок вместо абстрактного класса
         repo_protocol = Mock()
@@ -654,7 +654,7 @@ class TestIntegrationWorkflow:
     """Тесты рабочих процессов интеграции."""
     
     @pytest.mark.asyncio
-    async def test_trading_workflow_integration(self) -> None:
+    def test_trading_workflow_integration(self: "TestIntegrationWorkflow") -> None:
         """Тест интеграции торгового рабочего процесса."""
         # Создаем компоненты интеграции
         protocol_orchestrator = TradingSystemIntegration()
@@ -742,7 +742,7 @@ class TestIntegrationWorkflow:
         assert received_message.message_type == "order_confirmation"
     
     @pytest.mark.asyncio
-    async def test_concurrent_integration_operations(self) -> None:
+    def test_concurrent_integration_operations(self: "TestIntegrationWorkflow") -> None:
         """Тест конкурентных операций интеграции."""
         event_bus = IntegrationTestMLProtocol()
         message_queue = IntegrationTestRepositoryProtocol()

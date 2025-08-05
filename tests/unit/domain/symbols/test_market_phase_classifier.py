@@ -4,11 +4,11 @@ import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.symbols.market_phase_classifier import MarketPhaseClassifier, PhaseDetectionConfig
 from domain.type_definitions import MarketPhase, ValidationError, MarketDataFrame
-def test_market_phase_classifier_init() -> None:
+    def test_market_phase_classifier_init() -> None:
     clf = MarketPhaseClassifier()
     assert clf is not None
     assert clf.config is not None
-def test_market_phase_classifier_classify_minimal() -> None:
+    def test_market_phase_classifier_classify_minimal() -> None:
     clf = MarketPhaseClassifier()
     # Минимальный DataFrame с нужными колонками
     df = pd.DataFrame({
@@ -24,7 +24,7 @@ def test_market_phase_classifier_classify_minimal() -> None:
     assert 'confidence' in result
     assert 'indicators' in result
     assert 'metadata' in result
-def test_market_phase_classifier_invalid_data() -> None:
+    def test_market_phase_classifier_invalid_data() -> None:
     clf = MarketPhaseClassifier()
     # DataFrame без нужных колонок
     df = pd.DataFrame({'foo': [1, 2, 3]})
@@ -34,7 +34,7 @@ def test_market_phase_classifier_invalid_data() -> None:
     assert result['phase'] == MarketPhase.NO_STRUCTURE
     assert result['confidence'] == 0.0
     assert 'error' in result['metadata']
-def test_phase_detection_config_validation() -> None:
+    def test_phase_detection_config_validation() -> None:
     # Валидная конфигурация
     config = PhaseDetectionConfig(
         atr_period=14,

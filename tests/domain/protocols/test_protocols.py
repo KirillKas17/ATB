@@ -37,6 +37,8 @@ from domain.value_objects.timestamp import Timestamp
 # ============================================================================
 # FIXTURES
 # ============================================================================
+
+
 @pytest.fixture
 def sample_order() -> Order:
     """Фикстура для тестового ордера."""
@@ -49,6 +51,8 @@ def sample_order() -> Order:
         price=Price(Decimal("50000"), Currency.USD),
         status=OrderStatus.PENDING
     )
+
+
 @pytest.fixture
 def sample_signal() -> Signal:
     """Фикстура для тестового сигнала."""
@@ -62,6 +66,8 @@ def sample_signal() -> Signal:
         price=Money(Decimal("50000"), Currency.USD),
         quantity=Decimal("0.001")
     )
+
+
 @pytest.fixture
 def sample_model() -> Model:
     """Фикстура для тестовой модели."""
@@ -75,6 +81,8 @@ def sample_model() -> Model:
         features=["price", "volume"],
         target="next_price"
     )
+
+
 @pytest.fixture
 def sample_market_data() -> List[MarketData]:
     """Фикстура для тестовых рыночных данных."""
@@ -95,23 +103,25 @@ def sample_market_data() -> List[MarketData]:
 # ============================================================================
 class TestExchangeProtocol:
     """Тесты для протокола биржи."""
-    @pytest.mark.asyncio
-    async def test_initialization(self) -> None:
+    
+    async def test_initialization(self: "TestExchangeProtocol") -> None:
         """Тест инициализации биржи."""
         exchange = ExampleExchangeProtocol("binance")
         config = {"api_key": "test", "api_secret": "test"}
         result = await exchange.initialize(config)
         assert result is True
         assert exchange.is_connected is True
+    
     @pytest.mark.asyncio
-    async def test_connection(self) -> None:
+    async def test_connection(self: "TestExchangeProtocol") -> None:
         """Тест подключения к бирже."""
         exchange = ExampleExchangeProtocol("binance")
         result = await exchange.connect()
         assert result is True
         assert exchange.is_connected is True
+    
     @pytest.mark.asyncio
-    async def test_disconnection(self) -> None:
+    async def test_disconnection(self: "TestExchangeProtocol") -> None:
         """Тест отключения от биржи."""
         exchange = ExampleExchangeProtocol("binance")
         await exchange.connect()
@@ -119,7 +129,8 @@ class TestExchangeProtocol:
         assert result is True
         assert exchange.is_connected is False
     @pytest.mark.asyncio
-    async def test_get_market_data(self) -> None:
+
+    async def test_get_market_data(self: "TestExchangeProtocol") -> None:
         """Тест получения рыночных данных."""
         exchange = ExampleExchangeProtocol("binance")
         await exchange.initialize({})
@@ -129,7 +140,8 @@ class TestExchangeProtocol:
         assert all(isinstance(data, MarketData) for data in market_data)
         assert all(data.symbol == symbol for data in market_data)
     @pytest.mark.asyncio
-    async def test_create_order(self) -> None:
+
+    async def test_create_order(self: "TestExchangeProtocol") -> None:
         """Тест создания ордера."""
         exchange = ExampleExchangeProtocol("binance")
         symbol = Symbol("BTCUSDT")
@@ -146,7 +158,8 @@ class TestExchangeProtocol:
         assert order.order_type == OrderType.LIMIT
         assert order.status == OrderStatus.PENDING
     @pytest.mark.asyncio
-    async def test_create_order_without_price_for_limit(self) -> None:
+
+    async def test_create_order_without_price_for_limit(self: "TestExchangeProtocol") -> None:
         """Тест создания лимитного ордера без цены."""
         exchange = ExampleExchangeProtocol("binance")
         with pytest.raises(ValidationError):
@@ -165,14 +178,16 @@ class TestExchangeProtocol:
         assert placed_order.status == OrderStatus.OPEN
         assert placed_order.id == sample_order.id
     @pytest.mark.asyncio
-    async def test_cancel_order(self) -> None:
+
+    async def test_cancel_order(self: "TestExchangeProtocol") -> None:
         """Тест отмены ордера."""
         exchange = ExampleExchangeProtocol("binance")
         order_id = OrderId(uuid4())
         result = await exchange.cancel_order(order_id)
         assert result is True
     @pytest.mark.asyncio
-    async def test_get_balance(self) -> None:
+
+    async def test_get_balance(self: "TestExchangeProtocol") -> None:
         """Тест получения баланса."""
         exchange = ExampleExchangeProtocol("binance")
         balance = await exchange.get_balance()
@@ -181,7 +196,8 @@ class TestExchangeProtocol:
         assert Currency.BTC in balance
         assert all(isinstance(money, Money) for money in balance.values())
     @pytest.mark.asyncio
-    async def test_get_positions(self) -> None:
+
+    async def test_get_positions(self: "TestExchangeProtocol") -> None:
         """Тест получения позиций."""
         exchange = ExampleExchangeProtocol("binance")
         positions = await exchange.get_positions()
@@ -193,7 +209,8 @@ class TestExchangeProtocol:
 class TestMLProtocol:
     """Тесты для ML протокола."""
     @pytest.mark.asyncio
-    async def test_create_model(self) -> None:
+
+    async def test_create_model(self: "TestMLProtocol") -> None:
         """Тест создания модели."""
         ml_protocol = ExampleMLProtocol()
         model = await ml_protocol.create_model(
@@ -210,7 +227,8 @@ class TestMLProtocol:
         assert model.model_type == ModelType.RANDOM_FOREST
         assert model.trading_pair == "BTCUSDT"
     @pytest.mark.asyncio
-    async def test_train_model(self) -> None:
+
+    async def test_train_model(self: "TestMLProtocol") -> None:
         """Тест обучения модели."""
         ml_protocol = ExampleMLProtocol()
         # Создаем модель
@@ -235,14 +253,16 @@ class TestMLProtocol:
         assert trained_model.recall > 0
         assert trained_model.f1_score > 0
     @pytest.mark.asyncio
-    async def test_train_nonexistent_model(self) -> None:
+
+    async def test_train_nonexistent_model(self: "TestMLProtocol") -> None:
         """Тест обучения несуществующей модели."""
         ml_protocol = ExampleMLProtocol()
         nonexistent_id = ModelId(uuid4())
         with pytest.raises(ModelNotFoundError):
             await ml_protocol.train_model(nonexistent_id, {})
     @pytest.mark.asyncio
-    async def test_predict(self) -> None:
+
+    async def test_predict(self: "TestMLProtocol") -> None:
         """Тест предсказания."""
         ml_protocol = ExampleMLProtocol()
         # Создаем и обучаем модель
@@ -265,7 +285,8 @@ class TestMLProtocol:
         assert prediction.model_id == model.id
         assert prediction.confidence > 0
     @pytest.mark.asyncio
-    async def test_predict_with_inactive_model(self) -> None:
+
+    async def test_predict_with_inactive_model(self: "TestMLProtocol") -> None:
         """Тест предсказания с неактивной моделью."""
         ml_protocol = ExampleMLProtocol()
         # Создаем модель без активации
@@ -281,7 +302,8 @@ class TestMLProtocol:
         with pytest.raises(ModelNotReadyError):
             await ml_protocol.predict(model.id, {"price": 50000, "volume": 1000})
     @pytest.mark.asyncio
-    async def test_predict_with_confidence_threshold(self) -> None:
+
+    async def test_predict_with_confidence_threshold(self: "TestMLProtocol") -> None:
         """Тест предсказания с порогом уверенности."""
         ml_protocol = ExampleMLProtocol()
         # Создаем и активируем модель
@@ -306,7 +328,8 @@ class TestMLProtocol:
         # Должно вернуть None из-за высокого порога
         assert prediction is None
     @pytest.mark.asyncio
-    async def test_batch_predict(self) -> None:
+
+    async def test_batch_predict(self: "TestMLProtocol") -> None:
         """Тест пакетного предсказания."""
         ml_protocol = ExampleMLProtocol()
         # Создаем и активируем модель
@@ -331,7 +354,8 @@ class TestMLProtocol:
         assert len(predictions) == 3
         assert all(isinstance(pred, Prediction) for pred in predictions)
     @pytest.mark.asyncio
-    async def test_evaluate_model(self) -> None:
+
+    async def test_evaluate_model(self: "TestMLProtocol") -> None:
         """Тест оценки модели."""
         ml_protocol = ExampleMLProtocol()
         # Создаем модель
@@ -357,23 +381,31 @@ class TestMLProtocol:
 # ============================================================================
 class TestProtocolUtils:
     """Тесты для утилит протоколов."""
-    def test_validate_symbol_valid(self) -> None:
+
+
+def test_validate_symbol_valid(self: "TestProtocolUtils") -> None:
         """Тест валидации корректного символа."""
         symbol_str = "BTCUSDT"
         symbol = validate_symbol(symbol_str)
         # Проверяем, что это Symbol, но не используем isinstance с NewType
         assert str(symbol) == symbol_str
-    def test_validate_symbol_invalid(self) -> None:
+
+
+def test_validate_symbol_invalid(self: "TestProtocolUtils") -> None:
         """Тест валидации некорректного символа."""
         with pytest.raises(ValidationError):
             validate_symbol("")  # Пустой символ
         with pytest.raises(ValidationError):
             validate_symbol("A" * 25)  # Слишком длинный символ
-    def test_validate_symbol_wrong_type(self) -> None:
+
+
+def test_validate_symbol_wrong_type(self: "TestProtocolUtils") -> None:
         """Тест валидации символа неправильного типа."""
         with pytest.raises(ValidationError):
             validate_symbol(123)  # Не строка
-    def test_protocol_cache(self) -> None:
+
+
+def test_protocol_cache(self: "TestProtocolUtils") -> None:
         """Тест кэша протоколов."""
         cache = ProtocolCache(ttl_seconds=1)
         # Установка значения
@@ -386,7 +418,9 @@ class TestProtocolUtils:
         time.sleep(1.1)
         expired_value = cache.get("test_key")
         assert expired_value is None
-    def test_protocol_metrics(self) -> None:
+
+
+def test_protocol_metrics(self: "TestProtocolUtils") -> None:
         """Тест метрик протоколов."""
         metrics = ProtocolMetrics()
         # Запись метрик
@@ -405,7 +439,8 @@ class TestProtocolUtils:
 class TestProtocolDecorators:
     """Тесты для декораторов протоколов."""
     @pytest.mark.asyncio
-    async def test_retry_on_error_success(self) -> None:
+
+    async def test_retry_on_error_success(self: "TestProtocolDecorators") -> None:
         """Тест декоратора retry_on_error при успехе."""
         call_count = 0
         @retry_on_error(max_retries=3, delay=0.1)
@@ -417,7 +452,8 @@ class TestProtocolDecorators:
         assert result == "success"
         assert call_count == 1
     @pytest.mark.asyncio
-    async def test_retry_on_error_failure(self) -> None:
+
+    async def test_retry_on_error_failure(self: "TestProtocolDecorators") -> None:
         """Тест декоратора retry_on_error при неудаче."""
         call_count = 0
         @retry_on_error(max_retries=2, delay=0.1)
@@ -429,7 +465,8 @@ class TestProtocolDecorators:
             await failing_operation()
         assert call_count == 3  # 1 + 2 retries
     @pytest.mark.asyncio
-    async def test_timeout_decorator_success(self) -> None:
+
+    async def test_timeout_decorator_success(self: "TestProtocolDecorators") -> None:
         """Тест декоратора timeout при успехе."""
         @timeout(1.0)
         async def fast_operation() -> Any:
@@ -438,7 +475,8 @@ class TestProtocolDecorators:
         result = await fast_operation()
         assert result == "success"
     @pytest.mark.asyncio
-    async def test_timeout_decorator_failure(self) -> None:
+
+    async def test_timeout_decorator_failure(self: "TestProtocolDecorators") -> None:
         """Тест декоратора timeout при превышении времени."""
         @timeout(0.1)
         async def slow_operation() -> Any:
@@ -452,7 +490,8 @@ class TestProtocolDecorators:
 class TestProtocolIntegration:
     """Интеграционные тесты протоколов."""
     @pytest.mark.asyncio
-    async def test_exchange_ml_integration(self) -> None:
+
+    async def test_exchange_ml_integration(self: "TestProtocolIntegration") -> None:
         """Тест интеграции биржи и ML протоколов."""
         exchange = ExampleExchangeProtocol("binance")
         ml_protocol = ExampleMLProtocol()
@@ -492,7 +531,8 @@ class TestProtocolIntegration:
         assert prediction.model_id == model.id
         assert prediction.confidence > 0
     @pytest.mark.asyncio
-    async def test_error_handling_integration(self) -> None:
+
+    async def test_error_handling_integration(self: "TestProtocolIntegration") -> None:
         """Тест обработки ошибок в интеграции."""
         exchange = ExampleExchangeProtocol("binance")
         # Тест обработки ошибки подключения
@@ -508,7 +548,8 @@ class TestProtocolIntegration:
 class TestProtocolPerformance:
     """Тесты производительности протоколов."""
     @pytest.mark.asyncio
-    async def test_cache_performance(self) -> None:
+
+    async def test_cache_performance(self: "TestProtocolPerformance") -> None:
         """Тест производительности кэша."""
         cache = ProtocolCache(ttl_seconds=60)
         # Заполнение кэша
@@ -524,7 +565,8 @@ class TestProtocolPerformance:
         # Операции должны выполняться быстро
         assert duration < 1.0  # Менее 1 секунды
     @pytest.mark.asyncio
-    async def test_metrics_performance(self) -> None:
+
+    async def test_metrics_performance(self: "TestProtocolPerformance") -> None:
         """Тест производительности метрик."""
         metrics = ProtocolMetrics()
         # Запись большого количества метрик

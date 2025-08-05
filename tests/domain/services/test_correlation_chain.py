@@ -9,11 +9,11 @@ from domain.services.correlation_chain import CorrelationChain, ICorrelationChai
 class TestCorrelationChain:
     """Тесты для сервиса цепочек корреляций."""
     @pytest.fixture
-    def correlation_chain(self) -> Any:
+    def correlation_chain(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса цепочек корреляций."""
         return CorrelationChain()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)
@@ -26,7 +26,7 @@ class TestCorrelationChain:
             'volume': np.random.uniform(1000, 5000, 100)
         }, index=dates)
     @pytest.fixture
-    def sample_correlation_matrix(self) -> Any:
+    def sample_correlation_matrix(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с матрицей корреляций."""
         return pd.DataFrame({
             'BTC': [1.0, 0.8, 0.6, 0.7, 0.5],
@@ -280,7 +280,7 @@ class TestCorrelationChain:
             result = results.get()
             assert isinstance(result, pd.DataFrame)
             assert not result.empty
-    def test_correlation_chain_config_customization(self) -> None:
+    def test_correlation_chain_config_customization(self: "TestCorrelationChain") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "correlation_threshold": 0.8,

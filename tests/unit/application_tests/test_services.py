@@ -37,18 +37,18 @@ class TestMarketServiceImpl:
         }
         self.service = MarketServiceImpl(self.config)
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestMarketServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestMarketServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_get_market_data(self) -> None:
+    def test_get_market_data(self: "TestMarketServiceImpl") -> None:
         """Тест получения рыночных данных."""
         symbol = Symbol("BTCUSDT")
         with patch.object(self.service, '_fetch_market_data') as mock_fetch:
@@ -63,7 +63,7 @@ class TestMarketServiceImpl:
             assert result.symbol == symbol
             mock_fetch.assert_called_once_with(symbol)
     @pytest.mark.asyncio
-    async def test_get_orderbook(self) -> None:
+    def test_get_orderbook(self: "TestMarketServiceImpl") -> None:
         """Тест получения ордербука."""
         symbol = Symbol("BTCUSDT")
         with patch.object(self.service, '_fetch_orderbook') as mock_fetch:
@@ -76,7 +76,7 @@ class TestMarketServiceImpl:
             assert result == mock_orderbook
             mock_fetch.assert_called_once_with(symbol)
     @pytest.mark.asyncio
-    async def test_calculate_spread(self) -> None:
+    def test_calculate_spread(self: "TestMarketServiceImpl") -> None:
         """Тест расчета спреда."""
         symbol = Symbol("BTCUSDT")
         with patch.object(self.service, 'get_orderbook') as mock_get_orderbook:
@@ -88,7 +88,7 @@ class TestMarketServiceImpl:
             assert result == Decimal('1')
             mock_get_orderbook.assert_called_once_with(symbol)
     @pytest.mark.asyncio
-    async def test_get_market_statistics(self) -> None:
+    def test_get_market_statistics(self: "TestMarketServiceImpl") -> None:
         """Тест получения статистики рынка."""
         result = await self.service.get_market_statistics()
         assert isinstance(result, dict)
@@ -106,18 +106,18 @@ class TestMLServiceImpl:
         }
         self.service = MLServiceImpl(self.config)
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestMLServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestMLServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_predict_price_movement(self) -> None:
+    def test_predict_price_movement(self: "TestMLServiceImpl") -> None:
         """Тест предсказания движения цены."""
         symbol = Symbol("BTCUSDT")
         historical_data = [Decimal('50000'), Decimal('50100'), Decimal('50200')]
@@ -133,7 +133,7 @@ class TestMLServiceImpl:
                     mock_preprocess.assert_called_once_with(historical_data)
                     mock_predict.assert_called_once()
     @pytest.mark.asyncio
-    async def test_get_model_performance(self) -> None:
+    def test_get_model_performance(self: "TestMLServiceImpl") -> None:
         """Тест получения производительности модели."""
         result = await self.service.get_model_performance()
         assert isinstance(result, dict)
@@ -151,18 +151,18 @@ class TestTradingServiceImpl:
         }
         self.service = TradingServiceImpl(self.config)
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestTradingServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestTradingServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_create_order(self) -> None:
+    def test_create_order(self: "TestTradingServiceImpl") -> None:
         """Тест создания ордера."""
         request = CreateOrderRequest(
             symbol=Symbol("BTCUSDT"),
@@ -185,7 +185,7 @@ class TestTradingServiceImpl:
                 mock_validate.assert_called_once_with(request)
                 mock_execute.assert_called_once_with(request)
     @pytest.mark.asyncio
-    async def test_get_order_status(self) -> None:
+    def test_get_order_status(self: "TestTradingServiceImpl") -> None:
         """Тест получения статуса ордера."""
         order_id = "order_123"
         with patch.object(self.service, '_fetch_order_status') as mock_fetch:
@@ -194,7 +194,7 @@ class TestTradingServiceImpl:
             assert result == "FILLED"
             mock_fetch.assert_called_once_with(order_id)
     @pytest.mark.asyncio
-    async def test_cancel_order(self) -> None:
+    def test_cancel_order(self: "TestTradingServiceImpl") -> None:
         """Тест отмены ордера."""
         order_id = "order_123"
         with patch.object(self.service, '_execute_cancel') as mock_cancel:
@@ -213,18 +213,18 @@ class TestStrategyServiceImpl:
         }
         self.service = StrategyServiceImpl(self.config)
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestStrategyServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestStrategyServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_create_strategy(self) -> None:
+    def test_create_strategy(self: "TestStrategyServiceImpl") -> None:
         """Тест создания стратегии."""
         config = {
             'name': "Test Strategy",
@@ -246,7 +246,7 @@ class TestStrategyServiceImpl:
                 mock_validate.assert_called_once_with(config)
                 mock_create.assert_called_once_with(config)
     @pytest.mark.asyncio
-    async def test_get_strategy(self) -> None:
+    def test_get_strategy(self: "TestStrategyServiceImpl") -> None:
         """Тест получения стратегии."""
         strategy_id = StrategyId("strategy_123")
         with patch.object(self.service, '_fetch_strategy') as mock_fetch:
@@ -261,7 +261,7 @@ class TestStrategyServiceImpl:
             assert result == mock_strategy
             mock_fetch.assert_called_once_with(strategy_id)
     @pytest.mark.asyncio
-    async def test_update_strategy(self) -> None:
+    def test_update_strategy(self: "TestStrategyServiceImpl") -> None:
         """Тест обновления стратегии."""
         strategy_id = StrategyId("strategy_123")
         config = {
@@ -288,18 +288,18 @@ class TestPortfolioServiceImpl:
         }
         self.service = PortfolioServiceImpl(self.config)
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestPortfolioServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestPortfolioServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_create_portfolio(self) -> None:
+    def test_create_portfolio(self: "TestPortfolioServiceImpl") -> None:
         """Тест создания портфеля."""
         config = {
             'name': "Test Portfolio",
@@ -322,7 +322,7 @@ class TestPortfolioServiceImpl:
                 mock_validate.assert_called_once_with(config)
                 mock_create.assert_called_once_with(config)
     @pytest.mark.asyncio
-    async def test_get_portfolio(self) -> None:
+    def test_get_portfolio(self: "TestPortfolioServiceImpl") -> None:
         """Тест получения портфеля."""
         portfolio_id = PortfolioId("portfolio_123")
         with patch.object(self.service, '_fetch_portfolio') as mock_fetch:
@@ -337,7 +337,7 @@ class TestPortfolioServiceImpl:
             assert result == mock_portfolio
             mock_fetch.assert_called_once_with(portfolio_id)
     @pytest.mark.asyncio
-    async def test_get_portfolio_performance(self) -> None:
+    def test_get_portfolio_performance(self: "TestPortfolioServiceImpl") -> None:
         """Тест получения производительности портфеля."""
         portfolio_id = PortfolioId("portfolio_123")
         with patch.object(self.service, '_calculate_performance') as mock_calc:
@@ -376,18 +376,18 @@ class TestRiskServiceImpl:
             config=self.config
         )
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestRiskServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestRiskServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_assess_portfolio_risk(self) -> None:
+    def test_assess_portfolio_risk(self: "TestRiskServiceImpl") -> None:
         """Тест оценки риска портфеля."""
         portfolio_id = PortfolioId("portfolio_123")
         with patch.object(self.service, '_get_market_data_for_positions') as mock_market:
@@ -407,7 +407,7 @@ class TestRiskServiceImpl:
                         assert result.var_95.value == Decimal('500')
                         assert result.max_drawdown == Decimal('0.05')
     @pytest.mark.asyncio
-    async def test_calculate_var(self) -> None:
+    def test_calculate_var(self: "TestRiskServiceImpl") -> None:
         """Тест расчета VaR."""
         portfolio_id = PortfolioId("portfolio_123")
         confidence_level = Decimal('0.95')
@@ -420,7 +420,7 @@ class TestRiskServiceImpl:
                 mock_returns.assert_called_once_with(portfolio_id, days=252)
                 mock_calc.assert_called_once()
     @pytest.mark.asyncio
-    async def test_validate_risk_limits(self) -> None:
+    def test_validate_risk_limits(self: "TestRiskServiceImpl") -> None:
         """Тест валидации лимитов риска."""
         portfolio_id = PortfolioId("portfolio_123")
         order_request = CreateOrderRequest(
@@ -465,18 +465,18 @@ class TestCacheServiceImpl:
         }
         self.service = CacheServiceImpl(self.config)
     @pytest.mark.asyncio
-    async def test_initialize(self) -> None:
+    def test_initialize(self: "TestCacheServiceImpl") -> None:
         """Тест инициализации сервиса."""
         await self.service.initialize()
         assert self.service.is_running
         assert self.service.is_initialized
     @pytest.mark.asyncio
-    async def test_validate_config(self) -> None:
+    def test_validate_config(self: "TestCacheServiceImpl") -> None:
         """Тест валидации конфигурации."""
         result = await self.service.validate_config()
         assert result is True
     @pytest.mark.asyncio
-    async def test_set_and_get(self) -> None:
+    def test_set_and_get(self: "TestCacheServiceImpl") -> None:
         """Тест установки и получения значения."""
         key = "test_key"
         value = "test_value"
@@ -487,7 +487,7 @@ class TestCacheServiceImpl:
         retrieved = await self.service.get(key)
         assert retrieved == value
     @pytest.mark.asyncio
-    async def test_delete(self) -> None:
+    def test_delete(self: "TestCacheServiceImpl") -> None:
         """Тест удаления значения."""
         key = "test_key"
         value = "test_value"
@@ -500,7 +500,7 @@ class TestCacheServiceImpl:
         retrieved = await self.service.get(key)
         assert retrieved is None
     @pytest.mark.asyncio
-    async def test_exists(self) -> None:
+    def test_exists(self: "TestCacheServiceImpl") -> None:
         """Тест проверки существования ключа."""
         key = "test_key"
         value = "test_value"
@@ -513,7 +513,7 @@ class TestCacheServiceImpl:
         exists = await self.service.exists(key)
         assert exists is True
     @pytest.mark.asyncio
-    async def test_get_multi(self) -> None:
+    def test_get_multi(self: "TestCacheServiceImpl") -> None:
         """Тест получения нескольких значений."""
         data = {
             "key1": "value1",
@@ -527,7 +527,7 @@ class TestCacheServiceImpl:
         result = await self.service.get_multi(list(data.keys()))
         assert result == data
     @pytest.mark.asyncio
-    async def test_set_multi(self) -> None:
+    def test_set_multi(self: "TestCacheServiceImpl") -> None:
         """Тест установки нескольких значений."""
         data = {
             "key1": "value1",
@@ -542,7 +542,7 @@ class TestCacheServiceImpl:
             retrieved = await self.service.get(key)
             assert retrieved == value
     @pytest.mark.asyncio
-    async def test_get_stats(self) -> None:
+    def test_get_stats(self: "TestCacheServiceImpl") -> None:
         """Тест получения статистики."""
         # Устанавливаем несколько значений
         await self.service.set("key1", "value1")
@@ -555,7 +555,7 @@ class TestCacheServiceImpl:
         assert stats['sets'] == 2
         assert stats['total_entries'] == 2
 if NotificationServiceImpl is not object:
-    class TestNotificationServiceImpl:
+class TestNotificationServiceImpl:
         """Тесты для NotificationServiceImpl."""
         def setup_method(self) -> Any:
             """Настройка перед каждым тестом."""
@@ -588,40 +588,46 @@ if NotificationServiceImpl is not object:
                 }
             }
             self.service = NotificationServiceImpl(self.config)
-        @pytest.mark.asyncio
-        async def test_initialize(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_initialize(self: "TestNotificationServiceImpl") -> None:
             """Тест инициализации сервиса."""
             await self.service.initialize()
             assert self.service.is_running
             assert self.service.is_initialized
-        @pytest.mark.asyncio
-        async def test_validate_config(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_validate_config(self: "TestNotificationServiceImpl") -> None:
             """Тест валидации конфигурации."""
             result = await self.service.validate_config()
             assert result is True
-        @pytest.mark.asyncio
-        async def test_send_notification(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_send_notification(self: "TestNotificationServiceImpl") -> None:
             """Тест отправки уведомления."""
             message = "Test notification"
             level = "info"
             result = await self.service.send_notification(message, level)
             assert result is True
-        @pytest.mark.asyncio
-        async def test_send_alert(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_send_alert(self: "TestNotificationServiceImpl") -> None:
             """Тест отправки алерта."""
             alert_type = "risk"
             data = {"portfolio_id": "portfolio_123", "risk_level": "high"}
             result = await self.service.send_alert(alert_type, data)
             assert result is True
-        @pytest.mark.asyncio
-        async def test_subscribe_to_alerts(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_subscribe_to_alerts(self: "TestNotificationServiceImpl") -> None:
             """Тест подписки на алерты."""
             user_id = "user_123"
             alert_types = ["risk", "performance"]
             result = await self.service.subscribe_to_alerts(user_id, alert_types)
             assert result is True
-        @pytest.mark.asyncio
-        async def test_send_trade_notification(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_send_trade_notification(self: "TestNotificationServiceImpl") -> None:
             """Тест отправки уведомления о сделке."""
             trade = Trade(
                 id="trade_123",
@@ -633,16 +639,18 @@ if NotificationServiceImpl is not object:
             )
             result = await self.service.send_trade_notification(trade)
             assert result is True
-        @pytest.mark.asyncio
-        async def test_send_risk_alert(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_send_risk_alert(self: "TestNotificationServiceImpl") -> None:
             """Тест отправки рискового алерта."""
             portfolio_id = PortfolioId("portfolio_123")
             risk_level = "high"
             details = {"var": 1000, "drawdown": 0.1}
             result = await self.service.send_risk_alert(portfolio_id, risk_level, details)
             assert result is True
-        @pytest.mark.asyncio
-        async def test_send_performance_report(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_send_performance_report(self: "TestNotificationServiceImpl") -> None:
             """Тест отправки отчета о производительности."""
             portfolio_id = PortfolioId("portfolio_123")
             metrics = PortfolioSummary(
@@ -659,8 +667,9 @@ if NotificationServiceImpl is not object:
             )
             result = await self.service.send_performance_report(portfolio_id, metrics)
             assert result is True
-        @pytest.mark.asyncio
-        async def test_get_notification_statistics(self) -> None:
+        
+    @pytest.mark.asyncio
+    async def test_get_notification_statistics(self: "TestNotificationServiceImpl") -> None:
             """Тест получения статистики уведомлений."""
             # Отправляем несколько уведомлений
             await self.service.send_notification("Test 1")

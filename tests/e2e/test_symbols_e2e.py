@@ -27,7 +27,7 @@ from domain.value_objects.currency import Currency
 class TestSymbolsE2E:
     """End-to-End тесты для полного цикла работы с символами."""
     @pytest.fixture
-    def e2e_components(self) -> Any:
+    def e2e_components(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура со всеми компонентами для E2E тестов."""
         return {
             'validator': SymbolValidator(),
@@ -38,7 +38,7 @@ class TestSymbolsE2E:
             'orchestrator': Mock(spec=TradingOrchestrator)
         }
     @pytest.fixture
-    def realistic_trading_scenario(self) -> Any:
+    def realistic_trading_scenario(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с реалистичным торговым сценарием."""
         # Генерируем исторические данные для нескольких символов
         symbols = ["BTCUSDT", "ETHUSDT", "ADAUSDT"]

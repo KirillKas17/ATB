@@ -7,7 +7,7 @@ from core.position_manager import (Position, PositionManager, PositionSide,
                                    PositionStatus)
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -22,7 +22,7 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-@pytest.fixture
+    @pytest.fixture
 def position_manager() -> Any:
     """Фикстура с менеджером позиций"""
     return PositionManager(
@@ -36,7 +36,7 @@ def position_manager() -> Any:
             "position_timeout": 24,
         }
     )
-@pytest.fixture
+    @pytest.fixture
 def mock_position() -> Any:
     """Фикстура с тестовой позицией"""
     return Position(
@@ -71,7 +71,7 @@ class TestPosition:
         """Тест расчета P&L для длинной позиции"""
         pnl = mock_position.calculate_pnl(51000.0)
         assert pnl == 1000.0  # (51000 - 50000) * 1.0
-    def test_calculate_pnl_short(self) -> None:
+    def test_calculate_pnl_short(self: "TestPosition") -> None:
         """Тест расчета P&L для короткой позиции"""
         position = Position(
             symbol="BTC/USDT",

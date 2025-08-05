@@ -24,7 +24,7 @@ from application.symbol_selection.opportunity_selector import DynamicOpportunity
 class TestSymbolsWorkflowIntegration:
     """Интеграционные тесты полного workflow анализа символов."""
     @pytest.fixture
-    def workflow_components(self) -> Any:
+    def workflow_components(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура со всеми компонентами workflow."""
         return {
             'validator': SymbolValidator(),
@@ -34,7 +34,7 @@ class TestSymbolsWorkflowIntegration:
             'doass': DynamicOpportunityAwareSymbolSelector()
         }
     @pytest.fixture
-    def realistic_market_data(self) -> Any:
+    def realistic_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с реалистичными рыночными данными."""
         np.random.seed(42)
         n_periods = 100
@@ -64,7 +64,7 @@ class TestSymbolsWorkflowIntegration:
             })
         return pd.DataFrame(data)
     @pytest.fixture
-    def realistic_order_book(self) -> Any:
+    def realistic_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с реалистичным стаканом заявок."""
         base_price = 50000
         spread = 0.001  # 0.1% спред
@@ -81,7 +81,7 @@ class TestSymbolsWorkflowIntegration:
             'bids': sorted(bids, key=lambda x: x[0], reverse=True),
             'asks': sorted(asks, key=lambda x: x[0])
         }
-    def test_complete_symbol_analysis_workflow(self, workflow_components, 
+    def test_complete_symbol_analysis_workflow(self, workflow_components,
                                              realistic_market_data, 
                                              realistic_order_book) -> None:
         """Тест полного workflow анализа символа."""

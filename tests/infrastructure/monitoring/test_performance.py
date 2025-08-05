@@ -184,7 +184,7 @@ class TestMonitoringPerformance:
         memory_increase = final_memory - initial_memory
         # Проверяем, что использование памяти разумное
         assert memory_increase < performance_test_data["memory_threshold"]
-    def test_system_metrics_collection_performance(self) -> None:
+    def test_system_metrics_collection_performance(self: "TestMonitoringPerformance") -> None:
         """Тест производительности сбора системных метрик."""
         monitor = get_monitor("system_test")
         # Запускаем мониторинг
@@ -203,7 +203,7 @@ class TestMonitoringPerformance:
         # Проверяем, что системные метрики собраны
         system_metrics = monitor.get_system_metrics()
         assert len(system_metrics) > 0
-    def test_alert_evaluation_performance(self) -> None:
+    def test_alert_evaluation_performance(self: "TestMonitoringPerformance") -> None:
         """Тест производительности оценки алертов."""
         alert_manager = get_alert_manager("eval_test")
         # Добавляем много правил алертов
@@ -363,7 +363,7 @@ class TestMonitoringPerformance:
         assert trace_stats["total_traces"] == 0
 class TestMonitoringScalability:
     """Тесты масштабируемости системы мониторинга."""
-    def test_metric_scalability(self) -> None:
+    def test_metric_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости метрик."""
         monitor = get_monitor("scale_test")
         # Тестируем с разными объемами данных
@@ -376,7 +376,7 @@ class TestMonitoringScalability:
             duration = end_time - start_time
             # Проверяем, что время растет линейно или лучше
             assert duration < volume * 0.0001  # Не более 0.1ms на метрику
-    def test_alert_scalability(self) -> None:
+    def test_alert_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости алертов."""
         alert_manager = get_alert_manager("scale_test")
         # Тестируем с разными объемами алертов
@@ -389,7 +389,7 @@ class TestMonitoringScalability:
             duration = end_time - start_time
             # Проверяем, что время растет линейно или лучше
             assert duration < volume * 0.001  # Не более 1ms на алерт
-    def test_trace_scalability(self) -> None:
+    def test_trace_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости трейсов."""
         tracer = get_tracer("scale_test")
         # Тестируем с разными объемами трейсов
@@ -404,7 +404,7 @@ class TestMonitoringScalability:
             duration = end_time - start_time
             # Проверяем, что время растет линейно или лучше
             assert duration < volume * 0.001  # Не более 1ms на трейс
-    def test_memory_scalability(self) -> None:
+    def test_memory_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости использования памяти."""
         import psutil
         import os
