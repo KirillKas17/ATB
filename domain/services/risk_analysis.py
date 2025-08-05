@@ -21,6 +21,12 @@ warnings.filterwarnings('ignore')
 
 logger = logging.getLogger(__name__)
 
+
+class RiskAnalysisError(Exception):
+    """Исключение для ошибок анализа рисков."""
+    pass
+
+
 class RiskLevel(Enum):
     """Уровни риска."""
     VERY_LOW = "very_low"

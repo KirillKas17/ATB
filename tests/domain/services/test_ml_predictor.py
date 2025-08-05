@@ -537,9 +537,9 @@ class TestMLPredictor:
     aggregated = predictor._aggregate_predictions(predictions)
     
     assert aggregated is not None
-    assert hasattr(aggregated, 'symbol')
-    assert hasattr(aggregated, 'prediction_type')
-    assert hasattr(aggregated, 'value')
+    assert 'symbol' in aggregated
+    assert 'prediction_type' in aggregated
+    assert 'value' in aggregated
 
     def test_model_integrity_check(self) -> None:
         """Тест проверки целостности модели."""

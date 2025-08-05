@@ -99,20 +99,72 @@ class MLPredictor:
         total_confidence = sum(pred.get("confidence", 0.0) for pred in predictions)
         avg_confidence = total_confidence / len(predictions)
         
-        # Агрегация предсказаний
-        numeric_predictions = [
-            pred.get("prediction", 0.0) for pred in predictions 
-            if isinstance(pred.get("prediction"), (int, float))
-        ]
+        # Агрегация предсказаний (используем 'value' если есть, иначе 'prediction')
+        numeric_predictions = []
+        for pred in predictions:
+            value = pred.get("value") or pred.get("prediction", 0.0)
+            if isinstance(value, (int, float)):
+                numeric_predictions.append(value)
         
         if numeric_predictions:
             avg_prediction = sum(numeric_predictions) / len(numeric_predictions)
         else:
             avg_prediction = 0.0
         
+        # Извлекаем общий символ из предсказаний
+        symbols = set(pred.get("symbol", "UNKNOWN") for pred in predictions)
+        symbol = symbols.pop() if len(symbols) == 1 else "MIXED"
+        
         return {
+            "symbol": symbol,
+            "prediction_type": "aggregated",
+            "value": avg_prediction,
             "prediction": avg_prediction,
             "confidence": avg_confidence,
             "source_count": len(predictions),
             "timestamp": datetime.now()
         }
+    
+    def _check_model_integrity(self, model_data: Dict[str, Any]) -> bool:
+        """Проверка целостности модели."""
+        try:
+            # Базовые проверки целостности
+            required_fields = ["model_id", "model_type"]
+            for field in required_fields:
+                if field not in model_data:
+                    self.logger.warning(f"Model integrity check failed: missing {field}")
+                    return False
+            
+            # Проверка версии модели
+            if "version" in model_data:
+                version = model_data["version"]
+                if not isinstance(version, str) or not version:
+                    self.logger.warning("Model integrity check failed: invalid version")
+                    return False
+            
+            # Проверка метрик производительности в корне модели
+            for metric in ["accuracy", "precision", "recall"]:
+                if metric in model_data:
+                    value = model_data[metric]
+                    if not isinstance(value, (int, float)) or not (0 <= value <= 1):
+                        self.logger.warning(f"Model integrity check failed: invalid {metric}")
+                        return False
+            
+            # Проверка метрик производительности в секции performance
+            if "performance" in model_data:
+                performance = model_data["performance"]
+                if not isinstance(performance, dict):
+                    self.logger.warning("Model integrity check failed: invalid performance data")
+                    return False
+                
+                for metric in ["accuracy", "precision", "recall"]:
+                    if metric in performance:
+                        value = performance[metric]
+                        if not isinstance(value, (int, float)) or not (0 <= value <= 1):
+                            self.logger.warning(f"Model integrity check failed: invalid {metric}")
+                            return False
+            
+            return True
+        except Exception as e:
+            self.logger.error(f"Error checking model integrity: {e}")
+            return False

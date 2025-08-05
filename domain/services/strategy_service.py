@@ -560,7 +560,37 @@ class StrategyBase(ABC):
             logger.error(f"Error evaluating strategy: {e}")
             return -1.0  # Плохой результат при ошибке
 
-class StrategyService:
+
+class IStrategyService(ABC):
+    """Интерфейс сервиса управления стратегиями."""
+    
+    @abstractmethod
+    async def add_strategy(self, strategy_id: str, strategy: Any) -> bool:
+        """Добавить стратегию."""
+        pass
+    
+    @abstractmethod
+    async def remove_strategy(self, strategy_id: str) -> bool:
+        """Удалить стратегию."""
+        pass
+    
+    @abstractmethod
+    async def get_strategy(self, strategy_id: str) -> Optional[Any]:
+        """Получить стратегию."""
+        pass
+    
+    @abstractmethod
+    async def execute_strategy(self, strategy_id: str, market_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Выполнить стратегию."""
+        pass
+    
+    @abstractmethod
+    async def get_performance(self, strategy_id: str) -> Dict[str, Any]:
+        """Получить производительность стратегии."""
+        pass
+
+
+class StrategyService(IStrategyService):
     """Продвинутый сервис управления стратегиями."""
     
     def __init__(self):
@@ -586,6 +616,78 @@ class StrategyService:
         
         # Мониторинг будет запущен явно через start_monitoring_async
         self._monitoring_task: Optional[asyncio.Task] = None
+    
+    async def add_strategy(self, strategy_id: str, strategy: Any) -> bool:
+        """Добавить стратегию."""
+        try:
+            async with self._strategy_lock:
+                if strategy_id in self._strategies:
+                    return False
+                self._strategies[strategy_id] = strategy
+                return True
+        except Exception as e:
+            logger.error(f"Error adding strategy {strategy_id}: {e}")
+            return False
+    
+    async def remove_strategy(self, strategy_id: str) -> bool:
+        """Удалить стратегию."""
+        try:
+            async with self._strategy_lock:
+                if strategy_id in self._strategies:
+                    del self._strategies[strategy_id]
+                    return True
+                return False
+        except Exception as e:
+            logger.error(f"Error removing strategy {strategy_id}: {e}")
+            return False
+    
+    async def get_strategy(self, strategy_id: str) -> Optional[Any]:
+        """Получить стратегию."""
+        try:
+            async with self._strategy_lock:
+                return self._strategies.get(strategy_id)
+        except Exception as e:
+            logger.error(f"Error getting strategy {strategy_id}: {e}")
+            return None
+    
+    async def execute_strategy(self, strategy_id: str, market_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Выполнить стратегию."""
+        try:
+            strategy = await self.get_strategy(strategy_id)
+            if not strategy:
+                return {"error": f"Strategy {strategy_id} not found"}
+            
+            # Простая реализация выполнения стратегии
+            result = {"strategy_id": strategy_id, "status": "executed", "data": market_data}
+            return result
+        except Exception as e:
+            logger.error(f"Error executing strategy {strategy_id}: {e}")
+            return {"error": str(e)}
+    
+    async def get_performance(self, strategy_id: str) -> Dict[str, Any]:
+        """Получить производительность стратегии."""
+        try:
+            if strategy_id not in self._performance_history:
+                return {"error": f"No performance data for strategy {strategy_id}"}
+            
+            history = self._performance_history[strategy_id]
+            if not history:
+                return {"total_trades": 0, "total_pnl": 0.0, "win_rate": 0.0}
+            
+            total_trades = len(history)
+            total_pnl = sum(trade.get("pnl", 0.0) for trade in history)
+            wins = sum(1 for trade in history if trade.get("pnl", 0.0) > 0)
+            win_rate = wins / total_trades if total_trades > 0 else 0.0
+            
+            return {
+                "total_trades": total_trades,
+                "total_pnl": total_pnl,
+                "win_rate": win_rate,
+                "avg_pnl": total_pnl / total_trades if total_trades > 0 else 0.0
+            }
+        except Exception as e:
+            logger.error(f"Error getting performance for strategy {strategy_id}: {e}")
+            return {"error": str(e)}
     
     async def register_strategy(self, strategy: StrategyBase, config: Dict[str, Any]) -> str:
         """Регистрация новой стратегии."""
