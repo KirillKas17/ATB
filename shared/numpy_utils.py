@@ -2,7 +2,7 @@
 Numpy utilities with fallback implementations
 """
 
-from typing import Any, List, Union
+from typing import Any, List, Union, Optional
 import builtins
 
 try:
@@ -127,7 +127,7 @@ except ImportError:
             return float(sum(arr)) if arr else 0.0
         
         @staticmethod
-        def arange(start: float, stop: float = None, step: float = 1.0) -> List[float]:
+        def arange(start: float, stop: Optional[float] = None, step: float = 1.0) -> List[float]:
             """Create array with evenly spaced values"""
             if stop is None:
                 stop, start = start, 0.0
@@ -145,7 +145,7 @@ except ImportError:
             return [builtins.abs(x) for x in arr]
         
         @staticmethod
-        def sqrt(data: Any) -> float:
+        def sqrt(data: Any) -> Union[float, List[float]]:
             """Square root"""
             if isinstance(data, (int, float)):
                 return float(data ** 0.5)
@@ -153,7 +153,7 @@ except ImportError:
             return [float(x ** 0.5) for x in arr]
         
         @staticmethod
-        def clip(data: Any, min_val: float, max_val: float) -> float:
+        def clip(data: Any, min_val: float, max_val: float) -> Union[float, List[float]]:
             """Clip values between min and max"""
             if isinstance(data, (int, float)):
                 return float(max(min_val, min(max_val, data)))
@@ -179,8 +179,7 @@ except ImportError:
                     return [builtins.max(x, y) for x, y in zip(data1, data2)]
                 return builtins.max(data1, data2)
         
-        # Добавляем как атрибут класса для совместимости
-        maximum = maximum
+        # maximum class is already defined above
         
         class random:
             @staticmethod
@@ -265,4 +264,4 @@ if not HAS_NUMPY:
                 return ndarray([x - other for x in self])
             return ndarray([x - y for x, y in zip(self, other)])
 else:
-    from numpy import ndarray
+    ndarray = np.ndarray  # type: ignore[misc]

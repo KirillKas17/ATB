@@ -9,15 +9,12 @@ import joblib
 from shared.numpy_utils import np
 import optuna
 import pandas as pd
+from pandas import DataFrame, Series
 from loguru import logger
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import TimeSeriesSplit, train_test_split
 from sklearn.preprocessing import RobustScaler
-
-# Type aliases for better mypy support
-Series = pd.Series
-DataFrame = pd.DataFrame
 
 warnings.filterwarnings("ignore")
 

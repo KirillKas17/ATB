@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import optuna
 import pandas as pd
+from pandas import DataFrame, Series
 from shared.numpy_utils import np
 
 # # import talib  # Временно закомментировано из-за проблем с установкой на Windows  # Временно закомментировано из-за проблем с установкой на Windows
@@ -35,9 +36,7 @@ else:
 
 from shared.models.ml_metrics import TransformerMetrics
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+# Type aliases imported above
 
 
 class PositionalEncoding(nn.Module):
@@ -372,7 +371,7 @@ class OnlineAdaptiveTransformer:
         with torch.no_grad():
             data_tensor = torch.tensor(data, dtype=torch.float32)
             predictions = self.model(data_tensor)
-            return predictions.numpy()  # type: ignore[no-any-return]
+            return predictions.numpy()
 
 
 # --- Тренировка, валидация, инференс ---
@@ -474,7 +473,7 @@ def predict(
         mask = model.generate_square_subsequent_mask(xb.size(1)).to(device)
         # Исправление: используем правильные методы Tensor
         preds = model(xb, src_mask=mask)
-        return preds.cpu().numpy()  # type: ignore[no-any-return]
+        return preds.cpu().numpy()
 
 
 # --- Пример препроцессинга ---

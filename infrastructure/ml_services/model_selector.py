@@ -9,6 +9,7 @@ import catboost as cb
 import joblib
 from shared.numpy_utils import np
 import pandas as pd
+from pandas import DataFrame, Series
 import xgboost as xgb
 from loguru import logger
 from prophet import Prophet
@@ -33,9 +34,7 @@ from tensorflow.keras.optimizers import Adam
 
 from shared.models.ml_metrics import ModelMetrics
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+# Type aliases imported above
 
 
 @dataclass

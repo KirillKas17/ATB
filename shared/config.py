@@ -350,7 +350,7 @@ class ConfigManager:
             if stop_loss_pct is not None:
                 config.risk.stop_loss_pct = float(stop_loss_pct)
 
-    def save_config(self, config: SyntraConfig, path: Optional[str] = None):
+    def save_config(self, config: SyntraConfig, path: Optional[str] = None) -> None:
         """Сохранение конфигурации в файл."""
         try:
             save_path = path or self.config_path
@@ -387,7 +387,7 @@ def get_config() -> SyntraConfig:
     return config_manager.get_config()
 
 
-def update_config(updates: Dict[str, Any]):
+def update_config(updates: Dict[str, Any]) -> None:
     """Обновление конфигурации."""
     config = get_config()
     config.update_from_dict(updates)
