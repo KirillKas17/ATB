@@ -120,6 +120,46 @@ except ImportError:
                 return [x > b for x in a]
             return [a > b]
         
+        @staticmethod
+        def sum(data: Any, axis: Any = None) -> float:
+            """Sum of array elements"""
+            arr = list(data) if not isinstance(data, list) else data
+            return float(sum(arr)) if arr else 0.0
+        
+        @staticmethod
+        def arange(start: float, stop: float = None, step: float = 1.0) -> List[float]:
+            """Create array with evenly spaced values"""
+            if stop is None:
+                stop, start = start, 0.0
+            result = []
+            current = start
+            while current < stop:
+                result.append(current)
+                current += step
+            return result
+        
+        @staticmethod
+        def abs(data: Any) -> List[float]:
+            """Absolute values"""
+            arr = list(data) if not isinstance(data, list) else data
+            return [builtins.abs(x) for x in arr]
+        
+        @staticmethod
+        def sqrt(data: Any) -> float:
+            """Square root"""
+            if isinstance(data, (int, float)):
+                return float(data ** 0.5)
+            arr = list(data) if not isinstance(data, list) else data
+            return [float(x ** 0.5) for x in arr]
+        
+        @staticmethod
+        def clip(data: Any, min_val: float, max_val: float) -> float:
+            """Clip values between min and max"""
+            if isinstance(data, (int, float)):
+                return float(max(min_val, min(max_val, data)))
+            arr = list(data) if not isinstance(data, list) else data
+            return [float(max(min_val, min(max_val, x))) for x in arr]
+        
         class maximum:
             @staticmethod
             def accumulate(data: Any) -> List[float]:
@@ -131,6 +171,16 @@ except ImportError:
                 for i in range(1, len(arr)):
                     result.append(builtins.max(result[-1], arr[i]))
                 return result
+            
+            @staticmethod
+            def reduce(data1: Any, data2: Any) -> Any:
+                """Element-wise maximum"""
+                if isinstance(data1, (list, tuple)) and isinstance(data2, (list, tuple)):
+                    return [builtins.max(x, y) for x, y in zip(data1, data2)]
+                return builtins.max(data1, data2)
+        
+        # Добавляем как атрибут класса для совместимости
+        maximum = maximum
         
         class random:
             @staticmethod
@@ -179,3 +229,40 @@ if HAS_NUMPY:
 
 # Export types and constants
 ArrayLike = Union[List[float], List[int], Any]
+
+# Mock ndarray type for type hints
+if not HAS_NUMPY:
+    class ndarray(list):
+        """Mock ndarray that behaves like a list"""
+        def __init__(self, data: Any = None):
+            super().__init__(data if data is not None else [])
+        
+        def __pow__(self, other: Any) -> 'ndarray':
+            if isinstance(other, (int, float)):
+                return ndarray([float(x ** other) for x in self])
+            return ndarray([float(x ** y) for x, y in zip(self, other)])
+        
+        def __mul__(self, other: Any) -> 'ndarray':
+            if isinstance(other, (int, float)):
+                return ndarray([x * other for x in self])
+            return ndarray([x * y for x, y in zip(self, other)])
+        
+        def __rmul__(self, other: Any) -> 'ndarray':
+            return self.__mul__(other)
+        
+        def __truediv__(self, other: Any) -> 'ndarray':
+            if isinstance(other, (int, float)):
+                return ndarray([x / other for x in self])
+            return ndarray([x / y for x, y in zip(self, other)])
+        
+        def __add__(self, other: Any) -> 'ndarray':
+            if isinstance(other, (int, float)):
+                return ndarray([x + other for x in self])
+            return ndarray([x + y for x, y in zip(self, other)])
+        
+        def __sub__(self, other: Any) -> 'ndarray':
+            if isinstance(other, (int, float)):
+                return ndarray([x - other for x in self])
+            return ndarray([x - y for x, y in zip(self, other)])
+else:
+    from numpy import ndarray

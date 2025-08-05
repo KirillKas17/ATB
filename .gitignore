@@ -49,6 +49,7 @@ htmlcov/
 config.local.yaml
 secrets.yaml
 *.local.yaml
+node_modules/
 
 # Данные и временные файлы
 data/

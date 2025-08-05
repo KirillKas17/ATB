@@ -226,7 +226,7 @@ class BaseRepository(ABC, Generic[T]):
     def _get_entity_id(self, entity: T) -> str | UUID:
         """Получение ID сущности."""
         if hasattr(entity, "id"):
-            entity_id = entity.id
+            entity_id: Any = entity.id
             if isinstance(entity_id, (str, UUID)):
                 return entity_id
             else:
