@@ -447,7 +447,7 @@ class TestInMemoryTradingPairRepository:
         repository.search.assert_called_once_with(query, 10)
 
     @pytest.mark.asyncio
-    async def test_repository_isolation(self):
+    async def test_repository_isolation(self: "TestInMemoryTradingPairRepository") -> None:
         """Тест изоляции репозиториев."""
         # Создание двух независимых репозиториев
         repo1 = Mock(spec=TradingPairRepository)

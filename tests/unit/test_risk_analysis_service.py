@@ -10,16 +10,16 @@ from infrastructure.external_services.risk_analysis_service import RiskAnalysisS
 class TestRiskAnalysisService:
     """Тесты для RiskAnalysisServiceAdapter."""
     @pytest.fixture
-    def risk_service(self) -> Any:
+    def risk_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра сервиса."""
         return RiskAnalysisServiceAdapter()
     @pytest.fixture
-    def sample_returns(self) -> Any:
+    def sample_returns(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые данные доходностей."""
         np.random.seed(42)
         return pd.Series(np.random.normal(0.001, 0.02, 100))
     @pytest.fixture
-    def sample_portfolio(self) -> Any:
+    def sample_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовый портфель."""
         return {
             'BTC/USDT': 0.5,

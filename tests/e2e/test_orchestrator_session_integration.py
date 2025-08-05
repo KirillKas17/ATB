@@ -19,9 +19,9 @@ class TestOrchestratorSessionIntegration:
         pass
 
 
-@pytest.mark.e2e
-@pytest.mark.asyncio
-async def test_orchestrator_session_service_integration() -> None:
+    @pytest.mark.e2e
+    @pytest.mark.asyncio
+    async def test_orchestrator_session_service_integration() -> None:
     """
     E2E: orchestrator использует SessionService для получения контекста и анализа влияния сессии.
     """

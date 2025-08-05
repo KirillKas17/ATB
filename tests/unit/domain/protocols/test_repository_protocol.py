@@ -291,7 +291,7 @@ class TestRepositoryProtocolIntegration:
     """Интеграционные тесты для протоколов репозиториев."""
 
     @pytest.mark.asyncio
-    async def test_repository_protocol_compliance(self):
+    async def test_repository_protocol_compliance(self: "TestRepositoryProtocolIntegration") -> None:
         """Тест соответствия протоколу репозитория."""
         # Создание мока, соответствующего протоколу
         mock_repo = Mock(spec=RepositoryProtocol)
@@ -327,7 +327,7 @@ class TestRepositoryProtocolIntegration:
         assert mock_repo.find_by_criteria.called
 
     @pytest.mark.asyncio
-    async def test_error_handling_in_protocols(self):
+    async def test_error_handling_in_protocols(self: "TestRepositoryProtocolIntegration") -> None:
         """Тест обработки ошибок в протоколах."""
         mock_repo = Mock(spec=RepositoryProtocol)
         
@@ -351,7 +351,7 @@ class TestRepositoryProtocolIntegration:
             await mock_repo.delete(uuid4())
 
     @pytest.mark.asyncio
-    async def test_protocol_method_signatures(self):
+    async def test_protocol_method_signatures(self: "TestRepositoryProtocolIntegration") -> None:
         """Тест сигнатур методов протоколов."""
         # Проверка, что протоколы имеют правильные сигнатуры методов
         assert hasattr(RepositoryProtocol, 'save')

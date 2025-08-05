@@ -28,7 +28,7 @@ from domain.strategies.validators import StrategyValidator
 class TestStrategyDomainRules:
     """Тесты доменных правил стратегий."""
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать тестовые рыночные данные."""
         return MarketData(
             symbol="BTC/USDT",
@@ -43,7 +43,7 @@ class TestStrategyDomainRules:
             bid_volume=Volume(Decimal("500"), Currency.USDT),
             ask_volume=Volume(Decimal("500"), Currency.USDT)
         )
-    def test_strategy_activation_rules(self) -> None:
+    def test_strategy_activation_rules(self: "TestStrategyDomainRules") -> None:
         """Тест правил активации стратегии."""
         strategy = TrendFollowingStrategy(
             strategy_id=StrategyId(uuid4()),
@@ -65,7 +65,7 @@ class TestStrategyDomainRules:
         # Приостановка стратегии
         strategy.pause()
         assert not strategy.is_active()
-    def test_strategy_parameter_validation_rules(self) -> None:
+    def test_strategy_parameter_validation_rules(self: "TestStrategyDomainRules") -> None:
         """Тест правил валидации параметров стратегии."""
         # Корректные параметры
         valid_params = {
@@ -95,7 +95,7 @@ class TestStrategyDomainRules:
         }
         with pytest.raises(StrategyValidationError):
             strategy.validate_parameters(invalid_params)
-    def test_strategy_trading_pair_rules(self) -> None:
+    def test_strategy_trading_pair_rules(self: "TestStrategyDomainRules") -> None:
         """Тест правил работы с торговыми парами."""
         strategy = TrendFollowingStrategy(
             strategy_id=StrategyId(uuid4()),
@@ -185,7 +185,7 @@ class TestStrategyDomainRules:
 class TestStrategyBusinessLogic:
     """Тесты бизнес-логики стратегий."""
     @pytest.fixture
-    def trend_following_strategy(self) -> Any:
+    def trend_following_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать трендовую стратегию."""
         return TrendFollowingStrategy(
             strategy_id=StrategyId(uuid4()),
@@ -203,7 +203,7 @@ class TestStrategyBusinessLogic:
             confidence_threshold=ConfidenceLevel(Decimal("0.6"))
         )
     @pytest.fixture
-    def mean_reversion_strategy(self) -> Any:
+    def mean_reversion_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать стратегию возврата к среднему."""
         return MeanReversionStrategy(
             strategy_id=StrategyId(uuid4()),
@@ -355,7 +355,7 @@ class TestStrategyBusinessLogic:
 class TestStrategyDomainValidation:
     """Тесты доменной валидации стратегий."""
     @pytest.fixture
-    def validator(self) -> Any:
+    def validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать валидатор стратегий."""
         return StrategyValidator()
     def test_strategy_config_validation(self, validator) -> None:

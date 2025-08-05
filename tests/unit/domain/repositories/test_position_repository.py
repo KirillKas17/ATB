@@ -739,7 +739,7 @@ class TestInMemoryPositionRepository:
         assert all(p.trading_pair == sample_trading_pair for p in result)
 
     @pytest.mark.asyncio
-    async def test_repository_isolation(self):
+    async def test_repository_isolation(self: "TestInMemoryPositionRepository") -> None:
         """Тест изоляции репозиториев."""
         # Создание двух независимых репозиториев
         repo1 = Mock(spec=PositionRepository)

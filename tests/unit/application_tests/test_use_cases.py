@@ -18,7 +18,7 @@ from domain.value_objects import Price, Volume, Money
 class TestOrderManagementUseCase:
     """Тесты для OrderManagementUseCase."""
     @pytest.fixture
-    def mock_repositories(self) -> Any:
+    def mock_repositories(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает mock репозитории."""
         order_repo = Mock()
         portfolio_repo = Mock()
@@ -37,13 +37,13 @@ class TestOrderManagementUseCase:
         order_repo, portfolio_repo, position_repo = mock_repositories
         return DefaultOrderManagementUseCase(order_repo, portfolio_repo, position_repo)
     @pytest.fixture
-    def sample_portfolio(self) -> Any:
+    def sample_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает образец портфеля."""
         portfolio = Mock()
         portfolio.available_balance = Money(Decimal("10000"), "USD")
         return portfolio
     @pytest.fixture
-    def sample_order_request(self) -> Any:
+    def sample_order_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает образец запроса на создание ордера."""
         return CreateOrderRequest(
             portfolio_id=uuid4(),
@@ -439,7 +439,7 @@ class TestOrderManagementUseCase:
 class TestPositionManagementUseCase:
     """Тесты для PositionManagementUseCase."""
     @pytest.fixture
-    def mock_repositories(self) -> Any:
+    def mock_repositories(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает mock репозитории для позиций."""
         position_repo = Mock()
         portfolio_repo = Mock()

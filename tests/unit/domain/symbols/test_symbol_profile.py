@@ -3,7 +3,7 @@ import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.symbols.symbol_profile import SymbolProfile, VolumeProfile, PriceStructure, OrderBookMetricsData, PatternMetricsData, SessionMetricsData
 from domain.type_definitions import MarketPhase, VolumeValue, PriceValue, SpreadValue, ConfidenceValue
-def test_symbol_profile_creation() -> None:
+    def test_symbol_profile_creation() -> None:
     profile = SymbolProfile(
         symbol="BTCUSDT",
         opportunity_score=0.8,
@@ -19,7 +19,7 @@ def test_symbol_profile_creation() -> None:
     assert profile.opportunity_score == 0.8
     assert profile.market_phase == MarketPhase.ACCUMULATION
     assert profile.confidence == ConfidenceValue(0.9)
-def test_symbol_profile_edge_cases() -> None:
+    def test_symbol_profile_edge_cases() -> None:
     # Минимальные значения
     profile = SymbolProfile(
         symbol="ETHUSDT",
@@ -36,7 +36,7 @@ def test_symbol_profile_edge_cases() -> None:
     assert profile.opportunity_score == 0.0
     assert profile.market_phase == MarketPhase.NO_STRUCTURE
     assert profile.confidence == ConfidenceValue(0.0)
-def test_symbol_profile_invalid_types() -> None:
+    def test_symbol_profile_invalid_types() -> None:
     with pytest.raises(Exception):
         SymbolProfile(
             symbol="",  # Пустой символ

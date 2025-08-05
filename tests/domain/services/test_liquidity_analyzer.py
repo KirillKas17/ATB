@@ -10,11 +10,11 @@ from domain.type_definitions.ml_types import LiquidityAnalysisResult, LiquidityZ
 class TestLiquidityAnalyzer:
     """Тесты для сервиса анализа ликвидности."""
     @pytest.fixture
-    def liquidity_analyzer(self) -> Any:
+    def liquidity_analyzer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса анализа ликвидности."""
         return LiquidityAnalyzer()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)
@@ -27,7 +27,7 @@ class TestLiquidityAnalyzer:
             'vwap': np.random.uniform(50000, 51000, 100)
         }, index=dates)
     @pytest.fixture
-    def sample_order_book(self) -> Any:
+    def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерным ордербуком."""
         return {
             "bids": [
@@ -401,7 +401,7 @@ class TestLiquidityAnalyzer:
             # Проверяем структуру результата вместо isinstance
             assert isinstance(result, dict)
             assert "liquidity_score" in result
-    def test_liquidity_analyzer_config_customization(self) -> None:
+    def test_liquidity_analyzer_config_customization(self: "TestLiquidityAnalyzer") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "liquidity_zone_size": 0.01,

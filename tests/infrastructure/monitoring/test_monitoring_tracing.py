@@ -25,7 +25,7 @@ except ImportError:
     class MockTraceContext: pass
 class TestPerformanceTracer:
     """Тесты для PerformanceTracer."""
-    def test_init_default(self) -> None:
+    def test_init_default(self: "TestPerformanceTracer") -> None:
         """Тест инициализации с параметрами по умолчанию."""
         tracer = PerformanceTracer()
         assert tracer.name == "performance"
@@ -34,7 +34,7 @@ class TestPerformanceTracer:
         assert tracer.traces == {}
         assert tracer.active_traces == {}
         assert tracer.performance_metrics == {}
-    def test_init_custom(self) -> None:
+    def test_init_custom(self: "TestPerformanceTracer") -> None:
         """Тест инициализации с пользовательскими параметрами."""
         tracer = PerformanceTracer(
             name="custom_performance",
@@ -44,7 +44,7 @@ class TestPerformanceTracer:
         assert tracer.name == "custom_performance"
         assert tracer.max_traces == 500
         assert tracer.max_duration == 600.0
-    def test_start_trace(self) -> None:
+    def test_start_trace(self: "TestPerformanceTracer") -> None:
         """Тест начала трейса производительности."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -57,7 +57,7 @@ class TestPerformanceTracer:
         assert span.performance_metrics == {}
         # Проверяем, что span добавлен в активные трейсы
         assert trace_id in tracer.active_traces
-    def test_start_trace_with_context(self) -> None:
+    def test_start_trace_with_context(self: "TestPerformanceTracer") -> None:
         """Тест начала трейса с контекстом."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -65,7 +65,7 @@ class TestPerformanceTracer:
         context = {"user_id": "user-123", "request_id": "req-456"}
         span = tracer.start_trace(trace_id, operation, context=context)
         assert span.context == context
-    def test_end_trace(self) -> None:
+    def test_end_trace(self: "TestPerformanceTracer") -> None:
         """Тест завершения трейса производительности."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -85,7 +85,7 @@ class TestPerformanceTracer:
         assert trace_id not in tracer.active_traces
         # Проверяем, что трейс сохранен
         assert trace_id in tracer.traces
-    def test_end_trace_with_error(self) -> None:
+    def test_end_trace_with_error(self: "TestPerformanceTracer") -> None:
         """Тест завершения трейса с ошибкой."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -98,7 +98,7 @@ class TestPerformanceTracer:
         # Проверяем, что трейс завершен с ошибкой
         assert span.status == "error"
         assert span.error == error
-    def test_add_child_span(self) -> None:
+    def test_add_child_span(self: "TestPerformanceTracer") -> None:
         """Тест добавления дочернего span."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -114,7 +114,7 @@ class TestPerformanceTracer:
         assert child_span.parent_span_id == parent_span_id
         assert child_span.start_time is not None
         assert child_span.status == "active"
-    def test_add_performance_metric(self) -> None:
+    def test_add_performance_metric(self: "TestPerformanceTracer") -> None:
         """Тест добавления метрики производительности."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -130,7 +130,7 @@ class TestPerformanceTracer:
         assert span.performance_metrics["memory_usage"] == 1024
         assert span.performance_metrics["response_time"] == 150.0
         assert span.performance_metrics["throughput"] == 1000
-    def test_get_trace(self) -> None:
+    def test_get_trace(self: "TestPerformanceTracer") -> None:
         """Тест получения трейса."""
         tracer = PerformanceTracer()
         trace_id = "perf-trace-123"
@@ -146,7 +146,7 @@ class TestPerformanceTracer:
         assert trace["operation"] == operation
         assert trace["status"] == "success"
         assert "cpu_usage" in trace["performance_metrics"]
-    def test_get_active_traces(self) -> None:
+    def test_get_active_traces(self: "TestPerformanceTracer") -> None:
         """Тест получения активных трейсов."""
         tracer = PerformanceTracer()
         trace_id1 = "perf-trace-1"
@@ -158,7 +158,7 @@ class TestPerformanceTracer:
         assert len(active_traces) == 2
         assert trace_id1 in active_traces
         assert trace_id2 in active_traces
-    def test_get_performance_metrics(self) -> None:
+    def test_get_performance_metrics(self: "TestPerformanceTracer") -> None:
         """Тест получения метрик производительности."""
         tracer = PerformanceTracer()
         # Создаем несколько трейсов с метриками
@@ -174,7 +174,7 @@ class TestPerformanceTracer:
         assert "memory_usage" in metrics
         assert len(metrics["cpu_usage"]) == 3
         assert len(metrics["memory_usage"]) == 3
-    def test_analyze_performance_bottlenecks(self) -> None:
+    def test_analyze_performance_bottlenecks(self: "TestPerformanceTracer") -> None:
         """Тест анализа узких мест производительности."""
         tracer = PerformanceTracer()
         # Создаем трейсы с разной производительностью
@@ -192,7 +192,7 @@ class TestPerformanceTracer:
         assert len(bottlenecks) > 0
         # Самый медленный должен быть slow_operation
         assert "slow_operation" in [b["operation"] for b in bottlenecks]
-    def test_get_performance_summary(self) -> None:
+    def test_get_performance_summary(self: "TestPerformanceTracer") -> None:
         """Тест получения сводки производительности."""
         tracer = PerformanceTracer()
         # Создаем трейсы с разной производительностью
@@ -209,7 +209,7 @@ class TestPerformanceTracer:
         assert "slowest_operations" in summary
         assert "fastest_operations" in summary
         assert "performance_trends" in summary
-    def test_cleanup_old_traces(self) -> None:
+    def test_cleanup_old_traces(self: "TestPerformanceTracer") -> None:
         """Тест очистки старых трейсов."""
         tracer = PerformanceTracer(max_traces=2)
         # Создаем больше трейсов, чем максимальное количество
@@ -220,7 +220,7 @@ class TestPerformanceTracer:
             tracer.end_trace(trace_id, "success")
         # Проверяем, что старые трейсы удалены
         assert len(tracer.traces) <= 2
-    def test_cleanup_expired_traces(self) -> None:
+    def test_cleanup_expired_traces(self: "TestPerformanceTracer") -> None:
         """Тест очистки истекших трейсов."""
         tracer = PerformanceTracer(max_duration=1.0)  # 1 секунда
         trace_id = "perf-trace-123"
@@ -234,13 +234,13 @@ class TestPerformanceTracer:
         tracer.cleanup_expired_traces()
         # Проверяем, что трейс удален
         assert trace_id not in tracer.traces
-    def test_error_handling_invalid_trace_id(self) -> None:
+    def test_error_handling_invalid_trace_id(self: "TestPerformanceTracer") -> None:
         """Тест обработки ошибок с неверным trace_id."""
         tracer = PerformanceTracer()
         # Пытаемся завершить несуществующий трейс
         with pytest.raises(ValueError, match="Trace not found"):
             tracer.end_trace("invalid-trace", "success")
-    def test_concurrent_tracing(self) -> None:
+    def test_concurrent_tracing(self: "TestPerformanceTracer") -> None:
         """Тест конкурентного трейсинга."""
         tracer = PerformanceTracer()
         def create_trace(trace_id: str, operation: str) -> Any:
@@ -262,7 +262,7 @@ class TestPerformanceTracer:
             thread.join()
         # Проверяем, что все трейсы созданы
         assert len(tracer.traces) == 10
-    def test_performance_tracing_accuracy(self) -> None:
+    def test_performance_tracing_accuracy(self: "TestPerformanceTracer") -> None:
         """Тест точности измерения производительности."""
         tracer = PerformanceTracer()
         trace_id = "accuracy-test"
@@ -277,7 +277,7 @@ class TestPerformanceTracer:
         measured_duration = trace["duration"]
         # Допускаем погрешность в 10ms
         assert abs(measured_duration - 100.0) < 10.0
-    def test_memory_usage_tracking(self) -> None:
+    def test_memory_usage_tracking(self: "TestPerformanceTracer") -> None:
         """Тест отслеживания использования памяти."""
         tracer = PerformanceTracer()
         trace_id = "memory-test"
@@ -300,22 +300,22 @@ class TestPerformanceTracer:
         assert trace["performance_metrics"]["memory_usage"] > 0
 class TestGetTracer:
     """Тесты для функции get_tracer."""
-    def test_get_tracer_default(self) -> None:
+    def test_get_tracer_default(self: "TestGetTracer") -> None:
         """Тест получения трейсера по умолчанию."""
         tracer = get_tracer()
         assert isinstance(tracer, PerformanceTracer)
         assert tracer.name == "performance"
-    def test_get_tracer_custom_name(self) -> None:
+    def test_get_tracer_custom_name(self: "TestGetTracer") -> None:
         """Тест получения трейсера с пользовательским именем."""
         tracer = get_tracer("custom_performance")
         assert isinstance(tracer, PerformanceTracer)
         assert tracer.name == "custom_performance"
-    def test_get_tracer_singleton(self) -> None:
+    def test_get_tracer_singleton(self: "TestGetTracer") -> None:
         """Тест, что get_tracer возвращает тот же экземпляр для одного имени."""
         tracer1 = get_tracer("singleton_test")
         tracer2 = get_tracer("singleton_test")
         assert tracer1 is tracer2
-    def test_get_tracer_different_names(self) -> None:
+    def test_get_tracer_different_names(self: "TestGetTracer") -> None:
         """Тест, что разные имена возвращают разные экземпляры."""
         tracer1 = get_tracer("tracer1")
         tracer2 = get_tracer("tracer2")
@@ -353,7 +353,7 @@ class TestTraceFunctions:
         assert span == mock_span
 class TestTraceSpan:
     """Тесты для TraceSpan."""
-    def test_trace_span_init(self) -> None:
+    def test_trace_span_init(self: "TestTraceSpan") -> None:
         """Тест инициализации TraceSpan."""
         span = TraceSpan(
             trace_id="test-trace",
@@ -368,28 +368,28 @@ class TestTraceSpan:
         assert span.start_time is not None
         assert span.status == "active"
         assert span.performance_metrics == {}
-    def test_trace_span_add_performance_metric(self) -> None:
+    def test_trace_span_add_performance_metric(self: "TestTraceSpan") -> None:
         """Тест добавления метрики производительности к TraceSpan."""
         span = TraceSpan("test-trace", "test-span", "test_operation")
         span.add_performance_metric("cpu_usage", 25.5)
         span.add_performance_metric("memory_usage", 1024)
         assert span.performance_metrics["cpu_usage"] == 25.5
         assert span.performance_metrics["memory_usage"] == 1024
-    def test_trace_span_end(self) -> None:
+    def test_trace_span_end(self: "TestTraceSpan") -> None:
         """Тест завершения TraceSpan."""
         span = TraceSpan("test-trace", "test-span", "test_operation")
         span.end("success")
         assert span.end_time is not None
         assert span.status == "success"
         assert span.duration > 0
-    def test_trace_span_end_with_error(self) -> None:
+    def test_trace_span_end_with_error(self: "TestTraceSpan") -> None:
         """Тест завершения TraceSpan с ошибкой."""
         span = TraceSpan("test-trace", "test-span", "test_operation")
         error = ValueError("Performance error")
         span.end("error", error=error)
         assert span.status == "error"
         assert span.error == error
-    def test_trace_span_to_dict(self) -> None:
+    def test_trace_span_to_dict(self: "TestTraceSpan") -> None:
         """Тест преобразования TraceSpan в словарь."""
         span = TraceSpan("test-trace", "test-span", "test_operation")
         span.add_performance_metric("cpu_usage", 25.5)
@@ -402,7 +402,7 @@ class TestTraceSpan:
         assert "cpu_usage" in span_dict["performance_metrics"]
 class TestPerformanceMetrics:
     """Тесты для PerformanceMetrics."""
-    def test_performance_metrics_init(self) -> None:
+    def test_performance_metrics_init(self: "TestPerformanceMetrics") -> None:
         """Тест инициализации PerformanceMetrics."""
         metrics = PerformanceMetrics()
         assert metrics.cpu_usage == 0.0
@@ -410,7 +410,7 @@ class TestPerformanceMetrics:
         assert metrics.response_time == 0.0
         assert metrics.throughput == 0
         assert metrics.error_rate == 0.0
-    def test_performance_metrics_update(self) -> None:
+    def test_performance_metrics_update(self: "TestPerformanceMetrics") -> None:
         """Тест обновления PerformanceMetrics."""
         metrics = PerformanceMetrics()
         metrics.update(
@@ -425,7 +425,7 @@ class TestPerformanceMetrics:
         assert metrics.response_time == 150.0
         assert metrics.throughput == 1000
         assert metrics.error_rate == 0.01
-    def test_performance_metrics_to_dict(self) -> None:
+    def test_performance_metrics_to_dict(self: "TestPerformanceMetrics") -> None:
         """Тест преобразования PerformanceMetrics в словарь."""
         metrics = PerformanceMetrics()
         metrics.update(
@@ -443,7 +443,7 @@ class TestPerformanceMetrics:
         assert metrics_dict["error_rate"] == 0.01
 class TestTraceContext:
     """Тесты для TraceContext."""
-    def test_trace_context_init(self) -> None:
+    def test_trace_context_init(self: "TestTraceContext") -> None:
         """Тест инициализации TraceContext."""
         context = TraceContext(
             trace_id="test-trace",
@@ -453,14 +453,14 @@ class TestTraceContext:
         assert context.trace_id == "test-trace"
         assert context.span_id == "test-span"
         assert context.parent_span_id == "parent-span"
-    def test_trace_context_to_dict(self) -> None:
+    def test_trace_context_to_dict(self: "TestTraceContext") -> None:
         """Тест преобразования TraceContext в словарь."""
         context = TraceContext("test-trace", "test-span", "parent-span")
         context_dict = context.to_dict()
         assert context_dict["trace_id"] == "test-trace"
         assert context_dict["span_id"] == "test-span"
         assert context_dict["parent_span_id"] == "parent-span"
-    def test_trace_context_from_dict(self) -> None:
+    def test_trace_context_from_dict(self: "TestTraceContext") -> None:
         """Тест создания TraceContext из словаря."""
         context_dict = {
             "trace_id": "test-trace",
@@ -473,7 +473,7 @@ class TestTraceContext:
         assert context.parent_span_id == "parent-span"
 class TestTraceProtocol:
     """Тесты для протокола TraceProtocol."""
-    def test_performance_tracer_implements_protocol(self) -> None:
+    def test_performance_tracer_implements_protocol(self: "TestTraceProtocol") -> None:
         """Тест, что PerformanceTracer реализует TraceProtocol."""
         tracer = PerformanceTracer()
         # Проверяем наличие всех методов протокола

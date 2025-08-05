@@ -417,17 +417,17 @@ class TestRetryDecorator:
             raise ValueError(f"Attempt {self._attempts}")
         return "success"
 
-    async def test_successful_execution(self):
+    async def test_successful_execution(self: "TestRetryDecorator") -> None:
         """Тест успешного выполнения."""
         result = await self.test_function_success()
         assert result == "success"
 
-    async def test_failure_after_max_retries(self):
+    async def test_failure_after_max_retries(self: "TestRetryDecorator") -> None:
         """Тест неудачи после максимального количества попыток."""
         with pytest.raises(ValueError):
             await self.test_function_failure()
 
-    async def test_success_after_retries(self):
+    async def test_success_after_retries(self: "TestRetryDecorator") -> None:
         """Тест успеха после нескольких попыток."""
         result = await self.test_function_success_after_retry()
         assert result == "success"
@@ -454,17 +454,17 @@ class TestTimeoutDecorator:
         await asyncio.sleep(0.5)
         return "success"
 
-    async def test_successful_execution(self):
+    async def test_successful_execution(self: "TestTimeoutDecorator") -> None:
         """Тест успешного выполнения."""
         result = await self.test_function_fast()
         assert result == "success"
 
-    async def test_timeout_exception(self):
+    async def test_timeout_exception(self: "TestTimeoutDecorator") -> None:
         """Тест исключения таймаута."""
         with pytest.raises(ProtocolTimeoutError):
             await self.test_function_slow()
 
-    async def test_timeout_with_default_result(self):
+    async def test_timeout_with_default_result(self: "TestTimeoutDecorator") -> None:
         """Тест таймаута с результатом по умолчанию."""
         result = await self.test_function_slow_with_default()
         assert result == "default"
@@ -473,7 +473,7 @@ class TestTimeoutDecorator:
 class TestValidateInputDecorator:
     """Тесты для декоратора validate_input."""
 
-    class TestSchema(BaseModel):
+class TestSchema(BaseModel):
         name: str
         age: int
 
@@ -482,13 +482,13 @@ class TestValidateInputDecorator:
         """Тестовая функция с валидацией входных данных."""
         return f"Hello {data.name}"
 
-    async def test_valid_input(self):
+    async def test_valid_input(self: "TestValidateInputDecorator") -> None:
         """Тест валидного ввода."""
         data = self.TestSchema(name="John", age=30)
         result = await self.test_function(data)
         assert result == "Hello John"
 
-    async def test_invalid_input(self):
+    async def test_invalid_input(self: "TestValidateInputDecorator") -> None:
         """Тест невалидного ввода."""
         with pytest.raises(ProtocolValidationError):
             await self.test_function({"name": "John", "age": "invalid"})
@@ -502,13 +502,13 @@ class TestCacheDecorator:
         """Тестовая функция с кэшированием."""
         return f"result for {param}"
 
-    async def test_cache_hit(self):
+    async def test_cache_hit(self: "TestCacheDecorator") -> None:
         """Тест попадания в кэш."""
         result1 = await self.test_function("test")
         result2 = await self.test_function("test")
         assert result1 == result2
 
-    async def test_cache_miss(self):
+    async def test_cache_miss(self: "TestCacheDecorator") -> None:
         """Тест промаха кэша."""
         result1 = await self.test_function("test1")
         result2 = await self.test_function("test2")
@@ -524,7 +524,7 @@ class TestMetricsDecorator:
         await asyncio.sleep(0.1)
         return "success"
 
-    async def test_metrics_recording(self):
+    async def test_metrics_recording(self: "TestMetricsDecorator") -> None:
         """Тест записи метрик."""
         result = await self.test_function()
         assert result == "success"
@@ -548,12 +548,12 @@ class TestCircuitBreakerDecorator:
         """Тестовая функция, которая всегда падает."""
         raise ValueError("Test error")
 
-    async def test_successful_execution(self):
+    async def test_successful_execution(self: "TestCircuitBreakerDecorator") -> None:
         """Тест успешного выполнения."""
         result = await self.test_function_success()
         assert result == "success"
 
-    async def test_circuit_breaker_opens(self):
+    async def test_circuit_breaker_opens(self: "TestCircuitBreakerDecorator") -> None:
         """Тест открытия circuit breaker."""
         # Первые два вызова должны вызвать ошибку
         with pytest.raises(ValueError):
@@ -574,7 +574,7 @@ class TestRateLimitDecorator:
         """Тестовая функция с ограничением скорости."""
         return "success"
 
-    async def test_rate_limiting(self):
+    async def test_rate_limiting(self: "TestRateLimitDecorator") -> None:
         """Тест ограничения скорости."""
         # Первые три вызова должны быть успешными
         for i in range(3):
@@ -594,7 +594,7 @@ class TestLogOperationDecorator:
         """Тестовая функция с логированием."""
         return "success"
 
-    async def test_logging(self):
+    async def test_logging(self: "TestLogOperationDecorator") -> None:
         """Тест логирования."""
         with patch('domain.protocols.decorators.logger') as mock_logger:
             result = await self.test_function()
@@ -619,7 +619,7 @@ class TestUtilityFunctions:
 
     def test_generate_cache_key(self):
         """Тест генерации ключа кэша."""
-        def test_func(a, b):
+    def test_func(a, b):
             pass
         
         config = CacheConfig()
@@ -673,7 +673,7 @@ class TestDecoratorsIntegration:
         await asyncio.sleep(0.1)
         return f"result for {param}"
 
-    async def test_multiple_decorators(self):
+    async def test_multiple_decorators(self: "TestDecoratorsIntegration") -> None:
         """Тест множественных декораторов."""
         result = await self.test_function_integration("test")
         assert result == "result for test"
@@ -687,32 +687,32 @@ class TestDecoratorsErrorHandling:
     """Тесты обработки ошибок декораторов."""
 
     @retry(RetryConfig(max_attempts=1, delay=0.1))
-    async def test_retry_with_custom_exception(self):
+    async def test_retry_with_custom_exception(self: "TestDecoratorsErrorHandling") -> None:
         """Тест retry с пользовательским исключением."""
         raise ProtocolError("Custom error")
 
-    async def test_retry_custom_exception(self):
+    async def test_retry_custom_exception(self: "TestDecoratorsErrorHandling") -> None:
         """Тест retry с пользовательским исключением."""
         with pytest.raises(ProtocolError):
             await self.test_retry_with_custom_exception()
 
     @timeout(TimeoutConfig(timeout=0.1))
-    async def test_timeout_with_slow_operation(self):
+    async def test_timeout_with_slow_operation(self: "TestDecoratorsErrorHandling") -> None:
         """Тест таймаута с медленной операцией."""
         await asyncio.sleep(0.5)
         return "success"
 
-    async def test_timeout_slow_operation(self):
+    async def test_timeout_slow_operation(self: "TestDecoratorsErrorHandling") -> None:
         """Тест таймаута с медленной операцией."""
         with pytest.raises(ProtocolTimeoutError):
             await self.test_timeout_with_slow_operation()
 
     @circuit_breaker(CircuitBreakerConfig(failure_threshold=1, recovery_timeout=1.0))
-    async def test_circuit_breaker_with_error(self):
+    async def test_circuit_breaker_with_error(self: "TestDecoratorsErrorHandling") -> None:
         """Тест circuit breaker с ошибкой."""
         raise ValueError("Test error")
 
-    async def test_circuit_breaker_error(self):
+    async def test_circuit_breaker_error(self: "TestDecoratorsErrorHandling") -> None:
         """Тест circuit breaker с ошибкой."""
         with pytest.raises(ValueError):
             await self.test_circuit_breaker_with_error()

@@ -188,7 +188,7 @@ class TestStandaloneSimple:
         assert signal['take_profit'] > signal['entry_price']
 
     @pytest.mark.asyncio
-    async def test_async_operations(self):
+    async def test_async_operations(self: "TestStandaloneSimple") -> None:
         """Тест асинхронных операций."""
         async def mock_data_fetch(delay: float) -> Dict:
             """Mock async data fetch."""

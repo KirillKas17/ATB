@@ -78,7 +78,7 @@ class TestMirrorDetector:
             'DOT/USD': pd.Series(np.random.randn(50).cumsum() + 7, index=dates)
         }
 
-    def test_initialization_default_config(self) -> None:
+    def test_initialization_default_config(self: "TestMirrorDetector") -> None:
         """Тест инициализации с дефолтной конфигурацией."""
         detector = MirrorDetector()
         
@@ -347,7 +347,7 @@ class TestMirrorDetector:
         assert detector.statistics["average_processing_time_ms"] == 0.0
         assert detector.statistics["last_analysis_timestamp"] is None
 
-    def test_advanced_metrics_disabled(self) -> None:
+    def test_advanced_metrics_disabled(self: "TestMirrorDetector") -> None:
         """Тест работы с отключенными расширенными метриками."""
         detector = MirrorDetector(enable_advanced_metrics=False)
         
@@ -362,7 +362,7 @@ class TestMirrorDetector:
             # Расширенные метрики не должны быть в metadata
             assert "advanced_metrics" not in signal.metadata
 
-    def test_clustering_disabled(self) -> None:
+    def test_clustering_disabled(self: "TestMirrorDetector") -> None:
         """Тест работы с отключенной кластеризацией."""
         detector = MirrorDetector(enable_clustering=False)
         

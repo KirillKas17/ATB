@@ -775,7 +775,7 @@ class TestSystemStressAndResilience:
         resource_exhaustion_tests = []
         
         # 1. Тест исчерпания дескрипторов файлов
-        def test_file_descriptors_exhaustion():
+    def test_file_descriptors_exhaustion():
             """Тест исчерпания файловых дескрипторов."""
             import tempfile
             
@@ -812,7 +812,7 @@ class TestSystemStressAndResilience:
             }
         
         # 2. Тест исчерпания потоков
-        def test_thread_exhaustion():
+    def test_thread_exhaustion():
             """Тест исчерпания потоков."""
             threads = []
             max_threads = 200  # Ограниченное количество
@@ -850,7 +850,7 @@ class TestSystemStressAndResilience:
             }
         
         # 3. Тест исчерпания памяти (контролируемый)
-        def test_controlled_memory_exhaustion():
+    def test_controlled_memory_exhaustion():
             """Контролируемый тест исчерпания памяти."""
             memory_chunks = []
             chunk_size = 10 * 1024 * 1024  # 10MB чанки

@@ -48,13 +48,13 @@ class TestMirrorMapBuilder:
             {"timestamp": "2024-01-01T02:00:00", "close": "52000", "volume": "1100"}
         ]
     
-    def test_mirror_map_builder_creation(self) -> None:
+    def test_mirror_map_builder_creation(self: "TestMirrorMapBuilder") -> None:
         """Тест создания MirrorMapBuilder."""
         builder = MirrorMapBuilder()
         assert builder is not None
         assert isinstance(builder, MirrorMapBuilder)
 
-    def test_build_mirror_map(self) -> None:
+    def test_build_mirror_map(self: "TestMirrorMapBuilder") -> None:
         """Тест построения карты зеркальных зависимостей."""
         builder = MirrorMapBuilder()
         
@@ -70,7 +70,7 @@ class TestMirrorMapBuilder:
         assert mirror_map is not None
         assert isinstance(mirror_map, MirrorMap)
 
-    def test_analyze_correlations(self) -> None:
+    def test_analyze_correlations(self: "TestMirrorMapBuilder") -> None:
         """Тест анализа корреляций."""
         builder = MirrorMapBuilder()
         
@@ -86,7 +86,7 @@ class TestMirrorMapBuilder:
         assert correlations is not None
         assert isinstance(correlations, dict)
 
-    def test_analyze_pattern_mirrors(self) -> None:
+    def test_analyze_pattern_mirrors(self: "TestMirrorMapBuilder") -> None:
         """Тест анализа паттернов зеркальных зависимостей."""
         builder = MirrorMapBuilder()
         
@@ -102,7 +102,7 @@ class TestMirrorMapBuilder:
         assert patterns is not None
         assert isinstance(patterns, dict)
 
-    def test_analyze_strategy_mirrors(self) -> None:
+    def test_analyze_strategy_mirrors(self: "TestMirrorMapBuilder") -> None:
         """Тест анализа стратегических зеркальных зависимостей."""
         builder = MirrorMapBuilder()
         
@@ -118,7 +118,7 @@ class TestMirrorMapBuilder:
         assert strategies is not None
         assert isinstance(strategies, dict)
 
-    def test_group_mirrors(self) -> None:
+    def test_group_mirrors(self: "TestMirrorMapBuilder") -> None:
         """Тест группировки зеркальных зависимостей."""
         builder = MirrorMapBuilder()
         
@@ -135,7 +135,7 @@ class TestMirrorMapBuilder:
         assert groups is not None
         assert isinstance(groups, dict)
 
-    def test_generate_recommendations(self) -> None:
+    def test_generate_recommendations(self: "TestMirrorMapBuilder") -> None:
         """Тест генерации рекомендаций."""
         builder = MirrorMapBuilder()
         
@@ -153,7 +153,7 @@ class TestMirrorMapBuilder:
         assert recommendations is not None
         assert isinstance(recommendations, list)
 
-    def test_calculate_mirror_strength(self) -> None:
+    def test_calculate_mirror_strength(self: "TestMirrorMapBuilder") -> None:
         """Тест расчета силы зеркальной зависимости."""
         builder = MirrorMapBuilder()
         
@@ -164,7 +164,7 @@ class TestMirrorMapBuilder:
         assert isinstance(strength, float)
         assert 0 <= strength <= 1
 
-    def test_find_strong_correlations(self) -> None:
+    def test_find_strong_correlations(self: "TestMirrorMapBuilder") -> None:
         """Тест поиска сильных корреляций."""
         builder = MirrorMapBuilder()
         
@@ -181,7 +181,7 @@ class TestMirrorMapBuilder:
         assert strong_correlations is not None
         assert isinstance(strong_correlations, dict)
 
-    def test_calculate_overall_strength(self) -> None:
+    def test_calculate_overall_strength(self: "TestMirrorMapBuilder") -> None:
         """Тест расчета общей силы."""
         builder = MirrorMapBuilder()
         
@@ -197,7 +197,7 @@ class TestMirrorMapBuilder:
         assert overall_strength is not None
         assert isinstance(overall_strength, float)
 
-    def test_get_mirror_map_statistics(self) -> None:
+    def test_get_mirror_map_statistics(self: "TestMirrorMapBuilder") -> None:
         """Тест получения статистики карты зеркальных зависимостей."""
         builder = MirrorMapBuilder()
         
@@ -213,7 +213,7 @@ class TestMirrorMapBuilder:
         assert stats is not None
         assert isinstance(stats, dict)
 
-    def test_validate_symbols(self) -> None:
+    def test_validate_symbols(self: "TestMirrorMapBuilder") -> None:
         """Тест валидации символов."""
         builder = MirrorMapBuilder()
         
@@ -228,7 +228,7 @@ class TestMirrorMapBuilder:
         assert result1 is True
         assert result2 is False
 
-    def test_calculate_confidence_score(self) -> None:
+    def test_calculate_confidence_score(self: "TestMirrorMapBuilder") -> None:
         """Тест расчета оценки уверенности."""
         builder = MirrorMapBuilder()
         

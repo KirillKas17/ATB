@@ -30,14 +30,14 @@ from domain.type_definitions.monitoring_types import (
     LogLevel,
     TraceSpan
 )
-@pytest.fixture
+    @pytest.fixture
 def performance_monitor() -> Any:
     """Фикстура для PerformanceMonitor."""
     monitor = PerformanceMonitor(name="test_monitor")
     yield monitor
     # Очистка после теста
     monitor.stop_monitoring()
-@pytest.fixture
+    @pytest.fixture
 def alert_manager() -> Any:
     """Фикстура для AlertManager."""
     manager = AlertManager(name="test_alerts")
@@ -45,21 +45,21 @@ def alert_manager() -> Any:
     # Очистка после теста
     if manager.is_running:
         asyncio.run(manager.stop_evaluation())
-@pytest.fixture
+    @pytest.fixture
 def performance_tracer() -> Any:
     """Фикстура для PerformanceTracer."""
     tracer = PerformanceTracer(name="test_tracer")
     yield tracer
     # Очистка после теста
     tracer.cleanup_old_traces()
-@pytest.fixture
+    @pytest.fixture
 def monitoring_dashboard() -> Any:
     """Фикстура для MonitoringDashboard."""
     dashboard = MonitoringDashboard(name="test_dashboard")
     yield dashboard
     # Очистка после теста
     dashboard.cleanup_old_data()
-@pytest.fixture
+    @pytest.fixture
 def sample_metrics() -> Any:
     """Фикстура с тестовыми метриками."""
     return [
@@ -92,7 +92,7 @@ def sample_metrics() -> Any:
             labels={"endpoint": "/api/users"}
         )
     ]
-@pytest.fixture
+    @pytest.fixture
 def sample_alerts() -> Any:
     """Фикстура с тестовыми алертами."""
     return [
@@ -119,7 +119,7 @@ def sample_alerts() -> Any:
             timestamp=datetime.now()
         )
     ]
-@pytest.fixture
+    @pytest.fixture
 def sample_traces() -> Any:
     """Фикстура с тестовыми трейсами."""
     return [
@@ -142,7 +142,7 @@ def sample_traces() -> Any:
             parent_span_id=None
         )
     ]
-@pytest.fixture
+    @pytest.fixture
 def sample_log_entries() -> Any:
     """Фикстура с тестовыми записями логов."""
     from infrastructure.monitoring.logging_system import LogEntry, LogContext
@@ -172,7 +172,7 @@ def sample_log_entries() -> Any:
             exception=ValueError("Connection timeout")
         )
     ]
-@pytest.fixture
+    @pytest.fixture
 def mock_system_metrics() -> Any:
     """Фикстура с моковыми системными метриками."""
     return {
@@ -186,7 +186,7 @@ def mock_system_metrics() -> Any:
         "process_count": 150,
         "load_average": [1.2, 1.1, 0.9]
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_app_metrics() -> Any:
     """Фикстура с моковыми метриками приложения."""
     return {
@@ -197,7 +197,7 @@ def mock_app_metrics() -> Any:
         "queue_size": 5,
         "cache_hit_rate": 0.85
     }
-@pytest.fixture
+    @pytest.fixture
 def temp_log_file() -> Any:
     """Фикстура с временным файлом для логов."""
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
@@ -206,7 +206,7 @@ def temp_log_file() -> Any:
     # Очистка после теста
     if os.path.exists(temp_file):
         os.unlink(temp_file)
-@pytest.fixture
+    @pytest.fixture
 def temp_metrics_file() -> Any:
     """Фикстура с временным файлом для метрик."""
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
@@ -215,14 +215,14 @@ def temp_metrics_file() -> Any:
     # Очистка после теста
     if os.path.exists(temp_file):
         os.unlink(temp_file)
-@pytest.fixture
+    @pytest.fixture
 def mock_alert_handler() -> Any:
     """Фикстура с моковым обработчиком алертов."""
     handler = Mock()
     handler.name = "test_handler"
     handler.handle = AsyncMock()
     return handler
-@pytest.fixture
+    @pytest.fixture
 def mock_metric_collector() -> Any:
     """Фикстура с моковым сборщиком метрик."""
     collector = Mock()
@@ -230,14 +230,14 @@ def mock_metric_collector() -> Any:
     collector.collect_system_metrics = Mock(return_value={})
     collector.collect_app_metrics = Mock(return_value={})
     return collector
-@pytest.fixture
+    @pytest.fixture
 def mock_trace_collector() -> Any:
     """Фикстура с моковым сборщиком трейсов."""
     collector = Mock()
     collector.collect_traces = Mock(return_value=[])
     collector.collect_performance_metrics = Mock(return_value={})
     return collector
-@pytest.fixture
+    @pytest.fixture
 def sample_dashboard_config() -> Any:
     """Фикстура с конфигурацией дашборда."""
     from infrastructure.monitoring.monitoring_dashboard import DashboardConfig
@@ -247,7 +247,7 @@ def sample_dashboard_config() -> Any:
         max_data_points=1000,
         theme="light"
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_chart_config() -> Any:
     """Фикстура с конфигурацией графика."""
     from infrastructure.monitoring.monitoring_dashboard import ChartConfig
@@ -258,7 +258,7 @@ def sample_chart_config() -> Any:
         metrics=["cpu_usage", "memory_usage"],
         time_range=timedelta(hours=1)
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_alert_rule() -> Any:
     """Фикстура с правилом алерта."""
     from infrastructure.monitoring.monitoring_alerts import AlertRule
@@ -271,7 +271,7 @@ def sample_alert_rule() -> Any:
         message="Test rule triggered",
         source="test_source"
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_alert_handler() -> Any:
     """Фикстура с обработчиком алертов."""
     from infrastructure.monitoring.monitoring_alerts import AlertHandler
@@ -281,7 +281,7 @@ def sample_alert_handler() -> Any:
         name="test_handler",
         handle_func=handle_func
     )
-@pytest.fixture
+    @pytest.fixture
 def mock_logger() -> Any:
     """Фикстура с моковым логгером."""
     logger = Mock()
@@ -292,7 +292,7 @@ def mock_logger() -> Any:
     logger.critical = Mock()
     logger.log = Mock()
     return logger
-@pytest.fixture
+    @pytest.fixture
 def mock_tracer() -> Any:
     """Фикстура с моковым трейсером."""
     tracer = Mock()
@@ -305,7 +305,7 @@ def mock_tracer() -> Any:
     tracer.get_active_traces = Mock(return_value={})
     tracer.get_trace_statistics = Mock(return_value={})
     return tracer
-@pytest.fixture
+    @pytest.fixture
 def mock_alert_manager() -> Any:
     """Фикстура с моковым менеджером алертов."""
     manager = Mock()
@@ -318,7 +318,7 @@ def mock_alert_manager() -> Any:
     manager.start_evaluation = AsyncMock()
     manager.stop_evaluation = AsyncMock()
     return manager
-@pytest.fixture
+    @pytest.fixture
 def mock_dashboard() -> Any:
     """Фикстура с моковым дашбордом."""
     dashboard = Mock()
@@ -331,14 +331,14 @@ def mock_dashboard() -> Any:
     dashboard.get_alert_summary = Mock(return_value={})
     dashboard.export_metrics = Mock(return_value="")
     return dashboard
-@pytest.fixture
+    @pytest.fixture
 def async_loop() -> Any:
     """Фикстура с асинхронным циклом событий."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     yield loop
     loop.close()
-@pytest.fixture
+    @pytest.fixture
 def sample_performance_data() -> Any:
     """Фикстура с тестовыми данными производительности."""
     return {
@@ -348,7 +348,7 @@ def sample_performance_data() -> Any:
         "throughput": [1000, 950, 1100, 800, 1200],
         "error_rate": [0.01, 0.02, 0.005, 0.03, 0.008]
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_time_series_data() -> Any:
     """Фикстура с тестовыми временными рядами."""
     now = datetime.now()
@@ -357,7 +357,7 @@ def sample_time_series_data() -> Any:
         "values": [20.0 + (i % 10) for i in range(60)],
         "labels": {"metric": "test_metric"}
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_alert_data() -> Any:
     """Фикстура с тестовыми данными алертов."""
     return {
@@ -377,7 +377,7 @@ def sample_alert_data() -> Any:
         "acknowledged_alerts": 8,
         "resolved_alerts": 6
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_trace_data() -> Any:
     """Фикстура с тестовыми данными трейсов."""
     return {
@@ -397,7 +397,7 @@ def sample_trace_data() -> Any:
             "file_operation": 10
         }
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_dashboard_data() -> Any:
     """Фикстура с тестовыми данными дашборда."""
     return {
@@ -424,7 +424,7 @@ def sample_dashboard_data() -> Any:
         }
     }
 # Фикстуры для очистки глобального состояния
-@pytest.fixture(autouse=True)
+    @pytest.fixture(autouse=True)
 def cleanup_global_state() -> Any:
     """Автоматическая очистка глобального состояния после каждого теста."""
     yield
@@ -447,8 +447,8 @@ def cleanup_global_state() -> Any:
     except:
         pass
 # Фикстуры для настройки тестового окружения
-@pytest.fixture(scope="session")
-def test_environment() -> None:
+    @pytest.fixture(scope="session")
+    def test_environment() -> None:
     """Настройка тестового окружения."""
     # Устанавливаем переменные окружения для тестов
     os.environ["TESTING"] = "true"
@@ -457,13 +457,13 @@ def test_environment() -> None:
     # Очистка переменных окружения
     os.environ.pop("TESTING", None)
     os.environ.pop("MONITORING_LOG_LEVEL", None)
-@pytest.fixture(scope="session")
-def test_data_directory() -> None:
+    @pytest.fixture(scope="session")
+    def test_data_directory() -> None:
     """Создание временной директории для тестовых данных."""
     with tempfile.TemporaryDirectory() as temp_dir:
         yield temp_dir
 # Фикстуры для производительности
-@pytest.fixture
+    @pytest.fixture
 def performance_test_data() -> Any:
     """Фикстура с данными для тестов производительности."""
     return {
@@ -473,7 +473,7 @@ def performance_test_data() -> Any:
         "timeout_threshold": 1.0,  # секунды
         "memory_threshold": 100 * 1024 * 1024  # 100MB
     }
-@pytest.fixture
+    @pytest.fixture
 def stress_test_config() -> Any:
     """Фикстура с конфигурацией для стресс-тестов."""
     return {

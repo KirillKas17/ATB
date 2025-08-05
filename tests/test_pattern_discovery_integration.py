@@ -17,7 +17,7 @@ from domain.value_objects.percentage import Percentage
 class TestPatternDiscoveryIntegration:
     """Тесты интеграции PatternDiscovery."""
     @pytest.fixture
-    def pattern_config(self) -> Any:
+    def pattern_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура конфигурации PatternDiscovery."""
         return PatternConfig(
             min_pattern_length=5,
@@ -41,7 +41,7 @@ class TestPatternDiscoveryIntegration:
         """Фикстура PatternDiscovery."""
         return PatternDiscovery(pattern_config)
     @pytest.fixture
-    def sample_pattern(self) -> Any:
+    def sample_pattern(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура образца паттерна."""
         return Pattern(
             pattern_type="price",
@@ -56,7 +56,7 @@ class TestPatternDiscoveryIntegration:
             }
         )
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура образца рыночных данных."""
         return pd.DataFrame({
             "open": [100, 101, 102, 103, 104],
@@ -65,7 +65,7 @@ class TestPatternDiscoveryIntegration:
             "close": [101, 102, 103, 104, 105],
             "volume": [1000, 1100, 1200, 1300, 1400]
         })
-    def test_di_container_pattern_discovery_registration(self) -> None:
+    def test_di_container_pattern_discovery_registration(self: "TestPatternDiscoveryIntegration") -> None:
         """Тест регистрации PatternDiscovery в DI контейнере."""
         config = ContainerConfig(pattern_discovery_enabled=True)
         container = DIContainer(config)
@@ -77,7 +77,7 @@ class TestPatternDiscoveryIntegration:
         pattern_config = container.get("pattern_config")
         assert pattern_config is not None
         assert isinstance(pattern_config, PatternConfig)
-    def test_di_container_pattern_discovery_disabled(self) -> None:
+    def test_di_container_pattern_discovery_disabled(self: "TestPatternDiscoveryIntegration") -> None:
         """Тест отключения PatternDiscovery в DI контейнере."""
         config = ContainerConfig(pattern_discovery_enabled=False)
         container = DIContainer(config)
@@ -110,7 +110,7 @@ class TestPatternDiscoveryIntegration:
         assert status["confidence"] == 0.85
         assert status["support"] == 0.25
         assert status["status"] == "high_confidence"
-    def test_agent_context_pattern_discovery_no_pattern(self) -> None:
+    def test_agent_context_pattern_discovery_no_pattern(self: "TestPatternDiscoveryIntegration") -> None:
         """Тест AgentContext без обнаруженного паттерна."""
         context = AgentContext(symbol="BTCUSDT")
         # Проверяем статус без паттерна
@@ -231,7 +231,7 @@ class TestPatternDiscoveryIntegration:
         assert "pattern_discovery" in modified_signal.metadata
         assert modified_signal.metadata["pattern_discovery"]["pattern_type"] == "price"
         assert modified_signal.metadata["pattern_discovery"]["confidence"] == 0.85
-    def test_pattern_discovery_config_validation(self) -> None:
+    def test_pattern_discovery_config_validation(self: "TestPatternDiscoveryIntegration") -> None:
         """Тест валидации конфигурации PatternDiscovery."""
         # Тест с некорректной конфигурацией
         with pytest.raises(ValueError):
@@ -280,7 +280,7 @@ class TestPatternDiscoveryIntegration:
         assert restored_pattern.confidence == sample_pattern.confidence
         assert restored_pattern.support == sample_pattern.support
         assert restored_pattern.metadata["trend"] == sample_pattern.metadata["trend"]
-    def test_strategy_modifiers_pattern_discovery_integration(self) -> None:
+    def test_strategy_modifiers_pattern_discovery_integration(self: "TestPatternDiscoveryIntegration") -> None:
         """Тест интеграции PatternDiscovery в StrategyModifiers."""
         modifiers = StrategyModifiers()
         # Проверяем, что модификаторы инициализированы с дефолтными значениями
@@ -327,7 +327,7 @@ class TestPatternDiscoveryIntegration:
             # Анализ должен вернуть исходный сигнал
             modified_signal = await orchestrator._apply_pattern_discovery_analysis("BTCUSDT", original_signal)
             assert modified_signal == original_signal
-    def test_pattern_discovery_integration_completeness(self) -> None:
+    def test_pattern_discovery_integration_completeness(self: "TestPatternDiscoveryIntegration") -> None:
         """Тест полноты интеграции PatternDiscovery."""
         # Проверяем, что все компоненты интегрированы
         config = ContainerConfig(pattern_discovery_enabled=True)

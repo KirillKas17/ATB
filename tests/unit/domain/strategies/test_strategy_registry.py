@@ -52,7 +52,7 @@ class MockStrategy:
     def deactivate(self) -> Any:
         self._status = "inactive"
 
-def test_registry_register_strategy() -> None:
+    def test_registry_register_strategy() -> None:
     registry = get_strategy_registry()
     strategy_id = StrategyId(uuid4())
     
@@ -76,14 +76,14 @@ def test_registry_register_strategy() -> None:
     assert registered_id == strategy_id
     assert registry.get_strategy(strategy_id) is not None
 
-def test_registry_get_strategy_not_found() -> None:
+    def test_registry_get_strategy_not_found() -> None:
     registry = get_strategy_registry()
     strategy_id = StrategyId(uuid4())
     
     with pytest.raises(StrategyNotFoundError):
         registry.get_strategy(strategy_id)
 
-def test_registry_duplicate_registration() -> None:
+    def test_registry_duplicate_registration() -> None:
     registry = get_strategy_registry()
     strategy_id = StrategyId(uuid4())
     
@@ -104,7 +104,7 @@ def test_registry_duplicate_registration() -> None:
     with pytest.raises(StrategyDuplicateError):
         registry.register_strategy(strategy=strategy, name="Test Strategy")
 
-def test_registry_search_strategies() -> None:
+    def test_registry_search_strategies() -> None:
     registry = get_strategy_registry()
     
     # Создаем несколько стратегий
@@ -140,7 +140,7 @@ def test_registry_search_strategies() -> None:
     assert len(strategy_0) == 1
     assert strategy_0[0].get_name() == "Strategy 0"
 
-def test_registry_update_metrics() -> None:
+    def test_registry_update_metrics() -> None:
     registry = get_strategy_registry()
     strategy_id = StrategyId(uuid4())
     
@@ -169,7 +169,7 @@ def test_registry_update_metrics() -> None:
     assert metrics.success_count == 7
     assert metrics.success_rate == 0.7
 
-def test_registry_get_statistics() -> None:
+    def test_registry_get_statistics() -> None:
     registry = get_strategy_registry()
     
     # Создаем стратегии разных типов
@@ -199,7 +199,7 @@ def test_registry_get_statistics() -> None:
     assert stats.strategy_type_distribution[StrategyType.MEAN_REVERSION] == 1
     assert stats.strategy_type_distribution[StrategyType.BREAKOUT] == 1
 
-def test_registry_remove_strategy() -> None:
+    def test_registry_remove_strategy() -> None:
     registry = get_strategy_registry()
     strategy_id = StrategyId(uuid4())
     

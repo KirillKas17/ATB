@@ -47,7 +47,7 @@ class MetricData:
 
 class TestMonitoringDashboard:
     """Тесты для MonitoringDashboard."""
-    def test_init_default(self) -> None:
+    def test_init_default(self: "TestMonitoringDashboard") -> None:
         """Тест инициализации с параметрами по умолчанию."""
         dashboard = MonitoringDashboard()
         assert dashboard.name == "default"
@@ -56,7 +56,7 @@ class TestMonitoringDashboard:
         assert dashboard.alerts_data == []
         assert dashboard.charts == {}
         assert dashboard.is_running is False
-    def test_init_custom(self) -> None:
+    def test_init_custom(self: "TestMonitoringDashboard") -> None:
         """Тест инициализации с пользовательскими параметрами."""
         config = DashboardConfig(
             title="Custom Dashboard",
@@ -70,7 +70,7 @@ class TestMonitoringDashboard:
         assert dashboard.name == "custom_dashboard"
         assert dashboard.config.title == "Custom Dashboard"
         assert dashboard.config.refresh_interval == 60
-    def test_add_metric_data(self) -> None:
+    def test_add_metric_data(self: "TestMonitoringDashboard") -> None:
         """Тест добавления данных метрик."""
         dashboard = MonitoringDashboard()
         # Создаем тестовые метрики
@@ -96,7 +96,7 @@ class TestMonitoringDashboard:
         assert "memory_usage" in dashboard.metrics_data
         assert len(dashboard.metrics_data["cpu_usage"]) == 1
         assert len(dashboard.metrics_data["memory_usage"]) == 1
-    def test_add_alert_data(self) -> None:
+    def test_add_alert_data(self: "TestMonitoringDashboard") -> None:
         """Тест добавления данных алертов."""
         dashboard = MonitoringDashboard()
         # Создаем тестовый алерт
@@ -112,7 +112,7 @@ class TestMonitoringDashboard:
         # Проверяем, что алерт добавлен
         assert len(dashboard.alerts_data) == 1
         assert dashboard.alerts_data[0].alert_id == "test-alert-1"
-    def test_create_chart(self) -> None:
+    def test_create_chart(self: "TestMonitoringDashboard") -> None:
         """Тест создания графика."""
         dashboard = MonitoringDashboard()
         chart_config = ChartConfig(
@@ -127,7 +127,7 @@ class TestMonitoringDashboard:
         assert chart.title == "CPU Usage"
         assert chart.chart_type == "line"
         assert "cpu_usage" in chart.metrics
-    def test_get_chart_data(self) -> None:
+    def test_get_chart_data(self: "TestMonitoringDashboard") -> None:
         """Тест получения данных графика."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые данные
@@ -155,7 +155,7 @@ class TestMonitoringDashboard:
         assert "datasets" in chart_data
         assert len(chart_data["datasets"]) == 1
         assert len(chart_data["datasets"][0]["data"]) == 10
-    def test_get_dashboard_data(self) -> None:
+    def test_get_dashboard_data(self: "TestMonitoringDashboard") -> None:
         """Тест получения данных дашборда."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые данные
@@ -182,7 +182,7 @@ class TestMonitoringDashboard:
         assert "summary" in dashboard_data
         assert len(dashboard_data["metrics"]) == 1
         assert len(dashboard_data["alerts"]) == 1
-    def test_get_performance_summary(self) -> None:
+    def test_get_performance_summary(self: "TestMonitoringDashboard") -> None:
         """Тест получения сводки производительности."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые метрики производительности
@@ -210,7 +210,7 @@ class TestMonitoringDashboard:
         assert "error_rate" in summary
         assert summary["cpu_usage"]["current"] == 25.5
         assert summary["memory_usage"]["current"] == 1024
-    def test_get_alert_summary(self) -> None:
+    def test_get_alert_summary(self: "TestMonitoringDashboard") -> None:
         """Тест получения сводки алертов."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые алерты
@@ -236,7 +236,7 @@ class TestMonitoringDashboard:
         assert summary["alerts_by_severity"]["WARNING"] == 1
         assert summary["alerts_by_severity"]["ERROR"] == 1
         assert summary["alerts_by_severity"]["CRITICAL"] == 1
-    def test_export_metrics_json(self) -> None:
+    def test_export_metrics_json(self: "TestMonitoringDashboard") -> None:
         """Тест экспорта метрик в JSON."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые метрики
@@ -255,7 +255,7 @@ class TestMonitoringDashboard:
         assert "metrics" in data
         assert len(data["metrics"]) == 1
         assert data["metrics"][0]["name"] == "cpu_usage"
-    def test_export_metrics_csv(self) -> None:
+    def test_export_metrics_csv(self: "TestMonitoringDashboard") -> None:
         """Тест экспорта метрик в CSV."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые метрики
@@ -273,7 +273,7 @@ class TestMonitoringDashboard:
         lines = csv_data.strip().split('\n')
         assert len(lines) == 6  # Заголовок + 5 строк данных
         assert "timestamp,name,value,type" in lines[0]
-    def test_export_metrics_excel(self) -> None:
+    def test_export_metrics_excel(self: "TestMonitoringDashboard") -> None:
         """Тест экспорта метрик в Excel."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые метрики
@@ -288,7 +288,7 @@ class TestMonitoringDashboard:
         excel_data = dashboard.export_metrics(format="excel")
         assert isinstance(excel_data, bytes)
         assert len(excel_data) > 0
-    def test_create_time_series_chart(self) -> None:
+    def test_create_time_series_chart(self: "TestMonitoringDashboard") -> None:
         """Тест создания временного ряда."""
         dashboard = MonitoringDashboard()
         # Добавляем временные данные
@@ -314,7 +314,7 @@ class TestMonitoringDashboard:
         assert chart_data is not None
         assert len(chart_data["labels"]) == 24
         assert len(chart_data["datasets"][0]["data"]) == 24
-    def test_create_bar_chart(self) -> None:
+    def test_create_bar_chart(self: "TestMonitoringDashboard") -> None:
         """Тест создания столбчатой диаграммы."""
         dashboard = MonitoringDashboard()
         # Добавляем данные для столбчатой диаграммы
@@ -347,7 +347,7 @@ class TestMonitoringDashboard:
         assert chart_data is not None
         assert len(chart_data["labels"]) == 4
         assert len(chart_data["datasets"][0]["data"]) == 4
-    def test_create_pie_chart(self) -> None:
+    def test_create_pie_chart(self: "TestMonitoringDashboard") -> None:
         """Тест создания круговой диаграммы."""
         dashboard = MonitoringDashboard()
         # Добавляем данные для круговой диаграммы
@@ -376,7 +376,7 @@ class TestMonitoringDashboard:
         chart_data = dashboard.get_chart_data(chart.name)
         assert chart_data is not None
         assert len(chart_data["datasets"][0]["data"]) == 3
-    def test_filter_data_by_time_range(self) -> None:
+    def test_filter_data_by_time_range(self: "TestMonitoringDashboard") -> None:
         """Тест фильтрации данных по временному диапазону."""
         dashboard = MonitoringDashboard()
         # Добавляем данные за разные периоды
@@ -395,7 +395,7 @@ class TestMonitoringDashboard:
             time_range=timedelta(hours=24)
         )
         assert len(filtered_data) == 24
-    def test_aggregate_metrics(self) -> None:
+    def test_aggregate_metrics(self: "TestMonitoringDashboard") -> None:
         """Тест агрегации метрик."""
         dashboard = MonitoringDashboard()
         # Добавляем данные для агрегации
@@ -414,7 +414,7 @@ class TestMonitoringDashboard:
         assert aggregated == 190.0
         aggregated = dashboard.aggregate_metrics("response_time", "min")
         assert aggregated == 100.0
-    def test_create_dashboard_snapshot(self) -> None:
+    def test_create_dashboard_snapshot(self: "TestMonitoringDashboard") -> None:
         """Тест создания снимка дашборда."""
         dashboard = MonitoringDashboard()
         # Добавляем тестовые данные
@@ -441,7 +441,7 @@ class TestMonitoringDashboard:
         assert "charts" in snapshot
         assert len(snapshot["metrics"]) == 1
         assert len(snapshot["alerts"]) == 1
-    def test_load_dashboard_snapshot(self) -> None:
+    def test_load_dashboard_snapshot(self: "TestMonitoringDashboard") -> None:
         """Тест загрузки снимка дашборда."""
         dashboard = MonitoringDashboard()
         # Создаем тестовый снимок
@@ -472,7 +472,7 @@ class TestMonitoringDashboard:
         dashboard.load_snapshot(snapshot)
         assert len(dashboard.metrics_data["cpu_usage"]) == 1
         assert len(dashboard.alerts_data) == 1
-    def test_cleanup_old_data(self) -> None:
+    def test_cleanup_old_data(self: "TestMonitoringDashboard") -> None:
         """Тест очистки старых данных."""
         dashboard = MonitoringDashboard()
         # Добавляем старые данные
@@ -496,7 +496,7 @@ class TestMonitoringDashboard:
         # Проверяем, что старые данные удалены
         assert len(dashboard.metrics_data["cpu_usage"]) == 1
         assert dashboard.metrics_data["cpu_usage"][0].value == 30.0
-    def test_performance_with_large_dataset(self) -> None:
+    def test_performance_with_large_dataset(self: "TestMonitoringDashboard") -> None:
         """Тест производительности с большим набором данных."""
         dashboard = MonitoringDashboard()
         import time
@@ -515,7 +515,7 @@ class TestMonitoringDashboard:
         # Добавление 10000 метрик должно занимать менее 1 секунды
         assert duration < 1.0
         assert len(dashboard.metrics_data) == 10
-    def test_memory_usage_with_dashboard(self) -> None:
+    def test_memory_usage_with_dashboard(self: "TestMonitoringDashboard") -> None:
         """Тест использования памяти дашбордом."""
         import psutil
         import os
@@ -538,7 +538,7 @@ class TestMonitoringDashboard:
         assert memory_increase < 100 * 1024 * 1024
 class TestDashboardConfig:
     """Тесты для DashboardConfig."""
-    def test_dashboard_config_init(self) -> None:
+    def test_dashboard_config_init(self: "TestDashboardConfig") -> None:
         """Тест инициализации DashboardConfig."""
         config = DashboardConfig(
             title="Test Dashboard",
@@ -550,14 +550,14 @@ class TestDashboardConfig:
         assert config.refresh_interval == 60
         assert config.max_data_points == 1000
         assert config.theme == "dark"
-    def test_dashboard_config_defaults(self) -> None:
+    def test_dashboard_config_defaults(self: "TestDashboardConfig") -> None:
         """Тест значений по умолчанию DashboardConfig."""
         config = DashboardConfig()
         assert config.title == "Monitoring Dashboard"
         assert config.refresh_interval == 30
         assert config.max_data_points == 10000
         assert config.theme == "light"
-    def test_dashboard_config_to_dict(self) -> None:
+    def test_dashboard_config_to_dict(self: "TestDashboardConfig") -> None:
         """Тест преобразования DashboardConfig в словарь."""
         config = DashboardConfig(
             title="Test Dashboard",
@@ -570,7 +570,7 @@ class TestDashboardConfig:
         assert config_dict["max_data_points"] == 1000
 class TestChartConfig:
     """Тесты для ChartConfig."""
-    def test_chart_config_init(self) -> None:
+    def test_chart_config_init(self: "TestChartConfig") -> None:
         """Тест инициализации ChartConfig."""
         config = ChartConfig(
             name="test_chart",
@@ -585,7 +585,7 @@ class TestChartConfig:
         assert "cpu_usage" in config.metrics
         assert "memory_usage" in config.metrics
         assert config.time_range == timedelta(hours=1)
-    def test_chart_config_to_dict(self) -> None:
+    def test_chart_config_to_dict(self: "TestChartConfig") -> None:
         """Тест преобразования ChartConfig в словарь."""
         config = ChartConfig(
             name="test_chart",
@@ -601,7 +601,7 @@ class TestChartConfig:
         assert "cpu_usage" in config_dict["metrics"]
 class TestMetricData:
     """Тесты для MetricData."""
-    def test_metric_data_init(self) -> None:
+    def test_metric_data_init(self: "TestMetricData") -> None:
         """Тест инициализации MetricData."""
         data = MetricData(
             name="test_metric",
@@ -613,7 +613,7 @@ class TestMetricData:
         assert data.value == 1.0
         assert data.timestamp == datetime.now()
         assert data.labels["host"] == "server1"
-    def test_metric_data_to_dict(self) -> None:
+    def test_metric_data_to_dict(self: "TestMetricData") -> None:
         """Тест преобразования MetricData в словарь."""
         data = MetricData(
             name="test_metric",
@@ -628,22 +628,22 @@ class TestMetricData:
         assert data_dict["labels"]["host"] == "server1"
 class TestGetDashboard:
     """Тесты для функции get_dashboard."""
-    def test_get_dashboard_default(self) -> None:
+    def test_get_dashboard_default(self: "TestGetDashboard") -> None:
         """Тест получения дашборда по умолчанию."""
         dashboard = get_dashboard()
         assert isinstance(dashboard, MonitoringDashboard)
         assert dashboard.name == "default"
-    def test_get_dashboard_custom_name(self) -> None:
+    def test_get_dashboard_custom_name(self: "TestGetDashboard") -> None:
         """Тест получения дашборда с пользовательским именем."""
         dashboard = get_dashboard("custom_dashboard")
         assert isinstance(dashboard, MonitoringDashboard)
         assert dashboard.name == "custom_dashboard"
-    def test_get_dashboard_singleton(self) -> None:
+    def test_get_dashboard_singleton(self: "TestGetDashboard") -> None:
         """Тест, что get_dashboard возвращает тот же экземпляр для одного имени."""
         dashboard1 = get_dashboard("singleton_test")
         dashboard2 = get_dashboard("singleton_test")
         assert dashboard1 is dashboard2
-    def test_get_dashboard_different_names(self) -> None:
+    def test_get_dashboard_different_names(self: "TestGetDashboard") -> None:
         """Тест, что разные имена возвращают разные экземпляры."""
         dashboard1 = get_dashboard("dashboard1")
         dashboard2 = get_dashboard("dashboard2")

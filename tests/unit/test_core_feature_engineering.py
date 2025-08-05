@@ -246,7 +246,7 @@ class TestFeatureImportanceAnalyzer:
         
         return features, target
 
-    def test_calculate_importance_mutual_info(self, analyzer: FeatureImportanceAnalyzer, 
+    def test_calculate_importance_mutual_info(self, analyzer: FeatureImportanceAnalyzer,
                                             sample_features_and_target: tuple[pd.DataFrame, pd.Series]):
         """Тест расчета важности признаков через mutual information."""
         features, target = sample_features_and_target
@@ -285,7 +285,7 @@ class TestFeatureImportanceAnalyzer:
 class TestMarketRegimeClassifier:
     """Unit тесты для MarketRegimeClassifier."""
 
-    @pytest.fixture 
+    @pytest.fixture
     def classifier(self) -> MarketRegimeClassifier:
         """Создает экземпляр MarketRegimeClassifier."""
         return MarketRegimeClassifier()
@@ -312,7 +312,7 @@ class TestMarketRegimeClassifier:
             'volume': np.random.uniform(500, 1500, 50)
         }, index=dates)
 
-    def test_classify_regime_trending(self, classifier: MarketRegimeClassifier, 
+    def test_classify_regime_trending(self, classifier: MarketRegimeClassifier,
                                     market_data_trending_up: pd.DataFrame):
         """Тест классификации трендового режима."""
         regime = classifier.classify_regime(market_data_trending_up)

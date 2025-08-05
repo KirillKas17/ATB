@@ -393,7 +393,7 @@ class TestMarketProfilesIntegration:
         assert getattr(container_config, "market_profiles_enabled", True) is True
         assert getattr(container_config, "pattern_analysis_enabled", True) is True
         assert getattr(container_config, "storage_enabled", True) is True
-    def test_module_metadata(self) -> None:
+    def test_module_metadata(self: "TestMarketProfilesIntegration") -> None:
         """Тест метаданных модуля."""
         # Модуль может не существовать, используем заглушки для тестов
         __version__ = "1.0.0"

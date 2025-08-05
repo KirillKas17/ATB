@@ -103,13 +103,13 @@ class MockOrderManager:
         return self._calculate_break_even_price(entry_price, stop_loss)
 
 
-@pytest.fixture
+    @pytest.fixture
 def bybit_config() -> MockBybitConfig:
     """Фикстура с конфигурацией Bybit"""
     return MockBybitConfig(api_key="test_key", api_secret="test_secret", testnet=True)
 
 
-@pytest.fixture
+    @pytest.fixture
 def order_config() -> MockOrderConfig:
     """Фикстура с конфигурацией ордеров"""
     return MockOrderConfig(
@@ -124,7 +124,7 @@ def order_config() -> MockOrderConfig:
     )
 
 
-@pytest.fixture
+    @pytest.fixture
 async def bybit_client(bybit_config: MockBybitConfig) -> AsyncGenerator[MockBybitClient, None]:
     """Фикстура с клиентом Bybit"""
     client = MockBybitClient(bybit_config)
@@ -135,7 +135,7 @@ async def bybit_client(bybit_config: MockBybitConfig) -> AsyncGenerator[MockBybi
         await client.close()
 
 
-@pytest.fixture
+    @pytest.fixture
 async def order_manager(bybit_client: MockBybitClient, order_config: MockOrderConfig) -> AsyncGenerator[MockOrderManager, None]:
     """Фикстура с менеджером ордеров"""
     manager = MockOrderManager(bybit_client, order_config)
@@ -146,8 +146,8 @@ async def order_manager(bybit_client: MockBybitClient, order_config: MockOrderCo
         await manager.stop()
 
 
-@pytest.mark.asyncio
-async def test_initialization(order_manager: MockOrderManager, bybit_client: MockBybitClient, order_config: MockOrderConfig) -> None:
+    @pytest.mark.asyncio
+    async def test_initialization(order_manager: MockOrderManager, bybit_client: MockBybitClient, order_config: MockOrderConfig) -> None:
     """Тест инициализации"""
     assert order_manager.client == bybit_client
     assert order_manager.config == order_config
@@ -156,8 +156,8 @@ async def test_initialization(order_manager: MockOrderManager, bybit_client: Moc
     assert order_manager.monitor_task is not None
 
 
-@pytest.mark.asyncio
-async def test_create_entry_order(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_create_entry_order(order_manager: MockOrderManager) -> None:
     """Тест создания входного ордера"""
     try:
         order = await order_manager.create_entry_order(
@@ -192,8 +192,8 @@ async def test_create_entry_order(order_manager: MockOrderManager) -> None:
         pytest.skip(f"Create entry order test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_create_take_profit_ladder(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_create_take_profit_ladder(order_manager: MockOrderManager) -> None:
     """Тест создания лестницы тейк-профитов"""
     try:
         orders = await order_manager.create_take_profit_ladder(
@@ -219,8 +219,8 @@ async def test_create_take_profit_ladder(order_manager: MockOrderManager) -> Non
         pytest.skip(f"Create take profit ladder test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_update_trailing_stop(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_update_trailing_stop(order_manager: MockOrderManager) -> None:
     """Тест обновления трейлинг-стопа"""
     try:
         # Создание тестового ордера
@@ -245,8 +245,8 @@ async def test_update_trailing_stop(order_manager: MockOrderManager) -> None:
         pytest.skip(f"Update trailing stop test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_check_break_even(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_check_break_even(order_manager: MockOrderManager) -> None:
     """Тест проверки брейк-ивен"""
     try:
         # Создание тестового ордера
@@ -273,8 +273,8 @@ async def test_check_break_even(order_manager: MockOrderManager) -> None:
         pytest.skip(f"Check break even test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_cancel_order(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_cancel_order(order_manager: MockOrderManager) -> None:
     """Тест отмены ордера"""
     try:
         # Создание тестового ордера
@@ -300,8 +300,8 @@ async def test_cancel_order(order_manager: MockOrderManager) -> None:
         pytest.skip(f"Cancel order test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_leverage_calculation(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_leverage_calculation(order_manager: MockOrderManager) -> None:
     """Тест расчета плеча"""
     # Тест с низкой уверенностью
     leverage = order_manager._calculate_leverage(0.5)
@@ -317,8 +317,8 @@ async def test_leverage_calculation(order_manager: MockOrderManager) -> None:
     assert leverage == order_manager.config.max_leverage
 
 
-@pytest.mark.asyncio
-async def test_break_even_calculation(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_break_even_calculation(order_manager: MockOrderManager) -> None:
     """Тест расчета брейк-ивен"""
     entry_price = 30000
     stop_loss = 29000
@@ -329,8 +329,8 @@ async def test_break_even_calculation(order_manager: MockOrderManager) -> None:
     assert break_even < stop_loss + (entry_price - stop_loss)
 
 
-@pytest.mark.asyncio
-async def test_error_handling(order_manager: MockOrderManager) -> None:
+    @pytest.mark.asyncio
+    async def test_error_handling(order_manager: MockOrderManager) -> None:
     """Тест обработки ошибок"""
     # Тест с неверным ID ордера
     with pytest.raises(Exception):

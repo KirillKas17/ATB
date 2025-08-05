@@ -354,7 +354,7 @@ class TestAlertManager:
         """Тест добавления обработчика."""
         handler_called = False
         
-        async def test_handler(alert: Alert):
+    async def test_handler(alert: Alert):
             nonlocal handler_called
             handler_called = True
         
@@ -404,7 +404,7 @@ class TestHealthChecker:
 
     async def test_add_check(self, health_checker):
         """Тест добавления проверки."""
-        async def test_check():
+    async def test_check():
             return HealthCheck(
                 name="test_check",
                 status=HealthState.HEALTHY,
@@ -417,7 +417,7 @@ class TestHealthChecker:
 
     async def test_run_check(self, health_checker):
         """Тест запуска проверки."""
-        async def test_check():
+    async def test_check():
             return HealthCheck(
                 name="test_check",
                 status=HealthState.HEALTHY,
@@ -476,7 +476,7 @@ class TestHealthChecker:
 
     async def test_get_check_result(self, health_checker):
         """Тест получения результата проверки."""
-        async def test_check():
+    async def test_check():
             return HealthCheck(
                 name="test_check",
                 status=HealthState.HEALTHY,
@@ -742,28 +742,28 @@ class TestSystemMonitor:
 class TestMonitoringDecorators:
     """Тесты для декораторов мониторинга."""
 
-    async def test_monitor_protocol_decorator(self):
+    async def test_monitor_protocol_decorator(self: "TestMonitoringDecorators") -> None:
         """Тест декоратора мониторинга протокола."""
         @monitor_protocol("test_protocol")
-        async def test_function():
+    async def test_function():
             return "success"
         
         result = await test_function()
         assert result == "success"
 
-    async def test_alert_on_error_decorator(self):
+    async def test_alert_on_error_decorator(self: "TestMonitoringDecorators") -> None:
         """Тест декоратора алерта при ошибке."""
         @alert_on_error("test_protocol", AlertLevel.ERROR)
-        async def test_function():
+    async def test_function():
             return "success"
         
         result = await test_function()
         assert result == "success"
 
-    async def test_alert_on_error_decorator_with_exception(self):
+    async def test_alert_on_error_decorator_with_exception(self: "TestMonitoringDecorators") -> None:
         """Тест декоратора алерта при ошибке с исключением."""
         @alert_on_error("test_protocol", AlertLevel.ERROR)
-        async def test_function():
+    async def test_function():
             raise ValueError("Test error")
         
         with pytest.raises(ValueError):
@@ -773,7 +773,7 @@ class TestMonitoringDecorators:
 class TestMonitoringIntegration:
     """Интеграционные тесты мониторинга."""
 
-    async def test_full_monitoring_workflow(self):
+    async def test_full_monitoring_workflow(self: "TestMonitoringIntegration") -> None:
         """Тест полного рабочего процесса мониторинга."""
         protocol_monitor = ProtocolMonitor()
         
@@ -804,7 +804,7 @@ class TestMonitoringIntegration:
         assert "overall_health" in report
         assert "active_alerts" in report
 
-    async def test_monitoring_error_handling(self):
+    async def test_monitoring_error_handling(self: "TestMonitoringIntegration") -> None:
         """Тест обработки ошибок мониторинга."""
         protocol_monitor = ProtocolMonitor()
         

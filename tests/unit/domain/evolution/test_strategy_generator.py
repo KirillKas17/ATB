@@ -300,7 +300,7 @@ class TestStrategyGenerator:
         
         assert isinstance(value, (int, float))
 
-    def test_error_handling_invalid_context(self) -> None:
+    def test_error_handling_invalid_context(self: "TestStrategyGenerator") -> None:
         """Тест обработки ошибок с невалидным контекстом."""
         invalid_context = Mock(spec=EvolutionContext)
         invalid_context.population_size = -1

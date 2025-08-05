@@ -11,11 +11,11 @@ from shared.numpy_utils import np
 class TestSignalService:
     """Тесты для сервиса сигналов."""
     @pytest.fixture
-    def signal_service(self) -> Any:
+    def signal_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса сигналов."""
         return SignalService()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)
@@ -34,7 +34,7 @@ class TestSignalService:
             'sma_50': np.random.uniform(50000, 51000, 100)
         }, index=dates)
     @pytest.fixture
-    def sample_indicators(self) -> Any:
+    def sample_indicators(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с техническими индикаторами."""
         return {
             'rsi': 65.5,
@@ -198,7 +198,7 @@ class TestSignalService:
             signal_service.generate_signals(sample_market_data)
         end_time = time.time()
         assert (end_time - start_time) < 5.0
-    def test_signal_service_config_customization(self) -> None:
+    def test_signal_service_config_customization(self: "TestSignalService") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "signal_types": ["trend", "momentum"],

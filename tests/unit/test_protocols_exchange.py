@@ -423,7 +423,7 @@ class TestExchangeProtocol:
 class TestConnectionProtocol:
     """Тесты для ConnectionProtocol."""
     @pytest.mark.asyncio
-    async def test_connection_state_transitions(self) -> None:
+    def test_connection_state_transitions(self: "TestConnectionProtocol") -> None:
         """Тест переходов состояний подключения."""
         # Начальное состояние
         state = ConnectionStatus.DISCONNECTED
@@ -442,7 +442,7 @@ class TestConnectionProtocol:
         assert state == ConnectionStatus.ERROR
 class TestExchangeConfig:
     """Тесты для ExchangeConfig."""
-    def test_exchange_config_creation(self) -> None:
+    def test_exchange_config_creation(self: "TestExchangeConfig") -> None:
         """Тест создания конфигурации биржи."""
         config = ExchangeConfig(
             exchange_name=ExchangeName("test_exchange"),
@@ -466,7 +466,7 @@ class TestExchangeConfig:
         assert config["rate_limit"] == 100
         assert config["timeout"] == 30.0
         assert config["max_retries"] == 3
-    def test_exchange_config_validation(self) -> None:
+    def test_exchange_config_validation(self: "TestExchangeConfig") -> None:
         """Тест валидации конфигурации биржи."""
         # Валидная конфигурация
         valid_config = ExchangeConfig(
@@ -502,7 +502,7 @@ class TestExchangeConfig:
             )
 class TestExchangeErrors:
     """Тесты для ошибок биржи."""
-    def test_exchange_error_creation(self) -> None:
+    def test_exchange_error_creation(self: "TestExchangeErrors") -> None:
         """Тест создания ошибок биржи."""
         # Базовая ошибка биржи
         error = ExchangeConnectionError("General exchange error")
@@ -533,7 +533,7 @@ class TestExchangeErrors:
         # Ошибка таймаута
         timeout_error = TimeoutError("Request timeout")
         assert str(timeout_error) == "Request timeout"
-    def test_error_inheritance(self) -> None:
+    def test_error_inheritance(self: "TestExchangeErrors") -> None:
         """Тест иерархии ошибок."""
         # Проверка наследования
         assert issubclass(ExchangeConnectionError, Exception)

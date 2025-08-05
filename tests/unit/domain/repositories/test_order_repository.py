@@ -541,7 +541,7 @@ class TestInMemoryOrderRepository:
         assert len(orders) == 4
 
     @pytest.mark.asyncio
-    async def test_repository_isolation(self):
+    async def test_repository_isolation(self: "TestInMemoryOrderRepository") -> None:
         """Тест изоляции между экземплярами репозитория."""
         repo1 = InMemoryOrderRepository()
         repo2 = InMemoryOrderRepository()

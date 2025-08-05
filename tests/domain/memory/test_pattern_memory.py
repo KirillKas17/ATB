@@ -24,7 +24,7 @@ from domain.value_objects.timestamp import Timestamp
 class TestMarketFeatures:
     """Тесты для MarketFeatures"""
     @pytest.fixture
-    def sample_features(self) -> Any:
+    def sample_features(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцовых рыночных характеристик"""
         return MarketFeatures(
             price=50000.0,
@@ -69,7 +69,7 @@ class TestMarketFeatures:
 class TestPatternSnapshot:
     """Тесты для PatternSnapshot"""
     @pytest.fixture
-    def sample_snapshot(self) -> Any:
+    def sample_snapshot(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцового снимка паттерна"""
         features = MarketFeatures(
             price=50000.0,
@@ -138,7 +138,7 @@ class TestPatternSnapshot:
 class TestPatternOutcome:
     """Тесты для PatternOutcome"""
     @pytest.fixture
-    def sample_outcome(self) -> Any:
+    def sample_outcome(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцового исхода паттерна"""
         return PatternOutcome(
             pattern_id="pattern_001",
@@ -190,7 +190,7 @@ class TestPatternOutcome:
 class TestPredictionResult:
     """Тесты для PredictionResult"""
     @pytest.fixture
-    def sample_prediction(self) -> Any:
+    def sample_prediction(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцового прогноза"""
         return PredictionResult(
             pattern_id="pattern_001",
@@ -239,7 +239,7 @@ class TestPatternMemory:
         )
 
     @pytest.fixture
-    def sample_features(self) -> Any:
+    def sample_features(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец рыночных признаков."""
         return MarketFeatures(
             price=100.0,
@@ -377,7 +377,7 @@ class TestPatternMemory:
         assert "avg_confidence" in stats
         assert "avg_strength" in stats
 
-    def test_save_and_get_pattern_data(self) -> None:
+    def test_save_and_get_pattern_data(self: "TestPatternMemory") -> None:
         """Тест сохранения и получения данных паттерна."""
         features = MarketFeatures(
             price=100.0,
@@ -423,7 +423,7 @@ class TestPatternMemory:
         assert stats["avg_confidence"] == 0.8
         assert stats["avg_strength"] == 0.7
 
-    def test_match_snapshot(self) -> None:
+    def test_match_snapshot(self: "TestPatternMemory") -> None:
         """Тест сопоставления снимка."""
         features = MarketFeatures(
             price=100.0,
@@ -486,7 +486,7 @@ class TestPatternMemory:
         assert prediction.symbol == "BTCUSDT"
         assert prediction.similar_cases_count > 0
 
-    def test_get_memory_statistics(self) -> None:
+    def test_get_memory_statistics(self: "TestPatternMemory") -> None:
         """Тест получения статистики памяти."""
         stats = pattern_memory.get_memory_statistics()
         assert isinstance(stats.total_snapshots, int)
@@ -494,7 +494,7 @@ class TestPatternMemory:
         assert isinstance(stats.avg_confidence, float)
         assert isinstance(stats.avg_success_rate, float)
 
-    def test_cleanup_old_patterns(self) -> None:
+    def test_cleanup_old_patterns(self: "TestPatternMemory") -> None:
         """Тест очистки старых паттернов."""
         # Создаем старый паттерн
         old_timestamp = Timestamp.from_datetime(datetime.now() - timedelta(days=40))
@@ -544,13 +544,13 @@ class TestPatternMemory:
 
 class TestOutcomeType:
     """Тесты для OutcomeType"""
-    def test_outcome_type_values(self) -> None:
+    def test_outcome_type_values(self: "TestOutcomeType") -> None:
         """Тест значений типов исходов"""
         assert OutcomeType.PROFITABLE.value == "profitable"
         assert OutcomeType.UNPROFITABLE.value == "unprofitable"
         assert OutcomeType.NEUTRAL.value == "neutral"
         assert OutcomeType.UNKNOWN.value == "unknown"
-    def test_outcome_type_comparison(self) -> None:
+    def test_outcome_type_comparison(self: "TestOutcomeType") -> None:
         """Тест сравнения типов исходов"""
         assert OutcomeType.PROFITABLE != OutcomeType.UNPROFITABLE
         assert OutcomeType.PROFITABLE == OutcomeType.PROFITABLE
@@ -560,25 +560,25 @@ class TestPatternMatcher:
         """Настройка перед каждым тестом."""
         self.config = PatternMemoryConfig()
         self.matcher = PatternMatcher(self.config)
-    def test_calculate_similarity(self) -> None:
+    def test_calculate_similarity(self: "TestPatternMatcher") -> None:
         """Тест вычисления сходства."""
         vector1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         vector2 = np.array([1.1, 2.1, 3.1, 4.1, 5.1])
         similarity = self.matcher.calculate_similarity(vector1, vector2)
         assert 0.0 <= similarity <= 1.0
         assert similarity > 0.8  # Должно быть высокое сходство
-    def test_calculate_similarity_identical_vectors(self) -> None:
+    def test_calculate_similarity_identical_vectors(self: "TestPatternMatcher") -> None:
         """Тест сходства идентичных векторов."""
         vector = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         similarity = self.matcher.calculate_similarity(vector, vector)
         assert similarity == 1.0
-    def test_calculate_similarity_opposite_vectors(self) -> None:
+    def test_calculate_similarity_opposite_vectors(self: "TestPatternMatcher") -> None:
         """Тест сходства противоположных векторов."""
         vector1 = np.array([1.0, 2.0, 3.0])
         vector2 = np.array([-1.0, -2.0, -3.0])
         similarity = self.matcher.calculate_similarity(vector1, vector2)
         assert similarity < 0.5  # Должно быть низкое сходство
-    def test_find_similar_patterns(self) -> None:
+    def test_find_similar_patterns(self: "TestPatternMatcher") -> None:
         """Тест поиска похожих паттернов."""
         current_features = MarketFeatures(
             price=100.0,
@@ -622,7 +622,7 @@ class TestPatternMatcher:
         )
         assert len(similar_patterns) == 1
         assert similar_patterns[0][1] > 0.5  # Сходство должно быть выше порога
-    def test_calculate_confidence_boost(self) -> None:
+    def test_calculate_confidence_boost(self: "TestPatternMatcher") -> None:
         """Тест вычисления повышения уверенности."""
         snapshot = PatternSnapshot(
             pattern_id="test",
@@ -638,7 +638,7 @@ class TestPatternMatcher:
         boost = self.matcher.calculate_confidence_boost(0.9, snapshot)
         assert 0.0 <= boost <= 1.0
         assert boost > 0.5  # Должно быть значительное повышение
-    def test_calculate_signal_strength(self) -> None:
+    def test_calculate_signal_strength(self: "TestPatternMatcher") -> None:
         """Тест вычисления силы сигнала."""
         snapshot = PatternSnapshot(
             pattern_id="test",
@@ -660,7 +660,7 @@ class TestPatternPredictor:
         """Настройка перед каждым тестом."""
         self.config = PatternMemoryConfig()
         self.predictor = PatternPredictor(self.config)
-    def test_calculate_predicted_return(self) -> None:
+    def test_calculate_predicted_return(self: "TestPatternPredictor") -> None:
         """Тест вычисления прогнозируемой доходности."""
         outcomes = [
             PatternOutcome(
@@ -698,7 +698,7 @@ class TestPatternPredictor:
         ]
         predicted_return = self.predictor.calculate_predicted_return(outcomes)
         assert predicted_return == 1.5  # Среднее значение
-    def test_calculate_predicted_duration(self) -> None:
+    def test_calculate_predicted_duration(self: "TestPatternPredictor") -> None:
         """Тест вычисления прогнозируемой длительности."""
         outcomes = [
             PatternOutcome(
@@ -736,7 +736,7 @@ class TestPatternPredictor:
         ]
         predicted_duration = self.predictor.calculate_predicted_duration(outcomes)
         assert predicted_duration == 25  # Среднее значение
-    def test_calculate_success_rate(self) -> None:
+    def test_calculate_success_rate(self: "TestPatternPredictor") -> None:
         """Тест вычисления успешности."""
         outcomes = [
             PatternOutcome(
@@ -774,7 +774,7 @@ class TestPatternPredictor:
         ]
         success_rate = self.predictor._calculate_success_rate(outcomes)
         assert success_rate == 0.5  # 50% успешность
-    def test_generate_prediction(self) -> None:
+    def test_generate_prediction(self: "TestPatternPredictor") -> None:
         """Тест генерации прогноза."""
         features = MarketFeatures(
             price=100.0,

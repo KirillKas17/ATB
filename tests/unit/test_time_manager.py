@@ -230,7 +230,7 @@ class TestTimeManager:
     def test_calculate_execution_time(self, time_manager: TimeManager) -> None:
         """Тест расчета времени выполнения."""
         # Создание функции для тестирования
-        def test_function() -> None:
+    def test_function() -> None:
             time.sleep(0.1)
             return "test_result"
         # Расчет времени выполнения

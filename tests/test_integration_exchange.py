@@ -16,7 +16,7 @@ from exchange.bybit_client import BybitClient, BybitConfig
 from exchange.market_data import MarketData
 from exchange.order_manager import OrderManager
 # Фикстуры
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
@@ -31,7 +31,7 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-@pytest.fixture
+    @pytest.fixture
 def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return BybitConfig(api_key="test_key", api_secret="test_secret", testnet=True)
@@ -179,11 +179,11 @@ class TestMarketData:
             assert isinstance(orderbook, dict)
             assert "bids" in orderbook
             assert "asks" in orderbook
-def test_exchange_initialization() -> None:
+    def test_exchange_initialization() -> None:
     """Тест инициализации базового класса Exchange"""
     with pytest.raises(TypeError):
         Exchange()
-def test_error_handling(bybit_client) -> None:
+    def test_error_handling(bybit_client) -> None:
     """Тест обработки ошибок"""
     # Тест ошибки при получении рыночных данных
     with patch("ccxt.bybit") as mock_exchange:
@@ -208,7 +208,7 @@ def test_error_handling(bybit_client) -> None:
         mock_exchange.cancel_order = AsyncMock(side_effect=Exception("API Error"))
         with pytest.raises(Exception):
             bybit_client.cancel_order("12345", "BTC/USDT")
-def test_data_validation(bybit_client) -> None:
+    def test_data_validation(bybit_client) -> None:
     """Тест валидации данных"""
     # Тест с некорректной парой
     with pytest.raises(ValueError):
@@ -246,7 +246,7 @@ def test_data_validation(bybit_client) -> None:
                 "price": 50000,
             }
         )
-def test_rate_limiting(bybit_client) -> None:
+    def test_rate_limiting(bybit_client) -> None:
     """Тест ограничения частоты запросов"""
     # Имитация превышения лимита запросов
     with patch("ccxt.bybit") as mock_exchange:

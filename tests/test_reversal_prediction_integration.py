@@ -118,7 +118,7 @@ class TestReversalPredictionIntegration:
         controller.active_signals = {}
         controller.signal_history = []
         return controller
-    def test_pattern_extractor_initialization(self) -> None:
+    def test_pattern_extractor_initialization(self: "TestReversalPredictionIntegration") -> None:
         """Тест инициализации извлекателя паттернов."""
         extractor = PricePatternExtractor(pivot_window=5, min_pivot_strength=0.3)
         assert extractor.pivot_window == 5
@@ -178,7 +178,7 @@ class TestReversalPredictionIntegration:
             assert hasattr(cluster, "strength")
             assert cluster.side in ["bid", "ask"]
             assert 0.0 <= cluster.strength <= 1.0
-    def test_reversal_predictor_initialization(self) -> None:
+    def test_reversal_predictor_initialization(self: "TestReversalPredictionIntegration") -> None:
         """Тест инициализации прогнозатора разворотов."""
         config = PredictionConfig(
             lookback_period=100, min_confidence=0.3, min_signal_strength=0.4
@@ -204,7 +204,7 @@ class TestReversalPredictionIntegration:
             assert 0.0 <= signal.confidence <= 1.0
             assert 0.0 <= signal.signal_strength <= 1.0
             assert signal.horizon > timedelta(0)
-    def test_reversal_signal_properties(self) -> None:
+    def test_reversal_signal_properties(self: "TestReversalPredictionIntegration") -> None:
         """Тест свойств сигнала разворота."""
         signal = ReversalSignal(
             symbol="BTCUSDT",
@@ -223,7 +223,7 @@ class TestReversalPredictionIntegration:
         assert hasattr(signal, 'is_expired')
         # Тест времени до истечения
         assert hasattr(signal, 'time_to_expiry')
-    def test_signal_confidence_management(self) -> None:
+    def test_signal_confidence_management(self: "TestReversalPredictionIntegration") -> None:
         """Тест управления уверенностью сигнала."""
         signal = ReversalSignal(
             symbol="BTCUSDT",
@@ -241,7 +241,7 @@ class TestReversalPredictionIntegration:
         # Тест снижения уверенности
         signal.reduce_confidence(0.1)
         assert signal.confidence < signal.confidence  # Должно быть меньше после reduce
-    def test_signal_controversy_detection(self) -> None:
+    def test_signal_controversy_detection(self: "TestReversalPredictionIntegration") -> None:
         """Тест обнаружения спорных сигналов."""
         signal = ReversalSignal(
             symbol="BTCUSDT",
@@ -396,7 +396,7 @@ class TestReversalPredictionIntegration:
             assert len(signal.pivot_points) > 0
             assert signal.volume_profile is not None
             assert len(signal.liquidity_clusters) > 0
-    def test_signal_serialization(self) -> None:
+    def test_signal_serialization(self: "TestReversalPredictionIntegration") -> None:
         """Тест сериализации сигнала."""
         signal = ReversalSignal(
             symbol="BTCUSDT",
@@ -418,7 +418,7 @@ class TestReversalPredictionIntegration:
         assert "timestamp" in signal_dict
         assert "strength_category" in signal_dict
         assert "risk_level" in signal_dict
-    def test_error_handling(self) -> None:
+    def test_error_handling(self: "TestReversalPredictionIntegration") -> None:
         """Тест обработки ошибок."""
         # Тест с пустыми данными
         extractor = PricePatternExtractor()

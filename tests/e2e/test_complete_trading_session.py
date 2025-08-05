@@ -23,7 +23,7 @@ from infrastructure.external_services.bybit_client import BybitClient
 class TestCompleteTradingSession:
     """E2E тесты полной торговой сессии."""
     @pytest.fixture
-    def mock_di_container(self) -> Any:
+    def mock_di_container(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для мока DI контейнера."""
         container = Mock(spec=DIContainer)
         # Mock сервисов
@@ -57,7 +57,7 @@ class TestCompleteTradingSession:
         }.get(service_type, Mock())
         return container
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с тестовыми рыночными данными."""
         return {
             "symbol": "BTCUSDT",

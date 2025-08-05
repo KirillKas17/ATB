@@ -18,7 +18,7 @@ from domain.entities.social_media import (
 class TestSocialSentiment:
     """Тесты для перечисления настроений в социальных медиа."""
 
-    def test_sentiment_values(self) -> None:
+    def test_sentiment_values(self: "TestSocialSentiment") -> None:
         """Тест значений настроений."""
         assert SocialSentiment.POSITIVE.value == "positive"
         assert SocialSentiment.NEGATIVE.value == "negative"
@@ -29,7 +29,7 @@ class TestSocialSentiment:
 class TestSocialPlatform:
     """Тесты для перечисления платформ социальных медиа."""
 
-    def test_platform_values(self) -> None:
+    def test_platform_values(self: "TestSocialPlatform") -> None:
         """Тест значений платформ."""
         assert SocialPlatform.TWITTER.value == "twitter"
         assert SocialPlatform.REDDIT.value == "reddit"
@@ -72,7 +72,7 @@ class TestSocialPost:
         assert valid_social_post.symbols == ["BTC/USD", "ETH/USD"]
         assert valid_social_post.metadata == {"likes": 100, "retweets": 50}
 
-    def test_social_post_validation_empty_id(self) -> None:
+    def test_social_post_validation_empty_id(self: "TestSocialPost") -> None:
         """Тест валидации пустого ID."""
         with pytest.raises(ValueError, match="Post ID cannot be empty"):
             SocialPost(
@@ -88,7 +88,7 @@ class TestSocialPost:
                 metadata={},
             )
 
-    def test_social_post_validation_empty_content(self) -> None:
+    def test_social_post_validation_empty_content(self: "TestSocialPost") -> None:
         """Тест валидации пустого содержимого."""
         with pytest.raises(ValueError, match="Post content cannot be empty"):
             SocialPost(
@@ -104,7 +104,7 @@ class TestSocialPost:
                 metadata={},
             )
 
-    def test_social_post_validation_engagement_score_too_low(self) -> None:
+    def test_social_post_validation_engagement_score_too_low(self: "TestSocialPost") -> None:
         """Тест валидации слишком низкого engagement_score."""
         with pytest.raises(ValueError, match="Engagement score must be between 0 and 1"):
             SocialPost(
@@ -120,7 +120,7 @@ class TestSocialPost:
                 metadata={},
             )
 
-    def test_social_post_validation_engagement_score_too_high(self) -> None:
+    def test_social_post_validation_engagement_score_too_high(self: "TestSocialPost") -> None:
         """Тест валидации слишком высокого engagement_score."""
         with pytest.raises(ValueError, match="Engagement score must be between 0 and 1"):
             SocialPost(
@@ -136,7 +136,7 @@ class TestSocialPost:
                 metadata={},
             )
 
-    def test_social_post_validation_reach_score_too_low(self) -> None:
+    def test_social_post_validation_reach_score_too_low(self: "TestSocialPost") -> None:
         """Тест валидации слишком низкого reach_score."""
         with pytest.raises(ValueError, match="Reach score must be between 0 and 1"):
             SocialPost(
@@ -152,7 +152,7 @@ class TestSocialPost:
                 metadata={},
             )
 
-    def test_social_post_validation_reach_score_too_high(self) -> None:
+    def test_social_post_validation_reach_score_too_high(self: "TestSocialPost") -> None:
         """Тест валидации слишком высокого reach_score."""
         with pytest.raises(ValueError, match="Reach score must be between 0 and 1"):
             SocialPost(
@@ -168,7 +168,7 @@ class TestSocialPost:
                 metadata={},
             )
 
-    def test_social_post_boundary_values(self) -> None:
+    def test_social_post_boundary_values(self: "TestSocialPost") -> None:
         """Тест граничных значений для scores."""
         post = SocialPost(
             id="post_001",

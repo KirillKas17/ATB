@@ -27,7 +27,7 @@ class TestEntanglementIntegration:
             max_lag_ms=3.0,
             correlation_threshold=0.95,
         )
-    def test_full_pipeline_simulation(self) -> None:
+    def test_full_pipeline_simulation(self: "TestEntanglementIntegration") -> None:
         """Тест полного пайплайна с симуляцией данных."""
         # Создаем симулированные данные с высокой корреляцией
         base_prices = np.linspace(50000, 51000, 100)
@@ -73,7 +73,7 @@ class TestEntanglementIntegration:
         assert binance_coinbase_result.correlation_score > 0.8  # Высокая корреляция
         assert abs(binance_coinbase_result.lag_ms) <= 5.0  # Разумный lag
     @pytest.mark.asyncio
-    async def test_monitor_with_simulated_data(self) -> None:
+    def test_monitor_with_simulated_data(self: "TestEntanglementIntegration") -> None:
         """Тест монитора с симулированными данными."""
         # Запускаем мониторинг в фоновом режиме
         monitor_task = asyncio.create_task(self.monitor.start_monitoring())
@@ -95,7 +95,7 @@ class TestEntanglementIntegration:
             # Останавливаем мониторинг
             self.monitor.stop_monitoring()
             await monitor_task
-    def test_multiple_exchange_pairs(self) -> None:
+    def test_multiple_exchange_pairs(self: "TestEntanglementIntegration") -> None:
         """Тест работы с несколькими парами бирж."""
         # Добавляем несколько пар
         self.monitor.add_exchange_pair("binance", "kraken", "ETHUSDT")
@@ -105,7 +105,7 @@ class TestEntanglementIntegration:
         # Проверяем, что новые пары активны
         active_pairs = [p for p in self.monitor.exchange_pairs if p.is_active]
         assert len(active_pairs) >= 3
-    def test_buffer_management(self) -> None:
+    def test_buffer_management(self: "TestEntanglementIntegration") -> None:
         """Тест управления буферами данных."""
         # Добавляем много обновлений
         for i in range(200):
@@ -120,7 +120,7 @@ class TestEntanglementIntegration:
         # Проверяем, что буфер не превышает максимальный размер
         buffer_size = len(self.monitor.order_book_buffers.get("binance", []))
         assert buffer_size <= self.monitor.buffer_max_size
-    def test_correlation_calculation_accuracy(self) -> None:
+    def test_correlation_calculation_accuracy(self: "TestEntanglementIntegration") -> None:
         """Тест точности расчета корреляции."""
         # Создаем идеально коррелированные данные
         n_points = 50
@@ -152,7 +152,7 @@ class TestEntanglementIntegration:
         if results:
             result = results[0]
             assert result.correlation_score > 0.9  # Очень высокая корреляция
-    def test_lag_detection_accuracy(self) -> None:
+    def test_lag_detection_accuracy(self: "TestEntanglementIntegration") -> None:
         """Тест точности обнаружения lag."""
         # Создаем данные с известной задержкой
         n_points = 50
@@ -187,7 +187,7 @@ class TestEntanglementIntegration:
             detected_lag = abs(result.lag_ms)
             # Lag должен быть близок к известному значению (с учетом погрешности)
             assert abs(detected_lag - known_lag) <= 2
-    def test_confidence_calculation(self) -> None:
+    def test_confidence_calculation(self: "TestEntanglementIntegration") -> None:
         """Тест расчета уверенности в результатах."""
         # Создаем данные с разной качественностью
         n_points = 50
@@ -243,7 +243,7 @@ class TestEntanglementIntegration:
             confidence_high = results_high[0].confidence
             confidence_low = results_low[0].confidence
             assert confidence_high > confidence_low
-    def test_error_handling(self) -> None:
+    def test_error_handling(self: "TestEntanglementIntegration") -> None:
         """Тест обработки ошибок."""
         # Тестируем обработку некорректных данных
         invalid_updates = [
@@ -269,7 +269,7 @@ class TestEntanglementIntegration:
             assert isinstance(results, list)
         except Exception as e:
             pytest.fail(f"Error handling failed: {e}")
-    def test_performance_under_load(self) -> None:
+    def test_performance_under_load(self: "TestEntanglementIntegration") -> None:
         """Тест производительности под нагрузкой."""
         # Создаем большое количество обновлений
         n_updates = 1000

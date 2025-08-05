@@ -15,17 +15,17 @@ from application.di_container import DIContainer, ContainerConfig
 class TestDecisionReasonerIntegration:
     """Тесты интеграции DecisionReasoner."""
     @pytest.fixture
-    def decision_reasoner(self) -> Any:
+    def decision_reasoner(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра DecisionReasoner."""
         return DecisionReasoner(
             config=None
         )
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра AgentContext."""
         return AgentContext(symbol="BTCUSDT")
     @pytest.fixture
-    def mock_trade_decision(self) -> Any:
+    def mock_trade_decision(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок TradeDecision."""
         return TradeDecision(
             symbol="BTCUSDT",
@@ -134,7 +134,7 @@ class TestDecisionReasonerIntegration:
         assert agent_context.strategy_modifiers.order_aggressiveness < 1.0
         assert agent_context.strategy_modifiers.position_size_multiplier < 1.0
         assert agent_context.strategy_modifiers.confidence_multiplier < 1.0
-    def test_di_container_decision_reasoner_integration(self) -> None:
+    def test_di_container_decision_reasoner_integration(self: "TestDecisionReasonerIntegration") -> None:
         """Тест интеграции DecisionReasoner в DI контейнер."""
         config = ContainerConfig(decision_reasoner_enabled=True)
         container = DIContainer(config)
@@ -144,7 +144,7 @@ class TestDecisionReasonerIntegration:
         assert isinstance(decision_reasoner, DecisionReasoner)
         assert decision_reasoner.min_confidence == 0.7
         assert decision_reasoner.max_uncertainty == 0.3
-    def test_di_container_decision_reasoner_disabled(self) -> None:
+    def test_di_container_decision_reasoner_disabled(self: "TestDecisionReasonerIntegration") -> None:
         """Тест отключения DecisionReasoner в DI контейнере."""
         config = ContainerConfig(decision_reasoner_enabled=False)
         container = DIContainer(config)
@@ -152,7 +152,7 @@ class TestDecisionReasonerIntegration:
         with pytest.raises(ValueError):
             container.get("decision_reasoner")
     @pytest.mark.asyncio
-    async def test_trading_orchestrator_decision_reasoner_integration(self) -> None:
+    def test_trading_orchestrator_decision_reasoner_integration(self: "TestDecisionReasonerIntegration") -> None:
         """Тест интеграции DecisionReasoner в TradingOrchestrator."""
         # Создаем моки для зависимостей
         mock_order_repo = Mock()

@@ -19,7 +19,7 @@ from application.types import (
 class TestApplicationTypes:
     """Тесты для типов application слоя."""
 
-    def test_create_order_request(self) -> None:
+    def test_create_order_request(self: "TestApplicationTypes") -> None:
         """Тест создания CreateOrderRequest."""
         request = CreateOrderRequest(
             portfolio_id=uuid4(),
@@ -39,7 +39,7 @@ class TestApplicationTypes:
         assert request.price.value == Decimal("50000")
         assert request.stop_price is None
 
-    def test_create_order_response_success(self) -> None:
+    def test_create_order_response_success(self: "TestApplicationTypes") -> None:
         """Тест успешного CreateOrderResponse."""
         response = CreateOrderResponse(
             success=True,
@@ -54,7 +54,7 @@ class TestApplicationTypes:
         assert "Low liquidity" in response.warnings
         assert response.message == "Order created successfully"
 
-    def test_create_order_response_error(self) -> None:
+    def test_create_order_response_error(self: "TestApplicationTypes") -> None:
         """Тест CreateOrderResponse с ошибкой."""
         response = CreateOrderResponse(
             success=False,
@@ -66,7 +66,7 @@ class TestApplicationTypes:
         assert response.message == "Insufficient funds"
         assert "Insufficient balance" in response.errors
 
-    def test_cancel_order_request(self) -> None:
+    def test_cancel_order_request(self: "TestApplicationTypes") -> None:
         """Тест создания CancelOrderRequest."""
         order_id = uuid4()
         portfolio_id = uuid4()
@@ -79,7 +79,7 @@ class TestApplicationTypes:
         assert request.order_id == order_id
         assert request.portfolio_id == portfolio_id
 
-    def test_cancel_order_response(self) -> None:
+    def test_cancel_order_response(self: "TestApplicationTypes") -> None:
         """Тест CancelOrderResponse."""
         response = CancelOrderResponse(
             cancelled=True,
@@ -90,7 +90,7 @@ class TestApplicationTypes:
         assert response.cancelled is True
         assert response.message == "Order cancelled successfully"
 
-    def test_get_orders_request(self) -> None:
+    def test_get_orders_request(self: "TestApplicationTypes") -> None:
         """Тест создания GetOrdersRequest."""
         request = GetOrdersRequest(
             portfolio_id=uuid4(),
@@ -106,7 +106,7 @@ class TestApplicationTypes:
         assert request.limit == 50
         assert request.offset == 0
 
-    def test_get_orders_response(self) -> None:
+    def test_get_orders_response(self: "TestApplicationTypes") -> None:
         """Тест GetOrdersResponse."""
         response = GetOrdersResponse(
             orders=[],  # В реальном случае здесь были бы Order
@@ -120,14 +120,14 @@ class TestApplicationTypes:
         assert response.has_more is False
         assert response.message == "No orders found"
 
-    def test_market_phase_enum(self) -> None:
+    def test_market_phase_enum(self: "TestApplicationTypes") -> None:
         """Тест enum MarketPhase."""
         assert MarketPhase.BULL_MARKET == "bull_market"
         assert MarketPhase.BEAR_MARKET == "bear_market"
         assert MarketPhase.SIDEWAYS == "sideways"
         assert MarketPhase.VOLATILE == "volatile"
 
-    def test_signal_type_enum(self) -> None:
+    def test_signal_type_enum(self: "TestApplicationTypes") -> None:
         """Тест enum SignalType."""
         assert SignalType.BUY == "buy"
         assert SignalType.SELL == "sell"
@@ -135,7 +135,7 @@ class TestApplicationTypes:
         assert SignalType.STRONG_BUY == "strong_buy"
         assert SignalType.STRONG_SELL == "strong_sell"
 
-    def test_order_status_enum(self) -> None:
+    def test_order_status_enum(self: "TestApplicationTypes") -> None:
         """Тест enum OrderStatus."""
         assert OrderStatus.PENDING == "pending"
         assert OrderStatus.OPEN == "open"
@@ -145,14 +145,14 @@ class TestApplicationTypes:
         assert OrderStatus.REJECTED == "rejected"
         assert OrderStatus.EXPIRED == "expired"
 
-    def test_risk_level_enum(self) -> None:
+    def test_risk_level_enum(self: "TestApplicationTypes") -> None:
         """Тест enum RiskLevel."""
         assert RiskLevel.LOW == "low"
         assert RiskLevel.MEDIUM == "medium"
         assert RiskLevel.HIGH == "high"
         assert RiskLevel.EXTREME == "extreme"
 
-    def test_market_summary(self) -> None:
+    def test_market_summary(self: "TestApplicationTypes") -> None:
         """Тест MarketSummary."""
         summary = MarketSummary(
             symbol="BTC/USD",
@@ -181,7 +181,7 @@ class TestApplicationTypes:
         assert len(summary.support_levels) == 1
         assert len(summary.resistance_levels) == 1
 
-    def test_technical_indicators(self) -> None:
+    def test_technical_indicators(self: "TestApplicationTypes") -> None:
         """Тест TechnicalIndicators."""
         indicators = TechnicalIndicators(
             symbol="BTC/USD",
@@ -216,7 +216,7 @@ class TestApplicationTypes:
         assert indicators.bollinger_lower[0] == Decimal("49000")
         assert indicators.atr[0] == Decimal("500")
 
-    def test_volume_profile(self) -> None:
+    def test_volume_profile(self: "TestApplicationTypes") -> None:
         """Тест VolumeProfile."""
         profile = VolumeProfile(
             symbol="BTC/USD",
@@ -239,7 +239,7 @@ class TestApplicationTypes:
         assert profile.price_range["min"].value == Decimal("48000")
         assert profile.price_range["max"].value == Decimal("52000")
 
-    def test_market_regime(self) -> None:
+    def test_market_regime(self: "TestApplicationTypes") -> None:
         """Тест MarketRegime."""
         regime = MarketRegime(
             symbol="BTC/USD",
@@ -262,7 +262,7 @@ class TestApplicationTypes:
         assert regime.volume_trend == Decimal("0.05")
         assert regime.confidence.value == Decimal("85.0")
 
-    def test_value_objects_validation(self) -> None:
+    def test_value_objects_validation(self: "TestApplicationTypes") -> None:
         """Тест валидации value objects."""
         # Тест PriceLevel
         price = PriceLevel(Decimal("50000"))
@@ -285,7 +285,7 @@ class TestApplicationTypes:
         timestamp = Timestamp(now)
         assert timestamp.value == now
 
-    def test_invalid_values(self) -> None:
+    def test_invalid_values(self: "TestApplicationTypes") -> None:
         """Тест обработки некорректных значений."""
         # Отрицательная цена должна вызывать ошибку
         with pytest.raises(ValueError):
@@ -299,7 +299,7 @@ class TestApplicationTypes:
         with pytest.raises(ValueError):
             Percentage(Decimal("150"))
 
-    def test_serialization(self) -> None:
+    def test_serialization(self: "TestApplicationTypes") -> None:
         """Тест сериализации типов."""
         request = CreateOrderRequest(
             portfolio_id=uuid4(),

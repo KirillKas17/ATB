@@ -163,7 +163,7 @@ class TestSessionsIntegration:
         self.service = MockSessionService()
         self.data_repo = MockSessionDataRepository()
         self.config_repo = MockSessionConfigurationRepository()
-    def test_full_session_analysis_pipeline(self) -> None:
+    def test_full_session_analysis_pipeline(self: "TestSessionsIntegration") -> None:
         """Тест полного пайплайна анализа сессии."""
         # 1. Получаем профиль сессии
         session_profile = self.registry.get_profile(SessionType.ASIAN)
@@ -193,7 +193,7 @@ class TestSessionsIntegration:
         statistics = self.data_repo.get_session_statistics(SessionType.ASIAN, lookback_days=1)
         assert isinstance(statistics, dict)
         assert "total_analyses" in statistics
-    def test_session_manager_integration(self) -> None:
+    def test_session_manager_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionManager."""
         # 1. Регистрируем анализатор
         analyzer = Mock()
@@ -209,7 +209,7 @@ class TestSessionsIntegration:
         # 4. Получаем статистику
         statistics = self.manager.get_session_statistics(session_type)
         assert isinstance(statistics, dict)
-    def test_session_optimizer_integration(self) -> None:
+    def test_session_optimizer_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionOptimizer."""
         # 1. Создаем тестовые данные
         session_profile = self.registry.get_profile(SessionType.LONDON)
@@ -230,7 +230,7 @@ class TestSessionsIntegration:
             session_profile, market_conditions
         )
         assert isinstance(risk_params, dict)
-    def test_session_predictor_integration(self) -> None:
+    def test_session_predictor_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionPredictor."""
         # 1. Создаем тестовые данные
         session_profile = self.registry.get_profile(SessionType.NEW_YORK)
@@ -252,7 +252,7 @@ class TestSessionsIntegration:
             current_regime, session_profile
         )
         assert isinstance(regime_changes, list)
-    def test_session_analyzer_factory_integration(self) -> None:
+    def test_session_analyzer_factory_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionAnalyzerFactory."""
         # 1. Создаем анализаторы для всех типов сессий
         for session_type in SessionType:
@@ -271,7 +271,7 @@ class TestSessionsIntegration:
         analyzers = self.factory.get_available_analyzers()
         assert isinstance(analyzers, list)
         assert len(analyzers) > 0
-    def test_session_service_integration(self) -> None:
+    def test_session_service_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionService."""
         # 1. Получаем текущий контекст сессии
         context = self.service.get_current_session_context()
@@ -292,7 +292,7 @@ class TestSessionsIntegration:
         # 5. Получаем статистику
         statistics = self.service.get_session_statistics(SessionType.ASIAN)
         assert isinstance(statistics, dict)
-    def test_repositories_integration(self) -> None:
+    def test_repositories_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции репозиториев."""
         # 1. Создаем тестовые данные
         session_profile = self.registry.get_profile(SessionType.ASIAN)
@@ -320,7 +320,7 @@ class TestSessionsIntegration:
         statistics = self.data_repo.get_session_statistics(SessionType.ASIAN, lookback_days=1)
         assert isinstance(statistics, dict)
         assert "total_analyses" in statistics
-    def test_session_marker_integration(self) -> None:
+    def test_session_marker_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionMarker."""
         # 1. Получаем контекст сессии
         context = self.marker.get_session_context()
@@ -347,7 +347,7 @@ class TestSessionsIntegration:
         for session_type in SessionType:
             phase = self.marker.get_session_phase(session_type)
             assert isinstance(phase, SessionPhase)
-    def test_cross_session_analysis_integration(self) -> None:
+    def test_cross_session_analysis_integration(self: "TestSessionsIntegration") -> None:
         """Тест кросс-сессионного анализа."""
         # 1. Анализируем все типы сессий
         market_data = self._create_test_market_data()
@@ -374,7 +374,7 @@ class TestSessionsIntegration:
         # 4. Проверяем, что метрики различаются между сессиями
         confidences = [metrics["confidence"] for metrics in metrics_comparison.values()]
         assert len(set(confidences)) > 1  # Должны быть различия
-    def test_session_transition_analysis_integration(self) -> None:
+    def test_session_transition_analysis_integration(self: "TestSessionsIntegration") -> None:
         """Тест анализа переходов между сессиями."""
         # 1. Получаем текущий контекст
         context = self.marker.get_session_context()

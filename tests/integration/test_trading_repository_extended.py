@@ -32,7 +32,7 @@ class TestTradingRepositoryExtended:
         await repo.clear_all_data()
 
     @pytest.fixture
-    def sample_order(self) -> Any:
+    def sample_order(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового ордера."""
         return Order(
             id=OrderId(UUID("12345678-1234-5678-9abc-123456789abc")),
@@ -58,7 +58,7 @@ class TestTradingRepositoryExtended:
         )
 
     @pytest.fixture
-    def sample_account(self) -> Any:
+    def sample_account(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового аккаунта."""
         balances = [
             Balance("USDT", Decimal("10000"), Decimal("10000")),

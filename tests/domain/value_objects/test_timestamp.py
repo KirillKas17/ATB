@@ -11,25 +11,25 @@ from domain.value_objects.timestamp import Timestamp
 class TestTimestamp:
     """Тесты для класса Timestamp."""
 
-    def test_timestamp_creation(self) -> None:
+    def test_timestamp_creation(self: "TestTimestamp") -> None:
         """Тест создания временной метки."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
         assert ts.value == dt
 
-    def test_timestamp_creation_without_timezone(self) -> None:
+    def test_timestamp_creation_without_timezone(self: "TestTimestamp") -> None:
         """Тест создания временной метки без timezone."""
         dt = datetime(2024, 1, 1, 12, 0, 0)  # Без timezone
         ts = Timestamp(dt)
         assert ts.value.tzinfo == timezone.utc
         assert ts.value.replace(tzinfo=None) == dt
 
-    def test_timestamp_invalid_creation(self) -> None:
+    def test_timestamp_invalid_creation(self: "TestTimestamp") -> None:
         """Тест создания с невалидным типом."""
         with pytest.raises(ValueError, match="Timestamp value must be a datetime object"):
             Timestamp("2024-01-01")
 
-    def test_timestamp_immutability(self) -> None:
+    def test_timestamp_immutability(self: "TestTimestamp") -> None:
         """Тест неизменяемости."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
@@ -41,7 +41,7 @@ class TestTimestamp:
             
         assert ts.value == original_value
 
-    def test_timestamp_comparison(self) -> None:
+    def test_timestamp_comparison(self: "TestTimestamp") -> None:
         """Тест сравнения временных меток."""
         ts1 = Timestamp(datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
         ts2 = Timestamp(datetime(2024, 1, 1, 13, 0, 0, tzinfo=timezone.utc))
@@ -53,26 +53,26 @@ class TestTimestamp:
         assert ts1 <= ts3
         assert ts1 >= ts3
 
-    def test_timestamp_comparison_with_non_timestamp(self) -> None:
+    def test_timestamp_comparison_with_non_timestamp(self: "TestTimestamp") -> None:
         """Тест сравнения с не-временными метками."""
         ts = Timestamp(datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
         
         with pytest.raises(TypeError, match="Can only compare Timestamp with Timestamp"):
             _ = ts < datetime.now()
 
-    def test_timestamp_string_representation(self) -> None:
+    def test_timestamp_string_representation(self: "TestTimestamp") -> None:
         """Тест строкового представления."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
         assert str(ts) == dt.isoformat()
 
-    def test_timestamp_repr_representation(self) -> None:
+    def test_timestamp_repr_representation(self: "TestTimestamp") -> None:
         """Тест представления для отладки."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
         assert repr(ts) == f"Timestamp({dt})"
 
-    def test_timestamp_equality(self) -> None:
+    def test_timestamp_equality(self: "TestTimestamp") -> None:
         """Тест равенства."""
         dt1 = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         dt2 = datetime(2024, 1, 1, 13, 0, 0, tzinfo=timezone.utc)
@@ -85,7 +85,7 @@ class TestTimestamp:
         assert ts1 != ts3
         assert ts1 != "2024-01-01"
 
-    def test_timestamp_conversion_methods(self) -> None:
+    def test_timestamp_conversion_methods(self: "TestTimestamp") -> None:
         """Тест методов преобразования."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
@@ -97,7 +97,7 @@ class TestTimestamp:
         assert ts.to_float() == dt.timestamp()
         assert ts.to_decimal() == Decimal(str(dt.timestamp()))
 
-    def test_timestamp_time_checks(self) -> None:
+    def test_timestamp_time_checks(self: "TestTimestamp") -> None:
         """Тест проверок времени."""
         now = datetime.now(timezone.utc)
         past = now - timedelta(hours=1)
@@ -116,7 +116,7 @@ class TestTimestamp:
         assert ts_now.is_now()
         assert ts_now.is_now(tolerance_seconds=5)
 
-    def test_timestamp_addition_methods(self) -> None:
+    def test_timestamp_addition_methods(self: "TestTimestamp") -> None:
         """Тест методов добавления времени."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
@@ -141,7 +141,7 @@ class TestTimestamp:
         expected = dt + timedelta(days=1)
         assert result.value == expected
 
-    def test_timestamp_subtraction_methods(self) -> None:
+    def test_timestamp_subtraction_methods(self: "TestTimestamp") -> None:
         """Тест методов вычитания времени."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
@@ -166,7 +166,7 @@ class TestTimestamp:
         expected = dt - timedelta(days=1)
         assert result.value == expected
 
-    def test_timestamp_difference_methods(self) -> None:
+    def test_timestamp_difference_methods(self: "TestTimestamp") -> None:
         """Тест методов расчета разности времени."""
         dt1 = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         dt2 = datetime(2024, 1, 1, 13, 0, 0, tzinfo=timezone.utc)
@@ -190,14 +190,14 @@ class TestTimestamp:
         diff_days = ts2.time_difference_days(ts1)
         assert diff_days == 1.0 / 24.0
 
-    def test_timestamp_difference_with_non_timestamp(self) -> None:
+    def test_timestamp_difference_with_non_timestamp(self: "TestTimestamp") -> None:
         """Тест расчета разности с не-временной меткой."""
         ts = Timestamp(datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
         
         with pytest.raises(TypeError, match="Can only calculate time difference with Timestamp"):
             ts.time_difference("2024-01-01")
 
-    def test_timestamp_serialization(self) -> None:
+    def test_timestamp_serialization(self: "TestTimestamp") -> None:
         """Тест сериализации."""
         dt = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ts = Timestamp(dt)
@@ -208,7 +208,7 @@ class TestTimestamp:
         restored = Timestamp.from_dict(data)
         assert restored == ts
 
-    def test_timestamp_class_methods(self) -> None:
+    def test_timestamp_class_methods(self: "TestTimestamp") -> None:
         """Тест классовых методов."""
         # Создание текущего времени
         now_ts = Timestamp.now()
@@ -235,7 +235,7 @@ class TestTimestamp:
         ts4 = Timestamp.from_datetime(dt)
         assert ts4.value == dt
 
-    def test_timestamp_hash(self) -> None:
+    def test_timestamp_hash(self: "TestTimestamp") -> None:
         """Тест хеширования."""
         dt1 = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         dt2 = datetime(2024, 1, 1, 13, 0, 0, tzinfo=timezone.utc)

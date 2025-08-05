@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 
-def run_ruff() -> None:
+def run_ruff() -> bool:
     """Запуск Ruff для проверки кода"""
     try:
         # Проверяем наличие Ruff
@@ -55,5 +55,6 @@ if __name__ == "__main__":
     Path("scripts").mkdir(exist_ok=True)
 
     # Запускаем проверку и форматирование
-    if run_ruff():
+    check_result = run_ruff()
+    if check_result:
         format_code()

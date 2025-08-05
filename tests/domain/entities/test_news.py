@@ -18,7 +18,7 @@ from domain.entities.news import (
 class TestNewsSentiment:
     """Тесты для перечисления настроений новостей."""
 
-    def test_sentiment_values(self) -> None:
+    def test_sentiment_values(self: "TestNewsSentiment") -> None:
         """Тест значений настроений."""
         assert NewsSentiment.POSITIVE.value == "positive"
         assert NewsSentiment.NEGATIVE.value == "negative"
@@ -28,7 +28,7 @@ class TestNewsSentiment:
 class TestNewsCategory:
     """Тесты для перечисления категорий новостей."""
 
-    def test_category_values(self) -> None:
+    def test_category_values(self: "TestNewsCategory") -> None:
         """Тест значений категорий."""
         assert NewsCategory.ECONOMIC.value == "economic"
         assert NewsCategory.POLITICAL.value == "political"
@@ -72,7 +72,7 @@ class TestNewsItem:
         assert valid_news_item.symbols == ["BTC/USD", "ETH/USD"]
         assert valid_news_item.metadata == {"key": "value"}
 
-    def test_news_item_validation_empty_id(self) -> None:
+    def test_news_item_validation_empty_id(self: "TestNewsItem") -> None:
         """Тест валидации пустого ID."""
         with pytest.raises(ValueError, match="News ID cannot be empty"):
             NewsItem(
@@ -89,7 +89,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_validation_empty_title(self) -> None:
+    def test_news_item_validation_empty_title(self: "TestNewsItem") -> None:
         """Тест валидации пустого заголовка."""
         with pytest.raises(ValueError, match="News title cannot be empty"):
             NewsItem(
@@ -106,7 +106,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_validation_empty_content(self) -> None:
+    def test_news_item_validation_empty_content(self: "TestNewsItem") -> None:
         """Тест валидации пустого содержимого."""
         with pytest.raises(ValueError, match="News content cannot be empty"):
             NewsItem(
@@ -123,7 +123,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_validation_relevance_score_too_low(self) -> None:
+    def test_news_item_validation_relevance_score_too_low(self: "TestNewsItem") -> None:
         """Тест валидации слишком низкого relevance_score."""
         with pytest.raises(ValueError, match="Relevance score must be between 0 and 1"):
             NewsItem(
@@ -140,7 +140,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_validation_relevance_score_too_high(self) -> None:
+    def test_news_item_validation_relevance_score_too_high(self: "TestNewsItem") -> None:
         """Тест валидации слишком высокого relevance_score."""
         with pytest.raises(ValueError, match="Relevance score must be between 0 and 1"):
             NewsItem(
@@ -157,7 +157,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_validation_impact_score_too_low(self) -> None:
+    def test_news_item_validation_impact_score_too_low(self: "TestNewsItem") -> None:
         """Тест валидации слишком низкого impact_score."""
         with pytest.raises(ValueError, match="Impact score must be between 0 and 1"):
             NewsItem(
@@ -174,7 +174,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_validation_impact_score_too_high(self) -> None:
+    def test_news_item_validation_impact_score_too_high(self: "TestNewsItem") -> None:
         """Тест валидации слишком высокого impact_score."""
         with pytest.raises(ValueError, match="Impact score must be between 0 and 1"):
             NewsItem(
@@ -191,7 +191,7 @@ class TestNewsItem:
                 metadata={},
             )
 
-    def test_news_item_boundary_values(self) -> None:
+    def test_news_item_boundary_values(self: "TestNewsItem") -> None:
         """Тест граничных значений для scores."""
         news_item = NewsItem(
             id="news_001",

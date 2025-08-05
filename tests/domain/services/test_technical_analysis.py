@@ -14,7 +14,7 @@ from domain.services.technical_analysis import (
 )
 class TestIndicatorConfig:
     """Тесты для конфигурации индикаторов."""
-    def test_indicator_config_defaults(self) -> None:
+    def test_indicator_config_defaults(self: "TestIndicatorConfig") -> None:
         """Тест значений по умолчанию."""
         config = IndicatorConfig()
         assert config.rsi_period == 14
@@ -32,7 +32,7 @@ class TestIndicatorConfig:
         assert config.use_cache is True
         assert config.parallel_processing is True
         assert config.max_workers == 4
-    def test_indicator_config_custom(self) -> None:
+    def test_indicator_config_custom(self: "TestIndicatorConfig") -> None:
         """Тест пользовательской конфигурации."""
         config = IndicatorConfig(
             rsi_period=21,
@@ -48,7 +48,7 @@ class TestIndicatorConfig:
         assert config.use_cache is False
 class TestMACD:
     """Тесты для MACD индикатора."""
-    def test_macd_creation(self) -> None:
+    def test_macd_creation(self: "TestMACD") -> None:
         """Тест создания MACD."""
         macd_series = pd.Series([1.0, 2.0, 3.0])
         signal_series = pd.Series([0.5, 1.5, 2.5])
@@ -63,7 +63,7 @@ class TestMACD:
         pd.testing.assert_series_equal(macd.histogram, histogram_series)
 class TestVolumeProfileData:
     """Тесты для данных профиля объема."""
-    def test_volume_profile_data_creation(self) -> None:
+    def test_volume_profile_data_creation(self: "TestVolumeProfileData") -> None:
         """Тест создания данных профиля объема."""
         poc = 100.0
         value_area = [95.0, 105.0]
@@ -81,7 +81,7 @@ class TestVolumeProfileData:
         assert vp_data.bins == bins
 class TestMarketStructureData:
     """Тесты для данных структуры рынка."""
-    def test_market_structure_data_creation(self) -> None:
+    def test_market_structure_data_creation(self: "TestMarketStructureData") -> None:
         """Тест создания данных структуры рынка."""
         structure = "uptrend"
         trend_strength = 0.8
@@ -123,7 +123,7 @@ class TestDefaultTechnicalAnalysisService:
         assert service.config is not None
         assert isinstance(service.config, IndicatorConfig)
         # Исправлено: убираем проверку _scaler, так как он может не существовать
-    def test_service_initialization_with_config(self) -> None:
+    def test_service_initialization_with_config(self: "TestDefaultTechnicalAnalysisService") -> None:
         """Тест инициализации с конфигурацией."""
         config = IndicatorConfig(rsi_period=21, use_cache=False)
         service = DefaultTechnicalAnalysisService(config)
@@ -233,7 +233,7 @@ class TestDefaultTechnicalAnalysisService:
             service.calculate_indicators(incomplete_data)
 class TestIndicatorType:
     """Тесты для типов индикаторов."""
-    def test_indicator_type_values(self) -> None:
+    def test_indicator_type_values(self: "TestIndicatorType") -> None:
         """Тест значений типов индикаторов."""
         assert IndicatorType.TREND.value == "trend"
         assert IndicatorType.MOMENTUM.value == "momentum"

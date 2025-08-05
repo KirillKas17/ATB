@@ -22,7 +22,7 @@ from domain.type_definitions.external_service_types import (
 )
 class TestMLServiceConfig:
     """Тесты конфигурации ML сервиса."""
-    def test_default_config(self) -> None:
+    def test_default_config(self: "TestMLServiceConfig") -> None:
         """Тест конфигурации по умолчанию."""
         config = MLServiceConfig()
         assert config.service_url == "http://localhost:8001"
@@ -44,7 +44,7 @@ class TestMLServiceConfig:
         assert config.validation_split == 0.2
         assert config.test_split == 0.2
         assert config.random_state == 42
-    def test_custom_config(self) -> None:
+    def test_custom_config(self: "TestMLServiceConfig") -> None:
         """Тест кастомной конфигурации."""
         config = MLServiceConfig(
             service_url="http://custom:8002",
@@ -59,11 +59,11 @@ class TestMLServiceConfig:
 class TestFeatureEngineer:
     """Тесты инженера признаков."""
     @pytest.fixture
-    def feature_engineer(self) -> Any:
+    def feature_engineer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра инженера признаков."""
         return FeatureEngineer()
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые данные."""
         dates = pd.date_range('2023-01-01', periods=100, freq='H')
         return pd.DataFrame({
@@ -134,12 +134,12 @@ class TestFeatureEngineer:
 class TestModelManager:
     """Тесты менеджера моделей."""
     @pytest.fixture
-    def model_manager(self) -> Any:
+    def model_manager(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра менеджера моделей."""
         config = MLServiceConfig()
         return ModelManager(config)
     @pytest.fixture
-    def sample_model_config(self) -> Any:
+    def sample_model_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовая конфигурация модели."""
         return MLModelConfig(
             model_type=ModelType.RANDOM_FOREST,
@@ -201,12 +201,12 @@ class TestModelManager:
 class TestProductionMLService:
     """Тесты производственного ML сервиса."""
     @pytest.fixture
-    def ml_service(self) -> Any:
+    def ml_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра ML сервиса."""
         config = MLServiceConfig()
         return ProductionMLService(config)
     @pytest.fixture
-    def sample_training_data(self) -> Any:
+    def sample_training_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые данные для обучения."""
         return {
             "features": np.random.normal(0, 1, (100, 10)),
@@ -215,7 +215,7 @@ class TestProductionMLService:
             "target_name": "price"
         }
     @pytest.fixture
-    def sample_model_config(self) -> Any:
+    def sample_model_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовая конфигурация модели."""
         return MLModelConfig(
             model_type=ModelType.RANDOM_FOREST,
@@ -308,7 +308,7 @@ class TestProductionMLService:
 class TestMLServiceAdapter:
     """Тесты адаптера ML сервиса."""
     @pytest.fixture
-    def adapter(self) -> Any:
+    def adapter(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра адаптера."""
         return MLServiceAdapter("http://test:8001")
     @pytest.mark.asyncio
@@ -340,7 +340,7 @@ class TestMLServiceAdapter:
 class TestLocalMLService:
     """Тесты локального ML сервиса."""
     @pytest.fixture
-    def local_service(self) -> Any:
+    def local_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра локального сервиса."""
         return LocalMLService()
     @pytest.mark.asyncio
@@ -404,13 +404,13 @@ class TestLocalMLService:
 class TestErrorHandling:
     """Тесты обработки ошибок."""
     @pytest.mark.asyncio
-    async def test_invalid_model_type(self) -> None:
+    def test_invalid_model_type(self: "TestErrorHandling") -> None:
         """Тест обработки неверного типа модели."""
         service = ProductionMLService()
         with pytest.raises(ValueError):
             service._create_model_object("invalid_type", {})
     @pytest.mark.asyncio
-    async def test_empty_training_data(self) -> None:
+    def test_empty_training_data(self: "TestErrorHandling") -> None:
         """Тест обработки пустых данных обучения."""
         service = ProductionMLService()
         config = MLModelConfig(
@@ -422,13 +422,13 @@ class TestErrorHandling:
         with pytest.raises(ValueError):
             await service.train_model(config, {})
     @pytest.mark.asyncio
-    async def test_invalid_prediction_request(self) -> None:
+    def test_invalid_prediction_request(self: "TestErrorHandling") -> None:
         """Тест обработки неверного запроса предсказания."""
         service = ProductionMLService()
         with pytest.raises(ValueError):
             await service.predict(None)
     @pytest.mark.asyncio
-    async def test_model_not_found(self) -> None:
+    def test_model_not_found(self: "TestErrorHandling") -> None:
         """Тест обработки отсутствующей модели."""
         service = ProductionMLService()
         request = MLPredictionRequest(

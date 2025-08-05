@@ -67,7 +67,7 @@ class TestMirrorNeuronIntegration:
                 prices, index=pd.date_range("2024-01-01", periods=periods, freq="H")
             )
         return assets, price_data
-    def test_end_to_end_mirror_detection(self) -> None:
+    def test_end_to_end_mirror_detection(self: "TestMirrorNeuronIntegration") -> None:
         """Тест полного цикла обнаружения зеркальных сигналов."""
         logger.info("=== Testing End-to-End Mirror Detection ===")
         # Создаем данные
@@ -97,7 +97,7 @@ class TestMirrorNeuronIntegration:
             assert abs(signal.correlation) >= self.config.min_correlation
             assert signal.p_value <= self.config.max_p_value
             assert signal.confidence >= self.config.min_confidence
-    def test_end_to_end_mirror_map_building(self) -> None:
+    def test_end_to_end_mirror_map_building(self: "TestMirrorNeuronIntegration") -> None:
         """Тест полного цикла построения карты зеркальных зависимостей."""
         logger.info("=== Testing End-to-End Mirror Map Building ===")
         # Создаем данные
@@ -126,7 +126,7 @@ class TestMirrorNeuronIntegration:
         for cluster in mirror_map.clusters:
             assert len(cluster) >= self.config.min_cluster_size
             assert len(cluster) <= self.config.max_cluster_size
-    def test_mirror_map_caching(self) -> None:
+    def test_mirror_map_caching(self: "TestMirrorNeuronIntegration") -> None:
         """Тест кэширования карты зеркальных зависимостей."""
         logger.info("=== Testing Mirror Map Caching ===")
         assets, price_data = self.create_correlated_data(n_assets=3, periods=200)
@@ -148,7 +148,7 @@ class TestMirrorNeuronIntegration:
         # Проверяем, что кэш работает
         assert mirror_map1 is mirror_map2
         assert second_build_time < first_build_time  # Кэш должен быть быстрее
-    def test_parallel_vs_sequential_processing(self) -> None:
+    def test_parallel_vs_sequential_processing(self: "TestMirrorNeuronIntegration") -> None:
         """Тест сравнения параллельной и последовательной обработки."""
         logger.info("=== Testing Parallel vs Sequential Processing ===")
         assets, price_data = self.create_correlated_data(n_assets=8, periods=300)
@@ -184,7 +184,7 @@ class TestMirrorNeuronIntegration:
         assert len(parallel_map.assets) == len(sequential_map.assets)
         assert len(parallel_map.mirror_map) == len(sequential_map.mirror_map)
     @pytest.mark.asyncio
-    async def test_async_mirror_map_building(self) -> None:
+    def test_async_mirror_map_building(self: "TestMirrorNeuronIntegration") -> None:
         """Тест асинхронного построения карты."""
         logger.info("=== Testing Async Mirror Map Building ===")
         assets, price_data = self.create_correlated_data(n_assets=5, periods=250)
@@ -199,7 +199,7 @@ class TestMirrorNeuronIntegration:
         assert isinstance(mirror_map, MirrorMap)
         assert len(mirror_map.assets) == 5
         assert mirror_map.correlation_matrix is not None
-    def test_mirror_map_with_different_correlation_methods(self) -> None:
+    def test_mirror_map_with_different_correlation_methods(self: "TestMirrorNeuronIntegration") -> None:
         """Тест карты с различными методами корреляции."""
         logger.info("=== Testing Different Correlation Methods ===")
         assets, price_data = self.create_correlated_data(n_assets=4, periods=200)
@@ -228,7 +228,7 @@ class TestMirrorNeuronIntegration:
         for method, result in results.items():
             assert result["dependencies"] >= 0
             assert result["clusters"] >= 0
-    def test_mirror_map_with_different_lag_settings(self) -> None:
+    def test_mirror_map_with_different_lag_settings(self: "TestMirrorNeuronIntegration") -> None:
         """Тест карты с различными настройками лага."""
         logger.info("=== Testing Different Lag Settings ===")
         assets, price_data = self.create_correlated_data(n_assets=4, periods=300)
@@ -255,7 +255,7 @@ class TestMirrorNeuronIntegration:
         logger.info(f"Results by lag setting: {results}")
         # Проверяем, что больший лаг может найти больше зависимостей
         assert results[10]["dependencies"] >= results[1]["dependencies"]
-    def test_mirror_map_cluster_analysis(self) -> None:
+    def test_mirror_map_cluster_analysis(self: "TestMirrorNeuronIntegration") -> None:
         """Тест анализа кластеров в карте."""
         logger.info("=== Testing Cluster Analysis ===")
         assets, price_data = self.create_correlated_data(n_assets=8, periods=400)
@@ -280,7 +280,7 @@ class TestMirrorNeuronIntegration:
             assert "size" in cluster_detail
             assert "average_correlation" in cluster_detail
             assert "average_lag" in cluster_detail
-    def test_mirror_map_strategy_integration(self) -> None:
+    def test_mirror_map_strategy_integration(self: "TestMirrorNeuronIntegration") -> None:
         """Тест интеграции карты с торговыми стратегиями."""
         logger.info("=== Testing Strategy Integration ===")
         assets, price_data = self.create_correlated_data(n_assets=6, periods=300)
@@ -308,7 +308,7 @@ class TestMirrorNeuronIntegration:
             assert result["mirror_assets"] >= 0
             assert result["total_correlation"] >= 0
             assert result["avg_lag"] >= 0
-    def test_mirror_map_performance_scaling(self) -> None:
+    def test_mirror_map_performance_scaling(self: "TestMirrorNeuronIntegration") -> None:
         """Тест масштабирования производительности."""
         logger.info("=== Testing Performance Scaling ===")
         asset_counts = [3, 5, 8, 10]
@@ -334,7 +334,7 @@ class TestMirrorNeuronIntegration:
         # Проверяем, что время построения растет с количеством активов
         times = [result["build_time"] for result in performance_results.values()]
         assert times[-1] >= times[0]  # Больше активов = больше времени
-    def test_mirror_map_error_handling(self) -> None:
+    def test_mirror_map_error_handling(self: "TestMirrorNeuronIntegration") -> None:
         """Тест обработки ошибок в карте."""
         logger.info("=== Testing Error Handling ===")
         # Тест с некорректными данными
@@ -351,7 +351,7 @@ class TestMirrorNeuronIntegration:
         assert isinstance(mirror_map, MirrorMap)
         assert len(mirror_map.assets) == 0  # Нет валидных активов
         assert len(mirror_map.mirror_map) == 0
-    def test_mirror_map_configuration_updates(self) -> None:
+    def test_mirror_map_configuration_updates(self: "TestMirrorNeuronIntegration") -> None:
         """Тест обновления конфигурации карты."""
         logger.info("=== Testing Configuration Updates ===")
         assets, price_data = self.create_correlated_data(n_assets=4, periods=200)
@@ -374,7 +374,7 @@ class TestMirrorNeuronIntegration:
         logger.info(f"Dependencies with low threshold: {deps2}")
         # Низкий порог должен найти больше зависимостей
         assert deps2 >= deps1
-    def test_mirror_map_statistics(self) -> None:
+    def test_mirror_map_statistics(self: "TestMirrorNeuronIntegration") -> None:
         """Тест статистики карты."""
         logger.info("=== Testing Mirror Map Statistics ===")
         assets, price_data = self.create_correlated_data(n_assets=5, periods=250)
@@ -395,7 +395,7 @@ class TestMirrorNeuronIntegration:
         assert map_info["assets_with_dependencies"] == len(mirror_map.mirror_map)
         assert map_info["total_dependencies"] >= 0
         assert map_info["total_clusters"] == len(mirror_map.clusters)
-    def test_mirror_map_concurrent_access(self) -> None:
+    def test_mirror_map_concurrent_access(self: "TestMirrorNeuronIntegration") -> None:
         """Тест конкурентного доступа к карте."""
         logger.info("=== Testing Concurrent Access ===")
         import queue

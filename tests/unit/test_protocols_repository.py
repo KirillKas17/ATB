@@ -210,11 +210,11 @@ class TestTransactionalRepositoryProtocol:
             transactional_mock_repository.rollback()
 class TestRepositoryErrors:
     """Тесты для ошибок репозитория."""
-    def test_error_inheritance(self) -> None:
+    def test_error_inheritance(self: "TestRepositoryErrors") -> None:
         assert issubclass(EntityNotFoundError, RepositoryError)
         assert issubclass(DuplicateEntityError, RepositoryError)
         assert issubclass(RepositoryConnectionError, RepositoryError)
-    def test_error_messages(self) -> None:
+    def test_error_messages(self: "TestRepositoryErrors") -> None:
         assert str(EntityNotFoundError("Not found")) == "Not found"
         assert str(DuplicateEntityError("Duplicate")) == "Duplicate"
         assert str(ValidationError("Invalid")) == "Invalid"

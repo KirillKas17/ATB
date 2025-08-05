@@ -15,7 +15,7 @@ from domain.exceptions import BusinessRuleError
 class TestPosition:
     """Тесты для торговой позиции."""
     @pytest.fixture
-    def sample_trading_pair(self) -> Any:
+    def sample_trading_pair(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерной торговой парой."""
         return TradingPair(
             symbol="BTC/USDT",
@@ -349,11 +349,11 @@ class TestPosition:
         assert "long" in repr_str
 class TestPositionSide:
     """Тесты для сторон позиции."""
-    def test_position_side_values(self) -> None:
+    def test_position_side_values(self: "TestPositionSide") -> None:
         """Тест значений сторон позиции."""
         assert PositionSide.LONG.value == "long"
         assert PositionSide.SHORT.value == "short"
-    def test_position_side_creation(self) -> None:
+    def test_position_side_creation(self: "TestPositionSide") -> None:
         """Тест создания сторон позиции."""
         long_side = PositionSide.LONG
         short_side = PositionSide.SHORT

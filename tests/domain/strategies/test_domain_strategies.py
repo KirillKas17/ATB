@@ -290,7 +290,7 @@ class TestStrategyFactory(unittest.TestCase):
         self.assertIsInstance(self.factory, StrategyFactory)
     def test_register_strategy(self) -> None:
         """Тест регистрации стратегии."""
-        def test_creator(**kwargs) -> None:
+    def test_creator(**kwargs) -> None:
             return Mock(spec=StrategyInterface)
         self.factory.register_strategy(
             name="test_strategy",

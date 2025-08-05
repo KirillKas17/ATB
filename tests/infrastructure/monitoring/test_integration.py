@@ -29,7 +29,7 @@ from infrastructure.monitoring.logging_tracing import get_tracer as get_log_trac
 
 class TestMonitoringIntegration:
     """Интеграционные тесты для системы мониторинга."""
-    def test_full_monitoring_cycle(self) -> None:
+    def test_full_monitoring_cycle(self: "TestMonitoringIntegration") -> None:
         """Тест полного цикла мониторинга."""
         # Получаем все компоненты мониторинга
         monitor = get_monitor()
@@ -64,7 +64,7 @@ class TestMonitoringIntegration:
         assert len(tracer.get_active_traces()) == 0  # Трейс завершен
         assert "metrics" in dashboard_data
         assert "alerts" in dashboard_data
-    async def test_async_monitoring_integration(self) -> None:
+    def test_async_monitoring_integration(self: "TestMonitoringIntegration") -> None:
         """Тест асинхронной интеграции мониторинга."""
         # Получаем компоненты
         monitor = get_monitor()
@@ -92,7 +92,7 @@ class TestMonitoringIntegration:
         alerts = alert_manager.get_alerts()
         assert len(metrics) > 0
         assert len(alerts) > 0
-    def test_monitoring_with_high_load(self) -> None:
+    def test_monitoring_with_high_load(self: "TestMonitoringIntegration") -> None:
         """Тест мониторинга под высокой нагрузкой."""
         monitor = get_monitor()
         alert_manager = get_alert_manager()
@@ -135,7 +135,7 @@ class TestMonitoringIntegration:
         assert len(metrics) >= 5  # По одной метрике на поток
         assert len(alerts) >= 5   # По одному алерту на поток
         assert traces["total_traces"] >= 500  # 5 потоков * 100 трейсов
-    def test_monitoring_error_handling(self) -> None:
+    def test_monitoring_error_handling(self: "TestMonitoringIntegration") -> None:
         """Тест обработки ошибок в мониторинге."""
         monitor = get_monitor()
         alert_manager = get_alert_manager()
@@ -161,7 +161,7 @@ class TestMonitoringIntegration:
         error_alerts = [a for a in alerts if a.severity == AlertSeverity.ERROR]
         assert len(error_alerts) > 0
         assert any("Test error" in a.message for a in error_alerts)
-    def test_monitoring_data_persistence(self) -> None:
+    def test_monitoring_data_persistence(self: "TestMonitoringIntegration") -> None:
         """Тест персистентности данных мониторинга."""
         monitor = get_monitor()
         alert_manager = get_alert_manager()
@@ -184,7 +184,7 @@ class TestMonitoringIntegration:
         assert len(metrics) > 0
         assert len(alerts) > 0
         assert traces["total_traces"] > 0
-    def test_monitoring_performance_impact(self) -> None:
+    def test_monitoring_performance_impact(self: "TestMonitoringIntegration") -> None:
         """Тест влияния мониторинга на производительность."""
         import time
         # Тест без мониторинга
@@ -203,7 +203,7 @@ class TestMonitoringIntegration:
         # Проверяем, что мониторинг не сильно влияет на производительность
         # Допускаем увеличение времени в 2 раза
         assert monitoring_time < baseline_time * 2
-    def test_monitoring_memory_usage(self) -> None:
+    def test_monitoring_memory_usage(self: "TestMonitoringIntegration") -> None:
         """Тест использования памяти мониторингом."""
         import psutil
         import os
@@ -222,7 +222,7 @@ class TestMonitoringIntegration:
         memory_increase = final_memory - initial_memory
         # Увеличение памяти должно быть разумным (менее 100MB)
         assert memory_increase < 100 * 1024 * 1024
-    def test_monitoring_concurrent_access(self) -> None:
+    def test_monitoring_concurrent_access(self: "TestMonitoringIntegration") -> None:
         """Тест конкурентного доступа к мониторингу."""
         monitor = get_monitor()
         alert_manager = get_alert_manager()
@@ -271,7 +271,7 @@ class TestMonitoringIntegration:
         # Все потоки должны завершиться успешно
         assert success_count == 10
         assert error_count == 0
-    def test_monitoring_alert_integration(self) -> None:
+    def test_monitoring_alert_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции алертов с мониторингом."""
         monitor = get_monitor()
         alert_manager = get_alert_manager()
@@ -300,7 +300,7 @@ class TestMonitoringIntegration:
         assert len(high_cpu_alerts) > 0
         # Останавливаем мониторинг
         stop_monitoring()
-    def test_monitoring_dashboard_integration(self) -> None:
+    def test_monitoring_dashboard_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции дашборда с мониторингом."""
         monitor = get_monitor()
         dashboard = get_dashboard()
@@ -329,7 +329,7 @@ class TestMonitoringIntegration:
         # assert "datasets" in chart_data # Исправлено: убираем неиспользуемый импорт
         # Останавливаем мониторинг
         stop_monitoring()
-    def test_monitoring_tracing_integration(self) -> None:
+    def test_monitoring_tracing_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции трейсинга с мониторингом."""
         monitor = get_monitor()
         tracer = get_tracer()
@@ -355,7 +355,7 @@ class TestMonitoringIntegration:
         assert "cpu_usage" in trace["performance_metrics"]
         # Останавливаем мониторинг
         stop_monitoring()
-    def test_monitoring_logging_integration(self) -> None:
+    def test_monitoring_logging_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции логирования с мониторингом."""
         logger = get_logger("integration_test")
         # Запускаем мониторинг
@@ -378,7 +378,7 @@ class TestMonitoringIntegration:
         assert traces["total_traces"] > 0
         # Останавливаем мониторинг
         stop_monitoring()
-    def test_monitoring_complete_workflow(self) -> None:
+    def test_monitoring_complete_workflow(self: "TestMonitoringIntegration") -> None:
         """Тест полного рабочего процесса мониторинга."""
         # Получаем все компоненты
         monitor = get_monitor()

@@ -23,7 +23,7 @@ from exchange.market_data import MarketData
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
 # Фикстуры
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -38,7 +38,7 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-@pytest.fixture
+    @pytest.fixture
 def mock_strategy() -> Any:
     """Фикстура с тестовой стратегией"""
     strategy = Mock()
@@ -49,7 +49,7 @@ def mock_strategy() -> Any:
         "take_profit": 105,
     }
     return strategy
-@pytest.fixture
+    @pytest.fixture
 def risk_agent() -> Any:
     """Фикстура с агентом управления рисками"""
     return RiskAgent(
@@ -66,7 +66,7 @@ def risk_agent() -> Any:
             "risk_per_trade": 0.02,
         }
     )
-@pytest.fixture
+    @pytest.fixture
 def portfolio_agent() -> Any:
     """Фикстура с агентом управления портфелем"""
     return PortfolioAgent(
@@ -78,7 +78,7 @@ def portfolio_agent() -> Any:
             "rebalance_interval": 24,
         }
     )
-@pytest.fixture
+    @pytest.fixture
 def market_regime_agent() -> Any:
     """Фикстура с агентом определения режима рынка"""
     return MarketRegimeAgent(
@@ -89,7 +89,7 @@ def market_regime_agent() -> Any:
             "regime_change_threshold": 0.05,
         }
     )
-@pytest.fixture
+    @pytest.fixture
 def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return BybitConfig(api_key="test_key", api_secret="test_secret", testnet=True)
@@ -117,7 +117,7 @@ async def order_executor_agent(bybit_client) -> Any:
     agent = OrderExecutorAgent(client=bybit_client)
     await agent.initialize()
     return agent
-@pytest.fixture
+    @pytest.fixture
 def mock_config() -> Any:
     return {
         "min_win_rate": 0.7,
@@ -252,8 +252,8 @@ class TestOrderExecutorAgent:
         )
         assert isinstance(result, bool)
 # Тесты для MetaControllerAgent
-@pytest.mark.asyncio
-async def test_meta_controller_initialization(meta_controller_agent) -> None:
+    @pytest.mark.asyncio
+    async def test_meta_controller_initialization(meta_controller_agent) -> None:
     """Тест инициализации мета-контроллера"""
     assert meta_controller_agent.config is not None
     assert meta_controller_agent.market_regime_agent is not None
@@ -264,47 +264,47 @@ async def test_meta_controller_initialization(meta_controller_agent) -> None:
     assert meta_controller_agent.strategies == {}
     assert meta_controller_agent.active_strategies == {}
     assert meta_controller_agent.last_retrain == {}
-@pytest.mark.asyncio
-async def test_meta_controller_evaluate_strategies(meta_controller_agent) -> None:
+    @pytest.mark.asyncio
+    async def test_meta_controller_evaluate_strategies(meta_controller_agent) -> None:
     """Тест оценки стратегий"""
     symbol = "BTC/USDT"
     result = await meta_controller_agent.evaluate_strategies(symbol)
     assert result is None  # Должен вернуть None, так как нет активных стратегий
-@pytest.mark.asyncio
-async def test_meta_controller_retrain_if_needed(meta_controller_agent) -> None:
+    @pytest.mark.asyncio
+    async def test_meta_controller_retrain_if_needed(meta_controller_agent) -> None:
     """Тест ретрейнинга стратегий"""
     symbol = "BTC/USDT"
     await meta_controller_agent.retrain_if_needed(symbol)
     assert symbol in meta_controller_agent.last_retrain
-def test_activate_best_strategy(meta_controller_agent) -> None:
+    def test_activate_best_strategy(meta_controller_agent) -> None:
     """Тест активации лучшей стратегии"""
     pair = "BTC/USDT"
     result = meta_controller_agent.activate_best_strategy(pair)
     assert isinstance(result, bool)
-def test_is_pair_ready_to_trade(meta_controller_agent) -> None:
+    def test_is_pair_ready_to_trade(meta_controller_agent) -> None:
     """Тест проверки готовности пары к торговле"""
     pair = "BTC/USDT"
     result = meta_controller_agent.is_pair_ready_to_trade(pair)
     assert isinstance(result, bool)
-def test_pair_manager_initialization(pair_manager) -> None:
+    def test_pair_manager_initialization(pair_manager) -> None:
     """Тест инициализации менеджера пар"""
     assert pair_manager.config_path == "config/allowed_pairs.yaml"
     assert isinstance(pair_manager.allowed_pairs, dict)
-def test_create_base_strategy(pair_manager) -> None:
+    def test_create_base_strategy(pair_manager) -> None:
     """Тест создания базовой стратегии"""
     pair = "BTC/USDT"
     pair_manager.create_base_strategy(pair)
     assert pair in pair_manager.allowed_pairs
     assert "strategy" in pair_manager.allowed_pairs[pair]
     assert "indicators" in pair_manager.allowed_pairs[pair]
-def test_create_base_indicators(pair_manager) -> None:
+    def test_create_base_indicators(pair_manager) -> None:
     """Тест создания базовых индикаторов"""
     pair = "BTC/USDT"
     pair_manager.create_base_indicators(pair)
     assert pair in pair_manager.allowed_pairs
     assert "indicators" in pair_manager.allowed_pairs[pair]
     assert isinstance(pair_manager.allowed_pairs[pair]["indicators"], dict)
-def test_init_pair_structure(pair_manager) -> None:
+    def test_init_pair_structure(pair_manager) -> None:
     """Тест инициализации структуры пары"""
     pair = "BTC/USDT"
     pair_manager.init_pair_structure(pair)
@@ -312,7 +312,7 @@ def test_init_pair_structure(pair_manager) -> None:
     assert "status" in pair_manager.allowed_pairs[pair]
     assert "strategy" in pair_manager.allowed_pairs[pair]
     assert "indicators" in pair_manager.allowed_pairs[pair]
-def test_get_pair_status(pair_manager) -> None:
+    def test_get_pair_status(pair_manager) -> None:
     """Тест получения статуса пары"""
     pair = "BTC/USDT"
     pair_manager.init_pair_structure(pair)
@@ -321,14 +321,14 @@ def test_get_pair_status(pair_manager) -> None:
     assert "status" in status
     assert "strategy" in status
     assert "indicators" in status
-def test_get_active_pairs(pair_manager) -> None:
+    def test_get_active_pairs(pair_manager) -> None:
     """Тест получения активных пар"""
     pair = "BTC/USDT"
     pair_manager.init_pair_structure(pair)
     active_pairs = pair_manager.get_active_pairs()
     assert isinstance(active_pairs, list)
     assert pair in active_pairs
-def test_update_pair_status(pair_manager) -> None:
+    def test_update_pair_status(pair_manager) -> None:
     """Тест обновления статуса пары"""
     pair = "BTC/USDT"
     pair_manager.init_pair_structure(pair)
@@ -342,7 +342,7 @@ def test_update_pair_status(pair_manager) -> None:
     assert pair_manager.allowed_pairs[pair]["strategy"] == "trend_following"
     assert pair_manager.allowed_pairs[pair]["indicators"]["rsi"] is True
     assert pair_manager.allowed_pairs[pair]["indicators"]["macd"] is True
-def test_check_pair_requirements(pair_manager) -> None:
+    def test_check_pair_requirements(pair_manager) -> None:
     """Тест проверки требований пары"""
     pair = "BTC/USDT"
     pair_manager.init_pair_structure(pair)
@@ -351,7 +351,7 @@ def test_check_pair_requirements(pair_manager) -> None:
     assert "has_strategy" in requirements
     assert "has_indicators" in requirements
     assert "is_active" in requirements
-def test_strategy_and_config_init() -> None:
+    def test_strategy_and_config_init() -> None:
     """Test initialization of strategy and config files."""
     from agents.agent_meta_controller import PairManager
     pair = "TESTPAIR2"
@@ -395,7 +395,7 @@ def test_strategy_and_config_init() -> None:
     # Cleanup
     import shutil
     shutil.rmtree(Path("data/pairs") / pair)
-def test_bayesian_meta_controller_initialization(bayesian_meta_controller) -> None:
+    def test_bayesian_meta_controller_initialization(bayesian_meta_controller) -> None:
     """Тест инициализации байесовского мета-контроллера"""
     assert bayesian_meta_controller.config is not None
     assert bayesian_meta_controller.config["min_confidence"] == 0.7
@@ -404,7 +404,7 @@ def test_bayesian_meta_controller_initialization(bayesian_meta_controller) -> No
     assert bayesian_meta_controller.config["history_size"] == 100
     assert bayesian_meta_controller.config["update_interval"] == 3600
 
-def test_aggregate_signals(bayesian_meta_controller) -> None:
+    def test_aggregate_signals(bayesian_meta_controller) -> None:
     """Тест агрегации сигналов"""
     signals = [
         {
@@ -431,7 +431,7 @@ def test_aggregate_signals(bayesian_meta_controller) -> None:
     assert isinstance(decision.timestamp, datetime)
     assert isinstance(decision.explanation, str)
 
-def test_evaluate_strategy_performance(bayesian_meta_controller) -> None:
+    def test_evaluate_strategy_performance(bayesian_meta_controller) -> None:
     """Тест оценки производительности стратегий"""
     performance = bayesian_meta_controller.evaluate_strategy_performance()
     assert isinstance(performance, dict)

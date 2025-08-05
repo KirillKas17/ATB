@@ -41,7 +41,7 @@ class TestSessionsPerformance:
         self.data_repo = SessionDataRepository()
         self.config_repo = SessionConfigurationRepository()
     @pytest.mark.performance
-    def test_session_profile_registry_performance(self) -> None:
+    def test_session_profile_registry_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionProfileRegistry."""
         # Тест получения профилей
         start_time = time.time()
@@ -62,7 +62,7 @@ class TestSessionsPerformance:
         execution_time = end_time - start_time
         assert execution_time < 0.5, f"Execution time: {execution_time:.3f}s"
     @pytest.mark.performance
-    def test_session_marker_performance(self) -> None:
+    def test_session_marker_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionMarker."""
         # Тест получения контекста сессии
         start_time = time.time()
@@ -82,7 +82,7 @@ class TestSessionsPerformance:
         execution_time = end_time - start_time
         assert execution_time < 2.0, f"Execution time: {execution_time:.3f}s"
     @pytest.mark.performance
-    def test_session_influence_analyzer_performance(self) -> None:
+    def test_session_influence_analyzer_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionInfluenceAnalyzer."""
         market_data = self._create_large_market_data(10000)
         session_profile = self.registry.get_profile(SessionType.ASIAN)
@@ -107,7 +107,7 @@ class TestSessionsPerformance:
         total_calls = sum(stat[1] for stat in stats.stats.values())
         assert total_calls < 10000, f"Too many function calls: {total_calls}"
     @pytest.mark.performance
-    def test_session_analyzer_performance(self) -> None:
+    def test_session_analyzer_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionAnalyzer."""
         market_data = self._create_large_market_data(5000)
         session_profile = self.registry.get_profile(SessionType.LONDON)
@@ -129,7 +129,7 @@ class TestSessionsPerformance:
         execution_time = end_time - start_time
         assert execution_time < 3.0, f"Execution time: {execution_time:.3f}s"
     @pytest.mark.performance
-    def test_session_manager_performance(self) -> None:
+    def test_session_manager_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionManager."""
         # Регистрация анализаторов
         start_time = time.time()
@@ -150,7 +150,7 @@ class TestSessionsPerformance:
         analysis_time = end_time - start_time
         assert analysis_time < 5.0, f"Analysis time: {analysis_time:.3f}s"
     @pytest.mark.performance
-    def test_session_optimizer_performance(self) -> None:
+    def test_session_optimizer_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionOptimizer."""
         session_profile = self.registry.get_profile(SessionType.NEW_YORK)
         market_data = self._create_large_market_data(2000)
@@ -176,7 +176,7 @@ class TestSessionsPerformance:
         execution_time = end_time - start_time
         assert execution_time < 3.0, f"Execution time: {execution_time:.3f}s"
     @pytest.mark.performance
-    def test_session_predictor_performance(self) -> None:
+    def test_session_predictor_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionPredictor."""
         session_profile = self.registry.get_profile(SessionType.CRYPTO_24H)
         market_conditions = self._create_market_conditions()
@@ -203,7 +203,7 @@ class TestSessionsPerformance:
         execution_time = end_time - start_time
         assert execution_time < 2.0, f"Execution time: {execution_time:.3f}s"
     @pytest.mark.performance
-    def test_session_service_performance(self) -> None:
+    def test_session_service_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionService."""
         market_data = self._create_large_market_data(1000)
         market_conditions = self._create_market_conditions()
@@ -228,7 +228,7 @@ class TestSessionsPerformance:
         execution_time = end_time - start_time
         assert execution_time < 5.0, f"Execution time: {execution_time:.3f}s"
     @pytest.mark.performance
-    def test_repositories_performance(self) -> None:
+    def test_repositories_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности репозиториев."""
         session_profile = self.registry.get_profile(SessionType.ASIAN)
         analysis_result = self._create_test_analysis_result()
@@ -255,7 +255,7 @@ class TestSessionsPerformance:
         analysis_time = end_time - start_time
         assert analysis_time < 2.0, f"Analysis operations time: {analysis_time:.3f}s"
     @pytest.mark.performance
-    def test_memory_usage_performance(self) -> None:
+    def test_memory_usage_performance(self: "TestSessionsPerformance") -> None:
         """Тест использования памяти."""
         import psutil
         import os
@@ -275,7 +275,7 @@ class TestSessionsPerformance:
         # Проверяем, что увеличение памяти не превышает 100 MB
         assert memory_increase < 100, f"Memory increase: {memory_increase:.1f} MB"
     @pytest.mark.performance
-    def test_concurrent_operations_performance(self) -> None:
+    def test_concurrent_operations_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности при конкурентных операциях."""
         import threading
         import queue

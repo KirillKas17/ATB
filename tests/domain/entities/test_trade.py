@@ -19,11 +19,11 @@ class TestTrade:
     """Тесты для Trade"""
 
     @pytest.fixture
-    def btc_currency(self) -> Any:
+    def btc_currency(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Currency.BTC
 
     @pytest.fixture
-    def usdt_currency(self) -> Any:
+    def usdt_currency(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Currency.USDT
 
     def test_trade_creation(self, btc_currency, usdt_currency) -> None:

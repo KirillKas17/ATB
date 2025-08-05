@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from ml.decision_reasoner import (DecisionReasoner, DecisionReport,
                                   TradeDecision)
 from sklearn.ensemble import RandomForestClassifier
-@pytest.fixture
+    @pytest.fixture
 def sample_data() -> Any:
     """Фикстура с тестовыми данными"""
     # Создание тестовых данных
@@ -28,7 +28,7 @@ def sample_data() -> Any:
     data["high"] = data["high"] + np.linspace(0, 10, 100)
     data["low"] = data["low"] + np.linspace(0, 10, 100)
     return data
-@pytest.fixture
+    @pytest.fixture
 def sample_model() -> Any:
     """Фикстура с тестовой моделью"""
     model = RandomForestClassifier(n_estimators=10)
@@ -37,15 +37,15 @@ def sample_model() -> Any:
     y = np.random.randint(0, 3, 100)
     model.fit(X, y)
     return model
-@pytest.fixture
+    @pytest.fixture
 def decision_reasoner() -> Any:
     """Фикстура с экземпляром DecisionReasoner"""
     return DecisionReasoner()
-@pytest.fixture
+    @pytest.fixture
 def reasoner(tmp_path) -> Any:
     """Фикстура для DecisionReasoner"""
     return DecisionReasoner(log_dir=str(tmp_path))
-@pytest.fixture
+    @pytest.fixture
 def trade_decision() -> Any:
     """Фикстура для торгового решения"""
     return TradeDecision(
@@ -59,7 +59,7 @@ def trade_decision() -> Any:
         timestamp=datetime.now(),
         metadata={},
     )
-@pytest.fixture
+    @pytest.fixture
 def market_data() -> Any:
     """Фикстура для рыночных данных"""
     return {
@@ -78,7 +78,7 @@ def market_data() -> Any:
         },
         "volume_data": {"current": 1000.0, "change": 0.2},
     }
-def test_initialization(decision_reasoner) -> None:
+    def test_initialization(decision_reasoner) -> None:
     """Тест инициализации"""
     assert decision_reasoner.config["min_confidence"] == 0.7
     assert decision_reasoner.config["report_dir"] == "decision_reports"
@@ -86,7 +86,7 @@ def test_initialization(decision_reasoner) -> None:
     assert isinstance(decision_reasoner.reports, dict)
     assert decision_reasoner.explainer is None
     assert decision_reasoner.lime_explainer is None
-def test_explain_decision(decision_reasoner, sample_data, sample_model) -> None:
+    def test_explain_decision(decision_reasoner, sample_data, sample_model) -> None:
     """Тест объяснения решения"""
     signal = {"type": "long", "confidence": 0.85}
     report = decision_reasoner.explain_decision(
@@ -109,7 +109,7 @@ def test_explain_decision(decision_reasoner, sample_data, sample_model) -> None:
     assert "confidence" in report.__dict__
     assert "features_importance" in report.__dict__  # factors
     assert "technical_indicators" in report.__dict__  # raw_output
-def test_feature_importance(decision_reasoner, sample_data, sample_model) -> None:
+    def test_feature_importance(decision_reasoner, sample_data, sample_model) -> None:
     """Тест расчета важности признаков"""
     features = decision_reasoner._prepare_features(sample_data)
     importance = decision_reasoner._get_feature_importance(features, sample_model)
@@ -117,7 +117,7 @@ def test_feature_importance(decision_reasoner, sample_data, sample_model) -> Non
     assert len(importance) > 0
     assert all(0 <= v <= 1 for v in importance.values())
     assert abs(sum(importance.values()) - 1.0) < 1e-6
-def test_technical_indicators(decision_reasoner, sample_data) -> None:
+    def test_technical_indicators(decision_reasoner, sample_data) -> None:
     """Тест расчета технических индикаторов"""
     indicators = decision_reasoner._get_technical_indicators(sample_data)
     assert isinstance(indicators, dict)
@@ -128,7 +128,7 @@ def test_technical_indicators(decision_reasoner, sample_data) -> None:
     assert "bb_middle" in indicators
     assert "bb_lower" in indicators
     assert "atr" in indicators
-def test_market_context(decision_reasoner, sample_data) -> None:
+    def test_market_context(decision_reasoner, sample_data) -> None:
     """Тест получения контекста рынка"""
     context = decision_reasoner._get_market_context(sample_data)
     assert isinstance(context, dict)
@@ -138,7 +138,7 @@ def test_market_context(decision_reasoner, sample_data) -> None:
     assert "volume" in context
     assert "candle_patterns" in context
     assert isinstance(context["candle_patterns"], list)
-def test_explanation_generation(decision_reasoner) -> None:
+    def test_explanation_generation(decision_reasoner) -> None:
     """Тест генерации объяснения"""
     signal = {"type": "long", "confidence": 0.85}
     feature_importance = {"rsi": 0.3, "macd": 0.4, "volume": 0.3}
@@ -157,7 +157,7 @@ def test_explanation_generation(decision_reasoner) -> None:
     assert "Key factors:" in explanation
     assert "Technical indicators:" in explanation
     assert "Market context:" in explanation
-def test_visualization_creation(decision_reasoner) -> None:
+    def test_visualization_creation(decision_reasoner) -> None:
     """Тест создания визуализации"""
     feature_importance = {"rsi": 0.3, "macd": 0.4, "volume": 0.3}
     indicators = {"rsi": 65.0, "macd": 0.5, "macd_signal": 0.3}
@@ -170,7 +170,7 @@ def test_visualization_creation(decision_reasoner) -> None:
     assert isinstance(viz_path, str)
     assert viz_path.endswith(".png")
     assert os.path.exists(viz_path)
-def test_report_saving(decision_reasoner) -> None:
+    def test_report_saving(decision_reasoner) -> None:
     """Тест сохранения отчета"""
     report = DecisionReport(
         signal_type="long",
@@ -185,7 +185,7 @@ def test_report_saving(decision_reasoner) -> None:
     decision_reasoner._save_report(pair="BTC/USD", timeframe="1h", report=report)
     assert "BTC/USD" in decision_reasoner.reports
     assert len(decision_reasoner.reports["BTC/USD"]) > 0
-def test_report_retrieval(decision_reasoner) -> None:
+    def test_report_retrieval(decision_reasoner) -> None:
     """Тест получения отчетов"""
     # Добавление тестового отчета
     report = DecisionReport(
@@ -209,7 +209,7 @@ def test_report_retrieval(decision_reasoner) -> None:
     # Получение отчетов для несуществующей пары
     reports = decision_reasoner.get_reports("ETH/USD")
     assert len(reports) == 0
-def test_error_handling(decision_reasoner) -> None:
+    def test_error_handling(decision_reasoner) -> None:
     """Тест обработки ошибок"""
     # Тест с некорректными данными
     report = decision_reasoner.explain_decision(
@@ -229,7 +229,7 @@ def test_error_handling(decision_reasoner) -> None:
         signal={"type": "invalid", "confidence": 1.5},  # Некорректный тип и уверенность
     )
     assert report is None
-def test_feature_preparation(decision_reasoner, sample_data) -> None:
+    def test_feature_preparation(decision_reasoner, sample_data) -> None:
     """Тест подготовки признаков"""
     features = decision_reasoner._prepare_features(sample_data)
     assert isinstance(features, pd.DataFrame)

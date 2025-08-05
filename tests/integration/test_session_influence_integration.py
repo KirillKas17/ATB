@@ -9,7 +9,7 @@ from infrastructure.agents.agent_context_refactored import AgentContext
 class TestSessionInfluenceIntegration:
     """Тесты интеграции SessionInfluenceAnalyzer в TradingOrchestrator"""
     @pytest.fixture
-    def mock_session_influence_analyzer(self) -> Any:
+    def mock_session_influence_analyzer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок SessionInfluenceAnalyzer"""
         analyzer = Mock(spec=SessionInfluenceAnalyzer)
         analyzer.analyze_session_influence.return_value = {
@@ -22,7 +22,7 @@ class TestSessionInfluenceIntegration:
         }
         return analyzer
     @pytest.fixture
-    def mock_market_data(self) -> Any:
+    def mock_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок данных рынка"""
         return {
             'orderbook': {

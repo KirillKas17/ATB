@@ -137,7 +137,7 @@ class TestCompleteTradingWorkflowE2E:
         assert processed_data['price_range']['min'] < processed_data['price_range']['max']
         assert processed_data['volume_total'] == Decimal('100.0')
 
-    def test_signal_generation_and_strategy_execution_e2e(self, live_trading_scenario, 
+    def test_signal_generation_and_strategy_execution_e2e(self, live_trading_scenario,
                                                         system_configuration):
         """Тест генерации сигналов и выполнения стратегии E2E."""
         # Market data for signal generation
@@ -647,7 +647,7 @@ class TestCompleteTradingWorkflowE2E:
         for change in config_changes:
             assert change['new_value'] != change['old_value']
 
-    def test_complete_trading_session_e2e(self, live_trading_scenario, market_conditions, 
+    def test_complete_trading_session_e2e(self, live_trading_scenario, market_conditions,
                                         system_configuration):
         """Тест полной торговой сессии E2E."""
         # Session metrics tracking

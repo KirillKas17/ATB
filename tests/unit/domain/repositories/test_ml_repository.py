@@ -450,7 +450,7 @@ class TestInMemoryMLRepository:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_repository_isolation(self):
+    async def test_repository_isolation(self: "TestInMemoryMLRepository") -> None:
         """Тест изоляции между экземплярами репозитория."""
         repo1 = InMemoryMLRepository()
         repo2 = InMemoryMLRepository()

@@ -35,26 +35,26 @@ else:
                 self.entry_time = entry_time
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_exchange() -> Any:
     exchange = AsyncMock()
     exchange.fetch_positions = AsyncMock()
     return exchange
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_order_controller() -> Any:
     controller = AsyncMock()
     controller.place_order = AsyncMock()
     return controller
 
 
-@pytest.fixture
+    @pytest.fixture
 def position_controller(mock_exchange, mock_order_controller) -> Any:
     return PositionController(mock_exchange, mock_order_controller)
 
 
-@pytest.fixture
+    @pytest.fixture
 def sample_position() -> Any:
     return Position(
         pair="BTC/USDT",
@@ -68,8 +68,8 @@ def sample_position() -> Any:
     )
 
 
-@pytest.mark.asyncio
-async def test_open_position(
+    @pytest.mark.asyncio
+    async def test_open_position(
     position_controller, sample_position, mock_order_controller
 ) -> None:
     """Тест открытия позиции"""
@@ -88,8 +88,8 @@ async def test_open_position(
     assert result.pair == "BTC/USDT"
 
 
-@pytest.mark.asyncio
-async def test_close_position(
+    @pytest.mark.asyncio
+    async def test_close_position(
     position_controller, sample_position, mock_order_controller
 ) -> None:
     """Тест закрытия позиции"""
@@ -108,8 +108,8 @@ async def test_close_position(
     assert "BTC/USDT" not in position_controller.positions
 
 
-@pytest.mark.asyncio
-async def test_update_positions(position_controller, mock_exchange) -> None:
+    @pytest.mark.asyncio
+    async def test_update_positions(position_controller, mock_exchange) -> None:
     """Тест обновления позиций"""
     positions_data = [
         {
@@ -130,7 +130,7 @@ async def test_update_positions(position_controller, mock_exchange) -> None:
     assert position_controller.positions["BTC/USDT"].pair == "BTC/USDT"
 
 
-def test_get_position(position_controller, sample_position) -> None:
+    def test_get_position(position_controller, sample_position) -> None:
     """Тест получения позиции"""
     position_controller.positions["BTC/USDT"] = sample_position
 
@@ -141,7 +141,7 @@ def test_get_position(position_controller, sample_position) -> None:
     assert result.side == "long"
 
 
-def test_get_all_positions(position_controller, sample_position) -> None:
+    def test_get_all_positions(position_controller, sample_position) -> None:
     """Тест получения всех позиций"""
     position_controller.positions["BTC/USDT"] = sample_position
 

@@ -189,7 +189,7 @@ class TestIPatternAnalyzer:
         assert IPatternAnalyzer.__runtime_checkable__ is True
 
     @pytest.mark.asyncio
-    async def test_interface_method_signatures(self):
+    async def test_interface_method_signatures(self: "TestIPatternAnalyzer") -> None:
         """Тест сигнатур методов интерфейса."""
         # Проверяем что методы существуют и являются async
         assert callable(IPatternAnalyzer.analyze_pattern_similarity)

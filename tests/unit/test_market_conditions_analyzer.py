@@ -23,14 +23,14 @@ class TestMarketConditionsAnalyzer:
     """Тесты для анализатора рыночных условий."""
 
     @pytest.fixture
-    def mock_market_repository(self) -> Any:
+    def mock_market_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок репозитория рыночных данных."""
         repository = Mock()
         repository.get_market_data = AsyncMock()
         return repository
 
     @pytest.fixture
-    def mock_technical_analysis_service(self) -> Any:
+    def mock_technical_analysis_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок сервиса технического анализа."""
         service = Mock()
         service.perform_complete_analysis.return_value = {
@@ -61,7 +61,7 @@ class TestMarketConditionsAnalyzer:
         )
 
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестовых рыночных данных."""
         dates = pd.date_range(start='2024-01-01', periods=50, freq='H')
         np.random.seed(42)

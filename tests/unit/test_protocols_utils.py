@@ -16,7 +16,7 @@ from domain.protocols.decorators import (
     metrics, MetricsConfig
 )
 class TestRetryDecorator:
-    def test_retry_success(self) -> None:
+    def test_retry_success(self: "TestRetryDecorator") -> None:
         calls = {"count": 0}
         @retry(RetryConfig(max_attempts=3, base_delay=0.01, exceptions={ValueError}))
         def func() -> Any:
@@ -26,27 +26,27 @@ class TestRetryDecorator:
             return "ok"
         assert func() == "ok"
         assert calls["count"] == 2
-    def test_retry_exhaustion(self) -> None:
+    def test_retry_exhaustion(self: "TestRetryDecorator") -> None:
         @retry(RetryConfig(max_attempts=2, base_delay=0.01, exceptions={RuntimeError}))
         def func() -> Any:
             raise RuntimeError("fail")
         with pytest.raises(Exception):
             func()
 class TestTimeoutDecorator:
-    def test_timeout_success(self) -> None:
+    def test_timeout_success(self: "TestTimeoutDecorator") -> None:
         @timeout(TimeoutConfig(timeout=0.1))
         def func() -> Any:
             time.sleep(0.01)
             return 42
         assert func() == 42
-    def test_timeout_exceeded(self) -> None:
+    def test_timeout_exceeded(self: "TestTimeoutDecorator") -> None:
         @timeout(TimeoutConfig(timeout=0.01))
         def func() -> Any:
             time.sleep(0.1)
         with pytest.raises(Exception):
             func()
 class TestCircuitBreakerDecorator:
-    def test_circuit_breaker_opens(self) -> None:
+    def test_circuit_breaker_opens(self: "TestCircuitBreakerDecorator") -> None:
         @circuit_breaker(CircuitBreakerConfig(failure_threshold=2, recovery_timeout=0.01, expected_exception=ValueError))
         def func() -> Any:
             raise ValueError("fail")
@@ -68,7 +68,7 @@ class TestLogOperationDecorator:
         captured = capsys.readouterr()
         assert "func" in captured.out or "func" in captured.err
 class TestCacheDecorator:
-    def test_cache(self) -> None:
+    def test_cache(self: "TestCacheDecorator") -> None:
         calls = {"count": 0}
         @cache(CacheConfig(ttl=10, max_size=10))
         def func(x: int) -> int:
@@ -92,7 +92,7 @@ class TestMetricsDecorator:
         # (метрики могут логироваться через стандартный логгер)
 class TestAsyncDecorators:
     @pytest.mark.asyncio
-    async def test_async_retry(self) -> None:
+    def test_async_retry(self: "TestAsyncDecorators") -> None:
         calls = {"count": 0}
         @retry(RetryConfig(max_attempts=3, base_delay=0.01, exceptions={ValueError}))
         async def func() -> Any:
@@ -103,7 +103,7 @@ class TestAsyncDecorators:
         assert await func() == "ok"
         assert calls["count"] == 2
     @pytest.mark.asyncio
-    async def test_async_timeout(self) -> None:
+    def test_async_timeout(self: "TestAsyncDecorators") -> None:
         @timeout(TimeoutConfig(timeout=0.05))
         async def func() -> Any:
             await asyncio.sleep(0.01)
@@ -115,7 +115,7 @@ class TestAsyncDecorators:
         with pytest.raises(Exception):
             await func2()
     @pytest.mark.asyncio
-    async def test_async_cache(self) -> None:
+    def test_async_cache(self: "TestAsyncDecorators") -> None:
         calls = {"count": 0}
         @cache(CacheConfig(ttl=10, max_size=10))
         async def func(x: int) -> int:

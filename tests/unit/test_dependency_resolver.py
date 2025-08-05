@@ -38,7 +38,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 #         pass
 # """)
 #         return tmp_path
-#     def test_dependency_node_creation(self) -> None:
+    def test_dependency_node_creation(self: "TestDependencyResolver") -> None:
 #         """Тест создания узла зависимостей."""
 #         node = DependencyNode(
 #             name="test.module",
@@ -50,7 +50,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 #         assert node.file_path == "/path/to/test.py"
 #         assert "other.module" in node.imports
 #         assert node.layer == "domain"
-#     def test_circular_dependency_creation(self) -> None:
+    def test_circular_dependency_creation(self: "TestDependencyResolver") -> None:
 #         """Тест создания циклической зависимости."""
 #         cycle = ["module1", "module2", "module1"]
 #         circular_dep = CircularDependency(

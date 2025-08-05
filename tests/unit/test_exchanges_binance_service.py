@@ -12,7 +12,7 @@ from infrastructure.external_services.exchanges.binance_exchange_service import 
 class TestBinanceExchangeService:
     """Тесты для BinanceExchangeService."""
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
         return ExchangeServiceConfig(
             exchange_name=ExchangeName.BINANCE,

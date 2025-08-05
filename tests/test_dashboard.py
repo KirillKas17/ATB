@@ -31,7 +31,7 @@ TEST_CONFIG = {
     "trailing_stop": 0.01,
     "position_timeout": 24,
 }
-@pytest.fixture
+    @pytest.fixture
 def mock_market_state() -> Any:
     """Фикстура с моком MarketState"""
     mock = Mock(spec=MarketState)
@@ -54,7 +54,7 @@ def mock_market_state() -> Any:
         }
     )
     return mock
-@pytest.fixture
+    @pytest.fixture
 def mock_model_selector() -> Any:
     """Фикстура с моком ModelSelector"""
     mock = Mock(spec=ModelSelector)
@@ -71,12 +71,12 @@ async def dashboard(mock_market_state, mock_model_selector) -> Any:
     dashboard.model_selector = mock_model_selector
     await dashboard.init(TEST_CONFIG)
     return dashboard
-@pytest.fixture
+    @pytest.fixture
 def client(dashboard) -> Any:
     """Фикстура с тестовым клиентом FastAPI"""
     app.dependency_overrides = {"get_dashboard": lambda: dashboard}
     return TestClient(app)
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")

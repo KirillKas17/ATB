@@ -9,11 +9,11 @@ from domain.services.market_metrics import MarketMetrics, IMarketMetrics
 class TestMarketMetrics:
     """Тесты для сервиса рыночных метрик."""
     @pytest.fixture
-    def market_metrics(self) -> Any:
+    def market_metrics(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса рыночных метрик."""
         return MarketMetrics()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1h')
         np.random.seed(42)
@@ -26,7 +26,7 @@ class TestMarketMetrics:
             'vwap': np.random.uniform(50000, 51000, 100)
         }, index=dates)
     @pytest.fixture
-    def sample_order_book(self) -> Any:
+    def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерным ордербуком."""
         return {
             "bids": [
@@ -319,7 +319,7 @@ class TestMarketMetrics:
             result = results.get()
             assert isinstance(result, dict)
             assert "volatility" in result
-    def test_market_metrics_config_customization(self) -> None:
+    def test_market_metrics_config_customization(self: "TestMarketMetrics") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "volatility_window": 30,

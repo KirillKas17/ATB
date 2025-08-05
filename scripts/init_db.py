@@ -5,6 +5,7 @@
 
 import sys
 from pathlib import Path
+from typing import Dict, Any, NoReturn
 
 import psycopg2
 import yaml
@@ -15,17 +16,18 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 sys.path.append(str(Path(__file__).parent.parent))
 
 
-def load_config(config_path: str = "config/config.yaml") -> dict:
+def load_config(config_path: str = "config/config.yaml") -> Dict[Any, Any]:
     """Загрузка конфигурации"""
     try:
         with open(config_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
+            config = yaml.safe_load(f)
+            return config if config is not None else {}
     except Exception as e:
         logger.error(f"Error loading config: {e}")
         sys.exit(1)
 
 
-def create_database(config: dict):
+def create_database(config: Dict[Any, Any]) -> None:
     """Создание базы данных"""
     db_config = config.get("database", {})
 
@@ -67,7 +69,7 @@ def create_database(config: dict):
         sys.exit(1)
 
 
-def create_tables(config: dict):
+def create_tables(config: Dict[Any, Any]) -> None:
     """Создание таблиц"""
     db_config = config.get("database", {})
 
@@ -239,7 +241,7 @@ def create_tables(config: dict):
         sys.exit(1)
 
 
-def insert_initial_data(config: dict):
+def insert_initial_data(config: Dict[Any, Any]) -> None:
     """Вставка начальных данных"""
     db_config = config.get("database", {})
 
@@ -336,7 +338,7 @@ def insert_initial_data(config: dict):
         sys.exit(1)
 
 
-def main():
+def main() -> NoReturn:
     """Основная функция"""
     logger.info("Starting database initialization...")
 
@@ -353,6 +355,7 @@ def main():
     insert_initial_data(config)
 
     logger.info("Database initialization completed successfully!")
+    sys.exit(0)
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ from domain.type_definitions.market_maker_types import (
 class TestPatternAnalyzer:
     """Тесты для PatternAnalyzer."""
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация анализатора."""
         return AnalysisConfig(
             min_confidence=Confidence(0.6),
@@ -34,7 +34,7 @@ class TestPatternAnalyzer:
         """Экземпляр анализатора."""
         return PatternAnalyzer(config)
     @pytest.fixture
-    def sample_pattern(self) -> Any:
+    def sample_pattern(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец паттерна для тестов."""
         features = PatternFeatures(
             book_pressure=BookPressure(0.7),
@@ -150,7 +150,7 @@ class TestPatternAnalyzer:
         # Тест с некорректными данными
         with pytest.raises(Exception):
             await analyzer.analyze_pattern("", None)
-    def test_config_validation(self) -> None:
+    def test_config_validation(self: "TestPatternAnalyzer") -> None:
         """Тест валидации конфигурации."""
         config = AnalysisConfig(
             min_confidence=Confidence(0.5),
@@ -165,11 +165,11 @@ class TestPatternAnalyzer:
 class TestSimilarityCalculator:
     """Тесты для SimilarityCalculator."""
     @pytest.fixture
-    def calculator(self) -> Any:
+    def calculator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр калькулятора."""
         return SimilarityCalculator()
     @pytest.fixture
-    def sample_features(self) -> Any:
+    def sample_features(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец признаков для тестов."""
         return {
             "book_pressure": 0.7,
@@ -276,11 +276,11 @@ class TestSimilarityCalculator:
 class TestSuccessRateAnalyzer:
     """Тесты для SuccessRateAnalyzer."""
     @pytest.fixture
-    def analyzer(self) -> Any:
+    def analyzer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр анализатора."""
         return SuccessRateAnalyzer()
     @pytest.fixture
-    def sample_pattern_memories(self) -> Any:
+    def sample_pattern_memories(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образцы памяти паттернов для тестов."""
         features = PatternFeatures(
             book_pressure=BookPressure(0.7),

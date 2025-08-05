@@ -21,7 +21,7 @@ from infrastructure.agents.agent_context_refactored import AgentContext
 class TestEvolutionAgentsIntegration:
     """Тесты интеграции эволюционных агентов"""
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестовых рыночных данных"""
         dates = pd.date_range(start='2024-01-01', periods=100, freq='1H')
         data = {
@@ -33,7 +33,7 @@ class TestEvolutionAgentsIntegration:
         }
         return pd.DataFrame(data, index=dates)
     @pytest.fixture
-    def sample_strategy_signals(self) -> Any:
+    def sample_strategy_signals(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестовых сигналов стратегий"""
         return {
             'trend_strategy': {
@@ -56,7 +56,7 @@ class TestEvolutionAgentsIntegration:
             }
         }
     @pytest.fixture
-    def sample_risk_metrics(self) -> Any:
+    def sample_risk_metrics(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестовых метрик риска"""
         return {
             'var_95': 0.02,
@@ -68,7 +68,7 @@ class TestEvolutionAgentsIntegration:
             'kelly_criterion': 0.15
         }
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов"""
         with tempfile.TemporaryDirectory() as temp_dir:
             yield temp_dir
@@ -417,7 +417,7 @@ class TestEvolutionAgentsIntegration:
         assert agent.performance_metric != initial_performance
         assert agent.confidence_metric != initial_confidence
     @pytest.mark.asyncio
-    async def test_agent_registration_in_evolution_manager(self) -> None:
+    def test_agent_registration_in_evolution_manager(self: "TestEvolutionAgentsIntegration") -> None:
         """Тест регистрации агентов в эволюционном менеджере"""
         from infrastructure.core.evolution_manager import get_evolution_manager
         # Создание агентов

@@ -15,7 +15,7 @@ class TestExchangeServiceConfig:
     """Тесты для ExchangeServiceConfig."""
     
     @pytest.fixture
-    def sample_credentials(self) -> Any:
+    def sample_credentials(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример учетных данных."""
         return ExchangeCredentials(
             api_key="test_key",
@@ -26,7 +26,7 @@ class TestExchangeServiceConfig:
         )
     
     @pytest.fixture
-    def sample_connection_config(self) -> Any:
+    def sample_connection_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример конфигурации соединения."""
         return ConnectionConfig(
             rate_limit=100,

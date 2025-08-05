@@ -81,7 +81,7 @@ class TestOrderBookSnapshot:
         assert best_ask[0].value == Decimal("50100")
         assert best_ask[1].value == Decimal("1.0")
 
-    def test_best_bid_empty_bids(self) -> None:
+    def test_best_bid_empty_bids(self: "TestOrderBookSnapshot") -> None:
         """Тест лучшей цены покупки при пустых покупках."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -92,7 +92,7 @@ class TestOrderBookSnapshot:
         )
         assert orderbook.best_bid is None
 
-    def test_best_ask_empty_asks(self) -> None:
+    def test_best_ask_empty_asks(self: "TestOrderBookSnapshot") -> None:
         """Тест лучшей цены продажи при пустых продажах."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -111,7 +111,7 @@ class TestOrderBookSnapshot:
         assert mid_price.value == expected_mid
         assert mid_price.currency == Currency.USD
 
-    def test_mid_price_no_bids(self) -> None:
+    def test_mid_price_no_bids(self: "TestOrderBookSnapshot") -> None:
         """Тест средней цены при отсутствии покупок."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -122,7 +122,7 @@ class TestOrderBookSnapshot:
         )
         assert orderbook.mid_price is None
 
-    def test_mid_price_no_asks(self) -> None:
+    def test_mid_price_no_asks(self: "TestOrderBookSnapshot") -> None:
         """Тест средней цены при отсутствии продаж."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -154,7 +154,7 @@ class TestOrderBookSnapshot:
         assert total_bid_volume.value == expected_total
         assert total_bid_volume.currency == Currency.USD
 
-    def test_total_bid_volume_empty(self) -> None:
+    def test_total_bid_volume_empty(self: "TestOrderBookSnapshot") -> None:
         """Тест общего объема покупок при пустых покупках."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -174,7 +174,7 @@ class TestOrderBookSnapshot:
         assert total_ask_volume.value == expected_total
         assert total_ask_volume.currency == Currency.USD
 
-    def test_total_ask_volume_empty(self) -> None:
+    def test_total_ask_volume_empty(self: "TestOrderBookSnapshot") -> None:
         """Тест общего объема продаж при пустых продажах."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -205,7 +205,7 @@ class TestOrderBookSnapshot:
         expected_ratio = (bid_total - ask_total) / total_volume
         assert abs(ratio - expected_ratio) < Decimal("0.001")
 
-    def test_volume_imbalance_ratio_zero_total(self) -> None:
+    def test_volume_imbalance_ratio_zero_total(self: "TestOrderBookSnapshot") -> None:
         """Тест отношения дисбаланса при нулевом общем объеме."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -251,7 +251,7 @@ class TestOrderBookSnapshot:
         assert bid_vol.value == Decimal("0")  # Нет покупок по цене выше лучшей
         assert ask_vol.value == Decimal("0")  # Нет продаж по цене ниже лучшей
 
-    def test_is_filtered_true(self) -> None:
+    def test_is_filtered_true(self: "TestOrderBookSnapshot") -> None:
         """Тест проверки фильтрации при включенной фильтрации."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -267,7 +267,7 @@ class TestOrderBookSnapshot:
         """Тест проверки фильтрации при выключенной фильтрации."""
         assert orderbook_snapshot.is_filtered() is False
 
-    def test_is_filtered_no_meta(self) -> None:
+    def test_is_filtered_no_meta(self: "TestOrderBookSnapshot") -> None:
         """Тест проверки фильтрации при отсутствии метаданных."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -284,7 +284,7 @@ class TestOrderBookSnapshot:
         assert noise_analysis is not None
         assert noise_analysis["level"] == "low"
 
-    def test_get_noise_analysis_no_data(self) -> None:
+    def test_get_noise_analysis_no_data(self: "TestOrderBookSnapshot") -> None:
         """Тест получения анализа шума при отсутствии данных."""
         orderbook = OrderBookSnapshot(
             exchange="test",
@@ -318,7 +318,7 @@ class TestOrderBookSnapshot:
         assert restored_orderbook.sequence_id == orderbook_snapshot.sequence_id
         assert restored_orderbook.meta["filtered"] == orderbook_snapshot.meta["filtered"]
 
-    def test_from_dict_without_optional_fields(self) -> None:
+    def test_from_dict_without_optional_fields(self: "TestOrderBookSnapshot") -> None:
         """Тест создания из словаря без опциональных полей."""
         data = {
             "exchange": "test",
@@ -352,7 +352,7 @@ class TestOrderBookSnapshot:
         assert "asks=3" in repr_str
         assert "timestamp=" in repr_str
 
-    def test_empty_orderbook(self) -> None:
+    def test_empty_orderbook(self: "TestOrderBookSnapshot") -> None:
         """Тест пустого ордербука."""
         orderbook = OrderBookSnapshot(
             exchange="test",

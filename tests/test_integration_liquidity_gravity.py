@@ -33,7 +33,7 @@ class TestLiquidityGravityModel:
         )
         self.model = LiquidityGravityModel(self.config)
 
-    def test_initialization(self) -> None:
+    def test_initialization(self: "TestLiquidityGravityModel") -> None:
         """Тест инициализации модели."""
         assert self.model.config.gravitational_constant == 1e-6
         assert self.model.config.min_volume_threshold == 0.001
@@ -41,7 +41,7 @@ class TestLiquidityGravityModel:
         assert self.model.config.volume_weight == 1.0
         assert self.model.config.price_weight == 1.0
 
-    def test_compute_gravitational_force(self) -> None:
+    def test_compute_gravitational_force(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления силы гравитации."""
         # Тест с нормальными значениями
         force = self.model._compute_gravitational_force(1.0, 2.0, 0.01)
@@ -52,7 +52,7 @@ class TestLiquidityGravityModel:
         force = self.model._compute_gravitational_force(1.0, 2.0, 0.0)
         assert force > 0  # Должно обработать деление на ноль
 
-    def test_compute_liquidity_gravity_normal(self) -> None:
+    def test_compute_liquidity_gravity_normal(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления гравитации с нормальным ордербуком."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0), (49999, 1.0)],
@@ -65,7 +65,7 @@ class TestLiquidityGravityModel:
         assert isinstance(gravity, float)
         assert gravity >= 0.0
 
-    def test_compute_liquidity_gravity_empty(self) -> None:
+    def test_compute_liquidity_gravity_empty(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления гравитации с пустым ордербуком."""
         order_book = OrderBookSnapshot(
             bids=[], asks=[], timestamp=Timestamp(time.time()), symbol="BTC/USDT"
@@ -74,7 +74,7 @@ class TestLiquidityGravityModel:
         gravity = self.model.compute_liquidity_gravity(order_book)
         assert gravity == 0.0
 
-    def test_compute_liquidity_gravity_bids_only(self) -> None:
+    def test_compute_liquidity_gravity_bids_only(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления гравитации только с бидами."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0), (49999, 1.0)],
@@ -86,7 +86,7 @@ class TestLiquidityGravityModel:
         gravity = self.model.compute_liquidity_gravity(order_book)
         assert gravity == 0.0
 
-    def test_compute_liquidity_gravity_asks_only(self) -> None:
+    def test_compute_liquidity_gravity_asks_only(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления гравитации только с асками."""
         order_book = OrderBookSnapshot(
             bids=[],
@@ -98,7 +98,7 @@ class TestLiquidityGravityModel:
         gravity = self.model.compute_liquidity_gravity(order_book)
         assert gravity == 0.0
 
-    def test_analyze_liquidity_gravity(self) -> None:
+    def test_analyze_liquidity_gravity(self: "TestLiquidityGravityModel") -> None:
         """Тест полного анализа гравитации ликвидности."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0), (49999, 1.0)],
@@ -117,7 +117,7 @@ class TestLiquidityGravityModel:
         assert isinstance(result.timestamp, Timestamp)
         assert isinstance(result.metadata, dict)
 
-    def test_determine_risk_level(self) -> None:
+    def test_determine_risk_level(self: "TestLiquidityGravityModel") -> None:
         """Тест определения уровня риска."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0)],
@@ -142,7 +142,7 @@ class TestLiquidityGravityModel:
         risk_level = self.model._determine_risk_level(2.5, order_book)
         assert risk_level == "extreme"
 
-    def test_compute_gravity_gradient(self) -> None:
+    def test_compute_gravity_gradient(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления градиента гравитации."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0), (49999, 1.0), (49998, 1.0)],
@@ -154,7 +154,7 @@ class TestLiquidityGravityModel:
         gradient = self.model.compute_gravity_gradient(order_book)
         assert isinstance(gradient, dict)
 
-    def test_get_model_statistics(self) -> None:
+    def test_get_model_statistics(self: "TestLiquidityGravityModel") -> None:
         """Тест получения статистики модели."""
         stats = self.model.get_model_statistics()
         assert isinstance(stats, dict)
@@ -162,7 +162,7 @@ class TestLiquidityGravityModel:
         assert "min_volume_threshold" in stats
         assert "max_price_distance" in stats
 
-    def test_update_config(self) -> None:
+    def test_update_config(self: "TestLiquidityGravityModel") -> None:
         """Тест обновления конфигурации."""
         new_config = LiquidityGravityConfig(
             gravitational_constant=2e-6, min_volume_threshold=0.002
@@ -176,7 +176,7 @@ class TestLiquidityGravityModel:
 class TestOrderBookSnapshot:
     """Тесты для снимка ордербука."""
 
-    def test_creation(self) -> None:
+    def test_creation(self: "TestOrderBookSnapshot") -> None:
         """Тест создания снимка ордербука."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0), (49999, 1.0)],
@@ -189,7 +189,7 @@ class TestOrderBookSnapshot:
         assert len(order_book.asks) == 2
         assert order_book.symbol == "BTC/USDT"
 
-    def test_get_bid_volume(self) -> None:
+    def test_get_bid_volume(self: "TestOrderBookSnapshot") -> None:
         """Тест получения объема бидов."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0), (49999, 2.0)],
@@ -200,7 +200,7 @@ class TestOrderBookSnapshot:
 
         assert order_book.get_bid_volume() == 3.0
 
-    def test_get_ask_volume(self) -> None:
+    def test_get_ask_volume(self: "TestOrderBookSnapshot") -> None:
         """Тест получения объема асков."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0)],
@@ -211,7 +211,7 @@ class TestOrderBookSnapshot:
 
         assert order_book.get_ask_volume() == 3.0
 
-    def test_get_mid_price(self) -> None:
+    def test_get_mid_price(self: "TestOrderBookSnapshot") -> None:
         """Тест получения средней цены."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0)],
@@ -222,7 +222,7 @@ class TestOrderBookSnapshot:
 
         assert order_book.get_mid_price() == 50001.0
 
-    def test_get_spread(self) -> None:
+    def test_get_spread(self: "TestOrderBookSnapshot") -> None:
         """Тест получения спреда."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0)],
@@ -233,7 +233,7 @@ class TestOrderBookSnapshot:
 
         assert order_book.get_spread() == 2.0
 
-    def test_get_spread_percentage(self) -> None:
+    def test_get_spread_percentage(self: "TestOrderBookSnapshot") -> None:
         """Тест получения спреда в процентах."""
         order_book = OrderBookSnapshot(
             bids=[(50000, 1.0)],
@@ -246,7 +246,7 @@ class TestOrderBookSnapshot:
         assert abs(order_book.get_spread_percentage() - expected_percentage) < 1e-6
 
 
-def test_compute_liquidity_gravity_function() -> None:
+    def test_compute_liquidity_gravity_function() -> None:
     """Тест удобной функции compute_liquidity_gravity."""
     order_book = OrderBookSnapshot(
         bids=[(50000, 1.0), (49999, 1.0)],

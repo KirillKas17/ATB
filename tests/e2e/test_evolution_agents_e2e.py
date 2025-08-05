@@ -22,7 +22,7 @@ from infrastructure.core.evolution_manager import EvolutionManager
 class TestEvolutionAgentsE2E:
     """E2E тесты для эволюционных агентов"""
     @pytest.fixture
-    def realistic_market_data(self) -> Any:
+    def realistic_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание реалистичных рыночных данных"""
         dates = pd.date_range(start='2024-01-01', periods=1000, freq='1H')
         # Создание реалистичных цен с трендом и волатильностью
@@ -42,7 +42,7 @@ class TestEvolutionAgentsE2E:
         }
         return pd.DataFrame(data, index=dates)
     @pytest.fixture
-    def realistic_strategy_signals(self) -> Any:
+    def realistic_strategy_signals(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание реалистичных сигналов стратегий"""
         return {
             'trend_strategy': {
@@ -82,7 +82,7 @@ class TestEvolutionAgentsE2E:
             }
         }
     @pytest.fixture
-    def realistic_risk_metrics(self) -> Any:
+    def realistic_risk_metrics(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание реалистичных метрик риска"""
         return {
             'var_95': 0.0234,
@@ -97,7 +97,7 @@ class TestEvolutionAgentsE2E:
             'calmar_ratio': 0.890
         }
     @pytest.fixture
-    def realistic_portfolio_state(self) -> Any:
+    def realistic_portfolio_state(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание реалистичного состояния портфеля"""
         return {
             'BTC': {
@@ -126,7 +126,7 @@ class TestEvolutionAgentsE2E:
             }
         }
     @pytest.fixture
-    def realistic_news_data(self) -> Any:
+    def realistic_news_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание реалистичных новостных данных"""
         return {
             'sentiment_score': 0.67,
@@ -139,12 +139,12 @@ class TestEvolutionAgentsE2E:
             'confidence': 0.78
         }
     @pytest.fixture
-    def temp_workspace(self) -> Any:
+    def temp_workspace(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временное рабочее пространство"""
         with tempfile.TemporaryDirectory() as temp_dir:
             yield temp_dir
     @pytest.mark.asyncio
-    async def test_full_evolution_cycle_e2e(self, realistic_market_data, realistic_strategy_signals, 
+    async def test_full_evolution_cycle_e2e(self, realistic_market_data, realistic_strategy_signals,
                                           realistic_risk_metrics, realistic_portfolio_state, 
                                           realistic_news_data, temp_workspace) -> None:
         """Полный E2E тест цикла эволюции"""
@@ -303,7 +303,7 @@ class TestEvolutionAgentsE2E:
         assert len(performance_report) > 0
         print("✅ Интеграция с эволюционным менеджером успешна")
     @pytest.mark.asyncio
-    async def test_agent_interaction_e2e(self, realistic_market_data, realistic_strategy_signals, 
+    async def test_agent_interaction_e2e(self, realistic_market_data, realistic_strategy_signals,
                                        realistic_risk_metrics, temp_workspace) -> None:
         """E2E тест взаимодействия между агентами"""
         # Создание агентов
@@ -464,7 +464,7 @@ class TestEvolutionAgentsE2E:
         assert 0.0 <= confidence <= 1.0
         print(f"✅ Управление памятью успешно: производительность={performance:.3f}")
     @pytest.mark.asyncio
-    async def test_comprehensive_validation_e2e(self, realistic_market_data, realistic_strategy_signals, 
+    async def test_comprehensive_validation_e2e(self, realistic_market_data, realistic_strategy_signals,
                                               realistic_risk_metrics, realistic_portfolio_state, 
                                               realistic_news_data, temp_workspace) -> None:
         """Комплексная валидация всех аспектов системы"""

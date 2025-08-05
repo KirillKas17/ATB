@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.correlation_chain import CorrelationChain, CorrelationPair
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
@@ -42,11 +42,11 @@ def mock_market_data() -> Any:
         ),
     }
     return data
-@pytest.fixture
+    @pytest.fixture
 def correlation_config() -> Any:
     """Фикстура с конфигурацией корреляций"""
     return {"min_correlation": 0.7, "max_lag": 5, "window_size": 20}
-@pytest.fixture
+    @pytest.fixture
 def correlation_chain(correlation_config, mock_market_data) -> Any:
     """Фикстура с экземпляром CorrelationChain"""
     return CorrelationChain(data=mock_market_data, config=correlation_config)
