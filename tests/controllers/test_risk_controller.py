@@ -23,7 +23,7 @@ else:
                 self.entry_time = entry_time
 
 
-    @pytest.fixture
+@pytest.fixture
 def config() -> Any:
     return {
         "balance": 10000.0,
@@ -34,12 +34,12 @@ def config() -> Any:
     }
 
 
-    @pytest.fixture
+@pytest.fixture
 def risk_controller(config) -> Any:
     return RiskController(config)
 
 
-    @pytest.fixture
+@pytest.fixture
 def sample_position() -> Any:
     return Position(
         pair="BTC/USDT",
@@ -53,19 +53,19 @@ def sample_position() -> Any:
     )
 
 
-    def test_calculate_position_size(risk_controller) -> None:
+def test_calculate_position_size(risk_controller) -> None:
     """Тест расчета размера позиции"""
     size = risk_controller.calculate_position_size("BTC/USDT", 50000.0, 0.02)
     assert size == 0.004  # 10000 * 0.02 / 50000
 
 
-    def test_calculate_stop_loss_long(risk_controller, sample_position) -> None:
+def test_calculate_stop_loss_long(risk_controller, sample_position) -> None:
     """Тест расчета стоп-лосса для длинной позиции"""
     stop_loss = risk_controller.calculate_stop_loss(sample_position, 1000.0)
     assert stop_loss == 48000.0  # 50000 - (1000 * 2)
 
 
-    def test_calculate_stop_loss_short(risk_controller) -> None:
+def test_calculate_stop_loss_short(risk_controller) -> None:
     """Тест расчета стоп-лосса для короткой позиции"""
     position = Position(
         pair="BTC/USDT",
@@ -81,13 +81,13 @@ def sample_position() -> Any:
     assert stop_loss == 52000.0  # 50000 + (1000 * 2)
 
 
-    def test_calculate_take_profit_long(risk_controller, sample_position) -> None:
+def test_calculate_take_profit_long(risk_controller, sample_position) -> None:
     """Тест расчета тейк-профита для длинной позиции"""
     take_profit = risk_controller.calculate_take_profit(sample_position, 1000.0)
     assert take_profit == 53000.0  # 50000 + (1000 * 3)
 
 
-    def test_calculate_take_profit_short(risk_controller) -> None:
+def test_calculate_take_profit_short(risk_controller) -> None:
     """Тест расчета тейк-профита для короткой позиции"""
     position = Position(
         pair="BTC/USDT",
@@ -103,13 +103,13 @@ def sample_position() -> Any:
     assert take_profit == 47000.0  # 50000 - (1000 * 3)
 
 
-    def test_check_risk_limits_valid(risk_controller, sample_position) -> None:
+def test_check_risk_limits_valid(risk_controller, sample_position) -> None:
     """Тест проверки лимитов риска - валидный случай"""
     risk_controller.risk_metrics["daily_pnl"] = 0.0
     assert risk_controller.check_risk_limits(sample_position) is True
 
 
-    def test_check_risk_limits_invalid_size(risk_controller) -> None:
+def test_check_risk_limits_invalid_size(risk_controller) -> None:
     """Тест проверки лимитов риска - превышение размера позиции"""
     position = Position(
         pair="BTC/USDT",
@@ -124,13 +124,13 @@ def sample_position() -> Any:
     assert risk_controller.check_risk_limits(position) is False
 
 
-    def test_check_risk_limits_invalid_daily_loss(risk_controller, sample_position) -> None:
+def test_check_risk_limits_invalid_daily_loss(risk_controller, sample_position) -> None:
     """Тест проверки лимитов риска - превышение дневного убытка"""
     risk_controller.risk_metrics["daily_pnl"] = -2000.0  # Превышает max_daily_loss
     assert risk_controller.check_risk_limits(sample_position) is False
 
 
-    def test_update_risk_metrics(risk_controller) -> None:
+def test_update_risk_metrics(risk_controller) -> None:
     """Тест обновления метрик риска"""
     positions = [
         Position(

@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Protocol, runtime_checkable
 
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume as Quantity
+from domain.value_objects.currency import Currency
 from domain.type_definitions import Symbol
 
 
@@ -100,7 +101,7 @@ class SpreadCalculator(ABC):
         symbol: Symbol,
         market_data: MarketDataProvider,
         position_manager: PositionManager,
-    ) -> Dict[str, Price]:
+    ) -> Dict[str, Any]:
         """Рассчитать спред для покупки и продажи."""
 
 
@@ -112,7 +113,7 @@ class AdaptiveSpreadCalculator(SpreadCalculator):
         symbol: Symbol,
         market_data: MarketDataProvider,
         position_manager: PositionManager,
-    ) -> Dict[str, Price]:
+    ) -> Dict[str, Any]:
         """Рассчитать адаптивный спред."""
         current_price = market_data.get_current_price(symbol)
         volatility = market_data.get_volatility(symbol)
@@ -129,7 +130,7 @@ class AdaptiveSpreadCalculator(SpreadCalculator):
         volume_adjustment = (1 / (volume + 1e-6)) * self.config.volume_multiplier
 
         # Корректировка по позиции
-        position_adjustment = abs(float(position)) * 0.001
+        position_adjustment = abs(float(position.amount)) * 0.001
 
         # Итоговый спред
         total_adjustment = (
@@ -141,8 +142,8 @@ class AdaptiveSpreadCalculator(SpreadCalculator):
         spread = max(self.config.min_spread, min(self.config.max_spread, spread))
 
         # Расчет цен
-        bid_price = current_price - spread / 2
-        ask_price = current_price + spread / 2
+        bid_price = current_price.with_amount(current_price.amount - spread / 2)
+        ask_price = current_price.with_amount(current_price.amount + spread / 2)
 
         return {"bid": bid_price, "ask": ask_price, "spread": spread}
 
@@ -183,15 +184,15 @@ class DynamicOrderSizeCalculator(OrderSizeCalculator):
         volatility_multiplier = 1 + volatility * self.config.volatility_multiplier
 
         # Корректировка по позиции
-        if side == "buy" and position > 0:
+        if side == "buy" and position.amount > 0:
             # Уменьшаем размер при длинной позиции
             position_multiplier = (
-                1 - abs(float(position)) * self.config.position_multiplier
+                1 - abs(float(position.amount)) * self.config.position_multiplier
             )
-        elif side == "sell" and position < 0:
+        elif side == "sell" and position.amount < 0:
             # Уменьшаем размер при короткой позиции
             position_multiplier = (
-                1 - abs(float(position)) * self.config.position_multiplier
+                1 - abs(float(position.amount)) * self.config.position_multiplier
             )
         else:
             position_multiplier = 1.0
@@ -324,9 +325,9 @@ def create_default_spread_config() -> SpreadConfig:
 def create_default_order_size_config() -> OrderSizeConfig:
     """Создать конфигурацию размера ордера по умолчанию."""
     return OrderSizeConfig(
-        min_size=Quantity(Decimal("0.001")),
-        max_size=Quantity(Decimal("1.0")),
-        base_size=Quantity(Decimal("0.1")),
+        min_size=Quantity(Decimal("0.001"), Currency.USD),
+        max_size=Quantity(Decimal("1.0"), Currency.USD),
+        base_size=Quantity(Decimal("0.1"), Currency.USD),
         position_multiplier=0.01,
         volatility_multiplier=0.5,
     )
@@ -335,8 +336,8 @@ def create_default_order_size_config() -> OrderSizeConfig:
 def create_default_risk_config() -> RiskConfig:
     """Создать конфигурацию рисков по умолчанию."""
     return RiskConfig(
-        max_position=Quantity(Decimal("10.0")),
+        max_position=Quantity(Decimal("10.0"), Currency.USD),
         max_daily_loss=Decimal("1000.0"),
-        max_order_size=Quantity(Decimal("1.0")),
+        max_order_size=Quantity(Decimal("1.0"), Currency.USD),
         stop_loss_threshold=Decimal("0.1"),
     )
