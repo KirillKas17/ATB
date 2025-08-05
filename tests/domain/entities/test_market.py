@@ -19,7 +19,7 @@ from domain.value_objects.currency import Currency
 from domain.value_objects.volume import Volume
 class TestMarket:
     """Тесты для класса Market."""
-    def test_market_creation(self) -> None:
+    def test_market_creation(self: "TestMarket") -> None:
         """Тест создания рынка."""
         market = Market(
             symbol="BTCUSDT",
@@ -32,14 +32,14 @@ class TestMarket:
         assert isinstance(market.id, UUID)
         assert isinstance(market.created_at, datetime)
         assert isinstance(market.updated_at, datetime)
-    def test_market_default_values(self) -> None:
+    def test_market_default_values(self: "TestMarket") -> None:
         """Тест значений по умолчанию."""
         market = Market()
         assert market.symbol == ""
         assert market.name == ""
         assert market.is_active is True
         assert market.metadata == {}
-    def test_market_serialization(self) -> None:
+    def test_market_serialization(self: "TestMarket") -> None:
         """Тест сериализации."""
         market = Market(
             symbol="BTCUSDT",
@@ -59,7 +59,7 @@ class TestMarket:
         assert restored.metadata == market.metadata
 class TestOHLCV:
     """Тесты для класса OHLCV."""
-    def test_ohlcv_creation(self) -> None:
+    def test_ohlcv_creation(self: "TestOHLCV") -> None:
         """Тест создания OHLCV."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         ohlcv = OHLCV(
@@ -76,7 +76,7 @@ class TestOHLCV:
         assert ohlcv.low == Decimal("95.0")
         assert ohlcv.close == Decimal("105.0")
         assert ohlcv.volume == Decimal("1000.0")
-    def test_ohlcv_immutability(self) -> None:
+    def test_ohlcv_immutability(self: "TestOHLCV") -> None:
         """Тест неизменяемости."""
         ohlcv = OHLCV(
             timestamp=datetime(2024, 1, 1, 12, 0, 0),
@@ -89,7 +89,7 @@ class TestOHLCV:
         # Попытка изменения должна вызвать ошибку
         with pytest.raises(dataclasses.FrozenInstanceError):
             ohlcv.open = Decimal("200.0")
-    def test_ohlcv_serialization(self) -> None:
+    def test_ohlcv_serialization(self: "TestOHLCV") -> None:
         """Тест сериализации."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         ohlcv = OHLCV(
@@ -111,7 +111,7 @@ class TestOHLCV:
         assert restored == ohlcv
 class TestMarketData:
     """Тесты для класса MarketData."""
-    def test_market_data_creation(self) -> None:
+    def test_market_data_creation(self: "TestMarketData") -> None:
         """Тест создания рыночных данных."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         market_data = MarketData(
@@ -132,7 +132,7 @@ class TestMarketData:
         assert market_data.low.value == Decimal("95.0")
         assert market_data.close.value == Decimal("105.0")
         assert market_data.volume.value == Decimal("1000.0")
-    def test_market_data_properties(self) -> None:
+    def test_market_data_properties(self: "TestMarketData") -> None:
         """Тест свойств рыночных данных."""
         market_data = MarketData(
             open=Price(Decimal("100.0"), Currency.USD),
@@ -145,7 +145,7 @@ class TestMarketData:
         assert market_data.high_price == Price(Decimal("110.0"), Currency.USD)
         assert market_data.low_price == Price(Decimal("95.0"), Currency.USD)
         assert market_data.close_price == Price(Decimal("105.0"), Currency.USD)
-    def test_market_data_price_analysis(self) -> None:
+    def test_market_data_price_analysis(self: "TestMarketData") -> None:
         """Тест анализа цен."""
         market_data = MarketData(
             open=Price(Decimal("100.0"), Currency.USD),
@@ -166,7 +166,7 @@ class TestMarketData:
         # Нижняя тень
         lower_shadow = market_data.get_lower_shadow()
         assert lower_shadow.value == Decimal("5.0")  # 100 - 95
-    def test_market_data_candle_patterns(self) -> None:
+    def test_market_data_candle_patterns(self: "TestMarketData") -> None:
         """Тест паттернов свечей."""
         # Бычья свеча
         bullish_data = MarketData(
@@ -190,7 +190,7 @@ class TestMarketData:
             close=Price(Decimal("100.1"), Currency.USD)
         )
         assert doji_data.is_doji() is True
-    def test_market_data_volume_trend(self) -> None:
+    def test_market_data_volume_trend(self: "TestMarketData") -> None:
         """Тест тренда объема."""
         market_data = MarketData(
             volume=Volume(Decimal("1000.0")),
@@ -202,7 +202,7 @@ class TestMarketData:
         market_data_no_quote = MarketData(volume=Volume(Decimal("1000.0")))
         trend = market_data_no_quote.get_volume_price_trend()
         assert trend is None
-    def test_market_data_serialization(self) -> None:
+    def test_market_data_serialization(self: "TestMarketData") -> None:
         """Тест сериализации."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         market_data = MarketData(
@@ -223,7 +223,7 @@ class TestMarketData:
         restored = MarketData.from_dict(data)
         assert restored.symbol == market_data.symbol
         assert restored.timeframe == market_data.timeframe
-    def test_market_data_from_dataframe(self) -> None:
+    def test_market_data_from_dataframe(self: "TestMarketData") -> None:
         """Тест создания из DataFrame."""
         df = pd.DataFrame({
             'timestamp': [datetime(2024, 1, 1, 12, 0, 0)],
@@ -241,7 +241,7 @@ class TestMarketData:
         assert market_data_list[0].timeframe == Timeframe.MINUTE_1
 class TestMarketState:
     """Тесты для класса MarketState."""
-    def test_market_state_creation(self) -> None:
+    def test_market_state_creation(self: "TestMarketState") -> None:
         """Тест создания состояния рынка."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         market_state = MarketState(
@@ -260,7 +260,7 @@ class TestMarketState:
         assert market_state.trend_strength == Decimal("0.8")
         assert market_state.support_level.value == Decimal("100.0")
         assert market_state.resistance_level.value == Decimal("110.0")
-    def test_market_state_regime_checks(self) -> None:
+    def test_market_state_regime_checks(self: "TestMarketState") -> None:
         """Тест проверок режима рынка."""
         # Трендовый режим
         trending_state = MarketState(regime=MarketRegime.TRENDING_UP)
@@ -278,7 +278,7 @@ class TestMarketState:
         # Режим пробоя
         breakout_state = MarketState(regime=MarketRegime.BREAKOUT)
         assert breakout_state.is_breakout() is True
-    def test_market_state_trend_direction(self) -> None:
+    def test_market_state_trend_direction(self: "TestMarketState") -> None:
         """Тест направления тренда."""
         # Восходящий тренд
         up_trend = MarketState(regime=MarketRegime.TRENDING_UP)
@@ -289,7 +289,7 @@ class TestMarketState:
         # Боковой тренд
         sideways = MarketState(regime=MarketRegime.SIDEWAYS)
         assert sideways.get_trend_direction() is None
-    def test_market_state_price_position(self) -> None:
+    def test_market_state_price_position(self: "TestMarketState") -> None:
         """Тест позиции цены."""
         market_state = MarketState(
             support_level=Price(Decimal("100.0"), Currency.USD),
@@ -305,7 +305,7 @@ class TestMarketState:
         # Цена в диапазоне
         position = market_state.get_price_position(Price(Decimal("105.0"), Currency.USD))
         assert position == "in_range"
-    def test_market_state_overbought_oversold(self) -> None:
+    def test_market_state_overbought_oversold(self: "TestMarketState") -> None:
         """Тест перекупленности/перепроданности."""
         # Перекупленность
         overbought_state = MarketState(rsi=Decimal("75.0"))
@@ -319,7 +319,7 @@ class TestMarketState:
         neutral_state = MarketState(rsi=Decimal("50.0"))
         assert neutral_state.is_overbought() is False
         assert neutral_state.is_oversold() is False
-    def test_market_state_serialization(self) -> None:
+    def test_market_state_serialization(self: "TestMarketState") -> None:
         """Тест сериализации."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         market_state = MarketState(
@@ -340,7 +340,7 @@ class TestMarketState:
         assert restored.regime == market_state.regime
 class TestMarketRegime:
     """Тесты для перечисления MarketRegime."""
-    def test_market_regime_values(self) -> None:
+    def test_market_regime_values(self: "TestMarketRegime") -> None:
         """Тест значений рыночных режимов."""
         assert MarketRegime.TRENDING_UP.value == "trending_up"
         assert MarketRegime.TRENDING_DOWN.value == "trending_down"
@@ -351,7 +351,7 @@ class TestMarketRegime:
         assert MarketRegime.UNKNOWN.value == "unknown"
 class TestTimeframe:
     """Тесты для перечисления Timeframe."""
-    def test_timeframe_values(self) -> None:
+    def test_timeframe_values(self: "TestTimeframe") -> None:
         """Тест значений временных интервалов."""
         assert Timeframe.TICK.value == "tick"
         assert Timeframe.SECOND_1.value == "1s"

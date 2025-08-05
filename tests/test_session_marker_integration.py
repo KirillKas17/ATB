@@ -18,7 +18,7 @@ from application.di_container import Container
 class TestSessionMarkerIntegration:
     """Тесты интеграции SessionMarker в систему Syntra."""
     @pytest.fixture
-    def mock_session_marker(self) -> Any:
+    def mock_session_marker(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для SessionMarker."""
         mock = Mock(spec=MarketSessionContext)
         # Создаем мок сессии
@@ -34,7 +34,7 @@ class TestSessionMarkerIntegration:
         mock.get_session_context.return_value = mock_context
         return mock
     @pytest.fixture
-    def mock_agent_context(self) -> Any:
+    def mock_agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для AgentContext."""
         context = AgentContext(symbol="BTC/USDT")
         context.session_marker_result = None
@@ -49,7 +49,7 @@ class TestSessionMarkerIntegration:
         orchestrator._last_session_marker_update = None
         return orchestrator
     @pytest.fixture
-    def sample_signal(self) -> Any:
+    def sample_signal(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец торгового сигнала."""
         return Signal(
             signal_type=SignalType.BUY,
@@ -61,7 +61,7 @@ class TestSessionMarkerIntegration:
             timestamp=1234567890,
             metadata={}
         )
-    def test_di_container_integration(self) -> None:
+    def test_di_container_integration(self: "TestSessionMarkerIntegration") -> None:
         """Тест интеграции SessionMarker в DI контейнер."""
         # Создаем контейнер
         container = Container()
@@ -180,7 +180,7 @@ class TestSessionMarkerIntegration:
             mock_request.signal.trading_pair, mock_request.signal
         )
         assert modified_signal is not None
-    def test_session_marker_strategy_modifiers(self) -> None:
+    def test_session_marker_strategy_modifiers(self: "TestSessionMarkerIntegration") -> None:
         """Тест модификаторов стратегий для SessionMarker."""
         modifiers = StrategyModifiers()
         # Проверяем, что модификаторы для SessionMarker существуют

@@ -13,15 +13,15 @@ from domain.entities.strategy import Signal, SignalType
 class TestSessionInfluenceAnalyzerIntegration:
     """Тесты интеграции SessionInfluenceAnalyzer."""
     @pytest.fixture
-    def session_influence_analyzer(self) -> Any:
+    def session_influence_analyzer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для SessionInfluenceAnalyzer."""
         return SessionInfluenceAnalyzer()
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для AgentContext."""
         return AgentContext(symbol="BTCUSDT")
     @pytest.fixture
-    def mock_orderbook_data(self) -> Any:
+    def mock_orderbook_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для данных ордербука."""
         return {
             "bids": [
@@ -38,7 +38,7 @@ class TestSessionInfluenceAnalyzerIntegration:
             "symbol": "BTCUSDT"
         }
     @pytest.fixture
-    def mock_trading_orchestrator(self) -> Any:
+    def mock_trading_orchestrator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для TradingOrchestrator."""
         return Mock(spec=TradingOrchestratorUseCase)
     def test_session_influence_analyzer_creation(self, session_influence_analyzer) -> None:

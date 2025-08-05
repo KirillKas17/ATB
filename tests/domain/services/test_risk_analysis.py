@@ -15,24 +15,24 @@ from domain.services.risk_analysis import (
 class TestDefaultRiskAnalysisService:
     """Тесты для сервиса анализа рисков."""
     @pytest.fixture
-    def risk_service(self) -> Any:
+    def risk_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса анализа рисков."""
         return DefaultRiskAnalysisService()
     @pytest.fixture
-    def sample_returns(self) -> Any:
+    def sample_returns(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными доходностями."""
         np.random.seed(42)
         returns = np.random.normal(0.001, 0.02, 1000)
         return pd.Series(returns, name="returns")
     @pytest.fixture
-    def sample_prices(self) -> Any:
+    def sample_prices(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными ценами."""
         np.random.seed(42)
         returns = np.random.normal(0.001, 0.02, 1000)
         prices = (1 + pd.Series(returns)).cumprod() * 100
         return prices
     @pytest.fixture
-    def sample_positions(self) -> Any:
+    def sample_positions(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными позициями."""
         from domain.value_objects.money import Money
         from domain.value_objects.currency import Currency
@@ -184,7 +184,7 @@ class TestDefaultRiskAnalysisService:
         assert isinstance(metrics, RiskMetrics)
 class TestRiskMetrics:
     """Тесты для метрик риска."""
-    def test_risk_metrics_creation(self) -> None:
+    def test_risk_metrics_creation(self: "TestRiskMetrics") -> None:
         """Тест создания метрик риска."""
         from domain.value_objects.money import Money
         from domain.value_objects.currency import Currency
@@ -211,7 +211,7 @@ class TestRiskMetrics:
         assert metrics.sharpe_ratio == Decimal("1.5")
 class TestPositionRisk:
     """Тесты для риска позиции."""
-    def test_position_risk_creation(self) -> None:
+    def test_position_risk_creation(self: "TestPositionRisk") -> None:
         """Тест создания риска позиции."""
         from domain.value_objects.money import Money
         from domain.value_objects.currency import Currency
@@ -237,7 +237,7 @@ class TestPositionRisk:
         assert position.volatility == Decimal("0.025")
 class TestRiskMetricType:
     """Тесты для типов метрик риска."""
-    def test_risk_metric_type_values(self) -> None:
+    def test_risk_metric_type_values(self: "TestRiskMetricType") -> None:
         """Тест значений типов метрик риска."""
         assert RiskMetricType.VAR.value == "value_at_risk"
         assert RiskMetricType.CVAR.value == "conditional_value_at_risk"

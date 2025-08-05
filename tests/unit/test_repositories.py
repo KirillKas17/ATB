@@ -28,10 +28,10 @@ from infrastructure.repositories.market_repository import InMemoryMarketReposito
 class TestTradingRepository:
     """Тесты для торгового репозитория."""
     @pytest.fixture
-    def repository(self) -> Any:
+    def repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryTradingRepository()
     @pytest.fixture
-    def sample_order(self) -> Any:
+    def sample_order(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Order(
             id=OrderId(uuid4()),
             trading_pair=TradingPair(
@@ -47,7 +47,7 @@ class TestTradingRepository:
             created_at=datetime.now()
         )
     @pytest.fixture
-    def sample_trade(self) -> Any:
+    def sample_trade(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Trade(
             id=TradeId(uuid4()),
             order_id=OrderId(uuid4()),
@@ -102,10 +102,10 @@ class TestTradingRepository:
 class TestStrategyRepository:
     """Тесты для репозитория стратегий."""
     @pytest.fixture
-    def repository(self) -> Any:
+    def repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryStrategyRepository()
     @pytest.fixture
-    def sample_strategy(self) -> Any:
+    def sample_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Strategy(
             id=uuid4(),
             name="Test Strategy",
@@ -139,10 +139,10 @@ class TestStrategyRepository:
 class TestMLRepository:
     """Тесты для репозитория ML моделей."""
     @pytest.fixture
-    def repository(self) -> Any:
+    def repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryMLRepository()
     @pytest.fixture
-    def sample_model(self) -> Any:
+    def sample_model(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Model(
             id=uuid4(),
             name="Test Model",
@@ -176,10 +176,10 @@ class TestMLRepository:
 class TestPortfolioRepository:
     """Тесты для репозитория портфеля."""
     @pytest.fixture
-    def repository(self) -> Any:
+    def repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryPortfolioRepository()
     @pytest.fixture
-    def sample_portfolio(self) -> Any:
+    def sample_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         return Portfolio(
             id="test-portfolio",
             name="Test Portfolio",
@@ -190,7 +190,7 @@ class TestPortfolioRepository:
             updated_at=Timestamp.now()
         )
     @pytest.fixture
-    def sample_position(self) -> Any:
+    def sample_position(self: "TestEvolvableMarketMakerAgent") -> Any:
         from domain.type_definitions import Symbol
         return PortfolioPosition(
             id="test-position",
@@ -243,10 +243,10 @@ class TestPortfolioRepository:
 class TestRiskRepository:
     """Тесты для репозитория рисков."""
     @pytest.fixture
-    def repository(self) -> Any:
+    def repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryRiskRepository()
     @pytest.fixture
-    def sample_risk_profile(self) -> Any:
+    def sample_risk_profile(self: "TestEvolvableMarketMakerAgent") -> Any:
         return RiskProfile(
             name="Test Profile",
             risk_level=RiskLevel.MEDIUM,
@@ -255,7 +255,7 @@ class TestRiskRepository:
             max_leverage=Decimal("3")
         )
     @pytest.fixture
-    def sample_risk_manager(self) -> Any:
+    def sample_risk_manager(self: "TestEvolvableMarketMakerAgent") -> Any:
         risk_profile = RiskProfile(
             name="Test Profile",
             risk_level=RiskLevel.MEDIUM,
@@ -281,10 +281,10 @@ class TestRiskRepository:
 class TestMarketRepository:
     """Тесты для репозитория рыночных данных."""
     @pytest.fixture
-    def repository(self) -> Any:
+    def repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryMarketRepository()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         return MarketData(
             id=uuid4(),
             symbol="BTCUSDT",
@@ -297,7 +297,7 @@ class TestMarketRepository:
             volume=Volume(Decimal("100"), Currency.BTC)
         )
     @pytest.fixture
-    def sample_market_regime(self) -> Any:
+    def sample_market_regime(self: "TestEvolvableMarketMakerAgent") -> Any:
         return MarketRegime.TRENDING_UP
     @pytest.mark.asyncio
     async def test_save_market_data(self, repository, sample_market_data) -> None:
@@ -327,37 +327,37 @@ class TestMarketRepository:
 class TestPostgresRepositories:
     """Тесты для PostgreSQL репозиториев."""
     @pytest.mark.asyncio
-    async def test_postgres_trading_repository_initialization(self) -> None:
+    def test_postgres_trading_repository_initialization(self: "TestPostgresRepositories") -> None:
         """Тест инициализации PostgreSQL репозитория торговли."""
         from infrastructure.repositories.trading_repository import PostgresTradingRepository
         repository = PostgresTradingRepository("postgresql://test")
         assert repository is not None
     @pytest.mark.asyncio
-    async def test_postgres_strategy_repository_initialization(self) -> None:
+    def test_postgres_strategy_repository_initialization(self: "TestPostgresRepositories") -> None:
         """Тест инициализации PostgreSQL репозитория стратегий."""
         from infrastructure.repositories.strategy_repository import PostgresStrategyRepository
         repository = PostgresStrategyRepository("postgresql://test")
         assert repository is not None
     @pytest.mark.asyncio
-    async def test_postgres_ml_repository_initialization(self) -> None:
+    def test_postgres_ml_repository_initialization(self: "TestPostgresRepositories") -> None:
         """Тест инициализации PostgreSQL репозитория ML."""
         from infrastructure.repositories.ml_repository import PostgresMLRepository
         repository = PostgresMLRepository("postgresql://test")
         assert repository is not None
     @pytest.mark.asyncio
-    async def test_postgres_portfolio_repository_initialization(self) -> None:
+    def test_postgres_portfolio_repository_initialization(self: "TestPostgresRepositories") -> None:
         """Тест инициализации PostgreSQL репозитория портфеля."""
         from infrastructure.repositories.portfolio_repository import PostgresPortfolioRepository
         repository = PostgresPortfolioRepository("postgresql://test")
         assert repository is not None
     @pytest.mark.asyncio
-    async def test_postgres_risk_repository_initialization(self) -> None:
+    def test_postgres_risk_repository_initialization(self: "TestPostgresRepositories") -> None:
         """Тест инициализации PostgreSQL репозитория рисков."""
         from infrastructure.repositories.risk_repository import PostgresRiskRepository
         repository = PostgresRiskRepository("postgresql://test")
         assert repository is not None
     @pytest.mark.asyncio
-    async def test_postgres_market_repository_initialization(self) -> None:
+    def test_postgres_market_repository_initialization(self: "TestPostgresRepositories") -> None:
         """Тест инициализации PostgreSQL репозитория рынка."""
         from infrastructure.repositories.market_repository import PostgresMarketRepository
         repository = PostgresMarketRepository("postgresql://test")

@@ -50,13 +50,13 @@ from domain.type_definitions.market_maker_types import (
     PriceVolatility, MarketMicrostructure, Confidence, Accuracy,
     AverageReturn, SuccessCount, TotalCount
 )
-@pytest.fixture(scope="session")
+    @pytest.fixture(scope="session")
 def event_loop() -> Any:
     """Создает event loop для асинхронных тестов."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
-@pytest.fixture
+    @pytest.fixture
 def sample_market_data() -> Dict[str, Any]:
     """Фикстура с тестовыми рыночными данными."""
     return {
@@ -74,7 +74,7 @@ def sample_market_data() -> Dict[str, Any]:
         "bid_volume": 500.0,
         "ask_volume": 500.0,
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_orderbook_data() -> Dict[str, Any]:
     """Фикстура с данными ордербука."""
     return {
@@ -92,7 +92,7 @@ def sample_orderbook_data() -> Dict[str, Any]:
         ],
         "last_update_id": 123456789,
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_candles_data() -> pd.DataFrame:
     """Фикстура с данными свечей."""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1min")
@@ -104,7 +104,7 @@ def sample_candles_data() -> pd.DataFrame:
         "volume": [1000000 + i * 1000 for i in range(100)],
     }
     return pd.DataFrame(data, index=dates)
-@pytest.fixture
+    @pytest.fixture
 def mock_exchange() -> Mock:
     """Фикстура для мока биржи."""
     exchange = Mock(spec=ExchangeProtocol)
@@ -117,7 +117,7 @@ def mock_exchange() -> Mock:
     exchange.fetch_ticker = AsyncMock(return_value={"last": 50000.0, "bid": 49999.0, "ask": 50001.0})
     exchange.fetch_order_book = AsyncMock(return_value=sample_orderbook_data())
     return exchange
-@pytest.fixture
+    @pytest.fixture
 def mock_ml_service() -> Mock:
     """Фикстура для мока ML сервиса."""
     ml_service = Mock(spec=MLProtocol)
@@ -127,7 +127,7 @@ def mock_ml_service() -> Mock:
     ml_service.evaluate = AsyncMock(return_value={"precision": 0.78, "recall": 0.81})
     ml_service.get_model_info = AsyncMock(return_value={"version": "1.0", "type": "transformer"})
     return ml_service
-@pytest.fixture
+    @pytest.fixture
 def mock_repository() -> Mock:
     """Фикстура для мока репозитория."""
     repository = Mock(spec=RepositoryProtocol)
@@ -138,7 +138,7 @@ def mock_repository() -> Mock:
     repository.delete = AsyncMock(return_value=True)
     repository.update = AsyncMock(return_value=True)
     return repository
-@pytest.fixture
+    @pytest.fixture
 def sample_order() -> Order:
     """Фикстура с тестовым ордером."""
     # Импорты внутри функции для избежания циклических зависимостей
@@ -153,7 +153,7 @@ def sample_order() -> Order:
         quantity=VolumeValue(Decimal("0.001")),
         price=Price(Decimal("50000"), Currency.USDT),
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_position() -> Position:
     """Фикстура с тестовой позицией."""
     # Импорты внутри функции для избежания циклических зависимостей
@@ -175,7 +175,7 @@ def sample_position() -> Position:
         entry_price=Price(Decimal("50000"), Currency.USDT),
         current_price=Price(Decimal("51000"), Currency.USDT),
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_portfolio() -> Portfolio:
     """Фикстура с тестовым портфелем."""
     # Импорты внутри функции для избежания циклических зависимостей
@@ -185,7 +185,7 @@ def sample_portfolio() -> Portfolio:
         total_equity=Money(Decimal("10000"), Currency.USD),
         free_margin=Money(Decimal("10000"), Currency.USD),
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_strategy() -> Strategy:
     """Фикстура с тестовой стратегией."""
     return Strategy(
@@ -194,7 +194,7 @@ def sample_strategy() -> Strategy:
         strategy_type=StrategyType.TREND_FOLLOWING,
         trading_pairs=["BTCUSDT", "ETHUSDT"],
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_signal() -> Signal:
     """Фикстура с тестовым сигналом."""
     from domain.value_objects.currency import Currency
@@ -208,7 +208,7 @@ def sample_signal() -> Signal:
         price=Money(Decimal("50000"), Currency.USDT),
         quantity=Decimal("0.001"),
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_config() -> Dict[str, Any]:
     """Фикстура с тестовой конфигурацией."""
     return {
@@ -241,7 +241,7 @@ def sample_config() -> Dict[str, Any]:
             "target": "returns",
         },
     }
-@pytest.fixture
+    @pytest.fixture
 def temp_file_path() -> Generator[Path, None, None]:
     """Фикстура для временного файла."""
     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
@@ -252,7 +252,7 @@ def temp_file_path() -> Generator[Path, None, None]:
         temp_path.unlink()
 
 
-@pytest.fixture
+    @pytest.fixture
 def temp_dir_path() -> Generator[Path, None, None]:
     """Фикстура для временной директории."""
     temp_dir = Path(tempfile.mkdtemp())
@@ -261,7 +261,7 @@ def temp_dir_path() -> Generator[Path, None, None]:
     import shutil
     if temp_dir.exists():
         shutil.rmtree(temp_dir)
-@pytest.fixture
+    @pytest.fixture
 def sample_entanglement_result() -> Dict[str, Any]:
     """Фикстура с результатом обнаружения запутанности."""
     return {
@@ -273,7 +273,7 @@ def sample_entanglement_result() -> Dict[str, Any]:
         "lag_ms": 1.5,
         "metadata": {"test": "data"},
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_noise_analysis_result() -> Dict[str, Any]:
     """Фикстура с результатом анализа шума."""
     return {
@@ -283,7 +283,7 @@ def sample_noise_analysis_result() -> Dict[str, Any]:
         "noise_pattern": "artificial_clustering",
         "metadata": {"test": "data"},
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_mirror_signal() -> Dict[str, Any]:
     """Фикстура с зеркальным сигналом."""
     return {
@@ -295,7 +295,7 @@ def sample_mirror_signal() -> Dict[str, Any]:
         "confidence": 0.88,
         "metadata": {"test": "data"},
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_liquidity_gravity_result() -> Dict[str, Any]:
     """Фикстура с результатом гравитации ликвидности."""
     return {
@@ -306,7 +306,7 @@ def sample_liquidity_gravity_result() -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "metadata": {"test": "data"},
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_event_bus() -> Mock:
     """Фикстура для мока шины событий."""
     event_bus = Mock()
@@ -314,7 +314,7 @@ def mock_event_bus() -> Mock:
     event_bus.subscribe = AsyncMock()
     event_bus.unsubscribe = AsyncMock()
     return event_bus
-@pytest.fixture
+    @pytest.fixture
 def mock_logger() -> Mock:
     """Фикстура для мока логгера."""
     logger = Mock()
@@ -323,7 +323,7 @@ def mock_logger() -> Mock:
     logger.error = Mock()
     logger.debug = Mock()
     return logger
-@pytest.fixture
+    @pytest.fixture
 def mock_metrics_collector() -> Mock:
     """Фикстура для мока сборщика метрик."""
     metrics = Mock()
@@ -331,7 +331,7 @@ def mock_metrics_collector() -> Mock:
     metrics.record_signal = AsyncMock()
     metrics.get_performance_metrics = AsyncMock(return_value={"total_trades": 10})
     return metrics
-@pytest.fixture
+    @pytest.fixture
 def sample_trade_data() -> Dict[str, Any]:
     """Фикстура с данными сделки."""
     return {
@@ -344,7 +344,7 @@ def sample_trade_data() -> Dict[str, Any]:
         "price": 50000.0,
         "timestamp": datetime.now().isoformat(),
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_risk_assessment() -> Dict[str, Any]:
     """Фикстура с оценкой риска."""
     return {
@@ -355,14 +355,14 @@ def sample_risk_assessment() -> Dict[str, Any]:
         "confidence": 0.85,
         "warnings": [],
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_health_checker() -> Mock:
     """Фикстура для мока проверки здоровья."""
     health_checker = Mock()
     health_checker.check_all_services = AsyncMock(return_value={"overall_healthy": True})
     health_checker.get_health_status = AsyncMock(return_value={"status": "healthy"})
     return health_checker
-@pytest.fixture
+    @pytest.fixture
 def sample_portfolio_metrics() -> Dict[str, Any]:
     """Фикстура с метриками портфеля."""
     return {
@@ -375,7 +375,7 @@ def sample_portfolio_metrics() -> Dict[str, Any]:
         "weekly_pnl": 300.0,
         "weights": {"BTCUSDT": 0.6, "ETHUSDT": 0.4},
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_cache_manager() -> Mock:
     """Фикстура для мока менеджера кэша."""
     cache = Mock()
@@ -384,7 +384,7 @@ def mock_cache_manager() -> Mock:
     cache.delete = AsyncMock()
     cache.clear = AsyncMock()
     return cache
-@pytest.fixture
+    @pytest.fixture
 def sample_strategy_config() -> Dict[str, Any]:
     """Фикстура с конфигурацией стратегии."""
     return {
@@ -403,7 +403,7 @@ def sample_strategy_config() -> Dict[str, Any]:
         },
         "enabled": True,
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_data_loader() -> Mock:
     """Фикстура для мока загрузчика данных."""
     loader = Mock()
@@ -411,7 +411,7 @@ def mock_data_loader() -> Mock:
     loader.save_market_data = AsyncMock()
     loader.get_available_symbols = AsyncMock(return_value=["BTCUSDT", "ETHUSDT"])
     return loader
-@pytest.fixture
+    @pytest.fixture
 def sample_backtest_result() -> Dict[str, Any]:
     """Фикстура с результатом бэктеста."""
     return {
@@ -427,14 +427,14 @@ def sample_backtest_result() -> Dict[str, Any]:
             {"entry": 51000, "exit": 50500, "pnl": -50, "side": "short"},
         ],
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_optimizer() -> Mock:
     """Фикстура для мока оптимизатора."""
     optimizer = Mock()
     optimizer.optimize = AsyncMock(return_value={"best_params": {"window": 25, "threshold": 0.03}})
     optimizer.evaluate = AsyncMock(return_value={"score": 0.85})
     return optimizer
-@pytest.fixture
+    @pytest.fixture
 def sample_ml_prediction() -> Dict[str, Any]:
     """Фикстура с ML предсказанием."""
     return {
@@ -445,14 +445,14 @@ def sample_ml_prediction() -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "metadata": {"model_version": "1.0"},
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_webhook_sender() -> Mock:
     """Фикстура для мока отправителя вебхуков."""
     sender = Mock()
     sender.send_notification = AsyncMock(return_value=True)
     sender.send_alert = AsyncMock(return_value=True)
     return sender
-@pytest.fixture
+    @pytest.fixture
 def sample_api_response() -> Dict[str, Any]:
     """Фикстура с API ответом."""
     return {
@@ -461,7 +461,7 @@ def sample_api_response() -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "request_id": "req_123",
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_database_connection() -> Mock:
     """Фикстура для мока подключения к БД."""
     connection = Mock()
@@ -471,7 +471,7 @@ def mock_database_connection() -> Mock:
     connection.commit = AsyncMock()
     connection.rollback = AsyncMock()
     return connection
-@pytest.fixture
+    @pytest.fixture
 def sample_error_report() -> Dict[str, Any]:
     """Фикстура с отчетом об ошибке."""
     return {
@@ -482,7 +482,7 @@ def sample_error_report() -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "context": {"user_id": "user_123", "action": "create_order"},
     }
-@pytest.fixture
+    @pytest.fixture
 def mock_file_system() -> Mock:
     """Фикстура для мока файловой системы."""
     fs = Mock()
@@ -491,7 +491,7 @@ def mock_file_system() -> Mock:
     fs.file_exists = AsyncMock(return_value=True)
     fs.delete_file = AsyncMock()
     return fs
-@pytest.fixture
+    @pytest.fixture
 def sample_performance_metrics() -> Dict[str, Any]:
     """Фикстура с метриками производительности."""
     return {
@@ -502,14 +502,14 @@ def sample_performance_metrics() -> Dict[str, Any]:
         "error_rate": 0.01,
         "uptime": 99.9,
     }
-@pytest.fixture
+    @pytest.fixture
 def temp_dir() -> Any:
     """Временная директория для тестов."""
     temp_dir = tempfile.mkdtemp()
     yield Path(temp_dir)
     import shutil
     shutil.rmtree(temp_dir)
-@pytest.fixture
+    @pytest.fixture
 def storage_config(temp_dir) -> Any:
     """Конфигурация хранилища для тестов."""
     return StorageConfig(
@@ -522,7 +522,7 @@ def storage_config(temp_dir) -> Any:
         cleanup_enabled=True,
         cleanup_interval_days=1
     )
-@pytest.fixture
+    @pytest.fixture
 def analysis_config() -> Any:
     """Конфигурация анализа для тестов."""
     return AnalysisConfig(
@@ -535,7 +535,7 @@ def analysis_config() -> Any:
         min_trades_count=10,
         max_history_size=1000
     )
-@pytest.fixture
+    @pytest.fixture
 def market_profiles_components(storage_config, analysis_config) -> Any:
     """Компоненты market_profiles для тестов."""
     storage = MarketMakerStorage(storage_config)
@@ -552,7 +552,7 @@ def market_profiles_components(storage_config, analysis_config) -> Any:
         "similarity_calc": similarity_calc,
         "success_analyzer": success_analyzer
     }
-@pytest.fixture
+    @pytest.fixture
 def sample_pattern() -> Any:
     """Образец паттерна для тестов."""
     features = PatternFeatures(
@@ -578,7 +578,7 @@ def sample_pattern() -> Any:
         confidence=Confidence(0.85),
         context={"market_regime": "trending", "session": "asian"}
     )
-@pytest.fixture
+    @pytest.fixture
 def sample_patterns() -> Any:
     """Образцы паттернов для тестов."""
     patterns = []
@@ -623,7 +623,7 @@ def sample_patterns() -> Any:
         )
         patterns.append(pattern)
     return patterns
-@pytest.fixture
+    @pytest.fixture
 def sample_pattern_memories(sample_patterns) -> Any:
     """Образцы памяти паттернов для тестов."""
     memories = []
@@ -667,7 +667,7 @@ def sample_pattern_memories(sample_patterns) -> Any:
         )
         memories.append(memory)
     return memories
-@pytest.fixture
+    @pytest.fixture
 def mock_storage() -> Any:
     """Мок хранилища для тестов."""
     mock = AsyncMock()
@@ -680,7 +680,7 @@ def mock_storage() -> Any:
     mock.backup_data.return_value = True
     mock.cleanup_old_data.return_value = 0
     return mock
-@pytest.fixture
+    @pytest.fixture
 def mock_analyzer() -> Any:
     """Мок анализатора для тестов."""
     mock = AsyncMock()
@@ -701,13 +701,13 @@ def mock_analyzer() -> Any:
         "order_flow": "positive"
     }
     return mock
-@pytest.fixture
+    @pytest.fixture
 def mock_similarity_calculator() -> Any:
     """Мок калькулятора схожести для тестов."""
     mock = AsyncMock()
     mock.calculate_similarity.return_value = 0.85
     return mock
-@pytest.fixture
+    @pytest.fixture
 def mock_success_analyzer() -> Any:
     """Мок анализатора успешности для тестов."""
     mock = AsyncMock()
@@ -737,7 +737,7 @@ def mock_success_analyzer() -> Any:
         "Снизить риск для паттернов выхода"
     ]
     return mock
-@pytest.fixture
+    @pytest.fixture
 def mock_behavior_repository() -> Any:
     """Мок репозитория поведения для тестов."""
     mock = AsyncMock()
@@ -751,7 +751,7 @@ def mock_behavior_repository() -> Any:
         "avg_pressure": 0.0
     }
     return mock
-@pytest.fixture
+    @pytest.fixture
 def mock_pattern_repository() -> Any:
     """Мок репозитория паттернов для тестов."""
     mock = AsyncMock()
@@ -855,7 +855,7 @@ class TestUtils:
             "liquidity_regime": "high"
         }
 # Экспортируем утилиты
-@pytest.fixture
-def test_utils() -> None:
+    @pytest.fixture
+    def test_utils() -> None:
     """Утилиты для тестов."""
     return TestUtils 

@@ -9,13 +9,13 @@ from shared.logging import setup_logger
 logger = setup_logger(__name__)
 
 
-@pytest.fixture
+    @pytest.fixture
 def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return {"api_key": "test_api_key", "api_secret": "test_api_secret", "testnet": True}
 
 
-@pytest.fixture
+    @pytest.fixture
 def bybit_client(bybit_config) -> Any:
     """Фикстура с клиентом Bybit"""
     return BybitClient(config=bybit_config)
@@ -141,8 +141,8 @@ class TestBybitClient:
             assert "order_id" in result
 
 
-@pytest.mark.asyncio
-async def test_get_ticker(client) -> None:
+    @pytest.mark.asyncio
+    async def test_get_ticker(client) -> None:
     """Тест получения тикера"""
     try:
         ticker = await client.get_ticker("BTCUSDT")
@@ -159,8 +159,8 @@ async def test_get_ticker(client) -> None:
         pytest.skip(f"Ticker test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_get_balance(client) -> None:
+    @pytest.mark.asyncio
+    async def test_get_balance(client) -> None:
     """Тест получения баланса"""
     try:
         balance = await client.get_balance()
@@ -175,8 +175,8 @@ async def test_get_balance(client) -> None:
         pytest.skip(f"Balance test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_create_order(client) -> None:
+    @pytest.mark.asyncio
+    async def test_create_order(client) -> None:
     """Тест создания ордера"""
     try:
         order = await client.create_order(
@@ -197,8 +197,8 @@ async def test_create_order(client) -> None:
         pytest.skip(f"Create order test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_get_order(client) -> None:
+    @pytest.mark.asyncio
+    async def test_get_order(client) -> None:
     """Тест получения информации об ордере"""
     try:
         # Создание тестового ордера
@@ -225,8 +225,8 @@ async def test_get_order(client) -> None:
         pytest.skip(f"Get order test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_rate_limit(client) -> None:
+    @pytest.mark.asyncio
+    async def test_rate_limit(client) -> None:
     """Тест ограничения запросов"""
     try:
         # Выполнение нескольких запросов
@@ -239,8 +239,8 @@ async def test_rate_limit(client) -> None:
         pytest.skip(f"Rate limit test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_error_handling(client) -> None:
+    @pytest.mark.asyncio
+    async def test_error_handling(client) -> None:
     """Тест обработки ошибок"""
     # Тест с неверным символом
     with pytest.raises(Exception):

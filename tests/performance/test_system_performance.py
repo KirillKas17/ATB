@@ -654,7 +654,7 @@ class TestScalabilityTests:
         assert throughput_ratio < 10, f"Слишком большое различие в throughput: {throughput_ratio:.2f}x"
 
     @pytest.mark.asyncio
-    async def test_async_processing_performance(self):
+    async def test_async_processing_performance(self: "TestScalabilityTests") -> None:
         """Тест производительности асинхронной обработки."""
         async def async_strategy_processing(data):
             """Асинхронная обработка стратегии."""

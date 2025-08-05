@@ -27,7 +27,7 @@ from domain.type_definitions.market_maker_types import (
 class TestIPatternStorage:
     """Тесты для интерфейса IPatternStorage."""
 
-    def test_interface_definition(self) -> None:
+    def test_interface_definition(self: "TestIPatternStorage") -> None:
         """Тест определения интерфейса."""
         # Проверяем, что интерфейс определен как Protocol
         assert hasattr(IPatternStorage, '__protocol_attrs__')
@@ -50,7 +50,7 @@ class TestIPatternStorage:
         for method in required_methods:
             assert hasattr(IPatternStorage, method), f"Метод {method} отсутствует в интерфейсе"
 
-    def test_interface_method_signatures(self) -> None:
+    def test_interface_method_signatures(self: "TestIPatternStorage") -> None:
         """Тест сигнатур методов интерфейса."""
         # Создаем мок, который реализует интерфейс
         mock_storage = Mock(spec=IPatternStorage)
@@ -82,7 +82,7 @@ class TestIPatternStorage:
         assert mock_storage.close() is None
 
     @pytest.mark.asyncio
-    async def test_async_interface_implementation(self) -> None:
+    def test_async_interface_implementation(self: "TestIPatternStorage") -> None:
         """Тест асинхронной реализации интерфейса."""
         # Создаем асинхронный мок
         async_mock_storage = AsyncMock(spec=IPatternStorage)
@@ -137,7 +137,7 @@ class TestIPatternStorage:
 class TestIBehaviorHistoryStorage:
     """Тесты для интерфейса IBehaviorHistoryStorage."""
 
-    def test_interface_definition(self) -> None:
+    def test_interface_definition(self: "TestIBehaviorHistoryStorage") -> None:
         """Тест определения интерфейса."""
         # Проверяем, что интерфейс определен как Protocol
         assert hasattr(IBehaviorHistoryStorage, '__protocol_attrs__')
@@ -152,7 +152,7 @@ class TestIBehaviorHistoryStorage:
         for method in required_methods:
             assert hasattr(IBehaviorHistoryStorage, method), f"Метод {method} отсутствует в интерфейсе"
 
-    def test_interface_method_signatures(self) -> None:
+    def test_interface_method_signatures(self: "TestIBehaviorHistoryStorage") -> None:
         """Тест сигнатур методов интерфейса."""
         # Создаем мок, который реализует интерфейс
         mock_storage = Mock(spec=IBehaviorHistoryStorage)
@@ -168,7 +168,7 @@ class TestIBehaviorHistoryStorage:
         assert mock_storage.get_statistics("BTCUSDT") == {}
 
     @pytest.mark.asyncio
-    async def test_async_interface_implementation(self) -> None:
+    def test_async_interface_implementation(self: "TestIBehaviorHistoryStorage") -> None:
         """Тест асинхронной реализации интерфейса."""
         # Создаем асинхронный мок
         async_mock_storage = AsyncMock(spec=IBehaviorHistoryStorage)
@@ -199,7 +199,7 @@ class TestIBehaviorHistoryStorage:
 class TestIPatternAnalyzer:
     """Тесты для интерфейса IPatternAnalyzer."""
 
-    def test_interface_definition(self) -> None:
+    def test_interface_definition(self: "TestIPatternAnalyzer") -> None:
         """Тест определения интерфейса."""
         # Проверяем, что интерфейс определен как Protocol
         assert hasattr(IPatternAnalyzer, '__protocol_attrs__')
@@ -213,7 +213,7 @@ class TestIPatternAnalyzer:
         for method in required_methods:
             assert hasattr(IPatternAnalyzer, method), f"Метод {method} отсутствует в интерфейсе"
 
-    def test_interface_method_signatures(self) -> None:
+    def test_interface_method_signatures(self: "TestIPatternAnalyzer") -> None:
         """Тест сигнатур методов интерфейса."""
         # Создаем мок, который реализует интерфейс
         mock_analyzer = Mock(spec=IPatternAnalyzer)
@@ -243,7 +243,7 @@ class TestIPatternAnalyzer:
         assert "market_phase" in context
 
     @pytest.mark.asyncio
-    async def test_async_interface_implementation(self) -> None:
+    def test_async_interface_implementation(self: "TestIPatternAnalyzer") -> None:
         """Тест асинхронной реализации интерфейса."""
         # Создаем асинхронный мок
         async_mock_analyzer = AsyncMock(spec=IPatternAnalyzer)
@@ -300,7 +300,7 @@ class TestIPatternAnalyzer:
 class TestISimilarityCalculator:
     """Тесты для интерфейса ISimilarityCalculator."""
 
-    def test_interface_definition(self) -> None:
+    def test_interface_definition(self: "TestISimilarityCalculator") -> None:
         """Тест определения интерфейса."""
         # Проверяем, что интерфейс определен как Protocol
         assert hasattr(ISimilarityCalculator, '__protocol_attrs__')
@@ -313,7 +313,7 @@ class TestISimilarityCalculator:
         for method in required_methods:
             assert hasattr(ISimilarityCalculator, method), f"Метод {method} отсутствует в интерфейсе"
 
-    def test_interface_method_signatures(self) -> None:
+    def test_interface_method_signatures(self: "TestISimilarityCalculator") -> None:
         """Тест сигнатур методов интерфейса."""
         # Создаем мок, который реализует интерфейс
         mock_calculator = Mock(spec=ISimilarityCalculator)
@@ -326,7 +326,7 @@ class TestISimilarityCalculator:
         assert similarity == 0.85
 
     @pytest.mark.asyncio
-    async def test_async_interface_implementation(self) -> None:
+    def test_async_interface_implementation(self: "TestISimilarityCalculator") -> None:
         """Тест асинхронной реализации интерфейса."""
         # Создаем асинхронный мок
         async_mock_calculator = AsyncMock(spec=ISimilarityCalculator)
@@ -346,7 +346,7 @@ class TestISimilarityCalculator:
 class TestISuccessRateAnalyzer:
     """Тесты для интерфейса ISuccessRateAnalyzer."""
 
-    def test_interface_definition(self) -> None:
+    def test_interface_definition(self: "TestISuccessRateAnalyzer") -> None:
         """Тест определения интерфейса."""
         # Проверяем, что интерфейс определен как Protocol
         assert hasattr(ISuccessRateAnalyzer, '__protocol_attrs__')
@@ -363,7 +363,7 @@ class TestISuccessRateAnalyzer:
         for method in required_methods:
             assert hasattr(ISuccessRateAnalyzer, method), f"Метод {method} отсутствует в интерфейсе"
 
-    def test_interface_method_signatures(self) -> None:
+    def test_interface_method_signatures(self: "TestISuccessRateAnalyzer") -> None:
         """Тест сигнатур методов интерфейса."""
         # Создаем мок, который реализует интерфейс
         mock_analyzer = Mock(spec=ISuccessRateAnalyzer)
@@ -416,7 +416,7 @@ class TestISuccessRateAnalyzer:
         assert len(recommendations) > 0
 
     @pytest.mark.asyncio
-    async def test_async_interface_implementation(self) -> None:
+    def test_async_interface_implementation(self: "TestISuccessRateAnalyzer") -> None:
         """Тест асинхронной реализации интерфейса."""
         # Создаем асинхронный мок
         async_mock_analyzer = AsyncMock(spec=ISuccessRateAnalyzer)
@@ -485,7 +485,7 @@ class TestISuccessRateAnalyzer:
 class TestInterfaceCompatibility:
     """Тесты совместимости интерфейсов."""
 
-    def test_storage_interface_compatibility(self) -> None:
+    def test_storage_interface_compatibility(self: "TestInterfaceCompatibility") -> None:
         """Тест совместимости интерфейса хранилища."""
         # Создаем мок, который должен быть совместим с интерфейсом
         mock_storage = Mock()
@@ -506,7 +506,7 @@ class TestInterfaceCompatibility:
         # Проверяем, что мок совместим с интерфейсом
         assert isinstance(mock_storage, IPatternStorage)
 
-    def test_analyzer_interface_compatibility(self) -> None:
+    def test_analyzer_interface_compatibility(self: "TestInterfaceCompatibility") -> None:
         """Тест совместимости интерфейса анализатора."""
         # Создаем мок, который должен быть совместим с интерфейсом
         mock_analyzer = Mock()
@@ -518,7 +518,7 @@ class TestInterfaceCompatibility:
         # Проверяем, что мок совместим с интерфейсом
         assert isinstance(mock_analyzer, IPatternAnalyzer)
 
-    def test_calculator_interface_compatibility(self) -> None:
+    def test_calculator_interface_compatibility(self: "TestInterfaceCompatibility") -> None:
         """Тест совместимости интерфейса калькулятора."""
         # Создаем мок, который должен быть совместим с интерфейсом
         mock_calculator = Mock()

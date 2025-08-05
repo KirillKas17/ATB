@@ -9,11 +9,11 @@ from infrastructure.external_services.technical_analysis_service import Technica
 class TestTechnicalAnalysisService:
     """Тесты для TechnicalAnalysisServiceAdapter."""
     @pytest.fixture
-    def technical_service(self) -> Any:
+    def technical_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра сервиса."""
         return TechnicalAnalysisServiceAdapter()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые рыночные данные."""
         np.random.seed(42)
         dates = pd.date_range('2023-01-01', periods=100, freq='D')

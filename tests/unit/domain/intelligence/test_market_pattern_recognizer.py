@@ -133,7 +133,7 @@ class TestMarketPatternRecognizer:
             'timestamp': Timestamp.now()
         }
 
-    def test_initialization_default_config(self) -> None:
+    def test_initialization_default_config(self: "TestMarketPatternRecognizer") -> None:
         """Тест инициализации с дефолтной конфигурацией."""
         recognizer = MarketPatternRecognizer()
         

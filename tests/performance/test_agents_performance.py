@@ -130,7 +130,7 @@ class TestAgentPerformance:
         assert "spread_analysis" in result
         # assert agent.state.average_processing_time < 5000  # Менее 5 секунд в среднем
     @pytest.mark.asyncio
-    async def test_concurrent_agent_processing(self) -> None:
+    def test_concurrent_agent_processing(self: "TestAgentPerformance") -> None:
         """Тест параллельной обработки агентами"""
         # agents = [
         #     RiskAgent(),
@@ -170,7 +170,7 @@ class TestAgentPerformance:
         for result in results:
             assert "error" not in result
     @pytest.mark.asyncio
-    async def test_agent_memory_usage(self) -> None:
+    def test_agent_memory_usage(self: "TestAgentPerformance") -> None:
         """Тест использования памяти агентами"""
         import psutil
         import os
@@ -198,7 +198,7 @@ class TestAgentPerformance:
         # Проверяем, что увеличение памяти разумное (менее 100MB)
         assert memory_increase < 100.0
     @pytest.mark.asyncio
-    async def test_agent_throughput(self) -> None:
+    def test_agent_throughput(self: "TestAgentPerformance") -> None:
         """Тест пропускной способности агентов"""
         # agent = RiskAgent()
         # await agent.initialize()
@@ -227,7 +227,7 @@ class TestAgentPerformance:
         assert len(results) == 100
 
     @pytest.mark.asyncio
-    async def test_agent_latency_distribution(self) -> None:
+    def test_agent_latency_distribution(self: "TestAgentPerformance") -> None:
         """Тест распределения задержек агентов"""
         agent = RiskAgent()
         await agent.initialize()
@@ -252,7 +252,7 @@ class TestAgentPerformance:
         assert p95_latency < 2000  # 95% запросов менее 2 секунд
         assert p99_latency < 5000  # 99% запросов менее 5 секунд
     @pytest.mark.asyncio
-    async def test_agent_error_recovery_performance(self) -> None:
+    def test_agent_error_recovery_performance(self: "TestAgentPerformance") -> None:
         """Тест производительности восстановления после ошибок"""
         agent = RiskAgent()
         await agent.initialize()
@@ -280,7 +280,7 @@ class TestAgentPerformance:
         assert success_count > 0  # Должны быть успешные операции
         assert total_time < 10.0  # Общее время должно быть разумным
     @pytest.mark.asyncio
-    async def test_agent_scalability(self) -> None:
+    def test_agent_scalability(self: "TestAgentPerformance") -> None:
         """Тест масштабируемости агентов"""
         # Тестируем с разными размерами данных
         data_sizes = [100, 1000, 10000]

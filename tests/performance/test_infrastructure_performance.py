@@ -72,7 +72,7 @@ class TestRepositoryPerformance:
         repo._pool = None  # Disable actual DB connection for benchmarks
         return repo
     @pytest.fixture
-    def sample_orders(self) -> Any:
+    def sample_orders(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample orders for testing."""
         orders = []
         for i in range(1000):
@@ -153,7 +153,7 @@ class TestCachePerformance:
         cache = HybridCache(primary, secondary)
         return cache
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
         data = {}
         for i in range(1000):
@@ -241,7 +241,7 @@ class TestAgentContextPerformance:
         context = AgentContext(symbol="BTC/USDT")
         return context
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample market data for testing."""
         data = []
         for i in range(1000):
@@ -295,7 +295,7 @@ class TestAgentContextPerformance:
 class TestConcurrentPerformance:
     """Performance tests for concurrent operations."""
     @pytest.mark.performance
-    async def test_concurrent_cache_operations(self) -> None:
+    def test_concurrent_cache_operations(self: "TestConcurrentPerformance") -> None:
         """Test concurrent cache operations."""
         cache = DiskCache("/tmp/concurrent_cache")
         metrics = PerformanceMetrics()
@@ -320,7 +320,7 @@ class TestConcurrentPerformance:
         assert stats['operations_per_second'] > 500   # At least 500 ops/sec
         assert stats['avg_operation_time'] < 0.01     # Less than 10ms per operation
     @pytest.mark.performance
-    async def test_concurrent_repository_operations(self) -> None:
+    def test_concurrent_repository_operations(self: "TestConcurrentPerformance") -> None:
         """Test concurrent repository operations."""
         repo = PostgresOrderRepository("postgresql://test:test@localhost/test")
         repo._pool = None  # Disable actual DB connection
@@ -356,7 +356,7 @@ class TestConcurrentPerformance:
 class TestMemoryPerformance:
     """Memory performance tests."""
     @pytest.mark.performance
-    async def test_memory_usage_under_load(self) -> None:
+    def test_memory_usage_under_load(self: "TestMemoryPerformance") -> None:
         """Test memory usage under high load."""
         cache = DiskCache("/tmp/memory_test_cache")
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
@@ -383,7 +383,7 @@ class TestMemoryPerformance:
         assert memory_increase < 1000  # Less than 1GB memory increase
         assert final_memory < 2000     # Less than 2GB total memory usage
     @pytest.mark.performance
-    async def test_memory_leak_detection(self) -> None:
+    def test_memory_leak_detection(self: "TestMemoryPerformance") -> None:
         """Test for memory leaks."""
         cache = DiskCache("/tmp/leak_test_cache")
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
@@ -412,7 +412,7 @@ class TestMemoryPerformance:
 class TestScalabilityPerformance:
     """Scalability performance tests."""
     @pytest.mark.performance
-    async def test_cache_scalability(self) -> None:
+    def test_cache_scalability(self: "TestScalabilityPerformance") -> None:
         """Test cache scalability with increasing data size."""
         cache = DiskCache("/tmp/scalability_cache")
         metrics = PerformanceMetrics()
@@ -439,7 +439,7 @@ class TestScalabilityPerformance:
             assert insertion_time < size * 0.001  # Less than 1ms per item
             assert retrieval_time < size * 0.001  # Less than 1ms per item
     @pytest.mark.performance
-    async def test_repository_scalability(self) -> None:
+    def test_repository_scalability(self: "TestScalabilityPerformance") -> None:
         """Test repository scalability with increasing data size."""
         repo = PostgresOrderRepository("postgresql://test:test@localhost/test")
         repo._pool = None  # Disable actual DB connection

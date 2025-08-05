@@ -9,21 +9,21 @@ from infrastructure.external_services.exchanges.cache import ExchangeCache
 class TestExchangeCache:
     """Тесты для ExchangeCache."""
     @pytest.fixture
-    def cache(self) -> Any:
+    def cache(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр ExchangeCache."""
         return ExchangeCache(max_size=10, ttl=1)
     @pytest.fixture
-    def small_cache(self) -> Any:
+    def small_cache(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Маленький кэш для тестов."""
         return ExchangeCache(max_size=3, ttl=0.1)
-    def test_init(self) -> None:
+    def test_init(self: "TestExchangeCache") -> None:
         """Тест инициализации."""
         cache = ExchangeCache(max_size=100, ttl=60)
         assert cache.max_size == 100
         assert cache.ttl == 60
         assert cache.cache == {}
         assert cache.lock is not None
-    def test_init_default_values(self) -> None:
+    def test_init_default_values(self: "TestExchangeCache") -> None:
         """Тест инициализации с значениями по умолчанию."""
         cache = ExchangeCache()
         assert cache.max_size == 1000
@@ -238,7 +238,7 @@ class TestExchangeCache:
         # Значение должно истечь
         assert await small_cache.get("test_key") is None
     @pytest.mark.asyncio
-    async def test_cache_edge_cases(self) -> None:
+    def test_cache_edge_cases(self: "TestExchangeCache") -> None:
         """Тест граничных случаев."""
         # Кэш с нулевым размером
         zero_cache = ExchangeCache(max_size=0, ttl=1)

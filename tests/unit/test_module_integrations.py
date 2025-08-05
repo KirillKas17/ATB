@@ -17,7 +17,7 @@ from application.di_container_refactored import ContainerConfig
 class TestModuleIntegrations:
     """Тесты интеграции всех модулей."""
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового AgentContext."""
         return AgentContext(
             symbol="BTCUSDT",
@@ -27,7 +27,7 @@ class TestModuleIntegrations:
             strategy_modifiers=StrategyModifiers()
         )
     @pytest.fixture
-    def mock_strategy(self) -> Any:
+    def mock_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок стратегии."""
         strategy = Mock(spec=Strategy)
         strategy.generate_signals = AsyncMock(return_value=[
@@ -43,11 +43,11 @@ class TestModuleIntegrations:
         ])
         return strategy
     @pytest.fixture
-    def mock_portfolio(self) -> Any:
+    def mock_portfolio(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок портфеля."""
         return Mock(spec=Portfolio)
     @pytest.fixture
-    def trading_orchestrator(self) -> Any:
+    def trading_orchestrator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового TradingOrchestrator."""
         return DefaultTradingOrchestratorUseCase(
             order_repository=Mock(),
@@ -503,7 +503,7 @@ class TestModuleIntegrations:
 class TestTradingOrchestratorIntegration:
     """Тесты интеграции TradingOrchestrator."""
     @pytest.fixture
-    def orchestrator(self) -> Any:
+    def orchestrator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового оркестратора."""
         return DefaultTradingOrchestratorUseCase(
             order_repository=Mock(),
@@ -559,7 +559,7 @@ class TestTradingOrchestratorIntegration:
 class TestDIContainerIntegration:
     """Тесты интеграции DI контейнера."""
     @pytest.mark.asyncio
-    async def test_container_configuration(self) -> None:
+    def test_container_configuration(self: "TestDIContainerIntegration") -> None:
         """Тест конфигурации DI контейнера."""
         # Создаем конфигурацию
         config = ContainerConfig()
@@ -588,7 +588,7 @@ class TestDIContainerIntegration:
         assert hasattr(config, 'model_trainer')
         assert hasattr(config, 'window_model_trainer')
     @pytest.mark.asyncio
-    async def test_singleton_registration(self) -> None:
+    def test_singleton_registration(self: "TestDIContainerIntegration") -> None:
         """Тест регистрации синглтонов."""
         # Проверяем, что все модули зарегистрированы как синглтоны
         # Это проверяется в конфигурации DI контейнера

@@ -227,7 +227,7 @@ class TestStrategyStorage:
             storage.save_evolution_context(context)
         contexts = storage.get_evolution_contexts(limit=3)
         assert len(contexts) == 3
-    def test_get_statistics(self, storage: StrategyStorage, sample_candidate: StrategyCandidate, 
+    def test_get_statistics(self, storage: StrategyStorage, sample_candidate: StrategyCandidate,
                           sample_evaluation: StrategyEvaluationResult, sample_context: EvolutionContext) -> None:
         """Тест получения статистики хранилища."""
         # Добавить тестовые данные

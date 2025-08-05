@@ -30,7 +30,7 @@ import domain.entities.trading
 class TestDatabasePerformance:
     """Тесты производительности базы данных."""
     @pytest.fixture
-    def database(self) -> Any:
+    def database(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестовой базы данных."""
         return OptimizedDatabase("sqlite:///test_performance.db")
     @pytest.fixture
@@ -116,7 +116,7 @@ class TestDatabasePerformance:
 class TestEventBusPerformance:
     """Тесты производительности обработчика событий."""
     @pytest.fixture
-    def event_bus(self) -> Any:
+    def event_bus(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового обработчика событий."""
         return OptimizedEventBus(max_workers=10, queue_size=10000)
     @pytest.fixture
@@ -149,7 +149,7 @@ class TestEventBusPerformance:
     async def test_event_processing_performance(self, event_bus) -> None:
         """Тест производительности обработки событий."""
         processed_events = []
-        def test_handler(event) -> None:
+    def test_handler(event) -> None:
             processed_events.append(event)
         # Подписываемся на событие
         event_bus.subscribe('test_event', test_handler)
@@ -201,13 +201,13 @@ class TestEventBusPerformance:
 class TestRepositoryPerformance:
     """Тесты производительности репозиториев."""
     @pytest.fixture
-    def trading_repository(self) -> Any:
+    def trading_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryTradingRepository()
     @pytest.fixture
-    def strategy_repository(self) -> Any:
+    def strategy_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryStrategyRepository()
     @pytest.fixture
-    def ml_repository(self) -> Any:
+    def ml_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         return InMemoryMLRepository()
     @pytest.fixture
     def sample_trades(self) -> List[Trade]:
@@ -299,7 +299,7 @@ class TestRepositoryPerformance:
         assert query_time < 0.1, f"Query took {query_time:.3f} seconds"
 class TestMemoryUsage:
     """Тесты использования памяти."""
-    def test_large_dataset_memory_usage(self) -> None:
+    def test_large_dataset_memory_usage(self: "TestMemoryUsage") -> None:
         """Тест использования памяти при работе с большими наборами данных."""
         import psutil
         import os
@@ -326,7 +326,7 @@ class TestMemoryUsage:
 class TestConcurrencyPerformance:
     """Тесты производительности при параллельной работе."""
     @pytest.mark.asyncio
-    async def test_concurrent_database_operations(self) -> None:
+    def test_concurrent_database_operations(self: "TestConcurrencyPerformance") -> None:
         """Тест параллельных операций с базой данных."""
         database = OptimizedDatabase("sqlite:///test_concurrency.db")
         async def insert_operation(i) -> Any:
@@ -352,7 +352,7 @@ class TestConcurrencyPerformance:
         trades = await database.get_trades("BTCUSDT")
         assert len(trades) == 100
     @pytest.mark.asyncio
-    async def test_concurrent_repository_operations(self) -> None:
+    def test_concurrent_repository_operations(self: "TestConcurrencyPerformance") -> None:
         """Тест параллельных операций с репозиториями."""
         repository = InMemoryTradingRepository()
         async def repository_operation(i) -> Any:
@@ -379,7 +379,7 @@ class TestConcurrencyPerformance:
         # Проверяем производительность
         assert execution_time < 2.0, f"Concurrent repository operations took {execution_time:.3f} seconds" 
 
-def test_order_creation_performance() -> None:
+    def test_order_creation_performance() -> None:
     """Тест производительности создания ордеров."""
     start_time = time.time()
     
@@ -401,7 +401,7 @@ def test_order_creation_performance() -> None:
     assert len(orders) == 1000
     assert creation_time < 1.0  # Создание должно быть быстрым
 
-def test_trade_creation_performance() -> None:
+    def test_trade_creation_performance() -> None:
     """Тест производительности создания сделок."""
     start_time = time.time()
     

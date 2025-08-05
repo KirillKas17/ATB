@@ -77,25 +77,25 @@ class TestRetryOnErrorDecorator:
             raise ProtocolError(f"Attempt {self._attempts}")
         return "success"
 
-    async def test_successful_execution(self):
+    async def test_successful_execution(self: "TestRetryOnErrorDecorator") -> None:
         """Тест успешного выполнения."""
         result = await self.test_function_success()
         assert result == "success"
 
-    async def test_failure_after_max_retries(self):
+    async def test_failure_after_max_retries(self: "TestRetryOnErrorDecorator") -> None:
         """Тест неудачи после максимального количества попыток."""
         with pytest.raises(ProtocolError):
             await self.test_function_failure()
 
-    async def test_success_after_retries(self):
+    async def test_success_after_retries(self: "TestRetryOnErrorDecorator") -> None:
         """Тест успеха после нескольких попыток."""
         result = await self.test_function_success_after_retry()
         assert result == "success"
 
-    async def test_custom_exceptions(self):
+    async def test_custom_exceptions(self: "TestRetryOnErrorDecorator") -> None:
         """Тест с пользовательскими исключениями."""
         @retry_on_error(max_retries=2, delay=0.1, exceptions=(ValueError,))
-        async def test_custom_error():
+    async def test_custom_error():
             raise ValueError("Custom error")
 
         with pytest.raises(ValueError):
@@ -117,12 +117,12 @@ class TestTimeoutDecorator:
         await asyncio.sleep(0.5)
         return "success"
 
-    async def test_successful_execution(self):
+    async def test_successful_execution(self: "TestTimeoutDecorator") -> None:
         """Тест успешного выполнения."""
         result = await self.test_function_fast()
         assert result == "success"
 
-    async def test_timeout_exception(self):
+    async def test_timeout_exception(self: "TestTimeoutDecorator") -> None:
         """Тест исключения таймаута."""
         with pytest.raises(TimeoutError):
             await self.test_function_slow()
@@ -406,16 +406,16 @@ class TestMergeConfigs:
 class TestWithTimeout:
     """Тесты для with_timeout."""
 
-    async def test_successful_operation(self):
+    async def test_successful_operation(self: "TestWithTimeout") -> None:
         """Тест успешной операции."""
-        async def test_coro():
+    async def test_coro():
             await asyncio.sleep(0.1)
             return "success"
         
         result = await with_timeout(test_coro(), 1.0, "test_operation")
         assert result == "success"
 
-    async def test_timeout_exception(self):
+    async def test_timeout_exception(self: "TestWithTimeout") -> None:
         """Тест исключения таймаута."""
         async def slow_coro():
             await asyncio.sleep(2.0)
@@ -424,7 +424,7 @@ class TestWithTimeout:
         with pytest.raises(TimeoutError):
             await with_timeout(slow_coro(), 0.5, "test_operation")
 
-    async def test_operation_exception(self):
+    async def test_operation_exception(self: "TestWithTimeout") -> None:
         """Тест исключения операции."""
         async def failing_coro():
             raise ValueError("Operation failed")
@@ -436,7 +436,7 @@ class TestWithTimeout:
 class TestBatchOperation:
     """Тесты для batch_operation."""
 
-    async def test_batch_operation_success(self):
+    async def test_batch_operation_success(self: "TestBatchOperation") -> None:
         """Тест успешной пакетной операции."""
         items = [1, 2, 3, 4, 5]
         
@@ -447,7 +447,7 @@ class TestBatchOperation:
         results = await batch_operation(items, process_item, batch_size=2, max_concurrent=3)
         assert results == [2, 4, 6, 8, 10]
 
-    async def test_batch_operation_with_failures(self):
+    async def test_batch_operation_with_failures(self: "TestBatchOperation") -> None:
         """Тест пакетной операции с ошибками."""
         items = [1, 2, 3, 4, 5]
         
@@ -460,7 +460,7 @@ class TestBatchOperation:
         with pytest.raises(ValueError):
             await batch_operation(items, process_item, batch_size=2, max_concurrent=3)
 
-    async def test_empty_items(self):
+    async def test_empty_items(self: "TestBatchOperation") -> None:
         """Тест с пустым списком элементов."""
         items = []
         
@@ -470,7 +470,7 @@ class TestBatchOperation:
         results = await batch_operation(items, process_item)
         assert results == []
 
-    async def test_single_item(self):
+    async def test_single_item(self: "TestBatchOperation") -> None:
         """Тест с одним элементом."""
         items = [5]
         
@@ -563,18 +563,18 @@ class TestLogError:
 class TestUtilsIntegration:
     """Интеграционные тесты утилит."""
 
-    async def test_retry_with_timeout(self):
+    async def test_retry_with_timeout(self: "TestUtilsIntegration") -> None:
         """Тест комбинации retry и timeout."""
         @retry_on_error(max_retries=2, delay=0.1)
         @timeout(0.5)
-        async def test_function():
+    async def test_function():
             await asyncio.sleep(0.1)
             return "success"
         
         result = await test_function()
         assert result == "success"
 
-    async def test_cache_with_metrics(self):
+    async def test_cache_with_metrics(self: "TestUtilsIntegration") -> None:
         """Тест комбинации кэша и метрик."""
         cache = ProtocolCache(ttl_seconds=300)
         metrics = ProtocolMetrics()
@@ -593,7 +593,7 @@ class TestUtilsIntegration:
         assert stats["total_calls"] == 1
         assert stats["successful_calls"] == 1
 
-    async def test_batch_operation_with_timeout(self):
+    async def test_batch_operation_with_timeout(self: "TestUtilsIntegration") -> None:
         """Тест пакетной операции с таймаутом."""
         items = [1, 2, 3, 4, 5]
         
@@ -613,19 +613,19 @@ class TestUtilsIntegration:
 class TestUtilsErrorHandling:
     """Тесты обработки ошибок утилит."""
 
-    async def test_retry_with_custom_exception(self):
+    async def test_retry_with_custom_exception(self: "TestUtilsErrorHandling") -> None:
         """Тест retry с пользовательским исключением."""
         @retry_on_error(max_retries=2, delay=0.1, exceptions=(ValueError,))
-        async def test_function():
+    async def test_function():
             raise ValueError("Custom error")
         
         with pytest.raises(ValueError):
             await test_function()
 
-    async def test_timeout_with_fast_operation(self):
+    async def test_timeout_with_fast_operation(self: "TestUtilsErrorHandling") -> None:
         """Тест таймаута с быстрой операцией."""
         @timeout(1.0)
-        async def test_function():
+    async def test_function():
             await asyncio.sleep(0.1)
             return "success"
         
@@ -642,7 +642,7 @@ class TestUtilsErrorHandling:
         with pytest.raises(TypeError):
             merge_configs("invalid", {"key1": "value1"})
 
-    async def test_batch_operation_with_invalid_input(self):
+    async def test_batch_operation_with_invalid_input(self: "TestUtilsErrorHandling") -> None:
         """Тест пакетной операции с невалидным вводом."""
         with pytest.raises(TypeError):
             await batch_operation("invalid", lambda x: x) 

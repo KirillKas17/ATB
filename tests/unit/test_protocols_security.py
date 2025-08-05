@@ -362,7 +362,7 @@ class TestAuditManager:
 class TestSecurityIntegration:
     """Интеграционные тесты безопасности."""
     @pytest.mark.asyncio
-    async def test_full_security_workflow(self) -> None:
+    def test_full_security_workflow(self: "TestSecurityIntegration") -> None:
         """Тест полного рабочего процесса безопасности."""
         # Создаем компоненты безопасности
         auth_manager = AuthenticationManager()
@@ -422,7 +422,7 @@ class TestSecurityIntegration:
         assert logs[0].event == AuditEvent.LOGIN
     
     @pytest.mark.asyncio
-    async def test_concurrent_security_operations(self) -> None:
+    def test_concurrent_security_operations(self: "TestSecurityIntegration") -> None:
         """Тест конкурентных операций безопасности."""
         auth_manager = AuthenticationManager()
         crypto_manager = CryptoManager()

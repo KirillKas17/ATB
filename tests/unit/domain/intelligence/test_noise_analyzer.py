@@ -82,7 +82,7 @@ class TestNoiseAnalyzer:
             enable_frequency_analysis=True
         )
 
-    def test_initialization_default_config(self) -> None:
+    def test_initialization_default_config(self: "TestNoiseAnalyzer") -> None:
         """Тест инициализации с дефолтной конфигурацией."""
         analyzer = NoiseAnalyzer()
         
@@ -414,7 +414,7 @@ class TestNoiseAnalyzer:
         assert analyzer.statistics["average_processing_time_ms"] == 0.0
         assert analyzer.statistics["last_analysis_timestamp"] is None
 
-    def test_advanced_metrics_disabled(self) -> None:
+    def test_advanced_metrics_disabled(self: "TestNoiseAnalyzer") -> None:
         """Тест работы с отключенными расширенными метриками."""
         analyzer = NoiseAnalyzer(enable_advanced_metrics=False)
         
@@ -424,7 +424,7 @@ class TestNoiseAnalyzer:
         # Расширенные метрики не должны быть в metadata
         assert "price_volatility" not in result.metadata.get("quality_metrics", {})
 
-    def test_frequency_analysis_disabled(self) -> None:
+    def test_frequency_analysis_disabled(self: "TestNoiseAnalyzer") -> None:
         """Тест работы с отключенным частотным анализом."""
         analyzer = NoiseAnalyzer(enable_frequency_analysis=False)
         

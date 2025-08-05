@@ -78,7 +78,7 @@ class TestTradeResult:
         assert sample_trade.pnl == expected_pnl
         assert sample_trade.success is True
 
-    def test_calculate_pnl_buy_loss(self) -> None:
+    def test_calculate_pnl_buy_loss(self: "TestTradeResult") -> None:
         """Тест расчета P&L для убыточной покупки."""
         trade = TradeResult(
             entry_price=Decimal("50000"),
@@ -93,7 +93,7 @@ class TestTradeResult:
         assert trade.pnl == expected_pnl
         assert trade.success is False
 
-    def test_calculate_pnl_sell_profit(self) -> None:
+    def test_calculate_pnl_sell_profit(self: "TestTradeResult") -> None:
         """Тест расчета P&L для прибыльной продажи."""
         trade = TradeResult(
             entry_price=Decimal("50000"),
@@ -141,7 +141,7 @@ class TestTradeResult:
         assert result["signal_type"] == "buy"
         assert "roi" in result
 
-    def test_from_dict(self) -> None:
+    def test_from_dict(self: "TestTradeResult") -> None:
         """Тест создания из словаря."""
         data = {
             "id": str(uuid4()),
@@ -326,7 +326,7 @@ class TestStrategyEvaluationResult:
         assert result["win_rate"] == "0.7"
         assert "fitness_score" in result
 
-    def test_from_dict(self) -> None:
+    def test_from_dict(self: "TestStrategyEvaluationResult") -> None:
         """Тест создания из словаря."""
         data = {
             "id": str(uuid4()),
@@ -436,7 +436,7 @@ class TestStrategyFitnessEvaluator:
         }
         return pd.DataFrame(data, index=dates)
 
-    def test_initialization_default_weights(self) -> None:
+    def test_initialization_default_weights(self: "TestStrategyFitnessEvaluator") -> None:
         """Тест инициализации с дефолтными весами."""
         evaluator = StrategyFitnessEvaluator()
         

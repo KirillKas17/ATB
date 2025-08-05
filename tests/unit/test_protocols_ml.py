@@ -462,7 +462,7 @@ class TestMLProtocol:
         assert np.sum(low_confidence) == 2  # 0.1
 class TestModelConfig:
     """Тесты для ModelConfig."""
-    def test_model_config_creation(self) -> None:
+    def test_model_config_creation(self: "TestModelConfig") -> None:
         """Тест создания конфигурации модели."""
         config = ModelConfig(
             name="test_model",
@@ -480,7 +480,7 @@ class TestModelConfig:
         assert config.hyperparameters["n_estimators"] == 100
         assert config.features == ["price", "volume", "rsi"]
         assert config.target == "price_change"
-    def test_model_config_validation(self) -> None:
+    def test_model_config_validation(self: "TestModelConfig") -> None:
         """Тест валидации конфигурации модели."""
         # Валидная конфигурация
         valid_config = ModelConfig(
@@ -511,7 +511,7 @@ class TestModelConfig:
             )
 class TestTrainingConfig:
     """Тесты для TrainingConfig."""
-    def test_training_config_creation(self) -> None:
+    def test_training_config_creation(self: "TestTrainingConfig") -> None:
         """Тест создания конфигурации обучения."""
         config = TrainingConfig(
             validation_split=0.8,
@@ -527,7 +527,7 @@ class TestTrainingConfig:
         assert config.epochs == 100
         assert config.learning_rate == 0.001
         assert config.early_stopping_patience == 10
-    def test_training_config_validation(self) -> None:
+    def test_training_config_validation(self: "TestTrainingConfig") -> None:
         """Тест валидации конфигурации обучения."""
         # Проверка суммы размеров выборок
         config = TrainingConfig(
@@ -549,7 +549,7 @@ class TestTrainingConfig:
         assert config.early_stopping_patience >= 0
 class TestModelMetrics:
     """Тесты для ModelMetrics."""
-    def test_model_metrics_creation(self) -> None:
+    def test_model_metrics_creation(self: "TestModelMetrics") -> None:
         """Тест создания метрик модели."""
         metrics = ModelMetrics(
             mse=0.001,
@@ -573,7 +573,7 @@ class TestModelMetrics:
         assert metrics.total_return == 0.15
         assert metrics.volatility == 0.12
         assert metrics.calmar_ratio == 2.4
-    def test_model_metrics_validation(self) -> None:
+    def test_model_metrics_validation(self: "TestModelMetrics") -> None:
         """Тест валидации метрик модели."""
         # Валидные метрики
         valid_metrics = ModelMetrics(
@@ -604,7 +604,7 @@ class TestModelMetrics:
         assert abs(valid_metrics.f1_score - expected_f1) < 1e-6
 class TestMLErrors:
     """Тесты для ошибок ML."""
-    def test_ml_error_creation(self) -> None:
+    def test_ml_error_creation(self: "TestMLErrors") -> None:
         """Тест создания ошибок ML."""
         # Базовая ошибка ML
         error = MLError("General ML error")
@@ -627,7 +627,7 @@ class TestMLErrors:
         # Ошибка недостатка данных
         insufficient_data_error = InsufficientDataError("Not enough data")
         assert str(insufficient_data_error) == "Not enough data"
-    def test_error_inheritance(self) -> None:
+    def test_error_inheritance(self: "TestMLErrors") -> None:
         """Тест иерархии ошибок."""
         # Проверка наследования
         assert issubclass(ModelNotFoundError, MLError)

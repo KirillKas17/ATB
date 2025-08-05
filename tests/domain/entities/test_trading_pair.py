@@ -17,17 +17,17 @@ class TestTradingPair:
     """Тесты для TradingPair"""
 
     @pytest.fixture
-    def btc_currency(self) -> Any:
+    def btc_currency(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для BTC валюты"""
         return Currency.BTC
 
     @pytest.fixture
-    def usdt_currency(self) -> Any:
+    def usdt_currency(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для USDT валюты"""
         return Currency.USDT
 
     @pytest.fixture
-    def eth_currency(self) -> Any:
+    def eth_currency(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для ETH валюты"""
         return Currency.ETH
 
@@ -330,14 +330,14 @@ class TestTradingPair:
 class TestPairStatus:
     """Тесты для перечисления PairStatus"""
 
-    def test_pair_status_values(self) -> None:
+    def test_pair_status_values(self: "TestPairStatus") -> None:
         """Тест значений статусов"""
         assert PairStatus.ACTIVE.value == "active"
         assert PairStatus.INACTIVE.value == "inactive"
         assert PairStatus.SUSPENDED.value == "suspended"
         assert PairStatus.DELISTED.value == "delisted"
 
-    def test_pair_status_comparison(self) -> None:
+    def test_pair_status_comparison(self: "TestPairStatus") -> None:
         """Тест сравнения статусов"""
         assert PairStatus.ACTIVE != PairStatus.INACTIVE
         assert PairStatus.ACTIVE == PairStatus.ACTIVE 

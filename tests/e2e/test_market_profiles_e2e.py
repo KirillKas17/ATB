@@ -27,7 +27,7 @@ from domain.type_definitions.market_maker_types import (
 class TestMarketProfilesE2E:
     """E2E тесты для market_profiles."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
@@ -114,7 +114,7 @@ class TestMarketProfilesE2E:
             "success_analyzer": success_analyzer
         }
     @pytest.fixture
-    def realistic_patterns(self) -> Any:
+    def realistic_patterns(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Реалистичные паттерны для E2E тестов."""
         patterns = []
         # Создаем различные типы паттернов с реалистичными данными

@@ -6,13 +6,13 @@ from exchange.bybit_client import BybitClient, BybitConfig
 from exchange.order_manager import OrderConfig, OrderManager
 
 
-@pytest.fixture
+    @pytest.fixture
 def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return BybitConfig(api_key="test_key", api_secret="test_secret", testnet=True)
 
 
-@pytest.fixture
+    @pytest.fixture
 def order_config() -> Any:
     """Фикстура с конфигурацией ордеров"""
     return OrderConfig(
@@ -27,7 +27,7 @@ def order_config() -> Any:
     )
 
 
-@pytest.fixture
+    @pytest.fixture
 def risk_config() -> Any:
     """Фикстура с конфигурацией рисков"""
     return {
@@ -38,7 +38,7 @@ def risk_config() -> Any:
     }
 
 
-@pytest.fixture
+    @pytest.fixture
 async def bybit_client(bybit_config) -> Any:
     """Фикстура с клиентом Bybit"""
     client = BybitClient(bybit_config)
@@ -49,7 +49,7 @@ async def bybit_client(bybit_config) -> Any:
         await client.close()
 
 
-@pytest.fixture
+    @pytest.fixture
 async def order_manager(bybit_client, order_config) -> Any:
     """Фикстура с менеджером ордеров"""
     manager = OrderManager(bybit_client, order_config)
@@ -60,7 +60,7 @@ async def order_manager(bybit_client, order_config) -> Any:
         await manager.stop()
 
 
-@pytest.fixture
+    @pytest.fixture
 async def account_manager(bybit_client, order_manager, risk_config) -> Any:
     """Фикстура с менеджером аккаунта"""
     manager = AccountManager(bybit_client, order_manager, risk_config)
@@ -71,8 +71,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         await manager.stop()
 
 
-@pytest.mark.asyncio
-async def test_initialization(
+    @pytest.mark.asyncio
+    async def test_initialization(
     account_manager, bybit_client, order_manager, risk_config
 ) -> None:
     """Тест инициализации"""
@@ -85,8 +85,8 @@ async def test_initialization(
     assert account_manager.monitor_task is not None
 
 
-@pytest.mark.asyncio
-async def test_get_metrics(account_manager) -> None:
+    @pytest.mark.asyncio
+    async def test_get_metrics(account_manager) -> None:
     """Тест получения метрик"""
     try:
         metrics = await account_manager.get_metrics()
@@ -108,8 +108,8 @@ async def test_get_metrics(account_manager) -> None:
         pytest.skip(f"Get metrics test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_get_available_margin(account_manager) -> None:
+    @pytest.mark.asyncio
+    async def test_get_available_margin(account_manager) -> None:
     """Тест расчета доступной маржи"""
     try:
         margin = await account_manager.get_available_margin("BTCUSDT")
@@ -135,8 +135,8 @@ async def test_get_available_margin(account_manager) -> None:
         pytest.skip(f"Get available margin test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_can_open_position(account_manager) -> None:
+    @pytest.mark.asyncio
+    async def test_can_open_position(account_manager) -> None:
     """Тест проверки возможности открытия позиции"""
     try:
         # Тест с допустимыми параметрами
@@ -159,8 +159,8 @@ async def test_can_open_position(account_manager) -> None:
         pytest.skip(f"Can open position test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_unrealized_pnl_calculation(account_manager) -> None:
+    @pytest.mark.asyncio
+    async def test_unrealized_pnl_calculation(account_manager) -> None:
     """Тест расчета нереализованной прибыли"""
     try:
         # Создание тестовой позиции
@@ -183,8 +183,8 @@ async def test_unrealized_pnl_calculation(account_manager) -> None:
         pytest.skip(f"Unrealized PnL calculation test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_risk_limits_check(account_manager) -> None:
+    @pytest.mark.asyncio
+    async def test_risk_limits_check(account_manager) -> None:
     """Тест проверки ограничений риска"""
     try:
         # Проверка ограничений
@@ -198,8 +198,8 @@ async def test_risk_limits_check(account_manager) -> None:
         pytest.skip(f"Risk limits check test skipped: {str(e)}")
 
 
-@pytest.mark.asyncio
-async def test_error_handling(account_manager) -> None:
+    @pytest.mark.asyncio
+    async def test_error_handling(account_manager) -> None:
     """Тест обработки ошибок"""
     # Тест с неверным символом
     with pytest.raises(Exception):

@@ -1,14 +1,34 @@
 """
 Mock PyTorch module for development without torch installation
 """
-from typing import Any, Iterator, Tuple, Callable
+from typing import Any, Iterator, Tuple, Callable, Dict, Type
 
 
 class MockModule:
     """Мок-модуль для PyTorch с полной типизацией"""
     
+    def __init__(self) -> None:
+        self._attributes: Dict[str, Any] = {}
+    
     def __getattr__(self, name: str) -> "MockModule":
-        return MockModule()
+        if name not in self._attributes:
+            self._attributes[name] = MockModule()
+        # Cast to MockModule to satisfy type checker
+        attr = self._attributes[name]
+        if isinstance(attr, MockModule):
+            return attr
+        # If it's not a MockModule (e.g., a function), wrap it
+        mock = MockModule()
+        mock._attributes[name] = attr
+        return mock
+    
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name.startswith('_'):
+            super().__setattr__(name, value)
+        else:
+            if not hasattr(self, '_attributes'):
+                super().__setattr__('_attributes', {})
+            self._attributes[name] = value
     
     def __call__(self, *args: Any, **kwargs: Any) -> "MockModule":
         return MockModule()
@@ -30,18 +50,27 @@ class MockModule:
         return ()
 
 
-# Create mock torch with common attributes
+# Create mock torch with proper attribute handling
 torch = MockModule()
-torch.cuda = MockModule()  # type: ignore[method-assign]
-torch.cuda.is_available = lambda: False  # type: ignore[method-assign]
-torch.nn = MockModule()  # type: ignore[attr-defined]
-torch.nn.Module = MockModule()
-torch.nn.functional = MockModule()
-torch.utils = MockModule()  # type: ignore[attr-defined]
-torch.utils.data = MockModule()
-torch.optim = MockModule()  # type: ignore[attr-defined]
+
+# Explicitly set up torch modules using setattr to avoid method assignment issues
+torch_cuda = MockModule()
+torch_cuda._attributes['is_available'] = lambda: False
+setattr(torch, 'cuda', torch_cuda)
+
+torch_nn = MockModule()
+torch_nn._attributes['Module'] = MockModule
+torch_nn._attributes['functional'] = MockModule()
+setattr(torch, 'nn', torch_nn)
+
+torch_utils = MockModule()
+torch_utils_data = MockModule()
+torch_utils._attributes['data'] = torch_utils_data
+setattr(torch, 'utils', torch_utils)
+
+setattr(torch, 'optim', MockModule())
 
 # Export commonly used classes
-Module: type[MockModule] = MockModule
-Tensor: type[MockModule] = MockModule
-DataLoader: type[MockModule] = MockModule
+Module: Type[MockModule] = MockModule
+Tensor: Type[MockModule] = MockModule
+DataLoader: Type[MockModule] = MockModule

@@ -25,7 +25,7 @@ from infrastructure.monitoring.performance_monitor import (
 from domain.type_definitions.monitoring_types import Metric, MetricType, MetricCollectorProtocol
 class TestPerformanceMonitor:
     """Тесты для PerformanceMonitor."""
-    def test_init_default(self) -> None:
+    def test_init_default(self: "TestPerformanceMonitor") -> None:
         """Тест инициализации с параметрами по умолчанию."""
         monitor = PerformanceMonitor()
         assert monitor.name == "performance"
@@ -34,7 +34,7 @@ class TestPerformanceMonitor:
         assert monitor.app_metrics == {}
         assert monitor.is_running is False
         assert monitor.collection_interval == 5.0
-    def test_init_custom(self) -> None:
+    def test_init_custom(self: "TestPerformanceMonitor") -> None:
         """Тест инициализации с пользовательскими параметрами."""
         monitor = PerformanceMonitor(
             name="custom_monitor",
@@ -42,7 +42,7 @@ class TestPerformanceMonitor:
         )
         assert monitor.name == "custom_monitor"
         assert monitor.collection_interval == 10.0
-    def test_register_metric(self) -> None:
+    def test_register_metric(self: "TestPerformanceMonitor") -> None:
         """Тест регистрации метрики."""
         monitor = PerformanceMonitor()
         monitor.register_metric(
@@ -53,7 +53,7 @@ class TestPerformanceMonitor:
         assert "test_metric" in monitor.metrics
         assert monitor.metrics["test_metric"]["type"] == MetricType.GAUGE
         assert monitor.metrics["test_metric"]["description"] == "Test metric description"
-    def test_record_metric(self) -> None:
+    def test_record_metric(self: "TestPerformanceMonitor") -> None:
         """Тест записи метрики."""
         monitor = PerformanceMonitor()
         # Регистрируем метрику
@@ -64,7 +64,7 @@ class TestPerformanceMonitor:
         assert "test_metric" in monitor.metrics
         assert len(monitor.metrics["test_metric"]["values"]) == 1
         assert monitor.metrics["test_metric"]["values"][0]["value"] == 25.5
-    def test_record_counter(self) -> None:
+    def test_record_counter(self: "TestPerformanceMonitor") -> None:
         """Тест записи счетчика."""
         monitor = PerformanceMonitor()
         # Регистрируем счетчик
@@ -81,7 +81,7 @@ class TestPerformanceMonitor:
         assert values[0]["value"] == 1
         assert values[1]["value"] == 2
         assert values[2]["value"] == 1  # Новый endpoint
-    def test_record_gauge(self) -> None:
+    def test_record_gauge(self: "TestPerformanceMonitor") -> None:
         """Тест записи датчика."""
         monitor = PerformanceMonitor()
         # Регистрируем датчик
@@ -94,7 +94,7 @@ class TestPerformanceMonitor:
         assert "cpu_usage" in monitor.metrics
         values = monitor.metrics["cpu_usage"]["values"]
         assert len(values) == 3
-    def test_record_histogram(self) -> None:
+    def test_record_histogram(self: "TestPerformanceMonitor") -> None:
         """Тест записи гистограммы."""
         monitor = PerformanceMonitor()
         # Регистрируем гистограмму
@@ -107,7 +107,7 @@ class TestPerformanceMonitor:
         assert "response_time" in monitor.metrics
         values = monitor.metrics["response_time"]["values"]
         assert len(values) == 3
-    def test_record_timer(self) -> None:
+    def test_record_timer(self: "TestPerformanceMonitor") -> None:
         """Тест записи таймера."""
         monitor = PerformanceMonitor()
         # Регистрируем таймер
@@ -120,7 +120,7 @@ class TestPerformanceMonitor:
         values = monitor.metrics["api_call_duration"]["values"]
         assert len(values) == 1
         assert values[0]["value"] > 0
-    def test_get_metrics(self) -> None:
+    def test_get_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест получения метрик."""
         monitor = PerformanceMonitor()
         # Добавляем тестовые метрики
@@ -140,7 +140,7 @@ class TestPerformanceMonitor:
         cpu_metrics = monitor.get_metrics(name="cpu_usage")
         assert len(cpu_metrics) == 1
         assert cpu_metrics[0]["name"] == "cpu_usage"
-    def test_get_system_metrics(self) -> None:
+    def test_get_system_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест получения системных метрик."""
         monitor = PerformanceMonitor()
         # Запускаем мониторинг для сбора системных метрик
@@ -152,7 +152,7 @@ class TestPerformanceMonitor:
         assert "cpu_percent" in system_metrics
         assert "memory_percent" in system_metrics
         assert "disk_usage" in system_metrics
-    def test_get_app_metrics(self) -> None:
+    def test_get_app_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест получения метрик приложения."""
         monitor = PerformanceMonitor()
         # Добавляем метрики приложения
@@ -160,18 +160,18 @@ class TestPerformanceMonitor:
         app_metrics = monitor.get_app_metrics()
         assert "app_metric" in app_metrics
         assert app_metrics["app_metric"]["current"] == 42.0
-    def test_start_monitoring(self) -> None:
+    def test_start_monitoring(self: "TestPerformanceMonitor") -> None:
         """Тест запуска мониторинга."""
         monitor = PerformanceMonitor()
         monitor.start_monitoring()
         assert monitor.is_running is True
-    def test_stop_monitoring(self) -> None:
+    def test_stop_monitoring(self: "TestPerformanceMonitor") -> None:
         """Тест остановки мониторинга."""
         monitor = PerformanceMonitor()
         monitor.start_monitoring()
         monitor.stop_monitoring()
         assert monitor.is_running is False
-    def test_monitoring_loop(self) -> None:
+    def test_monitoring_loop(self: "TestPerformanceMonitor") -> None:
         """Тест цикла мониторинга."""
         monitor = PerformanceMonitor(collection_interval=0.1)
         # Запускаем мониторинг
@@ -183,7 +183,7 @@ class TestPerformanceMonitor:
         # Проверяем, что системные метрики собраны
         system_metrics = monitor.get_system_metrics()
         assert len(system_metrics) > 0
-    def test_collect_system_metrics(self) -> None:
+    def test_collect_system_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест сбора системных метрик."""
         monitor = PerformanceMonitor()
         monitor._collect_system_metrics()
@@ -191,7 +191,7 @@ class TestPerformanceMonitor:
         assert len(monitor.system_metrics) > 0
         assert "cpu_percent" in monitor.system_metrics
         assert "memory_percent" in monitor.system_metrics
-    def test_collect_app_metrics(self) -> None:
+    def test_collect_app_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест сбора метрик приложения."""
         monitor = PerformanceMonitor()
         # Добавляем метрики приложения
@@ -200,7 +200,7 @@ class TestPerformanceMonitor:
         # Проверяем, что метрики приложения собраны
         app_metrics = monitor.get_app_metrics()
         assert "app_metric" in app_metrics
-    def test_check_system_alerts(self) -> None:
+    def test_check_system_alerts(self: "TestPerformanceMonitor") -> None:
         """Тест проверки системных алертов."""
         monitor = PerformanceMonitor()
         # Mock alert manager
@@ -210,7 +210,7 @@ class TestPerformanceMonitor:
         monitor._check_system_alerts()
         # Проверяем, что alert manager был вызван
         assert mock_alert_manager.create_alert.called
-    def test_cleanup_old_metrics(self) -> None:
+    def test_cleanup_old_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест очистки старых метрик."""
         monitor = PerformanceMonitor()
         # Добавляем старые метрики
@@ -242,7 +242,7 @@ class TestPerformanceMonitor:
         # Проверяем, что старые метрики удалены
         assert "old_metric" not in monitor.metrics
         assert "new_metric" in monitor.metrics
-    def test_get_metric_statistics(self) -> None:
+    def test_get_metric_statistics(self: "TestPerformanceMonitor") -> None:
         """Тест получения статистики метрик."""
         monitor = PerformanceMonitor()
         # Добавляем тестовые метрики
@@ -257,7 +257,7 @@ class TestPerformanceMonitor:
         assert stats["count"] == 10
         assert stats["min"] == 20.0
         assert stats["max"] == 29.0
-    def test_export_metrics(self) -> None:
+    def test_export_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест экспорта метрик."""
         monitor = PerformanceMonitor()
         # Добавляем тестовые метрики
@@ -269,7 +269,7 @@ class TestPerformanceMonitor:
         data = json.loads(json_data)
         assert "metrics" in data
         assert len(data["metrics"]) == 1
-    def test_performance_with_many_metrics(self) -> None:
+    def test_performance_with_many_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест производительности с большим количеством метрик."""
         monitor = PerformanceMonitor()
         import time
@@ -283,7 +283,7 @@ class TestPerformanceMonitor:
         # Создание 1000 метрик должно занимать менее 1 секунды
         assert duration < 1.0
         assert len(monitor.metrics) == 1000
-    def test_memory_usage_with_metrics(self) -> None:
+    def test_memory_usage_with_metrics(self: "TestPerformanceMonitor") -> None:
         """Тест использования памяти с метриками."""
         import psutil
         import os
@@ -304,22 +304,22 @@ class TestPerformanceMonitor:
         assert memory_increase < 100 * 1024 * 1024
 class TestGetMonitor:
     """Тесты для функции get_monitor."""
-    def test_get_monitor_default(self) -> None:
+    def test_get_monitor_default(self: "TestGetMonitor") -> None:
         """Тест получения монитора по умолчанию."""
         monitor = get_monitor()
         assert isinstance(monitor, PerformanceMonitor)
         assert monitor.name == "performance"
-    def test_get_monitor_custom_name(self) -> None:
+    def test_get_monitor_custom_name(self: "TestGetMonitor") -> None:
         """Тест получения монитора с пользовательским именем."""
         monitor = get_monitor("custom_performance")
         assert isinstance(monitor, PerformanceMonitor)
         assert monitor.name == "custom_performance"
-    def test_get_monitor_singleton(self) -> None:
+    def test_get_monitor_singleton(self: "TestGetMonitor") -> None:
         """Тест, что get_monitor возвращает тот же экземпляр для одного имени."""
         monitor1 = get_monitor("singleton_test")
         monitor2 = get_monitor("singleton_test")
         assert monitor1 is monitor2
-    def test_get_monitor_different_names(self) -> None:
+    def test_get_monitor_different_names(self: "TestGetMonitor") -> None:
         """Тест, что разные имена возвращают разные экземпляры."""
         monitor1 = get_monitor("monitor1")
         monitor2 = get_monitor("monitor2")
@@ -390,7 +390,7 @@ class TestMonitoringFunctions:
         assert timer == mock_context
 class TestMetricCollectorProtocol:
     """Тесты для протокола MetricCollectorProtocol."""
-    def test_performance_monitor_implements_protocol(self) -> None:
+    def test_performance_monitor_implements_protocol(self: "TestMetricCollectorProtocol") -> None:
         """Тест, что PerformanceMonitor реализует MetricCollectorProtocol."""
         monitor = PerformanceMonitor()
         # Проверяем наличие всех методов протокола

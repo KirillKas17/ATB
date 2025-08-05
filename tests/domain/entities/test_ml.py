@@ -25,7 +25,7 @@ from domain.value_objects.money import Money
 class TestModel:
     """Тесты для класса Model."""
 
-    def test_model_creation(self) -> None:
+    def test_model_creation(self: "TestModel") -> None:
         """Тест создания модели."""
         model = Model(
             name="Test Model",
@@ -45,7 +45,7 @@ class TestModel:
         assert isinstance(model.created_at, datetime)
         assert isinstance(model.updated_at, datetime)
 
-    def test_model_default_values(self) -> None:
+    def test_model_default_values(self: "TestModel") -> None:
         """Тест значений по умолчанию."""
         model = Model()
         
@@ -63,7 +63,7 @@ class TestModel:
         assert model.mse == Decimal("0")
         assert model.mae == Decimal("0")
 
-    def test_model_post_init_conversion(self) -> None:
+    def test_model_post_init_conversion(self: "TestModel") -> None:
         """Тест конвертации типов в __post_init__."""
         model = Model(
             accuracy=0.85,
@@ -81,7 +81,7 @@ class TestModel:
         assert isinstance(model.mse, Decimal)
         assert isinstance(model.mae, Decimal)
 
-    def test_model_activate(self) -> None:
+    def test_model_activate(self: "TestModel") -> None:
         """Тест активации модели."""
         model = Model()
         original_updated_at = model.updated_at
@@ -91,7 +91,7 @@ class TestModel:
         assert model.status == ModelStatus.ACTIVE
         assert model.updated_at >= original_updated_at
 
-    def test_model_deactivate(self) -> None:
+    def test_model_deactivate(self: "TestModel") -> None:
         """Тест деактивации модели."""
         model = Model()
         model.status = ModelStatus.ACTIVE
@@ -102,7 +102,7 @@ class TestModel:
         assert model.status == ModelStatus.INACTIVE
         assert model.updated_at >= original_updated_at
 
-    def test_model_mark_trained(self) -> None:
+    def test_model_mark_trained(self: "TestModel") -> None:
         """Тест отметки модели как обученной."""
         model = Model()
         original_updated_at = model.updated_at
@@ -112,7 +112,7 @@ class TestModel:
         assert model.trained_at is not None
         assert model.updated_at >= original_updated_at
 
-    def test_model_update_metrics(self) -> None:
+    def test_model_update_metrics(self: "TestModel") -> None:
         """Тест обновления метрик."""
         model = Model()
         metrics = {
@@ -133,7 +133,7 @@ class TestModel:
         assert model.mse == Decimal("0.15")
         assert model.mae == Decimal("0.12")
 
-    def test_model_is_ready_for_prediction(self) -> None:
+    def test_model_is_ready_for_prediction(self: "TestModel") -> None:
         """Тест готовности модели к предсказаниям."""
         model = Model()
         assert not model.is_ready_for_prediction()
@@ -143,7 +143,7 @@ class TestModel:
         model.accuracy = Decimal("0.85")
         assert model.is_ready_for_prediction()
 
-    def test_model_serialization(self) -> None:
+    def test_model_serialization(self: "TestModel") -> None:
         """Тест сериализации модели."""
         model = Model(
             name="Test Model",
@@ -183,7 +183,7 @@ class TestModel:
 class TestPrediction:
     """Тесты для класса Prediction."""
 
-    def test_prediction_creation(self) -> None:
+    def test_prediction_creation(self: "TestPrediction") -> None:
         """Тест создания предсказания."""
         prediction = Prediction(
             trading_pair="BTCUSDT",
@@ -200,7 +200,7 @@ class TestPrediction:
         assert isinstance(prediction.id, UUID)
         assert isinstance(prediction.timestamp, datetime)
 
-    def test_prediction_post_init_conversion(self) -> None:
+    def test_prediction_post_init_conversion(self: "TestPrediction") -> None:
         """Тест конвертации типов в __post_init__."""
         # Ценовое предсказание
         price_prediction = Prediction(
@@ -220,7 +220,7 @@ class TestPrediction:
         assert isinstance(direction_prediction.value, Decimal)
         assert isinstance(direction_prediction.confidence, Decimal)
 
-    def test_prediction_confidence_levels(self) -> None:
+    def test_prediction_confidence_levels(self: "TestPrediction") -> None:
         """Тест уровней уверенности."""
         high_conf = Prediction(confidence=Decimal("0.85"))
         medium_conf = Prediction(confidence=Decimal("0.65"))
@@ -230,7 +230,7 @@ class TestPrediction:
         assert medium_conf.is_medium_confidence()
         assert low_conf.is_low_confidence()
 
-    def test_prediction_serialization(self) -> None:
+    def test_prediction_serialization(self: "TestPrediction") -> None:
         """Тест сериализации предсказания."""
         prediction = Prediction(
             trading_pair="BTCUSDT",
@@ -254,7 +254,7 @@ class TestPrediction:
 class TestModelEnsemble:
     """Тесты для класса ModelEnsemble."""
 
-    def test_ensemble_creation(self) -> None:
+    def test_ensemble_creation(self: "TestModelEnsemble") -> None:
         """Тест создания ансамбля."""
         ensemble = ModelEnsemble(
             name="Test Ensemble",
@@ -270,7 +270,7 @@ class TestModelEnsemble:
         assert isinstance(ensemble.created_at, datetime)
         assert isinstance(ensemble.updated_at, datetime)
 
-    def test_ensemble_add_model(self) -> None:
+    def test_ensemble_add_model(self: "TestModelEnsemble") -> None:
         """Тест добавления модели в ансамбль."""
         ensemble = ModelEnsemble()
         model = Model(name="Test Model")
@@ -283,7 +283,7 @@ class TestModelEnsemble:
         assert ensemble.weights[model.id] == Decimal("0.6")
         assert ensemble.updated_at >= original_updated_at
 
-    def test_ensemble_add_duplicate_model(self) -> None:
+    def test_ensemble_add_duplicate_model(self: "TestModelEnsemble") -> None:
         """Тест добавления дубликата модели."""
         ensemble = ModelEnsemble()
         model = Model(name="Test Model")
@@ -294,7 +294,7 @@ class TestModelEnsemble:
         assert len(ensemble.models) == 1
         assert ensemble.weights[model.id] == Decimal("0.6")  # Вес не изменился
 
-    def test_ensemble_remove_model(self) -> None:
+    def test_ensemble_remove_model(self: "TestModelEnsemble") -> None:
         """Тест удаления модели из ансамбля."""
         ensemble = ModelEnsemble()
         model = Model(name="Test Model")
@@ -308,7 +308,7 @@ class TestModelEnsemble:
         assert model.id not in ensemble.weights
         assert ensemble.updated_at >= original_updated_at
 
-    def test_ensemble_update_weight(self) -> None:
+    def test_ensemble_update_weight(self: "TestModelEnsemble") -> None:
         """Тест обновления веса модели."""
         ensemble = ModelEnsemble()
         model = Model(name="Test Model")
@@ -321,7 +321,7 @@ class TestModelEnsemble:
         assert ensemble.weights[model.id] == Decimal("0.8")
         assert ensemble.updated_at >= original_updated_at
 
-    def test_ensemble_get_active_models(self) -> None:
+    def test_ensemble_get_active_models(self: "TestModelEnsemble") -> None:
         """Тест получения активных моделей."""
         ensemble = ModelEnsemble()
         
@@ -343,7 +343,7 @@ class TestModelEnsemble:
         assert len(active_models) == 1
         assert active_models[0] == active_model
 
-    def test_ensemble_predict_no_active_models(self) -> None:
+    def test_ensemble_predict_no_active_models(self: "TestModelEnsemble") -> None:
         """Тест предсказания без активных моделей."""
         ensemble = ModelEnsemble()
         
@@ -351,7 +351,7 @@ class TestModelEnsemble:
         
         assert prediction is None
 
-    def test_ensemble_predict_with_active_models(self) -> None:
+    def test_ensemble_predict_with_active_models(self: "TestModelEnsemble") -> None:
         """Тест предсказания с активными моделями."""
         ensemble = ModelEnsemble()
         
@@ -377,7 +377,7 @@ class TestModelEnsemble:
 class TestMLPipeline:
     """Тесты для класса MLPipeline."""
 
-    def test_pipeline_creation(self) -> None:
+    def test_pipeline_creation(self: "TestMLPipeline") -> None:
         """Тест создания пайплайна."""
         pipeline = MLPipeline(
             name="Test Pipeline",
@@ -391,7 +391,7 @@ class TestMLPipeline:
         assert isinstance(pipeline.created_at, datetime)
         assert isinstance(pipeline.updated_at, datetime)
 
-    def test_pipeline_add_model(self) -> None:
+    def test_pipeline_add_model(self: "TestMLPipeline") -> None:
         """Тест добавления модели в пайплайн."""
         pipeline = MLPipeline()
         model = Model(name="Test Model")
@@ -403,7 +403,7 @@ class TestMLPipeline:
         assert pipeline.models[0] == model
         assert pipeline.updated_at >= original_updated_at
 
-    def test_pipeline_add_duplicate_model(self) -> None:
+    def test_pipeline_add_duplicate_model(self: "TestMLPipeline") -> None:
         """Тест добавления дубликата модели."""
         pipeline = MLPipeline()
         model = Model(name="Test Model")
@@ -413,7 +413,7 @@ class TestMLPipeline:
         
         assert len(pipeline.models) == 1
 
-    def test_pipeline_add_ensemble(self) -> None:
+    def test_pipeline_add_ensemble(self: "TestMLPipeline") -> None:
         """Тест добавления ансамбля в пайплайн."""
         pipeline = MLPipeline()
         ensemble = ModelEnsemble(name="Test Ensemble")
@@ -425,7 +425,7 @@ class TestMLPipeline:
         assert pipeline.ensembles[0] == ensemble
         assert pipeline.updated_at >= original_updated_at
 
-    def test_pipeline_get_best_model(self) -> None:
+    def test_pipeline_get_best_model(self: "TestMLPipeline") -> None:
         """Тест получения лучшей модели."""
         pipeline = MLPipeline()
         
@@ -441,7 +441,7 @@ class TestMLPipeline:
         
         assert best_model == model2
 
-    def test_pipeline_get_best_model_empty(self) -> None:
+    def test_pipeline_get_best_model_empty(self: "TestMLPipeline") -> None:
         """Тест получения лучшей модели из пустого пайплайна."""
         pipeline = MLPipeline()
         
@@ -449,7 +449,7 @@ class TestMLPipeline:
         
         assert best_model is None
 
-    def test_pipeline_get_active_models(self) -> None:
+    def test_pipeline_get_active_models(self: "TestMLPipeline") -> None:
         """Тест получения активных моделей."""
         pipeline = MLPipeline()
         
@@ -467,7 +467,7 @@ class TestMLPipeline:
         assert len(active_models) == 1
         assert active_models[0] == active_model
 
-    def test_pipeline_get_active_ensembles(self) -> None:
+    def test_pipeline_get_active_ensembles(self: "TestMLPipeline") -> None:
         """Тест получения активных ансамблей."""
         pipeline = MLPipeline()
         
@@ -485,7 +485,7 @@ class TestMLPipeline:
         assert len(active_ensembles) == 1
         assert active_ensembles[0] == active_ensemble
 
-    def test_pipeline_serialization(self) -> None:
+    def test_pipeline_serialization(self: "TestMLPipeline") -> None:
         """Тест сериализации пайплайна."""
         pipeline = MLPipeline(
             name="Test Pipeline",
@@ -513,7 +513,7 @@ class TestMLPipeline:
 class TestModelProtocol:
     """Тесты для протокола ModelProtocol."""
 
-    def test_model_protocol_interface(self) -> None:
+    def test_model_protocol_interface(self: "TestModelProtocol") -> None:
         """Тест интерфейса протокола."""
         # Создаем mock объект, соответствующий протоколу
         mock_model = Mock(spec=ModelProtocol)
@@ -540,7 +540,7 @@ class TestModelProtocol:
 class TestMLModelInterface:
     """Тесты для абстрактного интерфейса MLModelInterface."""
 
-    def test_ml_model_interface_abstract_methods(self) -> None:
+    def test_ml_model_interface_abstract_methods(self: "TestMLModelInterface") -> None:
         """Тест абстрактных методов интерфейса."""
         # Создаем mock объект, реализующий интерфейс
         mock_model = Mock(spec=MLModelInterface)
@@ -561,7 +561,7 @@ class TestMLModelInterface:
 class TestModelType:
     """Тесты для перечисления ModelType."""
 
-    def test_model_type_values(self) -> None:
+    def test_model_type_values(self: "TestModelType") -> None:
         """Тест значений типов моделей."""
         assert ModelType.LINEAR_REGRESSION.value == "linear_regression"
         assert ModelType.RANDOM_FOREST.value == "random_forest"
@@ -577,7 +577,7 @@ class TestModelType:
 class TestModelStatus:
     """Тесты для перечисления ModelStatus."""
 
-    def test_model_status_values(self) -> None:
+    def test_model_status_values(self: "TestModelStatus") -> None:
         """Тест значений статусов моделей."""
         assert ModelStatus.TRAINING.value == "training"
         assert ModelStatus.TRAINED.value == "trained"
@@ -591,7 +591,7 @@ class TestModelStatus:
 class TestPredictionType:
     """Тесты для перечисления PredictionType."""
 
-    def test_prediction_type_values(self) -> None:
+    def test_prediction_type_values(self: "TestPredictionType") -> None:
         """Тест значений типов предсказаний."""
         assert PredictionType.PRICE.value == "price"
         assert PredictionType.DIRECTION.value == "direction"

@@ -28,7 +28,7 @@ class TestSessionProfileRegistry:
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
-    def test_get_profile_all_types(self) -> None:
+    def test_get_profile_all_types(self: "TestSessionProfileRegistry") -> None:
         """Тест получения профилей всех типов сессий."""
         for session_type in SessionType:
             profile = self.registry.get_profile(session_type)
@@ -36,7 +36,7 @@ class TestSessionProfileRegistry:
             assert profile.session_type == session_type
             assert isinstance(profile.description, str)
             assert len(profile.description) > 0
-    def test_get_all_profiles_completeness(self) -> None:
+    def test_get_all_profiles_completeness(self: "TestSessionProfileRegistry") -> None:
         """Тест полноты всех профилей."""
         profiles = self.registry.get_all_profiles()
         assert len(profiles) == len(SessionType)
@@ -44,7 +44,7 @@ class TestSessionProfileRegistry:
             assert session_type in profiles
             profile = profiles[session_type]
             assert isinstance(profile, SessionProfile)
-    def test_get_session_overlap_matrix(self) -> None:
+    def test_get_session_overlap_matrix(self: "TestSessionProfileRegistry") -> None:
         """Тест матрицы перекрытий сессий."""
         session_types = list(SessionType)
         for i, session1 in enumerate(session_types):
@@ -55,7 +55,7 @@ class TestSessionProfileRegistry:
                 # Перекрытие с самим собой должно быть 1.0
                 if i == j:
                     assert overlap == 1.0
-    def test_get_session_recommendations_all_types(self) -> None:
+    def test_get_session_recommendations_all_types(self: "TestSessionProfileRegistry") -> None:
         """Тест рекомендаций для всех типов сессий."""
         for session_type in SessionType:
             recommendations = self.registry.get_session_recommendations(session_type)
@@ -64,14 +64,14 @@ class TestSessionProfileRegistry:
             for rec in recommendations:
                 assert isinstance(rec, str)
                 assert len(rec) > 0
-    def test_get_session_statistics_all_types(self) -> None:
+    def test_get_session_statistics_all_types(self: "TestSessionProfileRegistry") -> None:
         """Тест статистики для всех типов сессий."""
         for session_type in SessionType:
             statistics = self.registry.get_session_statistics(session_type)
             assert isinstance(statistics, dict)
             assert "session_type" in statistics
             assert statistics["session_type"] == session_type.value
-    def test_profile_validation(self) -> None:
+    def test_profile_validation(self: "TestSessionProfileRegistry") -> None:
         """Тест валидации профилей."""
         for session_type in SessionType:
             profile = self.registry.get_profile(session_type)
@@ -91,7 +91,7 @@ class TestSessionMarker:
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
         self.marker = SessionMarker(self.registry)
-    def test_get_session_context_structure(self) -> None:
+    def test_get_session_context_structure(self: "TestSessionMarker") -> None:
         """Тест структуры контекста сессии."""
         context = self.marker.get_session_context()
         assert isinstance(context, MarketSessionContext)
@@ -103,12 +103,12 @@ class TestSessionMarker:
         assert isinstance(context.timestamp, Timestamp)
         assert isinstance(context.active_sessions, list)
         assert isinstance(context.primary_session, SessionState)
-    def test_is_session_active_all_types(self) -> None:
+    def test_is_session_active_all_types(self: "TestSessionMarker") -> None:
         """Тест активности всех типов сессий."""
         for session_type in SessionType:
             is_active = self.marker.is_session_active(session_type)
             assert isinstance(is_active, bool)
-    def test_get_session_overlap_consistency(self) -> None:
+    def test_get_session_overlap_consistency(self: "TestSessionMarker") -> None:
         """Тест консистентности перекрытий сессий."""
         session_types = list(SessionType)
         for session1 in session_types:
@@ -117,19 +117,19 @@ class TestSessionMarker:
                 overlap2 = self.marker.get_session_overlap(session2, session1)
                 # Перекрытие должно быть симметричным
                 assert abs(overlap1 - overlap2) < 1e-6
-    def test_get_next_session_change(self) -> None:
+    def test_get_next_session_change(self: "TestSessionMarker") -> None:
         """Тест получения следующего изменения сессии."""
         change_info = self.marker.get_next_session_change()
         assert isinstance(change_info, dict)
         assert "time_ahead_hours" in change_info
         assert isinstance(change_info["time_ahead_hours"], float)
         assert change_info["time_ahead_hours"] >= 0.0
-    def test_get_session_phase(self) -> None:
+    def test_get_session_phase(self: "TestSessionMarker") -> None:
         """Тест получения фазы сессии."""
         for session_type in SessionType:
             phase = self.marker.get_session_phase(session_type)
             assert isinstance(phase, SessionPhase)
-    def test_market_session_context_validation(self) -> None:
+    def test_market_session_context_validation(self: "TestSessionMarker") -> None:
         """Тест валидации контекста рыночной сессии."""
         context = self.marker.get_session_context()
         # Проверяем primary_session
@@ -184,7 +184,7 @@ class TestSessionInfluenceAnalyzer:
             manipulation_susceptibility=0.35,
             false_breakout_probability=0.4
         )
-    def test_analyze_session_influence_structure(self) -> None:
+    def test_analyze_session_influence_structure(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест структуры анализа влияния сессии."""
         market_data = self._create_test_market_data()
         result = self.analyzer.analyze_session_influence(
@@ -199,7 +199,7 @@ class TestSessionInfluenceAnalyzer:
         assert isinstance(result.market_conditions, MarketConditions)
         assert isinstance(result.predictions, dict)
         assert isinstance(result.risk_factors, list)
-    def test_analyze_session_influence_metrics_validation(self) -> None:
+    def test_analyze_session_influence_metrics_validation(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации метрик анализа."""
         market_data = self._create_test_market_data()
         result = self.analyzer.analyze_session_influence(
@@ -220,7 +220,7 @@ class TestSessionInfluenceAnalyzer:
         assert isinstance(metrics.spread_impact, float)
         assert isinstance(metrics.liquidity_impact, float)
         assert isinstance(metrics.correlation_with_other_sessions, float)
-    def test_analyze_session_influence_market_conditions(self) -> None:
+    def test_analyze_session_influence_market_conditions(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации рыночных условий."""
         market_data = self._create_test_market_data()
         result = self.analyzer.analyze_session_influence(
@@ -237,7 +237,7 @@ class TestSessionInfluenceAnalyzer:
         assert isinstance(conditions.trend_strength, float)
         assert isinstance(conditions.market_regime, MarketRegime)
         assert isinstance(conditions.session_intensity, SessionIntensity)
-    def test_analyze_session_influence_predictions(self) -> None:
+    def test_analyze_session_influence_predictions(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации прогнозов."""
         market_data = self._create_test_market_data()
         result = self.analyzer.analyze_session_influence(
@@ -250,7 +250,7 @@ class TestSessionInfluenceAnalyzer:
         assert "volume_prediction" in predictions
         assert "direction_prediction" in predictions
         assert "momentum_prediction" in predictions
-    def test_analyze_session_influence_risk_factors(self) -> None:
+    def test_analyze_session_influence_risk_factors(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации факторов риска."""
         market_data = self._create_test_market_data()
         result = self.analyzer.analyze_session_influence(
@@ -324,7 +324,7 @@ class TestSessionAnalyzer:
             manipulation_susceptibility=0.35,
             false_breakout_probability=0.4
         )
-    def test_analyze_session_metrics(self) -> None:
+    def test_analyze_session_metrics(self: "TestSessionAnalyzer") -> None:
         """Тест анализа метрик сессии."""
         market_data = self._create_test_market_data()
         metrics = self.analyzer.analyze_session_metrics(market_data, self.session_profile)
@@ -335,7 +335,7 @@ class TestSessionAnalyzer:
         assert isinstance(metrics.get("price_direction_bias"), (int, float))
         assert isinstance(metrics.get("momentum_strength"), (int, float))
 
-    def test_analyze_market_conditions(self) -> None:
+    def test_analyze_market_conditions(self: "TestSessionAnalyzer") -> None:
         """Тест анализа рыночных условий."""
         market_data = self._create_test_market_data()
         conditions = self.analyzer.analyze_market_conditions(market_data, self.session_profile)
@@ -349,7 +349,7 @@ class TestSessionAnalyzer:
         assert isinstance(conditions.get("trend_strength"), (int, float))
         assert isinstance(conditions.get("market_regime"), str)
         assert isinstance(conditions.get("session_intensity"), str)
-    def test_generate_predictions(self) -> None:
+    def test_generate_predictions(self: "TestSessionAnalyzer") -> None:
         """Тест генерации прогнозов."""
         market_data = self._create_test_market_data()
         predictions = self.analyzer.generate_predictions(market_data, self.session_profile)
@@ -357,7 +357,7 @@ class TestSessionAnalyzer:
         assert "volatility_prediction" in predictions
         assert "volume_prediction" in predictions
         assert "direction_prediction" in predictions
-    def test_identify_risk_factors(self) -> None:
+    def test_identify_risk_factors(self: "TestSessionAnalyzer") -> None:
         """Тест идентификации факторов риска."""
         market_data = self._create_test_market_data()
         risk_factors = self.analyzer.identify_risk_factors(market_data, self.session_profile)
@@ -388,28 +388,28 @@ class TestSessionManager:
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.manager = SessionManager()
-    def test_register_session_analyzer(self) -> None:
+    def test_register_session_analyzer(self: "TestSessionManager") -> None:
         """Тест регистрации анализатора сессии."""
         analyzer = Mock()
         self.manager.register_session_analyzer(SessionType.ASIAN, analyzer)
         registered_analyzer = self.manager.get_session_analyzer(SessionType.ASIAN)
         assert registered_analyzer == analyzer
-    def test_get_session_analyzer(self) -> None:
+    def test_get_session_analyzer(self: "TestSessionManager") -> None:
         """Тест получения анализатора сессии."""
         analyzer = Mock()
         self.manager.register_session_analyzer(SessionType.ASIAN, analyzer)
         result = self.manager.get_session_analyzer(SessionType.ASIAN)
         assert result == analyzer
-    def test_get_session_analyzer_default(self) -> None:
+    def test_get_session_analyzer_default(self: "TestSessionManager") -> None:
         """Тест получения анализатора по умолчанию."""
         result = self.manager.get_session_analyzer(SessionType.ASIAN)
         assert result is not None
-    def test_analyze_session(self) -> None:
+    def test_analyze_session(self: "TestSessionManager") -> None:
         """Тест анализа сессии."""
         market_data = self._create_test_market_data()
         result = self.manager.analyze_session(SessionType.ASIAN, market_data)
         assert isinstance(result, SessionAnalysisResult)
-    def test_get_session_statistics(self) -> None:
+    def test_get_session_statistics(self: "TestSessionManager") -> None:
         """Тест получения статистики сессии."""
         statistics = self.manager.get_session_statistics(SessionType.ASIAN)
         assert isinstance(statistics, dict)
@@ -436,14 +436,14 @@ class TestSessionOptimizer:
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.optimizer = SessionOptimizer()
-    def test_optimize_session_parameters(self) -> None:
+    def test_optimize_session_parameters(self: "TestSessionOptimizer") -> None:
         """Тест оптимизации параметров сессии."""
         profile = self._create_test_session_profile()
         market_conditions = self._create_test_market_conditions()
         optimized_profile = self.optimizer.optimize_session_parameters(profile, market_conditions)
         assert isinstance(optimized_profile, SessionProfile)
         assert optimized_profile.session_type == profile.session_type
-    def test_optimize_trading_strategy(self) -> None:
+    def test_optimize_trading_strategy(self: "TestSessionOptimizer") -> None:
         """Тест оптимизации торговой стратегии."""
         profile = self._create_test_session_profile()
         market_conditions = self._create_test_market_conditions()
@@ -452,7 +452,7 @@ class TestSessionOptimizer:
         assert "entry_rules" in strategy
         assert "exit_rules" in strategy
         assert "risk_management" in strategy
-    def test_optimize_risk_management(self) -> None:
+    def test_optimize_risk_management(self: "TestSessionOptimizer") -> None:
         """Тест оптимизации управления рисками."""
         profile = self._create_test_session_profile()
         market_conditions = self._create_test_market_conditions()
@@ -532,7 +532,7 @@ class TestSessionPredictor:
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.predictor = SessionPredictor()
-    def test_predict_session_behavior(self) -> None:
+    def test_predict_session_behavior(self: "TestSessionPredictor") -> None:
         """Тест прогнозирования поведения сессии."""
         profile = self._create_test_session_profile()
         market_conditions = self._create_test_market_conditions()
@@ -548,7 +548,7 @@ class TestSessionPredictor:
         assert "manipulation_risk" in prediction
         assert "whale_activity_probability" in prediction
         assert "mm_activity_probability" in prediction
-    def test_predict_session_transitions(self) -> None:
+    def test_predict_session_transitions(self: "TestSessionPredictor") -> None:
         """Тест прогнозирования переходов сессий."""
         profile = self._create_test_session_profile()
         market_conditions = self._create_test_market_conditions()
@@ -560,7 +560,7 @@ class TestSessionPredictor:
             assert "to_session" in transition
             assert "probability" in transition
             assert "expected_time" in transition
-    def test_predict_market_regime_changes(self) -> None:
+    def test_predict_market_regime_changes(self: "TestSessionPredictor") -> None:
         """Тест прогнозирования изменений рыночного режима."""
         profile = self._create_test_session_profile()
         market_conditions = self._create_test_market_conditions()
@@ -627,18 +627,18 @@ class TestSessionAnalyzerFactory:
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.factory = SessionAnalyzerFactory()
-    def test_create_analyzer_for_session_type(self) -> None:
+    def test_create_analyzer_for_session_type(self: "TestSessionAnalyzerFactory") -> None:
         """Тест создания анализатора для типа сессии."""
         analyzer = self.factory.create_analyzer_for_session_type(SessionType.ASIAN)
         assert analyzer is not None
         assert hasattr(analyzer, 'analyze_session')
-    def test_create_analyzer_with_custom_config(self) -> None:
+    def test_create_analyzer_with_custom_config(self: "TestSessionAnalyzerFactory") -> None:
         """Тест создания анализатора с пользовательской конфигурацией."""
         config = {"custom_param": "value"}
         analyzer = self.factory.create_analyzer_with_custom_config(SessionType.ASIAN, config)
         assert analyzer is not None
         assert hasattr(analyzer, 'analyze_session')
-    def test_get_available_analyzers(self) -> None:
+    def test_get_available_analyzers(self: "TestSessionAnalyzerFactory") -> None:
         """Тест получения доступных анализаторов."""
         analyzers = self.factory.get_available_analyzers()
         assert isinstance(analyzers, list)
@@ -654,14 +654,14 @@ class TestSessionRepositories:
         """Настройка перед каждым тестом."""
         self.session_repo = SessionDataRepository()
         self.config_repo = SessionConfigurationRepository()
-    def test_session_repository_save_and_get(self) -> None:
+    def test_session_repository_save_and_get(self: "TestSessionRepositories") -> None:
         """Тест сохранения и получения профиля сессии."""
         profile = self._create_test_session_profile()
         self.session_repo.save_session_profile(profile)
         retrieved_profile = self.session_repo.get_session_profile(profile.session_type)
         assert retrieved_profile is not None
         assert retrieved_profile.session_type == profile.session_type
-    def test_session_repository_get_all(self) -> None:
+    def test_session_repository_get_all(self: "TestSessionRepositories") -> None:
         """Тест получения всех профилей сессий."""
         profiles = self.session_repo.get_all_session_profiles()
         assert isinstance(profiles, dict)
@@ -669,7 +669,7 @@ class TestSessionRepositories:
         for session_type, profile in profiles.items():
             assert isinstance(session_type, SessionType)
             assert isinstance(profile, SessionProfile)
-    def test_analysis_repository_save_and_get(self) -> None:
+    def test_analysis_repository_save_and_get(self: "TestSessionRepositories") -> None:
         """Тест сохранения и получения результата анализа."""
         analysis_result = self._create_test_analysis_result()
         self.config_repo.save_session_analysis(analysis_result)
@@ -680,7 +680,7 @@ class TestSessionRepositories:
         )
         assert isinstance(retrieved_analysis, list)
         assert len(retrieved_analysis) > 0
-    def test_analysis_repository_get_statistics(self) -> None:
+    def test_analysis_repository_get_statistics(self: "TestSessionRepositories") -> None:
         """Тест получения статистики анализа."""
         statistics = self.config_repo.get_session_statistics(SessionType.ASIAN)
         assert isinstance(statistics, dict)

@@ -35,7 +35,7 @@ else:
                 self.entry_time = entry_time
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_exchange() -> Any:
     exchange = AsyncMock()
     exchange.create_order = AsyncMock()
@@ -45,12 +45,12 @@ def mock_exchange() -> Any:
     return exchange
 
 
-@pytest.fixture
+    @pytest.fixture
 def order_controller(mock_exchange) -> Any:
     return OrderController(mock_exchange, {})
 
 
-@pytest.fixture
+    @pytest.fixture
 def sample_order() -> Any:
     return Order(
         id="",
@@ -64,8 +64,8 @@ def sample_order() -> Any:
     )
 
 
-@pytest.mark.asyncio
-async def test_place_order(order_controller, sample_order, mock_exchange) -> None:
+    @pytest.mark.asyncio
+    async def test_place_order(order_controller, sample_order, mock_exchange) -> None:
     """Тест размещения ордера"""
     mock_exchange.create_order.return_value = {"id": "123", "status": "open"}
 
@@ -76,16 +76,16 @@ async def test_place_order(order_controller, sample_order, mock_exchange) -> Non
     assert result.id in order_controller.active_orders
 
 
-@pytest.mark.asyncio
-async def test_cancel_order(order_controller, mock_exchange) -> None:
+    @pytest.mark.asyncio
+    async def test_cancel_order(order_controller, mock_exchange) -> None:
     """Тест отмены ордера"""
     order_id = "123"
     await order_controller.cancel_order(order_id)
     mock_exchange.cancel_order.assert_called_once_with(order_id)
 
 
-@pytest.mark.asyncio
-async def test_get_order(order_controller, mock_exchange) -> None:
+    @pytest.mark.asyncio
+    async def test_get_order(order_controller, mock_exchange) -> None:
     """Тест получения ордера"""
     order_data = {
         "id": "123",
@@ -106,8 +106,8 @@ async def test_get_order(order_controller, mock_exchange) -> None:
     assert result.pair == "BTC/USDT"
 
 
-@pytest.mark.asyncio
-async def test_get_open_orders(order_controller, mock_exchange) -> None:
+    @pytest.mark.asyncio
+    async def test_get_open_orders(order_controller, mock_exchange) -> None:
     """Тест получения открытых ордеров"""
     orders_data = [
         {

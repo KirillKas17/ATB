@@ -17,7 +17,7 @@ from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
 class TestAnalyticalIntegration:
     """Тесты интеграции аналитических модулей."""
     @pytest.fixture
-    def integration_config(self) -> Any:
+    def integration_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация интеграции для тестов."""
         # Исправление: создаем простой словарь вместо несуществующего класса
         return {
@@ -44,11 +44,11 @@ class TestAnalyticalIntegration:
         integration.risk_assessor = Mock()
         return integration
     @pytest.fixture
-    def test_symbol(self) -> None:
+    def test_symbol(self: "TestAnalyticalIntegration") -> None:
         """Тестовый символ."""
         return "BTCUSDT"
     @pytest.fixture
-    def test_market_data(self) -> None:
+    def test_market_data(self: "TestAnalyticalIntegration") -> None:
         """Тестовые рыночные данные."""
         dates = pd.date_range(start="2024-01-01", periods=50, freq="1min")
         data = {
@@ -60,7 +60,7 @@ class TestAnalyticalIntegration:
         }
         return pd.DataFrame(data, index=dates)
     @pytest.fixture
-    def test_order_book(self) -> None:
+    def test_order_book(self: "TestAnalyticalIntegration") -> None:
         """Тестовый ордербук."""
         base_price = 50000.0
         return OrderBookSnapshot(
@@ -307,7 +307,7 @@ class TestAnalyticalIntegration:
 class TestMarketMakerAnalyticalIntegration:
     """Тесты интеграции с MarketMakerModelAgent."""
     @pytest.fixture
-    def agent_config(self) -> Any:
+    def agent_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация агента для тестов."""
         return {
             "spread_threshold": 0.001,
@@ -327,11 +327,11 @@ class TestMarketMakerAnalyticalIntegration:
         """Экземпляр агента для тестов."""
         return MarketMakerModelAgent(config=agent_config)
     @pytest.fixture
-    def test_symbol(self) -> None:
+    def test_symbol(self: "TestMarketMakerAnalyticalIntegration") -> None:
         """Тестовый символ."""
         return "BTCUSDT"
     @pytest.fixture
-    def test_market_data(self) -> None:
+    def test_market_data(self: "TestMarketMakerAnalyticalIntegration") -> None:
         """Тестовые рыночные данные."""
         dates = pd.date_range(start="2024-01-01", periods=50, freq="1min")
         data = {
@@ -343,7 +343,7 @@ class TestMarketMakerAnalyticalIntegration:
         }
         return pd.DataFrame(data, index=dates)
     @pytest.fixture
-    def test_order_book(self) -> None:
+    def test_order_book(self: "TestMarketMakerAnalyticalIntegration") -> None:
         """Тестовый ордербук."""
         return {
             "bids": [
@@ -422,7 +422,7 @@ class TestMarketMakerAnalyticalIntegration:
 class TestIntegrationScenarios:
     """Тесты различных сценариев интеграции."""
     @pytest.fixture
-    def integration(self) -> Any:
+    def integration(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр интеграции для тестов."""
         config = AnalyticalIntegrationConfig(
             entanglement_enabled=True,

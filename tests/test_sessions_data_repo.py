@@ -12,7 +12,7 @@ from domain.sessions.repositories import SessionDataRepository
 
 test_storage = "test_data_sessions"
 
-@pytest.fixture(scope="function", autouse=True)
+    @pytest.fixture(scope="function", autouse=True)
 def cleanup() -> Any:
     if os.path.exists(test_storage):
         shutil.rmtree(test_storage)
@@ -54,7 +54,7 @@ def make_analysis(ts: Timestamp) -> SessionAnalysisResult:
         risk_factors=["manipulation", "gap"]
     )
 
-def test_save_and_get_analysis() -> None:
+    def test_save_and_get_analysis() -> None:
     repo = SessionDataRepository(storage_path=test_storage)
     ts = Timestamp(datetime.now(timezone.utc))
     analysis = make_analysis(ts)
@@ -64,7 +64,7 @@ def test_save_and_get_analysis() -> None:
     assert result[0].session_type == SessionType.ASIAN
     assert result[0].confidence == 0.95
 
-def test_delete_analysis() -> None:
+    def test_delete_analysis() -> None:
     repo = SessionDataRepository(storage_path=test_storage)
     ts = Timestamp(datetime.now(timezone.utc))
     analysis = make_analysis(ts)
@@ -74,7 +74,7 @@ def test_delete_analysis() -> None:
     result = repo.get_session_analysis(SessionType.ASIAN, ts, ts)
     assert len(result) == 0
 
-def test_get_session_statistics() -> None:
+    def test_get_session_statistics() -> None:
     repo = SessionDataRepository(storage_path=test_storage)
     ts = datetime.now(timezone.utc)
     for i in range(3):

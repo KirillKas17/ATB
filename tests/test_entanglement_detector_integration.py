@@ -18,7 +18,7 @@ from application.di_container import DIContainer, ContainerConfig
 class TestEntanglementDetectorIntegration:
     """Тесты интеграции EntanglementDetector."""
     @pytest.fixture
-    def mock_entanglement_detector(self) -> Any:
+    def mock_entanglement_detector(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок EntanglementDetector."""
         detector = Mock(spec=EntanglementDetector)
         detector.analyze_entanglement = Mock(return_value=EntanglementResult(
@@ -30,7 +30,7 @@ class TestEntanglementDetectorIntegration:
         ))
         return detector
     @pytest.fixture
-    def mock_enhanced_trading_service(self) -> Any:
+    def mock_enhanced_trading_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок EnhancedTradingService."""
         service = Mock()
         service.get_orderbook = AsyncMock(return_value={
@@ -151,7 +151,7 @@ class TestEntanglementDetectorIntegration:
         assert "ETHUSDT" in trading_orchestrator._entanglement_cache
         assert trading_orchestrator._last_entanglement_update is not None
     @pytest.mark.asyncio
-    async def test_entanglement_detector_disabled(self) -> None:
+    def test_entanglement_detector_disabled(self: "TestEntanglementDetectorIntegration") -> None:
         """Тест работы без EntanglementDetector."""
         # Arrange
         order_repository = Mock()
@@ -180,7 +180,7 @@ class TestEntanglementDetectorIntegration:
         # Assert
         assert modified_signal == signal  # Сигнал не должен измениться
     @pytest.mark.asyncio
-    async def test_entanglement_detector_in_di_container(self) -> None:
+    def test_entanglement_detector_in_di_container(self: "TestEntanglementDetectorIntegration") -> None:
         """Тест регистрации EntanglementDetector в DI контейнере."""
         # Arrange
         config = ContainerConfig(entanglement_detection_enabled=True)
@@ -191,7 +191,7 @@ class TestEntanglementDetectorIntegration:
         assert detector is not None
         assert isinstance(detector, EntanglementDetector)
     @pytest.mark.asyncio
-    async def test_entanglement_detector_disabled_in_di_container(self) -> None:
+    def test_entanglement_detector_disabled_in_di_container(self: "TestEntanglementDetectorIntegration") -> None:
         """Тест отключения EntanglementDetector в DI контейнере."""
         # Arrange
         config = ContainerConfig(entanglement_detection_enabled=False)
@@ -239,7 +239,7 @@ class TestEntanglementDetectorIntegration:
 class TestEntanglementDetectorPerformance:
     """Тесты производительности EntanglementDetector."""
     @pytest.mark.asyncio
-    async def test_entanglement_analysis_performance(self) -> None:
+    def test_entanglement_analysis_performance(self: "TestEntanglementDetectorPerformance") -> None:
         """Тест производительности анализа запутанности."""
         import time
         # Arrange
@@ -262,7 +262,7 @@ class TestEntanglementDetectorPerformance:
 class TestEntanglementDetectorIntegrationWithRealData:
     """Тесты интеграции с реальными данными."""
     @pytest.mark.asyncio
-    async def test_entanglement_detection_with_realistic_orderbook(self) -> None:
+    def test_entanglement_detection_with_realistic_orderbook(self: "TestEntanglementDetectorIntegrationWithRealData") -> None:
         """Тест детекции запутанности с реалистичными данными ордербука."""
         # Arrange
         detector = EntanglementDetector()

@@ -133,7 +133,7 @@ else:
 class TestMarketData:
     """Тесты для рыночных данных."""
     @pytest.fixture
-    def sample_ohlcv_data(self) -> Any:
+    def sample_ohlcv_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными OHLCV данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1h')
         data = pd.DataFrame({
@@ -155,7 +155,7 @@ class TestMarketData:
         assert market_data.timeframe == "1h"
         assert len(market_data.data) == 100
         assert isinstance(market_data.timestamp, datetime)
-    def test_market_data_validation_empty_data(self) -> None:
+    def test_market_data_validation_empty_data(self: "TestMarketData") -> None:
         """Тест валидации пустых данных."""
         empty_data = pd.DataFrame()
         with pytest.raises(ValueError, match="data cannot be empty"):
@@ -164,7 +164,7 @@ class TestMarketData:
                 timeframe="1h",
                 data=empty_data,
             )
-    def test_market_data_validation_wrong_type(self) -> None:
+    def test_market_data_validation_wrong_type(self: "TestMarketData") -> None:
         """Тест валидации неправильного типа данных."""
         wrong_data = [1, 2, 3]
         with pytest.raises(ValueError, match="data must be a pandas DataFrame"):
@@ -214,7 +214,7 @@ class TestMarketData:
         # Проверяем расчет
         expected_change = (sample_ohlcv_data["close"].iloc[-1] / sample_ohlcv_data["close"].iloc[0]) - 1
         assert abs(price_change - expected_change) < 1e-10
-    def test_price_change_single_point(self) -> None:
+    def test_price_change_single_point(self: "TestMarketData") -> None:
         """Тест изменения цены для одной точки данных."""
         single_data = pd.DataFrame({
             'open': [50000],
@@ -244,7 +244,7 @@ class TestMarketData:
         returns = sample_ohlcv_data["close"].pct_change().dropna()
         expected_volatility = returns.std()
         assert abs(volatility - expected_volatility) < 1e-10
-    def test_volatility_single_point(self) -> None:
+    def test_volatility_single_point(self: "TestMarketData") -> None:
         """Тест волатильности для одной точки данных."""
         single_data = pd.DataFrame({
             'open': [50000],
@@ -311,7 +311,7 @@ class TestMarketData:
         assert data_dict["metadata"] == {"source": "binance"}
 class TestModel:
     """Тесты для модели машинного обучения."""
-    def test_model_creation(self) -> None:
+    def test_model_creation(self: "TestModel") -> None:
         """Тест создания модели."""
         model = Model(
             name="Test Model",
@@ -325,14 +325,14 @@ class TestModel:
         assert model.metadata == {"version": "1.0"}
         assert isinstance(model.created_at, datetime)
         assert isinstance(model.updated_at, datetime)
-    def test_model_validation_invalid_type(self) -> None:
+    def test_model_validation_invalid_type(self: "TestModel") -> None:
         """Тест валидации неправильного типа модели."""
         with pytest.raises(ValueError, match="Invalid model type"):
             Model(
                 name="Test Model",
                 model_type="invalid_type",
             )
-    def test_model_valid_types(self) -> None:
+    def test_model_valid_types(self: "TestModel") -> None:
         """Тест всех валидных типов моделей."""
         valid_types = ["classification", "regression", "clustering"]
         for model_type in valid_types:
@@ -341,7 +341,7 @@ class TestModel:
                 model_type=model_type,
             )
             assert model.model_type == model_type
-    def test_model_to_dict(self) -> None:
+    def test_model_to_dict(self: "TestModel") -> None:
         """Тест преобразования модели в словарь."""
         model = Model(
             name="Test Model",
@@ -358,7 +358,7 @@ class TestModel:
         assert isinstance(model_dict["updated_at"], str)
 class TestPrediction:
     """Тесты для предсказания модели."""
-    def test_prediction_creation(self) -> None:
+    def test_prediction_creation(self: "TestPrediction") -> None:
         """Тест создания предсказания."""
         prediction = Prediction(
             symbol="BTC/USD",
@@ -371,7 +371,7 @@ class TestPrediction:
         assert prediction.confidence == 0.85
         assert prediction.metadata == {"threshold": 0.5}
         assert isinstance(prediction.timestamp, datetime)
-    def test_prediction_validation_confidence_too_low(self) -> None:
+    def test_prediction_validation_confidence_too_low(self: "TestPrediction") -> None:
         """Тест валидации слишком низкой уверенности."""
         with pytest.raises(ValueError, match="Confidence must be between 0 and 1"):
             Prediction(
@@ -379,7 +379,7 @@ class TestPrediction:
                 value=0.75,
                 confidence=-0.1,
             )
-    def test_prediction_validation_confidence_too_high(self) -> None:
+    def test_prediction_validation_confidence_too_high(self: "TestPrediction") -> None:
         """Тест валидации слишком высокой уверенности."""
         with pytest.raises(ValueError, match="Confidence must be between 0 and 1"):
             Prediction(
@@ -387,7 +387,7 @@ class TestPrediction:
                 value=0.75,
                 confidence=1.1,
             )
-    def test_prediction_validation_confidence_boundaries(self) -> None:
+    def test_prediction_validation_confidence_boundaries(self: "TestPrediction") -> None:
         """Тест валидации граничных значений уверенности."""
         # Должно работать
         Prediction(
@@ -400,7 +400,7 @@ class TestPrediction:
             value=0.75,
             confidence=1.0,
         )
-    def test_prediction_to_dict(self) -> None:
+    def test_prediction_to_dict(self: "TestPrediction") -> None:
         """Тест преобразования предсказания в словарь."""
         prediction = Prediction(
             symbol="BTC/USD",

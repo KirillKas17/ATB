@@ -10,11 +10,11 @@ from domain.type_definitions.ml_types import StrategyResult, StrategyPerformance
 class TestStrategyService:
     """Тесты для сервиса стратегий."""
     @pytest.fixture
-    def strategy_service(self) -> Any:
+    def strategy_service(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса стратегий."""
         return StrategyService()
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
         dates = pd.date_range('2024-01-01', periods=100, freq='1H')
         np.random.seed(42)
@@ -30,7 +30,7 @@ class TestStrategyService:
             'bollinger_lower': np.random.uniform(49000, 50000, 100)
         }, index=dates)
     @pytest.fixture
-    def sample_strategy_config(self) -> Any:
+    def sample_strategy_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с конфигурацией стратегии."""
         return {
             "strategy_type": "trend_following",
@@ -225,7 +225,7 @@ class TestStrategyService:
             strategy_service.execute_strategy(sample_market_data, sample_strategy_config)
         end_time = time.time()
         assert (end_time - start_time) < 10.0
-    def test_strategy_service_config_customization(self) -> None:
+    def test_strategy_service_config_customization(self: "TestStrategyService") -> None:
         """Тест кастомизации конфигурации сервиса."""
         custom_config = {
             "default_strategy": "custom_strategy",

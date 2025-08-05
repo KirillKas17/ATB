@@ -29,7 +29,7 @@ class TestEvolutionMigration:
         assert migration.auto_migrate is False
         assert migration.backup_before_migrate is False
         assert migration.rollback_supported is False
-    def test_init_invalid_config(self) -> None:
+    def test_init_invalid_config(self: "TestEvolutionMigration") -> None:
         """Тест инициализации с некорректной конфигурацией."""
         config = {
             "migrations_dir": "/invalid/path",

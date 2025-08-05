@@ -338,7 +338,7 @@ class TestTechnicalAnalysis:
         assert isinstance(indicators, dict)
         assert len(indicators) > 0
 
-    def test_error_handling(self) -> None:
+    def test_error_handling(self: "TestTechnicalAnalysis") -> None:
         """Тест обработки ошибок."""
         # Тест с пустыми данными
         empty_data = pd.DataFrame()

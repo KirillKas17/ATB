@@ -24,7 +24,7 @@ from domain.type_definitions.entity_system_types import (
 class TestSnapshotManager:
     """Тесты для SnapshotManager."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = Path(tempfile.mkdtemp())
         yield temp_dir
@@ -59,7 +59,7 @@ class TestSnapshotManager:
         """Экземпляр SnapshotManager для тестов."""
         return SnapshotManager(snapshot_config)
     @pytest.fixture
-    def sample_entity_state(self) -> Any:
+    def sample_entity_state(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образцовое состояние системы."""
         return EntityState(
             is_running=True,
@@ -166,7 +166,7 @@ class TestSnapshotManager:
 class TestMemoryManager:
     """Тесты для MemoryManager."""
     @pytest.fixture
-    def memory_config(self) -> Any:
+    def memory_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
         return MemoryConfig(
             max_memory_percent=80.0,
@@ -277,7 +277,7 @@ class TestMemoryManager:
         assert memory_manager._is_monitoring is False
 class TestMemoryUtils:
     """Тесты для утилит памяти."""
-    def test_generate_snapshot_id(self) -> None:
+    def test_generate_snapshot_id(self: "TestMemoryUtils") -> None:
         """Тест генерации ID снимка."""
         id1 = generate_snapshot_id()
         id2 = generate_snapshot_id()
@@ -286,14 +286,14 @@ class TestMemoryUtils:
         assert id1 != id2  # ID должны быть уникальными
         assert id1.startswith("snapshot_")
         assert id2.startswith("snapshot_")
-    def test_calculate_checksum(self) -> None:
+    def test_calculate_checksum(self: "TestMemoryUtils") -> None:
         """Тест вычисления контрольной суммы."""
         data = b"test data for checksum"
         checksum = calculate_checksum(data)
         assert isinstance(checksum, str)
         assert len(checksum) == 64  # SHA-256 hash length
         assert checksum.isalnum()
-    def test_serialize_deserialize_snapshot(self) -> None:
+    def test_serialize_deserialize_snapshot(self: "TestMemoryUtils") -> None:
         """Тест сериализации и десериализации снимка."""
         snapshot: MemorySnapshot = {
             "id": "test_snapshot",
@@ -322,7 +322,7 @@ class TestMemoryUtils:
         compressed_data = serialize_snapshot(snapshot, SnapshotFormat.COMPRESSED)  # type: ignore[arg-type]
         deserialized_compressed = deserialize_snapshot(compressed_data, SnapshotFormat.COMPRESSED.value)  # type: ignore[arg-type]
         assert deserialized_compressed["id"] == snapshot["id"]
-    def test_validate_snapshot_data(self) -> None:
+    def test_validate_snapshot_data(self: "TestMemoryUtils") -> None:
         """Тест валидации данных снимка."""
         # Валидный снимок
         valid_snapshot: MemorySnapshot = {
@@ -359,7 +359,7 @@ class TestMemoryUtils:
 class TestMemoryIntegration:
     """Интеграционные тесты для модулей памяти."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = Path(tempfile.mkdtemp())
         yield temp_dir

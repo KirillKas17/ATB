@@ -12,7 +12,7 @@ from infrastructure.external_services.exchanges.bybit_exchange_service import By
 class TestBybitExchangeService:
     """Тесты для BybitExchangeService."""
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
         return ExchangeServiceConfig(
             exchange_name=ExchangeName.BYBIT,

@@ -26,7 +26,7 @@ class TestTradingFlow:
     """Интеграционные тесты торгового потока."""
 
     @pytest.fixture
-    def mock_exchange(self) -> Any:
+    def mock_exchange(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для мока биржи."""
         exchange = Mock(spec=BybitClient)
         exchange.create_order = AsyncMock(return_value={"id": "test_order_123", "status": "pending"})
@@ -36,7 +36,7 @@ class TestTradingFlow:
         return exchange
 
     @pytest.fixture
-    def mock_portfolio_repository(self) -> Any:
+    def mock_portfolio_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для мока репозитория портфеля."""
         repo = Mock()
         repo.get_by_account_id = AsyncMock(return_value=None)
@@ -45,7 +45,7 @@ class TestTradingFlow:
         return repo
 
     @pytest.fixture
-    def mock_order_repository(self) -> Any:
+    def mock_order_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для мока репозитория ордеров."""
         repo = Mock()
         repo.save = AsyncMock(return_value=True)
@@ -54,7 +54,7 @@ class TestTradingFlow:
         return repo
 
     @pytest.fixture
-    def mock_position_repository(self) -> Any:
+    def mock_position_repository(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для мока репозитория позиций."""
         repo = Mock()
         repo.save = AsyncMock(return_value=True)

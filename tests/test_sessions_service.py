@@ -13,7 +13,7 @@ from domain.type_definitions.session_types import (
 from domain.value_objects.timestamp import Timestamp
 from domain.sessions.services import SessionService, SessionContext, SessionPrediction
 from domain.sessions.session_marker import MarketSessionContext, SessionState
-@pytest.fixture
+    @pytest.fixture
 def mock_registry() -> Any:
     registry = Mock()
     profile = Mock()
@@ -48,7 +48,7 @@ def mock_registry() -> Any:
     registry.get_session_overlap.return_value = 0.5
     registry.get_all_profiles.return_value = {SessionType.ASIAN: profile}
     return registry
-@pytest.fixture
+    @pytest.fixture
 def mock_session_marker() -> Any:
     marker = Mock()
     # Создаем SessionState для активной сессии
@@ -70,7 +70,7 @@ def mock_session_marker() -> Any:
     marker.get_session_context.return_value = context
     marker.get_next_session_change.return_value = {"time_ahead_hours": 2.0}
     return marker
-@pytest.fixture
+    @pytest.fixture
 def mock_influence_analyzer() -> Any:
     analyzer = Mock()
     analysis = SessionAnalysisResult(
@@ -107,24 +107,24 @@ def mock_influence_analyzer() -> Any:
     )
     analyzer.analyze_session.return_value = analysis
     return analyzer
-@pytest.fixture
+    @pytest.fixture
 def mock_transition_manager() -> Any:
     manager = Mock()
     manager.is_transition_period.return_value = False
     manager.get_active_transitions.return_value = []
     return manager
-@pytest.fixture
+    @pytest.fixture
 def mock_cache() -> Any:
     cache = Mock()
     cache.get.return_value = None  # По умолчанию кэш пустой
     return cache
-@pytest.fixture
+    @pytest.fixture
 def mock_validator() -> Any:
     validator = Mock()
     validator.validate_market_data.return_value = True
     validator.validate_session_analysis.return_value = True
     return validator
-@pytest.fixture
+    @pytest.fixture
 def session_service(mock_registry, mock_session_marker, mock_influence_analyzer, 
                    mock_transition_manager, mock_cache, mock_validator) -> Any:
     return SessionService(
@@ -135,7 +135,7 @@ def session_service(mock_registry, mock_session_marker, mock_influence_analyzer,
         cache=mock_cache,
         validator=mock_validator
     )
-def test_get_current_session_context(session_service, mock_cache) -> None:
+    def test_get_current_session_context(session_service, mock_cache) -> None:
     """Тест получения контекста сессии."""
     context = session_service.get_current_session_context()
     assert isinstance(context, dict)
@@ -144,7 +144,7 @@ def test_get_current_session_context(session_service, mock_cache) -> None:
     assert context["primary_session"] is not None
     assert "phase" in context["primary_session"]
     mock_cache.set.assert_called_once()
-def test_analyze_session_influence(session_service, mock_cache) -> None:
+    def test_analyze_session_influence(session_service, mock_cache) -> None:
     """Тест анализа влияния сессии."""
     market_data = pd.DataFrame({
         'close': [100, 101, 102],
@@ -155,7 +155,7 @@ def test_analyze_session_influence(session_service, mock_cache) -> None:
     assert analysis.session_type == SessionType.ASIAN
     assert analysis.confidence == 0.95
     mock_cache.set.assert_called_once()
-def test_predict_session_behavior(session_service, mock_cache) -> None:
+    def test_predict_session_behavior(session_service, mock_cache) -> None:
     """Тест прогноза поведения сессии."""
     market_conditions = MarketConditions(
         volatility=1.0,
@@ -173,46 +173,46 @@ def test_predict_session_behavior(session_service, mock_cache) -> None:
     assert "predicted_volume" in prediction
     assert "reversal_probability" in prediction
     mock_cache.set.assert_called_once()
-def test_get_session_recommendations(session_service, mock_cache) -> None:
+    def test_get_session_recommendations(session_service, mock_cache) -> None:
     """Тест получения рекомендаций."""
     recommendations = session_service.get_session_recommendations("BTCUSDT", SessionType.ASIAN)
     assert isinstance(recommendations, list)
     assert len(recommendations) > 0
     mock_cache.set.assert_called_once()
-def test_get_session_statistics(session_service, mock_cache) -> None:
+    def test_get_session_statistics(session_service, mock_cache) -> None:
     """Тест получения статистики."""
     stats = session_service.get_session_statistics(SessionType.ASIAN)
     assert isinstance(stats, dict)
     assert "total_analyses" in stats
     mock_cache.set.assert_called_once()
-def test_is_transition_period(session_service) -> None:
+    def test_is_transition_period(session_service) -> None:
     """Тест проверки переходного периода."""
     result = session_service.is_transition_period()
     assert isinstance(result, bool)
-def test_get_active_transitions(session_service) -> None:
+    def test_get_active_transitions(session_service) -> None:
     """Тест получения активных переходов."""
     transitions = session_service.get_active_transitions()
     assert isinstance(transitions, list)
-def test_get_session_overlap(session_service) -> None:
+    def test_get_session_overlap(session_service) -> None:
     """Тест получения перекрытия сессий."""
     overlap = session_service.get_session_overlap(SessionType.ASIAN, SessionType.LONDON)
     assert isinstance(overlap, float)
     assert 0.0 <= overlap <= 1.0
-def test_get_session_phase(session_service) -> None:
+    def test_get_session_phase(session_service) -> None:
     """Тест получения фазы сессии."""
     phase = session_service.get_session_phase(SessionType.ASIAN)
     assert phase is not None
     assert isinstance(phase, str)
-def test_get_next_session_change(session_service) -> None:
+    def test_get_next_session_change(session_service) -> None:
     """Тест получения следующего изменения сессии."""
     change = session_service.get_next_session_change()
     assert isinstance(change, dict)
     assert "time_ahead_hours" in change
-def test_clear_cache(session_service, mock_cache) -> None:
+    def test_clear_cache(session_service, mock_cache) -> None:
     """Тест очистки кэша."""
     session_service.clear_cache()
     mock_cache.clear.assert_called_once()
-def test_get_session_health_check(session_service) -> None:
+    def test_get_session_health_check(session_service) -> None:
     """Тест проверки здоровья сервиса."""
     health = session_service.get_session_health_check()
     assert isinstance(health, dict)
@@ -221,13 +221,13 @@ def test_get_session_health_check(session_service) -> None:
     assert "components" in health
     assert "metrics" in health
     assert health["status"] == "healthy"
-def test_analyze_session_influence_with_invalid_data(session_service, mock_validator) -> None:
+    def test_analyze_session_influence_with_invalid_data(session_service, mock_validator) -> None:
     """Тест анализа с невалидными данными."""
     mock_validator.validate_market_data.return_value = False
     market_data = pd.DataFrame({'invalid': [1, 2, 3]})
     analysis = session_service.analyze_session_influence("BTCUSDT", market_data)
     assert analysis is None
-def test_predict_session_behavior_without_profile(session_service, mock_registry) -> None:
+    def test_predict_session_behavior_without_profile(session_service, mock_registry) -> None:
     """Тест прогноза без профиля сессии."""
     mock_registry.get_profile.return_value = None
     market_conditions = MarketConditions(

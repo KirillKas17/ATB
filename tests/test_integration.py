@@ -30,7 +30,7 @@ class TestIntegration:
     """Тесты интеграции всех компонентов"""
 
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовая конфигурация"""
         return {
             "exchange": {
@@ -55,7 +55,7 @@ class TestIntegration:
         }
 
     @pytest.fixture
-    def event_bus(self) -> Any:
+    def event_bus(self: "TestEvolvableMarketMakerAgent") -> Any:
         """EventBus для тестов"""
         return EventBus()
 
@@ -199,7 +199,7 @@ class TestIntegration:
         assert "system" in all_metrics
 
     @pytest.mark.asyncio
-    async def test_cache_manager_integration(self) -> None:
+    def test_cache_manager_integration(self: "TestIntegration") -> None:
         """Тест интеграции CacheManager"""
         cache_manager = get_cache_manager()
         cache = cache_manager.get_async_cache("test")

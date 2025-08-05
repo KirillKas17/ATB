@@ -35,7 +35,7 @@ class TestExceptionHandler:
         }
         self.handler._exception_history = []
 
-    def test_init_default_strategies(self) -> None:
+    def test_init_default_strategies(self: "TestExceptionHandler") -> None:
         """Тест инициализации стратегий по умолчанию."""
         assert ExceptionCategory.NETWORK in self.handler._recovery_strategies
         assert ExceptionCategory.DATA in self.handler._recovery_strategies
@@ -45,7 +45,7 @@ class TestExceptionHandler:
         assert ExceptionCategory.SECURITY in self.handler._recovery_strategies
         assert ExceptionCategory.UNKNOWN in self.handler._recovery_strategies
 
-    def test_set_recovery_strategy(self) -> None:
+    def test_set_recovery_strategy(self: "TestExceptionHandler") -> None:
         """Тест установки стратегии восстановления."""
         self.handler.set_recovery_strategy = lambda category, strategy: setattr(
             self.handler._recovery_strategies, category, strategy
@@ -56,10 +56,10 @@ class TestExceptionHandler:
         )
         assert self.handler._recovery_strategies[ExceptionCategory.NETWORK] == RecoveryStrategy.FALLBACK
 
-    def test_handle_exceptions_context_manager_success(self) -> None:
+    def test_handle_exceptions_context_manager_success(self: "TestExceptionHandler") -> None:
         """Тест контекстного менеджера при успешном выполнении."""
         # Создаем простой контекстный менеджер для тестов
-        class TestContextManager:
+class TestContextManager:
             def __init__(self, handler, component, operation) -> Any:
                 self.handler = handler
                 self.component = component
@@ -89,10 +89,10 @@ class TestExceptionHandler:
             result = 42
         assert result == 42
 
-    def test_handle_exceptions_context_manager_exception(self) -> None:
+    def test_handle_exceptions_context_manager_exception(self: "TestContextManager") -> None:
         """Тест контекстного менеджера при исключении."""
         # Создаем простой контекстный менеджер для тестов
-        class TestContextManager:
+class TestContextManager:
             def __init__(self, handler, component, operation) -> Any:
                 self.handler = handler
                 self.component = component
@@ -129,10 +129,10 @@ class TestExceptionHandler:
         assert context.severity == ExceptionSeverity.MEDIUM
         assert context.category == ExceptionCategory.UNKNOWN
 
-    def test_handle_exceptions_with_custom_severity_and_category(self) -> None:
+    def test_handle_exceptions_with_custom_severity_and_category(self: "TestContextManager") -> None:
         """Тест обработки исключений с пользовательскими параметрами."""
         # Создаем простой контекстный менеджер для тестов
-        class TestContextManager:
+class TestContextManager:
             def __init__(self, handler, component, operation, severity, category) -> Any:
                 self.handler = handler
                 self.component = component
@@ -172,7 +172,7 @@ class TestExceptionHandler:
         assert context.category == ExceptionCategory.NETWORK
 
     @pytest.mark.asyncio
-    async def test_handle_async_exceptions_success(self) -> None:
+    def test_handle_async_exceptions_success(self: "TestContextManager") -> None:
         """Тест асинхронной обработки исключений при успехе."""
         async def async_operation() -> Any:
             return "success"
@@ -186,7 +186,7 @@ class TestExceptionHandler:
         assert result == "success"
 
     @pytest.mark.asyncio
-    async def test_handle_async_exceptions_exception(self) -> None:
+    def test_handle_async_exceptions_exception(self: "TestContextManager") -> None:
         """Тест асинхронной обработки исключений при ошибке."""
         async def async_operation() -> Any:
             raise ValueError("Async error")
@@ -199,7 +199,7 @@ class TestExceptionHandler:
                 "test", "async_operation", async_operation()
             )
 
-    def test_retry_strategy(self) -> None:
+    def test_retry_strategy(self: "TestContextManager") -> None:
         """Тест стратегии повторных попыток."""
         exception = ValueError("Test error")
         context = ExceptionContext(
@@ -217,7 +217,7 @@ class TestExceptionHandler:
         self.handler._retry_strategy(exception, context)
         assert context.details["retry_count"] == 2
 
-    def test_fallback_strategy_with_handler(self) -> None:
+    def test_fallback_strategy_with_handler(self: "TestContextManager") -> None:
         """Тест стратегии резервного варианта с обработчиком."""
         exception = ValueError("Test error")
         fallback_called = False
@@ -240,7 +240,7 @@ class TestExceptionHandler:
         self.handler._fallback_strategy(exception, context)
         assert fallback_called
 
-    def test_circuit_breaker_strategy(self) -> None:
+    def test_circuit_breaker_strategy(self: "TestContextManager") -> None:
         """Тест стратегии circuit breaker."""
         exception = ValueError("Test error")
         context = ExceptionContext(
@@ -284,7 +284,7 @@ class TestExceptionHandler:
         assert circuit["failure_count"] == 5
         assert circuit["state"] == "open"
 
-    def test_get_exception_statistics(self) -> None:
+    def test_get_exception_statistics(self: "TestContextManager") -> None:
         """Тест получения статистики исключений."""
         # Добавляем несколько исключений
         for i in range(3):
@@ -316,7 +316,7 @@ class TestExceptionHandler:
         assert "test2" in stats["by_component"]
         assert stats["by_component"]["test0"] == 1
 
-    def test_get_exception_history(self) -> None:
+    def test_get_exception_history(self: "TestContextManager") -> None:
         """Тест получения истории исключений."""
         # Добавляем исключения
         for i in range(5):
@@ -348,31 +348,31 @@ class TestExceptionHandler:
 
 class TestExceptionDecorators:
     """Тесты для декораторов обработки исключений."""
-    def test_handle_exceptions_decorator_success(self) -> None:
+    def test_handle_exceptions_decorator_success(self: "TestExceptionDecorators") -> None:
         """Тест декоратора при успешном выполнении."""
         handler = SafeExceptionHandler()
         handler._exception_history = []
         
         @handle_exceptions("test", "decorated_operation")
-        def test_function() -> None:
+    def test_function() -> None:
             return "success"
         
         result = test_function()
         assert result == "success"
 
-    def test_handle_exceptions_decorator_exception(self) -> None:
+    def test_handle_exceptions_decorator_exception(self: "TestExceptionDecorators") -> None:
         """Тест декоратора при исключении."""
         handler = SafeExceptionHandler()
         handler._exception_history = []
         
         @handle_exceptions("test", "decorated_operation")
-        def test_function() -> None:
+    def test_function() -> None:
             raise ValueError("Decorated error")
         
         with pytest.raises(ValueError):
             test_function()
 
-    def test_handle_exceptions_decorator_with_custom_params(self) -> None:
+    def test_handle_exceptions_decorator_with_custom_params(self: "TestExceptionDecorators") -> None:
         """Тест декоратора с пользовательскими параметрами."""
         handler = SafeExceptionHandler()
         handler._exception_history = []
@@ -383,7 +383,7 @@ class TestExceptionDecorators:
             category=ExceptionCategory.SECURITY,
             custom_param="test_value"
         )
-        def test_function() -> None:
+    def test_function() -> None:
             raise RuntimeError("Critical error")
         
         with pytest.raises(RuntimeError):
@@ -391,7 +391,7 @@ class TestExceptionDecorators:
 
 class TestExceptionContext:
     """Тесты для ExceptionContext."""
-    def test_exception_context_creation(self) -> None:
+    def test_exception_context_creation(self: "TestExceptionContext") -> None:
         """Тест создания контекста исключения."""
         timestamp = datetime.now()
         context = ExceptionContext(
@@ -410,7 +410,7 @@ class TestExceptionContext:
         assert context.details["key"] == "value"
         assert context.recovery_attempted is False
         assert context.recovery_successful is False
-    def test_exception_context_default_values(self) -> None:
+    def test_exception_context_default_values(self: "TestExceptionContext") -> None:
         """Тест значений по умолчанию для контекста исключения."""
         context = ExceptionContext(
             timestamp=datetime.now(),
@@ -425,20 +425,20 @@ class TestExceptionContext:
         assert context.recovery_successful is False
 class TestExceptionSeverity:
     """Тесты для ExceptionSeverity."""
-    def test_severity_values(self) -> None:
+    def test_severity_values(self: "TestExceptionSeverity") -> None:
         """Тест значений уровней серьёзности."""
         assert ExceptionSeverity.LOW.value == "low"
         assert ExceptionSeverity.MEDIUM.value == "medium"
         assert ExceptionSeverity.HIGH.value == "high"
         assert ExceptionSeverity.CRITICAL.value == "critical"
-    def test_severity_comparison(self) -> None:
+    def test_severity_comparison(self: "TestExceptionSeverity") -> None:
         """Тест сравнения уровней серьёзности."""
         assert ExceptionSeverity.LOW < ExceptionSeverity.MEDIUM
         assert ExceptionSeverity.MEDIUM < ExceptionSeverity.HIGH
         assert ExceptionSeverity.HIGH < ExceptionSeverity.CRITICAL
 class TestExceptionCategory:
     """Тесты для ExceptionCategory."""
-    def test_category_values(self) -> None:
+    def test_category_values(self: "TestExceptionCategory") -> None:
         """Тест значений категорий исключений."""
         assert ExceptionCategory.NETWORK.value == "network"
         assert ExceptionCategory.DATA.value == "data"
@@ -449,7 +449,7 @@ class TestExceptionCategory:
         assert ExceptionCategory.UNKNOWN.value == "unknown"
 class TestRecoveryStrategy:
     """Тесты для RecoveryStrategy."""
-    def test_strategy_values(self) -> None:
+    def test_strategy_values(self: "TestRecoveryStrategy") -> None:
         """Тест значений стратегий восстановления."""
         assert RecoveryStrategy.RETRY.value == "retry"
         assert RecoveryStrategy.FALLBACK.value == "fallback"

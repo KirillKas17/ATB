@@ -74,7 +74,7 @@ class TestTradingSystemIntegration:
             'portfolio_manager': Mock()
         }
 
-    def test_full_trading_cycle_integration(self, trading_session_config, 
+    def test_full_trading_cycle_integration(self, trading_session_config,
                                           mock_exchange_responses, system_components):
         """Тест полного цикла торговли."""
         # Setup mock responses

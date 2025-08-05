@@ -25,11 +25,11 @@ from domain.type_definitions.market_maker_types import (
 class TestMMPatternIntegration:
     """Тесты интеграции паттернов маркет-мейкера."""
     @pytest.fixture
-    def pattern_classifier(self) -> Any:
+    def pattern_classifier(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание классификатора паттернов."""
         return MarketMakerPatternClassifier()
     @pytest.fixture
-    def pattern_memory(self) -> Any:
+    def pattern_memory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание памяти паттернов."""
         return PatternMemoryRepository("test_data")
     @pytest.fixture
@@ -40,7 +40,7 @@ class TestMMPatternIntegration:
             pattern_memory=pattern_memory
         )
     @pytest.fixture
-    def mm_storage(self) -> Any:
+    def mm_storage(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание хранилища ММ."""
         # return MarketMakerPatternStorage("test_data")
         storage = Mock()
@@ -48,11 +48,11 @@ class TestMMPatternIntegration:
         storage.get_patterns_by_symbol = AsyncMock(return_value=[])
         return storage
     @pytest.fixture
-    def agent_context_manager(self) -> Any:
+    def agent_context_manager(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание менеджера контекстов агентов."""
         return AgentContextManager()
     @pytest.fixture
-    def sample_order_book(self) -> Any:
+    def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестового стакана заявок."""
         return OrderBookSnapshot(
             timestamp=datetime.now(),
@@ -72,7 +72,7 @@ class TestMMPatternIntegration:
             price_change_24h=0.02
         )
     @pytest.fixture
-    def sample_trades(self) -> Any:
+    def sample_trades(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание тестовых сделок."""
         return TradeSnapshot(
             timestamp=datetime.now(),
@@ -190,7 +190,7 @@ class TestMMPatternIntegration:
         assert hasattr(context, 'update_mm_pattern_result')
         assert hasattr(context, 'get_mm_pattern_statistics')
     @pytest.mark.asyncio
-    async def test_full_integration_workflow(self, pattern_classifier, pattern_memory, 
+    async def test_full_integration_workflow(self, pattern_classifier, pattern_memory,
                                            follow_controller, agent_context_manager,
                                            sample_order_book, sample_trades) -> None:
         """Тест полного рабочего процесса интеграции."""
@@ -256,7 +256,7 @@ class TestMMPatternIntegration:
         pattern_id = f"{pattern.symbol}_{pattern.pattern_type.value}_{pattern.timestamp.strftime('%Y%m%d_%H%M%S')}"
         success = await pattern_memory.update_pattern_result("BTCUSDT", pattern_id, result)
         assert success is True
-    def test_pattern_features_serialization(self) -> None:
+    def test_pattern_features_serialization(self: "TestMMPatternIntegration") -> None:
         """Тест сериализации признаков паттерна."""
         from domain.type_definitions.market_maker_types import (
             BookPressure, VolumeDelta, PriceReaction, SpreadChange, 
@@ -287,7 +287,7 @@ class TestMMPatternIntegration:
         assert features.volume_concentration == 0.6
         assert features.price_volatility == 0.01
         assert features.market_microstructure["avg_trade_size"] == 123.0
-    def test_pattern_serialization(self) -> None:
+    def test_pattern_serialization(self: "TestMMPatternIntegration") -> None:
         """Тест сериализации паттерна."""
         from domain.type_definitions.market_maker_types import (
             BookPressure, VolumeDelta, PriceReaction, SpreadChange, 
@@ -328,8 +328,8 @@ class TestMMPatternIntegration:
         assert pattern_restored.symbol == pattern.symbol
         assert pattern_restored.pattern_type == pattern.pattern_type
         assert pattern_restored.confidence == pattern.confidence
-@pytest.mark.asyncio
-async def test_orchestrator_mm_pattern_analysis() -> None:
+    @pytest.mark.asyncio
+    async def test_orchestrator_mm_pattern_analysis() -> None:
     """Тест интеграции MM Pattern Intelligence в orchestrator."""
     # Создаем компоненты
     pattern_classifier = MarketMakerPatternClassifier()
@@ -382,8 +382,8 @@ async def test_orchestrator_mm_pattern_analysis() -> None:
 class DummyRepo:
     async def get_by_id(self, _) -> Any:
         return True
-@pytest.mark.asyncio
-async def test_orchestrator_execute_strategy_mm_e2e() -> None:
+    @pytest.mark.asyncio
+    async def test_orchestrator_execute_strategy_mm_e2e() -> None:
     """E2E: execute_strategy вызывает MM анализ и применяет модификаторы."""
     # MM компоненты
     pattern_classifier = MarketMakerPatternClassifier()

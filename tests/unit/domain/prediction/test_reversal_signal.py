@@ -44,7 +44,7 @@ from domain.value_objects.timestamp import Timestamp
 class TestPivotPoint:
     """Тесты для PivotPoint."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestPivotPoint") -> None:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -66,7 +66,7 @@ class TestPivotPoint:
         assert pivot.volume_cluster is None
         assert pivot.fibonacci_levels == []
 
-    def test_creation_with_optional_fields(self) -> None:
+    def test_creation_with_optional_fields(self: "TestPivotPoint") -> None:
         """Тест создания с опциональными полями."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -86,7 +86,7 @@ class TestPivotPoint:
         assert pivot.volume_cluster == 500.0
         assert pivot.fibonacci_levels == [0.382, 0.618]
 
-    def test_validation_strength_too_high(self) -> None:
+    def test_validation_strength_too_high(self: "TestPivotPoint") -> None:
         """Тест валидации - сила слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -100,7 +100,7 @@ class TestPivotPoint:
                 strength=1.5
             )
 
-    def test_validation_strength_too_low(self) -> None:
+    def test_validation_strength_too_low(self: "TestPivotPoint") -> None:
         """Тест валидации - сила слишком низкая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -114,7 +114,7 @@ class TestPivotPoint:
                 strength=-0.1
             )
 
-    def test_validation_negative_volume(self) -> None:
+    def test_validation_negative_volume(self: "TestPivotPoint") -> None:
         """Тест валидации - отрицательный объем."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -132,7 +132,7 @@ class TestPivotPoint:
 class TestFibonacciLevel:
     """Тесты для FibonacciLevel."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestFibonacciLevel") -> None:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
         
@@ -148,7 +148,7 @@ class TestFibonacciLevel:
         assert fib_level.volume_cluster is None
         assert fib_level.confluence_count == 0
 
-    def test_creation_with_optional_fields(self) -> None:
+    def test_creation_with_optional_fields(self: "TestFibonacciLevel") -> None:
         """Тест создания с опциональными полями."""
         price = Price(Decimal("50000"), Currency("USD"))
         
@@ -163,7 +163,7 @@ class TestFibonacciLevel:
         assert fib_level.volume_cluster == 500.0
         assert fib_level.confluence_count == 3
 
-    def test_validation_invalid_level(self) -> None:
+    def test_validation_invalid_level(self: "TestFibonacciLevel") -> None:
         """Тест валидации - неверный уровень."""
         price = Price(Decimal("50000"), Currency("USD"))
         
@@ -174,7 +174,7 @@ class TestFibonacciLevel:
                 strength=0.7
             )
 
-    def test_validation_strength_too_high(self) -> None:
+    def test_validation_strength_too_high(self: "TestFibonacciLevel") -> None:
         """Тест валидации - сила слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         
@@ -185,7 +185,7 @@ class TestFibonacciLevel:
                 strength=1.5
             )
 
-    def test_validation_negative_confluence(self) -> None:
+    def test_validation_negative_confluence(self: "TestFibonacciLevel") -> None:
         """Тест валидации - отрицательное количество совпадений."""
         price = Price(Decimal("50000"), Currency("USD"))
         
@@ -197,7 +197,7 @@ class TestFibonacciLevel:
                 confluence_count=-1
             )
 
-    def test_all_valid_levels(self) -> None:
+    def test_all_valid_levels(self: "TestFibonacciLevel") -> None:
         """Тест всех валидных уровней Фибоначчи."""
         price = Price(Decimal("50000"), Currency("USD"))
         valid_levels = [23.6, 38.2, 50.0, 61.8, 78.6]
@@ -214,7 +214,7 @@ class TestFibonacciLevel:
 class TestVolumeProfile:
     """Тесты для VolumeProfile."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestVolumeProfile") -> None:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
         poc_price = Price(Decimal("50100"), Currency("USD"))
@@ -240,7 +240,7 @@ class TestVolumeProfile:
         assert profile.volume_nodes == []
         assert profile.imbalance_ratio == 0.0
 
-    def test_creation_with_optional_fields(self) -> None:
+    def test_creation_with_optional_fields(self: "TestVolumeProfile") -> None:
         """Тест создания с опциональными полями."""
         price = Price(Decimal("50000"), Currency("USD"))
         poc_price = Price(Decimal("50100"), Currency("USD"))
@@ -264,7 +264,7 @@ class TestVolumeProfile:
         assert profile.volume_nodes == volume_nodes
         assert profile.imbalance_ratio == 0.3
 
-    def test_validation_negative_volume_density(self) -> None:
+    def test_validation_negative_volume_density(self: "TestVolumeProfile") -> None:
         """Тест валидации - отрицательная плотность объема."""
         price = Price(Decimal("50000"), Currency("USD"))
         poc_price = Price(Decimal("50100"), Currency("USD"))
@@ -282,7 +282,7 @@ class TestVolumeProfile:
                 timestamp=timestamp
             )
 
-    def test_validation_imbalance_ratio_too_high(self) -> None:
+    def test_validation_imbalance_ratio_too_high(self: "TestVolumeProfile") -> None:
         """Тест валидации - коэффициент дисбаланса слишком высокий."""
         price = Price(Decimal("50000"), Currency("USD"))
         poc_price = Price(Decimal("50100"), Currency("USD"))
@@ -301,7 +301,7 @@ class TestVolumeProfile:
                 imbalance_ratio=1.5
             )
 
-    def test_validation_imbalance_ratio_too_low(self) -> None:
+    def test_validation_imbalance_ratio_too_low(self: "TestVolumeProfile") -> None:
         """Тест валидации - коэффициент дисбаланса слишком низкий."""
         price = Price(Decimal("50000"), Currency("USD"))
         poc_price = Price(Decimal("50100"), Currency("USD"))
@@ -324,7 +324,7 @@ class TestVolumeProfile:
 class TestLiquidityCluster:
     """Тесты для LiquidityCluster."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestLiquidityCluster") -> None:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -345,7 +345,7 @@ class TestLiquidityCluster:
         assert cluster.strength == 0.8
         assert cluster.timestamp == timestamp
 
-    def test_validation_negative_volume(self) -> None:
+    def test_validation_negative_volume(self: "TestLiquidityCluster") -> None:
         """Тест валидации - отрицательный объем."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -360,7 +360,7 @@ class TestLiquidityCluster:
                 timestamp=timestamp
             )
 
-    def test_validation_zero_cluster_size(self) -> None:
+    def test_validation_zero_cluster_size(self: "TestLiquidityCluster") -> None:
         """Тест валидации - нулевой размер кластера."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -375,7 +375,7 @@ class TestLiquidityCluster:
                 timestamp=timestamp
             )
 
-    def test_validation_strength_too_high(self) -> None:
+    def test_validation_strength_too_high(self: "TestLiquidityCluster") -> None:
         """Тест валидации - сила слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -394,7 +394,7 @@ class TestLiquidityCluster:
 class TestDivergenceSignal:
     """Тесты для DivergenceSignal."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestDivergenceSignal") -> None:
         """Тест создания с валидными данными."""
         timestamp = Timestamp(datetime.now())
         
@@ -420,7 +420,7 @@ class TestDivergenceSignal:
         assert signal.confidence == 0.7
         assert signal.timestamp == timestamp
 
-    def test_validation_strength_too_high(self) -> None:
+    def test_validation_strength_too_high(self: "TestDivergenceSignal") -> None:
         """Тест валидации - сила слишком высокая."""
         timestamp = Timestamp(datetime.now())
         
@@ -437,7 +437,7 @@ class TestDivergenceSignal:
                 timestamp=timestamp
             )
 
-    def test_validation_confidence_too_low(self) -> None:
+    def test_validation_confidence_too_low(self: "TestDivergenceSignal") -> None:
         """Тест валидации - уверенность слишком низкая."""
         timestamp = Timestamp(datetime.now())
         
@@ -454,7 +454,7 @@ class TestDivergenceSignal:
                 timestamp=timestamp
             )
 
-    def test_validation_empty_indicator(self) -> None:
+    def test_validation_empty_indicator(self: "TestDivergenceSignal") -> None:
         """Тест валидации - пустой индикатор."""
         timestamp = Timestamp(datetime.now())
         
@@ -475,7 +475,7 @@ class TestDivergenceSignal:
 class TestCandlestickPattern:
     """Тесты для CandlestickPattern."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestCandlestickPattern") -> None:
         """Тест создания с валидными данными."""
         timestamp = Timestamp(datetime.now())
         
@@ -496,7 +496,7 @@ class TestCandlestickPattern:
         assert pattern.timestamp == timestamp
         assert pattern.metadata == {}
 
-    def test_creation_with_metadata(self) -> None:
+    def test_creation_with_metadata(self: "TestCandlestickPattern") -> None:
         """Тест создания с метаданными."""
         timestamp = Timestamp(datetime.now())
         metadata = {"body_ratio": 0.3, "shadow_ratio": 0.7}
@@ -513,7 +513,7 @@ class TestCandlestickPattern:
         
         assert pattern.metadata == metadata
 
-    def test_validation_empty_name(self) -> None:
+    def test_validation_empty_name(self: "TestCandlestickPattern") -> None:
         """Тест валидации - пустое имя."""
         timestamp = Timestamp(datetime.now())
         
@@ -527,7 +527,7 @@ class TestCandlestickPattern:
                 timestamp=timestamp
             )
 
-    def test_validation_strength_too_high(self) -> None:
+    def test_validation_strength_too_high(self: "TestCandlestickPattern") -> None:
         """Тест валидации - сила слишком высокая."""
         timestamp = Timestamp(datetime.now())
         
@@ -541,7 +541,7 @@ class TestCandlestickPattern:
                 timestamp=timestamp
             )
 
-    def test_validation_confirmation_level_too_low(self) -> None:
+    def test_validation_confirmation_level_too_low(self: "TestCandlestickPattern") -> None:
         """Тест валидации - уровень подтверждения слишком низкий."""
         timestamp = Timestamp(datetime.now())
         
@@ -559,7 +559,7 @@ class TestCandlestickPattern:
 class TestMomentumAnalysis:
     """Тесты для MomentumAnalysis."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestMomentumAnalysis") -> None:
         """Тест создания с валидными данными."""
         timestamp = Timestamp(datetime.now())
         
@@ -580,7 +580,7 @@ class TestMomentumAnalysis:
         assert analysis.price_momentum == 0.15
         assert analysis.momentum_divergence is None
 
-    def test_creation_with_divergence(self) -> None:
+    def test_creation_with_divergence(self: "TestMomentumAnalysis") -> None:
         """Тест создания с дивергенцией."""
         timestamp = Timestamp(datetime.now())
         
@@ -596,7 +596,7 @@ class TestMomentumAnalysis:
         
         assert analysis.momentum_divergence == 0.4
 
-    def test_validation_non_numeric_momentum_loss(self) -> None:
+    def test_validation_non_numeric_momentum_loss(self: "TestMomentumAnalysis") -> None:
         """Тест валидации - нечисловое значение потери импульса."""
         timestamp = Timestamp(datetime.now())
         
@@ -610,7 +610,7 @@ class TestMomentumAnalysis:
                 price_momentum=0.15
             )
 
-    def test_validation_non_numeric_velocity_change(self) -> None:
+    def test_validation_non_numeric_velocity_change(self: "TestMomentumAnalysis") -> None:
         """Тест валидации - нечисловое изменение скорости."""
         timestamp = Timestamp(datetime.now())
         
@@ -628,7 +628,7 @@ class TestMomentumAnalysis:
 class TestMeanReversionBand:
     """Тесты для MeanReversionBand."""
 
-    def test_creation_valid(self) -> None:
+    def test_creation_valid(self: "TestMeanReversionBand") -> None:
         """Тест создания с валидными данными."""
         upper_band = Price(Decimal("51000"), Currency("USD"))
         lower_band = Price(Decimal("49000"), Currency("USD"))
@@ -653,7 +653,7 @@ class TestMeanReversionBand:
         assert band.current_position == 0.5
         assert band.timestamp == timestamp
 
-    def test_validation_negative_deviation(self) -> None:
+    def test_validation_negative_deviation(self: "TestMeanReversionBand") -> None:
         """Тест валидации - отрицательное отклонение."""
         upper_band = Price(Decimal("51000"), Currency("USD"))
         lower_band = Price(Decimal("49000"), Currency("USD"))
@@ -671,7 +671,7 @@ class TestMeanReversionBand:
                 timestamp=timestamp
             )
 
-    def test_validation_negative_band_width(self) -> None:
+    def test_validation_negative_band_width(self: "TestMeanReversionBand") -> None:
         """Тест валидации - отрицательная ширина полосы."""
         upper_band = Price(Decimal("51000"), Currency("USD"))
         lower_band = Price(Decimal("49000"), Currency("USD"))
@@ -689,7 +689,7 @@ class TestMeanReversionBand:
                 timestamp=timestamp
             )
 
-    def test_validation_current_position_too_high(self) -> None:
+    def test_validation_current_position_too_high(self: "TestMeanReversionBand") -> None:
         """Тест валидации - текущая позиция слишком высокая."""
         upper_band = Price(Decimal("51000"), Currency("USD"))
         lower_band = Price(Decimal("49000"), Currency("USD"))
@@ -746,7 +746,7 @@ class TestReversalSignal:
         assert sample_signal.analysis_metadata == {}
         assert sample_signal.risk_metrics == {}
 
-    def test_validation_empty_symbol(self) -> None:
+    def test_validation_empty_symbol(self: "TestReversalSignal") -> None:
         """Тест валидации - пустой символ."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -762,7 +762,7 @@ class TestReversalSignal:
                 timestamp=timestamp
             )
 
-    def test_validation_confidence_too_high(self) -> None:
+    def test_validation_confidence_too_high(self: "TestReversalSignal") -> None:
         """Тест валидации - уверенность слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -778,7 +778,7 @@ class TestReversalSignal:
                 timestamp=timestamp
             )
 
-    def test_validation_signal_strength_too_low(self) -> None:
+    def test_validation_signal_strength_too_low(self: "TestReversalSignal") -> None:
         """Тест валидации - сила сигнала слишком низкая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -794,7 +794,7 @@ class TestReversalSignal:
                 timestamp=timestamp
             )
 
-    def test_validation_agreement_score_too_high(self) -> None:
+    def test_validation_agreement_score_too_high(self: "TestReversalSignal") -> None:
         """Тест валидации - оценка согласованности слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -811,7 +811,7 @@ class TestReversalSignal:
                 agreement_score=1.5
             )
 
-    def test_validation_zero_horizon(self) -> None:
+    def test_validation_zero_horizon(self: "TestReversalSignal") -> None:
         """Тест валидации - нулевой горизонт."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
@@ -851,7 +851,7 @@ class TestReversalSignal:
         """Тест истечения срока - не истек."""
         assert sample_signal.is_expired is False
 
-    def test_is_expired_true(self) -> None:
+    def test_is_expired_true(self: "TestReversalSignal") -> None:
         """Тест истечения срока - истек."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now() - timedelta(hours=5))  # 5 часов назад

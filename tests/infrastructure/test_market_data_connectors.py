@@ -29,11 +29,11 @@ from domain.value_objects.volume import Volume
 from domain.type_definitions.value_object_types import CurrencyCode
 class TestBaseExchangeConnector:
     """Тесты для базового абстрактного коннектора."""
-    def test_abstract_class_cannot_be_instantiated(self) -> None:
+    def test_abstract_class_cannot_be_instantiated(self: "TestBaseExchangeConnector") -> None:
         """Проверка, что абстрактный класс нельзя инстанцировать."""
         with pytest.raises(TypeError):
             BaseExchangeConnector()
-    def test_abstract_methods_are_defined(self) -> None:
+    def test_abstract_methods_are_defined(self: "TestBaseExchangeConnector") -> None:
         """Проверка, что абстрактные методы определены."""
         assert hasattr(BaseExchangeConnector, 'get_websocket_url')
         assert hasattr(BaseExchangeConnector, 'get_subscription_message')
@@ -41,11 +41,11 @@ class TestBaseExchangeConnector:
 class TestBinanceConnector:
     """Тесты для Binance коннектора."""
     @pytest.fixture
-    def binance_connector(self) -> Any:
+    def binance_connector(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра BinanceConnector для тестов."""
         return BinanceConnector()
     @pytest.fixture
-    def sample_binance_data(self) -> Any:
+    def sample_binance_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые данные от Binance WebSocket."""
         return {
             "stream": "btcusdt@depth20@100ms",
@@ -200,11 +200,11 @@ class TestBinanceConnector:
 class TestCoinbaseConnector:
     """Тесты для Coinbase коннектора."""
     @pytest.fixture
-    def coinbase_connector(self) -> Any:
+    def coinbase_connector(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра CoinbaseConnector для тестов."""
         return CoinbaseConnector()
     @pytest.fixture
-    def sample_coinbase_data(self) -> Any:
+    def sample_coinbase_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые данные от Coinbase WebSocket."""
         return {
             "type": "snapshot",
@@ -263,11 +263,11 @@ class TestCoinbaseConnector:
 class TestKrakenConnector:
     """Тесты для Kraken коннектора."""
     @pytest.fixture
-    def kraken_connector(self) -> Any:
+    def kraken_connector(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра KrakenConnector для тестов."""
         return KrakenConnector()
     @pytest.fixture
-    def sample_kraken_data(self) -> Any:
+    def sample_kraken_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Тестовые данные от Kraken WebSocket."""
         return [
             0,  # channelID
@@ -328,7 +328,7 @@ class TestKrakenConnector:
 class TestMarketDataIntegration:
     """Интеграционные тесты для market_data."""
     @pytest.fixture
-    def connectors(self) -> Any:
+    def connectors(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание всех коннекторов для интеграционных тестов."""
         return {
             "binance": BinanceConnector(),
@@ -426,7 +426,7 @@ class TestMarketDataIntegration:
 class TestMarketDataPerformance:
     """Тесты производительности market_data."""
     @pytest.fixture
-    def binance_connector(self) -> Any:
+    def binance_connector(self: "TestEvolvableMarketMakerAgent") -> Any:
         return BinanceConnector()
     def test_parse_performance(self, binance_connector) -> None:
         """Тест производительности парсинга."""
@@ -483,7 +483,7 @@ class TestMarketDataPerformance:
 class TestMarketDataEdgeCases:
     """Тесты граничных случаев для market_data."""
     @pytest.fixture
-    def binance_connector(self) -> Any:
+    def binance_connector(self: "TestEvolvableMarketMakerAgent") -> Any:
         return BinanceConnector()
     def test_empty_order_book(self, binance_connector) -> None:
         """Тест обработки пустого ордербука."""

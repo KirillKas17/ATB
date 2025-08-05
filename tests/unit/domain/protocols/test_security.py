@@ -755,7 +755,7 @@ class TestSecurityManager:
 class TestSecurityDecorators:
     """Тесты для декораторов безопасности."""
 
-    async def test_require_authentication_decorator(self):
+    async def test_require_authentication_decorator(self: "TestSecurityDecorators") -> None:
         """Тест декоратора требования аутентификации."""
         context = SecurityContext(
             user_id="user123",
@@ -768,16 +768,16 @@ class TestSecurityDecorators:
         )
         
         @require_authentication("/api/data", Permission.READ)
-        async def test_function(security_context: SecurityContext):
+    async def test_function(security_context: SecurityContext):
             return "success"
         
         result = await test_function(context)
         assert result == "success"
 
-    async def test_encrypt_sensitive_fields_decorator(self):
+    async def test_encrypt_sensitive_fields_decorator(self: "TestSecurityDecorators") -> None:
         """Тест декоратора шифрования чувствительных полей."""
         @encrypt_sensitive_fields(["password", "email"])
-        async def test_function(data: Dict[str, Any]):
+    async def test_function(data: Dict[str, Any]):
             return data
         
         original_data = {
@@ -791,10 +791,10 @@ class TestSecurityDecorators:
         assert result["password"] != original_data["password"]
         assert result["email"] != original_data["email"]
 
-    async def test_audit_security_events_decorator(self):
+    async def test_audit_security_events_decorator(self: "TestSecurityDecorators") -> None:
         """Тест декоратора аудита событий безопасности."""
         @audit_security_events(AuditEvent.DATA_ACCESS, "/api/data", "GET")
-        async def test_function():
+    async def test_function():
             return "success"
         
         result = await test_function()
@@ -804,7 +804,7 @@ class TestSecurityDecorators:
 class TestSecurityIntegration:
     """Интеграционные тесты безопасности."""
 
-    async def test_full_security_workflow(self):
+    async def test_full_security_workflow(self: "TestSecurityIntegration") -> None:
         """Тест полного рабочего процесса безопасности."""
         security_manager = SecurityManager()
         
@@ -858,7 +858,7 @@ class TestSecurityIntegration:
         report = await security_manager.get_security_report(hours=24)
         assert isinstance(report, dict)
 
-    async def test_security_error_handling(self):
+    async def test_security_error_handling(self: "TestSecurityIntegration") -> None:
         """Тест обработки ошибок безопасности."""
         security_manager = SecurityManager()
         

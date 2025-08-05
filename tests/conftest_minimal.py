@@ -12,7 +12,7 @@ from uuid import uuid4
 import pytest
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_account_data():
     """Мок данных для счета."""
     return {
@@ -23,7 +23,7 @@ def mock_account_data():
     }
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_order_data():
     """Мок данных для ордера."""
     return {
@@ -37,7 +37,7 @@ def mock_order_data():
     }
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_position_data():
     """Мок данных для позиции."""
     return {
@@ -50,7 +50,7 @@ def mock_position_data():
     }
 
 
-@pytest.fixture
+    @pytest.fixture
 def event_loop():
     """Фикстура event loop для асинхронных тестов."""
     loop = asyncio.new_event_loop()
@@ -58,7 +58,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_exchange():
     """Мок биржи."""
     exchange = Mock()
@@ -68,7 +68,7 @@ def mock_exchange():
     return exchange
 
 
-@pytest.fixture
+    @pytest.fixture
 def mock_repository():
     """Мок репозитория."""
     repo = Mock()

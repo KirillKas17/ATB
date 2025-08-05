@@ -591,7 +591,7 @@ class TestInMemoryStrategyRepository:
         assert "win_rate" in stored_metrics
 
     @pytest.mark.asyncio
-    async def test_repository_isolation(self):
+    async def test_repository_isolation(self: "TestInMemoryStrategyRepository") -> None:
         """Тест изоляции между экземплярами репозитория."""
         repo1 = InMemoryStrategyRepository()
         repo2 = InMemoryStrategyRepository()

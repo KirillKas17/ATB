@@ -15,23 +15,23 @@ from domain.symbols import (
 class TestSymbolsIntegration:
     """Интеграционные тесты для модулей symbols."""
     @pytest.fixture
-    def symbol_validator(self) -> Any:
+    def symbol_validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для валидатора символов."""
         return SymbolValidator()
     @pytest.fixture
-    def market_phase_classifier(self) -> Any:
+    def market_phase_classifier(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для классификатора рыночных фаз."""
         return MarketPhaseClassifier()
     @pytest.fixture
-    def opportunity_calculator(self) -> Any:
+    def opportunity_calculator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для калькулятора возможностей."""
         return OpportunityScoreCalculator()
     @pytest.fixture
-    def symbol_cache(self) -> Any:
+    def symbol_cache(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для кэша символов."""
         return MemorySymbolCache(default_ttl=300)
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с тестовыми рыночными данными."""
         return pd.DataFrame({
             'open': [100, 101, 102, 103, 104] * 20,
@@ -41,13 +41,13 @@ class TestSymbolsIntegration:
             'volume': [1000, 1100, 1200, 1300, 1400] * 20
         })
     @pytest.fixture
-    def sample_order_book(self) -> Any:
+    def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с тестовым стаканом заявок."""
         return {
             'bids': [[100.0, 10.0], [99.9, 15.0], [99.8, 20.0]],
             'asks': [[100.1, 12.0], [100.2, 18.0], [100.3, 25.0]]
         }
-    def test_symbol_analysis_workflow(self, symbol_validator, market_phase_classifier, 
+    def test_symbol_analysis_workflow(self, symbol_validator, market_phase_classifier,
                                     opportunity_calculator, symbol_cache, 
                                     sample_market_data, sample_order_book) -> None:
         """Тест полного workflow анализа символа."""
@@ -134,7 +134,7 @@ class TestSymbolsIntegration:
             symbol_validator.validate_ohlcv_data(invalid_data)
         # 3. Проверка, что кэш не содержит невалидных данных
         assert symbol_cache.get_profile(symbol) is None
-    def test_symbol_cache_integration_with_analysis(self, symbol_validator, 
+    def test_symbol_cache_integration_with_analysis(self, symbol_validator,
                                                   market_phase_classifier,
                                                   opportunity_calculator, 
                                                   symbol_cache,

@@ -14,7 +14,7 @@ from domain.exceptions import OrderError
 
 class TestOrder:
     """Тесты для entity Order."""
-    def test_creation_with_valid_data(self) -> None:
+    def test_creation_with_valid_data(self: "TestOrder") -> None:
         """Тест создания ордера с валидными данными."""
         # Arrange & Act
         order = Order(
@@ -35,7 +35,7 @@ class TestOrder:
         assert order.is_active is True
         assert order.filled_quantity == Decimal("0")
         assert order.remaining_quantity == Decimal("0.001")
-    def test_creation_market_order(self) -> None:
+    def test_creation_market_order(self: "TestOrder") -> None:
         """Тест создания рыночного ордера."""
         # Arrange & Act
         order = Order(
@@ -49,7 +49,7 @@ class TestOrder:
         assert order.order_type == OrderType.MARKET
         assert order.price is None
         assert order.status == OrderStatus.PENDING
-    def test_creation_with_invalid_data(self) -> None:
+    def test_creation_with_invalid_data(self: "TestOrder") -> None:
         """Тест создания ордера с невалидными данными."""
         # Arrange & Act & Assert
         with pytest.raises(ValueError):
@@ -61,7 +61,7 @@ class TestOrder:
                 quantity=Volume(Decimal("0.001")),
                 price=Price(Decimal("50000"), Currency.USD),
             )
-    def test_fill_partial(self) -> None:
+    def test_fill_partial(self: "TestOrder") -> None:
         """Тест частичного заполнения ордера."""
         # Arrange
         order = Order(
@@ -79,7 +79,7 @@ class TestOrder:
         assert order.average_price.value == Decimal("50000")
         assert order.status == OrderStatus.PARTIALLY_FILLED
         assert order.remaining_quantity == Decimal("0.0005")
-    def test_fill_complete(self) -> None:
+    def test_fill_complete(self: "TestOrder") -> None:
         """Тест полного заполнения ордера."""
         # Arrange
         order = Order(
@@ -99,7 +99,7 @@ class TestOrder:
         assert order.status == OrderStatus.FILLED
         assert order.remaining_quantity == Decimal("0")
         assert order.is_active is False
-    def test_fill_more_than_quantity(self) -> None:
+    def test_fill_more_than_quantity(self: "TestOrder") -> None:
         """Тест заполнения больше чем количество."""
         # Arrange
         order = Order(
@@ -113,7 +113,7 @@ class TestOrder:
         # Act & Assert
         with pytest.raises(OrderError, match="Cannot fill more than order quantity"):
             order.fill(Volume(Decimal("0.002")), Price(Decimal("50000"), Currency.USD))
-    def test_cancel_order(self) -> None:
+    def test_cancel_order(self: "TestOrder") -> None:
         """Тест отмены ордера."""
         # Arrange
         order = Order(
@@ -129,7 +129,7 @@ class TestOrder:
         # Assert
         assert order.status == OrderStatus.CANCELLED
         assert order.is_active is False
-    def test_cancel_filled_order(self) -> None:
+    def test_cancel_filled_order(self: "TestOrder") -> None:
         """Тест отмены уже заполненного ордера."""
         # Arrange
         order = Order(
@@ -144,7 +144,7 @@ class TestOrder:
         # Act & Assert
         with pytest.raises(OrderError, match="Cannot cancel filled order"):
             order.cancel()
-    def test_cancel_cancelled_order(self) -> None:
+    def test_cancel_cancelled_order(self: "TestOrder") -> None:
         """Тест отмены уже отмененного ордера."""
         # Arrange
         order = Order(
@@ -159,7 +159,7 @@ class TestOrder:
         # Act & Assert
         with pytest.raises(OrderError, match="Order is already cancelled"):
             order.cancel()
-    def test_update_price(self) -> None:
+    def test_update_price(self: "TestOrder") -> None:
         """Тест обновления цены ордера."""
         # Arrange
         order = Order(
@@ -174,7 +174,7 @@ class TestOrder:
         order.update_price(Price(Decimal("51000"), Currency.USD))
         # Assert
         assert order.price.value == Decimal("51000")
-    def test_update_price_market_order(self) -> None:
+    def test_update_price_market_order(self: "TestOrder") -> None:
         """Тест обновления цены рыночного ордера."""
         # Arrange
         order = Order(
@@ -187,7 +187,7 @@ class TestOrder:
         # Act & Assert
         with pytest.raises(OrderError, match="Cannot update price for market order"):
             order.update_price(Price(Decimal("51000"), Currency.USD))
-    def test_update_price_filled_order(self) -> None:
+    def test_update_price_filled_order(self: "TestOrder") -> None:
         """Тест обновления цены заполненного ордера."""
         # Arrange
         order = Order(
@@ -202,7 +202,7 @@ class TestOrder:
         # Act & Assert
         with pytest.raises(OrderError, match="Cannot update price for filled order"):
             order.update_price(Price(Decimal("51000"), Currency.USD))
-    def test_calculate_total_value(self) -> None:
+    def test_calculate_total_value(self: "TestOrder") -> None:
         """Тест расчета общей стоимости ордера."""
         # Arrange
         order = Order(
@@ -217,7 +217,7 @@ class TestOrder:
         total_value = order.total_value
         # Assert
         assert total_value.value == Decimal("50.00")  # 0.001 * 50000
-    def test_calculate_filled_value(self) -> None:
+    def test_calculate_filled_value(self: "TestOrder") -> None:
         """Тест расчета стоимости заполненной части."""
         # Arrange
         order = Order(
@@ -233,7 +233,7 @@ class TestOrder:
         filled_value = order.filled_value
         # Assert
         assert filled_value.value == Decimal("25.00")  # 0.0005 * 50000
-    def test_calculate_remaining_value(self) -> None:
+    def test_calculate_remaining_value(self: "TestOrder") -> None:
         """Тест расчета стоимости оставшейся части."""
         # Arrange
         order = Order(
@@ -249,7 +249,7 @@ class TestOrder:
         remaining_value = order.remaining_quantity * order.price.amount
         # Assert
         assert remaining_value == Decimal("25.00")  # 0.0005 * 50000
-    def test_get_fill_percentage(self) -> None:
+    def test_get_fill_percentage(self: "TestOrder") -> None:
         """Тест получения процента заполнения."""
         # Arrange
         order = Order(
@@ -265,7 +265,7 @@ class TestOrder:
         fill_percentage = order.fill_percentage
         # Assert
         assert fill_percentage == 50.0
-    def test_to_dict(self) -> None:
+    def test_to_dict(self: "TestOrder") -> None:
         """Тест сериализации в словарь."""
         # Arrange
         order = Order(
@@ -285,7 +285,7 @@ class TestOrder:
         assert result["quantity"] == "0.00100000"
         assert result["price"] == "50000"
         assert result["status"] == "pending"
-    def test_from_dict(self) -> None:
+    def test_from_dict(self: "TestOrder") -> None:
         """Тест десериализации из словаря."""
         # Arrange
         data = {
@@ -321,7 +321,7 @@ class TestOrder:
         assert order.quantity == Decimal("0.001")
         assert order.price.value == Decimal("50000")
         assert order.status == OrderStatus.PENDING
-    def test_equality(self) -> None:
+    def test_equality(self: "TestOrder") -> None:
         """Тест равенства ордеров."""
         # Arrange
         order1 = Order(
@@ -343,7 +343,7 @@ class TestOrder:
         # Assert
         assert order1 == order2
         assert hash(order1) == hash(order2)
-    def test_inequality(self) -> None:
+    def test_inequality(self: "TestOrder") -> None:
         """Тест неравенства ордеров."""
         # Arrange
         order1 = Order(
@@ -365,7 +365,7 @@ class TestOrder:
         # Assert
         assert order1 != order2
         assert hash(order1) != hash(order2)
-    def test_str_representation(self) -> None:
+    def test_str_representation(self: "TestOrder") -> None:
         """Тест строкового представления."""
         # Arrange
         order = Order(
@@ -384,7 +384,7 @@ class TestOrder:
         assert "limit" in result
         assert "0.001" in result
         assert "50000" in result
-    def test_repr_representation(self) -> None:
+    def test_repr_representation(self: "TestOrder") -> None:
         """Тест представления для отладки."""
         # Arrange
         order = Order(

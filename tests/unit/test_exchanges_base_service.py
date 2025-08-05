@@ -21,7 +21,7 @@ from infrastructure.external_services.exchanges.base_exchange_service import Bas
 class TestBaseExchangeService:
     """Тесты для BaseExchangeService."""
     @pytest.fixture
-    def config(self) -> Any:
+    def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
         return ExchangeServiceConfig(
             exchange_name=ExchangeName.BINANCE,
@@ -47,7 +47,7 @@ class TestBaseExchangeService:
         with patch('ccxt.binance'):
             return BaseExchangeService(config)
     @pytest.fixture
-    def mock_ccxt_client(self) -> Any:
+    def mock_ccxt_client(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок CCXT клиента."""
         client = AsyncMock()
         client.load_markets = AsyncMock()
@@ -60,7 +60,7 @@ class TestBaseExchangeService:
         client.close = AsyncMock()
         return client
     @pytest.fixture
-    def sample_market_data_request(self) -> Any:
+    def sample_market_data_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример запроса рыночных данных."""
         return MarketDataRequest(
             symbol=Symbol("BTC/USDT"),
@@ -69,7 +69,7 @@ class TestBaseExchangeService:
             since=datetime.now() - timedelta(days=1)
         )
     @pytest.fixture
-    def sample_order_request(self) -> Any:
+    def sample_order_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример запроса на размещение ордера."""
         return OrderRequest(
             symbol=Symbol("BTC/USDT"),

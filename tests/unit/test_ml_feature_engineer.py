@@ -10,11 +10,11 @@ from infrastructure.external_services.ml.feature_engineer import FeatureEngineer
 class TestFeatureEngineer:
     """Тесты для FeatureEngineer."""
     @pytest.fixture
-    def feature_engineer(self) -> Any:
+    def feature_engineer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр FeatureEngineer."""
         return FeatureEngineer()
     @pytest.fixture
-    def sample_data(self) -> Any:
+    def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример данных для тестов."""
         np.random.seed(42)
         dates = pd.date_range('2023-01-01', periods=100, freq='1H')
@@ -34,7 +34,7 @@ class TestFeatureEngineer:
         }
         return pd.DataFrame(data)
     @pytest.fixture
-    def small_data(self) -> Any:
+    def small_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Маленький набор данных для edge cases."""
         data = {
             'timestamp': [1640995200000, 1640998800000, 1641002400000],
@@ -239,7 +239,7 @@ class TestFeatureEngineer:
         expected_feature_names = [col for col in df_with_features.columns 
                                 if col not in ['timestamp', 'open', 'high', 'low', 'close', 'volume']]
         assert set(feature_engineer.feature_names) == set(expected_feature_names)
-    def test_multiple_instances_independence(self) -> None:
+    def test_multiple_instances_independence(self: "TestFeatureEngineer") -> None:
         """Тест независимости нескольких экземпляров."""
         engineer1 = FeatureEngineer()
         engineer2 = FeatureEngineer()

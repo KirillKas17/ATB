@@ -8,21 +8,21 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 class TestRateLimiter:
     """Тесты для RateLimiter."""
     @pytest.fixture
-    def rate_limiter(self) -> Any:
+    def rate_limiter(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр RateLimiter."""
         return RateLimiter(rate_limit=10, window=60)
     @pytest.fixture
-    def fast_rate_limiter(self) -> Any:
+    def fast_rate_limiter(self: "TestEvolvableMarketMakerAgent") -> Any:
         """RateLimiter с быстрым окном для тестов."""
         return RateLimiter(rate_limit=3, window=1)  # 3 запроса в секунду
-    def test_init(self) -> None:
+    def test_init(self: "TestRateLimiter") -> None:
         """Тест инициализации."""
         rate_limiter = RateLimiter(rate_limit=100, window=60)
         assert rate_limiter.rate_limit == 100
         assert rate_limiter.window == 60
         assert rate_limiter.requests == []
         assert rate_limiter.lock is not None
-    def test_init_default_window(self) -> None:
+    def test_init_default_window(self: "TestRateLimiter") -> None:
         """Тест инициализации с окном по умолчанию."""
         rate_limiter = RateLimiter(rate_limit=50)
         assert rate_limiter.rate_limit == 50
@@ -172,7 +172,7 @@ class TestRateLimiter:
         assert len(results) == 10
         assert all(isinstance(result, tuple) for result in results)
     @pytest.mark.asyncio
-    async def test_rate_limiter_edge_cases(self) -> None:
+    def test_rate_limiter_edge_cases(self: "TestRateLimiter") -> None:
         """Тест граничных случаев."""
         # RateLimiter с очень маленьким лимитом
         tiny_limiter = RateLimiter(rate_limit=1, window=0.1)
@@ -183,7 +183,7 @@ class TestRateLimiter:
         end_time = time.time()
         assert end_time - start_time >= 0.09  # Почти 0.1 секунды
     @pytest.mark.asyncio
-    async def test_rate_limiter_zero_limit(self) -> None:
+    def test_rate_limiter_zero_limit(self: "TestRateLimiter") -> None:
         """Тест RateLimiter с нулевым лимитом."""
         zero_limiter = RateLimiter(rate_limit=0, window=1)
         # Любой запрос должен задержаться
@@ -192,7 +192,7 @@ class TestRateLimiter:
         end_time = time.time()
         assert end_time - start_time >= 0.9  # Почти секунда
     @pytest.mark.asyncio
-    async def test_rate_limiter_large_window(self) -> None:
+    def test_rate_limiter_large_window(self: "TestRateLimiter") -> None:
         """Тест RateLimiter с большим окном."""
         large_window_limiter = RateLimiter(rate_limit=5, window=3600)  # 1 час
         # Выполняем запросы

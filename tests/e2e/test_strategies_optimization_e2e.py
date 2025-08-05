@@ -15,16 +15,16 @@ from domain.entities.market import MarketData, OrderBook, Trade
 class TestStrategyOptimizationE2E:
     """End-to-End тесты для оптимизации стратегий."""
     @pytest.fixture
-    def factory(self) -> Any:
+    def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_factory()
     @pytest.fixture
-    def registry(self) -> Any:
+    def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_registry()
     @pytest.fixture
-    def validator(self) -> Any:
+    def validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         return get_strategy_validator()
     @pytest.fixture
-    def realistic_market_data(self) -> Any:
+    def realistic_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создает реалистичные рыночные данные для оптимизации."""
         data_series = []
         base_price = Decimal("50000")

@@ -8,7 +8,7 @@ from infrastructure.strategies.regime_adaptive_strategy import RegimeAdaptiveStr
 from infrastructure.strategies.trend_strategies import TrendStrategy
 from infrastructure.strategies.volatility_strategy import VolatilityStrategy
 # Фикстуры
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -44,7 +44,7 @@ def mock_market_data() -> Any:
     data["volume_ma"] = data["volume"].rolling(20).mean()
     data["correlation"] = data["close"].rolling(20).corr(data["volume"])
     return data
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data_with_trend() -> Any:
     """Фикстура с тестовыми данными с трендом"""
     data = mock_market_data()
@@ -67,7 +67,7 @@ def mock_market_data_with_trend() -> Any:
     data["volume_ma"] = data["volume"].rolling(20).mean()
     data["correlation"] = data["close"].rolling(20).corr(data["volume"])
     return data
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data_with_volatility() -> Any:
     """Фикстура с тестовыми данными с высокой волатильностью"""
     data = mock_market_data()
@@ -90,7 +90,7 @@ def mock_market_data_with_volatility() -> Any:
     data["volume_ma"] = data["volume"].rolling(20).mean()
     data["correlation"] = data["close"].rolling(20).corr(data["volume"])
     return data
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data_with_manipulation() -> Any:
     """Фикстура с тестовыми данными с манипуляциями"""
     data = mock_market_data()
@@ -115,7 +115,7 @@ def mock_market_data_with_manipulation() -> Any:
     data["volume_ma"] = data["volume"].rolling(20).mean()
     data["correlation"] = data["close"].rolling(20).corr(data["volume"])
     return data
-@pytest.fixture
+    @pytest.fixture
 def trend_strategy() -> Any:
     """Фикстура для тестирования TrendStrategy"""
     config = {
@@ -130,7 +130,7 @@ def trend_strategy() -> Any:
         "log_dir": "logs/trend",
     }
     return TrendStrategy(config)
-@pytest.fixture
+    @pytest.fixture
 def volatility_strategy() -> Any:
     """Фикстура для тестирования VolatilityStrategy"""
     config = {
@@ -143,7 +143,7 @@ def volatility_strategy() -> Any:
         "log_dir": "logs/volatility",
     }
     return VolatilityStrategy(config)
-@pytest.fixture
+    @pytest.fixture
 def manipulation_strategy() -> Any:
     """Фикстура для тестирования ManipulationStrategy"""
     config = {
@@ -152,7 +152,7 @@ def manipulation_strategy() -> Any:
         "log_dir": "logs/manipulation",
     }
     return ManipulationStrategy(config)
-@pytest.fixture
+    @pytest.fixture
 def regime_adaptive_strategy() -> Any:
     """Фикстура для тестирования RegimeAdaptiveStrategy"""
     config = {
@@ -167,7 +167,7 @@ def regime_adaptive_strategy() -> Any:
     }
     return RegimeAdaptiveStrategy(config)
 # Параметризованные тесты
-@pytest.mark.parametrize(
+    @pytest.mark.parametrize(
     "strategy_name,strategy_fixture,data_fixture",
     [
         ("trend", "trend_strategy", "mock_market_data_with_trend"),
@@ -176,7 +176,7 @@ def regime_adaptive_strategy() -> Any:
         ("regime_adaptive", "regime_adaptive_strategy", "mock_market_data"),
     ],
 )
-def test_strategy_generate_signal(
+    def test_strategy_generate_signal(
     strategy_name, strategy_fixture, data_fixture, request
 ) -> None:
     """Параметризованный тест генерации сигнала"""

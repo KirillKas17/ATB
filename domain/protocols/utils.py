@@ -7,7 +7,7 @@ import asyncio
 import functools
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, Awaitable, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, Awaitable, Tuple, Type, cast
 from uuid import UUID
 
 from domain.exceptions.protocol_exceptions import (
@@ -79,7 +79,7 @@ def retry_on_error(
             else:
                 raise ProtocolError("Retry exhausted without specific exception")
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator
 
@@ -104,7 +104,7 @@ def timeout(seconds: float) -> Callable[[F], F]:
                     operation=func.__name__,
                 )
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator
 

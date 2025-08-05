@@ -27,7 +27,7 @@ from domain.type_definitions.market_maker_types import (
 class TestMarketMakerStorage:
     """Тесты для MarketMakerStorage."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
@@ -45,7 +45,7 @@ class TestMarketMakerStorage:
         """Экземпляр хранилища для тестов."""
         return MarketMakerStorage(storage_config)
     @pytest.fixture
-    def sample_pattern(self) -> Any:
+    def sample_pattern(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец паттерна для тестов."""
         features = PatternFeatures(
             book_pressure=BookPressure(0.7),
@@ -79,7 +79,7 @@ class TestMarketMakerStorage:
         assert storage.config.metadata_directory.exists()
         assert storage.config.behavior_directory.exists()
         assert storage.config.backup_directory.exists()
-    def test_storage_config_validation(self) -> None:
+    def test_storage_config_validation(self: "TestMarketMakerStorage") -> None:
         """Тест валидации конфигурации."""
         config = StorageConfig(
             base_path=Path("/tmp/test"),
@@ -276,7 +276,7 @@ class TestMarketMakerStorage:
 class TestPatternMemoryRepository:
     """Тесты для PatternMemoryRepository."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
@@ -287,7 +287,7 @@ class TestPatternMemoryRepository:
         config = StorageConfig(base_path=temp_dir)
         return PatternMemoryRepository(config)
     @pytest.fixture
-    def sample_pattern(self) -> Any:
+    def sample_pattern(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец паттерна для тестов."""
         features = PatternFeatures(
             book_pressure=BookPressure(0.7),
@@ -351,7 +351,7 @@ class TestPatternMemoryRepository:
 class TestBehaviorHistoryRepository:
     """Тесты для BehaviorHistoryRepository."""
     @pytest.fixture
-    def temp_dir(self) -> Any:
+    def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)

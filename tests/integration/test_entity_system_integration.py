@@ -255,7 +255,7 @@ database:
             assert "confidence" in hypothesis
     
     @pytest.mark.asyncio
-    async def test_experiment_runner_functionality(self) -> None:
+    def test_experiment_runner_functionality(self: "TestClass") -> None:
         """Тест функциональности Experiment Runner."""
         config = {"experiment_duration": 10}
         runner = Mock()
@@ -286,7 +286,7 @@ database:
         assert success
     
     @pytest.mark.asyncio
-    async def test_memory_manager_functionality(self) -> None:
+    def test_memory_manager_functionality(self: "TestClass") -> None:
         """Тест функциональности Memory Manager."""
         config = {"memory_enabled": True}
         manager = Mock()
@@ -357,7 +357,7 @@ database:
         assert "param2" in optimized_params
     
     @pytest.mark.asyncio
-    async def test_evolution_engine_functionality(self) -> None:
+    def test_evolution_engine_functionality(self: "TestClass") -> None:
         """Тест функциональности Evolution Engine."""
         config = {"evolution_enabled": True}
         engine = Mock()
@@ -402,7 +402,7 @@ database:
         assert "performance_improvement" in learning_result
     
     @pytest.mark.asyncio
-    async def test_improvement_applier_functionality(self) -> None:
+    def test_improvement_applier_functionality(self: "TestClass") -> None:
         """Тест функциональности Improvement Applier."""
         config = {"validation_enabled": True, "rollback_enabled": True}
         applier = Mock()

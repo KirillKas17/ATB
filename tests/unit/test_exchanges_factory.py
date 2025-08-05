@@ -13,7 +13,7 @@ from infrastructure.external_services.exchanges.binance_exchange_service import 
 class TestExchangeServiceFactory:
     """Тесты для ExchangeServiceFactory."""
     @pytest.fixture
-    def sample_credentials(self) -> Any:
+    def sample_credentials(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример учетных данных."""
         return ExchangeCredentials(
             api_key="test_key",
@@ -23,7 +23,7 @@ class TestExchangeServiceFactory:
             sandbox=True
         )
     @pytest.fixture
-    def sample_connection_config(self) -> Any:
+    def sample_connection_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример конфигурации соединения."""
         return ConnectionConfig(
             rate_limit=100,
@@ -64,7 +64,7 @@ class TestExchangeServiceFactory:
                 sample_credentials
             )
             assert isinstance(service, BybitExchangeService)
-    def test_create_bybit_service(self) -> None:
+    def test_create_bybit_service(self: "TestExchangeServiceFactory") -> None:
         """Тест создания сервиса Bybit через специализированный метод."""
         with patch('infrastructure.external_services.exchanges.bybit_exchange_service.BybitExchangeService'):
             service = ExchangeServiceFactory.create_bybit_service(
@@ -83,7 +83,7 @@ class TestExchangeServiceFactory:
                 connection_config=sample_connection_config
             )
             assert isinstance(service, BybitExchangeService)
-    def test_create_binance_service(self) -> None:
+    def test_create_binance_service(self: "TestExchangeServiceFactory") -> None:
         """Тест создания сервиса Binance через специализированный метод."""
         with patch('infrastructure.external_services.exchanges.binance_exchange_service.BinanceExchangeService'):
             service = ExchangeServiceFactory.create_binance_service(
@@ -102,7 +102,7 @@ class TestExchangeServiceFactory:
                 connection_config=sample_connection_config
             )
             assert isinstance(service, BinanceExchangeService)
-    def test_factory_methods_consistency(self) -> None:
+    def test_factory_methods_consistency(self: "TestExchangeServiceFactory") -> None:
         """Тест консистентности методов фабрики."""
         # Проверяем, что общий метод и специализированные методы создают одинаковые сервисы
         credentials = ExchangeCredentials(
@@ -121,7 +121,7 @@ class TestExchangeServiceFactory:
                 testnet=True
             )
             assert type(service1) == type(service2)
-    def test_factory_static_methods(self) -> None:
+    def test_factory_static_methods(self: "TestExchangeServiceFactory") -> None:
         """Тест, что все методы фабрики являются статическими."""
         # Проверяем, что можно вызывать методы без создания экземпляра
         assert hasattr(ExchangeServiceFactory, 'create_exchange_service')

@@ -20,7 +20,7 @@ from shared.numpy_utils import np
 class TestLiveAdaptationIntegration:
     """Тесты интеграции LiveAdaptationModel в систему Syntra."""
     @pytest.fixture
-    def mock_live_adaptation_model(self) -> Any:
+    def mock_live_adaptation_model(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для LiveAdaptationModel."""
         mock = Mock(spec=LiveAdaptation)
         # Создаем мок метрик адаптации
@@ -36,7 +36,7 @@ class TestLiveAdaptationIntegration:
         mock.predict = AsyncMock(return_value=(1.0, 0.85))
         return mock
     @pytest.fixture
-    def mock_agent_context(self) -> Any:
+    def mock_agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для AgentContext."""
         context = AgentContext(symbol="BTC/USD")
         context.live_adaptation_result = None
@@ -50,7 +50,7 @@ class TestLiveAdaptationIntegration:
         orchestrator._last_live_adaptation_update = None
         return orchestrator
     @pytest.fixture
-    def sample_signal(self) -> Any:
+    def sample_signal(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец торгового сигнала."""
         return Signal(
             signal_type=SignalType.BUY,
@@ -63,7 +63,7 @@ class TestLiveAdaptationIntegration:
             metadata={}
         )
     @pytest.fixture
-    def sample_market_data(self) -> Any:
+    def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец рыночных данных."""
         dates = pd.date_range(start='2024-01-01', end='2024-01-02', freq='1H')
         data = {
@@ -74,7 +74,7 @@ class TestLiveAdaptationIntegration:
             'volume': np.random.uniform(100, 1000, len(dates))
         }
         return pd.DataFrame(data, index=dates)
-    def test_di_container_integration(self) -> None:
+    def test_di_container_integration(self: "TestLiveAdaptationIntegration") -> None:
         """Тест интеграции LiveAdaptationModel в DI контейнер."""
         # Создаем контейнер
         container = Container()
@@ -198,7 +198,7 @@ class TestLiveAdaptationIntegration:
             mock_request.signal.trading_pair, mock_request.signal
         )
         assert modified_signal is not None
-    def test_live_adaptation_strategy_modifiers(self) -> None:
+    def test_live_adaptation_strategy_modifiers(self: "TestLiveAdaptationIntegration") -> None:
         """Тест модификаторов стратегий для LiveAdaptationModel."""
         modifiers = StrategyModifiers()
         # Проверяем, что модификаторы для LiveAdaptationModel существуют

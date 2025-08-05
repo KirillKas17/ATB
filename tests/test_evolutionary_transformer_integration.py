@@ -18,7 +18,7 @@ from application.use_cases.trading_orchestrator.core import (
 class TestEvolutionaryTransformerIntegration:
     """Тесты интеграции EvolutionaryTransformer."""
     @pytest.fixture
-    def evolutionary_transformer(self) -> Any:
+    def evolutionary_transformer(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра EvolutionaryTransformer."""
         return EvolutionaryTransformer(
             input_size=64,
@@ -26,11 +26,11 @@ class TestEvolutionaryTransformerIntegration:
             population_size=10
         )
     @pytest.fixture
-    def agent_context(self) -> Any:
+    def agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание AgentContext."""
         return AgentContext(symbol="BTCUSDT")
     @pytest.fixture
-    def mock_repositories(self) -> Any:
+    def mock_repositories(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание моков репозиториев."""
         return {
             "order_repository": Mock(),
@@ -52,7 +52,7 @@ class TestEvolutionaryTransformerIntegration:
             enhanced_trading_service=mock_repositories["enhanced_trading_service"],
             evolutionary_transformer=evolutionary_transformer
         )
-    def test_evolutionary_transformer_di_integration(self) -> None:
+    def test_evolutionary_transformer_di_integration(self: "TestEvolutionaryTransformerIntegration") -> None:
         """Тест интеграции EvolutionaryTransformer в DI контейнер."""
         from application.di_container import get_container, ContainerConfig
         # Создаем контейнер с включенным EvolutionaryTransformer
@@ -242,7 +242,7 @@ class TestEvolutionaryTransformerIntegration:
         assert 'timestamp' in market_data.columns
         assert 'close' in market_data.columns
         assert 'volume' in market_data.columns
-    def test_strategy_modifiers_evolutionary_transformer_fields(self) -> None:
+    def test_strategy_modifiers_evolutionary_transformer_fields(self: "TestEvolutionaryTransformerIntegration") -> None:
         """Тест полей модификаторов для эволюционного трансформера."""
         modifiers = StrategyModifiers()
         # Проверяем, что поля существуют

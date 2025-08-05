@@ -4,7 +4,7 @@ import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from core.correlation_chain import CorrelationChain, CorrelationMetrics
-@pytest.fixture
+    @pytest.fixture
 def correlation_chain() -> Any:
     """Фикстура для CorrelationChain"""
     config = {
@@ -15,7 +15,7 @@ def correlation_chain() -> Any:
         "stability_window": 50,
     }
     return CorrelationChain(config)
-@pytest.fixture
+    @pytest.fixture
 def sample_series() -> Any:
     """Фикстура для тестовых временных рядов"""
     # Создаем два коррелированных ряда
@@ -32,7 +32,7 @@ def sample_series() -> Any:
     series2 = series2.shift(2)  # Добавляем лаг
     series2 = series2.bfill()
     return {"BTC/USD": series1, "ETH/USD": series2}
-@pytest.fixture
+    @pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2023-01-01", periods=100, freq="h")

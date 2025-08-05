@@ -247,7 +247,7 @@ class TestBaseAgentIntegration:
 class TestAgentErrorHandling:
     """Тесты обработки ошибок в агентах"""
     @pytest.mark.asyncio
-    async def test_invalid_config_handling(self) -> None:
+    def test_invalid_config_handling(self: "TestAgentErrorHandling") -> None:
         """Тест обработки неверной конфигурации"""
         invalid_config = {"invalid_param": -1}
         agent = RiskAgent(invalid_config)
@@ -255,7 +255,7 @@ class TestAgentErrorHandling:
         assert success is False
         assert agent.state.status == AgentStatus.ERROR
     @pytest.mark.asyncio
-    async def test_invalid_data_handling(self) -> None:
+    def test_invalid_data_handling(self: "TestAgentErrorHandling") -> None:
         """Тест обработки неверных данных"""
         agent = RiskAgent()
         await agent.initialize()
@@ -266,7 +266,7 @@ class TestAgentErrorHandling:
         result = await agent.process({})
         assert "error" in result
     @pytest.mark.asyncio
-    async def test_agent_recovery(self) -> None:
+    def test_agent_recovery(self: "TestAgentErrorHandling") -> None:
         """Тест восстановления агента после ошибки"""
         agent = RiskAgent()
         # Сначала вызываем ошибку
@@ -283,7 +283,7 @@ class TestAgentErrorHandling:
 class TestAgentMetrics:
     """Тесты метрик агентов"""
     @pytest.mark.asyncio
-    async def test_agent_performance_metrics(self) -> None:
+    def test_agent_performance_metrics(self: "TestAgentMetrics") -> None:
         """Тест метрик производительности агентов"""
         agent = RiskAgent()
         await agent.initialize()
@@ -300,7 +300,7 @@ class TestAgentMetrics:
         assert agent.state.successful_operations > 0
         assert agent.state.average_processing_time > 0
     @pytest.mark.asyncio
-    async def test_agent_confidence_tracking(self) -> None:
+    def test_agent_confidence_tracking(self: "TestAgentMetrics") -> None:
         """Тест отслеживания уверенности агентов"""
         agent = RiskAgent()
         await agent.initialize()
@@ -318,7 +318,7 @@ class TestAgentMetrics:
 class TestAgentIntegration:
     """Тесты интеграции между агентами"""
     @pytest.mark.asyncio
-    async def test_agent_dependency_injection(self) -> None:
+    def test_agent_dependency_injection(self: "TestAgentIntegration") -> None:
         """Тест внедрения зависимостей между агентами"""
         # Создаем агенты
         risk_agent = RiskAgent()
@@ -335,7 +335,7 @@ class TestAgentIntegration:
         assert order_executor.risk_agent is risk_agent
         assert order_executor.market_regime_agent is market_regime_agent
     @pytest.mark.asyncio
-    async def test_agent_data_flow(self) -> None:
+    def test_agent_data_flow(self: "TestAgentIntegration") -> None:
         """Тест потока данных между агентами"""
         # Создаем цепочку агентов
         market_regime_agent = MarketRegimeAgent()

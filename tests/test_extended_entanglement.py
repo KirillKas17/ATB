@@ -20,7 +20,7 @@ from infrastructure.exchange_streams.market_stream_aggregator import MarketStrea
 class TestStreamManager:
     """Тесты для StreamManager."""
     @pytest.fixture
-    def stream_manager(self) -> Any:
+    def stream_manager(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра StreamManager для тестов."""
         return StreamManager(
             max_lag_ms=3.0,
@@ -28,7 +28,7 @@ class TestStreamManager:
             detection_interval=0.1
         )
     @pytest.fixture
-    def mock_order_book_update(self) -> Any:
+    def mock_order_book_update(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок-обновления ордербука."""
         base_currency = Currency.from_string("BTC") or Currency.USD
         quote_currency = Currency.from_string("USD") or Currency.USD
@@ -91,7 +91,7 @@ class TestStreamManager:
         """Тест callback для обработки запутанности."""
         callback_called = False
         callback_result = None
-        def test_callback(result) -> None:
+    def test_callback(result) -> None:
             nonlocal callback_called, callback_result
             callback_called = True
             callback_result = result
@@ -139,11 +139,11 @@ class TestStreamManager:
 class TestMarketStreamAggregator:
     """Тесты для MarketStreamAggregator."""
     @pytest.fixture
-    def aggregator(self) -> Any:
+    def aggregator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание экземпляра MarketStreamAggregator для тестов."""
         return MarketStreamAggregator()
     @pytest.fixture
-    def mock_client(self) -> Any:
+    def mock_client(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание мок-клиента."""
         client = MagicMock()
         client.get_status.return_value = {"is_connected": True}
@@ -170,7 +170,7 @@ class TestMarketStreamAggregator:
         assert "test_exchange" not in aggregator.sources
     def test_add_remove_callback(self, aggregator) -> None:
         """Тест добавления и удаления callbacks."""
-        def test_callback(update) -> None:
+    def test_callback(update) -> None:
             pass
         # Добавляем callback
         aggregator.add_callback(test_callback)
@@ -244,15 +244,15 @@ class TestMarketStreamAggregator:
 class TestWebSocketClients:
     """Тесты для WebSocket клиентов."""
     @pytest.fixture
-    def bingx_client(self) -> Any:
+    def bingx_client(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание BingX клиента."""
         return BingXWebSocketClient()
     @pytest.fixture
-    def bitget_client(self) -> Any:
+    def bitget_client(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание Bitget клиента."""
         return BitgetWebSocketClient()
     @pytest.fixture
-    def bybit_client(self) -> Any:
+    def bybit_client(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создание Bybit клиента."""
         return BybitWebSocketClient()
     def test_bingx_client_initialization(self, bingx_client) -> None:
@@ -305,8 +305,8 @@ class TestWebSocketClients:
             assert "subscribed_symbols" in status
             assert "reconnect_attempts" in status
             assert "last_ping" in status
-@pytest.mark.asyncio
-async def test_integration_workflow() -> None:
+    @pytest.mark.asyncio
+    async def test_integration_workflow() -> None:
     """Интеграционный тест рабочего процесса."""
     # Создаем StreamManager
     stream_manager = StreamManager(

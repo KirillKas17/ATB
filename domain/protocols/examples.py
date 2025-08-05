@@ -41,24 +41,24 @@ from domain.protocols.utils import (
     timeout,
     validate_symbol,
 )
+from domain.type_definitions.base_types import (
+    TimestampValue, 
+    Symbol, 
+    Currency, 
+    TradingPair
+)
 from domain.type_definitions import (
     ModelId,
     OrderId,
     PortfolioId,
     PositionId,
     PredictionId,
-    PriceValue,
     RiskProfileId,
     StrategyId,
-    Symbol,
-    TradeId,
-    TradingPair,
-    VolumeValue,
-    ConfidenceLevel,
-    TimestampValue,
+    TradeId
 )
-from domain.value_objects import Money, Price, Volume
-from domain.value_objects.currency import Currency
+from domain.value_objects.price import Price
+from domain.value_objects.volume import Volume
 
 
 # ============================================================================
@@ -136,7 +136,7 @@ class ExampleExchangeProtocol(ExchangeProtocol):
                 high=Price(Decimal("50100") + Decimal(i), Currency.USD),
                 low=Price(Decimal("49900") + Decimal(i), Currency.USD),
                 close=Price(Decimal("50050") + Decimal(i), Currency.USD),
-                volume=Volume(Decimal("1000") + Decimal(i * 10)),
+                volume=Volume(Decimal("1000") + Decimal(i * 10), Currency.USD),
             )
             market_data.append(data)
         # Сохраняем в кэш

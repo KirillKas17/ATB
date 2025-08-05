@@ -92,7 +92,7 @@ class TestReversalPredictor:
         assert predictor.config['min_signal_strength'] == 0.4
         assert predictor.pattern_extractor is not None
 
-    def test_initialization_default_config(self) -> None:
+    def test_initialization_default_config(self: "TestReversalPredictor") -> None:
         """Тест инициализации с дефолтной конфигурацией."""
         predictor = ReversalPredictor()
         assert predictor.config == {}
