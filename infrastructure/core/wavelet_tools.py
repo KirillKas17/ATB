@@ -72,9 +72,9 @@ def perform_cwt(
         np.ndarray: Массив коэффициентов CWT (scales x time)
     """
     if scales is None:
-        scales = np.arange(1, 128)  # type: ignore[attr-defined]
+        scales = np.arange(1, 128)
     coefs, _ = pywt.cwt(series, scales, wavelet)
-    return coefs  # type: ignore[no-any-return]
+    return coefs
 
 
 def reconstruct_dwt(coeffs: List[np.ndarray], wavelet: str = "db4") -> np.ndarray:
@@ -86,7 +86,7 @@ def reconstruct_dwt(coeffs: List[np.ndarray], wavelet: str = "db4") -> np.ndarra
     Returns:
         np.ndarray: Восстановленный временной ряд.
     """
-    return pywt.waverec(coeffs, wavelet)  # type: ignore[no-any-return]
+    return pywt.waverec(coeffs, wavelet)
 
 
 def extract_wavelet_features(
@@ -104,16 +104,16 @@ def extract_wavelet_features(
     coeffs, _ = perform_dwt(series, wavelet, level)
     features = []
     for arr in coeffs:
-        arr = np.asarray(arr)  # type: ignore[attr-defined]
+        arr = np.asarray(arr)
         # Энергия
-        energy = np.sum(arr**2)  # type: ignore[attr-defined]
+        energy = np.sum(arr**2)
         # Энтропия
-        prob = np.abs(arr) / (np.sum(np.abs(arr)) + 1e-12)  # type: ignore[attr-defined]
+        prob = np.abs(arr) / (np.sum(np.abs(arr)) + 1e-12)
         entr = entropy(prob)
         # Статистики
-        mean = np.mean(arr)  # type: ignore[attr-defined]
-        std = np.std(arr)  # type: ignore[attr-defined]
-        maxv = np.max(arr)  # type: ignore[attr-defined]
-        minv = np.min(arr)  # type: ignore[attr-defined]
+        mean = np.mean(arr)
+        std = np.std(arr)
+        maxv = np.max(arr)
+        minv = np.min(arr)
         features.extend([energy, entr, mean, std, maxv, minv])
     return np.array(features)

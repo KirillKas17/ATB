@@ -577,7 +577,7 @@ class AdvancedPricePredictor:
                 else:
                     X.append(sequence_data.values)
                     
-                close_data = features["close"].iloc[i : i + self.config.prediction_horizon]  # type: ignore[index,attr-defined]
+                close_data = features["close"].iloc[i : i + self.config.prediction_horizon]
                 if hasattr(close_data, 'to_numpy'):
                     y.append(close_data.to_numpy())
                 else:
@@ -680,7 +680,7 @@ class AdvancedPricePredictor:
         # Дисперсия предсказаний ансамбля
         variance = torch.var(prediction).item()
         confidence = 1.0 / (1.0 + variance)
-        return confidence
+        return float(confidence)
 
     def meta_learn(self, tasks: List[Tuple[torch.Tensor, torch.Tensor]]) -> None:
         """Мета-обучение для быстрой адаптации"""
@@ -747,7 +747,7 @@ class AdvancedPricePredictor:
 
         study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=50)
-        return study.best_params
+        return dict(study.best_params)
 
 
 # Пример использования

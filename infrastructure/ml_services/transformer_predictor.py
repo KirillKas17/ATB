@@ -153,7 +153,7 @@ class EvolutionaryTransformer:
         self.population_size = population_size
         self.population: List[Any] = []
         self.generation = 0
-        self.best_model = None
+        self.best_model: Optional[AdaptiveTransformer] = None
         self.best_fitness = float("-inf")
         # Настройка генетического алгоритма
         self.setup_genetic_algorithm()
@@ -821,7 +821,7 @@ class TransformerPredictor:
             # Оптимизация
             study = optuna.create_study(direction="maximize")
             study.optimize(objective, n_trials=50)
-            return study.best_params
+            return dict(study.best_params)
         except Exception as e:
             logger.error(f"Ошибка оптимизации гиперпараметров: {e}")
             return {}

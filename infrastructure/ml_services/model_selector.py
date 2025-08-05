@@ -217,9 +217,7 @@ class ModelSelector:
             
             for model_type, model_metrics in metrics.items():
                 if not isinstance(model_metrics, ModelMetrics):
-                    logger.warning(
-                        f"Некорректный формат метрик для модели {model_type}"
-                    )
+                    logger.warning(f"Некорректный формат метрик для модели {model_type}")
                     continue
                 # Расчет общего скора
                 score = (

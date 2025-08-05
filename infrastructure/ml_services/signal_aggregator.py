@@ -111,7 +111,7 @@ class SignalAggregator:
             )
         
         # Усреднение вероятностей
-        avg_probs = {}
+        avg_probs: Dict[str, List[float]] = {}
         for prob_dict in class_probs:
             for class_name, prob in prob_dict.items():
                 if class_name not in avg_probs:

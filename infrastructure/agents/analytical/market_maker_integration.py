@@ -81,9 +81,9 @@ class MarketMakerAnalyticalIntegration:
                 logger.warning("No symbol provided for analytical calculation")
                 if self._original_calculate:
                     result = await self._original_calculate(*args, **kwargs)
-                    return result if isinstance(result, dict) else None
-                else:
-                    return None
+                    if isinstance(result, dict):
+                        return result
+                return None
 
             # Проверяем, следует ли продолжать торговлю
             if not self.analytical_integrator.should_proceed_with_trade(symbol):
