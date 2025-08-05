@@ -102,6 +102,36 @@ class DefaultOrderBusinessRuleValidator(OrderBusinessRuleValidator):
                 metadata={},
             )
 
+
+class OrderValidationService:
+    """Сервис валидации ордеров."""
+    
+    def __init__(self) -> None:
+        self.business_validator = DefaultOrderBusinessRuleValidator()
+        self.data_validator = OrderDataValidator()
+    
+    def validate_order(self, order_data: Dict[str, Any], account_data: AccountData) -> ValidationResult:
+        """Полная валидация ордера."""
+        # Валидация данных
+        data_validation = self.data_validator.validate_order_data(order_data)
+        if not data_validation.is_valid:
+            return data_validation
+        
+        # Валидация бизнес-правил
+        business_validation = self.business_validator.validate_order_business_rules(order_data, account_data)
+        
+        # Объединение результатов
+        all_errors = data_validation.errors + business_validation.errors
+        all_warnings = data_validation.warnings + business_validation.warnings
+        all_metadata = {**data_validation.metadata, **business_validation.metadata}
+        
+        return ValidationResult(
+            is_valid=len(all_errors) == 0,
+            errors=all_errors,
+            warnings=all_warnings,
+            metadata=all_metadata
+        )
+
     def _extract_order_amount(self, order_data: Dict[str, Union[str, int, float, Dict[str, Union[str, int, float]]]]) -> Optional[Money]:
         """Извлечение суммы ордера."""
         try:

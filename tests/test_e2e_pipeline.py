@@ -2,8 +2,8 @@ import json
 import pytest
 import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from core.market_state import MarketStateManager
-from core.ml_integration import MLIntegration
+from infrastructure.core.market_state import MarketStateManager
+from infrastructure.core.ml_integration import MLIntegration
     @pytest.fixture
 def sample_candles() -> Any:
     with open("tests/data/sample_candles.json", "r") as f:

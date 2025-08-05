@@ -28,7 +28,48 @@ class RiskLevel(Enum):
     MODERATE = "moderate"
     HIGH = "high"
     VERY_HIGH = "very_high"
-    EXTREME = "extreme"
+
+
+@dataclass
+class PositionRisk:
+    """Риск позиции."""
+    position_id: str
+    symbol: str
+    risk_level: RiskLevel
+    var_1d: float  # Value at Risk (1 день)
+    var_5d: float  # Value at Risk (5 дней)
+    max_drawdown: float  # Максимальная просадка
+    volatility: float  # Волатильность
+    correlation_risk: float  # Корреляционный риск
+    liquidity_risk: float  # Риск ликвидности
+    concentration_risk: float  # Риск концентрации
+    timestamp: datetime = field(default_factory=datetime.now)
+    
+    def __post_init__(self) -> None:
+        """Валидация данных о риске."""
+        if self.var_1d < 0 or self.var_5d < 0:
+            raise ValueError("VaR values must be non-negative")
+        if self.volatility < 0:
+            raise ValueError("Volatility must be non-negative")
+        if not (0 <= self.correlation_risk <= 1):
+            raise ValueError("Correlation risk must be between 0 and 1")
+        if not (0 <= self.liquidity_risk <= 1):
+            raise ValueError("Liquidity risk must be between 0 and 1")
+        if not (0 <= self.concentration_risk <= 1):
+            raise ValueError("Concentration risk must be between 0 and 1")
+
+
+class RiskMetricType(Enum):
+    """Типы метрик риска."""
+    VALUE_AT_RISK = "var"
+    EXPECTED_SHORTFALL = "es"
+    MAX_DRAWDOWN = "max_dd"
+    VOLATILITY = "volatility"
+    CORRELATION = "correlation"
+    LIQUIDITY = "liquidity"
+    CONCENTRATION = "concentration"
+    STRESS_TEST = "stress_test"
+
 
 class RiskType(Enum):
     """Типы рисков."""

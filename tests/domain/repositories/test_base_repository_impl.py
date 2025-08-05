@@ -9,8 +9,13 @@ from decimal import Decimal
 from datetime import datetime, timezone
 
 from domain.repositories.base_repository_impl import BaseRepositoryImpl
-from domain.entities.base_entity import BaseEntity
 from domain.exceptions.base_exceptions import EntityNotFoundError, ValidationError
+
+# Временная заглушка для BaseEntity
+class BaseEntity:
+    """Базовая сущность."""
+    def __init__(self, id: str):
+        self.id = id
 
 
 class TestEntity(BaseEntity):

@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from core.signal_processor import (MarketContext, ProcessedSignal, Signal,
+from infrastructure.core.signal_processor import (MarketContext, ProcessedSignal, Signal,
                                    SignalProcessor)
     @pytest.fixture
 def market_data() -> Any:

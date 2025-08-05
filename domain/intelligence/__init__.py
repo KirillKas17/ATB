@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Domain intelligence package for advanced market analysis."""
 # Импорты протоколов для устранения циклических зависимостей
-from ..types.intelligence_types import (
+from ..type_definitions.intelligence_types import (
     EntanglementDetector as EntanglementDetectorProtocol,
 )
-from ..types.intelligence_types import (
+from ..type_definitions.intelligence_types import (
     IntelligenceAnalyzer as IntelligenceAnalyzerProtocol,
 )
 

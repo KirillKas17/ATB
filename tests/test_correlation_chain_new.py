@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from core.correlation_chain import CorrelationChain, CorrelationMetrics
+from infrastructure.core.correlation_chain import CorrelationChain, CorrelationMetrics
     @pytest.fixture
 def correlation_chain() -> Any:
     """Фикстура для CorrelationChain"""

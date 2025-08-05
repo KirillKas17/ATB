@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from unittest.mock import Mock, patch
-from core.controllers.order_controller import OrderController
+from infrastructure.core.controllers.order_controller import OrderController
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:

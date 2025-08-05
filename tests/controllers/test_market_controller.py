@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from unittest.mock import Mock, patch
-from core.controllers.market_controller import MarketController
+from infrastructure.core.controllers.market_controller import MarketController
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:

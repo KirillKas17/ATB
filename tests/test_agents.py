@@ -17,7 +17,7 @@ from agents.agent_meta_controller import (BayesianMetaController,
 from agents.agent_order_executor import OrderExecutorAgent
 from agents.agent_portfolio import PortfolioAgent
 from agents.agent_risk import RiskAgent
-from core.types import TradeDecision
+from infrastructure.core.types import TradeDecision
 from exchange.bybit_client import BybitClient, BybitConfig
 from exchange.market_data import MarketData
 from shared.logging import setup_logger

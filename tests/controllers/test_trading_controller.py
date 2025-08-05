@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 from unittest.mock import Mock, patch
-from core.controllers.trading_controller import TradingController
-from typing import TYPE_CHECKING
+from infrastructure.core.controllers.trading_controller import TradingController
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from domain.entities import Order, Position

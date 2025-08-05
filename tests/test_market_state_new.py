@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from core.market_state import MarketState, MarketStateManager
+from infrastructure.core.market_state import MarketState, MarketStateManager
 
 
     @pytest.fixture
