@@ -616,7 +616,7 @@ class TransformerModel(nn.Module):
         # Трансформер
         output = self.transformer_encoder(src)
         # Декодирование
-        output = self.decoder(output)  # type: ignore[no-any-return]
+        output = self.decoder(output)
         return output
 
 
@@ -939,7 +939,7 @@ class TransformerPredictor:
                 predictions = model(torch.FloatTensor(X_scaled)).numpy()
             # Расчет уверенности
             confidence = float(np.mean(np.abs(predictions)))
-            return predictions, confidence  # type: ignore[no-any-return]
+            return predictions, confidence
         except Exception as e:
             logger.error(f"Ошибка предсказания: {e}")
             raise

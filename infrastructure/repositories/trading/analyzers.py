@@ -10,7 +10,7 @@ import pandas as pd
 
 from domain.entities.order import Order
 from domain.services.liquidity_analyzer import LiquidityAnalyzer
-from domain.type_definitions.ml_types import LiquidityAnalysisResult
+from domain.type_definitions.service_types import LiquidityAnalysisResult
 
 
 class ConcreteLiquidityAnalyzer(LiquidityAnalyzer):

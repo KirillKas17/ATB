@@ -194,7 +194,7 @@ class BaseExchangeConnector(ABC):
             except (ValueError, TypeError, InvalidOperation):
                 logger.warning(f"Invalid price/volume data: {price_str}, {volume_str}")
                 continue
-            return result
+        return result
 
     def _get_current_timestamp(self) -> Timestamp:
         """

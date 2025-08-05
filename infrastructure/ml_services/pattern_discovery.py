@@ -285,22 +285,52 @@ class PatternDiscovery:
                         reverse=True,
                     )[: self.config.max_patterns]
                 )
-                # Сохранение
-                self.patterns[column] = dict(sorted_patterns_list)
-                # Обновление метрик
+                # Сохранение - создаем List[Pattern]
+                pattern_list = []
+                for pattern_id, pattern_data in sorted_patterns_list:
+                    pattern_obj = Pattern(
+                        name=str(pattern_id),
+                        type=pattern_data.get("type", "unknown"),
+                        start_time=pattern_data.get("start_time", datetime.now()),
+                        end_time=pattern_data.get("end_time", datetime.now()),
+                        confidence=pattern_data.get("confidence", 0.0),
+                        price_levels=pattern_data.get("price_levels", {}),
+                        volume_profile=pattern_data.get("volume_profile"),
+                        metadata=pattern_data.get("metadata"),
+                        conditions=pattern_data.get("conditions"),
+                        features=pattern_data.get("features")
+                    )
+                    pattern_list.append(pattern_obj)
+                self.patterns[column] = pattern_list
+                
+                # Обновление метрик - добавляем недостающие поля
                 pattern_metrics_obj = PatternMetrics(
                     total_patterns=len(sorted_patterns_list),
                     pattern_lengths={
-                        len(v[1]["pattern"]): sum(
+                        len(pattern_data["pattern"]): sum(
                             1
-                            for p in sorted_patterns_list
-                            if len(p[1]["pattern"]) == len(v[1]["pattern"])
+                            for _, p_data in sorted_patterns_list
+                            if len(p_data["pattern"]) == len(pattern_data["pattern"])
                         )
-                        for v in sorted_patterns_list
+                        for _, pattern_data in sorted_patterns_list
                     },
                     pattern_frequencies={
-                        str(k): v[1]["metrics"]["frequency"] for k, v in sorted_patterns_list.items()
+                        str(k): v["metrics"]["frequency"] for k, v in sorted_patterns_list
                     },
+                    pattern_returns={
+                        str(k): v["metrics"].get("return", 0.0) for k, v in sorted_patterns_list
+                    },
+                    pattern_win_rates={
+                        str(k): v["metrics"].get("win_rate", 0.0) for k, v in sorted_patterns_list
+                    },
+                    pattern_sharpe={
+                        str(k): v["metrics"].get("sharpe", 0.0) for k, v in sorted_patterns_list
+                    },
+                    pattern_drawdown={
+                        str(k): v["metrics"].get("drawdown", 0.0) for k, v in sorted_patterns_list
+                    },
+                    last_update=datetime.now(),
+                    confidence=sum(v["metrics"].get("confidence", 0.0) for k, v in sorted_patterns_list) / len(sorted_patterns_list) if sorted_patterns_list else 0.0
                 )
                 self.metrics[column] = pattern_metrics_obj
         except Exception as e:
@@ -315,9 +345,11 @@ class PatternDiscovery:
                     continue
                 series = df[column]
                 matches: List[Dict[str, Any]] = []
-                if isinstance(patterns_data, dict):
-                    for pattern_id, pattern_data in patterns_data.items():
-                        pattern = np.array(pattern_data["pattern"])
+                # patterns_data теперь List[Pattern]
+                for pattern_obj in patterns_data:
+                    # Создаем простой паттерн из metadata для совместимости
+                    if pattern_obj.metadata and "pattern" in pattern_obj.metadata:
+                        pattern = np.array(pattern_obj.metadata["pattern"])
                         pattern_length = len(pattern)
                         for i in range(len(series) - pattern_length + 1):
                             if hasattr(series, 'iloc'):
@@ -327,12 +359,11 @@ class PatternDiscovery:
                             if np.allclose(window, pattern, rtol=0.1):
                                 matches.append(
                                     {
-                                        "pattern_id": pattern_id,
+                                        "pattern_id": pattern_obj.name,
                                         "start_index": i,
                                         "end_index": i + pattern_length,
-                                        "confidence": 1.0
-                                        - np.mean(np.abs(window - pattern) / pattern),
-                                        "metrics": pattern_data["metrics"],
+                                        "confidence": pattern_obj.confidence,
+                                        "metrics": pattern_obj.metadata.get("metrics", {}),
                                     }
                                 )
                 results[column] = matches
@@ -357,14 +388,28 @@ class PatternDiscovery:
     def get_metrics(self, column: Optional[str] = None) -> Dict[str, Any]:
         """Получение метрик"""
         if column:
-            metrics_result: Dict[str, Any] = self.metrics.get(column, {})
-            return metrics_result if isinstance(metrics_result, dict) else {}
-        return self.metrics
+            metrics_obj = self.metrics.get(column)
+            if metrics_obj:
+                # Конвертируем PatternMetrics в dict
+                return {
+                    "total_patterns": metrics_obj.total_patterns,
+                    "pattern_lengths": metrics_obj.pattern_lengths,
+                    "pattern_frequencies": metrics_obj.pattern_frequencies,
+                    "pattern_returns": metrics_obj.pattern_returns,
+                    "pattern_win_rates": metrics_obj.pattern_win_rates,
+                    "pattern_sharpe": metrics_obj.pattern_sharpe,
+                    "pattern_drawdown": metrics_obj.pattern_drawdown,
+                    "last_update": metrics_obj.last_update.isoformat(),
+                    "confidence": metrics_obj.confidence
+                }
+            return {}
+        # Конвертируем все метрики в dict
+        return {col: self.get_metrics(col) for col in self.metrics.keys()}
 
     def reset_patterns(self) -> None:
         """Сброс паттернов"""
         self.patterns = {}
-        self.metrics: Dict[str, Any] = {}
+        self.metrics.clear()
         self._pattern_cache.clear()
         self._feature_cache.clear()
 
@@ -649,7 +694,7 @@ class PatternDiscovery:
             # Проверка условий
             if not pattern.conditions:
                 return 0.0
-            antecedents = pattern.conditions.get("antecedents", [])
+            antecedents = list(pattern.conditions.get("antecedents", []))
             # Расчет поддержки
             support = 0.0
             for _, row in features.iterrows():
