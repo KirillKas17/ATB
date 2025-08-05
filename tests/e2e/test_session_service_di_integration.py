@@ -7,7 +7,9 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from application.di_container_refactored import get_service_locator
 from domain.sessions.services import SessionService
 from domain.type_definitions.session_types import SessionType, MarketRegime, SessionIntensity
-    @pytest.mark.e2e
+
+
+@pytest.mark.e2e
     @pytest.mark.asyncio
     async def test_session_service_di_integration() -> None:
     """

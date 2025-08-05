@@ -53,20 +53,20 @@ class TestStrategyInterface(unittest.TestCase):
         }
 
 
-def test_strategy_interface_creation(self) -> None:
+    def test_strategy_interface_creation(self) -> None:
         """Тест создания стратегии через интерфейс."""
         strategy = TrendFollowingStrategy(
-    strategy_id=self.strategy_id,
+            strategy_id=self.strategy_id,
             name="Test Trend Strategy",
-    trading_pairs=self.trading_pairs,
-    parameters=self.parameters,
+            trading_pairs=self.trading_pairs,
+            parameters=self.parameters,
             risk_level=RiskLevel(Decimal("0.5")),
             confidence_threshold=ConfidenceLevel(Decimal("0.7"))
         )
-    self.assertIsInstance(strategy, StrategyInterface)
-    self.assertEqual(strategy.get_strategy_id(), self.strategy_id)
-    self.assertEqual(strategy.get_strategy_type(), StrategyType.TREND_FOLLOWING)
-    self.assertEqual(strategy.get_trading_pairs(), self.trading_pairs)
+        self.assertIsInstance(strategy, StrategyInterface)
+        self.assertEqual(strategy.get_strategy_id(), self.strategy_id)
+        self.assertEqual(strategy.get_strategy_type(), StrategyType.TREND_FOLLOWING)
+        self.assertEqual(strategy.get_trading_pairs(), self.trading_pairs)
 
 
 def test_strategy_interface_methods(self) -> None:

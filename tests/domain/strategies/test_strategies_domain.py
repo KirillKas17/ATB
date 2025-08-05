@@ -25,6 +25,8 @@ from domain.strategies.exceptions import (
     StrategyValidationError, StrategyExecutionError
 )
 from domain.strategies.validators import StrategyValidator
+
+
 class TestStrategyDomainRules:
     """Тесты доменных правил стратегий."""
     @pytest.fixture

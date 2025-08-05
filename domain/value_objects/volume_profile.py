@@ -13,6 +13,47 @@ from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 
 
+class VolumeLevel(BaseValueObject):
+    """Уровень объема с ценой."""
+    
+    def __init__(self, price: Price, volume: float, timestamp: Timestamp) -> None:
+        """
+        Инициализация уровня объема.
+        
+        Args:
+            price: Цена уровня
+            volume: Объем на уровне
+            timestamp: Временная метка
+        """
+        super().__init__()
+        self._price = price
+        self._volume = volume
+        self._timestamp = timestamp
+    
+    @property
+    def price(self) -> Price:
+        """Цена уровня."""
+        return self._price
+    
+    @property
+    def volume(self) -> float:
+        """Объем на уровне."""
+        return self._volume
+    
+    @property
+    def timestamp(self) -> Timestamp:
+        """Временная метка."""
+        return self._timestamp
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "price": float(self._price.amount),
+            "volume": self._volume,
+            "timestamp": self._timestamp.value.isoformat()
+        }
+
+
 class VolumeProfile(BaseValueObject):
     """Профиль объема для анализа рыночной структуры."""
 
