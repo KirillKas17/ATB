@@ -64,7 +64,7 @@ class SessionSignalEngine:
         self,
         session_analyzer: Optional[SessionInfluenceAnalyzer] = None,
         session_marker: Optional[SessionMarker] = None,
-        config: Optional[Dict[str, Any] = None] = None,
+        config: Optional[Dict[str, Any]] = None,
     ):
         self.session_marker = session_marker or SessionMarker()
         

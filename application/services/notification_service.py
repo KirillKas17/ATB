@@ -278,7 +278,7 @@ class NotificationService:
         alert_type: str,
         title: str,
         message: str,
-        data: Optional[Dict[str, Any] = None] = None,
+        data: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """Отправка алерта."""
         try:

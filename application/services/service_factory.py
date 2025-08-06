@@ -37,54 +37,54 @@ class ServiceFactory(ABC):
 
     @abstractmethod
     def create_market_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> MarketService:
         """Создание сервиса рынка."""
         pass
 
     @abstractmethod
-    def create_ml_service(self, config: Optional[Dict[str, Any] = None] = None) -> MLService:
+    def create_ml_service(self, config: Optional[Dict[str, Any]] = None) -> MLService:
         """Создание ML сервиса."""
         pass
 
     @abstractmethod
     def create_trading_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> TradingService:
         """Создание торгового сервиса."""
         pass
 
     @abstractmethod
     def create_strategy_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> StrategyService:
         """Создание сервиса стратегий."""
         pass
 
     @abstractmethod
     def create_portfolio_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> PortfolioService:
         """Создание сервиса портфелей."""
         pass
 
     @abstractmethod
     def create_risk_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> RiskService:
         """Создание сервиса рисков."""
         pass
 
     @abstractmethod
     def create_cache_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> CacheService:
         """Создание сервиса кэширования."""
         pass
 
     @abstractmethod
     def create_notification_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> NotificationService:
         """Создание сервиса уведомлений."""
         pass
@@ -116,7 +116,7 @@ class DefaultServiceFactory(ServiceFactory):
             raise ValueError(f"Unknown service type: {service_type}")
 
     def create_market_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> MarketService:
         """Создание сервиса рынка."""
         service_key = "market_service"
@@ -141,7 +141,7 @@ class DefaultServiceFactory(ServiceFactory):
 
         return self._service_instances[service_key]
 
-    def create_ml_service(self, config: Optional[Dict[str, Any] = None] = None) -> MLService:
+    def create_ml_service(self, config: Optional[Dict[str, Any]] = None) -> MLService:
         """Создание ML сервиса."""
         service_key = "ml_service"
 
@@ -164,7 +164,7 @@ class DefaultServiceFactory(ServiceFactory):
         return self._service_instances[service_key]
 
     def create_trading_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> TradingService:
         """Создание торгового сервиса."""
         service_key = "trading_service"
@@ -188,7 +188,7 @@ class DefaultServiceFactory(ServiceFactory):
         return self._service_instances[service_key]
 
     def create_strategy_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> StrategyService:
         """Создание сервиса стратегий."""
         service_key = "strategy_service"
@@ -205,7 +205,7 @@ class DefaultServiceFactory(ServiceFactory):
         return self._service_instances[service_key]
 
     def create_portfolio_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> PortfolioService:
         """Создание сервиса портфелей."""
         service_key = "portfolio_service"
@@ -229,7 +229,7 @@ class DefaultServiceFactory(ServiceFactory):
         return self._service_instances[service_key]
 
     def create_risk_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> RiskService:
         """Создание сервиса рисков."""
         service_key = "risk_service"
@@ -251,7 +251,7 @@ class DefaultServiceFactory(ServiceFactory):
         return self._service_instances[service_key]
 
     def create_cache_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> CacheService:
         """Создание сервиса кэширования."""
         service_key = "cache_service"
@@ -267,7 +267,7 @@ class DefaultServiceFactory(ServiceFactory):
         return self._service_instances[service_key]
 
     def create_notification_service(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> NotificationService:
         """Создание сервиса уведомлений."""
         service_key = "notification_service"
@@ -436,7 +436,7 @@ class ServiceFactoryRegistry:
 
     def __init__(self) -> None:
         self._factories: Dict[str, Type[ServiceFactory]] = {}
-        self._default_factory: Optional[Type[ServiceFactory] = None] = None
+        self._default_factory: Optional[Type[ServiceFactory]] = None
 
     def register_factory(self, name: str, factory_class: Type[ServiceFactory]) -> None:
         """Регистрация фабрики."""
@@ -455,7 +455,7 @@ class ServiceFactoryRegistry:
         return self._default_factory
 
     def create_factory(
-        self, name: str, config: Optional[Dict[str, Any] = None] = None
+        self, name: str, config: Optional[Dict[str, Any]] = None
     ) -> Optional[ServiceFactory]:
         """Создание фабрики по имени."""
         factory_class = self.get_factory(name)
@@ -464,7 +464,7 @@ class ServiceFactoryRegistry:
         return None
 
     def create_default_factory(
-        self, config: Optional[Dict[str, Any] = None] = None
+        self, config: Optional[Dict[str, Any]] = None
     ) -> Optional[ServiceFactory]:
         """Создание фабрики по умолчанию."""
         if self._default_factory:
@@ -479,7 +479,7 @@ _factory_registry.set_default_factory(DefaultServiceFactory)
 
 
 def get_service_factory(
-    name: str = "default", config: Optional[Dict[str, Any] = None] = None
+    name: str = "default", config: Optional[Dict[str, Any]] = None
 ) -> ServiceFactory:
     """Получение фабрики сервисов."""
     factory = _factory_registry.create_factory(name, config)
