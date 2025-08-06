@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class MarketController:
     """Контроллер для управления рыночными данными."""
 
-    def __init__(self, exchange: Exchange):
+    def __init__(self, exchange: Exchange) -> None:
         """Инициализация контроллера.
         
         Args:

@@ -36,7 +36,7 @@ class BehaviorHistoryRepository(IBehaviorHistoryStorage):
     - Оптимизированные запросы
     """
 
-    def __init__(self, config: Optional[StorageConfig] = None):
+    def __init__(self, config: Optional[StorageConfig] = None) -> None:
         """
         Инициализация репозитория.
         Args:

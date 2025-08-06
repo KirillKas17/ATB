@@ -37,7 +37,7 @@ class EvolvableStrategy(EvolvableComponent):
     оптимизирует параметры и улучшает производительность.
     """
 
-    def __init__(self, name: str, strategy_type: str = "trend_following"):
+    def __init__(self, name: str, strategy_type: str = "trend_following") -> None:
         """Инициализация эволюционирующей стратегии."""
         super().__init__(name)
         self.strategy_type = strategy_type
@@ -375,7 +375,7 @@ class EvolvablePredictor(EvolvableComponent):
     оптимизирует модель и улучшает точность предсказаний.
     """
 
-    def __init__(self, name: str, model_type: str = "regression"):
+    def __init__(self, name: str, model_type: str = "regression") -> None:
         """Инициализация эволюционирующего предиктора."""
         super().__init__(name)
         self.model_type = model_type

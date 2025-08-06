@@ -26,7 +26,7 @@ class WhaleMemoryIntegration:
     Интеграция памяти китов для отслеживания крупных игроков.
     """
 
-    def __init__(self, config: Optional[WhaleMemoryConfig] = None):
+    def __init__(self, config: Optional[WhaleMemoryConfig] = None) -> None:
         """
         Инициализация интеграции памяти китов.
         :param config: конфигурация памяти китов

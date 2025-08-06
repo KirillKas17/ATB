@@ -298,7 +298,7 @@ class FeatureEngineer:
 class ModelManager:
     """Менеджер моделей."""
 
-    def __init__(self, config: MLServiceConfig):
+    def __init__(self, config: MLServiceConfig) -> None:
         self.config = config
         self.models: Dict[ModelId, Model] = {}
         self.model_objects: Dict[ModelId, Any] = {}
@@ -370,7 +370,7 @@ class ModelManager:
 class ProductionMLService(MLServiceProtocol):
     """Промышленная реализация ML сервиса."""
 
-    def __init__(self, config: Optional[MLServiceConfig] = None):
+    def __init__(self, config: Optional[MLServiceConfig] = None) -> None:
         self.config = config or MLServiceConfig()
         self.model_manager = ModelManager(self.config)
         self.cache: Dict[str, Any] = {}
@@ -762,7 +762,7 @@ class ProductionMLService(MLServiceProtocol):
 class MLServiceAdapter(MLProtocol):
     """Адаптер для внешнего ML сервиса."""
 
-    def __init__(self, service_url: str = "http://localhost:8001"):
+    def __init__(self, service_url: str = "http://localhost:8001") -> None:
         self.service_url = service_url
         self.service = ProductionMLService()
 

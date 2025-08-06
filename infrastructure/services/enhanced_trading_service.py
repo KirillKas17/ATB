@@ -137,7 +137,7 @@ class EnhancedTradingError(TradingError):
 class EnhancedTradingServiceImpl(EnhancedTradingService):
     """Промышленная реализация enhanced trading сервиса."""
 
-    def __init__(self, config: Optional[EnhancedTradingConfig] = None):
+    def __init__(self, config: Optional[EnhancedTradingConfig] = None) -> None:
         """Инициализация сервиса."""
         self.config = config or EnhancedTradingConfig()
         self.logger = logging.getLogger(__name__)

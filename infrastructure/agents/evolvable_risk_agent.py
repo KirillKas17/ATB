@@ -43,7 +43,7 @@ class RiskML(nn.Module):
 class EvolvableRiskAgent(EvolvableComponent):
     """Эволюционный агент управления рисками"""
 
-    def __init__(self, name: str = "evolvable_risk"):
+    def __init__(self, name: str = "evolvable_risk") -> None:
         super().__init__(name)
         # ML модель для эволюции
         self.ml_model = RiskML()

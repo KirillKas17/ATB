@@ -15,7 +15,7 @@ from decimal import Decimal
 class RiskAnalysisServiceAdapter(ExchangeProtocol):
     """Адаптер RiskAnalysisService для обратной совместимости."""
 
-    def __init__(self, config: Optional[ConnectionConfig] = None):
+    def __init__(self, config: Optional[ConnectionConfig] = None) -> None:
         self.config = config or ConnectionConfig()
 
     async def analyze_portfolio_risk(

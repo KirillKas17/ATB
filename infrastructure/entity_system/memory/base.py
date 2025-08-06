@@ -210,7 +210,7 @@ logger = logging.getLogger(__name__)
 class SnapshotManager(BaseSnapshotManager):
     """Промышленная реализация менеджера снимков."""
 
-    def __init__(self, config: SnapshotConfig):
+    def __init__(self, config: SnapshotConfig) -> None:
         self.config = config
         self.storage_path = config.storage_path
         self.storage_path.mkdir(parents=True, exist_ok=True)
@@ -545,7 +545,7 @@ class SnapshotManager(BaseSnapshotManager):
 class MemoryManager(BaseMemoryManager):
     """Промышленная реализация менеджера памяти."""
 
-    def __init__(self, config: MemoryConfig):
+    def __init__(self, config: MemoryConfig) -> None:
         self.config = config
         self._monitoring_task: Optional[asyncio.Task] = None
         self._cache: Dict[str, Any] = {}

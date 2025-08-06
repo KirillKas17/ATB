@@ -20,7 +20,7 @@ from .types import (
 class StrategyOrchestrator(ABC):
     """Оркестратор стратегий."""
 
-    def __init__(self, config: MetaControllerConfig):
+    def __init__(self, config: MetaControllerConfig) -> None:
         self.config = config
         self.active_strategies: Dict[str, StrategyStatus] = {}
 
@@ -72,7 +72,7 @@ class StrategyOrchestrator(ABC):
 class RiskManager(ABC):
     """Менеджер рисков."""
 
-    def __init__(self, config: MetaControllerConfig):
+    def __init__(self, config: MetaControllerConfig) -> None:
         self.config = config
         self.risk_metrics: Optional[RiskMetrics] = None
 
@@ -129,7 +129,7 @@ class RiskManager(ABC):
 class PerformanceAnalyzer(ABC):
     """Анализатор производительности."""
 
-    def __init__(self, config: MetaControllerConfig):
+    def __init__(self, config: MetaControllerConfig) -> None:
         self.config = config
         self.performance_metrics: Optional[PerformanceMetrics] = None
 

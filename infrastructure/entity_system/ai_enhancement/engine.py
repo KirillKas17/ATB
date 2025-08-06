@@ -176,7 +176,7 @@ class AIEnhancementEngine(BaseAIEnhancement):
         """Создание модели для оценки качества кода."""
 
         class CodeQualityModel(torch.nn.Module):
-            def __init__(self, input_size: int = 64, hidden_size: int = 128):
+            def __init__(self, input_size: int = 64, hidden_size: int = 128) -> None:
                 super().__init__()
                 self.layers = torch.nn.Sequential(
                     torch.nn.Linear(input_size, hidden_size),
@@ -200,7 +200,7 @@ class AIEnhancementEngine(BaseAIEnhancement):
         """Создание модели для оценки производительности."""
 
         class PerformanceModel(torch.nn.Module):
-            def __init__(self, input_size: int = 64, hidden_size: int = 256):
+            def __init__(self, input_size: int = 64, hidden_size: int = 256) -> None:
                 super().__init__()
                 self.layers = torch.nn.Sequential(
                     torch.nn.Linear(input_size, hidden_size),
@@ -226,7 +226,7 @@ class AIEnhancementEngine(BaseAIEnhancement):
         """Создание модели для оценки поддерживаемости."""
 
         class MaintainabilityModel(torch.nn.Module):
-            def __init__(self, input_size: int = 64, hidden_size: int = 192):
+            def __init__(self, input_size: int = 64, hidden_size: int = 192) -> None:
                 super().__init__()
                 self.layers = torch.nn.Sequential(
                     torch.nn.Linear(input_size, hidden_size),
@@ -250,7 +250,7 @@ class AIEnhancementEngine(BaseAIEnhancement):
         """Создание универсальной модели."""
 
         class GenericModel(torch.nn.Module):
-            def __init__(self, input_size: int = 64, hidden_size: int = 128):
+            def __init__(self, input_size: int = 64, hidden_size: int = 128) -> None:
                 super().__init__()
                 self.layers = torch.nn.Sequential(
                     torch.nn.Linear(input_size, hidden_size),
@@ -272,7 +272,7 @@ class AIEnhancementEngine(BaseAIEnhancement):
         logger.warning(f"Создание fallback модели для {model_name}")
 
         class FallbackModel:
-            def __init__(self, name: str):
+            def __init__(self, name: str) -> None:
                 self.name = name
 
             def __call__(self, x: torch.Tensor) -> torch.Tensor:

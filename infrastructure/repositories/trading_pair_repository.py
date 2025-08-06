@@ -44,7 +44,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
     In-memory реализация репозитория торговых пар.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self._trading_pairs: Dict[str, TradingPair] = {}
@@ -471,7 +471,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
     PostgreSQL реализация репозитория торговых пар.
     """
 
-    def __init__(self, connection_string: str):
+    def __init__(self, connection_string: str) -> None:
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self.connection_string = connection_string
@@ -675,7 +675,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         async with pool.acquire() as conn:
             async with conn.transaction() as transaction:
                 class PostgresTransaction(TransactionProtocol):
-                    def __init__(self, transaction):
+                    def __init__(self, transaction) -> None:
                         self.transaction = transaction
                     
                     async def __aenter__(self) -> "PostgresTransaction":

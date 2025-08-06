@@ -34,7 +34,7 @@ class ISocialMediaProvider(ABC):
 class RedditProvider(ISocialMediaProvider):
     """Провайдер для Reddit"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
         self.subreddits = config.get(
             "subreddits", ["cryptocurrency", "bitcoin", "ethereum"]
@@ -197,7 +197,7 @@ class RedditProvider(ISocialMediaProvider):
 class TelegramProvider(ISocialMediaProvider):
     """Провайдер для Telegram"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
         self.bot_token = config.get("bot_token")
         self.channels = config.get("channels", [])
@@ -243,7 +243,7 @@ class TelegramProvider(ISocialMediaProvider):
 class DiscordProvider(ISocialMediaProvider):
     """Провайдер для Discord"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
         self.bot_token = config.get("bot_token")
         self.channels = config.get("channels", [])

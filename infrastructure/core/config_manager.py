@@ -38,7 +38,7 @@ class ConfigManager:
     настройками системы торговли.
     """
 
-    def __init__(self, config_path: str = "config.json"):
+    def __init__(self, config_path: str = "config.json") -> None:
         """
         Инициализация менеджера конфигурации.
 

@@ -149,7 +149,7 @@ class BrokerProtocol(Protocol):
 class BaseBroker(ABC):
     """Базовый класс для брокерских интерфейсов."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
         self.name = config.get("name", "unknown")
         self.api_key = config.get("api_key")
@@ -239,7 +239,7 @@ class BaseBroker(ABC):
 class MockBroker(BaseBroker):
     """Мок-брокер для тестирования."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         super().__init__(config or {})
         self.orders: Dict[str, OrderResponse] = {}
         self.order_counter = 0
@@ -297,7 +297,7 @@ class MockBroker(BaseBroker):
 class BybitBroker(BaseBroker):
     """Брокер для Bybit."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
         # Здесь должна быть инициализация Bybit API клиента
         logger.info(
@@ -354,7 +354,7 @@ class BybitBroker(BaseBroker):
 class BinanceBroker(BaseBroker):
     """Брокер для Binance."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
         # Здесь должна быть инициализация Binance API клиента
         logger.info(

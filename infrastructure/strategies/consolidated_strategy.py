@@ -331,7 +331,7 @@ class RegimeDetectionModule:
 class ConsolidatedStrategy(BaseStrategy):
     """Консолидированная стратегия."""
 
-    def __init__(self, config: Union[Dict[str, Any], StrategyConfig]):
+    def __init__(self, config: Union[Dict[str, Any], StrategyConfig]) -> None:
         """
         Инициализация консолидированной стратегии.
         Args:

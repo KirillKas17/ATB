@@ -86,7 +86,7 @@ class MetricsCollector:
     - Стратегий
     """
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus) -> None:
         """Инициализация сборщика метрик."""
         self.event_bus = event_bus
         self.metrics: Dict[str, MetricSeries] = defaultdict(lambda: MetricSeries(""))

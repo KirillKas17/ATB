@@ -282,7 +282,7 @@ class PersistentCache(MemoryCache):
 class CacheManager:
     """Менеджер кэшей с поддержкой нескольких уровней."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._caches: Dict[str, CacheProtocol] = {}
         self._default_cache: Optional[CacheProtocol] = None
     

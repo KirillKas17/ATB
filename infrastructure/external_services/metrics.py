@@ -10,7 +10,7 @@ from domain.exceptions import NetworkError
 class PrometheusMetricsService:
     """Реализация сервиса метрик с Prometheus."""
 
-    def __init__(self, prometheus_url: str = "http://localhost:9090"):
+    def __init__(self, prometheus_url: str = "http://localhost:9090") -> None:
         self.prometheus_url = prometheus_url
         # Здесь будет инициализация подключения к Prometheus
 

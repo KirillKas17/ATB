@@ -43,7 +43,7 @@ class MarketRegimeML(nn.Module):
 class EvolvableMarketRegimeAgent(EvolvableComponent):
     """Эволюционный агент рыночного режима"""
 
-    def __init__(self, name: str = "evolvable_market_regime"):
+    def __init__(self, name: str = "evolvable_market_regime") -> None:
         super().__init__(name)
         # ML модель для эволюции
         self.ml_model = MarketRegimeML()

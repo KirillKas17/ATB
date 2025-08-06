@@ -13,16 +13,16 @@ from uuid import UUID
 # ============================================================================
 
 # Типы для значений, которые могут быть любыми
-FlexibleValue = Union[str, int, float, bool, List, Dict, None]
+FlexibleValue = Union[str, int, float, bool, List[Any], Dict[str, Any], None]
 """Гибкий тип для значений, которые могут быть разными типами."""
 
-JsonValue = Union[str, int, float, bool, List, Dict, None]
+JsonValue = Union[str, int, float, bool, List[Any], Dict[str, Any], None]
 """Тип для JSON значений."""
 
-ConfigValue = Union[str, int, float, bool, List, Dict, None]
+ConfigValue = Union[str, int, float, bool, List[Any], Dict[str, Any], None]
 """Тип для значений конфигурации."""
 
-CacheValue = Union[str, int, float, bool, List, Dict, None]
+CacheValue = Union[str, int, float, bool, List[Any], Dict[str, Any], None]
 """Тип для значений кэша."""
 
 # Типы для идентификаторов

@@ -303,7 +303,7 @@ class OrderExecutor:
 class ExecutionManager:
     """Менеджер исполнения ордеров."""
 
-    def __init__(self, config: Optional[ExecutionConfig] = None):
+    def __init__(self, config: Optional[ExecutionConfig] = None) -> None:
         self.config = config or ExecutionConfig()
         self.executors: Dict[str, OrderExecutor] = {}
         self.execution_history: List[ExecutionResult] = []

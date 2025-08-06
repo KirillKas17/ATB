@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class SpreadAnalyzer:
     """Анализатор спредов для маркет-мейкинга."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {
             "spread_threshold": 0.001,
             "confidence_threshold": 0.7,

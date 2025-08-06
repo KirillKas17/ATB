@@ -59,7 +59,7 @@ class EventBus(EventBusProtocol):
     - Потокобезопасность
     """
 
-    def __init__(self, config: Optional[EventBusConfig] = None):
+    def __init__(self, config: Optional[EventBusConfig] = None) -> None:
         """
         Инициализация EventBus.
         Args:

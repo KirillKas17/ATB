@@ -254,7 +254,7 @@ class EvolutionBackup(EvolutionBackupProtocol):
         timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
         return str(self.backup_dir / f"evolution_backup_{timestamp_str}_{backup_id}")
 
-    def _prepare_backup_data(self) -> dict:
+    def _prepare_backup_data(self) -> dict[str, Any]:
         """Подготовка данных для резервного копирования."""
         return {
             "candidates": [],
@@ -321,7 +321,7 @@ class EvolutionBackup(EvolutionBackupProtocol):
         with open(metadata_file, "r", encoding="utf-8") as f:
             return cast(BackupMetadata, json.load(f))
 
-    def _load_backup_data(self, backup_path: str) -> dict:
+    def _load_backup_data(self, backup_path: str) -> dict[str, Any]:
         """Загрузка данных резервной копии."""
         backup_file = Path(backup_path)
         if backup_path.endswith(".gz"):

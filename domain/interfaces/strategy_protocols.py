@@ -160,8 +160,8 @@ class SymbolSelectorProtocol(Protocol):
 class BaseStrategyAdvisor(ABC):
     """Базовый класс советника стратегий."""
 
-    def __init__(self, *args, **kwargs) -> Any:
-        self.config = config or {}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.config = kwargs.get('config', {})
         self._mirror_map_history: List[MirrorMap] = []
         self._symmetry_history: List[float] = []
 
@@ -202,8 +202,8 @@ class BaseStrategyAdvisor(ABC):
 class BaseMarketFollower(ABC):
     """Базовый класс следования за рынком."""
 
-    def __init__(self, *args, **kwargs) -> Any:
-        self.config = config or {}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.config = kwargs.get('config', {})
         self._signal_history: List[FollowSignal] = []
         self._result_history: List[FollowResult] = []
 
@@ -243,8 +243,8 @@ class BaseMarketFollower(ABC):
 class BaseSymbolSelector(ABC):
     """Базовый класс выбора символов."""
 
-    def __init__(self, *args, **kwargs) -> Any:
-        self.config = config or {}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.config = kwargs.get('config', {})
         self._selection_history: List[SymbolSelectionResult] = []
         self._opportunity_history: List[float] = []
 

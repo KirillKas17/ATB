@@ -206,7 +206,7 @@ class SignalProcessor:
 class Backtester:
     """Промышленный бэктестер торговых стратегий с полной реализацией."""
 
-    def __init__(self, config: Optional[BacktesterConfig] = None):
+    def __init__(self, config: Optional[BacktesterConfig] = None) -> None:
         """Инициализация бэктестера."""
         self.config = config or BacktesterConfig()
         self.metrics = BacktesterMetrics()

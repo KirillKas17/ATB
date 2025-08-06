@@ -43,7 +43,7 @@ from domain.value_objects.timestamp import Timestamp
 class OrderTracker:
     """Трекер ордеров."""
 
-    def __init__(self, config: ConnectionConfig):
+    def __init__(self, config: ConnectionConfig) -> None:
         self.config = config
         self.orders: Dict[OrderId, Order] = {}
         self.order_history: List[Order] = []
@@ -307,7 +307,7 @@ class OrderAnalytics:
 class SmartOrderRouter:
     """Умный роутер ордеров."""
 
-    def __init__(self, config: ConnectionConfig):
+    def __init__(self, config: ConnectionConfig) -> None:
         self.config = config
 
     async def optimize_order(self, order: Order, market_data: MarketData) -> Order:
@@ -483,7 +483,7 @@ class SmartOrderRouter:
 class ProductionOrderManager(ExchangeProtocol):
     """Production-ready менеджер ордеров."""
 
-    def __init__(self, config: ConnectionConfig):
+    def __init__(self, config: ConnectionConfig) -> None:
         self.config = config
         self.tracker = OrderTracker(config)
         self.analytics = OrderAnalytics()
@@ -840,7 +840,7 @@ class ProductionOrderManager(ExchangeProtocol):
 class OrderManagerAdapter(ExchangeProtocol):
     """Адаптер менеджера ордеров для обратной совместимости."""
 
-    def __init__(self, config: Optional[ConnectionConfig] = None):
+    def __init__(self, config: Optional[ConnectionConfig] = None) -> None:
         self.config = config or ConnectionConfig()
         self.order_manager = ProductionOrderManager(self.config)
 
@@ -979,7 +979,7 @@ class OrderManagerAdapter(ExchangeProtocol):
 class OrderManager(ProductionOrderManager):
     """Удобная обёртка для ProductionOrderManager с дефолтной конфигурацией."""
     
-    def __init__(self, config: Optional[ConnectionConfig] = None):
+    def __init__(self, config: Optional[ConnectionConfig] = None) -> None:
         if config is None:
             # Создаём дефолтную конфигурацию
             from domain.type_definitions.external_service_types import ConnectionConfig

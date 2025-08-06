@@ -38,7 +38,7 @@ class CompressionError(Exception):
 class Compressor:
     """Base class for data compressors."""
 
-    def __init__(self, compression_type: CompressionType = CompressionType.LZ4):
+    def __init__(self, compression_type: CompressionType = CompressionType.LZ4) -> None:
         self.compression_type = compression_type
         self._compression_threshold = 1024  # Only compress data larger than 1KB
 
@@ -200,7 +200,7 @@ class AdaptiveCompressor(Compressor):
             "count"
         ]
 
-    def get_compression_stats(self) -> dict:
+    def get_compression_stats(self) -> dict[str, Any]:
         """Get compression statistics."""
         return self._compression_stats.copy()
 
@@ -251,7 +251,7 @@ class CacheCompressor:
         self._compression_threshold = threshold
         self._compressor._compression_threshold = threshold
 
-    def get_compression_stats(self) -> dict:
+    def get_compression_stats(self) -> dict[str, Any]:
         """Get compression statistics."""
         if isinstance(self._compressor, AdaptiveCompressor):
             return self._compressor.get_compression_stats()
@@ -348,7 +348,7 @@ class CompressionMonitor:
         else:
             self._stats["decompression_errors"] += 1
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         """Get compression statistics."""
         stats = self._stats.copy()
         if stats["total_compressed"] > 0:

@@ -43,7 +43,7 @@ class RetryStrategy(ABC):
 class StaticFallback(FallbackStrategy):
     """Static fallback that returns a predefined value."""
 
-    def __init__(self, value: Any):
+    def __init__(self, value: Any) -> None:
         self.value = value
         self._execution_count = 0
 
@@ -61,7 +61,7 @@ class StaticFallback(FallbackStrategy):
 class FunctionFallback(FallbackStrategy):
     """Fallback that calls a function."""
 
-    def __init__(self, func: Callable[..., Any], max_executions: Optional[int] = None):
+    def __init__(self, func: Callable[..., Any], max_executions: Optional[int] = None) -> None:
         self.func = func
         self.max_executions = max_executions
         self._execution_count = 0
@@ -90,7 +90,7 @@ class FunctionFallback(FallbackStrategy):
 class CachedFallback(FallbackStrategy):
     """Fallback that returns cached value."""
 
-    def __init__(self, cache_duration: float = 300.0):
+    def __init__(self, cache_duration: float = 300.0) -> None:
         self.cache_duration = cache_duration
         self._cached_value = None
         self._cache_time = 0.0
@@ -127,7 +127,7 @@ class CachedFallback(FallbackStrategy):
 class DegradedFallback(FallbackStrategy):
     """Fallback that provides degraded functionality."""
 
-    def __init__(self, degraded_func: Callable[..., Any], max_executions: Optional[int] = None):
+    def __init__(self, degraded_func: Callable[..., Any], max_executions: Optional[int] = None) -> None:
         self.degraded_func = degraded_func
         self.max_executions = max_executions
         self._execution_count = 0
@@ -204,7 +204,7 @@ class ExponentialBackoffRetry(RetryStrategy):
 class FixedDelayRetry(RetryStrategy):
     """Fixed delay retry strategy."""
 
-    def __init__(self, max_retries: int = 3, delay: float = 1.0):
+    def __init__(self, max_retries: int = 3, delay: float = 1.0) -> None:
         self.max_retries = max_retries
         self.delay = delay
 
@@ -337,7 +337,7 @@ def create_trading_fallback(
 class CompositeFallback(FallbackStrategy):
     """Fallback that tries multiple strategies in order."""
 
-    def __init__(self, strategies: List[FallbackStrategy]):
+    def __init__(self, strategies: List[FallbackStrategy]) -> None:
         self.strategies = strategies
         self._current_strategy_index = 0
 
@@ -363,7 +363,7 @@ class CompositeFallback(FallbackStrategy):
 class AdaptiveFallback(FallbackStrategy):
     """Adaptive fallback that learns from previous executions."""
 
-    def __init__(self, strategies: List[FallbackStrategy]):
+    def __init__(self, strategies: List[FallbackStrategy]) -> None:
         self.strategies = strategies
         self._success_counts = [0] * len(strategies)
         self._failure_counts = [0] * len(strategies)

@@ -24,12 +24,12 @@ from safe_import_wrapper import safe_import
 class EnhancedPredictionService:
     """Улучшенный сервис прогнозирования с продвинутыми алгоритмами"""
     
-    def __init__(self, *args, **kwargs) -> Any:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Args:
             config: Конфигурация сервиса
         """
-        self.config = config or {}
+        self.config = kwargs.get('config', {})
         
         # Инициализируем продвинутый движок
         self.prediction_engine = AdvancedPredictionEngine(
@@ -400,7 +400,7 @@ class EnhancedPredictionService:
         # Для демонстрации возвращаем базовое значение
         return 0.65
     
-    async def _update_accuracy_metrics(self, *args, **kwargs) -> Any:
+    async def _update_accuracy_metrics(self, symbol: str, *args, **kwargs) -> None:
         """Обновление метрик точности"""
         try:
             # Здесь должна быть логика сравнения прогнозов с реальными результатами
@@ -410,7 +410,7 @@ class EnhancedPredictionService:
         except Exception as e:
             logger.warning(f"Error updating accuracy metrics for {symbol}: {e}")
     
-    def _maintain_history_size(self, *args, **kwargs) -> Any:
+    def _maintain_history_size(self, max_size: int = 1000, *args, **kwargs) -> None:
         """Поддержание размера истории прогнозов"""
         if len(self.prediction_history) > max_size:
             # Удаляем старые записи

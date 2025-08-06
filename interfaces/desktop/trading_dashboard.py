@@ -48,7 +48,7 @@ class DashboardState:
 class ModernTradingDashboard:
     """Современный дашборд торговли"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.root = tk.Tk()
         self.setup_window()
         self.setup_styles()

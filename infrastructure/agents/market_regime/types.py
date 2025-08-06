@@ -59,7 +59,7 @@ class RegimeIndicators:
 class DefaultIndicatorCalculator(IIndicatorCalculator):
     """Промышленная реализация калькулятора индикаторов."""
 
-    def __init__(self, lookback_period: int = 20):
+    def __init__(self, lookback_period: int = 20) -> None:
         self.lookback_period = lookback_period
 
     def calculate(self, dataframe: pd.DataFrame) -> Dict[str, Any]:
@@ -310,7 +310,7 @@ class DefaultIndicatorCalculator(IIndicatorCalculator):
 class MarketRegimeClassifier:
     """Классификатор рыночных режимов."""
 
-    def __init__(self, calculator: Optional[IIndicatorCalculator] = None):
+    def __init__(self, calculator: Optional[IIndicatorCalculator] = None) -> None:
         self.calculator = calculator or DefaultIndicatorCalculator()
 
     def classify_market_regime(self, market_data: pd.DataFrame) -> MarketRegime:

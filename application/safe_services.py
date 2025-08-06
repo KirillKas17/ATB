@@ -44,10 +44,10 @@ class SafeTradingService:
     def close_position(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         return {"status": "closed", "timestamp": datetime.now()}
     
-    def get_active_positions(self) -> List[Dict]:
+    def get_active_positions(self) -> List[Dict[str, Any]]:
         return []
     
-    def get_position_history(self) -> List[Dict]:
+    def get_position_history(self) -> List[Dict[str, Any]]:
         return []
     
     def calculate_pnl(self, *args: Any, **kwargs: Any) -> Decimal:
@@ -118,7 +118,7 @@ class SafeRiskService:
             "leverage_ratio": 1.0
         }
     
-    def get_risk_alerts(self) -> List[Dict]:
+    def get_risk_alerts(self) -> List[Dict[str, Any]]:
         return []
     
     # Fallback methods for any missing abstract methods

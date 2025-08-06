@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, List, Optional
 class Message:
     """Сообщение."""
 
-    def __init__(self, topic: str, data: Any, priority: int = 1):
+    def __init__(self, topic: str, data: Any, priority: int = 1) -> None:
         self.topic = topic
         self.data = data
         self.priority = priority
@@ -39,7 +39,7 @@ class Message:
 class MessageQueue:
     """Очередь сообщений."""
 
-    def __init__(self, max_size: int = 10000):
+    def __init__(self, max_size: int = 10000) -> None:
         self.max_size = max_size
         self.queues: Dict[str, List[Message]] = {}
         self.subscribers: Dict[str, List[Callable[[Message], Any]]] = {}

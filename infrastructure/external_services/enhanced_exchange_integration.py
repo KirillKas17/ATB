@@ -54,7 +54,7 @@ class TradingEnvironment:
 class EnhancedExchangeIntegration:
     """Расширенная интеграция с биржами - все возможности в одном классе."""
     
-    def __init__(self, environment: Optional[TradingEnvironment] = None):
+    def __init__(self, environment: Optional[TradingEnvironment] = None) -> None:
         self.environment = environment or TradingEnvironment()
         self.exchanges: Dict[str, Any] = {}
         self.market_providers: Dict[str, MarketDataProvider] = {}

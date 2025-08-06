@@ -204,7 +204,7 @@ class ProcessedSignal:
 class SignalProcessor:
     """Расширенный процессор сигналов."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация процессора сигналов.
 

@@ -3,7 +3,7 @@ Symbol entity для торговых пар и символов.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 from datetime import datetime
 
 from domain.value_objects.currency import Currency
@@ -19,7 +19,7 @@ class Symbol:
     is_active: bool = True
     created_at: datetime = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.created_at is None:
             self.created_at = datetime.now()
         if self.name is None:
@@ -43,7 +43,7 @@ class Symbol:
     def __str__(self) -> str:
         return self.symbol_name
     
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Symbol):
             return False
         return (self.base_currency == other.base_currency and 

@@ -20,7 +20,7 @@ class LocalAIController:
     Локальный AI контроллер для обработки задач машинного обучения.
     """
 
-    def __init__(self, config: Optional[AIConfig] = None):
+    def __init__(self, config: Optional[AIConfig] = None) -> None:
         """
         Инициализация локального AI контроллера.
         :param config: конфигурация контроллера

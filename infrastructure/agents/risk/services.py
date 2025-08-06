@@ -49,7 +49,7 @@ class RiskAlert:
 class RiskMonitoringService:
     """Сервис мониторинга рисков."""
 
-    def __init__(self, config: Optional[RiskConfig] = None):
+    def __init__(self, config: Optional[RiskConfig] = None) -> None:
         self.config = config or RiskConfig()
         self.calculator = DefaultRiskCalculator(config)
         self.metrics_calculator = RiskMetricsCalculator(config)
@@ -218,7 +218,7 @@ class RiskMonitoringService:
 class RiskAlertService:
     """Сервис алертов рисков."""
 
-    def __init__(self, config: Optional[AlertConfig] = None):
+    def __init__(self, config: Optional[AlertConfig] = None) -> None:
         self.config = config or AlertConfig()
         self.alerts: List[RiskAlert] = []
         self.alert_handlers: Dict[str, Callable] = {}

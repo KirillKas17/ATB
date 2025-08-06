@@ -71,7 +71,7 @@ class Metric:
 class PerformanceMonitor:
     """Монитор производительности системы."""
 
-    def __init__(self, sample_interval: float = 1.0, max_samples: int = 3600):
+    def __init__(self, sample_interval: float = 1.0, max_samples: int = 3600) -> None:
         self.sample_interval = sample_interval
         self.max_samples = max_samples
 
@@ -240,7 +240,7 @@ class PerformanceMonitor:
 class AlertManager:
     """Менеджер алертов."""
 
-    def __init__(self, max_alerts: int = 1000):
+    def __init__(self, max_alerts: int = 1000) -> None:
         self.max_alerts = max_alerts
         self.alerts: List[Alert] = []
         self.alert_handlers: Dict[AlertLevel, List[Callable]] = defaultdict(list)
@@ -558,7 +558,7 @@ class SystemMonitor:
 class MonitoringIntegration:
     """Базовый класс для интеграций мониторинга."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.is_connected = False
         self.connection_retries = 0

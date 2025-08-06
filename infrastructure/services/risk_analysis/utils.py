@@ -151,7 +151,7 @@ def convert_to_money(
 class RiskAnalysisCache:
     """Кэш для риск-анализа."""
 
-    def __init__(self, ttl_hours: int = 1):
+    def __init__(self, ttl_hours: int = 1) -> None:
         self.cache: Dict[str, Any] = {}
         self.timestamps: Dict[str, datetime] = {}
         self.ttl = timedelta(hours=ttl_hours)

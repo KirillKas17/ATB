@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class LiquidityAnalyzer:
     """Анализатор ликвидности для маркет-мейкинга."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {
             "liquidity_zone_size": 0.005,
             "volume_threshold": 100000,

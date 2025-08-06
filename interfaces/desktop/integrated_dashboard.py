@@ -23,7 +23,7 @@ from interfaces.desktop.dashboard_controller import DashboardController
 class IntegratedTradingDashboard(ModernTradingDashboard):
     """Интегрированный дашборд с полной функциональностью"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         # Инициализация контроллера
         self.controller = DashboardController()
         

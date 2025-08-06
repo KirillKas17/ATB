@@ -88,7 +88,7 @@ class StatisticalArbitrageConfig:
 class StatisticalArbitrageStrategy(BaseStrategy):
     """Стратегия статистического арбитража"""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

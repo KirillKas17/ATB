@@ -43,7 +43,7 @@ class MarketMakerML(nn.Module):
 class EvolvableMarketMakerAgent(EvolvableComponent):
     """Эволюционный агент маркет-мейкинга"""
 
-    def __init__(self, name: str = "evolvable_market_maker"):
+    def __init__(self, name: str = "evolvable_market_maker") -> None:
         super().__init__(name)
         # ML модель для эволюции
         self.ml_model = MarketMakerML()

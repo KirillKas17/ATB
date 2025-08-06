@@ -15,7 +15,7 @@ T = TypeVar("T")
 class CacheEntry(Generic[T]):
     """Запись в кэше."""
 
-    def __init__(self, key: str, value: T, ttl: Optional[timedelta] = None):
+    def __init__(self, key: str, value: T, ttl: Optional[timedelta] = None) -> None:
         self.key = key
         self.value = value
         self.created_at = datetime.now(timezone.utc)
@@ -46,7 +46,7 @@ class CacheEntry(Generic[T]):
 class LRUCache:
     """LRU кэш с поддержкой TTL."""
 
-    def __init__(self, max_size: int = 1000, default_ttl: Optional[timedelta] = None):
+    def __init__(self, max_size: int = 1000, default_ttl: Optional[timedelta] = None) -> None:
         self.max_size = max_size
         self.default_ttl = default_ttl
         self.cache: OrderedDict[str, CacheEntry] = OrderedDict()

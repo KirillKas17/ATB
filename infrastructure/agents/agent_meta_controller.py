@@ -19,7 +19,7 @@ class MetaControllerConfig:
 class MetaControllerAgent(ABC):
     """Абстрактный мета-контроллер агент."""
 
-    def __init__(self, config: Optional[MetaControllerConfig] = None):
+    def __init__(self, config: Optional[MetaControllerConfig] = None) -> None:
         self.config = config or MetaControllerConfig()
         self.agents: Dict[str, Any] = {}
         self.coordination_active = False

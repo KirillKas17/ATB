@@ -43,7 +43,7 @@ class NewsML(nn.Module):
 class EvolvableNewsAgent(EvolvableComponent):
     """Эволюционный агент новостей"""
 
-    def __init__(self, name: str = "evolvable_news"):
+    def __init__(self, name: str = "evolvable_news") -> None:
         super().__init__(name)
         # ML модель для эволюции
         self.ml_model = NewsML()

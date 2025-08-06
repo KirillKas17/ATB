@@ -164,7 +164,7 @@ def convert_to_datetime(value: Union[str, datetime, pd.Timestamp]) -> datetime:
 class TechnicalAnalysisCache:
     """Кэш для технического анализа."""
 
-    def __init__(self, ttl_hours: int = 1):
+    def __init__(self, ttl_hours: int = 1) -> None:
         self.cache: Dict[str, Any] = {}
         self.timestamps: Dict[str, datetime] = {}
         self.ttl = timedelta(hours=ttl_hours)

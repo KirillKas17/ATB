@@ -32,7 +32,7 @@ class HealthCheckResult:
 class BaseHealthMonitor(ABC):
     """Base class for health monitors."""
     
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.logger = logging.getLogger(f"{__name__}.{name}")
     
@@ -140,7 +140,7 @@ class ExchangeHealthMonitor(BaseHealthMonitor):
 class SystemHealthMonitor(BaseHealthMonitor):
     """Monitor for overall system health."""
     
-    def __init__(self, monitors: Optional[list[BaseHealthMonitor]] = None):
+    def __init__(self, monitors: Optional[list[BaseHealthMonitor]] = None) -> None:
         super().__init__("system")
         self.monitors = monitors or []
     

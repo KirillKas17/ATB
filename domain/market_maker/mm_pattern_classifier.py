@@ -12,9 +12,9 @@ from decimal import Decimal
 
 from domain.market_maker.mm_pattern import (
     MarketMakerPattern,
-    MarketMakerPatternType,
     PatternFeatures,
 )
+from domain.type_definitions.market_maker_types import MarketMakerPatternType
 from domain.type_definitions.market_maker_types import (
     BookPressure,
     Confidence,

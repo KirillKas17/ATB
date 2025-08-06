@@ -20,7 +20,7 @@ class EvolvablePortfolioConfig:
 class EvolvablePortfolioAgent(ABC):
     """Абстрактный эволюционный портфельный агент."""
 
-    def __init__(self, config: Optional[EvolvablePortfolioConfig] = None):
+    def __init__(self, config: Optional[EvolvablePortfolioConfig] = None) -> None:
         self.config = config or EvolvablePortfolioConfig()
         self.is_active: bool = False
         self.generation: int = 0

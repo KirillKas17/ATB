@@ -253,7 +253,7 @@ class RepositoryBackend(ABC):
 class SQLAlchemyBackend(RepositoryBackend):
     """Бэкенд для SQLAlchemy."""
     
-    def __init__(self, engine: Optional[AsyncEngine] = None, session_factory: Optional[Callable[[], AsyncSession]] = None):
+    def __init__(self, engine: Optional[AsyncEngine] = None, session_factory: Optional[Callable[[], AsyncSession]] = None) -> None:
         if not HAS_SQLALCHEMY:
             raise ImportError("SQLAlchemy is required for SQLAlchemyBackend")
         
@@ -413,7 +413,7 @@ class MemoryBackend(RepositoryBackend):
 class TransactionManager:
     """Менеджер транзакций."""
     
-    def __init__(self, backend: RepositoryBackend):
+    def __init__(self, backend: RepositoryBackend) -> None:
         self.backend = backend
         self._active_transactions: Dict[str, TransactionContext] = {}
         self._transaction_lock = asyncio.Lock()
@@ -601,7 +601,7 @@ class TransactionManager:
 class BaseRepository(Generic[T], ABC):
     """Базовый репозиторий с полной поддержкой транзакций."""
     
-    def __init__(self, backend_type: BackendType = BackendType.MEMORY, **backend_kwargs):
+    def __init__(self, backend_type: BackendType = BackendType.MEMORY, **backend_kwargs) -> None:
         self.backend_type = backend_type
         self._backend = self._create_backend(backend_type, **backend_kwargs)
         self._transaction_manager = TransactionManager(self._backend)

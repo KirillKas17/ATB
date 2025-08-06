@@ -29,7 +29,7 @@ class CircuitBreaker:
     - Уведомления о сбоях
     """
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus) -> None:
         self.event_bus = event_bus
 
         # Состояния circuit breaker для разных компонентов

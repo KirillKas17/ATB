@@ -114,7 +114,7 @@ class AdvancedPredictorConfig:
 class MultiHeadAttention(nn.Module):
     """Многоголовое внимание с относительным позиционированием"""
 
-    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.1):
+    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.1) -> None:
         super().__init__()
         assert d_model % n_heads == 0
         self.d_model = d_model
@@ -170,7 +170,7 @@ class MultiHeadAttention(nn.Module):
 class GraphConvolutionalLayer(nn.Module):
     """Слой графовой свертки для моделирования рыночных связей"""
 
-    def __init__(self, in_features: int, out_features: int, dropout: float = 0.1):
+    def __init__(self, in_features: int, out_features: int, dropout: float = 0.1) -> None:
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -219,7 +219,7 @@ class GraphNeuralNetwork(nn.Module):
 class TemporalFusionTransformer(nn.Module):
     """Temporal Fusion Transformer для временных рядов"""
 
-    def __init__(self, config: AdvancedPredictorConfig):
+    def __init__(self, config: AdvancedPredictorConfig) -> None:
         super().__init__()
         self.config = config
         # LSTM для обработки временных зависимостей
@@ -258,7 +258,7 @@ class TemporalFusionTransformer(nn.Module):
 class NeuralODE(nn.Module):
     """Neural ODE для непрерывного времени"""
 
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int):
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int) -> None:
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim + 1, hidden_dim),  # +1 для времени
@@ -276,7 +276,7 @@ class NeuralODE(nn.Module):
 class AdvancedTransformer(nn.Module):
     """Продвинутый трансформер с множественными улучшениями"""
 
-    def __init__(self, config: AdvancedPredictorConfig):
+    def __init__(self, config: AdvancedPredictorConfig) -> None:
         super().__init__()
         self.config = config
         # Эмбеддинг признаков
@@ -359,7 +359,7 @@ class AdvancedTransformer(nn.Module):
 class MetaLearner(nn.Module):
     """Мета-обучатель для быстрой адаптации к новым рыночным условиям"""
 
-    def __init__(self, config: AdvancedPredictorConfig):
+    def __init__(self, config: AdvancedPredictorConfig) -> None:
         super().__init__()
         self.config = config
         # Мета-сеть для генерации параметров
@@ -388,7 +388,7 @@ class MetaLearner(nn.Module):
 class AdvancedPricePredictor:
     """Максимально продвинутый предиктор цен"""
 
-    def __init__(self, config: Optional[AdvancedPredictorConfig] = None):
+    def __init__(self, config: Optional[AdvancedPredictorConfig] = None) -> None:
         self.config = config or AdvancedPredictorConfig()
         self.device = torch.device(self.config.device)
         # Основная модель

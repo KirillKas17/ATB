@@ -64,7 +64,7 @@ class ExchangeConfig:
 class Exchange:
     """Класс для работы с биржей"""
 
-    def __init__(self, config: ExchangeConfig):
+    def __init__(self, config: ExchangeConfig) -> None:
         """Инициализация биржи"""
         self.config = config
         # Клиенты - используем Mock для тестирования

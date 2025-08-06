@@ -31,7 +31,7 @@ class AutonomousController:
     - Самообучается и эволюционирует
     """
 
-    def __init__(self, event_bus: EventBus, config: Dict[str, Any]):
+    def __init__(self, event_bus: EventBus, config: Dict[str, Any]) -> None:
         self.event_bus = event_bus
         self.config = config
         # Инициализация всех компонентов

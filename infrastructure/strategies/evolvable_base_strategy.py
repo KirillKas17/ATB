@@ -56,7 +56,7 @@ class EvolvableStrategyConfig:
 class StrategyMLModel(nn.Module):
     """ML модель для оптимизации стратегии"""
 
-    def __init__(self, input_dim: int = 20, hidden_dim: int = 64):
+    def __init__(self, input_dim: int = 20, hidden_dim: int = 64) -> None:
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -74,7 +74,7 @@ class StrategyMLModel(nn.Module):
 class RLTradingAgent(nn.Module):
     """Reinforcement Learning агент для генерации стратегий"""
 
-    def __init__(self, state_dim, action_dim, hidden_dim=128):
+    def __init__(self, state_dim, action_dim, hidden_dim=128) -> None:
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(state_dim, hidden_dim),
@@ -94,7 +94,7 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
     Объединяет классическую логику стратегии с ML-оптимизацией
     """
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], EvolvableStrategyConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], EvolvableStrategyConfig]] = None) -> None:
         if isinstance(config, EvolvableStrategyConfig):
             config_obj = config
         elif isinstance(config, dict):

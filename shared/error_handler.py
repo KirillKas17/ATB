@@ -41,7 +41,7 @@ class ErrorCategory(Enum):
 class ErrorHandler:
     """Продвинутый обработчик ошибок с метриками и алертингом."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.error_counts: Dict[str, int] = {}
         self.error_history: List[Dict[str, Any]] = []
         self.max_history_size = 1000

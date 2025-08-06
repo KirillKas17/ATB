@@ -20,7 +20,7 @@ class EvolvableOrderExecutorConfig:
 class EvolvableOrderExecutor(ABC):
     """Абстрактный эволюционный исполнитель ордеров."""
 
-    def __init__(self, config: Optional[EvolvableOrderExecutorConfig] = None):
+    def __init__(self, config: Optional[EvolvableOrderExecutorConfig] = None) -> None:
         self.config = config or EvolvableOrderExecutorConfig()
         self.is_active: bool = False
         self.execution_history: List[Dict[str, Any]] = []

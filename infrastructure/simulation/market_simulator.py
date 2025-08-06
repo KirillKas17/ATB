@@ -190,7 +190,7 @@ class LatencyModel:
 class MarketSimulator:
     """Симулятор рынка"""
 
-    def __init__(self, config: Optional[SimulationConfig] = None):
+    def __init__(self, config: Optional[SimulationConfig] = None) -> None:
         """Инициализация симулятора"""
         self.config = config or SimulationConfig.from_yaml()
         self.metrics_history: list[SimulationMetrics] = []

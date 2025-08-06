@@ -55,7 +55,7 @@ class DecisionReasoner:
     Основной класс для принятия торговых решений на основе ML моделей.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Инициализация системы принятия решений."""
         self.config = config or {}
         self.signal_aggregator = SignalAggregator()

@@ -100,7 +100,7 @@ class RegimeClassifier(ABC):
 class TechnicalRegimeClassifier(RegimeClassifier):
     """Технический классификатор рыночных режимов."""
 
-    def __init__(self, lookback_period: int = 50):
+    def __init__(self, lookback_period: int = 50) -> None:
         self.lookback_period = lookback_period
 
     def classify_regime(self, data: pd.DataFrame) -> RegimeAnalysis:
@@ -222,7 +222,7 @@ class TechnicalRegimeClassifier(RegimeClassifier):
 class MarketRegimeAgent:
     """Агент для анализа рыночных режимов."""
 
-    def __init__(self, agent_id: str, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, agent_id: str, config: Optional[Dict[str, Any]] = None) -> None:
         self.agent_id = agent_id
         self.config = config or {}
         self.classifier = TechnicalRegimeClassifier()

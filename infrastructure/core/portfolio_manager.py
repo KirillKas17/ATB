@@ -55,7 +55,7 @@ class PortfolioManager:
     - Корреляционным анализом.
     """
 
-    def __init__(self, event_bus: EventBus, config: Dict[str, Any]):
+    def __init__(self, event_bus: EventBus, config: Dict[str, Any]) -> None:
         """
         Инициализация менеджера портфеля.
         Args:

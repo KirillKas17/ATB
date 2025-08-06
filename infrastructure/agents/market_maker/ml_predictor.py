@@ -14,7 +14,7 @@ from loguru import logger
 class MLPredictor:
     """ML-предиктор для анализа рынка и принятия решений."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {
             "input_dim": 15,
             "learning_rate": 0.001,

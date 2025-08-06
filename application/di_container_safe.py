@@ -31,7 +31,7 @@ class SafeContainer(containers.DeclarativeContainer):
     market_service = providers.Singleton(SafeMarketService)
 
 
-def get_safe_service_locator():
+def get_safe_service_locator() -> SafeContainer:
     """Get a safe service locator that won't crash on missing imports"""
     container = SafeContainer()
     container.config.from_dict({

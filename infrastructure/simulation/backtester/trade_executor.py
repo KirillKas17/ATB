@@ -66,7 +66,7 @@ class TradeExecutorMetrics:
 class TradeExecutor:
     """Промышленный исполнитель сделок с полной реализацией."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """Инициализация исполнителя сделок."""
         self.config = (
             TradeExecutorConfig(**config)

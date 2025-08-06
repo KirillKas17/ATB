@@ -76,7 +76,7 @@ class EventHandler:
 class EventBus:
     """Optimized event bus implementation."""
 
-    def __init__(self, max_workers: int = 10, queue_size: int = 1000):
+    def __init__(self, max_workers: int = 10, queue_size: int = 1000) -> None:
         self.max_workers = max_workers
         self.queue_size = queue_size
         self._handlers: Dict[EventType, List[EventHandler]] = defaultdict(list)

@@ -15,7 +15,7 @@ from .config import ExchangeServiceConfig
 class BybitExchangeService(BaseExchangeService):
     """Реализация сервиса для Bybit."""
 
-    def __init__(self, config: ExchangeServiceConfig):
+    def __init__(self, config: ExchangeServiceConfig) -> None:
         super().__init__(config)
         self._exchange_name = ExchangeName("bybit")
 

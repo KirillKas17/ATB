@@ -59,7 +59,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
     - Управление рисками в реальном времени
     """
 
-    def __init__(self, config: AdaptationConfig):
+    def __init__(self, config: AdaptationConfig) -> None:
         super().__init__()
         self.adaptation_config = config
         self.regime_detector = MarketRegimeDetector()

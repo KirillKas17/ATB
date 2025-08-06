@@ -244,7 +244,7 @@ class DataSerializer:
 class MemoryCache(CacheProtocol):
     """Продвинутый in-memory кэш."""
     
-    def __init__(self, config: CacheConfig):
+    def __init__(self, config: CacheConfig) -> None:
         self.config = config
         self._storage: Dict[str, CacheEntry] = {}
         self._lock = asyncio.Lock()
@@ -487,7 +487,7 @@ class MemoryCache(CacheProtocol):
 class RedisCache(CacheProtocol):
     """Кэш на основе Redis."""
     
-    def __init__(self, config: CacheConfig):
+    def __init__(self, config: CacheConfig) -> None:
         self.config = config
         self._redis: Optional[redis.Redis] = None
         self._metrics = CacheMetrics()
@@ -595,7 +595,7 @@ class RedisCache(CacheProtocol):
 class HybridCache(CacheProtocol):
     """Гибридный кэш с двумя уровнями."""
     
-    def __init__(self, config: CacheConfig):
+    def __init__(self, config: CacheConfig) -> None:
         self.config = config
         self._l1_cache = MemoryCache(config)
         self._l2_cache = RedisCache(config) if config.redis_url else None
@@ -772,7 +772,7 @@ def _ensure_default_cache() -> None:
 class MarketDataCache(MemoryCache):
     """Специализированный кэш для рыночных данных."""
     
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: Optional[CacheConfig] = None) -> None:
         if config is None:
             config = CacheConfig(
                 max_size=50000,
@@ -784,7 +784,7 @@ class MarketDataCache(MemoryCache):
 class StrategyCache(MemoryCache):
     """Специализированный кэш для стратегий."""
     
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: Optional[CacheConfig] = None) -> None:
         if config is None:
             config = CacheConfig(
                 max_size=10000,

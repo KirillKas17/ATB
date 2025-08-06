@@ -98,7 +98,7 @@ class SwarmConfig:
 class BaseAgent(ABC):
     """Базовый класс для всех агентов"""
     
-    def __init__(self, agent_id: str, role: AgentRole, position: Optional[np.ndarray] = None):
+    def __init__(self, agent_id: str, role: AgentRole, position: Optional[np.ndarray] = None) -> None:
         self.id = agent_id
         self.role = role
         self.position = position if position is not None else np.random.random(10)  # 10D пространство
@@ -345,7 +345,7 @@ class BaseAgent(ABC):
 class ScoutAgent(BaseAgent):
     """Агент-разведчик, ищет новые возможности"""
     
-    def __init__(self, agent_id: str):
+    def __init__(self, agent_id: str) -> None:
         super().__init__(agent_id, AgentRole.SCOUT)
         self.specializations = ["pattern_recognition", "opportunity_detection", "market_scanning"]
         self.scan_radius = 5.0
@@ -520,7 +520,7 @@ class ScoutAgent(BaseAgent):
 class HunterAgent(BaseAgent):
     """Агент-охотник, реализует торговые возможности"""
     
-    def __init__(self, agent_id: str):
+    def __init__(self, agent_id: str) -> None:
         super().__init__(agent_id, AgentRole.HUNTER)
         self.specializations = ["trade_execution", "opportunity_capture", "fast_reaction"]
         self.aggression_level = 0.7
@@ -708,7 +708,7 @@ class HunterAgent(BaseAgent):
 class GuardianAgent(BaseAgent):
     """Агент-страж, управляет рисками"""
     
-    def __init__(self, agent_id: str):
+    def __init__(self, agent_id: str) -> None:
         super().__init__(agent_id, AgentRole.GUARDIAN)
         self.specializations = ["risk_assessment", "threat_detection", "protection"]
         self.vigilance_level = 0.8
@@ -939,7 +939,7 @@ class GuardianAgent(BaseAgent):
 class Swarm:
     """Рой агентов с коллективным интеллектом"""
     
-    def __init__(self, config: SwarmConfig):
+    def __init__(self, config: SwarmConfig) -> None:
         self.config = config
         self.agents: Dict[str, BaseAgent] = {}
         self.global_best_position = np.random.random(10)
@@ -1121,7 +1121,7 @@ class Swarm:
 class MessageRouter:
     """Маршрутизатор сообщений для агентов"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.pending_messages: List[Tuple[Message, str]] = []
         self.message_history: List[Message] = []
         self.delivery_stats = {'delivered': 0, 'failed': 0}
@@ -1151,7 +1151,7 @@ class MessageRouter:
 class ConsensusManager:
     """Менеджер консенсуса для коллективного принятия решений"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.consensus_history = []
         self.voting_threshold = 0.6
     
@@ -1241,7 +1241,7 @@ class ConsensusManager:
 class CollectiveKnowledgeBase:
     """База коллективных знаний роя"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.knowledge: Dict[str, Any] = {}
         self.knowledge_history: List[Dict[str, Any]] = []
         self.update_count = 0

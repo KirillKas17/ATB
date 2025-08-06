@@ -231,7 +231,7 @@ ArrayLike = Union[List[float], List[int], Any]
 
 # Mock ndarray type for type hints
 if not HAS_NUMPY:
-    class ndarray(list):
+    class ndarray(list[Any]):
         """Mock ndarray that behaves like a list"""
         def __init__(self, data: Any = None):
             super().__init__(data if data is not None else [])

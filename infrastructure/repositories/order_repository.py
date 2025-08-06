@@ -515,7 +515,7 @@ class PostgresOrderRepository(OrderRepositoryProtocol):
     - Метрики и мониторинг
     """
 
-    def __init__(self, connection_string: str, cache_service: Optional[Any] = None):
+    def __init__(self, connection_string: str, cache_service: Optional[Any] = None) -> None:
         self.connection_string = connection_string
         self.cache_service = cache_service
         self.logger = logging.getLogger(self.__class__.__name__)

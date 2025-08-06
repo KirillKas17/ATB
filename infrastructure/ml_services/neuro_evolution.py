@@ -129,7 +129,7 @@ class NeuralNode:
 class Connection:
     """Соединение между узлами"""
     
-    def __init__(self, from_node: int, to_node: int, weight: float = 0.0, enabled: bool = True):
+    def __init__(self, from_node: int, to_node: int, weight: float = 0.0, enabled: bool = True) -> None:
         self.from_node = from_node
         self.to_node = to_node
         self.weight = weight
@@ -140,7 +140,7 @@ class Connection:
 class NEATGenome:
     """Геном NEAT (NeuroEvolution of Augmenting Topologies)"""
     
-    def __init__(self, input_size: int, output_size: int):
+    def __init__(self, input_size: int, output_size: int) -> None:
         self.input_size = input_size
         self.output_size = output_size
         self.nodes: Dict[int, NeuralNode] = {}
@@ -402,7 +402,7 @@ class NEATGenome:
 class QuantumInspiredEvolution:
     """Квантово-вдохновленная эволюция"""
     
-    def __init__(self, config: NeuroEvolutionConfig):
+    def __init__(self, config: NeuroEvolutionConfig) -> None:
         self.config = config
         self.quantum_bits = {}  # Квантовые биты для каждого параметра
         
@@ -492,7 +492,7 @@ class QuantumInspiredEvolution:
 class NSGA2Selection:
     """Non-dominated Sorting Genetic Algorithm II для многокритериальной оптимизации"""
     
-    def __init__(self, objectives: List[str]):
+    def __init__(self, objectives: List[str]) -> None:
         self.objectives = objectives
         
     def fast_non_dominated_sort(self, population: List[NEATGenome]) -> List[List[int]]:
@@ -582,7 +582,7 @@ class NSGA2Selection:
 class AdaptiveParameterController:
     """Адаптивное управление параметрами эволюции"""
     
-    def __init__(self, config: NeuroEvolutionConfig):
+    def __init__(self, config: NeuroEvolutionConfig) -> None:
         self.config = config
         self.generation = 0
         self.fitness_history = []
@@ -651,7 +651,7 @@ class AdaptiveParameterController:
 class Species:
     """Вид в NEAT алгоритме"""
     
-    def __init__(self, representative: NEATGenome, species_id: int):
+    def __init__(self, representative: NEATGenome, species_id: int) -> None:
         self.id = species_id
         self.representative = representative
         self.members: List[NEATGenome] = [representative]
@@ -689,7 +689,7 @@ class Species:
 class NEATEvolution:
     """Основной класс NEAT эволюции"""
     
-    def __init__(self, config: NeuroEvolutionConfig, input_size: int, output_size: int):
+    def __init__(self, config: NeuroEvolutionConfig, input_size: int, output_size: int) -> None:
         self.config = config
         self.input_size = input_size
         self.output_size = output_size
@@ -1027,7 +1027,7 @@ class EvolutionFactory:
 class NeuroEvolution(NEATEvolution):
     """Удобная обёртка для NEATEvolution с дефолтными параметрами."""
     
-    def __init__(self, input_size: int = 10, output_size: int = 3, config: Optional[NeuroEvolutionConfig] = None):
+    def __init__(self, input_size: int = 10, output_size: int = 3, config: Optional[NeuroEvolutionConfig] = None) -> None:
         if config is None:
             config = NeuroEvolutionConfig()
         super().__init__(config, input_size, output_size)

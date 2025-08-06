@@ -35,7 +35,7 @@ class NewsItem:
     social_engagement: Dict[str, int] = field(default_factory=dict)
     fear_greed_index: float = 50.0
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 

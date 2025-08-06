@@ -43,7 +43,7 @@ class ValidationResult:
 class InputValidator:
     """Универсальный валидатор входных данных."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules: Dict[str, List[ValidationRule]] = {}
         self._setup_default_rules()
     

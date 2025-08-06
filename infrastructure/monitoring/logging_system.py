@@ -29,7 +29,7 @@ class StructuredLogger(LoggerProtocol):
     Структурированный логгер с трейсингом.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация структурированного логгера.
         Args:

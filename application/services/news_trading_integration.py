@@ -37,7 +37,7 @@ class TradingSignal:
     risk_adjustment: float  # Множитель риска
     position_size_adjustment: float  # Множитель размера позиции
     timestamp: datetime
-    metadata: Dict
+    metadata: Dict[str, Any]
 
 
 class NewsTradingIntegration(BaseModel):

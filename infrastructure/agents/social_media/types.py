@@ -55,7 +55,7 @@ class SocialMediaConfig:
     max_posts_per_request: int = 100
     sentiment_threshold: float = 0.3
     platforms: List[str] = field(default_factory=lambda: ["reddit"])
-    reddit_config: Dict = field(default_factory=dict)
-    telegram_config: Dict = field(default_factory=dict)
-    discord_config: Dict = field(default_factory=dict)
-    twitter_config: Dict = field(default_factory=dict)
+    reddit_config: Dict[str, Any] = field(default_factory=dict)
+    telegram_config: Dict[str, Any] = field(default_factory=dict)
+    discord_config: Dict[str, Any] = field(default_factory=dict)
+    twitter_config: Dict[str, Any] = field(default_factory=dict)

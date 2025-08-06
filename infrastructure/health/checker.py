@@ -42,7 +42,7 @@ class HealthCheck:
 class HealthChecker:
     """Main health checker class."""
 
-    def __init__(self, name: str = "atb-trading-system"):
+    def __init__(self, name: str = "atb-trading-system") -> None:
         self.name = name
         self.checks: Dict[str, Callable] = {}
         self.check_results: Dict[str, HealthCheck] = {}

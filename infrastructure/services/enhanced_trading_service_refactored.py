@@ -169,7 +169,7 @@ class SentimentAnalyzer(Protocol):
 class BaseOrderCreator:
     """Базовый создатель ордеров."""
 
-    def __init__(self, logger: ServiceLogger):
+    def __init__(self, logger: ServiceLogger) -> None:
         self.logger = logger
 
     def create_order(self, params: OrderParameters) -> Dict[str, Any]:
@@ -323,7 +323,7 @@ class AdvancedOrderCreator(BaseOrderCreator):
 class BaseStrategyExecutor:
     """Базовый исполнитель стратегий."""
 
-    def __init__(self, logger: ServiceLogger):
+    def __init__(self, logger: ServiceLogger) -> None:
         self.logger = logger
 
     def execute_strategy(
@@ -491,7 +491,7 @@ class BaseStrategyExecutor:
 class BaseSentimentAnalyzer:
     """Базовый анализатор настроений."""
 
-    def __init__(self, logger: ServiceLogger):
+    def __init__(self, logger: ServiceLogger) -> None:
         self.logger = logger
 
     def analyze_sentiment(

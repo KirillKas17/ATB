@@ -111,7 +111,7 @@ class EvolutionCandidate:
 class EvolvableComponent(ABC):
     """Абстрактный базовый класс для эволюционирующих компонентов."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.is_evolving = False
         self.performance_history: List[float] = []
@@ -159,7 +159,7 @@ class EvolvableComponent(ABC):
 class GeneticOptimizer:
     """Оптимизатор на основе генетических алгоритмов."""
 
-    def __init__(self, config: EvolutionConfig):
+    def __init__(self, config: EvolutionConfig) -> None:
         self.config = config
         self.toolbox: Optional[base.Toolbox] = None
         self.setup_genetic_algorithm()
@@ -269,7 +269,7 @@ class GeneticOptimizer:
 class EvolutionManager:
     """Центральный менеджер эволюции."""
 
-    def __init__(self, config: Optional[EvolutionConfig] = None):
+    def __init__(self, config: Optional[EvolutionConfig] = None) -> None:
         self.config = config or EvolutionConfig()
         self.components: Dict[str, EvolvableComponent] = {}
         self.metrics: Dict[str, ComponentMetrics] = {}

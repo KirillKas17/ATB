@@ -69,7 +69,7 @@ class DIContainer:
             raise ValueError(f"Service not registered: {service_type}")
         return service
     
-    def _get_key(self, service_type: Type) -> str:
+    def _get_key(self, service_type: Type[Any]) -> str:
         """Получение ключа для типа сервиса."""
         return f"{service_type.__module__}.{service_type.__name__}"
     

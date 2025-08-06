@@ -11,7 +11,7 @@ from .types import NewsConfig, NewsData, NewsMetrics
 class NewsAgent(ABC):
     """Абстрактный новостной агент."""
 
-    def __init__(self, config: Optional[NewsConfig] = None):
+    def __init__(self, config: Optional[NewsConfig] = None) -> None:
         self.config = config or NewsConfig()
         self.is_active = False
 

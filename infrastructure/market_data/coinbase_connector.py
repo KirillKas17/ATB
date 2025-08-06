@@ -15,7 +15,7 @@ from .base_connector import BaseExchangeConnector
 class CoinbaseConnector(BaseExchangeConnector):
     """Коннектор для Coinbase с промышленной реализацией."""
 
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None) -> None:
         super().__init__("coinbase", api_key, api_secret)
         self.base_url = "wss://ws-feed.exchange.coinbase.com"
 

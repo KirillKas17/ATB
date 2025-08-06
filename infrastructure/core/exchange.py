@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class Exchange:
     """Базовый класс для работы с биржами."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """Инициализация биржи.
         Args:
             config: Конфигурация биржи
@@ -765,7 +765,7 @@ class Exchange:
 class BinanceExchange(Exchange):
     """Класс для работы с Binance."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """Инициализация Binance.
         Args:
             config: Конфигурация

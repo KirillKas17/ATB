@@ -92,7 +92,7 @@ class PositionManager(Protocol):
 class SpreadCalculator(ABC):
     """Базовый класс для расчета спредов."""
 
-    def __init__(self, config: SpreadConfig):
+    def __init__(self, config: SpreadConfig) -> None:
         self.config = config
 
     @abstractmethod
@@ -151,7 +151,7 @@ class AdaptiveSpreadCalculator(SpreadCalculator):
 class OrderSizeCalculator(ABC):
     """Базовый класс для расчета размеров ордеров."""
 
-    def __init__(self, config: OrderSizeConfig):
+    def __init__(self, config: OrderSizeConfig) -> None:
         self.config = config
 
     @abstractmethod
@@ -209,7 +209,7 @@ class DynamicOrderSizeCalculator(OrderSizeCalculator):
 class RiskManager:
     """Менеджер рисков для Market Maker."""
 
-    def __init__(self, config: RiskConfig):
+    def __init__(self, config: RiskConfig) -> None:
         self.config = config
 
     def validate_order(

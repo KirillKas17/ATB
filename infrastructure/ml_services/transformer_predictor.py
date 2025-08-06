@@ -44,7 +44,7 @@ class PositionalEncoding(nn.Module):
     Класс для добавления позиционного кодирования к входным данным.
     """
 
-    def __init__(self, d_model: int, max_len: int = 5000):
+    def __init__(self, d_model: int, max_len: int = 5000) -> None:
         super().__init__()
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
@@ -147,7 +147,7 @@ class AdaptiveTransformer(nn.Module):
 class EvolutionaryTransformer:
     """Эволюционный трансформер с автоматической оптимизацией архитектуры"""
 
-    def __init__(self, input_size: int, output_size: int, population_size: int = 20):
+    def __init__(self, input_size: int, output_size: int, population_size: int = 20) -> None:
         self.input_size = input_size
         self.output_size = output_size
         self.population_size = population_size
@@ -274,7 +274,7 @@ class EvolutionaryTransformer:
 class OnlineAdaptiveTransformer:
     """Онлайн-адаптивный трансформер с непрерывным обучением"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
         self.model: Optional[AdaptiveTransformer] = None
         self.scaler: StandardScaler = StandardScaler()
@@ -588,7 +588,7 @@ class TimeSeriesDataset(Dataset):
 class TransformerModel(nn.Module):
     """Модель трансформера"""
 
-    def __init__(self, config: TransformerConfig, input_size: int):
+    def __init__(self, config: TransformerConfig, input_size: int) -> None:
         super().__init__()
         self.config = config
         # Эмбеддинг входных данных
@@ -623,7 +623,7 @@ class TransformerModel(nn.Module):
 class TransformerPredictor:
     """Предсказание с помощью трансформера"""
 
-    def __init__(self, config: Optional[TransformerConfig] = None):
+    def __init__(self, config: Optional[TransformerConfig] = None) -> None:
         """Инициализация предсказателя"""
         self.config = config or TransformerConfig()
         self.transformer_dir = Path("transformer")

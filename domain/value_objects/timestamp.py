@@ -81,7 +81,7 @@ class Timestamp(ValueObject):
         if self._value.tzinfo is None:
             raise ValueError("Timestamp must have timezone information")
 
-    def _get_equality_components(self) -> tuple:
+    def _get_equality_components(self) -> tuple[datetime, ...]:
         """Компоненты для сравнения на равенство."""
         return (self._value,)
 

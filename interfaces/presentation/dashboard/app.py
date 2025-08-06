@@ -19,7 +19,7 @@ ENTITY_AVAILABLE = False
 
 class ImprovementApplier:
     """Заглушка для отсутствующего класса ImprovementApplier"""
-    def __init__(self):
+    def __init__(self) -> None:
         pass
     
     def get_rl_effectiveness_metrics(self):
@@ -45,7 +45,7 @@ class ImprovementApplier:
 
 class EntityAnalytics:
     """Заглушка для отсутствующего класса EntityAnalytics"""
-    def __init__(self):
+    def __init__(self) -> None:
         pass
     
     def get_status(self):
@@ -66,7 +66,7 @@ logger.info("Entity модули инициализированы с заглу�
 class EntityDashboard:
     """Dashboard для Entity Analytics системы."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Инициализация dashboard."""
         self.app = dash.Dash(
             __name__,

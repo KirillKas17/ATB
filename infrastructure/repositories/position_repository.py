@@ -509,7 +509,7 @@ class InMemoryPositionRepository(PositionRepository):
 class PostgresPositionRepository(PositionRepository):
     """PostgreSQL реализация репозитория позиций."""
 
-    def __init__(self, connection_string: str):
+    def __init__(self, connection_string: str) -> None:
         super().__init__()
         self.connection_string = connection_string
         self._pool: Optional[asyncpg.Pool] = None

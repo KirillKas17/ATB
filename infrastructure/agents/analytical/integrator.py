@@ -19,7 +19,7 @@ from .types import (
 class AnalyticalIntegrator(IAnalyticalIntegrator):
     """Интегратор аналитических данных для маркет-мейкера."""
 
-    def __init__(self, config: Optional[IntegrationConfig] = None):
+    def __init__(self, config: Optional[IntegrationConfig] = None) -> None:
         self.config = config or IntegrationConfig()
         self.context_cache: Dict[str, MarketMakerContext] = {}
         self.recommendations_cache: Dict[str, Dict[str, Any]] = {}

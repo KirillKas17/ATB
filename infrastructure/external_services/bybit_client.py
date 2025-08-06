@@ -44,7 +44,7 @@ from domain.type_definitions.external_service_types import (
 class BybitClient(ExchangeProtocol):
     """Адаптер BybitClient для обратной совместимости."""
 
-    def __init__(self, api_key: str, api_secret: str, testnet: bool = False):
+    def __init__(self, api_key: str, api_secret: str, testnet: bool = False) -> None:
         self.api_key = api_key
         self.api_secret = api_secret
         self.testnet = testnet

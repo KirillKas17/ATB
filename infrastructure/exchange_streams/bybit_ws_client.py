@@ -27,7 +27,7 @@ from shared.models.orderbook import OrderBookUpdate
 class BybitWebSocketClient:
     """WebSocket клиент для Bybit биржи."""
 
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None) -> None:
         self.api_key = api_key
         self.api_secret = api_secret
         self.base_url = "wss://stream.bybit.com/v5/public/spot"

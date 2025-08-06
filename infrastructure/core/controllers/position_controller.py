@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class PositionController:
     """Контроллер для управления позициями."""
 
-    def __init__(self, exchange: Exchange, order_controller: OrderController):
+    def __init__(self, exchange: Exchange, order_controller: OrderController) -> None:
         """Инициализация контроллера.
         
         Args:

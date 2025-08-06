@@ -37,7 +37,7 @@ from .rate_limiter import RateLimiter
 class BaseExchangeService(ExchangeServiceProtocol):
     """Базовая реализация сервиса биржи."""
 
-    def __init__(self, config: ExchangeServiceConfig):
+    def __init__(self, config: ExchangeServiceConfig) -> None:
         self.config = config
         self._exchange_name = config.exchange_name
         self._connection_status = ConnectionStatus.DISCONNECTED

@@ -223,7 +223,7 @@ class StateManager:
             self.metrics["update_count"] = int(self.metrics["update_count"]) + 1
 
     # --- Regime history ---
-    def get_regime_history(self, pair: str) -> List:
+    def get_regime_history(self, pair: str) -> List[Any]:
         """Получение истории режимов"""
         with self.lock:
             history = self.regime_history.get(pair, [])

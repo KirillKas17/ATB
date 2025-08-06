@@ -34,7 +34,7 @@ class PerformanceMonitor(MetricCollectorProtocol):
     Система мониторинга производительности.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация системы мониторинга.
         Args:

@@ -70,6 +70,18 @@ class PricePatternExtractorProtocol(Protocol):
         """Получение статистики паттернов."""
         ...
 
+    def extract_pivot_points(self, price_data: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Извлечение точек разворота (pivot points)."""
+        ...
+
+    def extract_volume_profile(self, price_data: pd.DataFrame) -> Dict[str, Any]:
+        """Извлечение профиля объёма."""
+        ...
+
+    def extract_liquidity_clusters(self, price_data: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Извлечение кластеров ликвидности."""
+        ...
+
 
 # Алиас для обратной совместимости
 PricePatternExtractor = PricePatternExtractorProtocol

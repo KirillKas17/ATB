@@ -187,7 +187,7 @@ def convert_to_money(
 class EnhancedTradingCache:
     """Кэш для enhanced trading."""
 
-    def __init__(self, ttl_hours: int = 1):
+    def __init__(self, ttl_hours: int = 1) -> None:
         self.cache: Dict[str, Any] = {}
         self.timestamps: Dict[str, datetime] = {}
         self.ttl = timedelta(hours=ttl_hours)

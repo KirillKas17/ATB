@@ -41,7 +41,7 @@ class DataProcessorMetrics:
 class DataProcessor:
     """Процессор данных (расширенный)"""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict) -> None:
         self.config = (
             DataProcessorConfig(**config)
             if not isinstance(config, DataProcessorConfig)

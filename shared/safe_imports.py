@@ -100,27 +100,27 @@ except ImportError:
     
     class DataFrameFallback:
         """Минимальная реализация DataFrame для fallback."""
-        def __init__(self, data=None, **kwargs):
+        def __init__(self, data: Any = None, **kwargs: Any) -> None:
             self.data = data if data is not None else {}
             self._shape = (0, 0)
         
         @property
-        def shape(self):
+        def shape(self) -> tuple[int, int]:
             return self._shape
         
-        def dropna(self):
+        def dropna(self) -> "DataFrameFallback":
             return self
         
-        def set_index(self, keys):
+        def set_index(self, keys: Any) -> "DataFrameFallback":
             return self
         
-        def __getitem__(self, key):
+        def __getitem__(self, key: Any) -> Any:
             return self.data.get(key, [])
         
-        def __setitem__(self, key, value):
+        def __setitem__(self, key: Any, value: Any) -> None:
             self.data[key] = value
         
-        def get(self, key, default=None):
+        def get(self, key: Any, default: Any = None) -> Any:
             return self.data.get(key, default)
     
     DataFrame = DataFrameFallback
@@ -144,17 +144,17 @@ except ImportError:
         """Минимальная реализация numpy для fallback."""
         
         @staticmethod
-        def array(data):
+        def array(data: Any) -> List[Any]:
             return list(data) if hasattr(data, '__iter__') else [data]
         
         @staticmethod
-        def mean(data):
+        def mean(data: List[float]) -> float:
             if not data:
                 return 0.0
             return sum(data) / len(data)
         
         @staticmethod
-        def std(data):
+        def std(data: List[float]) -> float:
             if not data:
                 return 0.0
             mean_val = sum(data) / len(data)

@@ -83,7 +83,7 @@ class OptimizedEventBus:
     Оптимизированный обработчик событий с асинхронностью и очередями.
     """
 
-    def __init__(self, max_workers: int = 10, queue_size: int = 1000):
+    def __init__(self, max_workers: int = 10, queue_size: int = 1000) -> None:
         """
         Инициализация оптимизированного обработчика событий.
         Args:

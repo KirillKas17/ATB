@@ -14,7 +14,7 @@ from domain.type_definitions.external_service_types import ConnectionConfig, Ord
 class TechnicalAnalysisServiceAdapter(ExchangeProtocol):
     """Адаптер TechnicalAnalysisService для обратной совместимости."""
 
-    def __init__(self, config: Optional[ConnectionConfig] = None):
+    def __init__(self, config: Optional[ConnectionConfig] = None) -> None:
         self.config = config or ConnectionConfig()
 
     async def calculate_indicators(self, market_data: MarketData) -> Dict[str, float]:

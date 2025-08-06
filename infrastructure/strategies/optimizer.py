@@ -25,7 +25,7 @@ class OptimizationResult:
 class StrategyOptimizer:
     """Оптимизатор параметров торговых стратегий."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
         self.logger = logger
     

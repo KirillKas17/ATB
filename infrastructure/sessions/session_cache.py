@@ -23,7 +23,7 @@ class SessionCache(Generic[K, V]):
     Кэш с поддержкой TTL, LRU и потокобезопасностью для сессионных данных.
     """
 
-    def __init__(self, max_size: int = 1000, ttl_seconds: int = 300):
+    def __init__(self, max_size: int = 1000, ttl_seconds: int = 300) -> None:
         self._max_size = max_size
         self._ttl = ttl_seconds
         self._store: OrderedDict[K, CacheEntry[V]] = OrderedDict()

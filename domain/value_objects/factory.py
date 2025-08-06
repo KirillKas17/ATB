@@ -23,8 +23,8 @@ from .currency import Currency
 from .money import Money
 from .percentage import Percentage
 from .price import Price
-from .signal import Signal, SignalDirection
-from .signal_config import SignalStrength, SignalType
+from .signal import Signal
+from .signal_config import SignalStrength, SignalType, SignalDirection
 from .timestamp import Timestamp
 from .trading_pair import TradingPair
 from .volume import Volume

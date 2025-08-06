@@ -145,7 +145,7 @@ class EntityControllerImpl(BaseEntityController):
     - Эволюционное развитие системы
     """
 
-    def __init__(self, config: EntitySystemConfig):
+    def __init__(self, config: EntitySystemConfig) -> None:
         # Инициализируем базовый класс без аргументов
         super().__init__()
         self.config = config

@@ -71,7 +71,7 @@ class NeuralNetworkConfig:
 class PositionalEncoding(nn.Module):
     """Улучшенное позиционное кодирование"""
     
-    def __init__(self, d_model: int, max_len: int = 5000, dropout: float = 0.1):
+    def __init__(self, d_model: int, max_len: int = 5000, dropout: float = 0.1) -> None:
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
         
@@ -104,7 +104,7 @@ class PositionalEncoding(nn.Module):
 class RelativePositionalEncoding(nn.Module):
     """Относительное позиционное кодирование (как в T5)"""
     
-    def __init__(self, d_model: int, max_relative_position: int = 128):
+    def __init__(self, d_model: int, max_relative_position: int = 128) -> None:
         super().__init__()
         self.d_model = d_model
         self.max_relative_position = max_relative_position
@@ -281,7 +281,7 @@ class TransformerEncoderLayer(nn.Module):
 class AdvancedTransformer(nn.Module):
     """Продвинутый Transformer для финансового прогнозирования"""
     
-    def __init__(self, config: NeuralNetworkConfig):
+    def __init__(self, config: NeuralNetworkConfig) -> None:
         super().__init__()
         self.config = config
         
@@ -359,7 +359,7 @@ class AdvancedTransformer(nn.Module):
 class TemporalConvolutionalNetwork(nn.Module):
     """Temporal Convolutional Network для временных рядов"""
     
-    def __init__(self, config: NeuralNetworkConfig):
+    def __init__(self, config: NeuralNetworkConfig) -> None:
         super().__init__()
         self.config = config
         
@@ -472,7 +472,7 @@ class TemporalBlock(nn.Module):
 class GraphNeuralNetwork(nn.Module):
     """Graph Neural Network для анализа связей между активами"""
     
-    def __init__(self, config: NeuralNetworkConfig):
+    def __init__(self, config: NeuralNetworkConfig) -> None:
         super().__init__()
         self.config = config
         
@@ -546,7 +546,7 @@ class GraphNeuralNetwork(nn.Module):
 class MultiModalFusionNetwork(nn.Module):
     """Мультимодальная сеть для объединения разных типов данных"""
     
-    def __init__(self, config: NeuralNetworkConfig):
+    def __init__(self, config: NeuralNetworkConfig) -> None:
         super().__init__()
         self.config = config
         
@@ -633,7 +633,7 @@ class MultiModalFusionNetwork(nn.Module):
 class AdaptiveLearningRateScheduler:
     """Адаптивный планировщик learning rate"""
     
-    def __init__(self, optimizer: torch.optim.Optimizer, config: NeuralNetworkConfig):
+    def __init__(self, optimizer: torch.optim.Optimizer, config: NeuralNetworkConfig) -> None:
         self.optimizer = optimizer
         self.config = config
         self.step_count = 0
@@ -671,7 +671,7 @@ class AdaptiveLearningRateScheduler:
 class EnsembleNeuralNetwork(nn.Module):
     """Ансамбль нейронных сетей для улучшенного прогнозирования"""
     
-    def __init__(self, configs: List[NeuralNetworkConfig], ensemble_method: str = 'weighted'):
+    def __init__(self, configs: List[NeuralNetworkConfig], ensemble_method: str = 'weighted') -> None:
         super().__init__()
         self.ensemble_method = ensemble_method
         
@@ -732,7 +732,7 @@ class EnsembleNeuralNetwork(nn.Module):
 class MetaLearningNetwork(nn.Module):
     """Мета-обучающаяся сеть для быстрой адаптации к новым рынкам"""
     
-    def __init__(self, config: NeuralNetworkConfig):
+    def __init__(self, config: NeuralNetworkConfig) -> None:
         super().__init__()
         self.config = config
         

@@ -175,7 +175,7 @@ class TradingRepositoryConfig:
 class TradingRepositoryConfigManager:
     """Менеджер конфигурации торгового репозитория."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None) -> None:
         self.logger = logging.getLogger(__name__)
         self.config_path = config_path
         self.config = TradingRepositoryConfig()

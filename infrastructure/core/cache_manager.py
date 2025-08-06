@@ -10,7 +10,7 @@ from infrastructure.shared.cache import CacheManager as NewCacheManager, CacheCo
 class CacheManager(LoggerMixin):
     """Менеджер кэширования данных с обратной совместимостью."""
 
-    def __init__(self, max_size: int = 1000, default_ttl: int = 300):
+    def __init__(self, max_size: int = 1000, default_ttl: int = 300) -> None:
         super().__init__()
         self.max_size = max_size
         self.default_ttl = default_ttl
@@ -103,7 +103,7 @@ class CacheManager(LoggerMixin):
         """Получение всех ключей кэша."""
         return []  # Базовая реализация
 
-    async def get_cache_info(self) -> dict:
+    async def get_cache_info(self) -> dict[str, Any]:
         """Получение информации о кэше."""
         size = await self.size()
         return {
@@ -112,7 +112,7 @@ class CacheManager(LoggerMixin):
             "default_ttl": self.default_ttl
         }
 
-    async def get_cache_statistics(self) -> dict:
+    async def get_cache_statistics(self) -> dict[str, Any]:
         """Получение статистики кэша."""
         return {
             "hits": 0,
@@ -124,7 +124,7 @@ class CacheManager(LoggerMixin):
         """Оптимизация кэша."""
         pass  # Базовая реализация
 
-    async def backup_cache(self) -> dict:
+    async def backup_cache(self) -> dict[str, Any]:
         """Резервное копирование кэша."""
         return {}  # Базовая реализация
 
@@ -137,16 +137,16 @@ class CacheManager(LoggerMixin):
         await self.clear()
 
     @property
-    def cache_storage(self) -> dict:
+    def cache_storage(self) -> dict[str, Any]:
         """Доступ к хранилищу кэша."""
         return self.cache
 
     @property 
-    def cache_policies(self) -> dict:
+    def cache_policies(self) -> dict[str, Any]:
         """Политики кэширования."""
         return {"max_size": self.max_size, "default_ttl": self.default_ttl}
 
     @property
-    def cache_metrics(self) -> dict:
+    def cache_metrics(self) -> dict[str, Any]:
         """Метрики кэширования."""
         return {"size": len(self.cache)}

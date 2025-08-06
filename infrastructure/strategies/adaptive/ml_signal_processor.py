@@ -15,7 +15,7 @@ from infrastructure.core.technical_analysis import calculate_rsi
 class MLSignalProcessor:
     """Обработчик ML сигналов"""
 
-    def __init__(self, meta_learner: Optional[Any] = None):
+    def __init__(self, meta_learner: Optional[Any] = None) -> None:
         self.meta_learner = meta_learner
 
     def get_predictions(self, data: pd.DataFrame) -> Dict[str, float]:

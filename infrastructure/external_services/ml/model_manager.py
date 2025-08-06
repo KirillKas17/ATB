@@ -31,7 +31,7 @@ from infrastructure.external_services.ml_services import (
 class ModelManager:
     """Менеджер моделей машинного обучения."""
 
-    def __init__(self, config: MLServiceConfig):
+    def __init__(self, config: MLServiceConfig) -> None:
         self.config = config
         self.models: Dict[ModelId, Model] = {}
         self.model_objects: Dict[ModelId, Any] = {}

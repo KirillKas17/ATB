@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 class ExchangeCache:
     """Кэш для данных биржи."""
 
-    def __init__(self, max_size: int = 1000, ttl: int = 60):
+    def __init__(self, max_size: int = 1000, ttl: int = 60) -> None:
         self.max_size = max_size
         self.ttl = ttl
         self.cache: Dict[str, Tuple[Any, float]] = {}

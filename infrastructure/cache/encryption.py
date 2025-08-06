@@ -36,7 +36,7 @@ class EncryptionType(Enum):
 class KeyManager:
     """Manages encryption keys securely."""
 
-    def __init__(self, master_key: Optional[str] = None):
+    def __init__(self, master_key: Optional[str] = None) -> None:
         self.master_key = master_key or os.getenv("CACHE_ENCRYPTION_KEY")
         if not self.master_key:
             self.master_key = self._generate_master_key()
@@ -82,7 +82,7 @@ class KeyManager:
 class AESEncryptor:
     """AES-256 encryption implementation."""
 
-    def __init__(self, key_manager: KeyManager):
+    def __init__(self, key_manager: KeyManager) -> None:
         self.key_manager = key_manager
 
     def encrypt(self, data: bytes, namespace: str = "default") -> bytes:
@@ -140,7 +140,7 @@ class AESEncryptor:
 class FernetEncryptor:
     """Fernet encryption implementation."""
 
-    def __init__(self, key_manager: KeyManager):
+    def __init__(self, key_manager: KeyManager) -> None:
         self.key_manager = key_manager
         self._fernet_cache: Dict[str, Fernet] = {}
 

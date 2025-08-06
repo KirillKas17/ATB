@@ -36,7 +36,7 @@ from interfaces.desktop.dashboard_controller import DashboardController
 class AdvancedTradingDashboard:
     """Продвинутый торговый дашборд с полным функционалом"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         # Настройка логирования
         self.setup_logging()
         

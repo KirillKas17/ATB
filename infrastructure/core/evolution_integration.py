@@ -39,7 +39,7 @@ class EvolutionIntegration:
     и координацию их работы с эволюционным менеджером.
     """
 
-    def __init__(self, config: Optional[EvolutionConfig] = None):
+    def __init__(self, config: Optional[EvolutionConfig] = None) -> None:
         """
         Инициализация интеграции эволюционной системы.
         Args:

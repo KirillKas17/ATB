@@ -181,7 +181,7 @@ class ContextModifier(ABC):
 class BehaviorModifier(ContextModifier):
     """Модификатор поведения агента."""
     
-    def __init__(self, behavior_changes: Dict[str, Any], **kwargs):
+    def __init__(self, behavior_changes: Dict[str, Any], **kwargs) -> None:
         super().__init__(modifier_type=ModifierType.BEHAVIOR, **kwargs)
         self.behavior_changes = behavior_changes
     
@@ -208,7 +208,7 @@ class BehaviorModifier(ContextModifier):
 class StrategyModifier(ContextModifier):
     """Модификатор стратегии."""
     
-    def __init__(self, strategy_adjustments: Dict[str, Any], **kwargs):
+    def __init__(self, strategy_adjustments: Dict[str, Any], **kwargs) -> None:
         super().__init__(modifier_type=ModifierType.STRATEGY, **kwargs)
         self.strategy_adjustments = strategy_adjustments
     
@@ -237,7 +237,7 @@ class StrategyModifier(ContextModifier):
 class PerformanceModifier(ContextModifier):
     """Модификатор производительности."""
     
-    def __init__(self, performance_settings: Dict[str, Any], **kwargs):
+    def __init__(self, performance_settings: Dict[str, Any], **kwargs) -> None:
         super().__init__(modifier_type=ModifierType.PERFORMANCE, **kwargs)
         self.performance_settings = performance_settings
     
@@ -266,7 +266,7 @@ class PerformanceModifier(ContextModifier):
 class AdaptiveModifier(ContextModifier):
     """Адаптивный модификатор с обучением."""
     
-    def __init__(self, adaptation_rules: Dict[str, Any], **kwargs):
+    def __init__(self, adaptation_rules: Dict[str, Any], **kwargs) -> None:
         super().__init__(modifier_type=ModifierType.ADAPTATION, **kwargs)
         self.adaptation_rules = adaptation_rules
         self.adaptation_history: List[Dict[str, Any]] = []
@@ -335,7 +335,7 @@ class AdaptiveModifier(ContextModifier):
 class AgentContext:
     """Продвинутый контекст агента с полной функциональностью."""
     
-    def __init__(self, agent_id: str, initial_data: Optional[Dict[str, Any]] = None):
+    def __init__(self, agent_id: str, initial_data: Optional[Dict[str, Any]] = None) -> None:
         self.agent_id = agent_id
         self.context_id = str(uuid.uuid4())
         self.data = initial_data or {}
@@ -720,7 +720,7 @@ class ModifierFactory:
 class ContextManager:
     """Менеджер для управления контекстами множественных агентов."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._contexts: Dict[str, AgentContext] = {}
         self._context_lock = asyncio.Lock()
         self._cleanup_task: Optional[asyncio.Task] = None

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SignalAggregator:
     """Агрегатор сигналов из различных источников"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.signal_weights = {
             SignalSource.TECHNICAL: 0.4,
             SignalSource.SENTIMENT: 0.3,

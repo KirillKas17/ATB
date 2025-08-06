@@ -4,7 +4,7 @@ from typing import Any, Dict
 class SimulationCache:
     """Кэш для хранения промежуточных данных симуляции и бэктеста."""
 
-    def __init__(self, max_size: int = 1000):
+    def __init__(self, max_size: int = 1000) -> None:
         self._cache: Dict[Any, Any] = {}
         self._max_size = max_size
 

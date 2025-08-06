@@ -23,7 +23,7 @@ class EvolvableMetaControllerConfig:
 class EvolvableMetaController(ABC):
     """Абстрактный эволюционный мета-контроллер."""
 
-    def __init__(self, config: Optional[EvolvableMetaControllerConfig] = None):
+    def __init__(self, config: Optional[EvolvableMetaControllerConfig] = None) -> None:
         self.config = config or EvolvableMetaControllerConfig()
         self.is_active: bool = False
         self.performance_history: List[float] = []
@@ -53,7 +53,7 @@ class EvolvableMetaController(ABC):
 class DefaultEvolvableMetaController(EvolvableMetaController):
     """Реализация эволюционного мета-контроллера по умолчанию."""
 
-    def __init__(self, config: Optional[EvolvableMetaControllerConfig] = None):
+    def __init__(self, config: Optional[EvolvableMetaControllerConfig] = None) -> None:
         super().__init__(config)
         self.agent_weights: Dict[str, float] = {}
         self.strategy_performance: Dict[str, float] = {}

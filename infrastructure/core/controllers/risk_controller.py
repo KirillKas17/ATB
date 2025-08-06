@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class RiskController:
     """Контроллер для управления рисками."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """Инициализация контроллера.
         
         Args:

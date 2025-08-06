@@ -114,7 +114,7 @@ class BacktestMetrics:
 class Backtester:
     """Промышленный бэктестер с полной реализацией всех методов."""
 
-    def __init__(self, config: Optional[BacktestConfig] = None):
+    def __init__(self, config: Optional[BacktestConfig] = None) -> None:
         """Инициализация бэктестера."""
         self.config = config or self._load_default_config()
         self.metrics_history: List[BacktestMetrics] = []
@@ -541,7 +541,7 @@ class Backtester:
 class OrderManager:
     """Менеджер ордеров."""
 
-    def __init__(self, config: BacktestConfig):
+    def __init__(self, config: BacktestConfig) -> None:
         self.config = config
 
     async def execute_order(
@@ -621,7 +621,7 @@ class OrderManager:
 class RiskManager:
     """Риск-менеджер."""
 
-    def __init__(self, config: BacktestConfig):
+    def __init__(self, config: BacktestConfig) -> None:
         self.config = config
 
     async def check_risk_limits(

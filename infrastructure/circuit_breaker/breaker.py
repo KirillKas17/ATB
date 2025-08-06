@@ -34,7 +34,7 @@ class CircuitBreakerConfig:
 class CircuitBreaker:
     """Circuit breaker implementation."""
 
-    def __init__(self, name: str, config: CircuitBreakerConfig):
+    def __init__(self, name: str, config: CircuitBreakerConfig) -> None:
         self.name = name
         self.config = config
         self.state = CircuitState.CLOSED

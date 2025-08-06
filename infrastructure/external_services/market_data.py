@@ -432,7 +432,7 @@ class DataCache:
 class MarketDataProvider(MarketData):
     """Удобная обёртка для MarketData с дефолтными параметрами."""
     
-    def __init__(self, symbol: str = "BTCUSDT", interval: str = "1h", **kwargs):
+    def __init__(self, symbol: str = "BTCUSDT", interval: str = "1h", **kwargs) -> None:
         super().__init__(symbol, interval, **kwargs)
 
 

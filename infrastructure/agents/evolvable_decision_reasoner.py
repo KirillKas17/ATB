@@ -28,7 +28,7 @@ class EvolvableDecisionReasonerConfig:
 class EvolvableDecisionReasoner(ABC):
     """Абстрактный эволюционный решатель решений."""
 
-    def __init__(self, config: Optional[EvolvableDecisionReasonerConfig] = None):
+    def __init__(self, config: Optional[EvolvableDecisionReasonerConfig] = None) -> None:
         self.config = config or EvolvableDecisionReasonerConfig()
         self.is_active: bool = False
         self.decision_history: List[Dict[str, Any]] = []
@@ -52,7 +52,7 @@ class EvolvableDecisionReasoner(ABC):
 class DefaultEvolvableDecisionReasoner(EvolvableDecisionReasoner):
     """Реализация эволюционного решателя решений по умолчанию."""
 
-    def __init__(self, config: Optional[EvolvableDecisionReasonerConfig] = None):
+    def __init__(self, config: Optional[EvolvableDecisionReasonerConfig] = None) -> None:
         super().__init__(config)
         self.decision_patterns: Dict[str, float] = {}
         self.reasoning_weights: Dict[str, float] = {}

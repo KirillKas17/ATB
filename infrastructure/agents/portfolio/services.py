@@ -16,7 +16,7 @@ from domain.entities.portfolio import Portfolio
 class PortfolioCacheService:
     """!5@28A :MH8@>20=8O 40==KE ?>@BD5;O."""
 
-    def __init__(self, cache_ttl: int = 300):
+    def __init__(self, cache_ttl: int = 300) -> None:
         self.cache_ttl = cache_ttl
         self.cache: Dict[str, Any] = {}
         self.cache_timestamps: Dict[str, datetime] = {}

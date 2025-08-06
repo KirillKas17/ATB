@@ -32,7 +32,7 @@ class PerformanceMetrics:
 class PerformanceOptimizer:
     """Оптимизатор производительности системы."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.metrics = PerformanceMetrics()
         self.thread_pool = ThreadPoolExecutor(max_workers=psutil.cpu_count())
         self.process_pool = ProcessPoolExecutor(max_workers=psutil.cpu_count())
@@ -354,7 +354,7 @@ class PerformanceOptimizer:
         
         return recommendations
     
-    async def cleanup(self):
+    async def cleanup(self) -> None:
         """Очистка ресурсов оптимизатора."""
         self.thread_pool.shutdown(wait=True)
         self.process_pool.shutdown(wait=True)

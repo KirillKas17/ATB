@@ -81,7 +81,7 @@ class OrderBook:
 class DataProvider(ABC):
     """Базовый класс для провайдера данных."""
 
-    def __init__(self, cache_ttl: int = 60):
+    def __init__(self, cache_ttl: int = 60) -> None:
         self.cache_ttl = cache_ttl
         self._cache: Dict[str, Any] = {}
         self._cache_timestamps: Dict[str, float] = {}
@@ -121,7 +121,7 @@ class DataProvider(ABC):
 class MarketDataProvider(DataProvider):
     """Провайдер рыночных данных с кэшированием."""
 
-    def __init__(self, cache_ttl: int = 60):
+    def __init__(self, cache_ttl: int = 60) -> None:
         super().__init__(cache_ttl)
         self._historical_data: Dict[Symbol, pd.DataFrame] = {}
 

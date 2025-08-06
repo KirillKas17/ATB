@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 class TechnicalAnalysisServiceAdapter:
     """Адаптер для внешнего сервиса технического анализа."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
     
     def analyze_technical(self, data: Dict[str, Any]) -> Dict[str, Any]:

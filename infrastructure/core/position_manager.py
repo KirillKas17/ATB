@@ -108,7 +108,7 @@ class Position:
 class PositionManager:
     """Класс для управления позициями."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """
         Инициализация менеджера.
         Args:

@@ -44,7 +44,7 @@ class ArbitrageConfig:
 class ArbitrageStrategy(BaseStrategy):
     """Арбитражная стратегия (расширенная)"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], ArbitrageConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], ArbitrageConfig]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

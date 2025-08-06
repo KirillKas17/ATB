@@ -129,7 +129,7 @@ class TechnicalAnalysisConfig:
 class TechnicalAnalysisServiceImpl(TechnicalAnalysisService):
     """Промышленная реализация сервиса технического анализа."""
 
-    def __init__(self, config: Optional[TechnicalAnalysisConfig] = None):
+    def __init__(self, config: Optional[TechnicalAnalysisConfig] = None) -> None:
         """Инициализация сервиса."""
         self.config = config or TechnicalAnalysisConfig()
         self.logger = logging.getLogger(__name__)

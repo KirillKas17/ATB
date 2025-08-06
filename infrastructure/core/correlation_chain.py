@@ -47,7 +47,7 @@ class CorrelationMetrics:
 class CorrelationChain:
     """Расширенный анализ корреляций"""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Инициализация цепочки корреляций."""
         self.config = config or {}
         self.metrics: Dict[str, Dict[str, CorrelationMetrics]] = {}

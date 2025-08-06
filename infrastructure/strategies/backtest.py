@@ -33,7 +33,7 @@ class BacktestConfig:
 class Backtest:
     """Бэктестер стратегий"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], BacktestConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], BacktestConfig]] = None) -> None:
         """
         Инициализация бэктестера.
         Args:

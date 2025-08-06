@@ -64,7 +64,7 @@ class MarketMakerStorage(IPatternStorage):
     - Метрики производительности
     """
 
-    def __init__(self, config: Optional[StorageConfig] = None):
+    def __init__(self, config: Optional[StorageConfig] = None) -> None:
         """
         Инициализация хранилища.
         Args:

@@ -36,7 +36,7 @@ class OptimizationConfig:
 class StrategyOptimizer:
     """Оптимизатор параметров стратегий."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация оптимизатора.
         Args:

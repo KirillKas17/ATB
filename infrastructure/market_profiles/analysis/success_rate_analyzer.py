@@ -53,7 +53,7 @@ class SuccessRateAnalyzer:
     - Генерация рекомендаций
     """
 
-    def __init__(self, config: AnalysisConfig):
+    def __init__(self, config: AnalysisConfig) -> None:
         """
         Инициализация анализатора.
         Args:

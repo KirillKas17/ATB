@@ -25,7 +25,7 @@ class MarketMemoryIntegration:
     Интеграция рыночной памяти для агентов.
     """
 
-    def __init__(self, config: Optional[MarketMemoryConfig] = None):
+    def __init__(self, config: Optional[MarketMemoryConfig] = None) -> None:
         """
         Инициализация интеграции рыночной памяти.
         :param config: конфигурация памяти

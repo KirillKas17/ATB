@@ -25,7 +25,7 @@ class NewsTradingIntegration:
     Интеграция новостной торговли для анализа и торговли на основе новостей.
     """
 
-    def __init__(self, config: Optional[NewsTradingConfig] = None):
+    def __init__(self, config: Optional[NewsTradingConfig] = None) -> None:
         """
         Инициализация интеграции новостной торговли.
         :param config: конфигурация новостной торговли

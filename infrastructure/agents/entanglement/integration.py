@@ -25,7 +25,7 @@ class EntanglementIntegration:
     Интеграция запутанности для обнаружения корреляций между активами.
     """
 
-    def __init__(self, config: Optional[EntanglementConfig] = None):
+    def __init__(self, config: Optional[EntanglementConfig] = None) -> None:
         """
         Инициализация интеграции запутанности.
         :param config: конфигурация запутанности

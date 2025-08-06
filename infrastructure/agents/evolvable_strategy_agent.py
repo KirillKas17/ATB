@@ -45,7 +45,7 @@ class StrategyML(nn.Module):
 class EvolvableStrategyAgent(EvolvableComponent):
     """Эволюционный агент стратегий"""
 
-    def __init__(self, name: str = "evolvable_strategy"):
+    def __init__(self, name: str = "evolvable_strategy") -> None:
         super().__init__(name)
         # ML модель для эволюции
         self.ml_model = StrategyML()

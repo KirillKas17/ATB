@@ -12,12 +12,12 @@ from .entanglement.types import (
 )
 from .entanglement.integration import EntanglementIntegration
 
-def apply_entanglement_to_signal(signal: dict, symbol: str) -> dict:
+def apply_entanglement_to_signal(signal: dict, symbol: str) -> dict[str, Any]:
     """Применение модификатора запутанности к сигналу."""
     # Базовая реализация - возвращаем сигнал без изменений
     return signal
 
-def get_entanglement_statistics() -> dict:
+def get_entanglement_statistics() -> dict[str, Any]:
     """Получение статистики запутанности."""
     # Базовая реализация - возвращаем пустую статистику
     return {

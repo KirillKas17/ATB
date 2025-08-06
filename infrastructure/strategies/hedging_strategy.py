@@ -77,7 +77,7 @@ class HedgingConfig:
 
 class HedgingStrategy(BaseStrategy):
     """Стратегия хеджирования"""
-    def __init__(self, config: Optional[Union[Dict[str, Any], HedgingConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], HedgingConfig]] = None) -> None:
         """
         Инициализация стратегии хеджирования.
         Args:

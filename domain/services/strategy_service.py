@@ -85,7 +85,7 @@ class StrategyParameter:
         """Нормализация значения в диапазон [0, 1]."""
         if self.min_value is None or self.max_value is None:
             return 0.5
-        return (self.value - self.min_value) / (self.max_value - self.min_value)
+        return float((self.value - self.min_value) / (self.max_value - self.min_value))
 
 @dataclass
 class StrategyMetrics:
@@ -545,16 +545,16 @@ class StrategyBase(ABC):
             
             # Расчёт метрик
             if metric == "sharpe_ratio":
-                return np.mean(returns) / np.std(returns) * np.sqrt(252) if np.std(returns) > 0 else 0.0
+                return float(np.mean(returns) / np.std(returns) * np.sqrt(252) if np.std(returns) > 0 else 0.0)
             elif metric == "total_return":
-                return np.sum(returns)
+                return float(np.sum(returns))
             elif metric == "max_drawdown":
                 cumulative = np.cumprod(1 + returns)
                 running_max = np.maximum.accumulate(cumulative)
                 drawdown = (cumulative - running_max) / running_max
-                return -np.min(drawdown)  # Отрицательное значение для минимизации
+                return float(-np.min(drawdown))  # Отрицательное значение для минимизации
             else:
-                return np.mean(returns) * 252  # Годовая доходность
+                return float(np.mean(returns) * 252)  # Годовая доходность
                 
         except Exception as e:
             logger.error(f"Error evaluating strategy: {e}")

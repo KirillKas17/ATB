@@ -47,7 +47,7 @@ class GridConfig:
 class GridStrategy(BaseStrategy):
     """Сеточная стратегия (расширенная)"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], GridConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], GridConfig]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

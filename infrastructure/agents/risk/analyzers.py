@@ -40,7 +40,7 @@ class IRiskCalculator(ABC):
 class DefaultRiskCalculator(IRiskCalculator):
     """Реализация калькулятора рисков по умолчанию."""
 
-    def __init__(self, config: Optional[RiskConfig] = None):
+    def __init__(self, config: Optional[RiskConfig] = None) -> None:
         self.config = config or RiskConfig()
 
     def calculate_portfolio_risk(self, portfolio_data: Dict[str, Any]) -> RiskMetrics:
@@ -170,7 +170,7 @@ class DefaultRiskCalculator(IRiskCalculator):
 class RiskMetricsCalculator:
     """Расширенный калькулятор метрик риска."""
 
-    def __init__(self, config: Optional[RiskConfig] = None):
+    def __init__(self, config: Optional[RiskConfig] = None) -> None:
         self.config = config or RiskConfig()
         self.base_calculator = DefaultRiskCalculator(config)
 

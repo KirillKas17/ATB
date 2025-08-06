@@ -34,7 +34,7 @@ class INewsProvider(ABC):
 class NewsApiProvider(INewsProvider):
     """Провайдер новостей через NewsAPI"""
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.api_key = str(api_key)
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
@@ -70,7 +70,7 @@ class NewsApiProvider(INewsProvider):
 class TwitterProvider(INewsProvider):
     """Провайдер новостей через Twitter API"""
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.api_key = str(api_key)
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
@@ -107,7 +107,7 @@ class TwitterProvider(INewsProvider):
 class RSSProvider(INewsProvider):
     """Провайдер новостей через RSS"""
 
-    def __init__(self, feeds: List[str]):
+    def __init__(self, feeds: List[str]) -> None:
         self.feeds = [str(feed) for feed in feeds]
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
@@ -149,7 +149,7 @@ class RSSProvider(INewsProvider):
 class SocialMediaNewsProvider(INewsProvider):
     """Провайдер новостей из социальных сетей"""
 
-    def __init__(self, social_media_agent: SocialMediaAgent):
+    def __init__(self, social_media_agent: SocialMediaAgent) -> None:
         self.social_media_agent = social_media_agent
 
     async def fetch_news(self, pair: str) -> List[NewsItem]:
