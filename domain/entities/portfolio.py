@@ -13,6 +13,8 @@ from decimal import Decimal
 from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 
+from shared.safe_eval_utils import safe_metadata_parse
+
 from loguru import logger
 from domain.type_definitions import AmountValue, PortfolioId
 from domain.value_objects.currency import Currency
@@ -236,7 +238,7 @@ class Portfolio:
             max_leverage=Decimal(data["max_leverage"]),
             created_at=Timestamp.from_iso(data["created_at"]),
             updated_at=Timestamp.from_iso(data["updated_at"]),
-            metadata=ast.literal_eval(data.get("metadata", "{}")),
+            metadata=safe_metadata_parse(data.get("metadata", "{}")),
         )
 
     def __str__(self) -> str:

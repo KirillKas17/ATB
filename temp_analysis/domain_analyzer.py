@@ -292,7 +292,8 @@ def main() -> None:
     """Основная функция."""
     analyzer = DomainLayerAnalyzer()
     
-    print("Анализ domain слоя...")
+            from shared.smart_logger import smart_print
+        smart_print("Анализ domain слоя...", module="domain_analyzer")
     
     issues = analyzer.analyze_domain_layer()
     

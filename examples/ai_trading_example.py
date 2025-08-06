@@ -290,29 +290,29 @@ class AITradingExample:
                 metrics = self.decision_reasoner.get_enhanced_metrics()
                 logger.info(f"System Metrics: {metrics}")
 
-            # Пауза между циклами
-            await asyncio.sleep(0.1)
+            # Минимальная пауза для предотвращения блокировки event loop
+            await asyncio.sleep(0.01)  # Уменьшено с 0.1 до 0.01 для повышения производительности
 
     async def run_all_examples(self):
         """Запуск всех примеров"""
         logger.info("Starting AI Trading System Examples...")
 
         try:
-            # Запуск отдельных примеров
+            # Запуск отдельных примеров с оптимизированными задержками
             await self.run_decision_reasoner_example()
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)  # Уменьшено с 1 сек до 0.1 сек
 
             await self.run_transformer_example()
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
 
             await self.run_meta_learning_example()
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
 
             await self.run_live_adaptation_example()
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
 
             await self.run_strategy_evolution_example()
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
 
             # Интегрированный пример
             await self.run_integrated_example()

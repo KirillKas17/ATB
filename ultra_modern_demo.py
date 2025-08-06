@@ -37,8 +37,9 @@ class UltraModernDemoApp(QMainWindow):
         try:
             font = QFont("Inter", 10)
             self.setFont(font)
-        except:
-            # Fallback на системный шрифт
+        except (AttributeError, TypeError) as e:
+            # Fallback на системный шрифт при проблемах с QFont
+            print(f"Warning: Failed to set Inter font, using system default: {e}")
             pass
         
         # Создание центрального виджета
