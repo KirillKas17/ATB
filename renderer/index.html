@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ ATB Trading System - Enhanced Desktop v3.1</title>
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/tabs.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    
+    <!-- Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Пользовательские стили -->
+    <style>
+        /* Дополнительные стили для демонстрации */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #eee;
+            overflow: hidden;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Главный контейнер -->
+    <div id="app" class="app-container">
+        
+        <!-- Заголовок приложения -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="app-logo">
+                    <i class="fas fa-bolt"></i>
+                    <span>ATB Trading System</span>
+                </div>
+                <div class="app-version">v3.1 Enhanced</div>
+            </div>
+            
+            <div class="header-center">
+                <div class="status-indicator" id="systemStatus">
+                    <div class="status-dot offline"></div>
+                    <span>Система остановлена</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="system-metrics-mini">
+                    <div class="metric-item">
+                        <i class="fas fa-microchip"></i>
+                        <span id="cpuMini">0%</span>
+                    </div>
+                    <div class="metric-item">
+                        <i class="fas fa-memory"></i>
+                        <span id="ramMini">0%</span>
+                    </div>
+                </div>
+                
+                <div class="header-controls">
+                    <button class="control-btn" id="settingsBtn" title="Настройки">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="control-btn" id="minimizeBtn" title="Свернуть">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="control-btn close" id="closeBtn" title="Закрыть">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Панель инструментов -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="toolbar-btn primary" id="tradingToggle">
+                    <i class="fas fa-play"></i>
+                    <span>Запустить торговлю</span>
+                </button>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <label>🎯 Режим:</label>
+                    <select id="tradingMode" class="toolbar-select">
+                        <option value="simulation">🎮 Симуляция</option>
+                        <option value="paper">📝 Бумажная торговля</option>
+                        <option value="live">💰 Реальная торговля</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="toolbar-right">
+                <button class="toolbar-btn" id="evolutionBtn">
+                    <i class="fas fa-dna"></i>
+                    <span>Эволюция</span>
+                </button>
+                
+                <button class="toolbar-btn" id="envBtn">
+                    <i class="fas fa-cog"></i>
+                    <span>ENV</span>
+                </button>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="connection-status" id="connectionStatus">
+                    <div class="connection-dot offline"></div>
+                    <span>Отключено</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Навигационные вкладки -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="overview">
+                <i class="fas fa-chart-line"></i>
+                <span>Обзор</span>
+            </button>
+            <button class="tab-btn" data-tab="system">
+                <i class="fas fa-desktop"></i>
+                <span>Система</span>
+            </button>
+            <button class="tab-btn" data-tab="evolution">
+                <i class="fas fa-dna"></i>
+                <span>Эволюция</span>
+            </button>
+            <button class="tab-btn" data-tab="trading">
+                <i class="fas fa-chart-bar"></i>
+                <span>Торговля</span>
+            </button>
+            <button class="tab-btn" data-tab="portfolio">
+                <i class="fas fa-briefcase"></i>
+                <span>Портфель</span>
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </button>
+        </nav>
+
+        <!-- Контент вкладок -->
+        <main class="tab-content">
+            
+            <!-- Вкладка Обзор -->
+            <div id="overview" class="tab-pane active">
+                <div class="overview-layout">
+                    <!-- Левая панель -->
+                    <div class="overview-left">
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>🖥️ Система</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="system-info">
+                                    <div class="info-item">
+                                        <span class="label">Статус:</span>
+                                        <span class="value" id="systemStatusText">Остановлена</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Время работы:</span>
+                                        <span class="value" id="uptimeText">00:00:00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Режим:</span>
+                                        <span class="value" id="modeText">Симуляция</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>💰 Баланс и P&L</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="balance-info">
+                                    <div class="balance-main">
+                                        <div class="balance-value" id="totalBalance">$10,000.00</div>
+                                        <div class="balance-label">Общий баланс</div>
+                                    </div>
+                                    <div class="pnl-items">
+                                        <div class="pnl-item">
+                                            <span class="pnl-label">Текущий P&L:</span>
+                                            <span class="pnl-value positive" id="currentPnl">$0.00</span>
+                                        </div>
+                                        <div class="pnl-item">
+                                            <span class="pnl-label">Дневной P&L:</span>
+                                            <span class="pnl-value" id="dailyPnl">$0.00</span>
+                                        </div>
+                                        <div class="pnl-item">
+                                            <span class="pnl-label">Месячный P&L:</span>
+                                            <span class="pnl-value" id="monthlyPnl">$0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>🎯 Активные стратегии</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="strategies-list" id="strategiesList">
+                                    <div class="strategy-item">
+                                        <div class="strategy-icon">🔄</div>
+                                        <div class="strategy-info">
+                                            <div class="strategy-name">Трендовая стратегия</div>
+                                            <div class="strategy-status active">Активна</div>
+                                        </div>
+                                    </div>
+                                    <div class="strategy-item">
+                                        <div class="strategy-icon">📊</div>
+                                        <div class="strategy-info">
+                                            <div class="strategy-name">Скальпинг</div>
+                                            <div class="strategy-status paused">Пауза</div>
+                                        </div>
+                                    </div>
+                                    <div class="strategy-item">
+                                        <div class="strategy-icon">🎯</div>
+                                        <div class="strategy-info">
+                                            <div class="strategy-name">Арбитраж</div>
+                                            <div class="strategy-status active">Активна</div>
+                                        </div>
+                                    </div>
+                                    <div class="strategy-item">
+                                        <div class="strategy-icon">🤖</div>
+                                        <div class="strategy-info">
+                                            <div class="strategy-name">ML Стратегия</div>
+                                            <div class="strategy-status active">Активна</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Центральная панель -->
+                    <div class="overview-center">
+                        <div class="widget chart-widget">
+                            <div class="widget-header">
+                                <h3>📈 График цен в реальном времени</h3>
+                                <div class="chart-controls">
+                                    <select id="priceSymbol" class="chart-select">
+                                        <option value="BTCUSDT">BTC/USDT</option>
+                                        <option value="ETHUSDT">ETH/USDT</option>
+                                        <option value="BNBUSDT">BNB/USDT</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="widget-content">
+                                <canvas id="priceChart" class="chart-canvas"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="widget chart-widget">
+                            <div class="widget-header">
+                                <h3>💹 График P&L</h3>
+                            </div>
+                            <div class="widget-content">
+                                <canvas id="pnlChart" class="chart-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Правая панель -->
+                    <div class="overview-right">
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>📊 Активные позиции</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="table-container">
+                                    <table class="data-table" id="positionsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Пара</th>
+                                                <th>Размер</th>
+                                                <th>Вход</th>
+                                                <th>P&L</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Данные будут загружены динамически -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>📋 Открытые ордера</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="table-container">
+                                    <table class="data-table" id="ordersTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Пара</th>
+                                                <th>Тип</th>
+                                                <th>Размер</th>
+                                                <th>Цена</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Данные будут загружены динамически -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>📝 Лог событий</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="log-container" id="logContainer">
+                                    <div class="log-entry">
+                                        <span class="log-time">12:34:56</span>
+                                        <span class="log-level info">INFO</span>
+                                        <span class="log-message">Добро пожаловать в ATB Trading System Enhanced v3.1</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка Система -->
+            <div id="system" class="tab-pane">
+                <div class="system-layout">
+                    <div class="system-metrics-grid">
+                        <!-- CPU Метрики -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-microchip metric-icon"></i>
+                                <h3>CPU</h3>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-main">
+                                    <div class="metric-value" id="cpuPercent">0%</div>
+                                    <div class="metric-label">Загрузка</div>
+                                </div>
+                                <div class="metric-details">
+                                    <div class="detail-item">
+                                        <span>Ядра:</span>
+                                        <span id="cpuCores">0</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span>Частота:</span>
+                                        <span id="cpuFreq">0 MHz</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Memory Метрики -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-memory metric-icon"></i>
+                                <h3>Memory</h3>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-main">
+                                    <div class="metric-value" id="memoryPercent">0%</div>
+                                    <div class="metric-label">Использовано</div>
+                                </div>
+                                <div class="metric-details">
+                                    <div class="detail-item">
+                                        <span>Всего:</span>
+                                        <span id="memoryTotal">0 GB</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span>Свободно:</span>
+                                        <span id="memoryFree">0 GB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Disk Метрики -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-hdd metric-icon"></i>
+                                <h3>Disk</h3>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-main">
+                                    <div class="metric-value" id="diskPercent">0%</div>
+                                    <div class="metric-label">Занято</div>
+                                </div>
+                                <div class="metric-details">
+                                    <div class="detail-item">
+                                        <span>Всего:</span>
+                                        <span id="diskTotal">0 GB</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span>Свободно:</span>
+                                        <span id="diskFree">0 GB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Метрики -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-wifi metric-icon"></i>
+                                <h3>Network</h3>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-details">
+                                    <div class="detail-item">
+                                        <span>Отправлено:</span>
+                                        <span id="networkSent">0 MB</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span>Получено:</span>
+                                        <span id="networkRecv">0 MB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Графики производительности -->
+                    <div class="performance-charts">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>📈 CPU & Memory History</h3>
+                            </div>
+                            <canvas id="systemChart" class="performance-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Топ процессы -->
+                    <div class="processes-section">
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>⚙️ Топ процессы по CPU</h3>
+                            </div>
+                            <div class="widget-content">
+                                <div class="table-container">
+                                    <table class="data-table" id="processesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>PID</th>
+                                                <th>Процесс</th>
+                                                <th>CPU %</th>
+                                                <th>Memory %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Данные будут загружены динамически -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка Эволюция -->
+            <div id="evolution" class="tab-pane">
+                <div class="evolution-layout">
+                    <!-- Заголовок и контролы -->
+                    <div class="evolution-header">
+                        <div class="evolution-title">
+                            <h2>🧬 Эволюция стратегий</h2>
+                            <p>Автоматическое улучшение торговых алгоритмов</p>
+                        </div>
+                        
+                        <div class="evolution-controls">
+                            <button class="form-button" id="evolutionStartBtn">
+                                <i class="fas fa-play"></i>
+                                <span>Запустить эволюцию</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="evolutionStopBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                <span>Остановить</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="forceEvolutionBtn">
+                                <i class="fas fa-bolt"></i>
+                                <span>Принудительная эволюция</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Статистика эволюции -->
+                    <div class="evolution-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalStrategies">0</div>
+                                <div class="stat-label">Всего стратегий</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="activeStrategies">0</div>
+                                <div class="stat-label">Активных</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">🔄</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalEvolutions">0</div>
+                                <div class="stat-label">Всего эволюций</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="avgPerformance">$0</div>
+                                <div class="stat-label">Средняя прибыль</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Основной контент -->
+                    <div class="evolution-content">
+                        <!-- Левая панель - список стратегий -->
+                        <div class="evolution-left">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📊 Стратегии</h3>
+                                    <div class="widget-controls">
+                                        <select id="strategyFilter" class="chart-select">
+                                            <option value="all">Все стратегии</option>
+                                            <option value="excellent">Отличные</option>
+                                            <option value="good">Хорошие</option>
+                                            <option value="average">Средние</option>
+                                            <option value="poor">Слабые</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="strategies-evolution-list" id="strategiesEvolutionList">
+                                        <!-- Стратегии будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Центральная панель - детали стратегии -->
+                        <div class="evolution-center">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3 id="selectedStrategyName">🎯 Выберите стратегию</h3>
+                                    <div class="widget-controls">
+                                        <button class="form-button secondary" id="evolveStrategyBtn" disabled>
+                                            <i class="fas fa-dna"></i>
+                                            <span>Эволюционировать</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="strategy-details" id="strategyDetails">
+                                        <div class="no-selection">
+                                            <i class="fas fa-mouse-pointer"></i>
+                                            <p>Выберите стратегию для просмотра деталей</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- График эволюции -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>📈 График эволюции</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <canvas id="evolutionChart" class="chart-canvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая панель - настройки и история -->
+                        <div class="evolution-right">
+                            <!-- Настройки эволюции -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚙️ Настройки эволюции</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="evolution-settings">
+                                        <div class="form-group">
+                                            <label class="form-label">Включить эволюцию:</label>
+                                            <input type="checkbox" id="evolutionEnabled" checked>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Интервал (часы):</label>
+                                            <input type="number" id="evolutionInterval" class="form-input" value="1" min="0.1" step="0.1">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Скорость мутации:</label>
+                                            <input type="range" id="mutationRate" min="0" max="1" step="0.01" value="0.1">
+                                            <span id="mutationRateValue">10%</span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Автоэволюция:</label>
+                                            <input type="checkbox" id="autoEvolution">
+                                        </div>
+                                        
+                                        <button class="form-button" id="saveEvolutionConfig">
+                                            <i class="fas fa-save"></i>
+                                            <span>Сохранить настройки</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- История эволюций -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📜 История эволюций</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="evolution-history" id="evolutionHistory">
+                                        <!-- История будет загружена динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Лучшие и худшие стратегии -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🏆 Топ стратегии</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="top-strategies">
+                                        <div class="top-strategy best" id="bestStrategy">
+                                            <div class="top-strategy-icon">🥇</div>
+                                            <div class="top-strategy-info">
+                                                <div class="top-strategy-name">Загрузка...</div>
+                                                <div class="top-strategy-performance">-</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="top-strategy worst" id="worstStrategy">
+                                            <div class="top-strategy-icon">🔻</div>
+                                            <div class="top-strategy-info">
+                                                <div class="top-strategy-name">Загрузка...</div>
+                                                <div class="top-strategy-performance">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка Торговля -->
+            <div id="trading" class="tab-pane">
+                <div class="trading-layout">
+                    <!-- Заголовок и контролы торговли -->
+                    <div class="trading-header">
+                        <div class="trading-title">
+                            <h2>📈 Торговля</h2>
+                            <p>Управление торговыми стратегиями и позициями</p>
+                        </div>
+                        
+                        <div class="trading-controls">
+                            <select id="tradingModeSelect" class="mode-select">
+                                <option value="simulation">🎮 Симуляция</option>
+                                <option value="paper">📝 Бумажная торговля</option>
+                                <option value="live">💰 Реальная торговля</option>
+                            </select>
+                            
+                            <button class="form-button primary" id="startTradingBtn">
+                                <i class="fas fa-play"></i>
+                                <span>Запустить торговлю</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="stopTradingBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                <span>Остановить</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="runBacktestBtn">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Бэктест</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Портфель и статистика -->
+                    <div class="portfolio-section">
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">💰</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="totalEquity">$10,000.00</div>
+                                <div class="portfolio-label">Общий капитал</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">📊</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="unrealizedPnL">$0.00</div>
+                                <div class="portfolio-label">Нереализованный P&L</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">💹</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="realizedPnL">$0.00</div>
+                                <div class="portfolio-label">Реализованный P&L</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">⚖️</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="marginLevel">0%</div>
+                                <div class="portfolio-label">Уровень маржи</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">📉</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="currentDrawdown">0.0%</div>
+                                <div class="portfolio-label">Текущая просадка</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">🎯</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="winRate">0%</div>
+                                <div class="portfolio-label">Win Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Основной контент торговли -->
+                    <div class="trading-content">
+                        <!-- Левая панель - стратегии и рынок -->
+                        <div class="trading-left">
+                            <!-- Торговые стратегии -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🎯 Торговые стратегии</h3>
+                                    <div class="widget-controls">
+                                        <select id="strategiesFilter" class="chart-select">
+                                            <option value="all">Все стратегии</option>
+                                            <option value="active">Активные</option>
+                                            <option value="paused">Приостановленные</option>
+                                            <option value="training">Обучающиеся</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="trading-strategies-list" id="tradingStrategiesList">
+                                        <!-- Стратегии будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Рыночные данные -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📊 Рыночные данные</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="market-data-list" id="marketDataList">
+                                        <!-- Рыночные данные будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Центральная панель - графики -->
+                        <div class="trading-center">
+                            <!-- График эквити -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>💹 График эквити</h3>
+                                    <div class="chart-controls">
+                                        <select id="equityPeriod" class="chart-select">
+                                            <option value="1h">1 час</option>
+                                            <option value="1d">1 день</option>
+                                            <option value="1w">1 неделя</option>
+                                            <option value="1m">1 месяц</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <canvas id="equityChart" class="chart-canvas"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- График метрик производительности -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>📈 Метрики производительности</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="performance-metrics-grid">
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Total Return</div>
+                                            <div class="metric-value" id="totalReturn">0%</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Sharpe Ratio</div>
+                                            <div class="metric-value" id="sharpeRatio">0.00</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Max Drawdown</div>
+                                            <div class="metric-value" id="maxDrawdown">0%</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Profit Factor</div>
+                                            <div class="metric-value" id="profitFactor">0.00</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Volatility</div>
+                                            <div class="metric-value" id="volatility">0%</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Calmar Ratio</div>
+                                            <div class="metric-value" id="calmarRatio">0.00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая панель - позиции и сделки -->
+                        <div class="trading-right">
+                            <!-- Открытые позиции -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📍 Открытые позиции</h3>
+                                    <div class="widget-controls">
+                                        <button class="form-button secondary small" id="closeAllPositionsBtn">
+                                            <i class="fas fa-times"></i>
+                                            <span>Закрыть все</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="table-container">
+                                        <table class="data-table" id="openPositionsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Символ</th>
+                                                    <th>Сторона</th>
+                                                    <th>Размер</th>
+                                                    <th>P&L</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Позиции будут загружены динамически -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Последние сделки -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📋 Последние сделки</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="table-container">
+                                        <table class="data-table" id="recentTradesTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Время</th>
+                                                    <th>Символ</th>
+                                                    <th>Сторона</th>
+                                                    <th>P&L</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Сделки будут загружены динамически -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Риск-метрики -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚠️ Риск-метрики</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="risk-metrics">
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Value at Risk:</span>
+                                            <span class="risk-value" id="valueAtRisk">$0</span>
+                                        </div>
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Exposure:</span>
+                                            <span class="risk-value" id="exposurePercent">0%</span>
+                                        </div>
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Leverage:</span>
+                                            <span class="risk-value" id="leverageRatio">1.0x</span>
+                                        </div>
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Risk/Reward:</span>
+                                            <span class="risk-value" id="riskRewardRatio">0.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка Портфель -->
+            <div id="portfolio" class="tab-pane">
+                <div class="ml-layout">
+                    <!-- Заголовок и контролы ML -->
+                    <div class="ml-header">
+                        <div class="ml-title">
+                            <h2>🤖 Машинное обучение</h2>
+                            <p>Управление моделями и процессом обучения</p>
+                        </div>
+                        
+                        <div class="ml-controls">
+                            <select id="mlModelFilter" class="mode-select">
+                                <option value="all">Все модели</option>
+                                <option value="training">Обучающиеся</option>
+                                <option value="trained">Обученные</option>
+                                <option value="idle">Простаивающие</option>
+                                <option value="evaluating">Оценивающиеся</option>
+                            </select>
+                            
+                            <button class="form-button primary" id="startMLTrainingBtn">
+                                <i class="fas fa-brain"></i>
+                                <span>Запустить обучение</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="stopMLTrainingBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                <span>Остановить</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="evaluateAllModelsBtn">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Оценить все</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ML статистика -->
+                    <div class="ml-stats-section">
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">🎯</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="totalModels">0</div>
+                                <div class="ml-stat-label">Всего моделей</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">🎓</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="trainingModels">0</div>
+                                <div class="ml-stat-label">Обучается</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">✅</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="trainedModels">0</div>
+                                <div class="ml-stat-label">Обучены</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">📊</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="avgAccuracy">0%</div>
+                                <div class="ml-stat-label">Средняя точность</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">⚡</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="activeJobs">0</div>
+                                <div class="ml-stat-label">Активных заданий</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Основной контент ML -->
+                    <div class="ml-content">
+                        <!-- Левая панель - список моделей -->
+                        <div class="ml-left">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🤖 Модели ML</h3>
+                                    <div class="widget-controls">
+                                        <select id="modelTypeFilter" class="chart-select">
+                                            <option value="all">Все типы</option>
+                                            <option value="lstm">LSTM</option>
+                                            <option value="transformer">Transformer</option>
+                                            <option value="xgboost">XGBoost</option>
+                                            <option value="gan">GAN</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="ml-models-list" id="mlModelsList">
+                                        <!-- Модели будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Центральная панель - детали модели -->
+                        <div class="ml-center">
+                            <!-- Детали выбранной модели -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3 id="selectedModelName">🎯 Выберите модель</h3>
+                                    <div class="widget-controls">
+                                        <button class="form-button secondary" id="trainSelectedModelBtn" disabled>
+                                            <i class="fas fa-play"></i>
+                                            <span>Обучить</span>
+                                        </button>
+                                        <button class="form-button secondary" id="evaluateSelectedModelBtn" disabled>
+                                            <i class="fas fa-chart-bar"></i>
+                                            <span>Оценить</span>
+                                        </button>
+                                        <button class="form-button secondary" id="deploySelectedModelBtn" disabled>
+                                            <i class="fas fa-rocket"></i>
+                                            <span>Деплой</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="model-details" id="modelDetails">
+                                        <div class="no-selection">
+                                            <i class="fas fa-robot"></i>
+                                            <p>Выберите модель для просмотра деталей</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- График обучения -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>📈 Прогресс обучения</h3>
+                                    <div class="chart-controls">
+                                        <select id="trainingMetric" class="chart-select">
+                                            <option value="loss">Loss</option>
+                                            <option value="accuracy">Accuracy</option>
+                                            <option value="both">Оба</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <canvas id="trainingChart" class="chart-canvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая панель - задания и история -->
+                        <div class="ml-right">
+                            <!-- Активные задания обучения -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚡ Активные задания</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="training-jobs-list" id="trainingJobsList">
+                                        <!-- Задания будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Настройки гиперпараметров -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚙️ Гиперпараметры</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="hyperparameters-section" id="hyperparametersSection">
+                                        <div class="no-model-selected">
+                                            <p>Выберите модель для настройки гиперпараметров</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- История обучения -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📜 История обучения</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="training-history" id="trainingHistory">
+                                        <!-- История будет загружена динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Результаты оценки -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🏆 Результаты оценки</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="evaluation-results" id="evaluationResults">
+                                        <!-- Результаты будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="tab-pane">
+                <div class="settings-layout">
+                    <h2>⚙️ Настройки</h2>
+                    <p>Раздел в разработке...</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Статусная панель -->
+        <footer class="status-bar">
+            <div class="status-left">
+                <div class="status-item">
+                    <i class="fas fa-circle connection-indicator offline"></i>
+                    <span id="connectionText">Подключение: Отключено</span>
+                </div>
+            </div>
+            
+            <div class="status-center">
+                <div class="status-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="lastUpdateTime">Последнее обновление: Никогда</span>
+                </div>
+            </div>
+            
+            <div class="status-right">
+                <div class="status-item">
+                    <span id="envModeStatus">🎯 Симуляция</span>
+                </div>
+                <div class="status-separator">|</div>
+                <div class="status-item">
+                    <span class="version">v3.1</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="scripts/main.js"></script>
+    <script src="scripts/tabs.js"></script>
+    <script src="scripts/charts.js"></script>
+    <script src="scripts/system-monitor.js"></script>
+    <script src="scripts/evolution.js"></script>
+    <script src="scripts/trading.js"></script>
+    <script src="scripts/ml.js"></script>
+</body>
+</html>
