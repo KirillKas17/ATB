@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 from loguru import logger
 from decimal import Decimal
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from domain.type_definitions.strategy_types import (
     EvolutionMetrics,
@@ -205,14 +206,32 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
             direction = StrategyDirection.LONG if prediction.get("direction", "hold") == "buy" else StrategyDirection.SHORT
             entry_price = float(market_data["close"].iloc[-1]) if not market_data.empty else 50000.0
             confidence = float(prediction.get("confidence", 0.5))
+            # КРИТИЧЕСКИ ВАЖНО: Добавляем стоп-лосс и тейк-профит с точностью Decimal
+            volatility = self._calculate_volatility(market_data)
+            entry_decimal = to_trading_decimal(entry_price)
+            volatility_decimal = to_trading_decimal(volatility)
+            
+            # Используем TradingDecimal для точных расчетов
+            stop_percentage = volatility_decimal * to_trading_decimal(2.5) * to_trading_decimal(100)  # Конвертируем в проценты
+            profit_percentage = volatility_decimal * to_trading_decimal(1.5) * to_trading_decimal(100)
+            
+            if direction == StrategyDirection.LONG:
+                stop_loss = TradingDecimal.calculate_stop_loss(entry_decimal, "long", stop_percentage)
+                take_profit = TradingDecimal.calculate_take_profit(entry_decimal, "long", profit_percentage)
+            else:  # SHORT
+                stop_loss = TradingDecimal.calculate_stop_loss(entry_decimal, "short", stop_percentage)
+                take_profit = TradingDecimal.calculate_take_profit(entry_decimal, "short", profit_percentage)
+                
             signal = Signal(
                 direction=direction,
-                entry_price=entry_price,
-                confidence=confidence,
+                entry_price=entry_decimal,     # Уже Decimal
+                stop_loss=stop_loss,          # Уже Decimal
+                take_profit=take_profit,      # Уже Decimal
+                confidence=to_trading_decimal(confidence),  # Конвертируем в Decimal
                 timestamp=datetime.now(),
                 metadata={
                     "id": "evolvable_signal",
-                    "price": str(entry_price),
+                    "price": str(entry_decimal),
                     "amount": "0.1",
                     "strategy": self.name,
                     "prediction": prediction
@@ -274,6 +293,17 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
         except Exception as e:
             logger.error(f"Error extracting features: {str(e)}")
             return [0.0] * 20
+
+    def _calculate_volatility(self, data: pd.DataFrame) -> float:
+        """Расчет волатильности для определения уровней риска"""
+        try:
+            if len(data) >= 20:
+                returns = data["close"].pct_change().dropna()
+                volatility = returns.rolling(window=20).std().iloc[-1]
+                return float(volatility) if not pd.isna(volatility) else 0.02
+            return 0.02  # Дефолтная волатильность 2%
+        except Exception:
+            return 0.02
 
     def _get_ml_predictions(self, features: List[float]) -> Dict[str, Union[str, float]]:
         """Получение предсказаний от ML модели"""

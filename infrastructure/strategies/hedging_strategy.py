@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Union, Tuple
 from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 # Проверка наличия talib
 try:
@@ -357,9 +358,13 @@ class HedgingStrategy(BaseStrategy):
             if not direction:
                 return None
             # Расчет цены входа
-            current_price = data["close"].iloc[-1] if len(data['close']) > 0 else 0.0
-            entry_price = float(current_price) if current_price is not None and not pd.isna(current_price) else 0.0
-            if entry_price <= 0:
+                        try:
+                from shared.signal_validator import get_safe_price
+                entry_price = get_safe_price(data["close"], -1, "entry_price")
+            except (ValueError, ImportError):
+                entry_price = data["close"].iloc[-1] if len(data['close']) > 0 else None
+                entry_price = float(entry_price) if entry_price is not None and not pd.isna(entry_price) else None
+                if entry_price is None or entry_price <= 0:
                 return None
             # Расчет стоп-лосса
             stop_loss = self._calculate_stop_loss(entry_price, direction, analysis)
@@ -444,9 +449,18 @@ class HedgingStrategy(BaseStrategy):
         try:
             stop_loss_pct = self._config.stop_loss
             if direction == "long":
-                return entry_price * (1 - stop_loss_pct)
+                # Используем Decimal для точных расчетов
+        entry_decimal = to_trading_decimal(entry_price)
+        stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+            entry_decimal, "long", to_trading_decimal(stop_loss_pct * 100)
+        )
+        return float(stop_loss_decimal)
             else:
-                return entry_price * (1 + stop_loss_pct)
+                # Используем Decimal для точных расчетов (short позиция)
+                stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                    entry_decimal, "short", to_trading_decimal(stop_loss_pct * 100)
+                )
+                return float(stop_loss_decimal)
         except Exception as e:
             logger.error(f"Error calculating stop loss: {str(e)}")
             return entry_price * 0.98  # Fallback
@@ -458,9 +472,18 @@ class HedgingStrategy(BaseStrategy):
         try:
             take_profit_pct = self._config.take_profit
             if direction == "long":
-                return entry_price * (1 + take_profit_pct)
+                # Используем Decimal для точных расчетов
+            entry_decimal = to_trading_decimal(entry_price)
+            take_profit_decimal = TradingDecimal.calculate_take_profit(
+                entry_decimal, "long", to_trading_decimal(take_profit_pct * 100)
+            )
+            return float(take_profit_decimal)
             else:
-                return entry_price * (1 - take_profit_pct)
+                # Используем Decimal для точных расчетов (short позиция)
+                take_profit_decimal = TradingDecimal.calculate_take_profit(
+                    entry_decimal, "short", to_trading_decimal(take_profit_pct * 100)
+                )
+                return float(take_profit_decimal)
         except Exception as e:
             logger.error(f"Error calculating take profit: {str(e)}")
             return entry_price * 1.02  # Fallback
@@ -674,7 +697,8 @@ class HedgingStrategy(BaseStrategy):
             delta = prices.diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()  # type: ignore[operator]
             loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()  # type: ignore[operator]
-            rs = gain / loss
+            # Защита от деления на ноль
+            rs = gain / loss.where(loss != 0, 1e-10)
             rsi = 100 - (100 / (1 + rs))
             return rsi.fillna(50)  # Заполняем NaN значения
         except Exception as e:

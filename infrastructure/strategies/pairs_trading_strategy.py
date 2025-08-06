@@ -438,28 +438,28 @@ class PairsTradingStrategy(BaseStrategy):
                 if (self.position == "long" and current_price <= self.stop_loss) or (
                     self.position == "short" and current_price >= self.stop_loss
                 ):
-                    return Signal(
+                    # Используем безопасный метод создания сигнала
+                    return self._create_safe_signal(
                         direction="close",
-                        volume=1.0,
                         entry_price=current_price,
-                        stop_loss=None,
-                        take_profit=None,
+                        volume=1.0,
                         confidence=1.0,
-                        metadata={"symbol": self._config.symbols[0] if self._config.symbols else "unknown"}
+                        symbol=self._config.symbols[0] if self._config.symbols else "unknown",
+                        data=data[self._config.symbols[0]] if data else None
                     )
             # Проверка тейк-профита
             if self.take_profit:
                 if (self.position == "long" and current_price >= self.take_profit) or (
                     self.position == "short" and current_price <= self.take_profit
                 ):
-                    return Signal(
+                    # Используем безопасный метод создания сигнала
+                    return self._create_safe_signal(
                         direction="close",
-                        volume=1.0,
                         entry_price=current_price,
-                        stop_loss=None,
-                        take_profit=None,
+                        volume=1.0,
                         confidence=1.0,
-                        metadata={"symbol": self._config.symbols[0] if self._config.symbols else "unknown"}
+                        symbol=self._config.symbols[0] if self._config.symbols else "unknown",
+                        data=data[self._config.symbols[0]] if data else None
                     )
             # Проверка трейлинг-стопа
             if self._config.trailing_stop and self.trailing_stop:
@@ -470,14 +470,13 @@ class PairsTradingStrategy(BaseStrategy):
                     if new_trailing_stop > self.trailing_stop:
                         self.trailing_stop = new_trailing_stop
                     elif current_price <= self.trailing_stop:
-                        return Signal(
+                        return self._create_safe_signal(
                             direction="close",
-                            volume=1.0,
                             entry_price=current_price,
-                            stop_loss=None,
-                            take_profit=None,
+                            volume=1.0,
                             confidence=1.0,
-                            metadata={"symbol": self._config.symbols[0] if self._config.symbols else "unknown"}
+                            symbol=self._config.symbols[0] if self._config.symbols else "unknown",
+                            data=data[self._config.symbols[0]] if data else None
                         )
                 else:  # short
                     new_trailing_stop = current_price + (
@@ -486,14 +485,13 @@ class PairsTradingStrategy(BaseStrategy):
                     if new_trailing_stop < self.trailing_stop:
                         self.trailing_stop = new_trailing_stop
                     elif current_price >= self.trailing_stop:
-                        return Signal(
+                        return self._create_safe_signal(
                             direction="close",
-                            volume=1.0,
                             entry_price=current_price,
-                            stop_loss=None,
-                            take_profit=None,
+                            volume=1.0,
                             confidence=1.0,
-                            metadata={"symbol": self._config.symbols[0] if self._config.symbols else "unknown"}
+                            symbol=self._config.symbols[0] if self._config.symbols else "unknown",
+                            data=data[self._config.symbols[0]] if data else None
                         )
             # Проверка частичного закрытия
             if self._config.partial_close:
@@ -504,25 +502,23 @@ class PairsTradingStrategy(BaseStrategy):
                         ):
                             volume = self._config.partial_close_sizes[i]
                             self.partial_closes.append(level)
-                            return Signal(
+                            return self._create_safe_signal(
                                 direction="partial_close",
-                                volume=volume,
                                 entry_price=current_price,
-                                stop_loss=None,
-                                take_profit=None,
+                                volume=volume,
                                 confidence=0.8,
-                                metadata={"symbol": self._config.symbols[0] if self._config.symbols else "unknown"}
+                                symbol=self._config.symbols[0] if self._config.symbols else "unknown",
+                                data=data[self._config.symbols[0]] if data else None
                             )
             # Проверка возврата к среднему
             if abs(float(z_score)) < 0.5:
-                return Signal(
+                return self._create_safe_signal(
                     direction="close",
-                    volume=1.0,
                     entry_price=current_price,
-                    stop_loss=None,
-                    take_profit=None,
+                    volume=1.0,
                     confidence=0.9,
-                    metadata={"symbol": self._config.symbols[0] if self._config.symbols else "unknown"}
+                    symbol=self._config.symbols[0] if self._config.symbols else "unknown",
+                    data=data[self._config.symbols[0]] if data else None
                 )
             return None
         except Exception as e:
@@ -557,6 +553,61 @@ class PairsTradingStrategy(BaseStrategy):
                     self.partial_closes.append(signal.volume)
         except Exception as e:
             logger.error(f"Error updating position state: {str(e)}")
+
+    def _calculate_volatility(self, data: pd.DataFrame) -> float:
+        """Расчет волатильности для определения уровней риска"""
+        try:
+            if len(data) >= 20:
+                returns = data["close"].pct_change().dropna()
+                volatility = returns.rolling(window=20).std().iloc[-1]
+                return float(volatility) if not pd.isna(volatility) else 0.02
+            return 0.02  # Дефолтная волатильность 2%
+        except Exception:
+            return 0.02
+
+    def _create_safe_signal(self, direction: str, entry_price: float, volume: float, 
+                           confidence: float, symbol: str, data: Optional[pd.DataFrame] = None) -> Signal:
+        """Создание безопасного сигнала с правильными стоп-лоссом и тейк-профитом"""
+        try:
+            # Рассчитываем волатильность для определения уровней риска
+            volatility = 0.02  # Дефолтная волатильность
+            if data is not None and len(data) > 0:
+                volatility = self._calculate_volatility(data)
+            
+            # Устанавливаем безопасные уровни в зависимости от направления
+            if direction == "long":
+                stop_loss = entry_price * (1 - volatility * 2.5)  # 2.5x волатильность как стоп
+                take_profit = entry_price * (1 + volatility * 1.5)  # 1.5x волатильность как профит
+            elif direction == "short":
+                stop_loss = entry_price * (1 + volatility * 2.5)
+                take_profit = entry_price * (1 - volatility * 1.5)
+            else:  # close
+                stop_loss = entry_price * (1 - volatility * 2)
+                take_profit = entry_price * (1 + volatility)
+                
+            return Signal(
+                direction=direction,
+                volume=volume,
+                entry_price=entry_price,
+                stop_loss=stop_loss,
+                take_profit=take_profit,
+                confidence=confidence,
+                metadata={"symbol": symbol}
+            )
+        except Exception as e:
+            logger.error(f"Error creating safe signal: {str(e)}")
+            # Возвращаем безопасный сигнал с минимальными уровнями
+            stop_loss = entry_price * 0.98 if direction == "long" else entry_price * 1.02
+            take_profit = entry_price * 1.01 if direction == "long" else entry_price * 0.99
+            return Signal(
+                direction=direction,
+                volume=volume,
+                entry_price=entry_price,
+                stop_loss=stop_loss,
+                take_profit=take_profit,
+                confidence=confidence,
+                metadata={"symbol": symbol}
+            )
 
     def _create_hedge_position(self, signal: Signal, data: pd.DataFrame) -> None:
         """

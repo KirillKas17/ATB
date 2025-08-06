@@ -17,6 +17,7 @@ import concurrent.futures
 from uuid import uuid4
 
 from shared.numpy_utils import np
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 import pandas as pd
 from loguru import logger
 from scipy import stats, optimize
@@ -260,9 +261,17 @@ class QuantumArbitrageStrategy(BaseStrategy):
     
     def _calculate_volatility(self, market_data: MarketData) -> float:
         """Расчёт волатильности."""
-        price_range = float(market_data.high.amount - market_data.low.amount)
-        mid_price = float((market_data.high.amount + market_data.low.amount) / 2)
-        return price_range / mid_price if mid_price > 0 else 0.0
+        # Используем Decimal для точного расчета волатильности
+        high_decimal = to_trading_decimal(market_data.high.amount)
+        low_decimal = to_trading_decimal(market_data.low.amount)
+        
+        price_range_decimal = high_decimal - low_decimal
+        mid_price_decimal = (high_decimal + low_decimal) / to_trading_decimal(2)
+        
+        if mid_price_decimal > TradingDecimal.ZERO:
+            volatility_decimal = TradingDecimal.safe_divide(price_range_decimal, mid_price_decimal)
+            return float(volatility_decimal)
+        return 0.0
     
     async def _train_ml_models(self) -> None:
         """Обучение моделей машинного обучения."""
@@ -456,8 +465,15 @@ class QuantumArbitrageStrategy(BaseStrategy):
             highest_exchange, highest_symbol, highest_data = exchanges_data[-1]
             
             # Расчёт потенциальной прибыли
-            price_diff = highest_data.close.amount - lowest_data.close.amount
-            profit_percentage = price_diff / lowest_data.close.amount
+            # Используем Decimal для точного расчета прибыли
+            highest_price = to_trading_decimal(highest_data.close.amount)
+            lowest_price = to_trading_decimal(lowest_data.close.amount)
+            
+            price_diff_decimal = highest_price - lowest_price
+            profit_percentage_decimal = TradingDecimal.safe_divide(price_diff_decimal, lowest_price)
+            
+            price_diff = float(price_diff_decimal)
+            profit_percentage = float(profit_percentage_decimal)
             
             if profit_percentage > self.min_profit_threshold:
                 # Оценка рисков

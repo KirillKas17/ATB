@@ -6,6 +6,8 @@ from typing import Dict, List, Optional, Tuple, Union, Any
 import pandas as pd
 
 from loguru import logger
+from shared.signal_validator import get_safe_price
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from .base_strategy import BaseStrategy, Signal as BaseSignal
 
@@ -149,7 +151,8 @@ class ReversalStrategy(BaseStrategy):
         delta = prices.diff()
         gain = (delta.where(delta > 0, 0)).rolling(window=period).mean() 
         loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean() 
-        rs = gain / loss
+        # Защита от деления на ноль
+        rs = gain / loss.where(loss != 0, 1e-10)  # Заменяем 0 на очень маленькое число
         return 100 - (100 / (1 + rs))
 
     def _calculate_macd(
@@ -200,12 +203,37 @@ class ReversalStrategy(BaseStrategy):
     def _analyze_volume(self, volume: pd.Series) -> Dict[str, Any]:
         """Анализ объемов"""
         avg_volume = volume.rolling(window=20).mean()
-        volume_ratio = volume / avg_volume
+        # Защита от деления на ноль
+        volume_ratio = volume / avg_volume.where(avg_volume != 0, 1.0)
         return {
             "average": avg_volume,
             "ratio": volume_ratio,
             "is_high": volume_ratio > self._config.volume_threshold,
         }
+
+    def _safe_get_price(self, price_series: pd.Series, index: int) -> float:
+        """Безопасное получение цены с проверками"""
+        try:
+            price = price_series.iloc[index]
+            if price is not None and not pd.isna(price) and price > 0:
+                return float(price)
+            # Если цена некорректна, пытаемся получить последнюю корректную цену
+            for i in range(index, max(0, index - 10), -1):
+                fallback_price = price_series.iloc[i]
+                if fallback_price is not None and not pd.isna(fallback_price) and fallback_price > 0:
+                    logger.warning(f"Using fallback price {fallback_price} instead of invalid price at index {index}")
+                    return float(fallback_price)
+            # Если и это не помогло, используем среднюю цену за последние данные
+            recent_prices = price_series.dropna()
+            if len(recent_prices) > 0:
+                avg_price = recent_prices.mean()
+                logger.warning(f"Using average price {avg_price} as last resort for index {index}")
+                return float(avg_price)
+            else:
+                raise ValueError(f"Cannot find any valid price data around index {index}")
+        except Exception as e:
+            logger.error(f"Critical error getting price at index {index}: {str(e)}")
+            raise ValueError(f"Invalid price data at index {index}")
 
     def _determine_trend(self, data: pd.DataFrame, swing_points: Dict[str, List[int]]) -> str:
         """Определение текущего тренда"""
@@ -267,7 +295,7 @@ class ReversalStrategy(BaseStrategy):
                     {
                         "index": i,
                         "type": "bullish",
-                        "price": float(data["close"].iloc[i]) if data["close"].iloc[i] is not None and not pd.isna(data["close"].iloc[i]) else 0.0, 
+                        "price": self._safe_get_price(data["close"], i), 
                         "strength": self._calculate_reversal_strength(
                             data, i, "bullish"
                         ),
@@ -278,7 +306,7 @@ class ReversalStrategy(BaseStrategy):
                     {
                         "index": i,
                         "type": "bearish",
-                        "price": float(data["close"].iloc[i]) if data["close"].iloc[i] is not None and not pd.isna(data["close"].iloc[i]) else 0.0, 
+                        "price": self._safe_get_price(data["close"], i), 
                         "strength": self._calculate_reversal_strength(
                             data, i, "bearish"
                         ),
@@ -292,10 +320,10 @@ class ReversalStrategy(BaseStrategy):
         """Расчет силы разворота"""
         try:
             strength = 0.0
-            close_price = data["close"].iloc[index]
-            close_price = float(close_price) if close_price is not None and not pd.isna(close_price) else 0.0 
-            if close_price <= 0:
-                return 0.0
+            try:
+                close_price = get_safe_price(data["close"], index, "close_price")
+            except ValueError:
+                return 0.0  # Не можем получить корректную цену
             
             # Анализируем свечи
             if reversal_type == "bullish":
@@ -354,21 +382,31 @@ class ReversalStrategy(BaseStrategy):
             if not self._confirm_reversal(data, index, reversal["type"]):
                 continue
             # Рассчитываем уровни входа и выхода
-            entry_price = data["close"].iloc[index]
-            entry_price = float(entry_price) if entry_price is not None and not pd.isna(entry_price) else 0.0 
-            if entry_price <= 0:
-                continue
+            try:
+                entry_price = get_safe_price(data["close"], index, "entry_price")
+            except ValueError:
+                continue  # Пропускаем, если нет корректной цены
                 
             atr_value = atr.iloc[index] 
             atr_value = float(atr_value) if atr_value is not None and not pd.isna(atr_value) else 0.0 
             
             if reversal["type"] == "bullish":
-                stop_loss = entry_price - (atr_value * self._config.stop_loss_atr_multiplier)
-                take_profit = entry_price + (atr_value * self._config.take_profit_atr_multiplier)
+                            # Используем Decimal для точных расчетов
+            entry_decimal = to_trading_decimal(entry_price)
+            atr_decimal = to_trading_decimal(atr_value)
+            stop_multiplier = to_trading_decimal(self._config.stop_loss_atr_multiplier)
+            take_multiplier = to_trading_decimal(self._config.take_profit_atr_multiplier)
+            
+            stop_distance = atr_decimal * stop_multiplier
+            take_distance = atr_decimal * take_multiplier
+            
+            stop_loss = float(entry_decimal - stop_distance)
+            take_profit = float(entry_decimal + take_distance)
                 direction = "long"
             else:
-                stop_loss = entry_price + (atr_value * self._config.stop_loss_atr_multiplier)
-                take_profit = entry_price - (atr_value * self._config.take_profit_atr_multiplier)
+                # Используем Decimal для точных расчетов (short позиция)
+                stop_loss = float(entry_decimal + stop_distance)
+                take_profit = float(entry_decimal - take_distance)
                 direction = "short"
             
             signals.append(

@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union, Tuple
 
 from loguru import logger
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import TimeSeriesSplit
@@ -325,8 +326,15 @@ class RandomForestStrategy(BaseStrategy):
                 atr_value = float(atr_value) if pd.notna(atr_value) else 0.0
                 volume = self._calculate_position_size(current_price, atr_value)
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price - atr_value * 2
-                take_profit = current_price + atr_value * 3
+                                    # Используем Decimal для точных расчетов
+                    current_price_decimal = to_trading_decimal(current_price)
+                    atr_decimal = to_trading_decimal(atr_value)
+                    
+                    stop_loss_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(2))
+                    take_profit_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(3))
+                    
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="long",
                     entry_price=current_price,
@@ -350,8 +358,12 @@ class RandomForestStrategy(BaseStrategy):
                 atr_value = float(atr_value) if pd.notna(atr_value) else 0.0
                 volume = self._calculate_position_size(current_price, atr_value)
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price + atr_value * 2
-                take_profit = current_price - atr_value * 3
+                                    # Используем Decimal для точных расчетов (short позиция)
+                    stop_loss_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(2))
+                    take_profit_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(3))
+                    
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="short",
                     entry_price=current_price,
@@ -419,9 +431,14 @@ class RandomForestStrategy(BaseStrategy):
                 atr_value = features["atr"].iloc[-1] if "atr" in features.columns else 0.0
                 atr_value = float(atr_value) if pd.notna(atr_value) else 0.0
                 if self.position == "long" and current_price > self.trailing_stop:
-                    self.trailing_stop = current_price - atr_value * self._config.trailing_step
+                                            # Trailing stop с Decimal точностью
+                        price_decimal = to_trading_decimal(current_price)
+                        atr_decimal = to_trading_decimal(atr_value)
+                        step_decimal = to_trading_decimal(self._config.trailing_step)
+                        self.trailing_stop = float(price_decimal - (atr_decimal * step_decimal))
                 elif self.position == "short" and current_price < self.trailing_stop:
-                    self.trailing_stop = current_price + atr_value * self._config.trailing_step
+                    # Trailing stop для short с Decimal точностью
+                    self.trailing_stop = float(price_decimal + (atr_decimal * step_decimal))
                 if (
                     self.position == "long" and self.trailing_stop is not None and current_price <= self.trailing_stop
                 ) or (self.position == "short" and self.trailing_stop is not None and current_price >= self.trailing_stop):
@@ -530,7 +547,8 @@ class RandomForestStrategy(BaseStrategy):
             delta = data["close"].diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-            rs = gain / loss
+            # Защита от деления на ноль
+            rs = gain / loss.where(loss != 0, 1e-10)
             features.loc[:, "rsi"] = 100 - (100 / (1 + rs))
             # MACD
             ema_fast = data["close"].ewm(span=12).mean()
@@ -560,13 +578,16 @@ class RandomForestStrategy(BaseStrategy):
             plus_dm[plus_dm < 0] = 0
             minus_dm[minus_dm > 0] = 0
             tr = true_range
+            # Защита от деления на ноль в ADX расчете
+            tr_mean = tr.rolling(window=14).mean()
             plus_di = 100 * (
-                plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+                plus_dm.rolling(window=14).mean() / tr_mean.where(tr_mean != 0, 1e-10)
             )
             minus_di = 100 * (
-                minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+                minus_dm.rolling(window=14).mean() / tr_mean.where(tr_mean != 0, 1e-10)
             )
-            dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
+            di_sum = plus_di + minus_di
+            dx = 100 * np.abs(plus_di - minus_di) / di_sum.where(di_sum != 0, 1e-10)
             features.loc[:, "adx"] = dx.rolling(window=14).mean()
             features.loc[:, "plus_di"] = plus_di
             features.loc[:, "minus_di"] = minus_di

@@ -530,41 +530,89 @@ class RegimeAdaptiveStrategy(BaseStrategy):
                 trend_strength = abs(sma_20_last - sma_50_last) / sma_50_last
             else:
                 trend_strength = 0.0
-            # Расчет ADX
-            high_low = data["high"] - data["low"]
-            high_close = np.abs(data["high"] - data["close"].shift())
-            low_close = np.abs(data["low"] - data["close"].shift())
-            ranges = pd.DataFrame({
-                'high_low': high_low,
-                'high_close': high_close,
-                'low_close': low_close
-            })
-            true_range = ranges.max(axis=1)
-            plus_dm = data["high"].diff()
-            minus_dm = data["low"].diff()
-            plus_dm[plus_dm < 0] = 0  # type: ignore[operator]
-            minus_dm[minus_dm > 0] = 0  # type: ignore[operator]
-            tr = true_range
-            plus_di = 100 * (
-                plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
-            )
-            minus_di = 100 * (
-                minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
-            )
-            dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
-            adx = dx.rolling(window=14).mean()
-            adx_last = adx.iloc[-1] if hasattr(adx, 'iloc') else adx[-1]
+            # Правильный расчет ADX согласно стандартной формуле
+            adx_last = self._calculate_adx_correct(data)
             adx_last = float(adx_last) if adx_last is not None and not pd.isna(adx_last) else 0.0
-            # Определение режима
-            if trend_strength > 0.02 and adx_last > 25:  # type: ignore[operator]
+            # Используем адаптивные пороги для определения режима
+            from shared.adaptive_thresholds import AdaptiveThresholds
+            adaptive_thresholds = AdaptiveThresholds()
+            
+            trend_threshold = adaptive_thresholds.get_adaptive_trend_threshold(data)
+            volatility_regime = adaptive_thresholds.get_volatility_regime(data)
+            
+            # Определение режима с адаптивными порогами
+            if trend_strength > trend_threshold and adx_last > 25:  # type: ignore[operator]
                 return "trend"
-            elif volatility > 0.015:  # type: ignore[operator]
+            elif volatility_regime == 'high':
                 return "volatility"
             else:
                 return "sideways"
         except Exception as e:
             logger.error(f"Error detecting regime: {str(e)}")
             return "sideways"
+
+    def _calculate_adx_correct(self, data: pd.DataFrame, period: int = 14) -> float:
+        """
+        Правильный расчет Average Directional Index (ADX).
+        
+        Args:
+            data: DataFrame с OHLCV данными
+            period: Период для расчета (по умолчанию 14)
+            
+        Returns:
+            float: Значение ADX
+        """
+        try:
+            if len(data) < period + 1:
+                return 0.0
+                
+            # Расчет True Range (TR)
+            high = data["high"]
+            low = data["low"]
+            close = data["close"]
+            
+            prev_close = close.shift(1)
+            tr1 = high - low
+            tr2 = np.abs(high - prev_close)
+            tr3 = np.abs(low - prev_close)
+            
+            # True Range = максимум из трех значений
+            tr = pd.DataFrame({'tr1': tr1, 'tr2': tr2, 'tr3': tr3}).max(axis=1)
+            
+            # Расчет Directional Movement (DM)
+            plus_dm = high.diff()
+            minus_dm = -low.diff()
+            
+            # Оставляем только положительные движения
+            plus_dm = plus_dm.where((plus_dm > minus_dm) & (plus_dm > 0), 0)
+            minus_dm = minus_dm.where((minus_dm > plus_dm) & (minus_dm > 0), 0)
+            
+            # Сглаживание по методу Wilder (как экспоненциальная скользящая средняя)
+            alpha = 1.0 / period
+            
+            # Сглаженный TR
+            atr = tr.ewm(alpha=alpha, adjust=False).mean()
+            
+            # Сглаженные DM
+            plus_di_smooth = plus_dm.ewm(alpha=alpha, adjust=False).mean()
+            minus_di_smooth = minus_dm.ewm(alpha=alpha, adjust=False).mean()
+            
+            # Directional Indicators (DI)
+            plus_di = 100 * (plus_di_smooth / atr)
+            minus_di = 100 * (minus_di_smooth / atr)
+            
+            # Directional Index (DX)
+            dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
+            dx = dx.fillna(0)  # Заменяем NaN на 0
+            
+            # ADX = сглаженный DX
+            adx = dx.ewm(alpha=alpha, adjust=False).mean()
+            
+            return float(adx.iloc[-1]) if len(adx) > 0 and not pd.isna(adx.iloc[-1]) else 0.0
+            
+        except Exception as e:
+            logger.error(f"Error calculating ADX: {str(e)}")
+            return 0.0
 
     def _get_regime_params(self, regime: str) -> Dict[str, Any]:
         """

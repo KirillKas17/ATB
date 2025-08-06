@@ -26,7 +26,11 @@ class TechnicalIndicators:
         delta = data.diff()
         gain = delta.where(delta > 0, 0).rolling(window=period).mean()
         loss = delta.where(delta < 0, 0).abs().rolling(window=period).mean()
-        rs = gain / loss
+        # Используем безопасное деление для RSI
+    from shared.decimal_utils import TradingDecimal
+    gain_decimal = TradingDecimal.to_decimal(gain)
+    loss_decimal = TradingDecimal.to_decimal(loss) 
+    rs = TradingDecimal.safe_divide(gain_decimal, loss_decimal)
         rsi = 100 - (100 / (1 + rs))
         return rsi
 

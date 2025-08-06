@@ -21,6 +21,7 @@ from domain.strategies.quantum_arbitrage_strategy import QuantumArbitrageStrateg
 from domain.intelligence.pattern_analyzer import QuantumPatternAnalyzer
 from domain.prediction.neural_market_predictor import NeuralMarketPredictor
 from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
+from shared.adaptive_thresholds import AdaptiveThresholds
 
 logger = logging.getLogger(__name__)
 
@@ -37,19 +38,36 @@ class StrategyIntegrationManager:
         # Новые продвинутые модули
         self.quantum_pattern_analyzer = QuantumPatternAnalyzer()
         self.neural_market_predictor = NeuralMarketPredictor()
+        # Инициализация адаптивных порогов
+        self.adaptive_thresholds = AdaptiveThresholds()
         
     async def initialize_strategies(self) -> None:
         """Инициализация всех доступных стратегий."""
         try:
-            # Инициализация основных стратегий с дефолтными конфигурациями
+            # Создание базовой конфигурации с адаптивными порогами
+            adaptive_config = {
+                'base_price_level': 100.0,
+                'rsi_oversold_base': 30,
+                'rsi_overbought_base': 70,
+                'volatility_low_threshold': 0.01,
+                'volatility_high_threshold': 0.03,
+                'trend_strength_threshold': 0.02,
+                'volume_normal_threshold': 1.0,
+                'volume_high_threshold': 1.5,
+                'bb_touch_tolerance': 0.005,
+                'stoch_oversold': 20,
+                'stoch_overbought': 80
+            }
+            
+            # Инициализация основных стратегий с адаптивными конфигурациями
             self.strategies.update({
-                'trend': TrendStrategy({}),
-                'sideways': SidewaysStrategy({}), 
-                'volatility': VolatilityStrategy({}),
-                'manipulation': ManipulationStrategy({}),
-                'mean_reversion': MeanReversionStrategy({}),
-                'momentum': MomentumStrategy({}),
-                'scalping': ScalpingStrategy({}),
+                'trend': TrendStrategy(adaptive_config),
+                'sideways': SidewaysStrategy(config=adaptive_config), 
+                'volatility': VolatilityStrategy(adaptive_config),
+                'manipulation': ManipulationStrategy(adaptive_config),
+                'mean_reversion': MeanReversionStrategy(adaptive_config),
+                'momentum': MomentumStrategy(adaptive_config),
+                'scalping': ScalpingStrategy(adaptive_config),
                 # Новая квантовая арбитражная стратегия
                 'quantum_arbitrage': QuantumArbitrageStrategy(
                     strategy_id='quantum_arbitrage_default',

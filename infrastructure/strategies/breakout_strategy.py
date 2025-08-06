@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from loguru import logger
+from shared.signal_validator import validate_trading_signal
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from .base_strategy import BaseStrategy, Signal
 
@@ -288,8 +290,12 @@ class BreakoutStrategy(BaseStrategy):
             sma = data["close"].rolling(window=20).mean()
             # Экспоненциальная скользящая средняя
             ema = data["close"].ewm(span=20).mean()
-            # Сила тренда
-            trend_strength = abs(data["close"].iloc[-1] - sma.iloc[-1]) / sma.iloc[-1]
+            # Сила тренда с защитой от деления на ноль
+            sma_last = sma.iloc[-1]
+            if sma_last != 0:
+                trend_strength = abs(data["close"].iloc[-1] - sma_last) / sma_last
+            else:
+                trend_strength = 0.0
             # Направление тренда
             if data["close"].iloc[-1] > sma.iloc[-1]:
                 direction = "up"
@@ -364,12 +370,25 @@ class BreakoutStrategy(BaseStrategy):
             high = data["high"].rolling(window=self._config.breakout_period).max()
             low = data["low"].rolling(window=self._config.breakout_period).min()
             # Проверяем пробой вверх
-            if current_price > high.iloc[-2] * (1 + self._config.breakout_threshold):
+            # Расчет breakout level с Decimal точностью
+            high_price_decimal = to_trading_decimal(high.iloc[-2])
+            threshold_decimal = to_trading_decimal(self._config.breakout_threshold)
+            breakout_level_up = high_price_decimal * (to_trading_decimal(1) + threshold_decimal)
+            
+            if to_trading_decimal(current_price) > breakout_level_up:
                 if self._check_breakout_confirmation(data, "up"):
                     position_size = self._calculate_position_size(current_price, volatility)
-                    stop_loss = current_price * (1 - self._config.stop_loss)
-                    take_profit = current_price * (1 + self._config.take_profit)
-                    return Signal(
+                    # Используем Decimal для точных расчетов
+                    current_price_decimal = to_trading_decimal(current_price)
+                    stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                        current_price_decimal, "long", to_trading_decimal(self._config.stop_loss * 100)
+                    )
+                    take_profit_decimal = TradingDecimal.calculate_take_profit(
+                        current_price_decimal, "long", to_trading_decimal(self._config.take_profit * 100)
+                    )
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
+                    signal = Signal(
                         direction="long",
                         entry_price=current_price,
                         stop_loss=stop_loss,
@@ -385,13 +404,28 @@ class BreakoutStrategy(BaseStrategy):
                             "trend": trend,
                         },
                     )
+                    # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                    if not validate_trading_signal(signal):
+                        return None
+                    return signal
             # Проверяем пробой вниз
-            elif current_price < low.iloc[-2] * (1 - self._config.breakout_threshold):
+            # Расчет breakout level для пробоя вниз с Decimal точностью
+            low_price_decimal = to_trading_decimal(low.iloc[-2])
+            breakout_level_down = low_price_decimal * (to_trading_decimal(1) - threshold_decimal)
+            
+            elif to_trading_decimal(current_price) < breakout_level_down:
                 if self._check_breakout_confirmation(data, "down"):
                     position_size = self._calculate_position_size(current_price, volatility)
-                    stop_loss = current_price * (1 + self._config.stop_loss)
-                    take_profit = current_price * (1 - self._config.take_profit)
-                    return Signal(
+                    # Используем Decimal для точных расчетов
+                    stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                        current_price_decimal, "short", to_trading_decimal(self._config.stop_loss * 100)
+                    )
+                    take_profit_decimal = TradingDecimal.calculate_take_profit(
+                        current_price_decimal, "short", to_trading_decimal(self._config.take_profit * 100)
+                    )
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
+                    signal = Signal(
                         direction="short",
                         entry_price=current_price,
                         stop_loss=stop_loss,
@@ -407,6 +441,10 @@ class BreakoutStrategy(BaseStrategy):
                             "trend": trend,
                         },
                     )
+                    # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                    if not validate_trading_signal(signal):
+                        return None
+                    return signal
             return None
         except Exception as e:
             logger.error(f"Error generating entry signal: {str(e)}")
@@ -425,7 +463,13 @@ class BreakoutStrategy(BaseStrategy):
             # Проверяем объем
             current_volume = data["volume"].iloc[-1]
             avg_volume = data["volume"].rolling(window=20).mean().iloc[-1]
-            if current_volume < avg_volume * self._config.min_volume_multiplier:
+            # Используем Decimal для проверки объема
+            current_volume_decimal = to_trading_decimal(current_volume)
+            avg_volume_decimal = to_trading_decimal(avg_volume)
+            min_multiplier_decimal = to_trading_decimal(self._config.min_volume_multiplier)
+            required_volume = avg_volume_decimal * min_multiplier_decimal
+            
+            if current_volume_decimal < required_volume:
                 return False
             # Проверяем подтверждение в течение нескольких периодов
             for i in range(1, self._config.confirmation_periods + 1):

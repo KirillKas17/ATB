@@ -59,16 +59,70 @@ class StrategyMetrics:
 
 @dataclass
 class Signal:
-    """Торговый сигнал"""
+    """
+    Торговый сигнал с ОБЯЗАТЕЛЬНЫМИ уровнями риска.
+    КРИТИЧЕСКИ ВАЖНО: 
+    - stop_loss и take_profit ДОЛЖНЫ быть установлены для безопасной торговли!
+    - Все финансовые значения используют Decimal для точности
+    """
 
     direction: str
-    entry_price: float
-    stop_loss: Optional[float] = None
-    take_profit: Optional[float] = None
-    volume: Optional[float] = None
-    confidence: float = 1.0
+    entry_price: Decimal  # ИЗМЕНЕНО: Decimal для точности!
+    stop_loss: Decimal    # ИЗМЕНЕНО: Decimal для точности!
+    take_profit: Decimal  # ИЗМЕНЕНО: Decimal для точности!
+    volume: Optional[Decimal] = None  # ИЗМЕНЕНО: Decimal для точности!
+    confidence: Decimal = Decimal('1.0')  # ИЗМЕНЕНО: Decimal для точности!
     timestamp: datetime = field(default_factory=datetime.now)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self):
+        """Проверка критически важных параметров после создания сигнала"""
+        # Автоматическое преобразование в Decimal если пришли float
+        if isinstance(self.entry_price, (int, float)):
+            object.__setattr__(self, 'entry_price', Decimal(str(self.entry_price)))
+        if isinstance(self.stop_loss, (int, float)):
+            object.__setattr__(self, 'stop_loss', Decimal(str(self.stop_loss)))
+        if isinstance(self.take_profit, (int, float)):
+            object.__setattr__(self, 'take_profit', Decimal(str(self.take_profit)))
+        if self.volume is not None and isinstance(self.volume, (int, float)):
+            object.__setattr__(self, 'volume', Decimal(str(self.volume)))
+        if isinstance(self.confidence, (int, float)):
+            object.__setattr__(self, 'confidence', Decimal(str(self.confidence)))
+            
+        # Проверка на положительные значения
+        if self.entry_price <= 0:
+            raise ValueError(f"entry_price должен быть больше 0, получено: {self.entry_price}")
+        if self.stop_loss <= 0:
+            raise ValueError(f"stop_loss должен быть больше 0, получено: {self.stop_loss}")
+        if self.take_profit <= 0:
+            raise ValueError(f"take_profit должен быть больше 0, получено: {self.take_profit}")
+        if self.volume is not None and self.volume <= 0:
+            raise ValueError(f"volume должен быть больше 0, получено: {self.volume}")
+        if self.confidence < 0 or self.confidence > 1:
+            raise ValueError(f"confidence должен быть в диапазоне [0, 1], получено: {self.confidence}")
+            
+        # Проверка логики для LONG позиций
+        if self.direction.lower() in ["long", "buy"]:
+            if self.stop_loss >= self.entry_price:
+                raise ValueError(f"Для LONG позиции stop_loss ({self.stop_loss}) должен быть меньше entry_price ({self.entry_price})")
+            if self.take_profit <= self.entry_price:
+                raise ValueError(f"Для LONG позиции take_profit ({self.take_profit}) должен быть больше entry_price ({self.entry_price})")
+                
+        # Проверка логики для SHORT позиций  
+        elif self.direction.lower() in ["short", "sell"]:
+            if self.stop_loss <= self.entry_price:
+                raise ValueError(f"Для SHORT позиции stop_loss ({self.stop_loss}) должен быть больше entry_price ({self.entry_price})")
+            if self.take_profit >= self.entry_price:
+                raise ValueError(f"Для SHORT позиции take_profit ({self.take_profit}) должен быть меньше entry_price ({self.entry_price})")
+                
+        # Проверка разумности расстояний (максимум 50% стоп-лосс, минимум 0.01% тейк-профит)
+        stop_distance_pct = abs(self.stop_loss - self.entry_price) / self.entry_price
+        profit_distance_pct = abs(self.take_profit - self.entry_price) / self.entry_price
+        
+        if stop_distance_pct > Decimal('0.5'):  # 50%
+            raise ValueError(f"Стоп-лосс слишком далеко: {stop_distance_pct:.2%} от цены входа")
+        if profit_distance_pct < Decimal('0.0001'):  # 0.01%
+            raise ValueError(f"Тейк-профит слишком близко: {profit_distance_pct:.2%} от цены входа")
 
 
 class BaseStrategy(ABC):
@@ -233,7 +287,7 @@ class BaseStrategy(ABC):
 
     def calculate_position_size(self, signal: Signal, account_balance: Decimal) -> Decimal:
         """
-        Расчет размера позиции на основе сигнала и баланса.
+        Улучшенный расчет размера позиции с учетом риска.
         Args:
             signal: Торговый сигнал
             account_balance: Баланс аккаунта
@@ -241,14 +295,45 @@ class BaseStrategy(ABC):
             Размер позиции
         """
         try:
-            # Базовый размер позиции
-            position_size = account_balance * Decimal(str(self.position_size_ratio))
+            # Расчет риска на основе стоп-лосса
+            risk_per_trade = Decimal(str(self.risk_per_trade))  # Обычно 1-2%
+            
+            if signal.stop_loss is not None and signal.entry_price is not None:
+                # Теперь это уже Decimal, но на всякий случай проверим
+                entry_price = signal.entry_price if isinstance(signal.entry_price, Decimal) else Decimal(str(signal.entry_price))
+                stop_loss = signal.stop_loss if isinstance(signal.stop_loss, Decimal) else Decimal(str(signal.stop_loss))
+                
+                # Риск на единицу зависит от направления
+                if signal.direction == "long":
+                    risk_per_unit = entry_price - stop_loss
+                elif signal.direction == "short":
+                    risk_per_unit = stop_loss - entry_price
+                else:
+                    risk_per_unit = entry_price * Decimal('0.02')  # 2% по умолчанию
+                
+                if risk_per_unit > 0:
+                    # Размер позиции = (Риск на сделку * Баланс) / Риск на единицу
+                    risk_amount = account_balance * risk_per_trade
+                    position_size = risk_amount / risk_per_unit
+                else:
+                    # Если риск на единицу неположительный, используем базовый расчет
+                    position_size = account_balance * Decimal(str(self.position_size_ratio))
+            else:
+                # Если нет стоп-лосса, используем базовый расчет
+                position_size = account_balance * Decimal(str(self.position_size_ratio))
+            
             # Ограничиваем максимальный размер позиции
             max_size = account_balance * Decimal(str(self.max_position_size))
             position_size = min(position_size, max_size)
+            
             # Учитываем уверенность в сигнале
             position_size *= Decimal(str(signal.confidence))
-            return position_size
+            
+            # Убеждаемся, что размер не превышает баланс
+            position_size = min(position_size, account_balance)
+            
+            return max(Decimal('0'), position_size)
+            
         except Exception as e:
             logger.error(f"Error calculating position size: {str(e)}")
             return Decimal('0')

@@ -10,6 +10,7 @@ from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from shared.numpy_utils import np
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from domain.type_definitions.risk_types import RiskLevel
 
@@ -798,7 +799,13 @@ def calculate_ema(prices: List[float], period: int) -> List[float]:
     ema_values = [prices[0]]
     for i in range(1, len(prices)):
         if len(ema_values) > 0:
-            ema = (prices[i] * multiplier) + (ema_values[-1] * (1 - multiplier))
+            # Используем Decimal для точного расчета EMA
+        price_decimal = to_trading_decimal(prices[i])
+        multiplier_decimal = to_trading_decimal(multiplier)
+        previous_ema_decimal = to_trading_decimal(ema_values[-1])
+        
+        ema_decimal = (price_decimal * multiplier_decimal) + (previous_ema_decimal * (TradingDecimal.ONE - multiplier_decimal))
+        ema = float(ema_decimal)
         else:
             ema = prices[i]  # Fallback если ema_values пуст
         ema_values.append(ema)
