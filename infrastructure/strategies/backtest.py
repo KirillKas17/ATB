@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from loguru import logger
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from domain.strategies.base_strategy import BaseStrategy
 
@@ -113,20 +114,23 @@ class Backtest:
                         current_price *= 1 + self.config.slippage
                     elif hasattr(signal, 'direction') and signal.direction == "short":
                         current_price *= 1 - self.config.slippage
-                    # Учитываем комиссию
-                    commission = current_price * self.config.commission
+                    # Учитываем комиссию - используем Decimal для точности
+                    price_decimal = to_trading_decimal(current_price)
+                    commission_rate = to_trading_decimal(self.config.commission)
+                    commission = float(TradingDecimal.calculate_percentage(price_decimal, commission_rate * to_trading_decimal(100)))
                     if hasattr(signal, 'direction') and signal.direction in ["long", "short"]:
                         # Закрываем предыдущую позицию
                         if position:
                             exit_price = current_price
                             if position == "long":
-                                profit = (
-                                    exit_price - entry_price
-                                ) * self.config.position_size
+                                # Используем Decimal для точного расчета PnL
+                                entry_decimal = to_trading_decimal(entry_price)
+                                exit_decimal = to_trading_decimal(exit_price)
+                                size_decimal = to_trading_decimal(self.config.position_size)
+                                profit = float(TradingDecimal.calculate_pnl(entry_decimal, exit_decimal, size_decimal, "long"))
                             else:
-                                profit = (
-                                    entry_price - exit_price
-                                ) * self.config.position_size
+                                # Используем Decimal для точного расчета PnL (short)
+                                profit = float(TradingDecimal.calculate_pnl(entry_decimal, exit_decimal, size_decimal, "short"))
                             profit -= commission * 2  # Комиссия за вход и выход
                             capital += profit
                             trades.append(

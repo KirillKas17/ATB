@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Union, Tuple
 from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 # Проверка наличия talib
 try:
@@ -448,9 +449,18 @@ class HedgingStrategy(BaseStrategy):
         try:
             stop_loss_pct = self._config.stop_loss
             if direction == "long":
-                return entry_price * (1 - stop_loss_pct)
+                # Используем Decimal для точных расчетов
+        entry_decimal = to_trading_decimal(entry_price)
+        stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+            entry_decimal, "long", to_trading_decimal(stop_loss_pct * 100)
+        )
+        return float(stop_loss_decimal)
             else:
-                return entry_price * (1 + stop_loss_pct)
+                # Используем Decimal для точных расчетов (short позиция)
+                stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                    entry_decimal, "short", to_trading_decimal(stop_loss_pct * 100)
+                )
+                return float(stop_loss_decimal)
         except Exception as e:
             logger.error(f"Error calculating stop loss: {str(e)}")
             return entry_price * 0.98  # Fallback
@@ -462,9 +472,18 @@ class HedgingStrategy(BaseStrategy):
         try:
             take_profit_pct = self._config.take_profit
             if direction == "long":
-                return entry_price * (1 + take_profit_pct)
+                # Используем Decimal для точных расчетов
+            entry_decimal = to_trading_decimal(entry_price)
+            take_profit_decimal = TradingDecimal.calculate_take_profit(
+                entry_decimal, "long", to_trading_decimal(take_profit_pct * 100)
+            )
+            return float(take_profit_decimal)
             else:
-                return entry_price * (1 - take_profit_pct)
+                # Используем Decimal для точных расчетов (short позиция)
+                take_profit_decimal = TradingDecimal.calculate_take_profit(
+                    entry_decimal, "short", to_trading_decimal(take_profit_pct * 100)
+                )
+                return float(take_profit_decimal)
         except Exception as e:
             logger.error(f"Error calculating take profit: {str(e)}")
             return entry_price * 1.02  # Fallback
