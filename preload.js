@@ -13,6 +13,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getStrategyDetails: (strategyId) => ipcRenderer.invoke('get-strategy-details', strategyId),
     updateEvolutionConfig: (config) => ipcRenderer.invoke('update-evolution-config', config),
     
+    // Торговля
+    getTradingStatus: () => ipcRenderer.invoke('get-trading-status'),
+    startTrading: (mode) => ipcRenderer.invoke('start-trading', mode),
+    stopTrading: () => ipcRenderer.invoke('stop-trading'),
+    runBacktest: (parameters) => ipcRenderer.invoke('run-backtest', parameters),
+    getMarketData: () => ipcRenderer.invoke('get-market-data'),
+    getPortfolioHistory: (days) => ipcRenderer.invoke('get-portfolio-history', days),
+    closeAllPositions: () => ipcRenderer.invoke('close-all-positions'),
+    updateStrategyParameters: (strategyId, parameters) => ipcRenderer.invoke('update-strategy-parameters', strategyId, parameters),
+    
+    // Машинное обучение
+    getMLStatus: () => ipcRenderer.invoke('get-ml-status'),
+    startMLTraining: (modelId, config) => ipcRenderer.invoke('start-ml-training', modelId, config),
+    stopMLTraining: (modelId) => ipcRenderer.invoke('stop-ml-training', modelId),
+    runMLEvaluation: (modelId) => ipcRenderer.invoke('run-ml-evaluation', modelId),
+    getModelDetails: (modelId) => ipcRenderer.invoke('get-model-details', modelId),
+    updateModelHyperparameters: (modelId, hyperparameters) => ipcRenderer.invoke('update-model-hyperparameters', modelId, hyperparameters),
+    deployModel: (modelId, environment) => ipcRenderer.invoke('deploy-model', modelId, environment),
+    generatePrediction: (modelId, inputData) => ipcRenderer.invoke('generate-prediction', modelId, inputData),
+    getTrainingLogs: (jobId) => ipcRenderer.invoke('get-training-logs', jobId),
+    
     // .env конфигурация
     getEnvConfig: () => ipcRenderer.invoke('get-env-config'),
     saveEnvConfig: (config) => ipcRenderer.invoke('save-env-config', config),

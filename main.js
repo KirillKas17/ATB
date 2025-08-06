@@ -3,13 +3,15 @@ const path = require('path');
 const isDev = process.env.NODE_ENV === 'development';
 
 // Импорт бэкенда
-let startBackendServer, SystemMonitor, EvolutionManager, EnvironmentManager;
+let startBackendServer, SystemMonitor, EvolutionManager, EnvironmentManager, TradingManager, MLManager;
 
 try {
     ({ startBackendServer } = require('./backend/server'));
     ({ SystemMonitor } = require('./backend/system-monitor'));
     ({ EnvironmentManager } = require('./backend/environment-manager'));
     ({ EvolutionManager } = require('./backend/evolution-manager'));
+    ({ TradingManager } = require('./backend/trading-manager'));
+    ({ MLManager } = require('./backend/ml-manager'));
 } catch (error) {
     console.warn('⚠️ Некоторые backend модули недоступны:', error.message);
     
@@ -19,16 +21,27 @@ try {
         async getMetrics() { return {}; }
         async getProcesses() { return []; }
     };
-    EvolutionManager = class {
-        async getStatus() { return { enabled: false }; }
-        async start() { return { success: false }; }
-        async stop() { return { success: false }; }
-    };
-    EnvironmentManager = class {
-        async getConfig() { return { success: false }; }
-        async saveConfig() { return { success: false }; }
-        async resetToDefaults() { return { success: false }; }
-    };
+                EvolutionManager = class {
+                async getStatus() { return { enabled: false }; }
+                async start() { return { success: false }; }
+                async stop() { return { success: false }; }
+            };
+            EnvironmentManager = class {
+                async getConfig() { return { success: false }; }
+                async saveConfig() { return { success: false }; }
+                async resetToDefaults() { return { success: false }; }
+            };
+            TradingManager = class {
+                async getStatus() { return { success: false, running: false }; }
+                async startTrading() { return { success: false }; }
+                async stopTrading() { return { success: false }; }
+                async runBacktest() { return { success: false }; }
+            };
+            MLManager = class {
+                async getStatus() { return { success: false, isTraining: false }; }
+                async startTraining() { return { success: false }; }
+                async stopTraining() { return { success: false }; }
+            };
 }
 
 class ATBDesktopApp {
@@ -46,11 +59,15 @@ class ATBDesktopApp {
         this.environmentManager = new EnvironmentManager();
         this.systemMonitor = new SystemMonitor();
         this.evolutionManager = new EvolutionManager();
+        this.tradingManager = new TradingManager();
+        this.mlManager = new MLManager();
         
         // Запуск бэкенд сервера
         this.backendServer = await startBackendServer();
         
         console.log('🚀 ATB Trading System Enhanced Desktop v3.1 - Starting...');
+        console.log('📊 Trading Manager initialized');
+        console.log('🤖 ML Manager initialized');
     }
 
     createMainWindow() {
@@ -331,6 +348,76 @@ class ATBDesktopApp {
 
         ipcMain.handle('update-evolution-config', async (event, config) => {
             return await this.evolutionManager.updateConfig(config);
+        });
+
+        // Торговля
+        ipcMain.handle('get-trading-status', async () => {
+            return await this.tradingManager.getStatus();
+        });
+
+        ipcMain.handle('start-trading', async (event, mode) => {
+            return await this.tradingManager.startTrading(mode);
+        });
+
+        ipcMain.handle('stop-trading', async () => {
+            return await this.tradingManager.stopTrading();
+        });
+
+        ipcMain.handle('run-backtest', async (event, parameters) => {
+            return await this.tradingManager.runBacktest(parameters);
+        });
+
+        ipcMain.handle('get-market-data', async () => {
+            return await this.tradingManager.getMarketData();
+        });
+
+        ipcMain.handle('get-portfolio-history', async (event, days) => {
+            return await this.tradingManager.getPortfolioHistory(days);
+        });
+
+        ipcMain.handle('close-all-positions', async () => {
+            return await this.tradingManager.closeAllPositions();
+        });
+
+        ipcMain.handle('update-strategy-parameters', async (event, strategyId, parameters) => {
+            return await this.tradingManager.updateStrategyParameters(strategyId, parameters);
+        });
+
+        // Машинное обучение
+        ipcMain.handle('get-ml-status', async () => {
+            return await this.mlManager.getStatus();
+        });
+
+        ipcMain.handle('start-ml-training', async (event, modelId, config) => {
+            return await this.mlManager.startTraining(modelId, config);
+        });
+
+        ipcMain.handle('stop-ml-training', async (event, modelId) => {
+            return await this.mlManager.stopTraining(modelId);
+        });
+
+        ipcMain.handle('run-ml-evaluation', async (event, modelId) => {
+            return await this.mlManager.runEvaluation(modelId);
+        });
+
+        ipcMain.handle('get-model-details', async (event, modelId) => {
+            return await this.mlManager.getModelDetails(modelId);
+        });
+
+        ipcMain.handle('update-model-hyperparameters', async (event, modelId, hyperparameters) => {
+            return await this.mlManager.updateHyperparameters(modelId, hyperparameters);
+        });
+
+        ipcMain.handle('deploy-model', async (event, modelId, environment) => {
+            return await this.mlManager.deployModel(modelId, environment);
+        });
+
+        ipcMain.handle('generate-prediction', async (event, modelId, inputData) => {
+            return await this.mlManager.generatePrediction(modelId, inputData);
+        });
+
+        ipcMain.handle('get-training-logs', async (event, jobId) => {
+            return await this.mlManager.getTrainingLogs(jobId);
         });
 
         // .env управление

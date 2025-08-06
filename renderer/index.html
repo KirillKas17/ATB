@@ -675,10 +675,268 @@
                 </div>
             </div>
 
+            <!-- Вкладка Торговля -->
             <div id="trading" class="tab-pane">
                 <div class="trading-layout">
-                    <h2>📈 Торговля</h2>
-                    <p>Раздел в разработке...</p>
+                    <!-- Заголовок и контролы торговли -->
+                    <div class="trading-header">
+                        <div class="trading-title">
+                            <h2>📈 Торговля</h2>
+                            <p>Управление торговыми стратегиями и позициями</p>
+                        </div>
+                        
+                        <div class="trading-controls">
+                            <select id="tradingModeSelect" class="mode-select">
+                                <option value="simulation">🎮 Симуляция</option>
+                                <option value="paper">📝 Бумажная торговля</option>
+                                <option value="live">💰 Реальная торговля</option>
+                            </select>
+                            
+                            <button class="form-button primary" id="startTradingBtn">
+                                <i class="fas fa-play"></i>
+                                <span>Запустить торговлю</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="stopTradingBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                <span>Остановить</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="runBacktestBtn">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Бэктест</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Портфель и статистика -->
+                    <div class="portfolio-section">
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">💰</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="totalEquity">$10,000.00</div>
+                                <div class="portfolio-label">Общий капитал</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">📊</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="unrealizedPnL">$0.00</div>
+                                <div class="portfolio-label">Нереализованный P&L</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">💹</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="realizedPnL">$0.00</div>
+                                <div class="portfolio-label">Реализованный P&L</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">⚖️</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="marginLevel">0%</div>
+                                <div class="portfolio-label">Уровень маржи</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">📉</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="currentDrawdown">0.0%</div>
+                                <div class="portfolio-label">Текущая просадка</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="portfolio-icon">🎯</div>
+                            <div class="portfolio-content">
+                                <div class="portfolio-value" id="winRate">0%</div>
+                                <div class="portfolio-label">Win Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Основной контент торговли -->
+                    <div class="trading-content">
+                        <!-- Левая панель - стратегии и рынок -->
+                        <div class="trading-left">
+                            <!-- Торговые стратегии -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🎯 Торговые стратегии</h3>
+                                    <div class="widget-controls">
+                                        <select id="strategiesFilter" class="chart-select">
+                                            <option value="all">Все стратегии</option>
+                                            <option value="active">Активные</option>
+                                            <option value="paused">Приостановленные</option>
+                                            <option value="training">Обучающиеся</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="trading-strategies-list" id="tradingStrategiesList">
+                                        <!-- Стратегии будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Рыночные данные -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📊 Рыночные данные</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="market-data-list" id="marketDataList">
+                                        <!-- Рыночные данные будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Центральная панель - графики -->
+                        <div class="trading-center">
+                            <!-- График эквити -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>💹 График эквити</h3>
+                                    <div class="chart-controls">
+                                        <select id="equityPeriod" class="chart-select">
+                                            <option value="1h">1 час</option>
+                                            <option value="1d">1 день</option>
+                                            <option value="1w">1 неделя</option>
+                                            <option value="1m">1 месяц</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <canvas id="equityChart" class="chart-canvas"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- График метрик производительности -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>📈 Метрики производительности</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="performance-metrics-grid">
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Total Return</div>
+                                            <div class="metric-value" id="totalReturn">0%</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Sharpe Ratio</div>
+                                            <div class="metric-value" id="sharpeRatio">0.00</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Max Drawdown</div>
+                                            <div class="metric-value" id="maxDrawdown">0%</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Profit Factor</div>
+                                            <div class="metric-value" id="profitFactor">0.00</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Volatility</div>
+                                            <div class="metric-value" id="volatility">0%</div>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <div class="metric-name">Calmar Ratio</div>
+                                            <div class="metric-value" id="calmarRatio">0.00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая панель - позиции и сделки -->
+                        <div class="trading-right">
+                            <!-- Открытые позиции -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📍 Открытые позиции</h3>
+                                    <div class="widget-controls">
+                                        <button class="form-button secondary small" id="closeAllPositionsBtn">
+                                            <i class="fas fa-times"></i>
+                                            <span>Закрыть все</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="table-container">
+                                        <table class="data-table" id="openPositionsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Символ</th>
+                                                    <th>Сторона</th>
+                                                    <th>Размер</th>
+                                                    <th>P&L</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Позиции будут загружены динамически -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Последние сделки -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📋 Последние сделки</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="table-container">
+                                        <table class="data-table" id="recentTradesTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Время</th>
+                                                    <th>Символ</th>
+                                                    <th>Сторона</th>
+                                                    <th>P&L</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Сделки будут загружены динамически -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Риск-метрики -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚠️ Риск-метрики</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="risk-metrics">
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Value at Risk:</span>
+                                            <span class="risk-value" id="valueAtRisk">$0</span>
+                                        </div>
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Exposure:</span>
+                                            <span class="risk-value" id="exposurePercent">0%</span>
+                                        </div>
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Leverage:</span>
+                                            <span class="risk-value" id="leverageRatio">1.0x</span>
+                                        </div>
+                                        <div class="risk-metric">
+                                            <span class="risk-label">Risk/Reward:</span>
+                                            <span class="risk-value" id="riskRewardRatio">0.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -732,5 +990,6 @@
     <script src="scripts/charts.js"></script>
     <script src="scripts/system-monitor.js"></script>
     <script src="scripts/evolution.js"></script>
+    <script src="scripts/trading.js"></script>
 </body>
 </html>
