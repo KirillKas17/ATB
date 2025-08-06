@@ -11,7 +11,11 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union, Complex
+from typing import Any, Dict, List, Optional, Tuple, Union
+try:
+    from typing import Complex
+except ImportError:
+    from numbers import Complex
 from enum import Enum
 import concurrent.futures
 

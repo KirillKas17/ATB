@@ -14,10 +14,10 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 sys.path.append(str(Path(__file__).parent.parent))
 
 from ai.local_ai_controller import LocalAIController
-from core.circuit_breaker import CircuitBreaker
-from core.integration_manager import IntegrationManager
-from core.portfolio_manager import PortfolioManager
-from core.risk_manager import RiskManager
+from infrastructure.core.circuit_breaker import CircuitBreaker
+from infrastructure.core.integration_manager import IntegrationManager
+from infrastructure.core.portfolio_manager import PortfolioManager
+from infrastructure.core.risk_manager import RiskManager
 from ml.regime_discovery import RegimeDiscovery
 
 from shared.event_bus import Event, EventBus, EventPriority

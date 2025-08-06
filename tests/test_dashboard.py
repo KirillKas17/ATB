@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator_asyncio
-from core.market_state import MarketState
+from infrastructure.core.market_state import MarketState
 from dashboard.api import app
 from dashboard.dashboard import Dashboard
 from fastapi.testclient import TestClient

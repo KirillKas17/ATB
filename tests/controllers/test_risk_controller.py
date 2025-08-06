@@ -1,8 +1,8 @@
 from datetime import datetime
 
 import pytest
-from core.controllers.risk_controller import RiskController
-from typing import TYPE_CHECKING
+from infrastructure.core.controllers.risk_controller import RiskController
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from domain.entities import Position

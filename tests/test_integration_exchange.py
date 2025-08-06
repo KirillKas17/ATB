@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator_asyncio
-from core.exchange import Exchange
+from infrastructure.core.exchange import Exchange
 from domain.entities.order import Order
 from exchange.account_manager import AccountManager
 from exchange.bybit_client import BybitClient, BybitConfig

@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from core.signal_processor import (MarketContext, ProcessedSignal, Signal,
+from infrastructure.core.signal_processor import (MarketContext, ProcessedSignal, Signal,
                                    SignalProcessor)
 
 

@@ -9,6 +9,8 @@ from uuid import uuid4
 from domain.entities.market import MarketData, MarketState
 from domain.entities.strategy import StrategyType, StrategyStatus
 from domain.type_definitions import StrategyId, TradingPair, ConfidenceLevel, RiskLevel
+from domain.value_objects.price import Price
+from domain.value_objects.currency import Currency
 from domain.strategies.base_strategies import (
     TrendFollowingStrategy,
     MeanReversionStrategy,
@@ -25,6 +27,8 @@ from domain.strategies.exceptions import (
     StrategyValidationError, StrategyExecutionError
 )
 from domain.strategies.validators import StrategyValidator
+
+
 class TestStrategyDomainRules:
     """Тесты доменных правил стратегий."""
     @pytest.fixture

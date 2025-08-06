@@ -42,12 +42,11 @@ from domain.protocols.utils import (
     validate_symbol,
 )
 from domain.type_definitions.base_types import (
-    TimestampValue, 
-    Symbol, 
-    Currency, 
-    TradingPair
+    TimestampValue
 )
 from domain.type_definitions import (
+    Symbol, 
+    TradingPair,
     ModelId,
     OrderId,
     PortfolioId,
@@ -55,10 +54,15 @@ from domain.type_definitions import (
     PredictionId,
     RiskProfileId,
     StrategyId,
-    TradeId
+    TradeId,
+    PriceValue,
+    VolumeValue,
+    ConfidenceLevel
 )
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
+from domain.value_objects.currency import Currency
+from domain.value_objects.money import Money
 
 
 # ============================================================================

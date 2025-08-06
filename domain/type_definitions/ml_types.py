@@ -6,7 +6,7 @@
 import logging
 from enum import Enum
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Union, Tuple
 from dataclasses import dataclass, field
 
@@ -167,6 +167,211 @@ class TrainingData:
         if not self.features:
             raise ValueError("Training data cannot be empty")
 
+@dataclass
+class PredictionResult:
+    """Результат предсказания ML модели."""
+    prediction: Union[float, ActionType]
+    confidence: float
+    timestamp: datetime
+    model_version: str = "1.0"
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self) -> None:
+        """Валидация результата предсказания."""
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+
+@dataclass
+class ModelPerformance:
+    """Производительность ML модели."""
+    accuracy: float
+    precision: float
+    recall: float
+    f1_score: float
+    timestamp: datetime
+    model_version: str = "1.0"
+    
+    def __post_init__(self) -> None:
+        """Валидация метрик производительности."""
+        metrics = [self.accuracy, self.precision, self.recall, self.f1_score]
+        for i, metric in enumerate(metrics):
+            if not 0.0 <= metric <= 1.0:
+                metric_names = ['accuracy', 'precision', 'recall', 'f1_score']
+                raise ValueError(f"{metric_names[i]} must be between 0.0 and 1.0, got {metric}")
+
+@dataclass
+class FeatureImportance:
+    """Важность признаков в ML модели."""
+    feature_name: str
+    importance: float
+    rank: int
+    timestamp: datetime
+    
+    def __post_init__(self) -> None:
+        """Валидация важности признаков."""
+        if self.importance < 0:
+            raise ValueError(f"Feature importance must be non-negative, got {self.importance}")
+        if self.rank < 1:
+            raise ValueError(f"Feature rank must be positive, got {self.rank}")
+
+class PatternType(Enum):
+    """Типы паттернов для распознавания."""
+    TREND = "trend"
+    REVERSAL = "reversal"
+    CONSOLIDATION = "consolidation"
+    BREAKOUT = "breakout"
+    HEAD_SHOULDERS = "head_shoulders"
+    DOUBLE_TOP = "double_top"
+    DOUBLE_BOTTOM = "double_bottom"
+
+@dataclass
+class PatternResult:
+    """Результат распознавания паттерна."""
+    pattern_type: PatternType
+    confidence: float
+    timestamp: datetime
+    start_time: datetime
+    end_time: datetime
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self) -> None:
+        """Валидация результата паттерна."""
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+
+@dataclass
+class PatternConfidence:
+    """Уверенность в паттерне."""
+    value: float
+    level: str = "medium"
+    
+    def __post_init__(self) -> None:
+        """Валидация уверенности."""
+        if not 0.0 <= self.value <= 1.0:
+            raise ValueError(f"Confidence value must be between 0.0 and 1.0, got {self.value}")
+
+class SignalStrength(Enum):
+    """Сила торгового сигнала."""
+    VERY_WEAK = "very_weak"
+    WEAK = "weak"
+    MODERATE = "moderate"
+    STRONG = "strong"
+    VERY_STRONG = "very_strong"
+
+@dataclass
+class SignalResult:
+    """Результат анализа торгового сигнала."""
+    signal_type: SignalType
+    strength: SignalStrength
+    confidence: float
+    timestamp: datetime
+    symbol: str
+    price: Optional[Decimal] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self) -> None:
+        """Валидация результата сигнала."""
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+
+@dataclass
+class SpreadAnalysisResult:
+    """Результат анализа спреда."""
+    symbol: str
+    current_spread: float
+    average_spread: float
+    spread_volatility: float
+    liquidity_score: float
+    timestamp: datetime
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self) -> None:
+        """Валидация результата анализа спреда."""
+        if self.current_spread < 0:
+            raise ValueError("Current spread must be non-negative")
+        if self.average_spread < 0:
+            raise ValueError("Average spread must be non-negative")
+
+@dataclass
+class SpreadMovementPrediction:
+    """Предсказание движения спреда."""
+    symbol: str
+    predicted_direction: str  # "widening", "narrowing", "stable"
+    confidence: float
+    time_horizon: timedelta
+    timestamp: datetime
+    
+    def __post_init__(self) -> None:
+        """Валидация предсказания движения спреда."""
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+        if self.predicted_direction not in ["widening", "narrowing", "stable"]:
+            raise ValueError("Predicted direction must be 'widening', 'narrowing', or 'stable'")
+
+@dataclass
+class StrategyResult:
+    """Результат выполнения стратегии."""
+    strategy_id: str
+    action: ActionType
+    confidence: float
+    timestamp: datetime
+    symbol: str
+    entry_price: Optional[Decimal] = None
+    stop_loss: Optional[Decimal] = None
+    take_profit: Optional[Decimal] = None
+    position_size: Optional[Decimal] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self) -> None:
+        """Валидация результата стратегии."""
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+
+@dataclass
+class StrategyPerformance:
+    """Производительность стратегии."""
+    strategy_id: str
+    total_trades: int
+    winning_trades: int
+    losing_trades: int
+    total_pnl: Decimal
+    max_drawdown: Decimal
+    sharpe_ratio: float
+    win_rate: float
+    avg_win: Decimal
+    avg_loss: Decimal
+    timestamp: datetime
+    
+    def __post_init__(self) -> None:
+        """Валидация производительности стратегии."""
+        if self.total_trades < 0:
+            raise ValueError("Total trades must be non-negative")
+        if self.winning_trades + self.losing_trades > self.total_trades:
+            raise ValueError("Winning + losing trades cannot exceed total trades")
+        if not 0.0 <= self.win_rate <= 1.0:
+            raise ValueError("Win rate must be between 0.0 and 1.0")
+
+@dataclass
+class StrategyConfig:
+    """Конфигурация стратегии."""
+    strategy_id: str
+    name: str
+    parameters: Dict[str, Any]
+    risk_params: Dict[str, Any] = field(default_factory=dict)
+    enabled: bool = True
+    max_position_size: Optional[Decimal] = None
+    stop_loss_pct: Optional[float] = None
+    take_profit_pct: Optional[float] = None
+    
+    def __post_init__(self) -> None:
+        """Валидация конфигурации стратегии."""
+        if not self.name:
+            raise ValueError("Strategy name cannot be empty")
+        if self.stop_loss_pct is not None and (self.stop_loss_pct < 0 or self.stop_loss_pct > 1):
+            raise ValueError("Stop loss percentage must be between 0 and 1")
+        if self.take_profit_pct is not None and self.take_profit_pct <= 0:
+            raise ValueError("Take profit percentage must be positive")
+
 # Функции преобразования для обратной совместимости
 def action_to_legacy(action: ActionType) -> ActionType:
     """Преобразование нового ActionType в legacy формат."""
@@ -188,8 +393,12 @@ def legacy_to_action(legacy_action: ActionType) -> ActionType:
 
 # Экспорт типов
 __all__ = [
-    'ActionType', 'SignalType', 'SignalSource', 'ModelType',
+    'ActionType', 'SignalType', 'SignalSource', 'ModelType', 'PatternType', 'SignalStrength',
     'TradingSignal', 'AggregatedSignal', 'ModelPrediction',
     'FeatureVector', 'ModelMetrics', 'TrainingData',
+    'PredictionResult', 'ModelPerformance', 'FeatureImportance',
+    'PatternResult', 'PatternConfidence', 'SignalResult',
+    'SpreadAnalysisResult', 'SpreadMovementPrediction',
+    'StrategyResult', 'StrategyPerformance', 'StrategyConfig',
     'action_to_legacy', 'legacy_to_action'
 ]

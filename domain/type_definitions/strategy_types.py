@@ -6,6 +6,7 @@ from typing import (
     Dict,
     List,
     Literal,
+    NewType,
     Optional,
     Protocol,
     Tuple,
@@ -13,7 +14,11 @@ from typing import (
     Union,
     runtime_checkable,
 )
+from uuid import UUID
 import pandas as pd
+
+# Типы идентификаторов для стратегий
+StrategyId = NewType("StrategyId", UUID)
 
 
 class StrategyDirection(str, Enum):

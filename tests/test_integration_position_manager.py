@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from core.position_manager import (Position, PositionManager, PositionSide,
+from infrastructure.core.position_manager import (Position, PositionManager, PositionSide,
                                    PositionStatus)
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
