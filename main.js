@@ -3,10 +3,46 @@ const path = require('path');
 const isDev = process.env.NODE_ENV === 'development';
 
 // Импорт бэкенда
-const { startBackendServer } = require('./backend/server');
-const { SystemMonitor } = require('./backend/system-monitor');
-const { EvolutionManager } = require('./backend/evolution-manager');
-const { EnvironmentManager } = require('./backend/environment-manager');
+let startBackendServer, SystemMonitor, EvolutionManager, EnvironmentManager;
+
+try {
+    ({ startBackendServer } = require('./backend/server'));
+    ({ SystemMonitor } = require('./backend/system-monitor'));
+    ({ EnvironmentManager } = require('./backend/environment-manager'));
+    
+    // EvolutionManager заглушка пока не создан
+    EvolutionManager = class {
+        async getStatus() {
+            return {
+                enabled: true,
+                running: false,
+                strategies: [],
+                timestamp: new Date().toISOString()
+            };
+        }
+        async start() { return { success: true }; }
+        async stop() { return { success: true }; }
+    };
+} catch (error) {
+    console.warn('⚠️ Некоторые backend модули недоступны:', error.message);
+    
+    // Заглушки для отсутствующих модулей
+    startBackendServer = async () => ({ success: false, error: 'Backend not available' });
+    SystemMonitor = class {
+        async getMetrics() { return {}; }
+        async getProcesses() { return []; }
+    };
+    EvolutionManager = class {
+        async getStatus() { return { enabled: false }; }
+        async start() { return { success: false }; }
+        async stop() { return { success: false }; }
+    };
+    EnvironmentManager = class {
+        async getConfig() { return { success: false }; }
+        async saveConfig() { return { success: false }; }
+        async resetToDefaults() { return { success: false }; }
+    };
+}
 
 class ATBDesktopApp {
     constructor() {

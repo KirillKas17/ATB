@@ -1,0 +1,736 @@
+/* ============================================================================
+   ATB Trading System - Components Styles
+   Стили для компонентов интерфейса
+   ============================================================================ */
+
+/* ============================================================================
+   Макеты страниц
+   ============================================================================ */
+
+/* Обзор */
+.overview-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    gap: 20px;
+    height: 100%;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.overview-left,
+.overview-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.overview-center {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+/* Система */
+.system-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.system-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.performance-charts {
+    flex: 1;
+}
+
+.processes-section {
+    height: 300px;
+}
+
+/* ============================================================================
+   Карточки метрик
+   ============================================================================ */
+.metric-card {
+    background: linear-gradient(135deg, var(--bg-widget) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.metric-card:hover::before {
+    opacity: 1;
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.metric-icon {
+    font-size: 24px;
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 8px var(--primary-color));
+}
+
+.metric-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.metric-main {
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 5px;
+}
+
+.metric-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item span:first-child {
+    color: var(--text-muted);
+}
+
+.detail-item span:last-child {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* ============================================================================
+   Информационные блоки
+   ============================================================================ */
+.system-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.info-item .value {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* ============================================================================
+   Баланс и P&L
+   ============================================================================ */
+.balance-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.balance-main {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(233, 69, 96, 0.1), rgba(242, 113, 33, 0.1));
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(233, 69, 96, 0.3);
+}
+
+.balance-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--success-color);
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.balance-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 5px;
+}
+
+.pnl-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pnl-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pnl-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.pnl-value {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.pnl-value.positive {
+    color: var(--success-color);
+}
+
+.pnl-value.negative {
+    color: var(--danger-color);
+}
+
+.pnl-value.neutral {
+    color: var(--text-primary);
+}
+
+/* ============================================================================
+   Стратегии
+   ============================================================================ */
+.strategies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.strategy-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+}
+
+.strategy-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.strategy-icon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.strategy-info {
+    flex: 1;
+}
+
+.strategy-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.strategy-status {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.strategy-status.active {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.strategy-status.paused {
+    background: rgba(254, 202, 87, 0.2);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+}
+
+.strategy-status.stopped {
+    background: rgba(255, 107, 107, 0.2);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+/* ============================================================================
+   Таблицы
+   ============================================================================ */
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+    font-size: 13px;
+}
+
+.data-table thead {
+    background: linear-gradient(90deg, var(--bg-tertiary), var(--accent-color));
+}
+
+.data-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.data-table tbody tr {
+    transition: all var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+    background: rgba(233, 69, 96, 0.1);
+}
+
+.data-table tbody tr:hover td {
+    color: var(--text-primary);
+}
+
+/* ============================================================================
+   Лог событий
+   ============================================================================ */
+.log-container {
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.log-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-time {
+    color: var(--text-muted);
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.log-level {
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    min-width: 50px;
+    text-align: center;
+}
+
+.log-level.info {
+    background: rgba(69, 183, 209, 0.2);
+    color: var(--info-color);
+    border: 1px solid var(--info-color);
+}
+
+.log-level.success {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.log-level.warning {
+    background: rgba(254, 202, 87, 0.2);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+}
+
+.log-level.error {
+    background: rgba(255, 107, 107, 0.2);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.log-message {
+    flex: 1;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* ============================================================================
+   Графики
+   ============================================================================ */
+.chart-widget {
+    height: 300px;
+    min-height: 300px;
+}
+
+.chart-container {
+    background: linear-gradient(135deg, var(--bg-widget) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    height: 100%;
+}
+
+.chart-header {
+    padding: 15px 20px;
+    background: linear-gradient(90deg, var(--bg-tertiary), var(--accent-color));
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chart-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.chart-select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: calc(100% - 60px) !important;
+    background: transparent;
+}
+
+.performance-chart {
+    width: 100% !important;
+    height: 300px !important;
+}
+
+/* ============================================================================
+   Формы и элементы управления
+   ============================================================================ */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-input {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.2);
+}
+
+.form-select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.2);
+}
+
+.form-button {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 12px 24px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+}
+
+.form-button:hover {
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.form-button:active {
+    transform: translateY(0);
+}
+
+.form-button.secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.form-button.secondary:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+}
+
+/* ============================================================================
+   Индикаторы и бейджи
+   ============================================================================ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.success {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.badge.warning {
+    background: rgba(254, 202, 87, 0.2);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+}
+
+.badge.danger {
+    background: rgba(255, 107, 107, 0.2);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.badge.info {
+    background: rgba(69, 183, 209, 0.2);
+    color: var(--info-color);
+    border: 1px solid var(--info-color);
+}
+
+.badge.primary {
+    background: rgba(233, 69, 96, 0.2);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+/* ============================================================================
+   Панели прогресса
+   ============================================================================ */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-sm);
+    transition: width var(--transition-normal);
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ============================================================================
+   Адаптивность для компонентов
+   ============================================================================ */
+@media (max-width: 1200px) {
+    .overview-layout {
+        grid-template-columns: 250px 1fr 250px;
+        gap: 15px;
+    }
+    
+    .system-metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .overview-layout {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .overview-left,
+    .overview-right {
+        order: 2;
+    }
+    
+    .overview-center {
+        order: 1;
+    }
+    
+    .system-metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .metric-value {
+        font-size: 24px;
+    }
+    
+    .balance-value {
+        font-size: 22px;
+    }
+}
