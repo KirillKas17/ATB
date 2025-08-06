@@ -1,486 +1,515 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Unit тесты для Order entity.
-
-Покрывает:
-- Создание и инициализацию ордера
-- Валидацию данных
-- Бизнес-логику ордера
-- Статусы и состояния
-- Операции с ордером
+Комплексные тесты для Order Domain Entity.
 """
 
 import pytest
 from decimal import Decimal
 from typing import Dict, Any
-from unittest.mock import Mock, patch
-from datetime import datetime
 from uuid import uuid4
+from datetime import datetime
 
-from domain.entities.order import Order, OrderType, OrderSide, OrderStatus
-from domain.type_definitions import OrderId, PortfolioId, StrategyId, SignalId, Symbol, TradingPair, VolumeValue
-from domain.value_objects.volume import Volume
+from domain.entities.order import (
+    Order, OrderType, OrderSide, OrderStatus, OrderTimeInForce,
+    create_order, validate_order_params
+)
 from domain.value_objects.price import Price
+from domain.value_objects.volume import Volume
 from domain.value_objects.currency import Currency
 from domain.value_objects.timestamp import Timestamp
-from domain.exceptions import OrderError
+from domain.exceptions import OrderError, ValidationError
 
 
 class TestOrder:
-    """Тесты для Order entity."""
-    
+    """Тесты для Order Entity."""
+
+    @pytest.fixture
+    def usd_currency(self) -> Currency:
+        """Фикстура USD валюты."""
+        return Currency("USD")
+
+    @pytest.fixture
+    def btc_currency(self) -> Currency:
+        """Фикстура BTC валюты."""
+        return Currency("BTC")
+
+    @pytest.fixture
+    def sample_price(self, usd_currency: Currency) -> Price:
+        """Фикстура цены."""
+        return Price(value=Decimal("45000.00"), currency=usd_currency)
+
+    @pytest.fixture
+    def sample_volume(self, btc_currency: Currency) -> Volume:
+        """Фикстура объема."""
+        return Volume(value=Decimal("0.001"), currency=btc_currency)
+
     @pytest.fixture
     def sample_order_data(self) -> Dict[str, Any]:
-        """Тестовые данные для ордера."""
+        """Фикстура данных ордера."""
         return {
-            "symbol": Symbol("BTC/USDT"),
-            "trading_pair": TradingPair("BTC/USDT"),
-            "order_type": OrderType.LIMIT,
+            "symbol": "BTCUSDT",
             "side": OrderSide.BUY,
-            "amount": Volume(Decimal("1000.00"), Currency.USD),
-            "quantity": VolumeValue(Decimal("1.5")),
-            "price": Price(Decimal("50000.00"), Currency.USD),
-            "status": OrderStatus.PENDING
+            "order_type": OrderType.LIMIT,
+            "quantity": Decimal("0.001"),
+            "price": Decimal("45000.00"),
+            "strategy_id": "test_strategy_001",
+            "portfolio_id": "portfolio_001"
         }
-    
-    @pytest.fixture
-    def sample_market_order_data(self) -> Dict[str, Any]:
-        """Тестовые данные для рыночного ордера."""
-        return {
-            "symbol": Symbol("ETH/USDT"),
-            "trading_pair": TradingPair("ETH/USDT"),
-            "order_type": OrderType.MARKET,
-            "side": OrderSide.SELL,
-            "amount": Volume(Decimal("500.00"), Currency.USD),
-            "quantity": VolumeValue(Decimal("2.0")),
-            "status": OrderStatus.PENDING
-        }
-    
-    def test_order_creation(self, sample_order_data: Dict[str, Any]):
-        """Тест создания ордера."""
+
+    def test_order_creation_valid(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест создания валидного ордера."""
         order = Order(**sample_order_data)
         
-        assert order.symbol == Symbol("BTC/USDT")
-        assert order.trading_pair == TradingPair("BTC/USDT")
+        assert order.symbol == "BTCUSDT"
+        assert order.side == OrderSide.BUY
         assert order.order_type == OrderType.LIMIT
-        assert order.side == OrderSide.BUY
-        assert order.quantity == VolumeValue(Decimal("1.5"))
-        assert order.price == Price(Decimal("50000.00"), Currency.USD)
+        assert order.quantity == Decimal("0.001")
+        assert order.price == Decimal("45000.00")
         assert order.status == OrderStatus.PENDING
-    
-    def test_order_creation_with_defaults(self):
-        """Тест создания ордера с значениями по умолчанию."""
-        # Order требует trading_pair, поэтому создаем с минимальными данными
-        order = Order(trading_pair=TradingPair("BTC/USDT"))
+        assert order.strategy_id == "test_strategy_001"
+        assert order.portfolio_id == "portfolio_001"
+        assert order.order_id is not None
+        assert isinstance(order.order_id, str)
+
+    def test_order_creation_market_order(self) -> None:
+        """Тест создания рыночного ордера."""
+        order = Order(
+            symbol="ETHUSDT",
+            side=OrderSide.SELL,
+            order_type=OrderType.MARKET,
+            quantity=Decimal("0.1"),
+            strategy_id="market_strategy"
+        )
         
-        # Проверяем, что ID являются UUID
-        assert hasattr(order.id, '__class__')
-        assert hasattr(order.portfolio_id, '__class__')
-        assert hasattr(order.strategy_id, '__class__')
-        assert order.signal_id is None
-        assert order.exchange_order_id is None
-        assert order.symbol == Symbol("")
-        assert order.trading_pair == TradingPair("BTC/USDT")
         assert order.order_type == OrderType.MARKET
-        assert order.side == OrderSide.BUY
+        assert order.price is None  # Рыночный ордер без цены
         assert order.status == OrderStatus.PENDING
-    
-    def test_order_validation_empty_trading_pair(self):
-        """Тест валидации пустой торговой пары."""
-        with pytest.raises(ValueError, match="Trading pair cannot be empty"):
-            Order(trading_pair=TradingPair(""))
-    
-    def test_order_equality(self, sample_order_data: Dict[str, Any]):
-        """Тест равенства ордеров."""
-        order1 = Order(**sample_order_data)
-        order2 = Order(**sample_order_data)
+
+    def test_order_creation_stop_order(self) -> None:
+        """Тест создания стоп-ордера."""
+        order = Order(
+            symbol="BTCUSDT",
+            side=OrderSide.SELL,
+            order_type=OrderType.STOP_LOSS,
+            quantity=Decimal("0.001"),
+            price=Decimal("44000.00"),
+            stop_price=Decimal("44500.00"),
+            strategy_id="stop_strategy"
+        )
         
-        assert order1 == order2
-    
-    def test_order_inequality(self, sample_order_data: Dict[str, Any]):
-        """Тест неравенства ордеров."""
-        order1 = Order(**sample_order_data)
-        
-        different_data = sample_order_data.copy()
-        different_data["side"] = OrderSide.SELL
-        order2 = Order(**different_data)
-        
-        assert order1 != order2
-    
-    def test_order_hash(self, sample_order_data: Dict[str, Any]):
-        """Тест хеширования ордера."""
-        order1 = Order(**sample_order_data)
-        order2 = Order(**sample_order_data)
-        
-        assert hash(order1) == hash(order2)
-        
-        # Проверяем, что ордер можно использовать как ключ словаря
-        order_dict = {order1: "test"}
-        assert order_dict[order2] == "test"
-    
-    def test_order_str_representation(self, sample_order_data: Dict[str, Any]):
-        """Тест строкового представления ордера."""
-        order = Order(**sample_order_data)
-        str_repr = str(order)
-        
-        assert "buy" in str_repr
-        assert "limit" in str_repr
-        assert "1.5" in str_repr
-        assert "BTC/USDT" in str_repr
-        assert "50000.00" in str_repr
-        assert "pending" in str_repr
-    
-    def test_order_repr_representation(self, sample_order_data: Dict[str, Any]):
-        """Тест repr представления ордера."""
-        order = Order(**sample_order_data)
-        repr_str = repr(order)
-        
-        assert "Order" in repr_str
-        assert "BTC/USDT" in repr_str
-        assert "limit" in repr_str
-        assert "buy" in repr_str
-    
-    def test_order_protocol_implementation(self, sample_order_data: Dict[str, Any]):
-        """Тест реализации протокола OrderProtocol."""
-        order = Order(**sample_order_data)
-        
-        assert hasattr(order, 'get_status')
-        assert hasattr(order, 'get_quantity')
-        assert hasattr(order, 'get_price')
-        
-        assert order.get_status() == OrderStatus.PENDING.value
-        assert order.get_quantity() == VolumeValue(Decimal("1.5"))
-        assert order.get_price() == VolumeValue(Decimal("50000.00"))
-    
-    def test_order_status_properties(self, sample_order_data: Dict[str, Any]):
-        """Тест свойств статуса ордера."""
+        assert order.order_type == OrderType.STOP_LOSS
+        assert order.stop_price == Decimal("44500.00")
+        assert order.price == Decimal("44000.00")
+
+    def test_order_validation_invalid_quantity(self) -> None:
+        """Тест валидации невалидного количества."""
+        with pytest.raises(ValidationError, match="Quantity must be positive"):
+            Order(
+                symbol="BTCUSDT",
+                side=OrderSide.BUY,
+                order_type=OrderType.LIMIT,
+                quantity=Decimal("0"),  # Нулевое количество
+                price=Decimal("45000.00")
+            )
+
+    def test_order_validation_negative_price(self) -> None:
+        """Тест валидации отрицательной цены."""
+        with pytest.raises(ValidationError, match="Price must be positive"):
+            Order(
+                symbol="BTCUSDT",
+                side=OrderSide.BUY,
+                order_type=OrderType.LIMIT,
+                quantity=Decimal("0.001"),
+                price=Decimal("-100.00")  # Отрицательная цена
+            )
+
+    def test_order_validation_limit_order_without_price(self) -> None:
+        """Тест валидации лимитного ордера без цены."""
+        with pytest.raises(ValidationError, match="Limit order requires price"):
+            Order(
+                symbol="BTCUSDT",
+                side=OrderSide.BUY,
+                order_type=OrderType.LIMIT,
+                quantity=Decimal("0.001")
+                # Отсутствует price для LIMIT ордера
+            )
+
+    def test_order_validation_stop_order_without_stop_price(self) -> None:
+        """Тест валидации стоп-ордера без стоп-цены."""
+        with pytest.raises(ValidationError, match="Stop order requires stop price"):
+            Order(
+                symbol="BTCUSDT",
+                side=OrderSide.BUY,
+                order_type=OrderType.STOP,
+                quantity=Decimal("0.001"),
+                price=Decimal("45000.00")
+                # Отсутствует stop_price для STOP ордера
+            )
+
+    def test_order_status_transitions(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест переходов статусов ордера."""
         order = Order(**sample_order_data)
         
-        # PENDING - не активный
-        assert order.is_active is True
-        assert order.is_open is False
-        assert order.is_filled is False
-        assert order.is_cancelled is False
-        
-        # OPEN - активный и открытый
-        order.status = OrderStatus.OPEN
-        assert order.is_active is True
-        assert order.is_open is True
-        assert order.is_filled is False
-        assert order.is_cancelled is False
-        
-        # PARTIALLY_FILLED - активный и открытый
-        order.status = OrderStatus.PARTIALLY_FILLED
-        assert order.is_active is True
-        assert order.is_open is True
-        assert order.is_filled is False
-        assert order.is_cancelled is False
-        
-        # FILLED - не активный, заполненный
-        order.status = OrderStatus.FILLED
-        assert order.is_active is False
-        assert order.is_open is False
-        assert order.is_filled is True
-        assert order.is_cancelled is False
-        
-        # CANCELLED - не активный, отмененный
-        order.status = OrderStatus.CANCELLED
-        assert order.is_active is False
-        assert order.is_open is False
-        assert order.is_filled is False
-        assert order.is_cancelled is True
-    
-    def test_order_fill_percentage(self, sample_order_data: Dict[str, Any]):
-        """Тест расчета процента заполнения."""
-        order = Order(**sample_order_data)
-        
-        # 0% заполнения
-        assert order.fill_percentage == Decimal("0")
-        
-        # 50% заполнения
-        order.filled_quantity = VolumeValue(Decimal("0.75"))
-        assert order.fill_percentage == Decimal("50")
-        
-        # 100% заполнения
-        order.filled_quantity = VolumeValue(Decimal("1.5"))
-        assert order.fill_percentage == Decimal("100")
-    
-    def test_order_remaining_quantity(self, sample_order_data: Dict[str, Any]):
-        """Тест расчета оставшегося количества."""
-        order = Order(**sample_order_data)
-        
-        # Полное количество
-        assert order.remaining_quantity == VolumeValue(Decimal("1.5"))
-        
-        # Частично заполненный
-        order.filled_quantity = VolumeValue(Decimal("0.5"))
-        assert order.remaining_quantity == VolumeValue(Decimal("1.0"))
-        
-        # Полностью заполненный
-        order.filled_quantity = VolumeValue(Decimal("1.5"))
-        assert order.remaining_quantity == VolumeValue(Decimal("0"))
-    
-    def test_order_total_value(self, sample_order_data: Dict[str, Any]):
-        """Тест расчета общей стоимости."""
-        order = Order(**sample_order_data)
-        
-        # С ценой
-        total_value = order.total_value
-        assert total_value is not None
-        assert total_value.amount == Decimal("75000.00")  # 1.5 * 50000
-        assert total_value.currency == Currency.USD
-        
-        # Без цены
-        order.price = None
-        assert order.total_value is None
-    
-    def test_order_filled_value(self, sample_order_data: Dict[str, Any]):
-        """Тест расчета стоимости заполненной части."""
-        order = Order(**sample_order_data)
-        
-        # Без средней цены
-        assert order.filled_value is None
-        
-        # С средней ценой
-        order.average_price = Price(Decimal("51000.00"), Currency.USD)
-        order.filled_quantity = VolumeValue(Decimal("0.5"))
-        
-        filled_value = order.filled_value
-        assert filled_value is not None
-        assert filled_value.amount == Decimal("25500.00")  # 0.5 * 51000
-        assert filled_value.currency == Currency.USD
-    
-    def test_order_update_status(self, sample_order_data: Dict[str, Any]):
-        """Тест обновления статуса."""
-        order = Order(**sample_order_data)
-        original_updated_at = order.updated_at
-        
-        # Добавляем небольшую задержку для гарантии разности временных меток
-        import time
-        time.sleep(0.001)
-        
-        order.update_status(OrderStatus.OPEN)
-        
+        # PENDING -> OPEN
+        order.set_status(OrderStatus.OPEN)
         assert order.status == OrderStatus.OPEN
-        assert order.updated_at != original_updated_at
         
-        # При заполнении устанавливается filled_at
-        order.update_status(OrderStatus.FILLED)
-        assert order.filled_at is not None
-    
-    def test_order_update_fill(self, sample_order_data: Dict[str, Any]):
-        """Тест обновления заполнения."""
-        order = Order(**sample_order_data)
-        fill_price = Price(Decimal("51000.00"), Currency.USD)
-        commission = Price(Decimal("25.50"), Currency.USD)
-        
-        # Первое заполнение
-        order.update_fill(VolumeValue(Decimal("0.5")), fill_price, commission)
-        
-        assert order.filled_quantity == VolumeValue(Decimal("0.5"))
-        assert order.average_price == fill_price
-        assert order.commission == commission
+        # OPEN -> PARTIALLY_FILLED
+        order.set_status(OrderStatus.PARTIALLY_FILLED)
         assert order.status == OrderStatus.PARTIALLY_FILLED
         
-        # Второе заполнение
-        second_fill_price = Price(Decimal("52000.00"), Currency.USD)
-        second_commission = Price(Decimal("26.00"), Currency.USD)
-        
-        order.update_fill(VolumeValue(Decimal("0.5")), second_fill_price, second_commission)
-        
-        assert order.filled_quantity == VolumeValue(Decimal("1.0"))
-        # Средняя цена: (0.5 * 51000 + 0.5 * 52000) / 1.0 = 51500
-        assert order.average_price.amount == Decimal("51500.00")
-        # Комиссия: 25.50 + 26.00 = 51.50
-        assert order.commission.amount == Decimal("51.50")
-        assert order.status == OrderStatus.PARTIALLY_FILLED
-        
-        # Полное заполнение
-        order.update_fill(VolumeValue(Decimal("0.5")), Price(Decimal("53000.00"), Currency.USD))
+        # PARTIALLY_FILLED -> FILLED
+        order.set_status(OrderStatus.FILLED)
         assert order.status == OrderStatus.FILLED
-        assert order.filled_at is not None
-    
-    def test_order_fill_success(self, sample_order_data: Dict[str, Any]):
-        """Тест успешного заполнения ордера."""
+
+    def test_order_invalid_status_transition(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест невалидного перехода статуса."""
         order = Order(**sample_order_data)
-        fill_volume = Volume(Decimal("0.5"), Currency.USD)
-        fill_price = Price(Decimal("51000.00"), Currency.USD)
         
-        order.fill(fill_volume, fill_price)
+        # Нельзя перейти из PENDING сразу в FILLED
+        with pytest.raises(OrderError, match="Invalid status transition"):
+            order.set_status(OrderStatus.FILLED)
+
+    def test_order_fill_execution(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест исполнения ордера."""
+        order = Order(**sample_order_data)
+        order.set_status(OrderStatus.OPEN)
         
-        assert order.filled_quantity == VolumeValue(Decimal("0.5"))
-        assert order.average_price == fill_price
+        # Частичное исполнение
+        fill_quantity = Decimal("0.0005")
+        fill_price = Decimal("45050.00")
+        
+        order.add_fill(fill_quantity, fill_price, "execution_001")
+        
+        assert order.filled_quantity == fill_quantity
+        assert order.remaining_quantity == order.quantity - fill_quantity
+        assert order.average_fill_price == fill_price
         assert order.status == OrderStatus.PARTIALLY_FILLED
-    
-    def test_order_fill_cancelled_order(self, sample_order_data: Dict[str, Any]):
-        """Тест заполнения отмененного ордера."""
+        assert len(order.fills) == 1
+
+    def test_order_multiple_fills(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест множественных исполнений ордера."""
         order = Order(**sample_order_data)
-        order.status = OrderStatus.CANCELLED
-        fill_volume = Volume(Decimal("0.5"), Currency.USD)
-        fill_price = Price(Decimal("51000.00"), Currency.USD)
+        order.set_status(OrderStatus.OPEN)
         
-        with pytest.raises(OrderError, match="Cannot fill cancelled order"):
-            order.fill(fill_volume, fill_price)
-    
-    def test_order_fill_already_filled(self, sample_order_data: Dict[str, Any]):
-        """Тест заполнения уже заполненного ордера."""
+        # Первое исполнение
+        order.add_fill(Decimal("0.0003"), Decimal("45000.00"), "exec_1")
+        
+        # Второе исполнение
+        order.add_fill(Decimal("0.0004"), Decimal("45100.00"), "exec_2")
+        
+        # Третье исполнение (завершающее)
+        order.add_fill(Decimal("0.0003"), Decimal("45200.00"), "exec_3")
+        
+        assert order.filled_quantity == Decimal("0.001")
+        assert order.status == OrderStatus.FILLED
+        assert len(order.fills) == 3
+        
+        # Проверяем средневзвешенную цену
+        expected_avg = (
+            Decimal("0.0003") * Decimal("45000.00") +
+            Decimal("0.0004") * Decimal("45100.00") +
+            Decimal("0.0003") * Decimal("45200.00")
+        ) / Decimal("0.001")
+        assert order.average_fill_price == expected_avg
+
+    def test_order_overfill_protection(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест защиты от переисполнения ордера."""
         order = Order(**sample_order_data)
-        order.status = OrderStatus.FILLED
-        fill_volume = Volume(Decimal("0.5"), Currency.USD)
-        fill_price = Price(Decimal("51000.00"), Currency.USD)
+        order.set_status(OrderStatus.OPEN)
         
-        with pytest.raises(OrderError, match="Cannot fill already filled order"):
-            order.fill(fill_volume, fill_price)
-    
-    def test_order_fill_exceeds_quantity(self, sample_order_data: Dict[str, Any]):
-        """Тест заполнения большего количества."""
+        # Попытка исполнить больше, чем заявлено
+        with pytest.raises(OrderError, match="Fill quantity exceeds remaining"):
+            order.add_fill(Decimal("0.002"), Decimal("45000.00"), "overfill")
+
+    def test_order_cancellation(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест отмены ордера."""
         order = Order(**sample_order_data)
-        fill_volume = Volume(Decimal("2.0"), Currency.USD)  # Больше чем 1.5
-        fill_price = Price(Decimal("51000.00"), Currency.USD)
+        order.set_status(OrderStatus.OPEN)
         
-        with pytest.raises(OrderError, match="Cannot fill more than order quantity"):
-            order.fill(fill_volume, fill_price)
-    
-    def test_order_cancel_success(self, sample_order_data: Dict[str, Any]):
-        """Тест успешной отмены ордера."""
-        order = Order(**sample_order_data)
-        original_updated_at = order.updated_at
-        
-        # Добавляем небольшую задержку для гарантии разности временных меток
-        import time
-        time.sleep(0.001)
-        
-        order.cancel()
+        # Отмена ордера
+        order.cancel("Manual cancellation")
         
         assert order.status == OrderStatus.CANCELLED
-        assert order.updated_at != original_updated_at
-    
-    def test_order_cancel_filled_order(self, sample_order_data: Dict[str, Any]):
-        """Тест отмены заполненного ордера."""
+        assert order.cancel_reason == "Manual cancellation"
+        assert order.cancelled_at is not None
+
+    def test_order_cancellation_after_partial_fill(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест отмены частично исполненного ордера."""
         order = Order(**sample_order_data)
-        order.status = OrderStatus.FILLED
+        order.set_status(OrderStatus.OPEN)
         
-        with pytest.raises(OrderError, match="Cannot cancel filled order"):
-            order.cancel()
-    
-    def test_order_cancel_already_cancelled(self, sample_order_data: Dict[str, Any]):
-        """Тест отмены уже отмененного ордера."""
+        # Частичное исполнение
+        order.add_fill(Decimal("0.0005"), Decimal("45000.00"), "partial_exec")
+        
+        # Отмена оставшейся части
+        order.cancel("Partial cancellation")
+        
+        assert order.status == OrderStatus.PARTIALLY_CANCELLED
+        assert order.filled_quantity == Decimal("0.0005")
+        assert order.remaining_quantity == Decimal("0.0005")
+
+    def test_order_time_in_force_ioc(self) -> None:
+        """Тест ордера с IOC (Immediate or Cancel)."""
+        order = Order(
+            symbol="ETHUSDT",
+            side=OrderSide.BUY,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.1"),
+            price=Decimal("3000.00"),
+            time_in_force=OrderTimeInForce.IOC
+        )
+        
+        assert order.time_in_force == OrderTimeInForce.IOC
+        assert order.is_immediate_or_cancel() is True
+
+    def test_order_time_in_force_fok(self) -> None:
+        """Тест ордера с FOK (Fill or Kill)."""
+        order = Order(
+            symbol="ETHUSDT",
+            side=OrderSide.BUY,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.1"),
+            price=Decimal("3000.00"),
+            time_in_force=OrderTimeInForce.FOK
+        )
+        
+        assert order.time_in_force == OrderTimeInForce.FOK
+        assert order.is_fill_or_kill() is True
+
+    def test_order_expiry_handling(self) -> None:
+        """Тест обработки истечения ордера."""
+        expiry_time = datetime.now().timestamp() + 3600  # +1 час
+        
+        order = Order(
+            symbol="BTCUSDT",
+            side=OrderSide.BUY,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.001"),
+            price=Decimal("45000.00"),
+            expires_at=expiry_time
+        )
+        
+        assert order.expires_at == expiry_time
+        assert order.is_expired() is False
+        
+        # Симулируем истечение
+        order.expires_at = datetime.now().timestamp() - 1
+        assert order.is_expired() is True
+
+    def test_order_commission_calculation(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест расчета комиссии ордера."""
         order = Order(**sample_order_data)
-        order.status = OrderStatus.CANCELLED
+        order.set_status(OrderStatus.OPEN)
         
-        with pytest.raises(OrderError, match="Order is already cancelled"):
-            order.cancel()
-    
-    def test_order_update_price_success(self, sample_order_data: Dict[str, Any]):
-        """Тест успешного обновления цены."""
+        # Исполнение с комиссией
+        fill_quantity = Decimal("0.001")
+        fill_price = Decimal("45000.00")
+        commission = Decimal("0.000001")  # 0.1% комиссия
+        
+        order.add_fill(fill_quantity, fill_price, "exec_with_commission", commission)
+        
+        assert order.total_commission == commission
+        assert order.fills[0]["commission"] == commission
+
+    def test_order_modification(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест модификации ордера."""
         order = Order(**sample_order_data)
-        new_price = Price(Decimal("52000.00"), Currency.USD)
-        original_updated_at = order.updated_at
+        order.set_status(OrderStatus.OPEN)
         
-        # Добавляем небольшую задержку для гарантии разности временных меток
-        import time
-        time.sleep(0.001)
-        
-        order.update_price(new_price)
+        # Изменение цены
+        new_price = Decimal("44500.00")
+        order.modify_price(new_price)
         
         assert order.price == new_price
-        assert order.updated_at != original_updated_at
-    
-    def test_order_update_price_market_order(self, sample_market_order_data: Dict[str, Any]):
-        """Тест обновления цены рыночного ордера."""
-        order = Order(**sample_market_order_data)
-        new_price = Price(Decimal("3000.00"), Currency.USD)
-        
-        with pytest.raises(OrderError, match="Cannot update price for market order"):
-            order.update_price(new_price)
-    
-    def test_order_update_price_filled_order(self, sample_order_data: Dict[str, Any]):
-        """Тест обновления цены заполненного ордера."""
+        assert order.modified_at is not None
+
+    def test_order_modification_invalid_status(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест невалидной модификации ордера."""
         order = Order(**sample_order_data)
-        order.status = OrderStatus.FILLED
-        new_price = Price(Decimal("52000.00"), Currency.USD)
+        order.set_status(OrderStatus.FILLED)
         
-        with pytest.raises(OrderError, match="Cannot update price for filled order"):
-            order.update_price(new_price)
-    
-    def test_order_update_price_cancelled_order(self, sample_order_data: Dict[str, Any]):
-        """Тест обновления цены отмененного ордера."""
+        # Нельзя изменить исполненный ордер
+        with pytest.raises(OrderError, match="Cannot modify order in status"):
+            order.modify_price(Decimal("44000.00"))
+
+    def test_order_risk_validation(self) -> None:
+        """Тест валидации риска ордера."""
+        # Слишком большой ордер
+        with pytest.raises(ValidationError, match="Order size exceeds risk limits"):
+            Order(
+                symbol="BTCUSDT",
+                side=OrderSide.BUY,
+                order_type=OrderType.MARKET,
+                quantity=Decimal("1000"),  # Очень большое количество
+                max_position_size=Decimal("10")
+            )
+
+    def test_order_price_deviation_check(self) -> None:
+        """Тест проверки отклонения цены."""
+        # Цена слишком далека от рыночной
+        with pytest.raises(ValidationError, match="Price deviates too much from market"):
+            Order(
+                symbol="BTCUSDT",
+                side=OrderSide.BUY,
+                order_type=OrderType.LIMIT,
+                quantity=Decimal("0.001"),
+                price=Decimal("10000.00"),  # Слишком низкая цена
+                market_price=Decimal("45000.00"),
+                max_price_deviation=Decimal("0.05")  # 5% максимальное отклонение
+            )
+
+    def test_order_serialization(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест сериализации ордера."""
         order = Order(**sample_order_data)
-        order.status = OrderStatus.CANCELLED
-        new_price = Price(Decimal("52000.00"), Currency.USD)
         
-        with pytest.raises(OrderError, match="Cannot update price for cancelled order"):
-            order.update_price(new_price)
-    
-    def test_order_to_dict(self, sample_order_data: Dict[str, Any]):
-        """Тест преобразования в словарь."""
-        order = Order(**sample_order_data)
+        # Сериализация в словарь
         order_dict = order.to_dict()
         
-        assert order_dict["symbol"] == "BTC/USDT"
-        assert order_dict["trading_pair"] == "BTC/USDT"
-        assert order_dict["order_type"] == "limit"
-        assert order_dict["side"] == "buy"
-        assert order_dict["quantity"] == "1.5"
-        assert order_dict["price"] == "50000.00"
-        assert order_dict["status"] == "pending"
-    
-    def test_order_from_dict(self, sample_order_data: Dict[str, Any]):
-        """Тест создания из словаря."""
-        # Создаем данные в правильном формате для from_dict
-        dict_data = {
-            "id": str(uuid4()),
-            "portfolio_id": str(uuid4()),
-            "strategy_id": str(uuid4()),
-            "signal_id": "",
-            "exchange_order_id": "",
-            "symbol": "BTC/USDT",
-            "trading_pair": "BTC/USDT",
-            "order_type": "limit",
-            "side": "buy",
-            "amount": "1000.00",
-            "quantity": "1.5",
-            "price": "50000.00",
-            "stop_price": "",
-            "status": "pending",
-            "filled_amount": "0.00",
-            "filled_quantity": "0.0",
-            "average_price": "",
-            "commission": "",
-            "created_at": "2024-01-01T00:00:00",
-            "updated_at": "2024-01-01T00:00:00",
-            "filled_at": "",
-            "metadata": "{}"
-        }
+        assert order_dict["order_id"] == order.order_id
+        assert order_dict["symbol"] == order.symbol
+        assert order_dict["side"] == order.side.value
+        assert order_dict["order_type"] == order.order_type.value
+        assert order_dict["quantity"] == str(order.quantity)
+        assert order_dict["price"] == str(order.price)
+
+    def test_order_deserialization(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест десериализации ордера."""
+        original_order = Order(**sample_order_data)
+        order_dict = original_order.to_dict()
         
-        order = Order.from_dict(dict_data)
+        # Десериализация из словаря
+        restored_order = Order.from_dict(order_dict)
         
-        assert order.symbol == Symbol("BTC/USDT")
-        assert order.trading_pair == TradingPair("BTC/USDT")
-        assert order.order_type == OrderType.LIMIT
+        assert restored_order.order_id == original_order.order_id
+        assert restored_order.symbol == original_order.symbol
+        assert restored_order.side == original_order.side
+        assert restored_order.quantity == original_order.quantity
+        assert restored_order.price == original_order.price
+
+    def test_order_factory_method(self) -> None:
+        """Тест фабричного метода создания ордера."""
+        order = create_order(
+            symbol="ETHUSDT",
+            side="BUY",
+            order_type="LIMIT",
+            quantity="0.1",
+            price="3000.00",
+            strategy_id="factory_strategy"
+        )
+        
+        assert isinstance(order, Order)
+        assert order.symbol == "ETHUSDT"
         assert order.side == OrderSide.BUY
-        assert order.quantity == VolumeValue(Decimal("1.5"))
-        assert order.price == Price(Decimal("50000.00"), Currency.USD)
-        assert order.status == OrderStatus.PENDING
-    
-    def test_order_get_price_without_price(self, sample_market_order_data: Dict[str, Any]):
-        """Тест получения цены без установленной цены."""
-        order = Order(**sample_market_order_data)
+        assert order.order_type == OrderType.LIMIT
+        assert order.quantity == Decimal("0.1")
+        assert order.price == Decimal("3000.00")
+
+    def test_order_comparison(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест сравнения ордеров."""
+        order1 = Order(**sample_order_data)
+        order2 = Order(**sample_order_data)
+        order3 = Order(**{**sample_order_data, "quantity": Decimal("0.002")})
         
-        assert order.get_price() == VolumeValue(Decimal("0"))
-    
-    def test_order_enum_values(self):
-        """Тест значений перечислений."""
-        # OrderType
-        assert OrderType.MARKET.value == "market"
-        assert OrderType.LIMIT.value == "limit"
-        assert OrderType.STOP.value == "stop"
+        # Ордеры с одинаковыми параметрами равны
+        assert order1 == order2
+        assert hash(order1) == hash(order2)
         
-        # OrderSide
-        assert OrderSide.BUY.value == "buy"
-        assert OrderSide.SELL.value == "sell"
+        # Ордеры с разными параметрами не равны
+        assert order1 != order3
+        assert hash(order1) != hash(order3)
+
+    def test_order_priority_calculation(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест расчета приоритета ордера."""
+        order = Order(**sample_order_data)
         
-        # OrderStatus
-        assert OrderStatus.PENDING.value == "pending"
-        assert OrderStatus.OPEN.value == "open"
-        assert OrderStatus.FILLED.value == "filled"
-        assert OrderStatus.CANCELLED.value == "cancelled" 
+        # Приоритет зависит от цены и времени создания
+        priority = order.calculate_priority()
+        
+        assert isinstance(priority, int)
+        assert priority > 0
+
+    def test_order_matching_compatibility(self) -> None:
+        """Тест совместимости ордеров для сопоставления."""
+        buy_order = Order(
+            symbol="BTCUSDT",
+            side=OrderSide.BUY,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.001"),
+            price=Decimal("45000.00")
+        )
+        
+        sell_order = Order(
+            symbol="BTCUSDT",
+            side=OrderSide.SELL,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.001"),
+            price=Decimal("44999.00")
+        )
+        
+        # Ордера совместимы для исполнения
+        assert buy_order.can_match_with(sell_order) is True
+        
+        # Проверяем детали сопоставления
+        match_details = buy_order.get_match_details(sell_order)
+        assert match_details["executable_quantity"] == Decimal("0.001")
+        assert match_details["execution_price"] == Decimal("44999.00")  # Цена продавца
+
+    def test_order_performance_metrics(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест метрик производительности ордера."""
+        order = Order(**sample_order_data)
+        order.set_status(OrderStatus.OPEN)
+        
+        # Симулируем задержку исполнения
+        import time
+        time.sleep(0.01)
+        
+        order.add_fill(Decimal("0.001"), Decimal("45000.00"), "perf_exec")
+        
+        metrics = order.get_performance_metrics()
+        
+        assert "execution_time" in metrics
+        assert "slippage" in metrics
+        assert "fill_rate" in metrics
+        assert metrics["execution_time"] > 0
+
+    def test_order_edge_cases(self) -> None:
+        """Тест граничных случаев."""
+        # Минимальное количество
+        min_order = Order(
+            symbol="BTCUSDT",
+            side=OrderSide.BUY,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.00000001"),  # Минимум
+            price=Decimal("45000.00")
+        )
+        
+        assert min_order.quantity == Decimal("0.00000001")
+        
+        # Максимальная цена
+        max_price_order = Order(
+            symbol="BTCUSDT",
+            side=OrderSide.BUY,
+            order_type=OrderType.LIMIT,
+            quantity=Decimal("0.001"),
+            price=Decimal("999999999.99")  # Очень высокая цена
+        )
+        
+        assert max_price_order.price == Decimal("999999999.99")
+
+    def test_order_memory_efficiency(self, sample_order_data: Dict[str, Any]) -> None:
+        """Тест эффективности использования памяти."""
+        import sys
+        
+        # Создаем множество ордеров
+        orders = [Order(**sample_order_data) for _ in range(1000)]
+        
+        # Проверяем размер одного ордера
+        order_size = sys.getsizeof(orders[0])
+        
+        # Размер должен быть разумным
+        assert order_size < 2048  # Менее 2KB на ордер
+        
+        # Все ордера должны быть валидными
+        assert all(order.status == OrderStatus.PENDING for order in orders) 
