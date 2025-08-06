@@ -1,111 +1,133 @@
 """
-Доменные исключения.
+Domain exceptions.
 """
 
 
 class DomainError(Exception):
-    """Базовое исключение доменного слоя."""
-
-
-class DomainException(DomainError):
-    """Алиас для DomainError для совместимости."""
-
-
-class UseCaseError(DomainError):
-    """Ошибка use case."""
+    """Base domain exception."""
+    pass
 
 
 class ValidationError(DomainError):
-    """Ошибка валидации."""
+    """Validation error."""
+    pass
 
 
-class BusinessRuleError(DomainError):
-    """Ошибка бизнес-правила."""
-
-
-class RepositoryError(DomainError):
-    """Ошибка репозитория."""
-
-
-class TradingError(DomainError):
-    """Ошибка торговых операций."""
-
-
-class InsufficientFundsError(TradingError):
-    """Недостаточно средств."""
-
-
-class InvalidOrderError(TradingError):
-    """Некорректный ордер."""
-
-
-class OrderNotFoundError(TradingError):
-    """Ордер не найден."""
+class OrderError(DomainError):
+    """Order-related error."""
+    pass
 
 
 class StrategyError(DomainError):
-    """Ошибка стратегии."""
+    """Strategy-related error."""
+    pass
+
+
+class TradingError(DomainError):
+    """Trading-related error."""
+    pass
 
 
 class MLModelError(DomainError):
-    """Ошибка ML модели."""
+    """ML model error."""
+    pass
+
+
+class PredictionError(DomainError):
+    """Prediction error."""
+    pass
+
+
+class CryptographyError(DomainError):
+    """Cryptography error."""
+    pass
+
+
+class SecurityError(DomainError):
+    """Security error."""
+    pass
+
+
+class FinancialArithmeticError(DomainError):
+    """Financial arithmetic error."""
+    pass
+
+
+class BusinessRuleViolation(DomainError):
+    """Business rule violation."""
+    pass
+
+
+class AuditError(DomainError):
+    """Audit error."""
+    pass
+
+
+class ComplianceViolation(DomainError):
+    """Compliance violation."""
+    pass
 
 
 class NetworkError(DomainError):
-    """Ошибка сети."""
+    """Network error."""
+    pass
 
 
-class ExchangeError(DomainError):
-    """Ошибка биржи."""
+class ServiceUnavailableError(DomainError):
+    """Service unavailable error."""
+    pass
 
 
-class ExchangeConnectionError(ExchangeError):
-    """Ошибка подключения к бирже."""
+class DataIntegrityError(DomainError):
+    """Data integrity error."""
+    pass
 
 
-class AuthenticationError(ExchangeError):
-    """Ошибка аутентификации на бирже."""
+class SystemOverloadError(DomainError):
+    """System overload error."""
+    pass
 
 
-class NotFoundError(DomainError):
-    """Сущность не найдена."""
+class DisasterRecoveryError(DomainError):
+    """Disaster recovery error."""
+    pass
 
 
-class EntityNotFoundError(NotFoundError):
-    """Алиас для NotFoundError для совместимости."""
+class PerformanceError(DomainError):
+    """Performance error."""
+    pass
 
 
-class TradingPairManagementError(DomainError):
-    """Ошибка управления торговыми парами."""
+class ResourceError(DomainError):
+    """Resource error."""
+    pass
 
 
-class InvalidTradingPairError(DomainError):
-    """Ошибка некорректной торговой пары."""
+class AlertingError(DomainError):
+    """Alerting error."""
+    pass
 
 
-class OrderManagementError(DomainError):
-    """Ошибка управления ордерами."""
+class MonitoringError(DomainError):
+    """Monitoring error."""
+    pass
 
 
-class PositionManagementError(DomainError):
-    """Ошибка управления позициями."""
+class StreamingError(DomainError):
+    """Streaming error."""
+    pass
 
 
-class InsufficientPositionError(DomainError):
-    """Недостаточно позиции."""
+class ConnectionError(DomainError):
+    """Connection error."""
+    pass
 
 
-class RiskAnalysisError(DomainError):
-    """Ошибка анализа рисков."""
+class DataValidationError(DomainError):
+    """Data validation error."""
+    pass
 
 
-class RiskManagementError(DomainError):
-    """Ошибка управления рисками."""
-
-
-class TradingOrchestrationError(DomainError):
-    """Ошибка оркестрации торговых стратегий."""
-
-
-class StrategyExecutionError(DomainError):
-    """Ошибка исполнения стратегии."""
+class RegulatoryError(DomainError):
+    """Regulatory error."""
+    pass

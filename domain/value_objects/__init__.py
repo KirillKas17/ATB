@@ -1,53 +1,11 @@
 """
-Value Objects для доменной модели.
-Этот модуль содержит все Value Objects, используемые в доменной модели.
-Каждый Value Object представляет собой неизменяемый объект, который инкапсулирует
-бизнес-логику и валидацию для конкретного типа данных.
+Value objects - immutable objects that represent domain concepts.
 """
 
+# Базовые value objects для тестирования
 __all__ = [
-    # Базовые классы
-    "BaseValueObject",
-    # Основные Value Objects
     "Currency",
-    "CurrencyCode",
-    "CurrencyType",
-    "CurrencyNetwork",
-    "Money",
-    "Price",
-    "Percentage",
+    "Price", 
     "Volume",
-    "TradingPair",
-    "Signal",
-    "Timestamp",
-    # Конфигурации
-    "MoneyConfig",
-    "PriceConfig",
-    "PercentageConfig",
-    "VolumeConfig",
-    "TradingPairConfig",
-    "SignalConfig",
-    # Enums для сигналов
-    "SignalStrength",
-    "SignalDirection",
-    "SignalType",
-    # Кэши
-    "MoneyCache",
-    "PriceCache",
-    # Фабрика
-    "ValueObjectFactory",
+    "Timestamp"
 ]
-
-from .base_value_object import BaseValueObject
-from .currency import Currency, CurrencyType, CurrencyNetwork, CurrencyCode
-from .money import Money, MoneyConfig, MoneyCache
-from .price import Price
-from .price_config import PriceConfig
-from .price_cache import PriceCache
-from .volume import Volume, VolumeConfig
-from .percentage import Percentage, PercentageConfig
-from .trading_pair import TradingPair, TradingPairConfig
-from .signal_config import SignalStrength, SignalDirection, SignalType
-from .signal import Signal, SignalConfig
-from .timestamp import Timestamp
-from .factory import ValueObjectFactory
