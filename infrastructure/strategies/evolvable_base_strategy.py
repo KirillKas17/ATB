@@ -205,9 +205,20 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
             direction = StrategyDirection.LONG if prediction.get("direction", "hold") == "buy" else StrategyDirection.SHORT
             entry_price = float(market_data["close"].iloc[-1]) if not market_data.empty else 50000.0
             confidence = float(prediction.get("confidence", 0.5))
+            # КРИТИЧЕСКИ ВАЖНО: Добавляем стоп-лосс и тейк-профит
+            volatility = self._calculate_volatility(market_data)
+            if direction == StrategyDirection.LONG:
+                stop_loss = entry_price * (1 - volatility * 2.5)  # 2.5x волатильность как стоп
+                take_profit = entry_price * (1 + volatility * 1.5)  # 1.5x волатильность как профит
+            else:  # SHORT
+                stop_loss = entry_price * (1 + volatility * 2.5)
+                take_profit = entry_price * (1 - volatility * 1.5)
+                
             signal = Signal(
                 direction=direction,
                 entry_price=entry_price,
+                stop_loss=stop_loss,
+                take_profit=take_profit,
                 confidence=confidence,
                 timestamp=datetime.now(),
                 metadata={
@@ -274,6 +285,17 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
         except Exception as e:
             logger.error(f"Error extracting features: {str(e)}")
             return [0.0] * 20
+
+    def _calculate_volatility(self, data: pd.DataFrame) -> float:
+        """Расчет волатильности для определения уровней риска"""
+        try:
+            if len(data) >= 20:
+                returns = data["close"].pct_change().dropna()
+                volatility = returns.rolling(window=20).std().iloc[-1]
+                return float(volatility) if not pd.isna(volatility) else 0.02
+            return 0.02  # Дефолтная волатильность 2%
+        except Exception:
+            return 0.02
 
     def _get_ml_predictions(self, features: List[float]) -> Dict[str, Union[str, float]]:
         """Получение предсказаний от ML модели"""

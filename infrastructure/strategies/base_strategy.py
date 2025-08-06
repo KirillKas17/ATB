@@ -59,16 +59,42 @@ class StrategyMetrics:
 
 @dataclass
 class Signal:
-    """Торговый сигнал"""
+    """
+    Торговый сигнал с ОБЯЗАТЕЛЬНЫМИ уровнями риска.
+    КРИТИЧЕСКИ ВАЖНО: stop_loss и take_profit ДОЛЖНЫ быть установлены для безопасной торговли!
+    """
 
     direction: str
     entry_price: float
-    stop_loss: Optional[float] = None
-    take_profit: Optional[float] = None
+    stop_loss: float  # ИЗМЕНЕНО: Теперь ОБЯЗАТЕЛЬНЫЙ параметр!
+    take_profit: float  # ИЗМЕНЕНО: Теперь ОБЯЗАТЕЛЬНЫЙ параметр!
     volume: Optional[float] = None
     confidence: float = 1.0
     timestamp: datetime = field(default_factory=datetime.now)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self):
+        """Проверка критически важных параметров после создания сигнала"""
+        if self.entry_price <= 0:
+            raise ValueError("entry_price должен быть больше 0")
+        if self.stop_loss <= 0:
+            raise ValueError("stop_loss должен быть больше 0")
+        if self.take_profit <= 0:
+            raise ValueError("take_profit должен быть больше 0")
+            
+        # Проверка логики для LONG позиций
+        if self.direction.lower() in ["long", "buy"]:
+            if self.stop_loss >= self.entry_price:
+                raise ValueError(f"Для LONG позиции stop_loss ({self.stop_loss}) должен быть меньше entry_price ({self.entry_price})")
+            if self.take_profit <= self.entry_price:
+                raise ValueError(f"Для LONG позиции take_profit ({self.take_profit}) должен быть больше entry_price ({self.entry_price})")
+                
+        # Проверка логики для SHORT позиций  
+        elif self.direction.lower() in ["short", "sell"]:
+            if self.stop_loss <= self.entry_price:
+                raise ValueError(f"Для SHORT позиции stop_loss ({self.stop_loss}) должен быть больше entry_price ({self.entry_price})")
+            if self.take_profit >= self.entry_price:
+                raise ValueError(f"Для SHORT позиции take_profit ({self.take_profit}) должен быть меньше entry_price ({self.entry_price})")
 
 
 class BaseStrategy(ABC):
