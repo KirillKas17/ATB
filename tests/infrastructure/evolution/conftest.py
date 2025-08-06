@@ -23,7 +23,9 @@ from infrastructure.evolution.models import (
     EvolutionContextModel, StrategyCandidateModel, StrategyEvaluationModel
 )
 from infrastructure.evolution.storage import StrategyStorage
-    @pytest.fixture
+
+
+@pytest.fixture
 def temp_db_path() -> Generator[str, None, None]:
     """Временный путь к БД для тестов."""
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -34,12 +36,16 @@ def temp_db_path() -> Generator[str, None, None]:
         Path(db_path).unlink(missing_ok=True)
     except Exception:
         pass
-    @pytest.fixture
+
+
+@pytest.fixture
 def storage(temp_db_path: str) -> Generator[StrategyStorage, None, None]:
     """Фикстура хранилища стратегий."""
     storage = StrategyStorage(temp_db_path)
     yield storage
-    @pytest.fixture
+
+
+@pytest.fixture
 def cache() -> Generator[EvolutionCache, None, None]:
     """Фикстура кэша эволюции."""
     cache = EvolutionCache({
@@ -48,7 +54,9 @@ def cache() -> Generator[EvolutionCache, None, None]:
         "cache_strategy": "lru"
     })
     yield cache
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_indicator() -> IndicatorConfig:
     """Образец индикатора."""
     return IndicatorConfig(
@@ -59,7 +67,9 @@ def sample_indicator() -> IndicatorConfig:
         weight=Decimal("1.0"),
         is_active=True
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_filter() -> FilterConfig:
     """Образец фильтра."""
     return FilterConfig(
@@ -70,7 +80,9 @@ def sample_filter() -> FilterConfig:
         threshold=Decimal("0.5"),
         is_active=True
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_entry_rule() -> EntryRule:
     """Образец правила входа."""
     return EntryRule(
@@ -91,7 +103,9 @@ def sample_entry_rule() -> EntryRule:
         volume_ratio=Decimal("1.0"),
         is_active=True
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_exit_rule() -> ExitRule:
     """Образец правила выхода."""
     return ExitRule(
@@ -113,7 +127,9 @@ def sample_exit_rule() -> ExitRule:
         trailing_distance=Decimal("0.01"),
         is_active=True
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_candidate(
     sample_indicator: IndicatorConfig,
     sample_filter: FilterConfig,
@@ -142,7 +158,9 @@ def sample_candidate(
         updated_at=datetime.now(),
         metadata={"test": True}
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_trade() -> TradeResult:
     """Образец торговой сделки."""
     return TradeResult(
@@ -160,7 +178,9 @@ def sample_trade() -> TradeResult:
         success=True,
         metadata={"test": True}
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_evaluation(sample_candidate: StrategyCandidate, sample_trade: TradeResult) -> StrategyEvaluationResult:
     """Образец результата оценки."""
     evaluation = StrategyEvaluationResult(
@@ -198,7 +218,9 @@ def sample_evaluation(sample_candidate: StrategyCandidate, sample_trade: TradeRe
     )
     evaluation.trades = [sample_trade]
     return evaluation
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_context() -> EvolutionContext:
     """Образец контекста эволюции."""
     return EvolutionContext(
@@ -222,21 +244,27 @@ def sample_context() -> EvolutionContext:
         updated_at=datetime.now(),
         metadata={"test": True}
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def temp_backup_dir() -> Generator[Path, None, None]:
     """Временная директория для бэкапов."""
     with tempfile.TemporaryDirectory() as temp_dir:
         backup_dir = Path(temp_dir) / "backups"
         backup_dir.mkdir(parents=True, exist_ok=True)
         yield backup_dir
-    @pytest.fixture
+
+
+@pytest.fixture
 def temp_migration_dir() -> Generator[Path, None, None]:
     """Временная директория для миграций."""
     with tempfile.TemporaryDirectory() as temp_dir:
         migration_dir = Path(temp_dir) / "migrations"
         migration_dir.mkdir(parents=True, exist_ok=True)
         yield migration_dir
-    @pytest.fixture
+
+
+@pytest.fixture
 def sample_migration_data() -> dict:
     """Образец данных миграции."""
     return {
@@ -251,7 +279,9 @@ def sample_migration_data() -> dict:
         "rollback_supported": True,
         "dependencies": []
     }
-    @pytest.fixture
+
+
+@pytest.fixture
 def mock_engine() -> Any:
     """Mock для SQLAlchemy engine."""
     class MockEngine:
@@ -260,7 +290,9 @@ def mock_engine() -> Any:
         def dispose(self) -> Any:
             self.closed = True
     return MockEngine()
-    @pytest.fixture
+
+
+@pytest.fixture
 def mock_session() -> Any:
     """Mock для SQLModel Session."""
     class MockSession:

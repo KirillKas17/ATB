@@ -27,7 +27,9 @@ from infrastructure.messaging import (
 # ============================================================================
 # Фикстуры для тестов
 # ============================================================================
-    @pytest.fixture
+
+
+@pytest.fixture
 def event_bus() -> Any:
     """Фикстура для EventBus."""
     config = EventBusConfig(

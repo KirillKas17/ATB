@@ -88,21 +88,20 @@ def test_strategy_interface_methods(self) -> None:
         self.assertIsInstance(performance, dict)
         # Тест получения статуса
         status = strategy.get_status()
-    self.assertIsInstance(status, StrategyStatus)
+        self.assertIsInstance(status, StrategyStatus)
         # Тест обновления статуса
         strategy.update_status(StrategyStatus.ACTIVE)
-    self.assertEqual(strategy.get_status(), StrategyStatus.ACTIVE)
+        self.assertEqual(strategy.get_status(), StrategyStatus.ACTIVE)
 class TestStrategyTypes(unittest.TestCase):
     """Тесты типов стратегий."""
 
-
-def test_strategy_category_enum(self) -> None:
+    def test_strategy_category_enum(self) -> None:
         """Тест перечисления категорий стратегий."""
-    self.assertEqual(StrategyCategory.TREND_FOLLOWING.value, "trend_following")
-    self.assertEqual(StrategyCategory.MEAN_REVERSION.value, "mean_reversion")
-    self.assertEqual(StrategyCategory.BREAKOUT.value, "breakout")
-    self.assertEqual(StrategyCategory.SCALPING.value, "scalping")
-    self.assertEqual(StrategyCategory.ARBITRAGE.value, "arbitrage")
+        self.assertEqual(StrategyCategory.TREND_FOLLOWING.value, "trend_following")
+        self.assertEqual(StrategyCategory.MEAN_REVERSION.value, "mean_reversion")
+        self.assertEqual(StrategyCategory.BREAKOUT.value, "breakout")
+        self.assertEqual(StrategyCategory.SCALPING.value, "scalping")
+        self.assertEqual(StrategyCategory.ARBITRAGE.value, "arbitrage")
 
 
 def test_risk_profile_enum(self) -> None:
