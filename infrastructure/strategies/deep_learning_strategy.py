@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from shared.numpy_utils import np
 import pandas as pd
 from loguru import logger
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.layers import LSTM, Dense, Dropout
@@ -407,8 +408,16 @@ class DeepLearningStrategy(BaseStrategy):
                 # Рассчитываем размер позиции
                 volume = self._calculate_position_size(current_price, indicators["atr"])
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price - indicators["atr"] * 2
-                take_profit = current_price + (current_price - stop_loss) * 2
+                                    # Используем Decimal для точных расчетов
+                    current_price_decimal = to_trading_decimal(current_price)
+                    atr_decimal = to_trading_decimal(indicators["atr"])
+                    
+                    stop_loss_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(2))
+                    stop_distance = current_price_decimal - stop_loss_decimal
+                    take_profit_decimal = current_price_decimal + (stop_distance * to_trading_decimal(2))
+                    
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="long",
                     entry_price=current_price,
@@ -429,8 +438,13 @@ class DeepLearningStrategy(BaseStrategy):
                 # Рассчитываем размер позиции
                 volume = self._calculate_position_size(current_price, indicators["atr"])
                 # Устанавливаем стоп-лосс и тейк-профит
-                stop_loss = current_price + indicators["atr"] * 2
-                take_profit = current_price - (stop_loss - current_price) * 2
+                                    # Используем Decimal для точных расчетов (short позиция)
+                    stop_loss_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(2))
+                    stop_distance = stop_loss_decimal - current_price_decimal
+                    take_profit_decimal = current_price_decimal - (stop_distance * to_trading_decimal(2))
+                    
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="short",
                     entry_price=current_price,
@@ -528,13 +542,14 @@ class DeepLearningStrategy(BaseStrategy):
             # Проверяем трейлинг-стоп
             if self._config.trailing_stop and self.trailing_stop:
                 if self.position == "long" and current_price > self.trailing_stop:
-                    self.trailing_stop = (
-                        current_price - indicators["atr"] * self._config.trailing_step
-                    )
+                                            # Trailing stop с Decimal точностью
+                        price_decimal = to_trading_decimal(current_price)
+                        atr_decimal = to_trading_decimal(indicators["atr"])
+                        step_decimal = to_trading_decimal(self._config.trailing_step)
+                        self.trailing_stop = float(price_decimal - (atr_decimal * step_decimal))
                 elif self.position == "short" and current_price < self.trailing_stop:
-                    self.trailing_stop = (
-                        current_price + indicators["atr"] * self._config.trailing_step
-                    )
+                    # Trailing stop для short с Decimal точностью
+                    self.trailing_stop = float(price_decimal + (atr_decimal * step_decimal))
                 if (
                     self.position == "long" and current_price <= self.trailing_stop
                 ) or (self.position == "short" and current_price >= self.trailing_stop):

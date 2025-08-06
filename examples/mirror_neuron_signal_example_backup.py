@@ -213,10 +213,17 @@ class MirrorTradingStrategy:
         return base_take_profit * confidence_multiplier + change_adjustment
 
     def _calculate_commission(self, quantity: float, price: float) -> float:
-        """Рассчитать комиссию."""
-        trade_value = quantity * price
-        commission_rate = 0.001  # 0.1%
-        return trade_value * commission_rate
+        """Рассчитать комиссию с Decimal точностью."""
+        from shared.decimal_utils import TradingDecimal, to_trading_decimal
+        
+        quantity_decimal = to_trading_decimal(quantity)
+        price_decimal = to_trading_decimal(price)
+        commission_rate = to_trading_decimal(0.1)  # 0.1%
+        
+        trade_value = quantity_decimal * price_decimal
+        commission_decimal = TradingDecimal.calculate_percentage(trade_value, commission_rate)
+        
+        return float(commission_decimal)
 
     def _validate_trade(self, signal: TradingSignal, current_price: float) -> bool:
         """Проверить валидность сделки."""
