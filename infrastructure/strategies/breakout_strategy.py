@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from loguru import logger
+from shared.signal_validator import validate_trading_signal
 
 from .base_strategy import BaseStrategy, Signal
 
@@ -373,7 +374,7 @@ class BreakoutStrategy(BaseStrategy):
                     position_size = self._calculate_position_size(current_price, volatility)
                     stop_loss = current_price * (1 - self._config.stop_loss)
                     take_profit = current_price * (1 + self._config.take_profit)
-                    return Signal(
+                    signal = Signal(
                         direction="long",
                         entry_price=current_price,
                         stop_loss=stop_loss,
@@ -389,13 +390,17 @@ class BreakoutStrategy(BaseStrategy):
                             "trend": trend,
                         },
                     )
+                    # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                    if not validate_trading_signal(signal):
+                        return None
+                    return signal
             # Проверяем пробой вниз
             elif current_price < low.iloc[-2] * (1 - self._config.breakout_threshold):
                 if self._check_breakout_confirmation(data, "down"):
                     position_size = self._calculate_position_size(current_price, volatility)
                     stop_loss = current_price * (1 + self._config.stop_loss)
                     take_profit = current_price * (1 - self._config.take_profit)
-                    return Signal(
+                    signal = Signal(
                         direction="short",
                         entry_price=current_price,
                         stop_loss=stop_loss,
@@ -411,6 +416,10 @@ class BreakoutStrategy(BaseStrategy):
                             "trend": trend,
                         },
                     )
+                    # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                    if not validate_trading_signal(signal):
+                        return None
+                    return signal
             return None
         except Exception as e:
             logger.error(f"Error generating entry signal: {str(e)}")

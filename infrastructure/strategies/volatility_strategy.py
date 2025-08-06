@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
+from shared.signal_validator import validate_trading_signal
 import pandas as pd
 from shared.numpy_utils import np
 
@@ -257,7 +258,7 @@ class VolatilityStrategy(BaseStrategy):
                 # Рассчитываем уверенность
                 confidence = self._calculate_confidence(indicators)
                 if confidence >= self._config.min_confidence:
-                    return Signal(
+                    signal = Signal(
                         direction="long",
                         entry_price=current_price,
                         stop_loss=stop_loss,
@@ -265,6 +266,10 @@ class VolatilityStrategy(BaseStrategy):
                         volume=position_size,
                         confidence=confidence,
                     )
+                    # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                    if not validate_trading_signal(signal):
+                        return None
+                    return signal
             # Проверяем условия для входа в короткую позицию
             elif (
                 indicators["volatility"] > self._config.min_volatility
@@ -280,7 +285,7 @@ class VolatilityStrategy(BaseStrategy):
                 # Рассчитываем уверенность
                 confidence = self._calculate_confidence(indicators)
                 if confidence >= self._config.min_confidence:
-                    return Signal(
+                    signal = Signal(
                         direction="short",
                         entry_price=current_price,
                         stop_loss=stop_loss,
@@ -288,6 +293,10 @@ class VolatilityStrategy(BaseStrategy):
                         volume=position_size,
                         confidence=confidence,
                     )
+                    # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                    if not validate_trading_signal(signal):
+                        return None
+                    return signal
             return None
         except Exception as e:
             logger.error(f"Error generating entry signal: {str(e)}")

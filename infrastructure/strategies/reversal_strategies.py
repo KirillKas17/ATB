@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union, Any
 import pandas as pd
 
 from loguru import logger
+from shared.signal_validator import get_safe_price
 
 from .base_strategy import BaseStrategy, Signal as BaseSignal
 
@@ -318,10 +319,10 @@ class ReversalStrategy(BaseStrategy):
         """Расчет силы разворота"""
         try:
             strength = 0.0
-            close_price = data["close"].iloc[index]
-            close_price = float(close_price) if close_price is not None and not pd.isna(close_price) else 0.0 
-            if close_price <= 0:
-                return 0.0
+            try:
+                close_price = get_safe_price(data["close"], index, "close_price")
+            except ValueError:
+                return 0.0  # Не можем получить корректную цену
             
             # Анализируем свечи
             if reversal_type == "bullish":
@@ -380,10 +381,10 @@ class ReversalStrategy(BaseStrategy):
             if not self._confirm_reversal(data, index, reversal["type"]):
                 continue
             # Рассчитываем уровни входа и выхода
-            entry_price = data["close"].iloc[index]
-            entry_price = float(entry_price) if entry_price is not None and not pd.isna(entry_price) else 0.0 
-            if entry_price <= 0:
-                continue
+            try:
+                entry_price = get_safe_price(data["close"], index, "entry_price")
+            except ValueError:
+                continue  # Пропускаем, если нет корректной цены
                 
             atr_value = atr.iloc[index] 
             atr_value = float(atr_value) if atr_value is not None and not pd.isna(atr_value) else 0.0 
