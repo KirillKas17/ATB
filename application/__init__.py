@@ -2,6 +2,8 @@
 Application Layer - слой приложения.
 """
 
+from typing import List
+
 from .services import (
     MarketService,
     MLService,
@@ -16,7 +18,7 @@ from .strategy_advisor.mirror_map_builder import (
     MirrorMapConfig,
 )
 
-__all__ = [
+__all__: List[str] = [
     # Services
     "TradingService",
     "PortfolioService",

@@ -6,4 +6,6 @@
 - Анализ рисков в реальном времени
 """
 
-__all__ = ["PatternObserver"]
+from typing import List
+
+__all__: List[str] = ["PatternObserver"]

@@ -2,6 +2,8 @@
 Safe dependency injection container with protected imports
 """
 
+from typing import Any, Dict, Optional, Type, Union
+
 from safe_import_wrapper import safe_import
 
 # Core components that should work
@@ -29,9 +31,9 @@ class SafeContainer(containers.DeclarativeContainer):
     market_service = providers.Singleton(SafeMarketService)
 
 
-def get_safe_service_locator():
+def get_safe_service_locator() -> SafeContainer:
     """Get a safe service locator that won't crash on missing imports"""
-    container = SafeContainer()
+    container: SafeContainer = SafeContainer()
     container.config.from_dict({
         "trading": {
             "enabled": True,
