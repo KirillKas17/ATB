@@ -121,7 +121,7 @@ class PredictionResult:
 class AttentionLayer:
     """Простая реализация слоя внимания."""
     
-    def __init__(self, d_model: int, n_heads: int = 8):
+    def __init__(self, d_model: int, n_heads: int = 8) -> None:
         self.d_model = d_model
         self.n_heads = n_heads
         self.d_k = d_model // n_heads
@@ -187,7 +187,7 @@ class AttentionLayer:
 class QuantumNeuralLayer:
     """Квантово-вдохновленный нейронный слой."""
     
-    def __init__(self, input_size: int, output_size: int, quantum_depth: int = 3):
+    def __init__(self, input_size: int, output_size: int, quantum_depth: int = 3) -> None:
         self.input_size = input_size
         self.output_size = output_size
         self.quantum_depth = quantum_depth
@@ -258,7 +258,7 @@ class QuantumNeuralLayer:
 class LSTMAttentionModel:
     """LSTM модель с механизмом внимания."""
     
-    def __init__(self, input_size: int, hidden_size: int, output_size: int, num_layers: int = 2):
+    def __init__(self, input_size: int, hidden_size: int, output_size: int, num_layers: int = 2) -> None:
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size

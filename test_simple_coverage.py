@@ -5,32 +5,33 @@
 import pytest
 from decimal import Decimal
 from datetime import datetime
+from typing import List
 
 
-def test_basic_types():
+def test_basic_types() -> None:
     """Тест базовых типов данных"""
-    price = Decimal('50000.00')
+    price: Decimal = Decimal('50000.00')
     assert price > 0
     
-    volume = Decimal('1.5')
+    volume: Decimal = Decimal('1.5')
     assert volume > 0
     
-    timestamp = datetime.now()
+    timestamp: datetime = datetime.now()
     assert timestamp is not None
 
 
-def test_basic_calculations():
+def test_basic_calculations() -> None:
     """Тест базовых вычислений"""
-    price = Decimal('50000.00')
-    volume = Decimal('0.1')
-    total = price * volume
+    price: Decimal = Decimal('50000.00')
+    volume: Decimal = Decimal('0.1')
+    total: Decimal = price * volume
     
     assert total == Decimal('5000.00')
 
 
-def test_string_operations():
+def test_string_operations() -> None:
     """Тест строковых операций"""
-    symbol = "BTC/USDT"
+    symbol: str = "BTC/USDT"
     assert "/" in symbol
     assert symbol.startswith("BTC")
     assert symbol.endswith("USDT")
