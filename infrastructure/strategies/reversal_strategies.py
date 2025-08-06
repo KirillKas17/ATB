@@ -149,7 +149,8 @@ class ReversalStrategy(BaseStrategy):
         delta = prices.diff()
         gain = (delta.where(delta > 0, 0)).rolling(window=period).mean() 
         loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean() 
-        rs = gain / loss
+        # Защита от деления на ноль
+        rs = gain / loss.where(loss != 0, 1e-10)  # Заменяем 0 на очень маленькое число
         return 100 - (100 / (1 + rs))
 
     def _calculate_macd(
@@ -200,7 +201,8 @@ class ReversalStrategy(BaseStrategy):
     def _analyze_volume(self, volume: pd.Series) -> Dict[str, Any]:
         """Анализ объемов"""
         avg_volume = volume.rolling(window=20).mean()
-        volume_ratio = volume / avg_volume
+        # Защита от деления на ноль
+        volume_ratio = volume / avg_volume.where(avg_volume != 0, 1.0)
         return {
             "average": avg_volume,
             "ratio": volume_ratio,

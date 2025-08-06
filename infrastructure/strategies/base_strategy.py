@@ -233,7 +233,7 @@ class BaseStrategy(ABC):
 
     def calculate_position_size(self, signal: Signal, account_balance: Decimal) -> Decimal:
         """
-        Расчет размера позиции на основе сигнала и баланса.
+        Улучшенный расчет размера позиции с учетом риска.
         Args:
             signal: Торговый сигнал
             account_balance: Баланс аккаунта
@@ -241,14 +241,45 @@ class BaseStrategy(ABC):
             Размер позиции
         """
         try:
-            # Базовый размер позиции
-            position_size = account_balance * Decimal(str(self.position_size_ratio))
+            # Расчет риска на основе стоп-лосса
+            risk_per_trade = Decimal(str(self.risk_per_trade))  # Обычно 1-2%
+            
+            if signal.stop_loss is not None and signal.entry_price is not None:
+                # Рассчитываем риск на единицу
+                entry_price = Decimal(str(signal.entry_price))
+                stop_loss = Decimal(str(signal.stop_loss))
+                
+                # Риск на единицу зависит от направления
+                if signal.direction == "long":
+                    risk_per_unit = entry_price - stop_loss
+                elif signal.direction == "short":
+                    risk_per_unit = stop_loss - entry_price
+                else:
+                    risk_per_unit = entry_price * Decimal('0.02')  # 2% по умолчанию
+                
+                if risk_per_unit > 0:
+                    # Размер позиции = (Риск на сделку * Баланс) / Риск на единицу
+                    risk_amount = account_balance * risk_per_trade
+                    position_size = risk_amount / risk_per_unit
+                else:
+                    # Если риск на единицу неположительный, используем базовый расчет
+                    position_size = account_balance * Decimal(str(self.position_size_ratio))
+            else:
+                # Если нет стоп-лосса, используем базовый расчет
+                position_size = account_balance * Decimal(str(self.position_size_ratio))
+            
             # Ограничиваем максимальный размер позиции
             max_size = account_balance * Decimal(str(self.max_position_size))
             position_size = min(position_size, max_size)
+            
             # Учитываем уверенность в сигнале
             position_size *= Decimal(str(signal.confidence))
-            return position_size
+            
+            # Убеждаемся, что размер не превышает баланс
+            position_size = min(position_size, account_balance)
+            
+            return max(Decimal('0'), position_size)
+            
         except Exception as e:
             logger.error(f"Error calculating position size: {str(e)}")
             return Decimal('0')

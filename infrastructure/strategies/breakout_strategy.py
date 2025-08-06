@@ -288,8 +288,12 @@ class BreakoutStrategy(BaseStrategy):
             sma = data["close"].rolling(window=20).mean()
             # Экспоненциальная скользящая средняя
             ema = data["close"].ewm(span=20).mean()
-            # Сила тренда
-            trend_strength = abs(data["close"].iloc[-1] - sma.iloc[-1]) / sma.iloc[-1]
+            # Сила тренда с защитой от деления на ноль
+            sma_last = sma.iloc[-1]
+            if sma_last != 0:
+                trend_strength = abs(data["close"].iloc[-1] - sma_last) / sma_last
+            else:
+                trend_strength = 0.0
             # Направление тренда
             if data["close"].iloc[-1] > sma.iloc[-1]:
                 direction = "up"

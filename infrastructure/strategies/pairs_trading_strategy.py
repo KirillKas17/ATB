@@ -558,6 +558,61 @@ class PairsTradingStrategy(BaseStrategy):
         except Exception as e:
             logger.error(f"Error updating position state: {str(e)}")
 
+    def _calculate_volatility(self, data: pd.DataFrame) -> float:
+        """Расчет волатильности для определения уровней риска"""
+        try:
+            if len(data) >= 20:
+                returns = data["close"].pct_change().dropna()
+                volatility = returns.rolling(window=20).std().iloc[-1]
+                return float(volatility) if not pd.isna(volatility) else 0.02
+            return 0.02  # Дефолтная волатильность 2%
+        except Exception:
+            return 0.02
+
+    def _create_safe_signal(self, direction: str, entry_price: float, volume: float, 
+                           confidence: float, symbol: str, data: Optional[pd.DataFrame] = None) -> Signal:
+        """Создание безопасного сигнала с правильными стоп-лоссом и тейк-профитом"""
+        try:
+            # Рассчитываем волатильность для определения уровней риска
+            volatility = 0.02  # Дефолтная волатильность
+            if data is not None and len(data) > 0:
+                volatility = self._calculate_volatility(data)
+            
+            # Устанавливаем безопасные уровни в зависимости от направления
+            if direction == "long":
+                stop_loss = entry_price * (1 - volatility * 2.5)  # 2.5x волатильность как стоп
+                take_profit = entry_price * (1 + volatility * 1.5)  # 1.5x волатильность как профит
+            elif direction == "short":
+                stop_loss = entry_price * (1 + volatility * 2.5)
+                take_profit = entry_price * (1 - volatility * 1.5)
+            else:  # close
+                stop_loss = entry_price * (1 - volatility * 2)
+                take_profit = entry_price * (1 + volatility)
+                
+            return Signal(
+                direction=direction,
+                volume=volume,
+                entry_price=entry_price,
+                stop_loss=stop_loss,
+                take_profit=take_profit,
+                confidence=confidence,
+                metadata={"symbol": symbol}
+            )
+        except Exception as e:
+            logger.error(f"Error creating safe signal: {str(e)}")
+            # Возвращаем безопасный сигнал с минимальными уровнями
+            stop_loss = entry_price * 0.98 if direction == "long" else entry_price * 1.02
+            take_profit = entry_price * 1.01 if direction == "long" else entry_price * 0.99
+            return Signal(
+                direction=direction,
+                volume=volume,
+                entry_price=entry_price,
+                stop_loss=stop_loss,
+                take_profit=take_profit,
+                confidence=confidence,
+                metadata={"symbol": symbol}
+            )
+
     def _create_hedge_position(self, signal: Signal, data: pd.DataFrame) -> None:
         """
         Создание хеджирующей позиции.

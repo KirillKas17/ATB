@@ -530,7 +530,8 @@ class RandomForestStrategy(BaseStrategy):
             delta = data["close"].diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-            rs = gain / loss
+            # Защита от деления на ноль
+            rs = gain / loss.where(loss != 0, 1e-10)
             features.loc[:, "rsi"] = 100 - (100 / (1 + rs))
             # MACD
             ema_fast = data["close"].ewm(span=12).mean()
@@ -560,13 +561,16 @@ class RandomForestStrategy(BaseStrategy):
             plus_dm[plus_dm < 0] = 0
             minus_dm[minus_dm > 0] = 0
             tr = true_range
+            # Защита от деления на ноль в ADX расчете
+            tr_mean = tr.rolling(window=14).mean()
             plus_di = 100 * (
-                plus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+                plus_dm.rolling(window=14).mean() / tr_mean.where(tr_mean != 0, 1e-10)
             )
             minus_di = 100 * (
-                minus_dm.rolling(window=14).mean() / tr.rolling(window=14).mean()
+                minus_dm.rolling(window=14).mean() / tr_mean.where(tr_mean != 0, 1e-10)
             )
-            dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di)
+            di_sum = plus_di + minus_di
+            dx = 100 * np.abs(plus_di - minus_di) / di_sum.where(di_sum != 0, 1e-10)
             features.loc[:, "adx"] = dx.rolling(window=14).mean()
             features.loc[:, "plus_di"] = plus_di
             features.loc[:, "minus_di"] = minus_di

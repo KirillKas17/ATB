@@ -278,7 +278,8 @@ class DeepLearningStrategy(BaseStrategy):
             delta = data["close"].diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=self._config.rsi_period).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(window=self._config.rsi_period).mean()
-            rs = gain / loss
+            # Защита от деления на ноль
+            rs = gain / loss.where(loss != 0, 1e-10)
             rsi = 100 - (100 / (1 + rs))
             return rsi
         except Exception as e:

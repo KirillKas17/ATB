@@ -168,9 +168,15 @@ class TechnicalAnalysisModule:
             return "neutral"
         current_price = data["close"].iloc[-1]
         sma = analysis["sma"].iloc[-1]
-        if current_price > sma * 1.01:
+        # Используем адаптивный порог на основе волатильности
+        from shared.adaptive_thresholds import AdaptiveThresholds
+        adaptive_thresholds = AdaptiveThresholds()
+        volatility = analysis.get("volatility", 0.02)
+        tolerance = max(0.005, min(0.02, volatility))  # От 0.5% до 2%
+        
+        if current_price > sma * (1 + tolerance):
             return "uptrend"
-        elif current_price < sma * 0.99:
+        elif current_price < sma * (1 - tolerance):
             return "downtrend"
         else:
             return "neutral"

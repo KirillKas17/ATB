@@ -674,7 +674,8 @@ class HedgingStrategy(BaseStrategy):
             delta = prices.diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()  # type: ignore[operator]
             loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()  # type: ignore[operator]
-            rs = gain / loss
+            # Защита от деления на ноль
+            rs = gain / loss.where(loss != 0, 1e-10)
             rsi = 100 - (100 / (1 + rs))
             return rsi.fillna(50)  # Заполняем NaN значения
         except Exception as e:
