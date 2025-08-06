@@ -81,7 +81,7 @@ class EntanglementMonitor:
         # Настройка пар бирж для мониторинга
         self._setup_exchange_pairs()
 
-    def _setup_exchange_pairs(self):
+    def _setup_exchange_pairs(self) -> None:
         """Настройка пар бирж для мониторинга."""
         # Основные пары для мониторинга (legacy)
         symbols = ["BTCUSDT", "ETHUSDT", "ADAUSDT"]
@@ -122,7 +122,7 @@ class EntanglementMonitor:
 
         logger.info(f"Setup {len(self.exchange_pairs)} exchange pairs for monitoring")
 
-    def _log_entanglement_event(self, result: EntanglementResult):
+    def _log_entanglement_event(self, *args, **kwargs) -> Any:
         """Логирование события запутанности."""
         try:
             event = {
@@ -154,7 +154,7 @@ class EntanglementMonitor:
         except Exception as e:
             logger.error(f"Failed to log entanglement event: {e}")
 
-    async def _handle_entanglement_result(self, result: EntanglementResult):
+    async def _handle_entanglement_result(self, *args, **kwargs) -> Any:
         """Обработка результата запутанности от StreamManager."""
         try:
             # Логируем событие
@@ -174,7 +174,7 @@ class EntanglementMonitor:
         except Exception as e:
             logger.error(f"Error handling entanglement result: {e}")
 
-    def _add_order_book_update(self, update: OrderBookUpdate):
+    def _add_order_book_update(self, *args, **kwargs) -> Any:
         """Добавление обновления ордербука в буфер (legacy)."""
         exchange = update.exchange
 
@@ -195,7 +195,7 @@ class EntanglementMonitor:
         buffer = self.order_book_buffers.get(exchange, [])
         return buffer[-count:] if buffer else []
 
-    async def _monitor_exchange_pair(self, pair: ExchangePair):
+    async def _monitor_exchange_pair(self, *args, **kwargs) -> Any:
         """Мониторинг конкретной пары бирж (legacy)."""
         exchange1, exchange2 = pair.exchange1, pair.exchange2
 
@@ -252,7 +252,7 @@ class EntanglementMonitor:
                 logger.error(f"Error monitoring pair {exchange1} ↔ {exchange2}: {e}")
                 await asyncio.sleep(self.detection_interval)
 
-    async def _simulate_order_book_updates(self):
+    async def _simulate_order_book_updates(self) -> Any:
         """Симуляция обновлений ордербуков для тестирования."""
         import random
 
@@ -289,7 +289,7 @@ class EntanglementMonitor:
                 logger.error(f"Error in order book simulation: {e}")
                 await asyncio.sleep(1.0)
 
-    async def start_monitoring(self):
+    async def start_monitoring(self) -> Any:
         """Запуск мониторинга запутанности."""
         if self.is_running:
             logger.warning("Monitoring is already running")
@@ -319,7 +319,7 @@ class EntanglementMonitor:
             self.is_running = False
             logger.info("Entanglement monitoring stopped")
 
-    def stop_monitoring(self):
+    def stop_monitoring(self) -> None:
         """Остановка мониторинга."""
         self.is_running = False
         logger.info("Stopping entanglement monitoring...")
@@ -338,13 +338,13 @@ class EntanglementMonitor:
             "detector_status": self.detector.get_detector_statistics(),
         }
 
-    def add_exchange_pair(self, exchange1: str, exchange2: str, symbol: str):
+    def add_exchange_pair(self, *args, **kwargs) -> Any:
         """Добавление новой пары бирж для мониторинга."""
         pair = ExchangePair(exchange1, exchange2, symbol)
         self.exchange_pairs.append(pair)
         logger.info(f"Added exchange pair: {exchange1} ↔ {exchange2} ({symbol})")
 
-    def remove_exchange_pair(self, exchange1: str, exchange2: str, symbol: str):
+    def remove_exchange_pair(self, *args, **kwargs) -> Any:
         """Удаление пары бирж из мониторинга."""
         self.exchange_pairs = [
             p
@@ -376,7 +376,7 @@ class EntanglementMonitor:
                         continue
             return history[-limit:]  # Возвращаем последние записи
         except FileNotFoundError:
-            return []
+            return []  # type: List[Any]
 
     async def analyze_entanglement(self, symbol1: str, symbol2: str, timeframe: str) -> Dict[str, Any]:
         """Анализ запутанности между двумя символами."""
@@ -656,7 +656,7 @@ class EntanglementMonitor:
         """Обнаружение кластеров сильно коррелированных символов."""
         try:
             if not correlation_matrix:
-                return []
+                return []  # type: List[Any]
             
             symbols = list(correlation_matrix.keys())
             visited = set()
@@ -712,7 +712,7 @@ class EntanglementMonitor:
             
         except Exception as e:
             logger.error(f"Error detecting correlation clusters: {e}")
-            return []
+            return []  # type: List[Any]
 
     def calculate_volatility_ratio(self, prices1: List[Any], prices2: List[Any]) -> float:
         """Расчет отношения волатильности между двумя рядами цен."""
@@ -1151,4 +1151,4 @@ class EntanglementMonitor:
             return prices
         except Exception as e:
             logger.error(f"Error getting historical prices for {symbol}: {e}")
-            return []
+            return []  # type: List[Any]

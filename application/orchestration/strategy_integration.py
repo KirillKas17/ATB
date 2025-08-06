@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class StrategyIntegrationManager:
     """Менеджер интеграции торговых стратегий."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.strategies = {}
         self.active_strategies = []
         self.entanglement_detector = EntanglementDetector()
@@ -118,7 +118,7 @@ class StrategyIntegrationManager:
             
         except Exception as e:
             logger.error(f"Error generating signal: {e}")
-            return None
+            return None  # type: None
     
     async def analyze_market_entanglement(self, symbols: List[str], market_data: Dict[str, Any]) -> Dict[str, Any]:
         """Анализ рыночной запутанности между символами."""

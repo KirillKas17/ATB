@@ -106,7 +106,7 @@ class MirrorMapConfig:
 class MirrorMapBuilder:
     """Сервис для построения карты зеркальных зависимостей между активами."""
 
-    def __init__(self, config: Optional[MirrorMapConfig] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or MirrorMapConfig()
         # Создаем конфигурацию для MirrorDetector
         mirror_config = MirrorDetectionConfig(
@@ -156,7 +156,7 @@ class MirrorMapBuilder:
             return valid_data
         except Exception as e:
             logger.error(f"Error validating price data: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     def _build_correlation_matrix_parallel(
         self, assets: List[str], price_data: Dict[str, pd.Series]
@@ -253,7 +253,7 @@ class MirrorMapBuilder:
             )
         except Exception as e:
             logger.error(f"Error processing asset pair {asset1}-{asset2}: {e}")
-            return None
+            return None  # type: None
 
     def _build_mirror_map_from_matrix(
         self, correlation_matrix: CorrelationMatrix
@@ -283,7 +283,7 @@ class MirrorMapBuilder:
             return mirror_map
         except Exception as e:
             logger.error(f"Error building mirror map from matrix: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     def build_mirror_map(
         self,
@@ -423,7 +423,7 @@ class MirrorMapBuilder:
             return result
         except Exception as e:
             logger.error(f"Error getting mirror assets for strategy: {e}")
-            return []
+            return []  # type: List[Any]
 
     def analyze_mirror_clusters(self, mirror_map: MirrorMap) -> Dict[str, Any]:
         """
@@ -474,7 +474,7 @@ class MirrorMapBuilder:
             return analysis
         except Exception as e:
             logger.error(f"Error analyzing mirror clusters: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     def get_mirror_map_statistics(self) -> Dict[str, Any]:
         """Получение статистики построения карты зеркальных зависимостей."""

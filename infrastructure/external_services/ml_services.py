@@ -285,7 +285,7 @@ class FeatureEngineer:
 
     # Исправления для возвращаемых значений
     def return_dict(self) -> dict[str, Any]:
-        return {}
+        return {}  # type: Dict[str, Any]
     def return_list(self) -> list[dict[str, float]]:
         return [{"a": 1.0}]
     def return_series(self) -> pd.Series:
@@ -462,7 +462,7 @@ class ProductionMLService(MLServiceProtocol):
 
     def _create_model_object(
         self, model_type: ExternalMLModelType, hyperparameters: Dict[str, Any]
-    ) -> Any:
+    ) -> Dict[str, Any]:
         """Создание объекта модели."""
         if model_type == ExternalMLModelType.LINEAR_REGRESSION:
             return LinearRegression(**hyperparameters)
@@ -488,7 +488,7 @@ class ProductionMLService(MLServiceProtocol):
 
     async def _optimize_hyperparameters(
         self, model: Any, X_train: np.ndarray, y_train: np.ndarray
-    ) -> Any:
+    ) -> Dict[str, Any]:
         """Оптимизация гиперпараметров."""
         if isinstance(model, RandomForestRegressor):
             param_grid: Dict[str, List[Union[int, float, None]]] = {

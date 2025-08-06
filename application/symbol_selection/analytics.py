@@ -17,7 +17,7 @@ from .types import SymbolSelectionResult
 class SymbolAnalytics:
     """Класс аналитики для выбора символов."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logger.bind(name=self.__class__.__name__)
 
     def add_advanced_analytics(

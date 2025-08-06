@@ -208,8 +208,8 @@ class RiskManager:
         # Отправка события
         await self.event_bus.publish(
             Event(
-                name="risk.metrics.update",
-                type="risk",
+                name=EventName("risk.metrics.update"),
+                type=EventType.RISK_METRICS_UPDATED,
                 data=self.current_metrics,
                 priority=EventPriority.NORMAL,
             )
@@ -290,8 +290,8 @@ class RiskManager:
         # Отправка события
         await self.event_bus.publish(
             Event(
-                name="risk.limits.update",
-                type="risk",
+                name=EventName("risk.limits.update"),
+                type=EventType.RISK_LIMIT_BREACHED,
                 data=new_limits,
                 priority=EventPriority.HIGH,
             )
@@ -304,8 +304,8 @@ class RiskManager:
             # Интеграция с position manager через event bus
             await self.event_bus.publish(
                 Event(
-                    name="risk.close_all_positions",
-                    type="risk",
+                    name=EventName("risk.close_all_positions"),
+                    type=EventType.RISK_ALERT,
                     data={
                         "reason": "Risk limits exceeded",
                         "risk_metrics": self.current_metrics,
@@ -317,8 +317,8 @@ class RiskManager:
             # Отправка команды на закрытие позиций
             await self.event_bus.publish(
                 Event(
-                    name="risk.close_all_positions.command",
-                    type="risk",
+                    name=EventName("risk.close_all_positions.command"),
+                    type=EventType.RISK_ALERT,
                     data={
                         "reason": "Risk management",
                         "risk_level": "critical",
@@ -401,8 +401,8 @@ class RiskManager:
             # Отправка команды на корректировку
             await self.event_bus.publish(
                 Event(
-                    name="risk.position.adjust",
-                    type="risk",
+                    name=EventName("risk.position.adjust"),
+                    type=EventType.RISK_ALERT,
                     data={
                         "symbol": symbol,
                         "new_size": new_size,
@@ -434,8 +434,8 @@ class RiskManager:
                 symbol = position.get("symbol", "")
                 await self.event_bus.publish(
                     Event(
-                        name="risk.position.close",
-                        type="risk",
+                        name=EventName("risk.position.close"),
+                        type=EventType.RISK_ALERT,
                         data={
                             "symbol": symbol,
                             "reason": "Portfolio risk reduction",
@@ -561,7 +561,7 @@ class RiskManager:
             }
         except Exception as e:
             logger.error(f"Error generating risk report: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     def _generate_risk_alerts(self) -> List[Dict[str, Any]]:
         """

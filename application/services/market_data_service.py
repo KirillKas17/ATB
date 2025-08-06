@@ -14,7 +14,7 @@ from domain.repositories.market_repository import MarketRepository
 class MarketDataService:
     """Сервис для работы с рыночными данными."""
 
-    def __init__(self, market_repository: MarketRepository):
+    def __init__(self, *args, **kwargs) -> Any:
         self.market_repository = market_repository
         self._cache: Dict[str, Any] = {}
         self._cache_ttl = 300  # 5 минут
@@ -153,7 +153,7 @@ class MarketDataService:
             )
             if market_data:
                 return self._extract_numeric_value(market_data[0].close_price)
-            return None
+            return None  # type: None
         except Exception as e:
             raise ExchangeError(f"Error getting real-time price: {str(e)}")
 

@@ -74,7 +74,7 @@ class MonitorConfig:
 class LiquidityGravityMonitor:
     """Монитор гравитации ликвидности для оценки рисков."""
 
-    def __init__(self, config: Optional[MonitorConfig] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or MonitorConfig()
 
         # Инициализация модели гравитации
@@ -195,7 +195,7 @@ class LiquidityGravityMonitor:
 
         except Exception as e:
             logger.error(f"Error getting order book for {symbol}: {e}")
-            return None
+            return None  # type: None
 
     def _assess_risk(
         self,
@@ -397,10 +397,10 @@ class LiquidityGravityMonitor:
         try:
             if symbol in self.risk_history and self.risk_history[symbol]:
                 return self.risk_history[symbol][-1]
-            return None
+            return None  # type: None
         except Exception as e:
             logger.error(f"Error getting latest risk assessment for {symbol}: {e}")
-            return None
+            return None  # type: None
 
     def get_risk_history(
         self, symbol: str, limit: int = 100
@@ -409,10 +409,10 @@ class LiquidityGravityMonitor:
         try:
             if symbol in self.risk_history:
                 return self.risk_history[symbol][-limit:]
-            return []
+            return []  # type: List[Any]
         except Exception as e:
             logger.error(f"Error getting risk history for {symbol}: {e}")
-            return []
+            return []  # type: List[Any]
 
     def get_monitoring_statistics(self) -> Dict[str, Any]:
         """Получение статистики мониторинга."""
@@ -435,4 +435,4 @@ class LiquidityGravityMonitor:
             return stats
         except Exception as e:
             logger.error(f"Error getting monitoring statistics: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]

@@ -27,7 +27,7 @@ from domain.entities.trading import Trade
 class NotificationError(Exception):
     """Ошибка сервиса уведомлений."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         super().__init__(message)
         self.message = message
         self.details = details or {}
@@ -90,7 +90,7 @@ class NotificationChannelProtocol(ABC):
 class EmailNotificationChannel(NotificationChannelProtocol):
     """Канал email уведомлений."""
 
-    def __init__(self, smtp_config: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.smtp_config = smtp_config
         self.logger = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ class EmailNotificationChannel(NotificationChannelProtocol):
 class WebhookNotificationChannel(NotificationChannelProtocol):
     """Канал webhook уведомлений."""
 
-    def __init__(self, webhook_url: str, headers: Optional[Dict[str, str]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.webhook_url = webhook_url
         self.headers = headers or {}
         self.logger = logging.getLogger(__name__)
@@ -145,7 +145,7 @@ class WebhookNotificationChannel(NotificationChannelProtocol):
 class NotificationTemplateManager:
     """Менеджер шаблонов уведомлений."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.templates: Dict[str, NotificationTemplate] = {}
         self._load_default_templates()
 
@@ -206,7 +206,7 @@ class NotificationTemplateManager:
         """Форматирование сообщения по шаблону."""
         template = self.get_template(template_name)
         if not template:
-            return None
+            return None  # type: None
         try:
             return template.message.format(**kwargs)
         except KeyError as e:
@@ -216,7 +216,7 @@ class NotificationTemplateManager:
 class NotificationService:
     """Промышленный сервис уведомлений."""
 
-    def __init__(self, config: NotificationConfig):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.template_manager = NotificationTemplateManager()
@@ -242,7 +242,7 @@ class NotificationService:
         asyncio.create_task(self._process_notification_queue())
         self.logger.info("Notification service started")
 
-    async def stop(self):
+    async def stop(self) -> Any:
         """Остановка сервиса уведомлений."""
         self.is_running = False
         self.logger.info("Notification service stopped")
@@ -253,8 +253,8 @@ class NotificationService:
         title: str,
         message: str,
         level: NotificationLevel = NotificationLevel.INFO,
-        channels: Optional[List[NotificationChannel]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        channels: Optional[List[NotificationChannel] = None] = None,
+        metadata: Optional[Dict[str, Any] = None] = None,
     ) -> bool:
         """Отправка уведомления."""
         try:
@@ -278,7 +278,7 @@ class NotificationService:
         alert_type: str,
         title: str,
         message: str,
-        data: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any] = None] = None,
     ) -> bool:
         """Отправка алерта."""
         try:
@@ -405,7 +405,7 @@ class NotificationService:
             self.logger.error(f"Failed to send position notification: {e}")
             return False
 
-    async def _process_notification_queue(self):
+    async def _process_notification_queue(self) -> Any:
         """Обработка очереди уведомлений."""
         while self.is_running:
             try:
@@ -418,7 +418,7 @@ class NotificationService:
             except Exception as e:
                 self.logger.error(f"Error processing notification queue: {e}")
 
-    async def _send_notification_to_channels(self, notification: Notification):
+    async def _send_notification_to_channels(self, *args, **kwargs) -> Any:
         """Отправка уведомления по каналам."""
         sent_channels = []
         for channel_name in notification.channels:

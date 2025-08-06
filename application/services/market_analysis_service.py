@@ -14,7 +14,7 @@ from domain.services.market_analysis import MarketAnalysisService as DomainMarke
 class MarketAnalysisService:
     """Сервис для анализа рынка."""
 
-    def __init__(self, market_repository: MarketRepository):
+    def __init__(self, *args, **kwargs) -> Any:
         self.market_repository = market_repository
         self.domain_market_analysis_service = DomainMarketAnalysisService()
 

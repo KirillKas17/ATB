@@ -614,7 +614,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
         # Инициализируем базу данных при создании
         asyncio.create_task(self._init_database())
 
-    async def _get_pool(self) -> Any:
+    async def _get_pool(self) -> Dict[str, Any]:
         """Получение пула соединений."""
         if self._pool is None:
             try:
@@ -689,7 +689,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
         
         self.logger.info("Basic tables created successfully")
 
-    async def _execute_with_retry(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
+    async def _execute_with_retry(self, operation: Any, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         """Выполнение операции с повторными попытками."""
         max_retries = 3
         for attempt in range(max_retries):
@@ -1329,7 +1329,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                         quantity=Volume(Decimal(str(row['quantity'])), Currency.USD),
                         price=Price(Decimal(str(row['price'])), Currency.USD),
                         commission=Money(Decimal(str(row.get('fee', 0))), Currency.USD),
-                        timestamp=cast(BaseTimestampValue, row['timestamp'])
+                        timestamp=Timestamp.from_datetime(row['timestamp']) if isinstance(row['timestamp'], datetime) else Timestamp.now()
                     )
                     trades.append(trade)
                 
@@ -1378,7 +1378,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                         quantity=Volume(Decimal(str(row['quantity'])), Currency.USD),
                         price=Price(Decimal(str(row['price'])), Currency.USD),
                         commission=Money(Decimal(str(row.get('fee', 0))), Currency.USD),
-                        timestamp=cast(BaseTimestampValue, row['timestamp'])
+                        timestamp=Timestamp.from_datetime(row['timestamp']) if isinstance(row['timestamp'], datetime) else Timestamp.now()
                     )
                     trades.append(trade)
                 
@@ -1415,7 +1415,7 @@ class PostgresTradingRepository(TradingRepositoryProtocol):
                         quantity=Volume(Decimal(str(row['quantity'])), Currency.USD),
                         price=Price(Decimal(str(row['price'])), Currency.USD),
                         commission=Money(Decimal(str(row.get('fee', 0))), Currency.USD),
-                        timestamp=cast(BaseTimestampValue, row['timestamp'])
+                        timestamp=Timestamp.from_datetime(row['timestamp']) if isinstance(row['timestamp'], datetime) else Timestamp.now()
                     )
                     trades.append(trade)
                 

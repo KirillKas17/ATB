@@ -93,7 +93,7 @@ class StreamManager:
             logger.error(f"Failed to unsubscribe from {symbol}: {e}")
             return False
 
-    async def start_monitoring(self):
+    async def start_monitoring(self) -> Any:
         """Запуск мониторинга запутанности."""
         if self.is_running:
             logger.warning("Stream manager is already running")
@@ -115,13 +115,13 @@ class StreamManager:
         finally:
             self.is_running = False
 
-    async def stop_monitoring(self):
+    async def stop_monitoring(self) -> Any:
         """Остановка мониторинга."""
         self.is_running = False
         await self.aggregator.stop()
         logger.info("Stopped entanglement monitoring")
 
-    async def _handle_order_book_update(self, update: OrderBookUpdate):
+    async def _handle_order_book_update(self, *args, **kwargs) -> Any:
         """Обработка обновления ордербука."""
         try:
             # Валидация обновления
@@ -161,7 +161,7 @@ class StreamManager:
 
         self._last_sequence_ids[symbol] = sequence_id
 
-    async def _run_entanglement_detector(self):
+    async def _run_entanglement_detector(self) -> Any:
         """Запуск детектора запутанности."""
         while self.is_running:
             try:
@@ -178,7 +178,7 @@ class StreamManager:
                 logger.error(f"Error in entanglement detector: {e}")
                 await asyncio.sleep(1.0)
 
-    async def _process_order_book_updates(self, updates: List[OrderBookUpdate]):
+    async def _process_order_book_updates(self, *args, **kwargs) -> Any:
         """Обработка списка обновлений ордербука."""
         if not updates:
             return
@@ -221,7 +221,7 @@ class StreamManager:
             except Exception as e:
                 logger.error(f"Error processing updates for {symbol}: {e}")
 
-    async def _handle_entanglement_result(self, result: Any):
+    async def _handle_entanglement_result(self, *args, **kwargs) -> Any:
         """Обработка результата обнаружения запутанности."""
         try:
             # Обновляем статистику
@@ -244,7 +244,7 @@ class StreamManager:
         except Exception as e:
             logger.error(f"Error handling entanglement result: {e}")
 
-    def add_entanglement_callback(self, callback: Callable):
+    def add_entanglement_callback(self, *args, **kwargs) -> Any:
         """Добавление callback для обработки результатов запутанности."""
         self.entanglement_callbacks.append(callback)
         callback_count = len(self.entanglement_callbacks) if hasattr(self.entanglement_callbacks, '__len__') else 0
@@ -252,7 +252,7 @@ class StreamManager:
             f"Added entanglement callback, total: {callback_count}"
         )
 
-    def remove_entanglement_callback(self, callback: Callable):
+    def remove_entanglement_callback(self, *args, **kwargs) -> Any:
         """Удаление callback."""
         if callback in self.entanglement_callbacks:
             self.entanglement_callbacks.remove(callback)
@@ -287,7 +287,7 @@ class StreamManager:
             ),
         }
 
-    def reset_stats(self):
+    def reset_stats(self) -> None:
         """Сброс статистики."""
         self.stats = {
             "total_detections": 0,
@@ -308,7 +308,7 @@ class StreamManager:
             "detector_stats": self.detector.get_detector_statistics(),
         }
 
-    def clear_buffers(self):
+    def clear_buffers(self) -> None:
         """Очистка буферов."""
         self.aggregator.clear_buffer()
         self.detector.reset_statistics()

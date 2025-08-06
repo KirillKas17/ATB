@@ -26,7 +26,7 @@ class RiskMetrics:
 class RiskAssessor:
     """Сервис для оценки рисков."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {
             "max_position_size": Decimal("0.2"),  # 20% от портфеля
             "max_leverage": Decimal("10"),

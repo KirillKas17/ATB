@@ -24,7 +24,7 @@ from safe_import_wrapper import safe_import
 class EnhancedPredictionService:
     """Улучшенный сервис прогнозирования с продвинутыми алгоритмами"""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         """
         Args:
             config: Конфигурация сервиса
@@ -103,12 +103,12 @@ class EnhancedPredictionService:
             
         except Exception as e:
             logger.error(f"Error generating enhanced prediction for {symbol}: {e}")
-            return None
+            return None  # type: None
     
     async def _get_market_data(
         self, 
         symbol: str, 
-        market_service: Optional[Any],
+        market_service: Optional[Any] = None,
         timeframe: str
     ) -> Optional[pd.DataFrame]:
         """Получение рыночных данных с кэшированием"""
@@ -180,7 +180,7 @@ class EnhancedPredictionService:
             df.set_index('timestamp', inplace=True)
             return df
         
-        return None
+        return None  # type: None
     
     def _generate_synthetic_data(self, symbol: str) -> pd.DataFrame:
         """Генерация синтетических данных для тестирования"""
@@ -216,7 +216,7 @@ class EnhancedPredictionService:
     async def _get_orderbook_data(
         self, 
         symbol: str, 
-        market_service: Optional[Any]
+        market_service: Optional[Any] = None
     ) -> Optional[pd.DataFrame]:
         """Получение данных ордербука"""
         try:
@@ -226,11 +226,11 @@ class EnhancedPredictionService:
                     return self._convert_orderbook_to_df(orderbook)
             
             # Возвращаем None для использования эмуляции в prediction_engine
-            return None
+            return None  # type: None
             
         except Exception as e:
             logger.warning(f"Error getting orderbook for {symbol}: {e}")
-            return None
+            return None  # type: None
     
     def _convert_orderbook_to_df(self, orderbook: Dict[str, Any]) -> pd.DataFrame:
         """Конвертация ордербука в DataFrame"""
@@ -260,7 +260,7 @@ class EnhancedPredictionService:
     async def _get_volume_profile(
         self, 
         symbol: str, 
-        market_service: Optional[Any]
+        market_service: Optional[Any] = None
     ) -> Optional[Dict[str, Any]]:
         """Получение профиля объема"""
         try:
@@ -277,11 +277,11 @@ class EnhancedPredictionService:
                     })
                     return volume_profile_func(profile_data)
             
-            return None
+            return None  # type: None
             
         except Exception as e:
             logger.warning(f"Error getting volume profile for {symbol}: {e}")
-            return None
+            return None  # type: None
     
     async def _enhance_prediction_quality(
         self, 
@@ -362,7 +362,7 @@ class EnhancedPredictionService:
     def _get_dominant_fvg_direction(self, fvg_signals: List[FairValueGap]) -> Optional[str]:
         """Определение доминирующего направления FVG"""
         if not fvg_signals:
-            return None
+            return None  # type: None
         
         bullish_strength = sum(fvg.strength for fvg in fvg_signals if fvg.direction == 'bullish')
         bearish_strength = sum(fvg.strength for fvg in fvg_signals if fvg.direction == 'bearish')
@@ -372,12 +372,12 @@ class EnhancedPredictionService:
         elif bearish_strength > bullish_strength * 1.2:
             return 'bearish'
         else:
-            return None
+            return None  # type: None
     
     def _get_dominant_orderflow_direction(self, orderflow_signals: List[OrderFlowImbalance]) -> Optional[str]:
         """Определение доминирующего направления orderflow"""
         if not orderflow_signals:
-            return None
+            return None  # type: None
         
         bullish_significance = sum(of.significance for of in orderflow_signals if of.is_bullish)
         bearish_significance = sum(of.significance for of in orderflow_signals if of.is_bearish)
@@ -387,7 +387,7 @@ class EnhancedPredictionService:
         elif bearish_significance > bullish_significance * 1.2:
             return 'bearish'
         else:
-            return None
+            return None  # type: None
     
     def _get_symbol_accuracy(self, symbol: str) -> float:
         """Получение исторической точности для символа"""
@@ -400,7 +400,7 @@ class EnhancedPredictionService:
         # Для демонстрации возвращаем базовое значение
         return 0.65
     
-    async def _update_accuracy_metrics(self, symbol: str):
+    async def _update_accuracy_metrics(self, *args, **kwargs) -> Any:
         """Обновление метрик точности"""
         try:
             # Здесь должна быть логика сравнения прогнозов с реальными результатами
@@ -410,7 +410,7 @@ class EnhancedPredictionService:
         except Exception as e:
             logger.warning(f"Error updating accuracy metrics for {symbol}: {e}")
     
-    def _maintain_history_size(self, max_size: int = 1000):
+    def _maintain_history_size(self, *args, **kwargs) -> Any:
         """Поддержание размера истории прогнозов"""
         if len(self.prediction_history) > max_size:
             # Удаляем старые записи

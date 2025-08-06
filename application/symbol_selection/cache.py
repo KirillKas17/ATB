@@ -16,7 +16,7 @@ from .types import DOASSConfig
 class SymbolCache:
     """Класс кэша для выбора символов."""
 
-    def __init__(self, config: DOASSConfig):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config
         self.logger = logger.bind(name=self.__class__.__name__)
 
@@ -70,11 +70,11 @@ class SymbolCache:
                 if current_time - timestamp < self.config.cache_ttl_seconds:
                     return profile
 
-            return None
+            return None  # type: None
 
         except Exception as e:
             self.logger.error(f"Error getting cached profile for {symbol}: {e}")
-            return None
+            return None  # type: None
 
     def calculate_cache_hit_rate(self) -> float:
         """Расчет hit rate кэша."""
@@ -138,7 +138,7 @@ class SymbolCache:
 
         except Exception as e:
             self.logger.error(f"Error getting cache stats: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     def get_cached_profiles(self) -> Dict[str, SymbolProfile]:
         """Получение всех кэшированных профилей."""
@@ -151,7 +151,7 @@ class SymbolCache:
             return valid_profiles
         except Exception as e:
             self.logger.error(f"Error getting cached profiles: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     def get_hit_rate(self) -> float:
         """Получение hit rate кэша."""

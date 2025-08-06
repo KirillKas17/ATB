@@ -15,7 +15,7 @@ from .technical_analysis_service import TechnicalAnalysisService
 class MarketServiceFactory:
     """Фабрика для создания рыночных сервисов."""
 
-    def __init__(self, market_repository: MarketRepository):
+    def __init__(self, *args, **kwargs) -> Any:
         self.market_repository = market_repository
         self._services_cache: Dict[str, Any] = {}
 
@@ -53,7 +53,7 @@ class MarketServiceFactory:
             )
         return self._services_cache["market_analysis_service"]
 
-    def get_service(self, service_type: str):
+    def get_service(self, *args, **kwargs) -> Any:
         """Получает сервис по типу."""
         service_map = {
             "market": self.create_market_service,
@@ -65,6 +65,6 @@ class MarketServiceFactory:
             raise ValueError(f"Unknown service type: {service_type}")
         return service_map[service_type]()
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Очищает кэш сервисов."""
         self._services_cache.clear()

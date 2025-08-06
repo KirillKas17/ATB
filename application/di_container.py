@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class DIContainer:
     """Контейнер для dependency injection."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._services: Dict[str, Any] = {}
         self._factories: Dict[str, Callable[[], Any]] = {}
         self._singletons: Dict[str, Any] = {}
@@ -57,10 +57,10 @@ class DIContainer:
                 return instance
             except Exception as e:
                 logger.error(f"Error creating instance for {key}: {e}")
-                return None
+                return None  # type: None
         
         logger.warning(f"Service not found: {key}")
-        return None
+        return None  # type: None
     
     def resolve(self, service_type: Type[T]) -> T:
         """Получение сервиса с обязательным результатом."""

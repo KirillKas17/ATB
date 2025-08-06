@@ -61,7 +61,7 @@ class RiskAssessment:
 class AdvancedStrategyRegistry:
     """Продвинутая реализация реестра стратегий с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.strategies: Dict[str, Any] = {}
         self.active_strategies: Set[str] = set()
         self.strategy_metrics: Dict[str, StrategyMetrics] = {}
@@ -152,7 +152,7 @@ class AdvancedStrategyRegistry:
             
         except Exception as e:
             self.logger.error(f"Ошибка получения активных стратегий: {e}")
-            return []
+            return []  # type: List[Any]
     
     async def get_all_strategies(self) -> Dict[str, Any]:
         """Получение всех стратегий с полной аналитикой."""
@@ -172,7 +172,7 @@ class AdvancedStrategyRegistry:
             
         except Exception as e:
             self.logger.error(f"Ошибка получения всех стратегий: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
     
     async def get_health_status(self) -> Dict[str, Any]:
         """Получение детального статуса здоровья реестра стратегий."""
@@ -252,7 +252,7 @@ class AdvancedStrategyRegistry:
         # Реализация оптимизации параметров через генетический алгоритм
         return None  # Пока возвращаем None, чтобы использовать исходную конфигурацию
     
-    def _calculate_strategy_score(self, metrics: Optional[StrategyMetrics]) -> float:
+    def _calculate_strategy_score(self, metrics: Optional[StrategyMetrics] = None) -> float:
         """Расчет комбинированной оценки стратегии."""
         if not metrics:
             return 0.0
@@ -288,7 +288,7 @@ class AdvancedStrategyRegistry:
     async def _get_top_performer(self) -> Optional[str]:
         """Получение ID стратегии с лучшей производительностью."""
         if not self.strategy_metrics:
-            return None
+            return None  # type: None
         
         best_strategy = max(
             self.strategy_metrics.items(),
@@ -325,7 +325,7 @@ class AdvancedStrategyRegistry:
 class AdvancedRiskManager:
     """Продвинутый риск-менеджер с AI-анализом и многофакторной оценкой."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.risk_models: Dict[str, Any] = {}
         self.position_limits: Dict[str, Decimal] = {}
         self.correlation_matrix: Optional[np.ndarray] = None
@@ -814,25 +814,25 @@ class AdvancedRiskManager:
     
     async def _load_var_model(self) -> Any:
         """Загрузка модели VaR."""
-        return None
+        return None  # type: None
     
     async def _load_correlation_model(self) -> Any:
         """Загрузка корреляционной модели."""
-        return None
+        return None  # type: None
     
     async def _load_volatility_model(self) -> Any:
         """Загрузка модели волатильности."""
-        return None
+        return None  # type: None
     
     async def _load_liquidity_model(self) -> Any:
         """Загрузка модели ликвидности."""
-        return None
+        return None  # type: None
 
 
 class AdvancedMarketData:
     """Продвинутый провайдер рыночных данных с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.ticker_cache: Dict[str, Dict[str, Any]] = {}
         self.orderbook_cache: Dict[str, Dict[str, Any]] = {}
         self.market_data_cache: Dict[str, Dict[str, Any]] = {}
@@ -973,7 +973,7 @@ class AdvancedMarketData:
 class AdvancedSentimentAnalyzer:
     """Продвинутый анализатор настроений с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.sentiment_models: Dict[str, Any] = {}
         self.fear_greed_index_cache: Dict[str, float] = {}
         self.logger = logging.getLogger(__name__)
@@ -1092,7 +1092,7 @@ class AdvancedSentimentAnalyzer:
     
     async def _get_historical_data(self, symbol: str) -> Dict[str, Any]:
         """Получение исторических данных."""
-        return {}
+        return {}  # type: Dict[str, Any]
     
     async def _preprocess_data(self, historical_data: Dict[str, Any]) -> Dict[str, Any]:
         """Предобработка данных."""
@@ -1119,7 +1119,7 @@ class AdvancedSentimentAnalyzer:
 class AdvancedPortfolioManager:
     """Продвинутый менеджер портфеля с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.portfolio_data: Dict[str, Any] = {}
         self.total_balance: Dict[str, Decimal] = {}
         self.portfolio_value: Decimal = Decimal(0)
@@ -1170,7 +1170,7 @@ class AdvancedPortfolioManager:
             self.logger.error(f"Ошибка расчета стоимости портфеля: {e}")
             raise
     
-    async def rebalance_portfolio(self, target_allocation: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
+    async def rebalance_portfolio(self, target_allocation: Optional[Dict[str, float] = None] = None) -> Dict[str, Any]:
         """Ребалансировка портфеля с использованием AI."""
         try:
             # Получение текущего портфеля
@@ -1247,7 +1247,7 @@ class AdvancedPortfolioManager:
     
     async def _optimize_positions(self, current_portfolio: Dict[str, Decimal], target_allocation: Dict[str, float]) -> Dict[str, Any]:
         """Оптимизация позиций."""
-        return {}
+        return {}  # type: Dict[str, Any]
     
     async def _execute_trades(self, optimal_positions: Dict[str, Any]) -> Dict[str, Any]:
         """Выполнение торговых операций."""
@@ -1261,7 +1261,7 @@ class AdvancedPortfolioManager:
 class AdvancedEvolutionManager:
     """Продвинутый эволюционный менеджер с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.evolution_state: Dict[str, Any] = {}
         self.logger = logging.getLogger(__name__)
         self._initialized = False
@@ -1307,7 +1307,7 @@ class AdvancedEvolutionManager:
             
         except Exception as e:
             self.logger.error(f"Ошибка эволюции стратегий: {e}")
-            return []
+            return []  # type: List[Any]
     
     async def perform_evolution_cycle(self) -> Dict[str, Any]:
         """Выполнение цикла эволюции."""
@@ -1375,7 +1375,7 @@ class AdvancedEvolutionManager:
 
     async def _get_current_strategies(self) -> List[Dict[str, Any]]:
         """Получение текущих стратегий."""
-        return []
+        return []  # type: List[Any]
     
     async def _define_fitness_function(self, strategies: List[Dict[str, Any]]) -> Any:
         """Определение функции приспособленности."""
@@ -1395,7 +1395,7 @@ class AdvancedEvolutionManager:
 class AdvancedOrderManagement:
     """Продвинутое управление заказами с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.order_history: List[Dict[str, Any]] = []
         self.logger = logging.getLogger(__name__)
         self._initialized = False
@@ -1485,7 +1485,7 @@ class AdvancedOrderManagement:
     
     async def _get_current_config(self) -> Dict[str, Any]:
         """Получение текущей конфигурации."""
-        return {}
+        return {}  # type: Dict[str, Any]
     
     async def _calculate_target_price(self, order_data: Dict[str, Any], config: Dict[str, Any]) -> Decimal:
         """Расчет целевой цены."""
@@ -1522,7 +1522,7 @@ class AdvancedOrderManagement:
 class AdvancedPositionManagement:
     """Продвинутое управление позициями с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.position_history: List[Dict[str, Any]] = []
         self.logger = logging.getLogger(__name__)
         self._initialized = False
@@ -1591,7 +1591,7 @@ class AdvancedPositionManagement:
     
     async def _fetch_positions(self) -> List[Dict[str, Any]]:
         """Получение позиций."""
-        return []
+        return []  # type: List[Any]
     
     async def _save_position_history(self) -> None:
         """Сохранение истории позиций."""
@@ -1601,7 +1601,7 @@ class AdvancedPositionManagement:
 class AdvancedRiskManagement:
     """Продвинутое управление рисками с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.risk_assessment_history: List[Dict[str, Any]] = []
         self.logger = logging.getLogger(__name__)
         self._initialized = False
@@ -1719,7 +1719,7 @@ class AdvancedRiskManagement:
     
     async def _get_current_config(self) -> Dict[str, Any]:
         """Получение текущей конфигурации."""
-        return {}
+        return {}  # type: Dict[str, Any]
     
     async def _calculate_risk_level(self, data: Dict[str, Any], config: Dict[str, Any]) -> RiskLevel:
         """Расчет уровня риска."""
@@ -1753,7 +1753,7 @@ class AdvancedRiskManagement:
 class AdvancedTradingPairManagement:
     """Продвинутое управление торговыми парами с AI-оптимизацией."""
     
-    def __init__(self):
+    def __init__(self) -> Any:
         self.active_pairs: Set[str] = set()
         self.trading_pairs_cache: Dict[str, Any] = {}
         self.logger = logging.getLogger(__name__)
@@ -1850,7 +1850,7 @@ class AdvancedTradingPairManagement:
     
     async def _get_current_config(self) -> Dict[str, Any]:
         """Получение текущей конфигурации."""
-        return {}
+        return {}  # type: Dict[str, Any]
     
     async def _fetch_active_pairs(self) -> List[str]:
         """Получение активных пар."""
@@ -1859,14 +1859,14 @@ class AdvancedTradingPairManagement:
     async def _determine_trading_pairs(self, request: Any, config: Dict[str, Any]) -> Any:
         """Определение торговых пар."""
         class MockTradingPair:
-            def __init__(self, symbol: str):
+            def __init__(self, *args, **kwargs) -> Any:
                 self.symbol = symbol
                 self.base_asset = symbol[:-4] if len(symbol) > 4 else symbol[:3]
                 self.quote_asset = symbol[-4:] if len(symbol) > 4 else "USDT"
                 self.is_active = True
         
         class MockResponse:
-            def __init__(self):
+            def __init__(self) -> Any:
                 self.success = True
                 self.trading_pairs = [
                     MockTradingPair("BTCUSDT"),

@@ -459,7 +459,7 @@ class PortfolioServiceImpl(BaseApplicationService, PortfolioService):
         portfolio_id: UUID,
         current_weights: Dict[Symbol, Decimal],
         target_weights: Dict[Symbol, Decimal],
-    ) -> List[Any]:
+    ) -> List[Dict[str, Any]]:
         """Расчет ордеров для ребалансировки."""
         try:
             # Получаем общую стоимость портфеля

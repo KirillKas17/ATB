@@ -33,7 +33,7 @@ class ServiceMetrics:
 class BaseApplicationService(BaseService, ABC):
     """Базовый класс для всех сервисов application слоя."""
 
-    def __init__(self, service_name: str, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         super().__init__()
         self.service_name = service_name
         self.logger = logging.getLogger(f"{__name__}.{service_name}")

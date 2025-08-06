@@ -23,6 +23,7 @@ from domain.entities.trading import (
 from domain.type_definitions import TradeId, OrderId
 from domain.value_objects import Price as DomainPrice, Volume as DomainVolume
 from domain.value_objects.price import Price
+from domain.value_objects.timestamp import Timestamp
 
 
 @dataclass
@@ -170,7 +171,7 @@ class TradeExecutor:
                     quantity=new_position.quantity,
                     price=market_data.close,
                     commission=Money(Decimal("0"), market_data.close.currency),
-                    timestamp=market_data.timestamp
+                    timestamp=Timestamp.from_datetime(market_data.timestamp) if hasattr(market_data.timestamp, '__class__') else Timestamp.now()
                 )
                 
                 self._update_metrics(trade, start_time)
@@ -348,7 +349,7 @@ class TradeExecutor:
                 quantity=position.quantity,
                 price=market_data.close,
                 commission=Money(Decimal("0"), market_data.close.currency),
-                timestamp=market_data.timestamp
+                timestamp=Timestamp.from_datetime(market_data.timestamp) if hasattr(market_data.timestamp, '__class__') else Timestamp.now()
             )
             
             logger.info(f"Closed {position.side.value} position for {position.symbol}")

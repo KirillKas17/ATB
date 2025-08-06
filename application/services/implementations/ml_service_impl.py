@@ -26,7 +26,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         self,
         ml_repository: MLRepository,
         ml_predictor: MLPredictor,
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any] = None] = None,
     ):
         super().__init__("MLService", config)
         self.ml_repository = ml_repository
@@ -118,7 +118,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             # Обновляем метрики модели
             await self._update_model_metrics(model.id, prediction_result)
             return ml_prediction
-        return None
+        return None  # type: None
 
     async def analyze_sentiment(self, text: str) -> Dict[str, Any]:
         """Анализ настроений."""
@@ -335,7 +335,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Feature extraction failed: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
     
     async def _calculate_technical_features(self, market_data: Any) -> Dict[str, float]:
         """Расчет технических индикаторов как признаков."""
@@ -357,7 +357,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Technical features calculation failed: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
     
     async def _normalize_features(self, features: Dict[str, float]) -> Dict[str, float]:
         """Нормализация признаков для ML модели."""
@@ -449,7 +449,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             if not model:
                 return {"error": f"Model {model_id} not found"}
             # Здесь нет метода evaluate_model, оставляем заглушку или реализуем через внешний сервис
-            return {}
+            return {}  # type: Dict[str, Any]
         except Exception as e:
             self.logger.error(f"Error evaluating model {model_id}: {e}")
             return {"error": str(e)}
@@ -593,7 +593,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             return len(data.strip()) > 0
         return False
 
-    def process(self, data: Any) -> Any:
+    def process(self, data: Any) -> Dict[str, Any]:
         """Обработка данных."""
         if isinstance(data, dict):
             # Обработка ML данных
@@ -707,7 +707,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
             # Создание объекта результата
             class SentimentResult:
-                def __init__(self):
+                def __init__(self) -> None:
                     self.sentiment_score = final_score
                     self.confidence = confidence
                     self.sentiment_label = sentiment_label
@@ -721,7 +721,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Error in advanced sentiment analysis: {e}")
-            return None
+            return None  # type: None
 
     def _lexical_sentiment_analysis(self, text: str) -> float:
         """Лексический анализ настроений."""
@@ -909,7 +909,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         else:
             return "unknown"
 
-    async def _detect_patterns_advanced(self, market_data, pattern_model) -> List[Any]:
+    async def _detect_patterns_advanced(self, market_data, pattern_model) -> List[Dict[str, Any]]:
         """Продвинутое обнаружение паттернов."""
         import pandas as pd
         from datetime import datetime, timedelta
@@ -952,7 +952,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         return patterns
 
-    def _detect_technical_patterns(self, prices: np.ndarray, timestamps) -> List[Any]:
+    def _detect_technical_patterns(self, prices: np.ndarray, timestamps) -> List[Dict[str, Any]]:
         """Обнаружение паттернов технического анализа."""
         patterns = []
         
@@ -974,7 +974,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         return patterns
 
-    def _find_double_patterns(self, prices: np.ndarray) -> List[Any]:
+    def _find_double_patterns(self, prices: np.ndarray) -> List[Dict[str, Any]]:
         """Поиск паттернов двойной вершины/дна."""
         patterns = []
         
@@ -1006,7 +1006,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
                         if min_trough[1] < min(peak1_price, peak2_price) * 0.98:
                             
                             class Pattern:
-                                def __init__(self):
+                                def __init__(self) -> None:
                                     self.pattern_id = f"double_top_{i}_{j}"
                                     self.pattern_type = "double_top"
                                     self.confidence = 0.8
@@ -1019,25 +1019,25 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         return patterns
 
-    def _find_head_shoulder_patterns(self, prices: np.ndarray) -> List[Any]:
+    def _find_head_shoulder_patterns(self, prices: np.ndarray) -> List[Dict[str, Any]]:
         """Поиск паттернов голова и плечи."""
         patterns = []
         # Упрощенная реализация
         return patterns
 
-    def _find_triangle_patterns(self, prices: np.ndarray) -> List[Any]:
+    def _find_triangle_patterns(self, prices: np.ndarray) -> List[Dict[str, Any]]:
         """Поиск треугольных паттернов."""
         patterns = []
         # Упрощенная реализация
         return patterns
 
-    def _find_flag_patterns(self, prices: np.ndarray) -> List[Any]:
+    def _find_flag_patterns(self, prices: np.ndarray) -> List[Dict[str, Any]]:
         """Поиск паттернов флагов и вымпелов."""
         patterns = []
         # Упрощенная реализация
         return patterns
 
-    def _detect_statistical_anomalies(self, prices: np.ndarray, volumes) -> List[Any]:
+    def _detect_statistical_anomalies(self, prices: np.ndarray, volumes) -> List[Dict[str, Any]]:
         """Обнаружение статистических аномалий."""
         patterns = []
         
@@ -1056,7 +1056,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         for idx in anomaly_indices:
             class AnomalyPattern:
-                def __init__(self):
+                def __init__(self) -> None:
                     self.pattern_id = f"anomaly_{idx}"
                     self.pattern_type = "statistical_anomaly"
                     self.confidence = min(abs(z_scores[idx]) / 3.0, 1.0)
@@ -1069,7 +1069,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         return patterns
 
-    def _detect_cyclic_patterns(self, prices: np.ndarray, timestamps) -> List[Any]:
+    def _detect_cyclic_patterns(self, prices: np.ndarray, timestamps) -> List[Dict[str, Any]]:
         """Обнаружение циклических паттернов."""
         patterns = []
         
@@ -1093,7 +1093,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             for peak in peaks[:3]:  # Берем только первые 3 значимых цикла
                 if peak > 5:  # Минимальный период
                     class CyclicPattern:
-                        def __init__(self):
+                        def __init__(self) -> None:
                             self.pattern_id = f"cycle_{peak}"
                             self.pattern_type = "cyclic"
                             self.confidence = autocorr[peak] / np.max(autocorr)
@@ -1112,7 +1112,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         return patterns
 
-    def _detect_volatility_patterns(self, prices: np.ndarray) -> List[Any]:
+    def _detect_volatility_patterns(self, prices: np.ndarray) -> List[Dict[str, Any]]:
         """Обнаружение паттернов волатильности."""
         patterns = []
         
@@ -1157,7 +1157,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             for i, group in enumerate(groups):
                 if len(group) >= 3:  # Минимальная длина паттерна
                     class VolatilityPattern:
-                        def __init__(self):
+                        def __init__(self) -> None:
                             self.pattern_id = f"high_volatility_{i}"
                             self.pattern_type = "high_volatility"
                             self.confidence = 0.7
@@ -1170,7 +1170,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         return patterns
 
-    def _detect_volume_patterns(self, prices: np.ndarray, volumes) -> List[Any]:
+    def _detect_volume_patterns(self, prices: np.ndarray, volumes) -> List[Dict[str, Any]]:
         """Обнаружение паттернов объема."""
         patterns = []
         
@@ -1188,7 +1188,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         
         for idx in high_volume_indices:
             class VolumePattern:
-                def __init__(self):
+                def __init__(self) -> None:
                     self.pattern_id = f"high_volume_{idx}"
                     self.pattern_type = "volume_spike"
                     self.confidence = min((volumes_array[idx] - mean_volume) / (3 * std_volume), 1.0)
@@ -1235,7 +1235,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Error in advanced risk calculation: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     async def _calculate_var_metrics(self, market_data, portfolio_data) -> Dict[str, float]:
         """Расчет Value at Risk различными методами."""

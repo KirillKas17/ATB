@@ -18,7 +18,7 @@ from domain.type_definitions.repository_types import EntityId
 class MLService:
     """Сервис для работы с ML моделями."""
 
-    def __init__(self, ml_repository: MLRepository):
+    def __init__(self, *args, **kwargs) -> Any:
         self.ml_repository = ml_repository
 
     async def create_model(

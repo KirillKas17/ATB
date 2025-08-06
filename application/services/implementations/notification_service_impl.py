@@ -13,7 +13,7 @@ from domain.type_definitions import PortfolioId
 class NotificationServiceImpl(NotificationService):
     """Реализация сервиса уведомлений."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         """Инициализация сервиса уведомлений."""
         self.config = config or {}
         self.logger = logging.getLogger(__name__)
@@ -147,7 +147,7 @@ class NotificationServiceImpl(NotificationService):
             return notifications[-limit:]
         except Exception as e:
             self.logger.error(f"Error getting notifications: {e}")
-            return []
+            return []  # type: List[Any]
 
     def clear_notifications(self) -> bool:
         """Очистка уведомлений."""

@@ -1,3 +1,5 @@
+from typing import Any, Dict, List, Optional, Union, Protocol, TypeVar, Generic
+from decimal import Decimal
 """
 Safe dependency injection container with protected imports
 """

@@ -698,8 +698,8 @@ class PostgresMLRepository(MLRepositoryProtocol):
                 prediction.id,
                 prediction.model_id,
                 str(prediction.trading_pair),
-                float(prediction.value),
-                float(prediction.confidence),
+                float(prediction.value) if prediction.value is not None else 0.0,
+                float(prediction.confidence) if prediction.confidence is not None else 0.0,
                 prediction.timestamp,
                 json.dumps(prediction.metadata) if prediction.metadata else None
             )

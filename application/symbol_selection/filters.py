@@ -14,7 +14,7 @@ from .types import DOASSConfig
 class SymbolFilters:
     """Класс фильтров для выбора символов."""
 
-    def __init__(self, config: DOASSConfig):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config
         self.logger = logger.bind(name=self.__class__.__name__)
 

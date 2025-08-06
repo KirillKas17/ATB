@@ -585,7 +585,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             
             if not returns_data:
                 logger.warning("Нет данных о доходностях для оптимизации")
-                return {}
+                return {}  # type: Dict[str, Any]
             
             # Подготовка данных
             returns_df = pd.DataFrame(returns_data)
@@ -593,7 +593,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             n_assets = len(asset_names)
             
             if n_assets == 0:
-                return {}
+                return {}  # type: Dict[str, Any]
             
             # Расчёт ковариационной матрицы (с регуляризацией Ledoit-Wolf)
             lw = LedoitWolf()
@@ -674,7 +674,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
             
         except Exception as e:
             logger.error(f"Ошибка оптимизации портфеля: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
     
     def detect_regime_change(self, returns_data: np.ndarray, window_size: int = 50) -> Dict[str, Any]:
         """

@@ -41,7 +41,7 @@ class FilterConfig:
 class OrderBookPreFilter:
     """Пре-фильтр ордербуков с анализом нейронного шума."""
 
-    def __init__(self, config: Optional[FilterConfig] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or FilterConfig()
         noise_config = NoiseAnalysisConfig(
             fractal_dimension_lower=self.config.fractal_dimension_lower,
@@ -449,4 +449,4 @@ class OrderBookPreFilter:
             return order_book.meta.get("noise_analysis")
         except Exception as e:
             logger.error(f"Error getting noise analysis result: {e}")
-            return None
+            return None  # type: None

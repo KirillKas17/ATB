@@ -18,7 +18,7 @@ from domain.value_objects.money import Money
 class PositionManagementError(Exception):
     """Ошибка управления позициями."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         super().__init__(message)
         self.message = message
         self.details = details or {}
@@ -27,7 +27,7 @@ class PositionManagementError(Exception):
 class InvalidPositionError(Exception):
     """Ошибка валидации позиции."""
 
-    def __init__(self, message: str, validation_errors: Optional[List[str]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         super().__init__(message)
         self.message = message
         self.validation_errors = validation_errors or []
@@ -139,7 +139,7 @@ class PositionCreator:
         return len(errors) == 0, errors
 
     def _calculate_required_margin(
-        self, quantity: Decimal, entry_price: Decimal, leverage: Optional[Decimal]
+        self, quantity: Decimal, entry_price: Decimal, leverage: Optional[Decimal] = None
     ) -> Decimal:
         """Расчет требуемой маржи."""
         position_value = quantity * entry_price

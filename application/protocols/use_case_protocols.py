@@ -52,7 +52,7 @@ class CreateOrderRequest:
 class CreateOrderResponse:
     """Ответ на создание ордера."""
 
-    def __init__(self, order: Order, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.order = order
         self.success = success
         self.message = message
@@ -61,14 +61,14 @@ class CreateOrderResponse:
 class CancelOrderRequest:
     """Запрос на отмену ордера."""
 
-    def __init__(self, order_id: OrderId):
+    def __init__(self, *args, **kwargs) -> Any:
         self.order_id = order_id
 
 
 class CancelOrderResponse:
     """Ответ на отмену ордера."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.success = success
         self.message = message
 
@@ -90,7 +90,7 @@ class GetOrdersRequest:
 class GetOrdersResponse:
     """Ответ с ордерами."""
 
-    def __init__(self, orders: List[Order]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.orders = orders
 
 
@@ -115,7 +115,7 @@ class CreatePositionRequest:
 class CreatePositionResponse:
     """Ответ на создание позиции."""
 
-    def __init__(self, position: Position, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.position = position
         self.success = success
         self.message = message
@@ -138,7 +138,7 @@ class UpdatePositionRequest:
 class UpdatePositionResponse:
     """Ответ на обновление позиции."""
 
-    def __init__(self, position: Position, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.position = position
         self.success = success
         self.message = message
@@ -163,7 +163,7 @@ class ClosePositionRequest:
 class ClosePositionResponse:
     """Ответ на закрытие позиции."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.success = success
         self.message = message
 
@@ -183,7 +183,7 @@ class GetPositionsRequest:
 class GetPositionsResponse:
     """Ответ с позициями."""
 
-    def __init__(self, positions: List[Position]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.positions = positions
 
 
@@ -206,14 +206,14 @@ class PositionMetrics:
 class RiskAssessmentRequest:
     """Запрос на оценку риска."""
 
-    def __init__(self, portfolio_id: PortfolioId):
+    def __init__(self, *args, **kwargs) -> Any:
         self.portfolio_id = portfolio_id
 
 
 class RiskAssessmentResponse:
     """Ответ с оценкой риска."""
 
-    def __init__(self, risk_level: float, recommendations: List[str]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.risk_level = risk_level
         self.recommendations = recommendations
 
@@ -237,7 +237,7 @@ class RiskLimitRequest:
 class RiskLimitResponse:
     """Ответ на установку лимитов риска."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.success = success
         self.message = message
 
@@ -261,7 +261,7 @@ class CreateTradingPairRequest:
 class CreateTradingPairResponse:
     """Ответ на создание торговой пары."""
 
-    def __init__(self, trading_pair: TradingPair, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.trading_pair = trading_pair
         self.success = success
         self.message = message
@@ -290,7 +290,7 @@ class UpdateTradingPairRequest:
 class UpdateTradingPairResponse:
     """Ответ на обновление торговой пары."""
 
-    def __init__(self, trading_pair: TradingPair, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.trading_pair = trading_pair
         self.success = success
         self.message = message
@@ -311,7 +311,7 @@ class GetTradingPairsRequest:
 class GetTradingPairsResponse:
     """Ответ с торговыми парами."""
 
-    def __init__(self, trading_pairs: List[TradingPair]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.trading_pairs = trading_pairs
 
 
@@ -332,7 +332,7 @@ class ExecuteStrategyRequest:
 class ExecuteStrategyResponse:
     """Ответ на выполнение стратегии."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.success = success
         self.message = message
 
@@ -340,14 +340,14 @@ class ExecuteStrategyResponse:
 class ProcessSignalRequest:
     """Запрос на обработку сигнала."""
 
-    def __init__(self, signal: Signal):
+    def __init__(self, *args, **kwargs) -> Any:
         self.signal = signal
 
 
 class ProcessSignalResponse:
     """Ответ на обработку сигнала."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.success = success
         self.message = message
 
@@ -367,7 +367,7 @@ class PortfolioRebalanceRequest:
 class PortfolioRebalanceResponse:
     """Ответ на ребалансировку портфеля."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, *args, **kwargs) -> Any:
         self.success = success
         self.message = message
 

@@ -5,12 +5,14 @@
 import logging
 from collections import defaultdict
 from typing import Any, Dict, List, Optional
+from decimal import Decimal
 
 import pandas as pd
 
 from domain.entities.order import Order
 from domain.services.liquidity_analyzer import LiquidityAnalyzer
-from domain.type_definitions.service_types import LiquidityAnalysisResult
+from domain.type_definitions.service_types import LiquidityAnalysisResult, LiquidityScore
+from domain.type_definitions import ConfidenceLevel
 
 
 class ConcreteLiquidityAnalyzer(LiquidityAnalyzer):
@@ -31,20 +33,24 @@ class ConcreteLiquidityAnalyzer(LiquidityAnalyzer):
         """Анализ ликвидности для торговой пары."""
         try:
             return LiquidityAnalysisResult(
-                liquidity_score=0.8,
-                confidence=0.85,
+                liquidity_score=LiquidityScore(Decimal("0.8")),
+                confidence=ConfidenceLevel(Decimal("0.85")),
                 volume_score=0.7,
                 order_book_score=0.8,
                 volatility_score=0.6,
+                zones=[],
+                sweeps=[]
             )
         except Exception as e:
             self.logger.error(f"Error analyzing liquidity: {str(e)}")
             return LiquidityAnalysisResult(
-                liquidity_score=0.0,
-                confidence=0.0,
+                liquidity_score=LiquidityScore(Decimal("0.0")),
+                confidence=ConfidenceLevel(Decimal("0.0")),
                 volume_score=0.0,
                 order_book_score=0.0,
                 volatility_score=0.0,
+                zones=[],
+                sweeps=[]
             )
 
 

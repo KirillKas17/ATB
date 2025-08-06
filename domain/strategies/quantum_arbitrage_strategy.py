@@ -899,7 +899,7 @@ class QuantumArbitrageStrategy(BaseStrategy):
         
         min_length = min(len(history1), len(history2))
         if min_length < 10:
-            return []
+            return []  # type: List[Any]
         
         spreads = []
         for i in range(min_length):
@@ -1084,13 +1084,17 @@ class QuantumArbitrageStrategy(BaseStrategy):
             for step in plan.execution_steps:
                 signal_type = SignalType.BUY if step['action'] == 'buy' else SignalType.SELL
                 
+                # Правильное создание UUID для strategy_id
+                from uuid import UUID
+                strategy_uuid = self.strategy_id if isinstance(self.strategy_id, UUID) else UUID(str(self.strategy_id))
+                
                 signal = Signal(
-                    strategy_id=self.strategy_id.value if hasattr(self.strategy_id, 'value') else self.strategy_id,
-                    trading_pair=str(opportunity.trading_pairs[0].symbol),  # Строка
+                    strategy_id=strategy_uuid,
+                    trading_pair=str(opportunity.trading_pairs[0].symbol),
                     signal_type=signal_type,
                     confidence=Decimal(str(opportunity.confidence_score)),
                     price=Money(Decimal(str(step.get('price', 0))), Currency.USD),
-                    quantity=Decimal('1.0'),  # Упрощение
+                    quantity=Decimal('1.0'),
                     metadata={
                         'arbitrage_type': opportunity.arbitrage_type.value,
                         'opportunity_id': opportunity.opportunity_id,

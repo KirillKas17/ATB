@@ -142,7 +142,7 @@ class PortfolioOptimizerProtocol(Protocol):
 class BaseRiskAnalyzer(ABC):
     """Базовый класс анализатора рисков."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {}
         self._risk_history: List[RiskAssessmentResult] = []
         self._var_history: List[Dict[str, Any]] = []
@@ -184,7 +184,7 @@ class BaseRiskAnalyzer(ABC):
 class BaseLiquidityAnalyzer(ABC):
     """Базовый класс анализатора ликвидности."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {}
         self._liquidity_history: List[LiquidityGravityMetrics] = []
 
@@ -198,7 +198,7 @@ class BaseLiquidityAnalyzer(ABC):
     def detect_liquidity_clusters(self, data: Dict[str, Any]) -> List[Dict[str, float]]:
         """Обнаружение кластеров ликвидности."""
         # Реализация обнаружения кластеров
-        return []
+        return []  # type: List[Any]
 
     def calculate_liquidity_pressure(self, data: Dict[str, Any]) -> float:
         """Расчет давления ликвидности."""
@@ -213,7 +213,7 @@ class BaseLiquidityAnalyzer(ABC):
 class BaseStressTester(ABC):
     """Базовый класс стресс-тестера."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {}
         self._stress_history: List[StressTestResult] = []
 
@@ -229,7 +229,7 @@ class BaseStressTester(ABC):
     ) -> List[Dict[str, Any]]:
         """Генерация сценариев стресс-тестирования."""
         # Реализация генерации сценариев
-        return []
+        return []  # type: List[Any]
 
     def get_stress_history(self, limit: int = 100) -> List[StressTestResult]:
         """Получение истории стресс-тестов."""
@@ -239,7 +239,7 @@ class BaseStressTester(ABC):
 class BasePortfolioOptimizer(ABC):
     """Базовый класс оптимизатора портфеля."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {}
         self._optimization_history: List[Dict[str, Any]] = []
 

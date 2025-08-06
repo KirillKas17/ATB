@@ -60,7 +60,7 @@ class SystemCapabilities:
 class CompleteSystemService:
     """Полный системный сервис - объединяет ВСЕ компоненты."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.capabilities = SystemCapabilities()
         
         # ML компоненты
@@ -147,7 +147,7 @@ class CompleteSystemService:
                 "coverage": self.capabilities.get_total_coverage()
             }
     
-    async def _initialize_ml_components(self):
+    async def _initialize_ml_components(self) -> Any:
         """Инициализация всех ML компонентов."""
         logger.info("🧠 Инициализирую ML компоненты...")
         
@@ -171,7 +171,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации ML компонентов: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    async def _initialize_exchange_services(self):
+    async def _initialize_exchange_services(self) -> Any:
         """Инициализация биржевых сервисов."""
         logger.info("🏪 Инициализирую биржевые сервисы...")
         
@@ -194,7 +194,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации биржевых сервисов: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    async def _initialize_ai_agents(self):
+    async def _initialize_ai_agents(self) -> Any:
         """Инициализация AI агентов."""
         logger.info("🤖 Инициализирую AI агентов...")
         
@@ -219,7 +219,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации AI агентов: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    async def _initialize_core_services(self):
+    async def _initialize_core_services(self) -> Any:
         """Инициализация core сервисов."""
         logger.info("🏗️ Инициализирую core сервисы...")
         
@@ -238,7 +238,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации core сервисов: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    def _initialize_visualization(self):
+    def _initialize_visualization(self) -> None:
         """Инициализация визуализации."""
         logger.info("📊 Инициализирую визуализацию...")
         
@@ -254,7 +254,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации визуализации: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    def _initialize_dashboard(self):
+    def _initialize_dashboard(self) -> None:
         """Инициализация dashboard."""
         logger.info("🖥️ Инициализирую dashboard...")
         
@@ -270,7 +270,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации dashboard: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    def _initialize_session_profiles(self):
+    def _initialize_session_profiles(self) -> None:
         """Инициализация сессионных профилей."""
         logger.info("📊 Инициализирую сессионные профили...")
         
@@ -289,7 +289,7 @@ class CompleteSystemService:
             logger.error(f"Ошибка инициализации сессионных профилей: {e}")
             self.initialization_stats["errors_encountered"] += 1
     
-    def _initialize_performance_optimization(self):
+    def _initialize_performance_optimization(self) -> None:
         """Инициализация оптимизации производительности."""
         logger.info("⚡ Инициализирую оптимизацию производительности...")
         
@@ -494,7 +494,7 @@ class CompleteSystemService:
         
         return test_results
     
-    async def run_dashboard_server(self, port: int = 8050, debug: bool = False):
+    async def run_dashboard_server(self, *args, **kwargs) -> Any:
         """Запуск dashboard сервера."""
         if self.dashboard:
             logger.info(f"🖥️ Запускаю Advanced Dashboard на порту {port}")
@@ -502,7 +502,7 @@ class CompleteSystemService:
         else:
             logger.error("Dashboard не инициализирован")
     
-    async def cleanup(self):
+    async def cleanup(self) -> Any:
         """Очистка всех ресурсов системы."""
         logger.info("🧹 Начинаю cleanup всех компонентов...")
         

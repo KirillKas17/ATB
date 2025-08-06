@@ -64,7 +64,7 @@ class SessionSignalEngine:
         self,
         session_analyzer: Optional[SessionInfluenceAnalyzer] = None,
         session_marker: Optional[SessionMarker] = None,
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any] = None] = None,
     ):
         self.session_marker = session_marker or SessionMarker()
         
@@ -112,17 +112,17 @@ class SessionSignalEngine:
     def _create_market_data_provider(self) -> Any:
         """Создание провайдера рыночных данных."""
         class AdvancedMarketDataProvider:
-            async def get_ohlcv(self, symbol: str, timeframe: str, limit: int = 100):
+            async def get_ohlcv(self, *args, **kwargs) -> Any:
                 # Здесь будет реальная реализация получения OHLCV данных
                 return self._generate_mock_ohlcv(symbol, limit)
             
-            async def get_orderbook(self, symbol: str):
+            async def get_orderbook(self, *args, **kwargs) -> Any:
                 return {"bids": [], "asks": []}
             
-            async def get_trades(self, symbol: str, limit: int = 100):
-                return []
+            async def get_trades(self, *args, **kwargs) -> Any:
+                return []  # type: List[Any]
             
-            def _generate_mock_ohlcv(self, symbol: str, limit: int):
+            def _generate_mock_ohlcv(self, *args, **kwargs) -> Any:
                 import random
                 data = []
                 base_price = 50000 if 'BTC' in symbol else 3000
@@ -143,7 +143,7 @@ class SessionSignalEngine:
     def _create_sentiment_analyzer(self) -> Any:
         """Создание анализатора настроений."""
         class AdvancedSentimentAnalyzer:
-            async def analyze_market_sentiment(self, symbol: str):
+            async def analyze_market_sentiment(self, *args, **kwargs) -> Any:
                 # AI-анализ настроений на основе новостей и социальных сетей
                 return {
                     'sentiment_score': 0.6,  # От -1 до 1
@@ -157,11 +157,11 @@ class SessionSignalEngine:
     def _create_volatility_calculator(self) -> Any:
         """Создание калькулятора волатильности."""
         class AdvancedVolatilityCalculator:
-            async def calculate_realized_volatility(self, symbol: str, period: int = 24):
+            async def calculate_realized_volatility(self, *args, **kwargs) -> Any:
                 # Расчет реализованной волатильности
                 return 0.25  # 25% годовая волатильность
             
-            async def calculate_implied_volatility(self, symbol: str):
+            async def calculate_implied_volatility(self, *args, **kwargs) -> Any:
                 # Расчет подразумеваемой волатильности
                 return 0.30  # 30% подразумеваемая волатильность
         
@@ -170,7 +170,7 @@ class SessionSignalEngine:
     def _create_volume_analyzer(self) -> Any:
         """Создание анализатора объемов."""
         class AdvancedVolumeAnalyzer:
-            async def analyze_volume_profile(self, symbol: str):
+            async def analyze_volume_profile(self, *args, **kwargs) -> Any:
                 return {
                     'volume_spike': False,
                     'volume_trend': 'increasing',
@@ -184,7 +184,7 @@ class SessionSignalEngine:
     def _create_correlation_analyzer(self) -> Any:
         """Создание анализатора корреляций."""
         class AdvancedCorrelationAnalyzer:
-            async def calculate_correlations(self, symbols: List[str]):
+            async def calculate_correlations(self, *args, **kwargs) -> Any:
                 # Матрица корреляций между символами
                 return np.random.rand(len(symbols), len(symbols))
         
@@ -193,24 +193,24 @@ class SessionSignalEngine:
     def _initialize_ml_predictor(self) -> Any:
         """Инициализация ML-предиктора."""
         class AdvancedMLPredictor:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.models = {
                     'price_direction': self._create_price_direction_model(),
                     'volatility_forecast': self._create_volatility_model(),
                     'volume_prediction': self._create_volume_model()
                 }
             
-            def _create_price_direction_model(self):
+            def _create_price_direction_model(self) -> None:
                 # Здесь будет реальная ML-модель
-                return None
+                return None  # type: None
             
-            def _create_volatility_model(self):
-                return None
+            def _create_volatility_model(self) -> None:
+                return None  # type: None
             
-            def _create_volume_model(self):
-                return None
+            def _create_volume_model(self) -> None:
+                return None  # type: None
             
-            async def predict_price_direction(self, symbol: str, features: Dict[str, Any]):
+            async def predict_price_direction(self, *args, **kwargs) -> Any:
                 # Предсказание направления цены
                 return {
                     'direction': 'up',  # up, down, sideways
@@ -218,7 +218,7 @@ class SessionSignalEngine:
                     'probability': 0.65
                 }
             
-            async def predict_volatility(self, symbol: str, features: Dict[str, Any]):
+            async def predict_volatility(self, *args, **kwargs) -> Any:
                 return {
                     'volatility_forecast': 0.28,
                     'confidence': 0.70
@@ -233,7 +233,7 @@ class SessionSignalEngine:
     def _initialize_pattern_detector(self) -> Any:
         """Инициализация детектора паттернов."""
         class AdvancedPatternDetector:
-            async def detect_chart_patterns(self, symbol: str, ohlcv_data: List[Dict]):
+            async def detect_chart_patterns(self, *args, **kwargs) -> Any:
                 # Обнаружение графических паттернов
                 return {
                     'patterns': ['bullish_flag', 'support_level'],
@@ -241,7 +241,7 @@ class SessionSignalEngine:
                     'signals': ['buy', 'hold']
                 }
             
-            async def detect_candlestick_patterns(self, ohlcv_data: List[Dict]):
+            async def detect_candlestick_patterns(self, *args, **kwargs) -> Any:
                 return {
                     'patterns': ['doji', 'hammer'],
                     'signals': ['reversal', 'continuation']

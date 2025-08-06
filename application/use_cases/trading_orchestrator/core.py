@@ -573,7 +573,7 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
 
         except Exception as e:
             logger.error(f"Error calculating portfolio weights: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]
 
     async def validate_trading_conditions(
         self, portfolio_id: str, symbol: str
@@ -689,4 +689,4 @@ class DefaultTradingOrchestratorUseCase(TradingOrchestratorUseCase):
 
         except Exception as e:
             logger.error(f"Error calculating portfolio risk: {e}")
-            return {}
+            return {}  # type: Dict[str, Any]

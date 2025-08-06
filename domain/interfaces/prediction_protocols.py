@@ -130,7 +130,7 @@ class MarketPhasePredictorProtocol(Protocol):
 class BasePatternPredictor(ABC):
     """Базовый класс предсказателя паттернов."""
 
-    def __init__(self, config: Optional[PredictionConfig] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or PredictionConfig()
         self._prediction_history: List[EnhancedPredictionResult] = []
         self._accuracy_metrics: Dict[str, float] = {}
@@ -166,13 +166,13 @@ class BasePatternPredictor(ABC):
 
     def get_accuracy_metrics(self) -> Dict[str, float]:
         """Получение метрик точности."""
-        return self._accuracy_metrics.copy()
+        return getattr(self._accuracy_metrics, "cop", None) if hasattr(self, "_accuracy_metrics") else Noney()
 
 
 class BaseReversalPredictor(ABC):
     """Базовый класс предсказателя разворотов."""
 
-    def __init__(self, config: Optional[PredictionConfig] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or PredictionConfig()
         self._reversal_history: List[EnhancedPredictionResult] = []
 
@@ -194,7 +194,7 @@ class BaseReversalPredictor(ABC):
     def detect_divergences(self, data: Dict[str, Any]) -> List[DivergenceAnalysis]:
         """Обнаружение дивергенций."""
         # Реализация обнаружения дивергенций
-        return []
+        return []  # type: List[Any]
 
     def get_reversal_history(self, limit: int = 100) -> List[EnhancedPredictionResult]:
         """Получение истории разворотов."""
@@ -204,7 +204,7 @@ class BaseReversalPredictor(ABC):
 class BaseMarketPhasePredictor(ABC):
     """Базовый класс предсказателя фазы рынка."""
 
-    def __init__(self, config: Optional[PredictionConfig] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or PredictionConfig()
         self._phase_history: List[MarketPhase] = []
 

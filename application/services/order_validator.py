@@ -17,7 +17,7 @@ from domain.value_objects.volume import Volume
 class OrderValidator:
     """Сервис для валидации ордеров."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.config = {
             "min_order_size": Decimal("10"),
             "max_order_size": Decimal("1000000"),

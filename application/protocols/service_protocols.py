@@ -33,14 +33,14 @@ from .use_case_protocols import CreateOrderRequest
 class TechnicalIndicators:
     """Технические индикаторы."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
 class SocialSentiment:
     """Социальные настроения."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
@@ -97,28 +97,28 @@ class PatternDetection:
 class EntanglementResult:
     """Результат анализа запутанности."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
 class LiquidityGravityResult:
     """Результат расчета гравитации ликвидности."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
 class MarketAnalysis:
     """Анализ рынка."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
 class StrategyPerformance:
     """Производительность стратегии."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
@@ -181,14 +181,14 @@ class PerformanceMetrics:
 class EvolutionResult:
     """Результат эволюции."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 
 class SymbolSelectionResult:
     """Результат выбора символов."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, *args, **kwargs) -> Any:
         self.data = data
 
 

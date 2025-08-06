@@ -150,7 +150,7 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
         self._logger = logging.getLogger(__name__)
 
     @asynccontextmanager
-    async def processing_context(self) -> Any:
+    async def processing_context(self) -> Dict[str, Any]:
         """Контекст обработки с метриками."""
         start_time = time.time()
         try:
@@ -665,12 +665,12 @@ def optimize_portfolio_weights(returns: pd.DataFrame) -> Dict[str, float]:
     """Оптимизация весов портфеля."""
     try:
         if returns.empty:
-            return {}
+            return {}  # type: Dict[str, Any]
         # Простое равномерное распределение как заглушка
         n_assets = len(returns.columns)
         return {col: 1.0 / n_assets for col in returns.columns}
     except Exception:
-        return {}
+        return {}  # type: Dict[str, Any]
 
 
 def calc_portfolio_return(returns: pd.DataFrame, weights: Dict[str, float]) -> pd.Series:

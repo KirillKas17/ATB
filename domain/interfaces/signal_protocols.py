@@ -98,7 +98,7 @@ class MarketMakerSignalProtocol(Protocol):
 class BaseSignalEngine(ABC):
     """Базовый класс движка сигналов."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {}
         self._signal_history: List[SessionInfluenceSignal] = []
         self._market_conditions_history: List[MarketConditions] = []
@@ -150,7 +150,7 @@ class BaseSignalEngine(ABC):
 class BaseMarketMakerSignalEngine(ABC):
     """Базовый класс движка сигналов маркет-мейкера."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, *args, **kwargs) -> Any:
         self.config = config or {}
         self._pattern_history: List[MarketMakerSignal] = []
         self._flow_history: List[Dict[str, float]] = []
