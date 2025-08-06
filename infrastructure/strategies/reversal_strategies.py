@@ -209,6 +209,30 @@ class ReversalStrategy(BaseStrategy):
             "is_high": volume_ratio > self._config.volume_threshold,
         }
 
+    def _safe_get_price(self, price_series: pd.Series, index: int) -> float:
+        """Безопасное получение цены с проверками"""
+        try:
+            price = price_series.iloc[index]
+            if price is not None and not pd.isna(price) and price > 0:
+                return float(price)
+            # Если цена некорректна, пытаемся получить последнюю корректную цену
+            for i in range(index, max(0, index - 10), -1):
+                fallback_price = price_series.iloc[i]
+                if fallback_price is not None and not pd.isna(fallback_price) and fallback_price > 0:
+                    logger.warning(f"Using fallback price {fallback_price} instead of invalid price at index {index}")
+                    return float(fallback_price)
+            # Если и это не помогло, используем среднюю цену за последние данные
+            recent_prices = price_series.dropna()
+            if len(recent_prices) > 0:
+                avg_price = recent_prices.mean()
+                logger.warning(f"Using average price {avg_price} as last resort for index {index}")
+                return float(avg_price)
+            else:
+                raise ValueError(f"Cannot find any valid price data around index {index}")
+        except Exception as e:
+            logger.error(f"Critical error getting price at index {index}: {str(e)}")
+            raise ValueError(f"Invalid price data at index {index}")
+
     def _determine_trend(self, data: pd.DataFrame, swing_points: Dict[str, List[int]]) -> str:
         """Определение текущего тренда"""
         if len(swing_points["highs"]) < 2 or len(swing_points["lows"]) < 2:
@@ -269,7 +293,7 @@ class ReversalStrategy(BaseStrategy):
                     {
                         "index": i,
                         "type": "bullish",
-                        "price": float(data["close"].iloc[i]) if data["close"].iloc[i] is not None and not pd.isna(data["close"].iloc[i]) else 0.0, 
+                        "price": self._safe_get_price(data["close"], i), 
                         "strength": self._calculate_reversal_strength(
                             data, i, "bullish"
                         ),
@@ -280,7 +304,7 @@ class ReversalStrategy(BaseStrategy):
                     {
                         "index": i,
                         "type": "bearish",
-                        "price": float(data["close"].iloc[i]) if data["close"].iloc[i] is not None and not pd.isna(data["close"].iloc[i]) else 0.0, 
+                        "price": self._safe_get_price(data["close"], i), 
                         "strength": self._calculate_reversal_strength(
                             data, i, "bearish"
                         ),

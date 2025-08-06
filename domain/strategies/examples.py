@@ -474,14 +474,16 @@ def example_backtesting_simulation() -> None:
             elif analysis_result["signal"] == "SELL" and positions: # Changed from SignalType.SELL to "SELL"
                 position = positions.pop()
                 exit_price = market_data.iloc[i]['close']
-                pnl = (exit_price - position['entry_price']) / position['entry_price'] * position['size']
-                current_capital += position['size'] + pnl
+                # ИСПРАВЛЕННЫЙ расчет PnL: (цена_выхода - цена_входа) * размер_позиции
+                pnl = (exit_price - position['entry_price']) * position['size']
+                current_capital += pnl
         
         # Закрываем оставшиеся позиции
         for position in positions:
             exit_price = market_data.iloc[-1]['close']
-            pnl = (exit_price - position['entry_price']) / position['entry_price'] * position['size']
-            current_capital += position['size'] + pnl
+            # ИСПРАВЛЕННЫЙ расчет PnL: (цена_выхода - цена_входа) * размер_позиции
+            pnl = (exit_price - position['entry_price']) * position['size']
+            current_capital += pnl
         
         total_return = (current_capital - initial_capital) / initial_capital
         

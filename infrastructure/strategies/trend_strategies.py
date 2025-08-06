@@ -314,7 +314,11 @@ class TrendStrategy(BaseStrategy):
                 if liquidity_levels:
                     nearest_liquidity = max(liquidity_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_liquidity)
-                return float(entry_price - stop_distance)
+                calculated_stop = float(entry_price - stop_distance)
+                # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для long должен быть меньше цены входа
+                if calculated_stop >= entry_price:
+                    calculated_stop = entry_price * 0.99  # Безопасный fallback
+                return calculated_stop
             else:
                 # Для короткой позиции ищем ближайший уровень сопротивления
                 resistance_levels = [
@@ -330,12 +334,76 @@ class TrendStrategy(BaseStrategy):
                 if liquidity_levels:
                     nearest_liquidity = min(liquidity_levels)
                     stop_distance = min(stop_distance, nearest_liquidity - entry_price)
-                return float(entry_price + stop_distance)
+                calculated_stop = float(entry_price + stop_distance)
+                # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для short должен быть больше цены входа
+                if calculated_stop <= entry_price:
+                    calculated_stop = entry_price * 1.01  # Безопасный fallback
+                return calculated_stop
         except Exception as e:
             logger.error(f"Error calculating stop loss: {str(e)}")
             return float(
                 entry_price * 0.99 if position_type == "long" else entry_price * 1.01
             )
+
+    def _validate_signal(self, signal) -> bool:
+        """Критическая валидация торгового сигнала"""
+        try:
+            # Проверка цены входа
+            if not hasattr(signal, 'entry_price') or signal.entry_price <= 0:
+                logger.warning("Invalid entry_price in signal")
+                return False
+                
+            # Проверка стоп-лосса
+            if not hasattr(signal, 'stop_loss') or signal.stop_loss <= 0:
+                logger.warning("Invalid stop_loss in signal")
+                return False
+                
+            # Проверка тейк-профита
+            if not hasattr(signal, 'take_profit') or signal.take_profit <= 0:
+                logger.warning("Invalid take_profit in signal")
+                return False
+                
+            # Проверка направления сигнала
+            if not hasattr(signal, 'direction') or signal.direction not in ["long", "short"]:
+                logger.warning("Invalid direction in signal")
+                return False
+                
+            # Критическая проверка логики стоп-лосса
+            if signal.direction == "long":
+                if signal.stop_loss >= signal.entry_price:
+                    logger.warning(f"Long signal: stop_loss ({signal.stop_loss}) >= entry_price ({signal.entry_price})")
+                    return False
+                if signal.take_profit <= signal.entry_price:
+                    logger.warning(f"Long signal: take_profit ({signal.take_profit}) <= entry_price ({signal.entry_price})")
+                    return False
+            elif signal.direction == "short":
+                if signal.stop_loss <= signal.entry_price:
+                    logger.warning(f"Short signal: stop_loss ({signal.stop_loss}) <= entry_price ({signal.entry_price})")
+                    return False
+                if signal.take_profit >= signal.entry_price:
+                    logger.warning(f"Short signal: take_profit ({signal.take_profit}) >= entry_price ({signal.entry_price})")
+                    return False
+                    
+            # Проверка разумности расстояний
+            entry_price = float(signal.entry_price)
+            stop_distance = abs(float(signal.stop_loss) - entry_price)
+            profit_distance = abs(float(signal.take_profit) - entry_price)
+            
+            # Стоп-лосс не должен быть больше 10% от цены
+            if stop_distance / entry_price > 0.1:
+                logger.warning(f"Stop loss too wide: {stop_distance/entry_price:.2%}")
+                return False
+                
+            # Тейк-профит не должен быть меньше стоп-лосса (плохое R/R)
+            if profit_distance < stop_distance * 0.5:
+                logger.warning(f"Poor risk/reward ratio: profit={profit_distance:.4f}, stop={stop_distance:.4f}")
+                return False
+                
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error validating signal: {str(e)}")
+            return False
 
     def _calculate_take_profit(
         self,
@@ -593,13 +661,17 @@ class TrendStrategy(BaseStrategy):
                     df, entry_price, stop_loss, "long"
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
-                return DomainSignal(
+                signal = DomainSignal(
                     direction="long",
                     entry_price=entry_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
                     confidence=confidence,
                 )
+                # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                if not self._validate_signal(signal):
+                    return None
+                return signal
             # Сигнал на продажу
             elif not trend_up and adx > self._trend_config.adx_threshold and macd_hist < 0:
                 entry_price = close
@@ -608,13 +680,17 @@ class TrendStrategy(BaseStrategy):
                     df, entry_price, stop_loss, "short"
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
-                return DomainSignal(
+                signal = DomainSignal(
                     direction="short",
                     entry_price=entry_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
                     confidence=confidence,
                 )
+                # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
+                if not self._validate_signal(signal):
+                    return None
+                return signal
             else:
                 return None
         except Exception as e:
