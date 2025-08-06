@@ -2,18 +2,20 @@ import pandas as pd
 from shared.numpy_utils import np
 # Миграция из utils/math_utils.py
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, Union
 
 
-def calculate_fibonacci_levels(high: float, low: float) -> list:
+def calculate_fibonacci_levels(high: Decimal, low: Decimal) -> List[Decimal]:
+    """Расчет уровней Фибоначчи с использованием точной арифметики."""
     diff = high - low
     return [
         high,
-        high - 0.236 * diff,
-        high - 0.382 * diff,
-        high - 0.5 * diff,
-        high - 0.618 * diff,
-        high - 0.786 * diff,
+        high - Decimal("0.236") * diff,
+        high - Decimal("0.382") * diff,
+        high - Decimal("0.5") * diff,
+        high - Decimal("0.618") * diff,
+        high - Decimal("0.786") * diff,
         low,
     ]
 
@@ -269,9 +271,9 @@ def calculate_drawdown_metrics(
 
 
 def calculate_support_resistance(
-    prices: List[float], window: int = 20
-) -> Tuple[List[float], List[float]]:
-    """Расчет уровней поддержки и сопротивления"""
+    prices: List[Decimal], window: int = 20
+) -> Tuple[List[Decimal], List[Decimal]]:
+    """Расчет уровней поддержки и сопротивления с точной арифметикой"""
     if len(prices) < window:
         return [], []
     supports = []
@@ -285,3 +287,121 @@ def calculate_support_resistance(
         if prices[i] == local_max:
             resistances.append(prices[i])
     return supports, resistances
+
+
+def calculate_liquidity_impact(
+    order_size: Decimal, 
+    orderbook_data: List[Tuple[Decimal, Decimal]], 
+    side: str = "buy"
+) -> Dict[str, Decimal]:
+    """
+    Расчет влияния ордера на ликвидность и ожидаемого проскальзывания.
+    
+    Args:
+        order_size: Размер ордера
+        orderbook_data: Список (цена, объем) для соответствующей стороны
+        side: "buy" или "sell"
+    
+    Returns:
+        Словарь с метриками влияния на ликвидность
+    """
+    if not orderbook_data or order_size <= 0:
+        return {
+            "slippage_pct": Decimal("0"),
+            "avg_price": Decimal("0"),
+            "liquidity_consumed_pct": Decimal("0"),
+            "market_impact": Decimal("0")
+        }
+    
+    # Сортируем ордербук: для покупки по возрастанию цены, для продажи по убыванию
+    sorted_orders = sorted(orderbook_data, key=lambda x: x[0], reverse=(side == "sell"))
+    
+    remaining_size = order_size
+    total_cost = Decimal("0")
+    consumed_levels = 0
+    total_available_volume = sum(vol for _, vol in sorted_orders)
+    
+    best_price = sorted_orders[0][0] if sorted_orders else Decimal("0")
+    
+    # Проходим по уровням ордербука
+    for price, volume in sorted_orders:
+        if remaining_size <= 0:
+            break
+            
+        fill_volume = min(remaining_size, volume)
+        total_cost += fill_volume * price
+        remaining_size -= fill_volume
+        consumed_levels += 1
+        
+        if remaining_size <= 0:
+            break
+    
+    if order_size == remaining_size:  # Не удалось исполнить ордер
+        return {
+            "slippage_pct": Decimal("100"),  # Максимальное проскальзывание
+            "avg_price": Decimal("0"),
+            "liquidity_consumed_pct": Decimal("100"),
+            "market_impact": Decimal("100")
+        }
+    
+    filled_size = order_size - remaining_size
+    avg_price = total_cost / filled_size if filled_size > 0 else Decimal("0")
+    
+    # Расчет проскальзывания
+    slippage_pct = abs((avg_price - best_price) / best_price * 100) if best_price > 0 else Decimal("0")
+    
+    # Расчет потребленной ликвидности
+    liquidity_consumed_pct = (filled_size / total_available_volume * 100) if total_available_volume > 0 else Decimal("0")
+    
+    # Оценка влияния на рынок (упрощенная)
+    market_impact = min(slippage_pct * 2, Decimal("100"))  # Влияние больше проскальзывания
+    
+    return {
+        "slippage_pct": slippage_pct,
+        "avg_price": avg_price,
+        "liquidity_consumed_pct": liquidity_consumed_pct,
+        "market_impact": market_impact,
+        "filled_size": filled_size,
+        "remaining_size": remaining_size,
+        "levels_consumed": consumed_levels
+    }
+
+
+def should_split_order(
+    order_size: Decimal, 
+    orderbook_data: List[Tuple[Decimal, Decimal]], 
+    max_slippage_pct: Decimal = Decimal("0.5"),
+    max_liquidity_impact_pct: Decimal = Decimal("10")
+) -> Dict[str, Union[bool, List[Decimal]]]:
+    """
+    Определяет, нужно ли разбить крупный ордер на части.
+    
+    Args:
+        order_size: Размер ордера
+        orderbook_data: Данные ордербука
+        max_slippage_pct: Максимально допустимое проскальзывание (%)
+        max_liquidity_impact_pct: Максимальное влияние на ликвидность (%)
+    
+    Returns:
+        Словарь с рекомендациями по разбиению ордера
+    """
+    impact = calculate_liquidity_impact(order_size, orderbook_data)
+    
+    should_split = (
+        impact["slippage_pct"] > max_slippage_pct or 
+        impact["liquidity_consumed_pct"] > max_liquidity_impact_pct
+    )
+    
+    suggested_chunks = []
+    if should_split:
+        # Простая стратегия разбиения на равные части
+        num_chunks = min(5, max(2, int(impact["liquidity_consumed_pct"] / max_liquidity_impact_pct)))
+        chunk_size = order_size / num_chunks
+        suggested_chunks = [chunk_size] * num_chunks
+    
+    return {
+        "should_split": should_split,
+        "suggested_chunks": suggested_chunks,
+        "reason": f"Slippage: {impact['slippage_pct']:.2f}%, Liquidity impact: {impact['liquidity_consumed_pct']:.2f}%",
+        "total_impact": impact
+    }

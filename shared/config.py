@@ -4,9 +4,10 @@
 
 import os
 from dataclasses import dataclass, field
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
@@ -70,14 +71,54 @@ class ExchangeConfig:
 class RiskConfig:
     """Конфигурация риск-менеджмента."""
 
-    max_position_size: float = 0.1
-    max_daily_loss: float = 0.05
-    max_portfolio_risk: float = 0.02
-    stop_loss_pct: float = 0.02
-    take_profit_pct: float = 0.04
-    max_leverage: float = 1.0
-    max_drawdown: float = 0.15
+    max_position_size: Decimal = Decimal("0.1")
+    max_daily_loss: Decimal = Decimal("0.05")
+    max_portfolio_risk: Decimal = Decimal("0.02")
+    stop_loss_pct: Decimal = Decimal("0.02")
+    take_profit_pct: Decimal = Decimal("0.04")
+    max_leverage: Decimal = Decimal("1.0")
+    max_drawdown: Decimal = Decimal("0.15")
     position_sizing_method: str = "kelly"
+    # Параметры для динамической корректировки
+    volatility_adjustment_enabled: bool = True
+    volatility_threshold_low: Decimal = Decimal("0.01")  # 1% дневная волатильность
+    volatility_threshold_high: Decimal = Decimal("0.05")  # 5% дневная волатильность
+    risk_reduction_factor: Decimal = Decimal("0.5")  # Уменьшение риска при высокой волатильности
+
+    def adjust_for_volatility(self, current_volatility: Decimal) -> 'RiskConfig':
+        """Динамическая корректировка параметров риска на основе волатильности."""
+        if not self.volatility_adjustment_enabled:
+            return self
+        
+        adjustment_factor = Decimal("1.0")
+        if current_volatility > self.volatility_threshold_high:
+            # Высокая волатильность - снижаем риски
+            adjustment_factor = self.risk_reduction_factor
+        elif current_volatility < self.volatility_threshold_low:
+            # Низкая волатильность - можем увеличить риски
+            adjustment_factor = Decimal("1.2")
+        
+        # Создаем новый экземпляр с скорректированными параметрами
+        return RiskConfig(
+            max_position_size=self.max_position_size * adjustment_factor,
+            max_daily_loss=self.max_daily_loss * adjustment_factor,
+            max_portfolio_risk=self.max_portfolio_risk * adjustment_factor,
+            stop_loss_pct=self.stop_loss_pct / adjustment_factor,  # Обратная зависимость
+            take_profit_pct=self.take_profit_pct * adjustment_factor,
+            max_leverage=self.max_leverage / adjustment_factor,  # Обратная зависимость
+            max_drawdown=self.max_drawdown,
+            position_sizing_method=self.position_sizing_method,
+            volatility_adjustment_enabled=self.volatility_adjustment_enabled,
+            volatility_threshold_low=self.volatility_threshold_low,
+            volatility_threshold_high=self.volatility_threshold_high,
+            risk_reduction_factor=self.risk_reduction_factor
+        )
+    
+    def calculate_position_size(self, account_balance: Decimal, price: Decimal, 
+                              confidence: Decimal = Decimal("1.0")) -> Decimal:
+        """Расчет размера позиции с учетом риска и уверенности."""
+        risk_amount = account_balance * self.max_position_size * confidence
+        return risk_amount / price
 
 
 @dataclass
@@ -87,12 +128,38 @@ class TradingConfig:
     enabled: bool = True
     max_orders: int = 10
     order_timeout: int = 60
-    min_order_size: float = 0.001
-    max_order_size: float = 1.0
+    min_order_size: Decimal = Decimal("0.001")
+    max_order_size: Decimal = Decimal("1.0")
     allowed_pairs: List[str] = field(default_factory=lambda: ["BTC/USDT", "ETH/USDT"])
     trading_hours: Dict[str, str] = field(
         default_factory=lambda: {"start": "00:00", "end": "23:59"}
     )
+    # Новые поля для валидации ордеров
+    exchange_min_order_sizes: Dict[str, Dict[str, Decimal]] = field(
+        default_factory=lambda: {
+            "binance": {"BTC/USDT": Decimal("0.00001"), "ETH/USDT": Decimal("0.0001")},
+            "bybit": {"BTC/USDT": Decimal("0.000001"), "ETH/USDT": Decimal("0.00001")}
+        }
+    )
+    price_precision: Dict[str, int] = field(
+        default_factory=lambda: {"BTC/USDT": 2, "ETH/USDT": 2}
+    )
+    quantity_precision: Dict[str, int] = field(
+        default_factory=lambda: {"BTC/USDT": 6, "ETH/USDT": 5}
+    )
+
+    def validate_order_size(self, exchange: str, symbol: str, quantity: Decimal) -> bool:
+        """Валидация размера ордера согласно требованиям биржи."""
+        if exchange in self.exchange_min_order_sizes:
+            min_size = self.exchange_min_order_sizes[exchange].get(symbol, self.min_order_size)
+            return quantity >= min_size
+        return quantity >= self.min_order_size
+
+    def get_precision_for_symbol(self, symbol: str) -> Tuple[int, int]:
+        """Получение точности цены и количества для символа."""
+        price_prec = self.price_precision.get(symbol, 8)
+        qty_prec = self.quantity_precision.get(symbol, 8)
+        return price_prec, qty_prec
 
 
 @dataclass
@@ -103,7 +170,7 @@ class MLConfig:
     model_path: str = "models/"
     training_data_path: str = "data/training/"
     prediction_interval: int = 60
-    confidence_threshold: float = 0.7
+    confidence_threshold: Decimal = Decimal("0.7")
     retrain_interval: int = 86400  # 24 часа
     max_models: int = 10
 
