@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import joblib
 from shared.numpy_utils import np
 import pandas as pd
+from pandas import DataFrame, Series
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -16,10 +17,6 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
 
 # Настройка логирования
 logger = logging.getLogger(__name__)

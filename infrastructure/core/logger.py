@@ -205,7 +205,7 @@ class Logger:
         Returns:
             str: Текущий уровень логирования.
         """
-        return self.config["level"]
+        return str(self.config["level"])
 
     def clear_logs(self) -> None:
         """Очистка логов."""
@@ -231,7 +231,7 @@ class Logger:
         Returns:
             str: Путь к файлу лога.
         """
-        return self.config["file"]
+        return str(self.config["file"])
 
     def get_log_size(self) -> int:
         """Получение размера файла лога.

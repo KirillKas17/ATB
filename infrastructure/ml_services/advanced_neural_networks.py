@@ -289,6 +289,7 @@ class AdvancedTransformer(nn.Module):
         self.input_projection = nn.Linear(config.input_dim, config.hidden_dim)
         
         # Positional encoding
+        self.positional_encoding: Optional[PositionalEncoding]
         if config.use_positional_encoding:
             self.positional_encoding = PositionalEncoding(
                 config.hidden_dim, config.max_seq_length, config.dropout
@@ -692,7 +693,7 @@ class EnsembleNeuralNetwork(nn.Module):
         if ensemble_method == 'weighted':
             self.ensemble_weights = nn.Parameter(torch.ones(len(configs)))
         
-    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, **kwargs: Any) -> torch.Tensor:
         """
         Args:
             x: Input tensor
@@ -811,35 +812,35 @@ class AdvancedNeuralNetworkFactory:
     
     @staticmethod
     def create_transformer(input_dim: int, output_dim: int = 1, 
-                          **kwargs) -> AdvancedTransformer:
+                          **kwargs: Any) -> AdvancedTransformer:
         """Создает продвинутый трансформер"""
         config = NeuralNetworkConfig(input_dim=input_dim, output_dim=output_dim, **kwargs)
         return AdvancedTransformer(config)
     
     @staticmethod
     def create_tcn(input_dim: int, output_dim: int = 1, 
-                   **kwargs) -> TemporalConvolutionalNetwork:
+                   **kwargs: Any) -> TemporalConvolutionalNetwork:
         """Создает TCN"""
         config = NeuralNetworkConfig(input_dim=input_dim, output_dim=output_dim, **kwargs)
         return TemporalConvolutionalNetwork(config)
     
     @staticmethod
     def create_gnn(input_dim: int, output_dim: int = 1, 
-                   **kwargs) -> GraphNeuralNetwork:
+                   **kwargs: Any) -> GraphNeuralNetwork:
         """Создает GNN"""
         config = NeuralNetworkConfig(input_dim=input_dim, output_dim=output_dim, **kwargs)
         return GraphNeuralNetwork(config)
     
     @staticmethod
     def create_multimodal(input_dim: int, output_dim: int = 1, 
-                         **kwargs) -> MultiModalFusionNetwork:
+                         **kwargs: Any) -> MultiModalFusionNetwork:
         """Создает мультимодальную сеть"""
         config = NeuralNetworkConfig(input_dim=input_dim, output_dim=output_dim, **kwargs)
         return MultiModalFusionNetwork(config)
     
     @staticmethod
     def create_ensemble(input_dim: int, output_dim: int = 1, 
-                       num_models: int = 5, **kwargs) -> EnsembleNeuralNetwork:
+                       num_models: int = 5, **kwargs: Any) -> EnsembleNeuralNetwork:
         """Создает ансамбль сетей"""
         configs = []
         for i in range(num_models):
@@ -854,7 +855,7 @@ class AdvancedNeuralNetworkFactory:
     
     @staticmethod
     def create_meta_learning(input_dim: int, output_dim: int = 1,
-                           **kwargs) -> MetaLearningNetwork:
+                           **kwargs: Any) -> MetaLearningNetwork:
         """Создает мета-обучающуюся сеть"""
         config = NeuralNetworkConfig(input_dim=input_dim, output_dim=output_dim, **kwargs)
         return MetaLearningNetwork(config)

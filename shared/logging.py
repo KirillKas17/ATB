@@ -12,7 +12,7 @@ from abc import ABC
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Dict, Optional, TypeVar, Union
+from typing import Any, Awaitable, Callable, Dict, Optional, TypeVar, Union, cast
 
 from loguru import logger as loguru_logger
 
@@ -283,7 +283,7 @@ def log_execution_time(func: F) -> F:
             )
             raise
 
-    return wrapper
+    return cast(F, wrapper)
 
 
 def async_log_execution_time(func: F) -> F:
@@ -308,7 +308,7 @@ def async_log_execution_time(func: F) -> F:
             )
             raise
 
-    return wrapper
+    return cast(F, wrapper)
 
 
 def log_trade(trade_data: Dict[str, Any]) -> None:

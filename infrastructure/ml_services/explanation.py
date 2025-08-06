@@ -6,10 +6,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
-
-# Type aliases for better mypy support
-Series = pd.Series
-DataFrame = pd.DataFrame
+from pandas import DataFrame, Series
 
 # Настройка логирования
 logger = logging.getLogger(__name__)

@@ -35,6 +35,8 @@ class StrategySelector:
                 "manipulation_strategy_fake_breakout",
             ],
         }
+        # Отдельный словарь для весов стратегий
+        self.strategy_weights: Dict[str, float] = {}
 
     def select_best_strategy(self, regime: MarketRegime, data: Any) -> Optional[str]:
         """Выбор лучшей стратегии для режима"""
@@ -80,8 +82,10 @@ class StrategySelector:
             total_performance = sum(performance.values())
             if total_performance > 0:
                 for strategy, perf in performance.items():
-                    if strategy in self.regime_strategies:
+                    # Проверяем, есть ли стратегия в любом из режимов
+                    strategy_exists = any(strategy in strategies for strategies in self.regime_strategies.values())
+                    if strategy_exists:
                         # Обновляем вес стратегии
-                        self.regime_strategies[strategy] = perf / total_performance
+                        self.strategy_weights[strategy] = perf / total_performance
         except Exception as e:
             logger.error(f"Error updating strategy weights: {str(e)}")

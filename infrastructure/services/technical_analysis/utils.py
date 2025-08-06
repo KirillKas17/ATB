@@ -150,11 +150,13 @@ def convert_to_datetime(value: Union[str, datetime, pd.Timestamp]) -> datetime:
     if isinstance(value, datetime):
         return value
     elif isinstance(value, pd.Timestamp):
-        return value.to_pydatetime()
+        result = value.to_pydatetime()
+        return result if isinstance(result, datetime) else datetime.now()
     else:
         # Пытаемся конвертировать как строку
         try:
-            return pd.to_datetime(value).to_pydatetime()
+            result = pd.to_datetime(value).to_pydatetime()
+            return result if isinstance(result, datetime) else datetime.now()
         except (ValueError, TypeError):
             raise ValueError(f"Cannot convert {type(value)} to datetime")
 

@@ -6,7 +6,7 @@ import functools
 import logging
 import time
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Optional, Generator, TypeVar
+from typing import Any, Callable, Dict, Optional, Generator, TypeVar, cast
 
 F = TypeVar('F', bound=Callable[..., Any])
 
@@ -131,7 +131,7 @@ def trace_function(
                         span.set_status(Status(StatusCode.ERROR, str(e)))
                     raise
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator
 
@@ -173,7 +173,7 @@ def trace_async_function(
                         span.set_status(Status(StatusCode.ERROR, str(e)))
                     raise
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator
 

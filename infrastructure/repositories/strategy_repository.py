@@ -663,7 +663,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
         success = await self._execute_with_retry(_delete_operation, pool)
         if success:
             await self.invalidate_cache(entity_id)
-        return bool(success)  # type: ignore[no-any-return]
+        return bool(success)
 
     async def update(self, entity: Strategy) -> Strategy:
         """Обновить стратегию."""
@@ -682,7 +682,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
         success = await self._execute_with_retry(_soft_delete_operation, pool)
         if success:
             await self.invalidate_cache(entity_id)
-        return bool(success)  # type: ignore[no-any-return]
+        return bool(success)
 
     async def restore(self, entity_id: Union[UUID, str]) -> bool:
         """Восстановить стратегию."""
@@ -697,7 +697,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
         success = await self._execute_with_retry(_restore_operation, pool)
         if success:
             await self.invalidate_cache(entity_id)
-        return bool(success)  # type: ignore[no-any-return]
+        return bool(success)
 
     async def find_by(
         self, filters: List[QueryFilter], options: Optional[QueryOptions] = None
@@ -886,7 +886,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
 
         pool = await self._get_pool()
         result = await self._execute_with_retry(_performance_metrics_operation, pool)
-        return result  # type: ignore[no-any-return]
+        return result
 
     async def health_check(self) -> HealthCheckDict:
         """Проверка здоровья репозитория."""
@@ -905,7 +905,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
         try:
             pool = await self._get_pool()
             result: HealthCheckDict = await self._execute_with_retry(_health_check_operation, pool)
-            return result  # type: ignore[no-any-return]
+            return result
         except Exception as e:
             # Возвращаем результат проверки здоровья при ошибке
             return {
@@ -914,7 +914,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
                 "cache_working": False,
                 "last_check": datetime.now().isoformat(),
                 "errors": [str(e)]
-            }  # type: ignore[no-any-return]
+            }
 
     def _row_to_strategy(self, row: Any) -> Strategy:
         """Преобразовать строку БД в объект Strategy."""
@@ -935,7 +935,7 @@ class PostgresStrategyRepository(StrategyRepositoryProtocol):
         current_time = time.time()
         expired_keys = [
             key for key, ttl in self._cache_ttl.items()
-            if current_time - ttl > self._cache_ttl_seconds  # type: ignore[operator]
+            if current_time - ttl > self._cache_ttl_seconds
         ]
         for key in expired_keys:
             await self.invalidate_cache(key)
