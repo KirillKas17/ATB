@@ -34,6 +34,7 @@ class SidewaysStrategy(BaseStrategy):
         stoch_k: int = 14,
         stoch_d: int = 3,
         obv_threshold: float = 1.5,
+        config: Optional[Dict[str, Any]] = None,
     ):
         """
         Инициализация стратегии.
@@ -45,7 +46,7 @@ class SidewaysStrategy(BaseStrategy):
             stoch_d: Период %D для Stochastic
             obv_threshold: Порог для OBV
         """
-        super().__init__()
+        super().__init__(config)
         self.bb_period = bb_period
         self.bb_std = bb_std
         self.rsi_period = rsi_period
@@ -54,6 +55,130 @@ class SidewaysStrategy(BaseStrategy):
         self.obv_threshold = obv_threshold
         # Добавляем технический анализ
         self.technical_analysis = None  # Будет инициализирован при необходимости
+        
+        # Инициализируем адаптивные пороги
+        self._setup_adaptive_thresholds(config or {})
+
+    def _setup_adaptive_thresholds(self, config: Dict[str, Any]) -> None:
+        """Настройка адаптивных порогов для разных рыночных условий"""
+        # Базовые адаптивные пороги RSI
+        self.rsi_oversold_base = config.get('rsi_oversold_base', 30)
+        self.rsi_overbought_base = config.get('rsi_overbought_base', 70)
+        
+        # Адаптивные множители для Bollinger Bands
+        self.bb_touch_tolerance = config.get('bb_touch_tolerance', 0.005)  # 0.5% вместо фиксированного 1.01
+        
+        # Пороги для Stochastic
+        self.stoch_oversold = config.get('stoch_oversold', 20)
+        self.stoch_overbought = config.get('stoch_overbought', 80)
+        
+    def _get_adaptive_rsi_thresholds(self, data: pd.DataFrame) -> Tuple[float, float]:
+        """Получение адаптивных порогов RSI на основе волатильности"""
+        try:
+            # Анализируем волатильность за последние 50 периодов
+            if len(data) >= 50:
+                volatility = data["close"].pct_change().rolling(20).std().mean()
+                volatility = float(volatility) if not pd.isna(volatility) else 0.02
+                
+                # В высоковолатильных условиях делаем пороги более строгими
+                if volatility > 0.03:  # Высокая волатильность
+                    oversold = self.rsi_oversold_base - 5   # 25 вместо 30
+                    overbought = self.rsi_overbought_base + 5  # 75 вместо 70
+                elif volatility < 0.01:  # Низкая волатильность  
+                    oversold = self.rsi_oversold_base + 10  # 40 вместо 30
+                    overbought = self.rsi_overbought_base - 10  # 60 вместо 70
+                else:
+                    oversold = self.rsi_oversold_base
+                    overbought = self.rsi_overbought_base
+                    
+                return oversold, overbought
+            else:
+                return self.rsi_oversold_base, self.rsi_overbought_base
+                
+        except Exception:
+            return self.rsi_oversold_base, self.rsi_overbought_base
+
+    def _calculate_signal_confidence(
+        self, 
+        data: pd.DataFrame, 
+        direction: str, 
+        rsi: float, 
+        stoch_k: float, 
+        bb_level: float, 
+        current_price: float
+    ) -> float:
+        """
+        Расчет уверенности в сигнале на основе множественных факторов.
+        
+        Args:
+            data: DataFrame с рыночными данными
+            direction: Направление сигнала ('long' или 'short')
+            rsi: Текущее значение RSI
+            stoch_k: Текущее значение Stochastic %K
+            bb_level: Уровень Bollinger Band (upper или lower)
+            current_price: Текущая цена
+            
+        Returns:
+            float: Уверенность от 0.0 до 1.0
+        """
+        try:
+            confidence_factors = []
+            
+            # 1. Фактор RSI (насколько далеко от нейтральной зоны)
+            rsi_oversold, rsi_overbought = self._get_adaptive_rsi_thresholds(data)
+            
+            if direction == "long":
+                rsi_distance = max(0, rsi_oversold - rsi) / rsi_oversold  # Чем ниже RSI, тем лучше
+            else:
+                rsi_distance = max(0, rsi - rsi_overbought) / (100 - rsi_overbought)  # Чем выше RSI, тем лучше
+                
+            confidence_factors.append(min(1.0, rsi_distance * 2))  # Максимум 1.0
+            
+            # 2. Фактор Stochastic
+            if direction == "long":
+                stoch_factor = max(0, self.stoch_oversold - stoch_k) / self.stoch_oversold
+            else:
+                stoch_factor = max(0, stoch_k - self.stoch_overbought) / (100 - self.stoch_overbought)
+                
+            confidence_factors.append(min(1.0, stoch_factor * 2))
+            
+            # 3. Фактор расстояния до Bollinger Band
+            bb_distance = abs(current_price - bb_level) / bb_level
+            bb_factor = min(1.0, bb_distance * 100)  # Нормализуем к 1.0
+            confidence_factors.append(bb_factor)
+            
+            # 4. Фактор объема (если объем выше среднего - лучше)
+            try:
+                if len(data) >= 20:
+                    current_volume = data["volume"].iloc[-1]
+                    avg_volume = data["volume"].rolling(20).mean().iloc[-1]
+                    volume_factor = min(1.0, current_volume / avg_volume) if avg_volume > 0 else 0.5
+                    confidence_factors.append(volume_factor)
+            except Exception:
+                confidence_factors.append(0.5)  # Нейтральное значение
+                
+            # 5. Фактор волатильности (в боковике предпочитаем среднюю волатильность)
+            try:
+                volatility = data["close"].pct_change().rolling(20).std().iloc[-1]
+                if 0.01 <= volatility <= 0.03:  # Оптимальная волатильность для sideways
+                    vol_factor = 1.0
+                elif volatility < 0.01:  # Слишком низкая
+                    vol_factor = 0.6
+                else:  # Слишком высокая
+                    vol_factor = 0.4
+                confidence_factors.append(vol_factor)
+            except Exception:
+                confidence_factors.append(0.7)
+            
+            # Вычисляем средневзвешенную уверенность
+            weights = [0.3, 0.25, 0.2, 0.15, 0.1]  # RSI важнее всего для sideways
+            weighted_confidence = sum(f * w for f, w in zip(confidence_factors, weights))
+            
+            return max(0.1, min(1.0, weighted_confidence))  # Ограничиваем от 0.1 до 1.0
+            
+        except Exception as e:
+            logger.error(f"Error calculating signal confidence: {str(e)}")
+            return 0.5  # Нейтральное значение при ошибке
 
     def validate_data(self, data: pd.DataFrame) -> Tuple[bool, Optional[str]]:
         """
@@ -201,14 +326,26 @@ class SidewaysStrategy(BaseStrategy):
             stoch_d = float(stoch_d) if stoch_d is not None and not pd.isna(stoch_d) else 50.0 
             # Проверка объема
             volume_ok = self._check_volume(df)
+            # Получаем адаптивные пороги
+            rsi_oversold, rsi_overbought = self._get_adaptive_rsi_thresholds(df)
+            
+            # Адаптивные пороги для касания Bollinger Bands
+            bb_lower_threshold = bb_lower * (1 + self.bb_touch_tolerance)
+            bb_upper_threshold = bb_upper * (1 - self.bb_touch_tolerance)
+            
             # Сигнал на покупку (отскок от нижней полосы Боллинджера)
-            if close <= bb_lower * 1.01 and rsi < 40 and stoch_k < 20 and volume_ok:
+            if (close <= bb_lower_threshold and 
+                rsi < rsi_oversold and 
+                stoch_k < self.stoch_oversold and 
+                volume_ok):
+                
                 entry_price = close
                 stop_loss = self._calculate_stop_loss(df, entry_price, "long")
                 take_profit = self._calculate_take_profit(
                     df, entry_price, stop_loss, "long"
                 )
-                confidence = min(1.0, (40 - rsi) / 40 * 0.8 + 0.2)
+                # Улучшенный расчет уверенности
+                confidence = self._calculate_signal_confidence(df, "long", rsi, stoch_k, bb_lower, close)
                 return Signal(
                     direction="long",
                     entry_price=entry_price,
@@ -217,13 +354,17 @@ class SidewaysStrategy(BaseStrategy):
                     confidence=confidence,
                 )
             # Сигнал на продажу (отскок от верхней полосы Боллинджера)
-            elif close >= bb_upper * 0.99 and rsi > 60 and stoch_k > 80 and volume_ok:
+            elif (close >= bb_upper_threshold and 
+                  rsi > rsi_overbought and 
+                  stoch_k > self.stoch_overbought and 
+                  volume_ok):
                 entry_price = close
                 stop_loss = self._calculate_stop_loss(df, entry_price, "short")
                 take_profit = self._calculate_take_profit(
                     df, entry_price, stop_loss, "short"
                 )
-                confidence = min(1.0, (rsi - 60) / 40 * 0.8 + 0.2)
+                # Улучшенный расчет уверенности
+                confidence = self._calculate_signal_confidence(df, "short", rsi, stoch_k, bb_upper, close)
                 return Signal(
                     direction="short",
                     entry_price=entry_price,
@@ -245,12 +386,18 @@ class SidewaysStrategy(BaseStrategy):
             # Если EMA близки друг к другу - боковик
             ema_20_val = float(ema_20.iloc[-1]) if ema_20.iloc[-1] is not None and not pd.isna(ema_20.iloc[-1]) else 0.0 
             ema_50_val = float(ema_50.iloc[-1]) if ema_50.iloc[-1] is not None and not pd.isna(ema_50.iloc[-1]) else 0.0 
-            if ema_50_val != 0 and abs(ema_20_val - ema_50_val) / ema_50_val < 0.02:
+            # Адаптивный порог для определения бокового движения
+            avg_price = df["close"].mean()
+            price_level_factor = max(0.1, min(10.0, avg_price / 100.0))
+            trend_threshold = 0.015 * price_level_factor  # Адаптивный порог
+            
+            if ema_50_val != 0 and abs(ema_20_val - ema_50_val) / ema_50_val < trend_threshold:
                 return MarketRegime.SIDEWAYS
-            # Анализ волатильности
+            # Анализ волатильности с адаптивным порогом
             volatility = df["close"].pct_change().rolling(20).std().iloc[-1]
             volatility = float(volatility) if volatility is not None and not pd.isna(volatility) else 0.0 
-            if volatility > 0.03:  # Высокая волатильность
+            volatility_threshold = 0.025 * price_level_factor  # Адаптивный порог волатильности
+            if volatility > volatility_threshold:  # Высокая волатильность
                 return MarketRegime.VOLATILE
             return MarketRegime.SIDEWAYS
         except Exception as e:

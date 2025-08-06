@@ -147,21 +147,73 @@ class TrendStrategy(BaseStrategy):
         return macd, signal, hist
 
     def _check_trend_strength(self, data: pd.DataFrame) -> bool:
-        """Проверка силы тренда"""
+        """Правильная проверка силы тренда с множественными критериями"""
         try:
-            macd, signal, hist = self._calculate_macd(data["close"])
-            # Преобразуем в список для безопасной итерации
-            macd_values = macd.tolist()
-            signal_values = signal.tolist()
-            # Проверяем пересечение MACD
-            if len(macd_values) < 2 or len(signal_values) < 2:
+            if len(data) < 50:  # Недостаточно данных
                 return False
-            return bool(
-                (macd_values[-2] < signal_values[-2]
-                and macd_values[-1] > signal_values[-1])
-                or (macd_values[-2] > signal_values[-2]
-                and macd_values[-1] < signal_values[-1])
-            )
+                
+            # 1. Проверяем ADX (сила тренда)
+            adx_series = self._calculate_adx(data)
+            if len(adx_series) == 0:
+                return False
+            adx_current = float(adx_series.iloc[-1]) if not pd.isna(adx_series.iloc[-1]) else 0.0
+            
+            # ADX > 25 указывает на сильный тренд
+            if adx_current < self._trend_config.adx_threshold:
+                return False
+            
+            # 2. Проверяем согласованность EMA
+            ema_fast = calculate_ema(data["close"], self._trend_config.ema_fast)
+            ema_medium = calculate_ema(data["close"], self._trend_config.ema_medium)
+            ema_slow = calculate_ema(data["close"], self._trend_config.ema_slow)
+            
+            if len(ema_fast) == 0 or len(ema_medium) == 0 or len(ema_slow) == 0:
+                return False
+                
+            ema_fast_val = float(ema_fast.iloc[-1])
+            ema_medium_val = float(ema_medium.iloc[-1])
+            ema_slow_val = float(ema_slow.iloc[-1])
+            
+            # Проверяем правильное расположение EMA для тренда
+            uptrend = (ema_fast_val > ema_medium_val > ema_slow_val)
+            downtrend = (ema_fast_val < ema_medium_val < ema_slow_val)
+            
+            if not (uptrend or downtrend):
+                return False
+            
+            # 3. Проверяем наклон EMA (тренд должен быть устойчивым)
+            if len(ema_medium) >= 5:
+                ema_slope = (ema_medium.iloc[-1] - ema_medium.iloc[-5]) / 5
+                min_slope = abs(ema_medium_val) * 0.001  # Минимальный наклон 0.1%
+                if abs(ema_slope) < min_slope:
+                    return False
+            
+            # 4. Проверяем последовательность движений цены
+            closes = data["close"].tail(5)
+            if len(closes) >= 5:
+                if uptrend:
+                    # Для восходящего тренда большинство движений должно быть вверх
+                    up_moves = sum(1 for i in range(1, len(closes)) if closes.iloc[i] > closes.iloc[i-1])
+                    if up_moves < 3:  # Минимум 3 из 4 движений
+                        return False
+                elif downtrend:
+                    # Для нисходящего тренда большинство движений должно быть вниз
+                    down_moves = sum(1 for i in range(1, len(closes)) if closes.iloc[i] < closes.iloc[i-1])
+                    if down_moves < 3:  # Минимум 3 из 4 движений
+                        return False
+            
+            # 5. Проверяем объем (должен подтверждать тренд)
+            if "volume" in data.columns and len(data) >= 20:
+                volume_ma = data["volume"].rolling(20).mean()
+                current_volume = data["volume"].iloc[-1]
+                avg_volume = volume_ma.iloc[-1]
+                
+                # Объем должен быть выше среднего для подтверждения тренда
+                if current_volume < avg_volume * 0.8:
+                    return False
+            
+            return True
+            
         except Exception as e:
             logger.error(f"Error checking trend strength: {str(e)}")
             return False
@@ -216,25 +268,36 @@ class TrendStrategy(BaseStrategy):
             # Расчет объема
             volume_ma = float(data["volume"].rolling(20).mean().iloc[-1])
             volume_ratio = float(data["volume"].iloc[-1] / volume_ma)
-            # Базовый стоп на основе ATR
-            base_stop = atr * 2
-            # Корректировка на волатильность
-            volatility_multiplier = 1 + volatility * 10
-            # Корректировка на силу тренда
-            trend_multiplier = 1 + trend_strength * 5
-            # Корректировка на объем
-            volume_multiplier = 1 + (volume_ratio - 1) * 0.5
-            # Корректировка на импульс
-            momentum_multiplier = 1 + (abs(rsi - 50) / 50) * 0.5
-            # Расчет финального множителя
+            # Базовый стоп на основе ATR с безопасными границами
+            base_stop = max(atr * 1.5, entry_price * 0.005)  # Минимум 0.5% от цены входа
+            
+            # Безопасные корректировки с ограничениями
+            volatility_multiplier = max(0.5, min(2.0, 1 + volatility * 5))  # 0.5x - 2.0x
+            trend_multiplier = max(0.8, min(1.5, 1 + trend_strength * 2))    # 0.8x - 1.5x  
+            volume_multiplier = max(0.8, min(1.3, 1 + (volume_ratio - 1) * 0.3))  # 0.8x - 1.3x
+            momentum_multiplier = max(0.9, min(1.2, 1 + (abs(rsi - 50) / 50) * 0.2))  # 0.9x - 1.2x
+            
+            # Расчет финального множителя с ограничениями
             final_multiplier = float(
                 volatility_multiplier
-                * trend_multiplier
+                * trend_multiplier  
                 * volume_multiplier
                 * momentum_multiplier
             )
-            # Расчет стопа
+            # Ограничиваем общий множитель
+            final_multiplier = max(0.5, min(3.0, final_multiplier))  # 0.5x - 3.0x от базового стопа
+            
+            # Расчет стопа с абсолютными границами
             stop_distance = base_stop * final_multiplier
+            
+            # Абсолютные границы стоп-лосса
+            min_stop_percent = 0.003  # Минимум 0.3% от цены входа
+            max_stop_percent = 0.05   # Максимум 5% от цены входа
+            
+            min_stop_distance = entry_price * min_stop_percent
+            max_stop_distance = entry_price * max_stop_percent
+            
+            stop_distance = max(min_stop_distance, min(stop_distance, max_stop_distance))
             # Поиск ближайшего уровня поддержки/сопротивления
             if position_type == "long":
                 # Для длинной позиции ищем ближайший уровень поддержки

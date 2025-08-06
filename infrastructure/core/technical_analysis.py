@@ -450,9 +450,21 @@ def calculate_ema(data: Series, period: int = 20) -> Series:
     return data.ewm(span=period).mean()
 
 def calculate_rsi(data: Series, period: int = 14) -> Series:
-    """Расчет RSI"""
-    result = ta.RSI(data, timeperiod=period)
-    return pd.Series(result, index=data.index, dtype=float)
+    """Расчет RSI с fallback реализацией"""
+    if TALIB_AVAILABLE and ta is not None:
+        try:
+            result = ta.RSI(data, timeperiod=period)
+            return pd.Series(result, index=data.index, dtype=float)
+        except Exception:
+            pass  # Fallback to manual calculation
+    
+    # Fallback реализация RSI
+    delta = data.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi.fillna(50.0)  # Заполняем NaN значением 50
 
 def calculate_macd(
     data: Series,
@@ -481,9 +493,27 @@ def calculate_bollinger_bands(
 def calculate_atr(
     high: Series, low: Series, close: Series, period: int = 14
 ) -> Series:
-    """Расчет ATR"""
-    result = ta.ATR(high, low, close, timeperiod=period)
-    return pd.Series(result, index=high.index, dtype=float)
+    """Расчет ATR с fallback реализацией"""
+    if TALIB_AVAILABLE and ta is not None:
+        try:
+            result = ta.ATR(high, low, close, timeperiod=period)
+            return pd.Series(result, index=high.index, dtype=float)
+        except Exception:
+            pass  # Fallback to manual calculation
+    
+    # Fallback реализация ATR
+    prev_close = close.shift(1)
+    tr1 = high - low
+    tr2 = (high - prev_close).abs()
+    tr3 = (low - prev_close).abs()
+    
+    # True Range = максимум из трех значений
+    tr_df = pd.DataFrame({'tr1': tr1, 'tr2': tr2, 'tr3': tr3})
+    tr = tr_df.max(axis=1)
+    
+    # ATR = скользящая средняя True Range
+    atr = tr.rolling(window=period).mean()
+    return atr.fillna(0.0)
 
 def calculate_fractals(
     high: Series, low: Series, period: int = 2
@@ -824,7 +854,7 @@ def calculate_adx(
     high: Series, low: Series, close: Series, period: int = 14
 ) -> Series:
     """
-    Расчет Average Directional Index (ADX).
+    Расчет Average Directional Index (ADX) с fallback реализацией.
     Args:
         high: Series с максимальными ценами
         low: Series с минимальными ценами
@@ -833,8 +863,51 @@ def calculate_adx(
     Returns:
         Series с ADX
     """
-    result = ta.ADX(high, low, close, timeperiod=period)
-    return pd.Series(result, index=high.index, dtype=float)
+    if TALIB_AVAILABLE and ta is not None:
+        try:
+            result = ta.ADX(high, low, close, timeperiod=period)
+            return pd.Series(result, index=high.index, dtype=float)
+        except Exception:
+            pass  # Fallback to manual calculation
+    
+    # Fallback реализация ADX
+    try:
+        # Расчет True Range
+        prev_close = close.shift(1)
+        tr1 = high - low
+        tr2 = (high - prev_close).abs()
+        tr3 = (low - prev_close).abs()
+        tr = pd.DataFrame({'tr1': tr1, 'tr2': tr2, 'tr3': tr3}).max(axis=1)
+        
+        # Расчет Directional Movement
+        plus_dm = high.diff()
+        minus_dm = -low.diff()
+        
+        # Оставляем только положительные движения
+        plus_dm = plus_dm.where((plus_dm > minus_dm) & (plus_dm > 0), 0)
+        minus_dm = minus_dm.where((minus_dm > plus_dm) & (minus_dm > 0), 0)
+        
+        # Сглаживание по методу Wilder
+        alpha = 1.0 / period
+        atr = tr.ewm(alpha=alpha, adjust=False).mean()
+        plus_di_smooth = plus_dm.ewm(alpha=alpha, adjust=False).mean()
+        minus_di_smooth = minus_dm.ewm(alpha=alpha, adjust=False).mean()
+        
+        # Directional Indicators
+        plus_di = 100 * (plus_di_smooth / atr)
+        minus_di = 100 * (minus_di_smooth / atr)
+        
+        # Directional Index
+        dx = 100 * (plus_di - minus_di).abs() / (plus_di + minus_di)
+        dx = dx.fillna(0)
+        
+        # ADX = сглаженный DX
+        adx = dx.ewm(alpha=alpha, adjust=False).mean()
+        return adx.fillna(0.0)
+        
+    except Exception:
+        # В случае ошибки возвращаем нулевые значения
+        return pd.Series([0.0] * len(high), index=high.index, dtype=float)
 
 def calculate_volume_delta(data: Series, period: int = 20) -> Series:
     """
