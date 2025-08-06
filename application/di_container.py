@@ -57,10 +57,10 @@ class DIContainer:
                 return instance
             except Exception as e:
                 logger.error(f"Error creating instance for {key}: {e}")
-                return None  # type: None
+                return None
         
         logger.warning(f"Service not found: {key}")
-        return None  # type: None
+        return None
     
     def resolve(self, service_type: Type[T]) -> T:
         """Получение сервиса с обязательным результатом."""

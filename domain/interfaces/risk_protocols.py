@@ -198,7 +198,7 @@ class BaseLiquidityAnalyzer(ABC):
     def detect_liquidity_clusters(self, data: Dict[str, Any]) -> List[Dict[str, float]]:
         """Обнаружение кластеров ликвидности."""
         # Реализация обнаружения кластеров
-        return []  # type: List[Any]
+        return []  
 
     def calculate_liquidity_pressure(self, data: Dict[str, Any]) -> float:
         """Расчет давления ликвидности."""
@@ -229,7 +229,7 @@ class BaseStressTester(ABC):
     ) -> List[Dict[str, Any]]:
         """Генерация сценариев стресс-тестирования."""
         # Реализация генерации сценариев
-        return []  # type: List[Any]
+        return []  
 
     def get_stress_history(self, limit: int = 100) -> List[StressTestResult]:
         """Получение истории стресс-тестов."""

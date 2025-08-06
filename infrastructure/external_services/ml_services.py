@@ -285,7 +285,7 @@ class FeatureEngineer:
 
     # Исправления для возвращаемых значений
     def return_dict(self) -> dict[str, Any]:
-        return {}  # type: Dict[str, Any]
+        return {}  
     def return_list(self) -> list[dict[str, float]]:
         return [{"a": 1.0}]
     def return_series(self) -> pd.Series:

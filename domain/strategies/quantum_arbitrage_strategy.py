@@ -899,7 +899,7 @@ class QuantumArbitrageStrategy(BaseStrategy):
         
         min_length = min(len(history1), len(history2))
         if min_length < 10:
-            return []  # type: List[Any]
+            return []  
         
         spreads = []
         for i in range(min_length):

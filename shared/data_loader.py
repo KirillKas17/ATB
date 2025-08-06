@@ -1,5 +1,5 @@
-import pandas as pd
 from typing import Any
+import pandas as pd  # type: ignore  # type: ignore
 
 
 def load_market_data(filepath: str) -> pd.DataFrame:

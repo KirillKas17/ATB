@@ -561,7 +561,7 @@ class RiskManager:
             }
         except Exception as e:
             logger.error(f"Error generating risk report: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     def _generate_risk_alerts(self) -> List[Dict[str, Any]]:
         """

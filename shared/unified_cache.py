@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Callable
-import pandas as pd
+import pandas as pd  # type: ignore
 from shared.numpy_utils import np
 import time
 

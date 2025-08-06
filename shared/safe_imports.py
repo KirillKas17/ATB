@@ -90,7 +90,7 @@ import_manager = SafeImportManager()
 
 # Pandas с fallback
 try:
-    import pandas as pd
+    import pandas as pd  # type: ignore
     DataFrame = pd.DataFrame
     Series = pd.Series
     PANDAS_AVAILABLE = True

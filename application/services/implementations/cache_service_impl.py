@@ -70,7 +70,7 @@ class CacheServiceImpl(BaseApplicationService, CacheService):
         try:
             if key not in self._cache:
                 self._stats["misses"] += 1
-                return None  # type: None
+                return None
             entry = self._cache[key]
             # Проверяем истечение срока действия
             if self._is_expired(entry):
@@ -87,7 +87,7 @@ class CacheServiceImpl(BaseApplicationService, CacheService):
         except Exception as e:
             self.logger.error(f"Error getting from cache: {e}")
             self._stats["misses"] += 1
-            return None  # type: None
+            return None
 
     async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """Установка значения в кэш."""
@@ -199,7 +199,7 @@ class CacheServiceImpl(BaseApplicationService, CacheService):
             }
         except Exception as e:
             self.logger.error(f"Error getting cache stats: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     async def exists(self, key: str) -> bool:
         """Проверка существования ключа."""
@@ -250,7 +250,7 @@ class CacheServiceImpl(BaseApplicationService, CacheService):
             return result
         except Exception as e:
             self.logger.error(f"Error getting multiple values from cache: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     async def set_multi(self, data: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """Установка нескольких значений в кэш."""
@@ -416,7 +416,7 @@ class CacheServiceImpl(BaseApplicationService, CacheService):
             return [key for key, _ in sorted_entries[:evict_count]]
         except Exception as e:
             self.logger.error(f"Error selecting keys for eviction: {e}")
-            return []  # type: List[Any]
+            return []  
 
     async def _cleanup_loop(self) -> None:
         """Цикл очистки кэша."""

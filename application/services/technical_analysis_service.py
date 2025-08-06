@@ -52,7 +52,7 @@ class TechnicalAnalysisService:
                 except Exception:
                     continue
             if not df_data:
-                return {}  # type: Dict[str, Any]
+                return {}  
             df = pd.DataFrame(df_data)
             # Используем domain-сервис для расчёта индикаторов
             analysis_result = self.technical_analysis_service.analyze_market_data(

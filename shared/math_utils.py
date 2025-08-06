@@ -1,11 +1,11 @@
-import pandas as pd
+import pandas as pd  # type: ignore
 from shared.numpy_utils import np
 # Миграция из utils/math_utils.py
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Union
 
 
-def calculate_fibonacci_levels(high: float, low: float) -> list:
+def calculate_fibonacci_levels(high: float, low: float) -> List[Any]:
     diff = high - low
     return [
         high,

@@ -147,7 +147,7 @@ class NotificationServiceImpl(NotificationService):
             return notifications[-limit:]
         except Exception as e:
             self.logger.error(f"Error getting notifications: {e}")
-            return []  # type: List[Any]
+            return []  
 
     def clear_notifications(self) -> bool:
         """Очистка уведомлений."""

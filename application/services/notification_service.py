@@ -206,7 +206,7 @@ class NotificationTemplateManager:
         """Форматирование сообщения по шаблону."""
         template = self.get_template(template_name)
         if not template:
-            return None  # type: None
+            return None
         try:
             return template.message.format(**kwargs)
         except KeyError as e:
@@ -253,8 +253,8 @@ class NotificationService:
         title: str,
         message: str,
         level: NotificationLevel = NotificationLevel.INFO,
-        channels: Optional[List[NotificationChannel] = None] = None,
-        metadata: Optional[Dict[str, Any] = None] = None,
+        channels: Optional[List[NotificationChannel]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """Отправка уведомления."""
         try:

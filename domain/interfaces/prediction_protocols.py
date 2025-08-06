@@ -194,7 +194,7 @@ class BaseReversalPredictor(ABC):
     def detect_divergences(self, data: Dict[str, Any]) -> List[DivergenceAnalysis]:
         """Обнаружение дивергенций."""
         # Реализация обнаружения дивергенций
-        return []  # type: List[Any]
+        return []  
 
     def get_reversal_history(self, limit: int = 100) -> List[EnhancedPredictionResult]:
         """Получение истории разворотов."""

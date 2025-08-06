@@ -449,4 +449,4 @@ class OrderBookPreFilter:
             return order_book.meta.get("noise_analysis")
         except Exception as e:
             logger.error(f"Error getting noise analysis result: {e}")
-            return None  # type: None
+            return None

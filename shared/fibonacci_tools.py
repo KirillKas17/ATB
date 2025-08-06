@@ -1,5 +1,7 @@
 # Миграция из utils/fibonacci_tools.py
-def calculate_fibonacci_levels(high: float, low: float) -> list:
+from typing import List
+
+def calculate_fibonacci_levels(high: float, low: float) -> List[float]:
     diff = high - low
     return [
         high,

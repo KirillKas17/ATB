@@ -118,7 +118,7 @@ class StrategyIntegrationManager:
             
         except Exception as e:
             logger.error(f"Error generating signal: {e}")
-            return None  # type: None
+            return None
     
     async def analyze_market_entanglement(self, symbols: List[str], market_data: Dict[str, Any]) -> Dict[str, Any]:
         """Анализ рыночной запутанности между символами."""

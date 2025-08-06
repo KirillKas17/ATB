@@ -5,7 +5,7 @@
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Protocol, Tuple, runtime_checkable
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
 
 @runtime_checkable

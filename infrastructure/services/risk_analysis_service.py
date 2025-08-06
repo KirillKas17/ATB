@@ -665,12 +665,12 @@ def optimize_portfolio_weights(returns: pd.DataFrame) -> Dict[str, float]:
     """Оптимизация весов портфеля."""
     try:
         if returns.empty:
-            return {}  # type: Dict[str, Any]
+            return {}  
         # Простое равномерное распределение как заглушка
         n_assets = len(returns.columns)
         return {col: 1.0 / n_assets for col in returns.columns}
     except Exception:
-        return {}  # type: Dict[str, Any]
+        return {}  
 
 
 def calc_portfolio_return(returns: pd.DataFrame, weights: Dict[str, float]) -> pd.Series:

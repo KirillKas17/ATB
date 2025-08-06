@@ -376,7 +376,7 @@ class EntanglementMonitor:
                         continue
             return history[-limit:]  # Возвращаем последние записи
         except FileNotFoundError:
-            return []  # type: List[Any]
+            return []  
 
     async def analyze_entanglement(self, symbol1: str, symbol2: str, timeframe: str) -> Dict[str, Any]:
         """Анализ запутанности между двумя символами."""
@@ -656,7 +656,7 @@ class EntanglementMonitor:
         """Обнаружение кластеров сильно коррелированных символов."""
         try:
             if not correlation_matrix:
-                return []  # type: List[Any]
+                return []  
             
             symbols = list(correlation_matrix.keys())
             visited = set()
@@ -712,7 +712,7 @@ class EntanglementMonitor:
             
         except Exception as e:
             logger.error(f"Error detecting correlation clusters: {e}")
-            return []  # type: List[Any]
+            return []  
 
     def calculate_volatility_ratio(self, prices1: List[Any], prices2: List[Any]) -> float:
         """Расчет отношения волатильности между двумя рядами цен."""
@@ -1151,4 +1151,4 @@ class EntanglementMonitor:
             return prices
         except Exception as e:
             logger.error(f"Error getting historical prices for {symbol}: {e}")
-            return []  # type: List[Any]
+            return []  

@@ -131,7 +131,7 @@ class InMemoryCacheStorage(CacheStorageProtocol):
             return entry
         elif entry and entry.is_expired():
             await self.delete(key)
-        return None  # type: None
+        return None
 
     async def set(self, key: str, entry: CacheEntry) -> bool:
         """Установка записи."""
@@ -256,11 +256,11 @@ class CacheService:
             # Запись не найдена - анализируем паттерны для предложений
             await self._analyze_miss_patterns(key)
             
-            return None  # type: None
+            return None
             
         except Exception as e:
             self.logger.error(f"Ошибка получения записи из кэша {key}: {e}")
-            return None  # type: None
+            return None
     
     async def _predict_and_prefetch(self, accessed_key: str) -> None:
         """AI-предсказание и предварительная загрузка связанных данных."""
@@ -288,9 +288,9 @@ class CacheService:
                 predicted = await self._ml_predict_related_keys(key, related)
                 return predicted[:5]  # Ограничиваем количество предсказаний
             
-            return []  # type: List[Any]
+            return []  
         except Exception:
-            return []  # type: List[Any]
+            return []  
     
     async def _ml_predict_related_keys(self, key: str, historical_related: List[str]) -> List[str]:
         """Машинное обучение для предсказания связанных ключей."""
@@ -389,11 +389,11 @@ class CacheService:
                     await self.set(key, entry)
                     return entry
             
-            return None  # type: None
+            return None
             
         except Exception as e:
             self.logger.debug(f"Ошибка автообновления кэша для {key}: {e}")
-            return None  # type: None
+            return None
     
     async def _analyze_miss_patterns(self, key: str) -> None:
         """Анализ паттернов промахов кэша для оптимизации."""
@@ -520,7 +520,7 @@ class CacheService:
             }
         except Exception as e:
             self.logger.error(f"Failed to get cache stats: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     async def get_multi(self, keys: List[str]) -> Dict[str, Any]:
         """Получение нескольких значений."""
@@ -580,7 +580,7 @@ class CacheService:
             return new_value
         except Exception as e:
             self.logger.error(f"Failed to increment cache value: {e}")
-            return None  # type: None
+            return None
 
     async def decrement(self, key: str, amount: int = 1) -> Optional[int]:
         """Уменьшение числового значения."""

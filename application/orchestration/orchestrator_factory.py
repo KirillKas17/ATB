@@ -152,7 +152,7 @@ class AdvancedStrategyRegistry:
             
         except Exception as e:
             self.logger.error(f"Ошибка получения активных стратегий: {e}")
-            return []  # type: List[Any]
+            return []  
     
     async def get_all_strategies(self) -> Dict[str, Any]:
         """Получение всех стратегий с полной аналитикой."""
@@ -172,7 +172,7 @@ class AdvancedStrategyRegistry:
             
         except Exception as e:
             self.logger.error(f"Ошибка получения всех стратегий: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
     
     async def get_health_status(self) -> Dict[str, Any]:
         """Получение детального статуса здоровья реестра стратегий."""
@@ -288,7 +288,7 @@ class AdvancedStrategyRegistry:
     async def _get_top_performer(self) -> Optional[str]:
         """Получение ID стратегии с лучшей производительностью."""
         if not self.strategy_metrics:
-            return None  # type: None
+            return None
         
         best_strategy = max(
             self.strategy_metrics.items(),
@@ -814,19 +814,19 @@ class AdvancedRiskManager:
     
     async def _load_var_model(self) -> Any:
         """Загрузка модели VaR."""
-        return None  # type: None
+        return None
     
     async def _load_correlation_model(self) -> Any:
         """Загрузка корреляционной модели."""
-        return None  # type: None
+        return None
     
     async def _load_volatility_model(self) -> Any:
         """Загрузка модели волатильности."""
-        return None  # type: None
+        return None
     
     async def _load_liquidity_model(self) -> Any:
         """Загрузка модели ликвидности."""
-        return None  # type: None
+        return None
 
 
 class AdvancedMarketData:
@@ -1092,7 +1092,7 @@ class AdvancedSentimentAnalyzer:
     
     async def _get_historical_data(self, symbol: str) -> Dict[str, Any]:
         """Получение исторических данных."""
-        return {}  # type: Dict[str, Any]
+        return {}  
     
     async def _preprocess_data(self, historical_data: Dict[str, Any]) -> Dict[str, Any]:
         """Предобработка данных."""
@@ -1170,7 +1170,7 @@ class AdvancedPortfolioManager:
             self.logger.error(f"Ошибка расчета стоимости портфеля: {e}")
             raise
     
-    async def rebalance_portfolio(self, target_allocation: Optional[Dict[str, float] = None] = None) -> Dict[str, Any]:
+    async def rebalance_portfolio(self, target_allocation: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
         """Ребалансировка портфеля с использованием AI."""
         try:
             # Получение текущего портфеля
@@ -1247,7 +1247,7 @@ class AdvancedPortfolioManager:
     
     async def _optimize_positions(self, current_portfolio: Dict[str, Decimal], target_allocation: Dict[str, float]) -> Dict[str, Any]:
         """Оптимизация позиций."""
-        return {}  # type: Dict[str, Any]
+        return {}  
     
     async def _execute_trades(self, optimal_positions: Dict[str, Any]) -> Dict[str, Any]:
         """Выполнение торговых операций."""
@@ -1307,7 +1307,7 @@ class AdvancedEvolutionManager:
             
         except Exception as e:
             self.logger.error(f"Ошибка эволюции стратегий: {e}")
-            return []  # type: List[Any]
+            return []  
     
     async def perform_evolution_cycle(self) -> Dict[str, Any]:
         """Выполнение цикла эволюции."""
@@ -1375,7 +1375,7 @@ class AdvancedEvolutionManager:
 
     async def _get_current_strategies(self) -> List[Dict[str, Any]]:
         """Получение текущих стратегий."""
-        return []  # type: List[Any]
+        return []  
     
     async def _define_fitness_function(self, strategies: List[Dict[str, Any]]) -> Any:
         """Определение функции приспособленности."""
@@ -1485,7 +1485,7 @@ class AdvancedOrderManagement:
     
     async def _get_current_config(self) -> Dict[str, Any]:
         """Получение текущей конфигурации."""
-        return {}  # type: Dict[str, Any]
+        return {}  
     
     async def _calculate_target_price(self, order_data: Dict[str, Any], config: Dict[str, Any]) -> Decimal:
         """Расчет целевой цены."""
@@ -1591,7 +1591,7 @@ class AdvancedPositionManagement:
     
     async def _fetch_positions(self) -> List[Dict[str, Any]]:
         """Получение позиций."""
-        return []  # type: List[Any]
+        return []  
     
     async def _save_position_history(self) -> None:
         """Сохранение истории позиций."""
@@ -1719,7 +1719,7 @@ class AdvancedRiskManagement:
     
     async def _get_current_config(self) -> Dict[str, Any]:
         """Получение текущей конфигурации."""
-        return {}  # type: Dict[str, Any]
+        return {}  
     
     async def _calculate_risk_level(self, data: Dict[str, Any], config: Dict[str, Any]) -> RiskLevel:
         """Расчет уровня риска."""
@@ -1850,7 +1850,7 @@ class AdvancedTradingPairManagement:
     
     async def _get_current_config(self) -> Dict[str, Any]:
         """Получение текущей конфигурации."""
-        return {}  # type: Dict[str, Any]
+        return {}  
     
     async def _fetch_active_pairs(self) -> List[str]:
         """Получение активных пар."""

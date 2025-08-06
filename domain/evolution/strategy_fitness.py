@@ -381,7 +381,7 @@ class StrategyEvaluationResult:
     def get_trade_analysis(self) -> Dict[str, Any]:
         """Получить анализ сделок."""
         if not self.trades:
-            return {}  # type: Dict[str, Any]
+            return {}
         # Анализ по типам сигналов
         buy_trades = [t for t in self.trades if t.signal_type.lower() == "buy"]
         sell_trades = [t for t in self.trades if t.signal_type.lower() == "sell"]
@@ -778,7 +778,7 @@ class StrategyFitnessEvaluator:
     def get_evaluation_statistics(self) -> Dict[str, Any]:
         """Получить статистику оценок."""
         if not self.evaluation_results:
-            return {}  # type: Dict[str, Any]
+            return {}
         results = list(self.evaluation_results.values())
         return {
             "total_evaluations": len(results),

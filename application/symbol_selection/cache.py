@@ -70,11 +70,11 @@ class SymbolCache:
                 if current_time - timestamp < self.config.cache_ttl_seconds:
                     return profile
 
-            return None  # type: None
+            return None
 
         except Exception as e:
             self.logger.error(f"Error getting cached profile for {symbol}: {e}")
-            return None  # type: None
+            return None
 
     def calculate_cache_hit_rate(self) -> float:
         """Расчет hit rate кэша."""
@@ -138,7 +138,7 @@ class SymbolCache:
 
         except Exception as e:
             self.logger.error(f"Error getting cache stats: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     def get_cached_profiles(self) -> Dict[str, SymbolProfile]:
         """Получение всех кэшированных профилей."""
@@ -151,7 +151,7 @@ class SymbolCache:
             return valid_profiles
         except Exception as e:
             self.logger.error(f"Error getting cached profiles: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     def get_hit_rate(self) -> float:
         """Получение hit rate кэша."""

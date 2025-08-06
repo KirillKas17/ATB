@@ -525,37 +525,37 @@ class ProductionMonitor:
             logger.error(f"Data cleanup failed: {e}")
     
     # Методы проверки здоровья компонентов (заглушки для интеграции)
-    async def _check_database_health(self, component: str) -> tuple:
+    async def _check_database_health(self, component: str) -> Tuple[Any, ...]:
         """Проверка здоровья базы данных."""
         # Здесь интеграция с database service
         return "healthy", "Database operational", {}
     
-    async def _check_cache_health(self, component: str) -> tuple:
+    async def _check_cache_health(self, component: str) -> Tuple[Any, ...]:
         """Проверка здоровья кэша."""
         # Здесь интеграция с cache service
         return "healthy", "Cache operational", {}
     
-    async def _check_exchange_health(self, component: str) -> tuple:
+    async def _check_exchange_health(self, component: str) -> Tuple[Any, ...]:
         """Проверка подключений к биржам."""
         # Здесь интеграция с exchange services
         return "healthy", "Exchange connections active", {}
     
-    async def _check_trading_engine_health(self, component: str) -> tuple:
+    async def _check_trading_engine_health(self, component: str) -> Tuple[Any, ...]:
         """Проверка торгового движка."""
         # Здесь интеграция с trading engine
         return "healthy", "Trading engine operational", {}
     
-    async def _check_risk_manager_health(self, component: str) -> tuple:
+    async def _check_risk_manager_health(self, component: str) -> Tuple[Any, ...]:
         """Проверка менеджера рисков."""
         # Здесь интеграция с risk manager
         return "healthy", "Risk manager operational", {}
     
-    async def _check_portfolio_health(self, component: str) -> tuple:
+    async def _check_portfolio_health(self, component: str) -> Tuple[Any, ...]:
         """Проверка портфельного менеджера."""
         # Здесь интеграция с portfolio manager
         return "healthy", "Portfolio manager operational", {}
     
-    async def _check_generic_health(self, component: str) -> tuple:
+    async def _check_generic_health(self, component: str) -> Tuple[Any, ...]:
         """Общая проверка здоровья."""
         return "healthy", f"Component {component} status unknown", {}
 

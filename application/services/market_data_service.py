@@ -153,7 +153,7 @@ class MarketDataService:
             )
             if market_data:
                 return self._extract_numeric_value(market_data[0].close_price)
-            return None  # type: None
+            return None
         except Exception as e:
             raise ExchangeError(f"Error getting real-time price: {str(e)}")
 

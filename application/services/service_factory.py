@@ -461,7 +461,7 @@ class ServiceFactoryRegistry:
         factory_class = self.get_factory(name)
         if factory_class:
             return factory_class()
-        return None  # type: None
+        return None
 
     def create_default_factory(
         self, config: Optional[Dict[str, Any] = None] = None

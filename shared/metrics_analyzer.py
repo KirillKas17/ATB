@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 from shared.numpy_utils import np
-import pandas as pd
+import pandas as pd  # type: ignore
 from loguru import logger
 from scipy import stats
 

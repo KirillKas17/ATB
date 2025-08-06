@@ -26,7 +26,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
         self,
         ml_repository: MLRepository,
         ml_predictor: MLPredictor,
-        config: Optional[Dict[str, Any] = None] = None,
+        config: Optional[Dict[str, Any]] = None,
     ):
         super().__init__("MLService", config)
         self.ml_repository = ml_repository
@@ -118,7 +118,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             # Обновляем метрики модели
             await self._update_model_metrics(model.id, prediction_result)
             return ml_prediction
-        return None  # type: None
+        return None
 
     async def analyze_sentiment(self, text: str) -> Dict[str, Any]:
         """Анализ настроений."""
@@ -335,7 +335,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Feature extraction failed: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
     
     async def _calculate_technical_features(self, market_data: Any) -> Dict[str, float]:
         """Расчет технических индикаторов как признаков."""
@@ -357,7 +357,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Technical features calculation failed: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
     
     async def _normalize_features(self, features: Dict[str, float]) -> Dict[str, float]:
         """Нормализация признаков для ML модели."""
@@ -449,7 +449,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             if not model:
                 return {"error": f"Model {model_id} not found"}
             # Здесь нет метода evaluate_model, оставляем заглушку или реализуем через внешний сервис
-            return {}  # type: Dict[str, Any]
+            return {}  
         except Exception as e:
             self.logger.error(f"Error evaluating model {model_id}: {e}")
             return {"error": str(e)}
@@ -721,7 +721,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Error in advanced sentiment analysis: {e}")
-            return None  # type: None
+            return None
 
     def _lexical_sentiment_analysis(self, text: str) -> float:
         """Лексический анализ настроений."""
@@ -1235,7 +1235,7 @@ class MLServiceImpl(BaseApplicationService, MLService):
             
         except Exception as e:
             self.logger.error(f"Error in advanced risk calculation: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  
 
     async def _calculate_var_metrics(self, market_data, portfolio_data) -> Dict[str, float]:
         """Расчет Value at Risk различными методами."""

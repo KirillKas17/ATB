@@ -120,7 +120,7 @@ class SessionSignalEngine:
                 return {"bids": [], "asks": []}
             
             async def get_trades(self, *args, **kwargs) -> Any:
-                return []  # type: List[Any]
+                return []  
             
             def _generate_mock_ohlcv(self, *args, **kwargs) -> Any:
                 import random
@@ -202,13 +202,13 @@ class SessionSignalEngine:
             
             def _create_price_direction_model(self) -> None:
                 # Здесь будет реальная ML-модель
-                return None  # type: None
+                return None
             
             def _create_volatility_model(self) -> None:
-                return None  # type: None
+                return None
             
             def _create_volume_model(self) -> None:
-                return None  # type: None
+                return None
             
             async def predict_price_direction(self, *args, **kwargs) -> Any:
                 # Предсказание направления цены

@@ -195,7 +195,7 @@ class LiquidityGravityMonitor:
 
         except Exception as e:
             logger.error(f"Error getting order book for {symbol}: {e}")
-            return None  # type: None
+            return None
 
     def _assess_risk(
         self,
@@ -397,10 +397,10 @@ class LiquidityGravityMonitor:
         try:
             if symbol in self.risk_history and self.risk_history[symbol]:
                 return self.risk_history[symbol][-1]
-            return None  # type: None
+            return None
         except Exception as e:
             logger.error(f"Error getting latest risk assessment for {symbol}: {e}")
-            return None  # type: None
+            return None
 
     def get_risk_history(
         self, symbol: str, limit: int = 100
@@ -409,10 +409,10 @@ class LiquidityGravityMonitor:
         try:
             if symbol in self.risk_history:
                 return self.risk_history[symbol][-limit:]
-            return []  # type: List[Any]
+            return []  
         except Exception as e:
             logger.error(f"Error getting risk history for {symbol}: {e}")
-            return []  # type: List[Any]
+            return []  
 
     def get_monitoring_statistics(self) -> Dict[str, Any]:
         """Получение статистики мониторинга."""
@@ -435,4 +435,4 @@ class LiquidityGravityMonitor:
             return stats
         except Exception as e:
             logger.error(f"Error getting monitoring statistics: {e}")
-            return {}  # type: Dict[str, Any]
+            return {}  

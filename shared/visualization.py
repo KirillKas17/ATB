@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Модуль визуализации для shared слоя."""
-import pandas as pd
+import pandas as pd  # type: ignore
 from shared.numpy_utils import np
 import matplotlib.pyplot as plt
 from typing import Any, Dict, List, Optional, Tuple

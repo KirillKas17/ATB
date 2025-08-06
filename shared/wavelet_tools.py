@@ -4,7 +4,7 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from shared.numpy_utils import np
-import pandas as pd
+import pandas as pd  # type: ignore
 import pywt
 from scipy import signal
 
