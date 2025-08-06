@@ -205,14 +205,12 @@ class TestOrderValidation:
 
     def test_order_negative_amount_validation(self):
         """Тест валидации отрицательного количества"""
-        order = Order(
-            trading_pair=TradingPair("BTC/USD"),
-            amount=Volume(Decimal('-1.0'), Currency.BTC)
-        )
-        
-        if hasattr(order, 'validate'):
-            with pytest.raises((ValueError, OrderError)):
-                order.validate()
+        # Volume уже проверяет отрицательные значения в __post_init__
+        with pytest.raises(ValueError, match="Volume cannot be negative"):
+            order = Order(
+                trading_pair=TradingPair("BTC/USD"),
+                amount=Volume(Decimal('-1.0'), Currency.BTC)
+            )
 
     def test_order_invalid_price_validation(self):
         """Тест валидации неверной цены"""
@@ -237,33 +235,37 @@ class TestOrderStatusTransitions:
             status=OrderStatus.PENDING
         )
         
-        if hasattr(order, 'set_status'):
-            order.set_status(OrderStatus.OPEN)
-            assert order.status == OrderStatus.OPEN
+        # Используем реальный метод update_status
+        order.update_status(OrderStatus.OPEN)
+        assert order.status == OrderStatus.OPEN
 
     def test_order_status_open_to_filled(self):
         """Тест перехода статуса с OPEN на FILLED"""
         order = Order(
             trading_pair=TradingPair("BTC/USD"),
             status=OrderStatus.OPEN,
-            amount=Volume(Decimal('1.0'), Currency.BTC)
+            amount=Volume(Decimal('1.0'), Currency.BTC),
+            quantity=VolumeValue(Decimal('1.0'))  # Нужен quantity для сравнения при заполнении
         )
         
-        if hasattr(order, 'fill'):
-            order.fill(Volume(Decimal('1.0'), Currency.BTC))
-            assert order.status == OrderStatus.FILLED
+        # Используем реальный метод fill с ценой
+        fill_price = Price(Decimal('50000.00'), Currency.USD)
+        order.fill(Volume(Decimal('1.0'), Currency.BTC), fill_price)
+        assert order.status == OrderStatus.FILLED
 
     def test_order_status_open_to_partially_filled(self):
         """Тест перехода статуса с OPEN на PARTIALLY_FILLED"""
         order = Order(
             trading_pair=TradingPair("BTC/USD"),
             status=OrderStatus.OPEN,
-            amount=Volume(Decimal('2.0'), Currency.BTC)
+            amount=Volume(Decimal('2.0'), Currency.BTC),
+            quantity=VolumeValue(Decimal('2.0'))
         )
         
-        if hasattr(order, 'fill'):
-            order.fill(Volume(Decimal('1.0'), Currency.BTC))
-            assert order.status == OrderStatus.PARTIALLY_FILLED
+        # Частичное заполнение
+        fill_price = Price(Decimal('50000.00'), Currency.USD)
+        order.fill(Volume(Decimal('1.0'), Currency.BTC), fill_price)
+        assert order.status == OrderStatus.PARTIALLY_FILLED
 
     def test_order_status_open_to_cancelled(self):
         """Тест перехода статуса с OPEN на CANCELLED"""
@@ -272,9 +274,9 @@ class TestOrderStatusTransitions:
             status=OrderStatus.OPEN
         )
         
-        if hasattr(order, 'cancel'):
-            order.cancel()
-            assert order.status == OrderStatus.CANCELLED
+        # Используем реальный метод cancel
+        order.cancel()
+        assert order.status == OrderStatus.CANCELLED
 
     def test_order_invalid_status_transition(self):
         """Тест невалидного перехода статуса"""
@@ -297,15 +299,17 @@ class TestOrderBusinessLogic:
         order = Order(
             trading_pair=TradingPair("BTC/USD"),
             amount=amount,
+            quantity=VolumeValue(Decimal('1.0')),
             status=OrderStatus.OPEN
         )
         
-        if hasattr(order, 'fill'):
-            fill_result = order.fill(amount)
-            
-            assert order.filled_amount == amount
-            assert order.status == OrderStatus.FILLED
-            assert order.filled_at is not None
+        # Заполняем ордер с ценой
+        fill_price = Price(Decimal('50000.00'), Currency.USD)
+        order.fill(amount, fill_price)
+        
+        assert order.filled_quantity == VolumeValue(Decimal('1.0'))
+        assert order.status == OrderStatus.FILLED
+        assert order.filled_at is not None
 
     def test_order_fill_partial(self):
         """Тест частичного заполнения ордера"""
@@ -366,32 +370,29 @@ class TestOrderBusinessLogic:
 
     def test_order_get_remaining_amount(self):
         """Тест получения оставшейся суммы ордера"""
-        total_amount = Volume(Decimal('5.0'), Currency.ETH)
-        filled_amount = Volume(Decimal('2.0'), Currency.ETH)
-        
         order = Order(
             trading_pair=TradingPair("ETH/USD"),
-            amount=total_amount,
-            filled_amount=filled_amount
+            amount=Volume(Decimal('5.0'), Currency.ETH),
+            quantity=VolumeValue(Decimal('5.0')),
+            filled_quantity=VolumeValue(Decimal('2.0'))
         )
         
-        if hasattr(order, 'get_remaining_amount'):
-            remaining = order.get_remaining_amount()
-            assert remaining == Volume(Decimal('3.0'), Currency.ETH)
+        # Используем реальное свойство remaining_quantity
+        remaining = order.remaining_quantity
+        assert remaining == VolumeValue(Decimal('3.0'))
 
     def test_order_is_fully_filled(self):
         """Тест проверки полного заполнения ордера"""
-        amount = Volume(Decimal('1.0'), Currency.BTC)
-        
         order = Order(
             trading_pair=TradingPair("BTC/USD"),
-            amount=amount,
-            filled_amount=amount,
+            amount=Volume(Decimal('1.0'), Currency.BTC),
+            quantity=VolumeValue(Decimal('1.0')),
+            filled_quantity=VolumeValue(Decimal('1.0')),
             status=OrderStatus.FILLED
         )
         
-        if hasattr(order, 'is_fully_filled'):
-            assert order.is_fully_filled() is True
+        # Используем реальное свойство is_filled
+        assert order.is_filled is True
 
     def test_order_is_partially_filled(self):
         """Тест проверки частичного заполнения ордера"""
