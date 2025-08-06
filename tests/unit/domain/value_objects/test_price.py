@@ -1,431 +1,370 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Unit тесты для price.py.
-
-Покрывает:
-- Основной функционал Price
-- Валидацию данных
-- Бизнес-логику операций с ценами
-- Обработку ошибок
-- Математические операции
-- Сериализацию и десериализацию
+Комплексные тесты для Price Value Object.
 """
 
 import pytest
-import dataclasses
-from typing import Dict, Any, Tuple
-from unittest.mock import Mock, patch
 from decimal import Decimal
+from typing import Dict, Any
 
 from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency
+from domain.exceptions import ValidationError
 
 
 class TestPrice:
-    """Тесты для Price."""
+    """Тесты для Price Value Object."""
 
     @pytest.fixture
-    def sample_price(self) -> Price:
-        """Тестовая цена."""
-        return Price(
-            value=Decimal("50000.00"),
-            currency=Currency.BTC,
-            quote_currency=Currency.USD
-        )
+    def usd_currency(self) -> Currency:
+        """Фикстура USD валюты."""
+        return Currency("USD")
 
     @pytest.fixture
-    def usd_price(self) -> Price:
-        """Цена в USD."""
-        return Price(
-            value=Decimal("1.00"),
-            currency=Currency.USD,
-            quote_currency=Currency.USD
-        )
+    def btc_currency(self) -> Currency:
+        """Фикстура BTC валюты."""
+        return Currency("BTC")
 
     @pytest.fixture
-    def eth_price(self) -> Price:
-        """Цена ETH."""
-        return Price(
-            value=Decimal("3000.00"),
-            currency=Currency.ETH,
-            quote_currency=Currency.USD
-        )
+    def sample_price_btc(self, usd_currency: Currency) -> Price:
+        """Фикстура цены BTC в USD."""
+        return Price(value=Decimal("45000.50"), currency=usd_currency)
 
-    def test_price_creation(self, sample_price):
-        """Тест создания цены."""
-        assert sample_price.value == Decimal("50000.00")
-        assert sample_price.currency == Currency.BTC
-        assert sample_price.quote_currency == Currency.USD
+    @pytest.fixture
+    def sample_price_eth(self, usd_currency: Currency) -> Price:
+        """Фикстура цены ETH в USD."""
+        return Price(value=Decimal("3200.75"), currency=usd_currency)
 
-    def test_price_creation_default_quote_currency(self):
-        """Тест создания цены с валютой по умолчанию."""
-        price = Price(value=Decimal("100.00"), currency=Currency.USD)
-        assert price.quote_currency == Currency.USD
+    def test_price_creation_valid(self, usd_currency: Currency) -> None:
+        """Тест создания валидной цены."""
+        price = Price(value=Decimal("100.50"), currency=usd_currency)
+        
+        assert price.value == Decimal("100.50")
+        assert price.currency == usd_currency
+        assert str(price) == "100.50 USD"
 
-    def test_price_validation_negative_value(self):
-        """Тест валидации отрицательной цены."""
-        with pytest.raises(ValueError, match="Price cannot be negative"):
-            Price(value=Decimal("-100.00"), currency=Currency.USD)
+    def test_price_creation_zero(self, usd_currency: Currency) -> None:
+        """Тест создания нулевой цены."""
+        price = Price(value=Decimal("0"), currency=usd_currency)
+        
+        assert price.value == Decimal("0")
+        assert price.is_zero()
+        assert not price.is_positive()
 
-    def test_price_zero_value(self):
-        """Тест цены с нулевым значением."""
-        price = Price(value=Decimal("0.00"), currency=Currency.USD)
-        assert price.value == Decimal("0.00")
-        assert price.validate() is True
+    def test_price_creation_negative_invalid(self, usd_currency: Currency) -> None:
+        """Тест создания отрицательной цены (недопустимо)."""
+        with pytest.raises(ValidationError, match="Price cannot be negative"):
+            Price(value=Decimal("-10.50"), currency=usd_currency)
 
-    def test_price_arithmetic_operations(self, sample_price, eth_price):
+    def test_price_creation_too_large(self, usd_currency: Currency) -> None:
+        """Тест создания слишком большой цены."""
+        with pytest.raises(ValidationError):
+            Price(value=Decimal("1000000000000"), currency=usd_currency)
+
+    def test_price_creation_invalid_precision(self, usd_currency: Currency) -> None:
+        """Тест создания цены с невалидной точностью."""
+        with pytest.raises(ValidationError):
+            Price(value=Decimal("100.123456789012345"), currency=usd_currency)
+
+    def test_price_comparison_same_currency(self, usd_currency: Currency) -> None:
+        """Тест сравнения цен в одной валюте."""
+        price1 = Price(value=Decimal("100"), currency=usd_currency)
+        price2 = Price(value=Decimal("200"), currency=usd_currency)
+        price3 = Price(value=Decimal("100"), currency=usd_currency)
+        
+        assert price1 < price2
+        assert price2 > price1
+        assert price1 == price3
+        assert price1 <= price2
+        assert price2 >= price1
+
+    def test_price_comparison_different_currency(self, sample_price_btc: Price, btc_currency: Currency) -> None:
+        """Тест сравнения цен в разных валютах."""
+        eth_price = Price(value=Decimal("3000"), currency=btc_currency)
+        
+        with pytest.raises(ValidationError, match="Cannot compare prices with different currencies"):
+            sample_price_btc < eth_price
+
+    def test_price_arithmetic_operations(self, sample_price_btc: Price) -> None:
         """Тест арифметических операций."""
-        # Сложение
-        result = sample_price + sample_price
-        assert result.value == Decimal("100000.00")
-        assert result.currency == Currency.BTC
-        assert result.quote_currency == Currency.USD
-
-        # Вычитание
-        result = sample_price - Price(value=Decimal("10000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        assert result.value == Decimal("40000.00")
-
-        # Умножение
-        result = sample_price * 2
-        assert result.value == Decimal("100000.00")
-
-        # Деление
-        result = sample_price / 2
-        assert result.value == Decimal("25000.00")
-
-    def test_price_arithmetic_errors(self, sample_price, eth_price):
-        """Тест ошибок арифметических операций."""
-        # Сложение с разными валютами
-        with pytest.raises(ValueError, match="Cannot add prices with different currencies"):
-            sample_price + eth_price
-
-        # Сложение с неверным типом
-        with pytest.raises(TypeError, match="Can only add Price with Price"):
-            sample_price + 100
-
-        # Вычитание с разными валютами
-        with pytest.raises(ValueError, match="Cannot subtract prices with different currencies"):
-            sample_price - eth_price
-
-        # Деление на ноль
-        with pytest.raises(ValueError, match="Cannot divide by zero"):
-            sample_price / 0
-
-    def test_price_comparison_operations(self, sample_price):
-        """Тест операций сравнения."""
-        lower_price = Price(value=Decimal("40000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        higher_price = Price(value=Decimal("60000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-
-        # Меньше
-        assert lower_price < sample_price
-        assert sample_price < higher_price
-
-        # Больше
-        assert higher_price > sample_price
-        assert sample_price > lower_price
-
-        # Меньше или равно
-        assert lower_price <= sample_price
-        assert sample_price <= sample_price
-
-        # Больше или равно
-        assert higher_price >= sample_price
-        assert sample_price >= sample_price
-
-    def test_price_comparison_errors(self, sample_price, eth_price):
-        """Тест ошибок сравнения."""
-        with pytest.raises(ValueError, match="Cannot compare prices with different currencies"):
-            sample_price < eth_price
-
-        with pytest.raises(TypeError, match="Can only compare Price with Price"):
-            sample_price < 100
-
-    def test_price_percentage_change(self, sample_price):
-        """Тест вычисления процентного изменения."""
-        old_price = Price(value=Decimal("40000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        new_price = Price(value=Decimal("50000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-
-        change = new_price.percentage_change(old_price)
-        assert change == Decimal("25.00")  # 25% увеличение
-
-        # Обратное изменение
-        change = old_price.percentage_change(new_price)
-        assert change == Decimal("-20.00")  # 20% уменьшение
-
-    def test_price_percentage_change_zero_base(self, sample_price):
-        """Тест процентного изменения с нулевой базой."""
-        zero_price = Price(value=Decimal("0.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        change = sample_price.percentage_change(zero_price)
-        assert change == Decimal("0")  # Должно возвращать 0 при делении на ноль
-
-    def test_price_spread(self, sample_price):
-        """Тест вычисления спреда."""
-        bid_price = Price(value=Decimal("49000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        ask_price = Price(value=Decimal("51000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-
-        spread = ask_price.spread(bid_price)
-        assert spread == Decimal("2000.00")
-
-        # Спред должен быть абсолютным значением
-        spread = bid_price.spread(ask_price)
-        assert spread == Decimal("2000.00")
-
-    def test_price_slippage(self, sample_price):
-        """Тест вычисления проскальзывания."""
-        target_price = Price(value=Decimal("48000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
+        # Умножение на коэффициент
+        doubled = sample_price_btc * Decimal("2")
+        assert doubled.value == sample_price_btc.value * 2
+        assert doubled.currency == sample_price_btc.currency
         
-        slippage = sample_price.slippage(target_price)
-        expected_slippage = abs(Decimal("50000.00") - Decimal("48000.00")) / Decimal("48000.00")
-        assert slippage == expected_slippage
+        # Деление на коэффициент
+        halved = sample_price_btc / Decimal("2")
+        assert halved.value == sample_price_btc.value / 2
+        assert halved.currency == sample_price_btc.currency
 
-    def test_price_slippage_zero_target(self, sample_price):
-        """Тест проскальзывания с нулевой целевой ценой."""
-        zero_price = Price(value=Decimal("0.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        slippage = sample_price.slippage(zero_price)
-        assert slippage == Decimal("0")
+    def test_price_division_by_zero(self, sample_price_btc: Price) -> None:
+        """Тест деления на ноль."""
+        with pytest.raises(ValidationError, match="Cannot divide by zero"):
+            sample_price_btc / Decimal("0")
 
-    def test_price_properties(self, sample_price):
-        """Тест свойств цены."""
-        assert sample_price.amount == Decimal("50000.00")
-        assert sample_price.to_decimal() == Decimal("50000.00")
-
-    def test_price_percentage_change_from(self, sample_price):
-        """Тест метода percentage_change_from."""
-        old_price = Price(value=Decimal("40000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        change = sample_price.percentage_change_from(old_price)
-        assert change == Decimal("25.00")
-
-    def test_price_spread_with(self, sample_price):
-        """Тест метода spread_with."""
-        other_price = Price(value=Decimal("49000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        spread_price = sample_price.spread_with(other_price)
+    def test_price_percentage_change(self, usd_currency: Currency) -> None:
+        """Тест расчета процентного изменения."""
+        old_price = Price(value=Decimal("100"), currency=usd_currency)
+        new_price = Price(value=Decimal("110"), currency=usd_currency)
         
-        assert isinstance(spread_price, Price)
-        assert spread_price.value == Decimal("1000.00")
-        assert spread_price.currency == Currency.BTC
-        assert spread_price.quote_currency == Currency.USD
+        change = new_price.percentage_change_from(old_price)
+        assert change == Decimal("10.0")  # 10% рост
+        
+        # Обратный тест
+        reverse_change = old_price.percentage_change_from(new_price)
+        assert reverse_change == Decimal("-9.090909090909091")  # ~-9.09% падение
 
-    def test_price_apply_slippage(self, sample_price):
+    def test_price_percentage_change_different_currency(self, sample_price_btc: Price, btc_currency: Currency) -> None:
+        """Тест расчета процентного изменения для разных валют."""
+        eth_price = Price(value=Decimal("3000"), currency=btc_currency)
+        
+        with pytest.raises(ValidationError, match="Cannot calculate percentage change"):
+            sample_price_btc.percentage_change_from(eth_price)
+
+    def test_price_apply_percentage_change(self, sample_price_btc: Price) -> None:
+        """Тест применения процентного изменения."""
+        # Рост на 10%
+        increased = sample_price_btc.apply_percentage_change(Decimal("10"))
+        expected_value = sample_price_btc.value * Decimal("1.10")
+        assert increased.value == expected_value
+        
+        # Падение на 15%
+        decreased = sample_price_btc.apply_percentage_change(Decimal("-15"))
+        expected_value = sample_price_btc.value * Decimal("0.85")
+        assert decreased.value == expected_value
+
+    def test_price_spread_calculation(self, usd_currency: Currency) -> None:
+        """Тест расчета спреда."""
+        bid_price = Price(value=Decimal("100"), currency=usd_currency)
+        ask_price = Price(value=Decimal("102"), currency=usd_currency)
+        
+        spread = ask_price.calculate_spread(bid_price)
+        assert spread.value == Decimal("2")
+        assert spread.currency == usd_currency
+        
+        # Спред в процентах
+        spread_pct = ask_price.calculate_spread_percentage(bid_price)
+        assert spread_pct == Decimal("2.0")  # 2%
+
+    def test_price_round_to_tick_size(self, usd_currency: Currency) -> None:
+        """Тест округления до размера тика."""
+        price = Price(value=Decimal("123.456789"), currency=usd_currency)
+        
+        # Округление до 0.01
+        rounded = price.round_to_tick_size(Decimal("0.01"))
+        assert rounded.value == Decimal("123.46")
+        
+        # Округление до 0.1
+        rounded = price.round_to_tick_size(Decimal("0.1"))
+        assert rounded.value == Decimal("123.5")
+        
+        # Округление до 1
+        rounded = price.round_to_tick_size(Decimal("1"))
+        assert rounded.value == Decimal("123")
+
+    def test_price_market_impact(self, sample_price_btc: Price) -> None:
+        """Тест расчета рыночного воздействия."""
+        # Воздействие покупки (цена растет)
+        buy_impact = sample_price_btc.apply_market_impact(
+            side="BUY", 
+            impact_percentage=Decimal("0.1")
+        )
+        expected = sample_price_btc.value * Decimal("1.001")
+        assert buy_impact.value == expected
+        
+        # Воздействие продажи (цена падает)
+        sell_impact = sample_price_btc.apply_market_impact(
+            side="SELL", 
+            impact_percentage=Decimal("0.1")
+        )
+        expected = sample_price_btc.value * Decimal("0.999")
+        assert sell_impact.value == expected
+
+    def test_price_slippage_application(self, sample_price_btc: Price) -> None:
         """Тест применения проскальзывания."""
-        slippage_percent = Decimal("1.0")  # 1%
-        bid_price, ask_price = sample_price.apply_slippage(slippage_percent)
+        slippage = Decimal("0.5")  # 0.5%
         
-        # Bid цена должна быть ниже
-        assert bid_price.value < sample_price.value
-        # Ask цена должна быть выше
-        assert ask_price.value > sample_price.value
+        # Покупка с проскальзыванием (цена выше)
+        buy_price = sample_price_btc.apply_slippage("BUY", slippage)
+        expected = sample_price_btc.value * Decimal("1.005")
+        assert buy_price.value == expected
         
-        # Проверяем точность
-        expected_bid = Decimal("50000.00") * Decimal("0.99")
-        expected_ask = Decimal("50000.00") * Decimal("1.01")
-        assert bid_price.value == expected_bid
-        assert ask_price.value == expected_ask
+        # Продажа с проскальзыванием (цена ниже)
+        sell_price = sample_price_btc.apply_slippage("SELL", slippage)
+        expected = sample_price_btc.value * Decimal("0.995")
+        assert sell_price.value == expected
 
-    def test_price_to_dict(self, sample_price):
-        """Тест сериализации в словарь."""
-        result = sample_price.to_dict()
+    def test_price_support_resistance_levels(self, sample_price_btc: Price) -> None:
+        """Тест расчета уровней поддержки и сопротивления."""
+        # Уровень поддержки (ниже текущей цены)
+        support = sample_price_btc.calculate_support_level(Decimal("5"))  # 5% ниже
+        expected = sample_price_btc.value * Decimal("0.95")
+        assert support.value == expected
         
-        assert result["value"] == "50000.00"
-        assert result["currency"] == "BTC"
-        assert result["quote_currency"] == "USD"
-        assert result["type"] == "Price"
+        # Уровень сопротивления (выше текущей цены)
+        resistance = sample_price_btc.calculate_resistance_level(Decimal("8"))  # 8% выше
+        expected = sample_price_btc.value * Decimal("1.08")
+        assert resistance.value == expected
 
-    def test_price_from_dict(self, sample_price):
-        """Тест десериализации из словаря."""
-        data = {
-            "value": "50000.00",
-            "currency": "BTC",
-            "quote_currency": "USD"
-        }
+    def test_price_volatility_range(self, sample_price_btc: Price) -> None:
+        """Тест расчета диапазона волатильности."""
+        volatility = Decimal("15")  # 15% волатильность
         
-        price = Price.from_dict(data)
-        assert price.value == Decimal("50000.00")
-        assert price.currency == Currency.BTC
-        assert price.quote_currency == Currency.USD
-
-    def test_price_from_dict_default_quote(self):
-        """Тест десериализации с валютой по умолчанию."""
-        data = {
-            "value": "100.00",
-            "currency": "USD",
-            "quote_currency": None
-        }
+        lower_bound, upper_bound = sample_price_btc.calculate_volatility_range(volatility)
         
-        price = Price.from_dict(data)
-        assert price.quote_currency == Currency.USD
-
-    def test_price_from_dict_invalid_currency(self):
-        """Тест десериализации с неверной валютой."""
-        data = {
-            "value": "100.00",
-            "currency": "INVALID",
-            "quote_currency": "USD"
-        }
+        expected_lower = sample_price_btc.value * Decimal("0.85")
+        expected_upper = sample_price_btc.value * Decimal("1.15")
         
-        with pytest.raises(ValueError, match="Unknown currency"):
-            Price.from_dict(data)
+        assert lower_bound.value == expected_lower
+        assert upper_bound.value == expected_upper
 
-    def test_price_hash(self, sample_price):
-        """Тест хеширования цены."""
-        hash_value = sample_price.hash
-        assert len(hash_value) == 32  # MD5 hex digest length
-        assert isinstance(hash_value, str)
-
-    def test_price_validation(self, sample_price):
-        """Тест валидации цены."""
-        assert sample_price.validate() is True
-
-        # Невалидная цена (отрицательная)
-        invalid_price = Price(value=Decimal("-100.00"), currency=Currency.USD)
-        # Но валидация не проверяет отрицательные значения в __post_init__
-        assert invalid_price.validate() is True
-
-    def test_price_equality(self, sample_price):
-        """Тест равенства цен."""
-        same_price = Price(value=Decimal("50000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        different_price = Price(value=Decimal("60000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
+    def test_price_serialization(self, sample_price_btc: Price) -> None:
+        """Тест сериализации цены."""
+        # Тест to_dict
+        data = sample_price_btc.to_dict()
+        assert data["value"] == "45000.50"
+        assert data["currency"] == "USD"
         
-        assert sample_price == same_price
-        assert sample_price != different_price
-        assert sample_price != "not a price"
+        # Тест from_dict
+        restored = Price.from_dict(data)
+        assert restored == sample_price_btc
 
-    def test_price_hash_equality(self, sample_price):
-        """Тест хеширования для равенства."""
-        same_price = Price(value=Decimal("50000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
+    def test_price_from_dict_invalid(self) -> None:
+        """Тест десериализации с невалидными данными."""
+        with pytest.raises(ValidationError):
+            Price.from_dict({"value": "invalid", "currency": "USD"})
         
-        assert hash(sample_price) == hash(same_price)
+        with pytest.raises(ValidationError):
+            Price.from_dict({"value": "100", "currency": "INVALID"})
 
-    def test_price_str_representation(self, sample_price):
-        """Тест строкового представления."""
-        result = str(sample_price)
-        assert result == "50000.00 BTC/USD"
-
-    def test_price_repr_representation(self, sample_price):
-        """Тест repr представления."""
-        result = repr(sample_price)
-        assert result == "Price(50000.00, BTC, USD)"
-
-
-class TestPriceOperations:
-    """Тесты операций с ценами."""
-
-    def test_price_precision_handling(self):
-        """Тест обработки точности."""
-        price = Price(value=Decimal("100.123456"), currency=Currency.USD)
-        assert price.value == Decimal("100.123456")
-
-        # Операции с высокой точностью
-        result = price * Decimal("1.000001")
-        assert result.value == Decimal("100.123456") * Decimal("1.000001")
-
-    def test_price_large_numbers(self):
-        """Тест больших чисел."""
-        large_price = Price(value=Decimal("999999999.99999999"), currency=Currency.USD)
-        assert large_price.validate() is True
-
-        # Операции с большими числами
-        result = large_price * 2
-        assert result.value == Decimal("1999999999.99999998")
-
-    def test_price_immutability(self, sample_price):
-        """Тест неизменяемости цены."""
-        with pytest.raises(dataclasses.FrozenInstanceError):
-            sample_price.value = Decimal("60000.00")
-
-    def test_price_currency_consistency(self):
-        """Тест консистентности валют."""
-        # Все операции должны сохранять валюты
-        price1 = Price(value=Decimal("100.00"), currency=Currency.USD)
-        price2 = Price(value=Decimal("200.00"), currency=Currency.USD)
+    def test_price_hash_consistency(self, usd_currency: Currency) -> None:
+        """Тест консистентности хэширования."""
+        price1 = Price(value=Decimal("100"), currency=usd_currency)
+        price2 = Price(value=Decimal("100"), currency=usd_currency)
         
-        result = price1 + price2
-        assert result.currency == Currency.USD
-        assert result.quote_currency == Currency.USD
+        assert hash(price1) == hash(price2)
+        assert price1 == price2
 
-    def test_price_serialization_roundtrip(self):
-        """Тест сериализации и десериализации."""
-        original_price = Price(value=Decimal("12345.67"), currency=Currency.ETH, quote_currency=Currency.USD)
+    def test_price_immutability(self, sample_price_btc: Price) -> None:
+        """Тест неизменяемости объекта Price."""
+        original_value = sample_price_btc.value
+        original_currency = sample_price_btc.currency
         
-        # Сериализация
-        data = original_price.to_dict()
+        # Все операции должны возвращать новые объекты
+        doubled = sample_price_btc * Decimal("2")
+        rounded = sample_price_btc.round_to_tick_size(Decimal("0.01"))
         
-        # Десериализация
-        restored_price = Price.from_dict(data)
+        # Оригинальный объект не должен измениться
+        assert sample_price_btc.value == original_value
+        assert sample_price_btc.currency == original_currency
+        assert doubled is not sample_price_btc
+        assert rounded is not sample_price_btc
+
+    def test_price_trading_calculations(self, sample_price_btc: Price) -> None:
+        """Тест торговых расчетов."""
+        quantity = Decimal("0.5")  # 0.5 BTC
         
-        # Проверка равенства
-        assert restored_price == original_price
-        assert restored_price.value == original_price.value
-        assert restored_price.currency == original_price.currency
-        assert restored_price.quote_currency == original_price.quote_currency
-
-
-class TestPriceEdgeCases:
-    """Тесты граничных случаев для цен."""
-
-    def test_price_minimum_values(self):
-        """Тест минимальных значений."""
-        min_price = Price(value=Decimal("0.00000001"), currency=Currency.USD)
-        assert min_price.validate() is True
-        assert min_price.value > 0
-
-    def test_price_maximum_values(self):
-        """Тест максимальных значений."""
-        max_price = Price(value=Decimal("999999999999999.99999999"), currency=Currency.USD)
-        assert max_price.validate() is True
-
-    def test_price_different_currencies(self):
-        """Тест разных валют."""
-        btc_price = Price(value=Decimal("50000.00"), currency=Currency.BTC, quote_currency=Currency.USD)
-        eth_price = Price(value=Decimal("3000.00"), currency=Currency.ETH, quote_currency=Currency.USD)
+        # Расчет общей стоимости
+        total_value = sample_price_btc.calculate_total_value(quantity)
+        expected = sample_price_btc.value * quantity
+        assert total_value.value == expected
         
-        # Цены в разных валютах не должны сравниваться
-        with pytest.raises(ValueError):
-            btc_price < eth_price
+        # Расчет количества по сумме
+        investment = sample_price_btc.currency.create_money(Decimal("10000"))
+        calculated_quantity = sample_price_btc.calculate_quantity_for_amount(investment)
+        expected_qty = investment.amount / sample_price_btc.value
+        assert calculated_quantity == expected_qty
 
-    def test_price_slippage_edge_cases(self):
-        """Тест граничных случаев проскальзывания."""
-        price = Price(value=Decimal("100.00"), currency=Currency.USD)
+    def test_price_stop_loss_take_profit(self, sample_price_btc: Price) -> None:
+        """Тест расчета стоп-лосса и тейк-профита."""
+        # Длинная позиция
+        entry_price = sample_price_btc
         
-        # Нулевое проскальзывание
-        bid, ask = price.apply_slippage(Decimal("0.0"))
-        assert bid.value == ask.value == price.value
+        # Стоп-лосс на 5% ниже
+        stop_loss = entry_price.calculate_stop_loss("LONG", Decimal("5"))
+        expected_sl = entry_price.value * Decimal("0.95")
+        assert stop_loss.value == expected_sl
         
-        # Очень большое проскальзывание
-        bid, ask = price.apply_slippage(Decimal("50.0"))  # 50%
-        assert bid.value == Decimal("50.00")
-        assert ask.value == Decimal("150.00")
+        # Тейк-профит на 10% выше
+        take_profit = entry_price.calculate_take_profit("LONG", Decimal("10"))
+        expected_tp = entry_price.value * Decimal("1.10")
+        assert take_profit.value == expected_tp
+        
+        # Короткая позиция
+        # Стоп-лосс на 5% выше
+        stop_loss_short = entry_price.calculate_stop_loss("SHORT", Decimal("5"))
+        expected_sl_short = entry_price.value * Decimal("1.05")
+        assert stop_loss_short.value == expected_sl_short
+        
+        # Тейк-профит на 10% ниже
+        take_profit_short = entry_price.calculate_take_profit("SHORT", Decimal("10"))
+        expected_tp_short = entry_price.value * Decimal("0.90")
+        assert take_profit_short.value == expected_tp_short
 
-    def test_price_percentage_change_edge_cases(self):
-        """Тест граничных случаев процентного изменения."""
-        # Изменение с очень маленькой базой
-        small_price = Price(value=Decimal("0.000001"), currency=Currency.USD)
-        large_price = Price(value=Decimal("1000000.00"), currency=Currency.USD)
+    def test_price_technical_levels(self, sample_price_btc: Price) -> None:
+        """Тест технических уровней."""
+        # Психологический уровень (округление до тысяч)
+        psychological = sample_price_btc.get_psychological_level(1000)
+        assert psychological.value == Decimal("45000")  # Ближайший уровень 1000
         
-        change = large_price.percentage_change(small_price)
-        assert change == Decimal("0")  # При делении на очень маленькое число
+        # Фибоначчи уровни
+        high = Price(value=Decimal("50000"), currency=sample_price_btc.currency)
+        low = Price(value=Decimal("40000"), currency=sample_price_btc.currency)
+        
+        fib_levels = sample_price_btc.calculate_fibonacci_levels(high, low)
+        assert len(fib_levels) == 7  # 0%, 23.6%, 38.2%, 50%, 61.8%, 78.6%, 100%
+        assert fib_levels[0].value == low.value  # 0% = low
+        assert fib_levels[-1].value == high.value  # 100% = high
 
-    def test_price_hash_collision_resistance(self):
-        """Тест устойчивости к коллизиям хешей."""
+    def test_price_validation_comprehensive(self, usd_currency: Currency) -> None:
+        """Комплексная валидация цены."""
+        # Валидация типов
+        with pytest.raises(ValidationError):
+            Price(value="invalid", currency=usd_currency)  # type: ignore
+        
+        with pytest.raises(ValidationError):
+            Price(value=None, currency=usd_currency)  # type: ignore
+        
+        with pytest.raises(ValidationError):
+            Price(value=Decimal("100"), currency=None)  # type: ignore
+        
+        # Валидация значений
+        with pytest.raises(ValidationError):
+            Price(value=Decimal("inf"), currency=usd_currency)
+        
+        with pytest.raises(ValidationError):
+            Price(value=Decimal("nan"), currency=usd_currency)
+
+    def test_price_performance_critical_operations(self, sample_price_btc: Price) -> None:
+        """Тест производительности критических операций."""
+        # Множественные вычисления
+        result = sample_price_btc
+        for i in range(100):
+            multiplier = Decimal(str(1 + (i * 0.01)))
+            result = result * multiplier
+        
+        assert result.value > sample_price_btc.value
+        assert result.currency == sample_price_btc.currency
+        
+        # Проверка создания множества объектов
         prices = [
-            Price(value=Decimal("100.00"), currency=Currency.USD),
-            Price(value=Decimal("200.00"), currency=Currency.USD),
-            Price(value=Decimal("100.00"), currency=Currency.EUR),
-            Price(value=Decimal("100.00"), currency=Currency.USD, quote_currency=Currency.EUR),
+            Price(value=Decimal(str(45000 + i)), currency=sample_price_btc.currency)
+            for i in range(1000)
         ]
-        
-        hashes = [price.hash for price in prices]
-        assert len(hashes) == len(set(hashes))  # Все хеши должны быть уникальными
+        assert len(prices) == 1000
+        assert all(isinstance(p, Price) for p in prices)
 
-    def test_price_performance(self):
-        """Тест производительности операций с ценами."""
-        import time
+    def test_price_edge_cases(self, usd_currency: Currency) -> None:
+        """Тест граничных случаев."""
+        # Очень маленькая цена
+        tiny_price = Price(value=Decimal("0.00000001"), currency=usd_currency)
+        assert tiny_price.is_positive()
         
-        price = Price(value=Decimal("100.00"), currency=Currency.USD)
+        # Максимально допустимая цена
+        max_price = Price(value=Price.MAX_VALUE, currency=usd_currency)
+        assert max_price.is_positive()
         
-        # Тест скорости арифметических операций
-        start_time = time.time()
-        for _ in range(1000):
-            result = price * 2
-        end_time = time.time()
-        
-        # Операция должна выполняться быстро
-        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций 
+        # Точность до 8 знаков
+        precise_price = Price(value=Decimal("123.12345678"), currency=usd_currency)
+        assert len(str(precise_price.value).split('.')[-1]) <= 8 
