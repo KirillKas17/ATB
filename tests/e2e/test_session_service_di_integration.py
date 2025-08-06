@@ -10,7 +10,6 @@ from domain.type_definitions.session_types import SessionType, MarketRegime, Ses
 
 
 @pytest.mark.e2e
-    @pytest.mark.asyncio
     async def test_session_service_di_integration() -> None:
     """
     E2E: SessionService корректно работает через DI-контейнер.

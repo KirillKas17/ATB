@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import optuna
 import pandas as pd
+from pandas import DataFrame, Series
 from shared.numpy_utils import np
 
 # # import talib  # Временно закомментировано из-за проблем с установкой на Windows  # Временно закомментировано из-за проблем с установкой на Windows
@@ -35,9 +36,7 @@ else:
 
 from shared.models.ml_metrics import TransformerMetrics
 
-# Type aliases
-DataFrame = pd.DataFrame
-Series = pd.Series
+# Type aliases imported above
 
 
 class PositionalEncoding(nn.Module):
@@ -154,7 +153,7 @@ class EvolutionaryTransformer:
         self.population_size = population_size
         self.population: List[Any] = []
         self.generation = 0
-        self.best_model = None
+        self.best_model: Optional[AdaptiveTransformer] = None
         self.best_fitness = float("-inf")
         # Настройка генетического алгоритма
         self.setup_genetic_algorithm()
@@ -372,7 +371,7 @@ class OnlineAdaptiveTransformer:
         with torch.no_grad():
             data_tensor = torch.tensor(data, dtype=torch.float32)
             predictions = self.model(data_tensor)
-            return predictions.numpy()  # type: ignore[no-any-return]
+            return predictions.numpy()
 
 
 # --- Тренировка, валидация, инференс ---
@@ -474,7 +473,7 @@ def predict(
         mask = model.generate_square_subsequent_mask(xb.size(1)).to(device)
         # Исправление: используем правильные методы Tensor
         preds = model(xb, src_mask=mask)
-        return preds.cpu().numpy()  # type: ignore[no-any-return]
+        return preds.cpu().numpy()
 
 
 # --- Пример препроцессинга ---
@@ -617,7 +616,7 @@ class TransformerModel(nn.Module):
         # Трансформер
         output = self.transformer_encoder(src)
         # Декодирование
-        output = self.decoder(output)  # type: ignore[no-any-return]
+        output = self.decoder(output)
         return output
 
 
@@ -822,7 +821,7 @@ class TransformerPredictor:
             # Оптимизация
             study = optuna.create_study(direction="maximize")
             study.optimize(objective, n_trials=50)
-            return study.best_params
+            return dict(study.best_params)
         except Exception as e:
             logger.error(f"Ошибка оптимизации гиперпараметров: {e}")
             return {}
@@ -940,7 +939,7 @@ class TransformerPredictor:
                 predictions = model(torch.FloatTensor(X_scaled)).numpy()
             # Расчет уверенности
             confidence = float(np.mean(np.abs(predictions)))
-            return predictions, confidence  # type: ignore[no-any-return]
+            return predictions, confidence
         except Exception as e:
             logger.error(f"Ошибка предсказания: {e}")
             raise

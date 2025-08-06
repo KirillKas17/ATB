@@ -81,7 +81,8 @@ class MarketMakerAnalyticalIntegration:
                 logger.warning("No symbol provided for analytical calculation")
                 if self._original_calculate:
                     result = await self._original_calculate(*args, **kwargs)
-                    return result if isinstance(result, dict) else None
+                    if isinstance(result, dict):
+                        return result
                 return None
 
             # Проверяем, следует ли продолжать торговлю
@@ -100,16 +101,19 @@ class MarketMakerAnalyticalIntegration:
                 result = await self._original_calculate(*args, **adjusted_kwargs)
                 if isinstance(result, dict):
                     result["analytical_context"] = analytical_context
-                return result if isinstance(result, dict) else None
-
-            return None
+                    return result
+                else:
+                    return None
+            else:
+                return None
 
         except Exception as e:
             logger.error(f"Error in calculate with analytics: {e}")
             if self._original_calculate:
                 result = await self._original_calculate(*args, **kwargs)
                 return result if isinstance(result, dict) else None
-            return None
+            else:
+                return None
 
     async def _learn_with_analytics(self, data: Any) -> bool:
         """Обучение с учетом аналитических данных."""
@@ -131,14 +135,16 @@ class MarketMakerAnalyticalIntegration:
             if self._original_learn:
                 result = await self._original_learn(data)
                 return bool(result)
-            return False
+            else:
+                return False
 
         except Exception as e:
             logger.error(f"Error in learn with analytics: {e}")
             if self._original_learn:
                 result = await self._original_learn(data)
                 return bool(result)
-            return False
+            else:
+                return False
 
     async def _evolve_with_analytics(self, data: Any) -> bool:
         """Эволюция с учетом аналитических данных."""
@@ -165,14 +171,16 @@ class MarketMakerAnalyticalIntegration:
             if self._original_evolve:
                 result = await self._original_evolve(data)
                 return bool(result)
-            return False
+            else:
+                return False
 
         except Exception as e:
             logger.error(f"Error in evolve with analytics: {e}")
             if self._original_evolve:
                 result = await self._original_evolve(data)
                 return bool(result)
-            return False
+            else:
+                return False
 
     def _get_analytical_context(self, symbol: str) -> Dict[str, Any]:
         """Получение аналитического контекста для символа."""

@@ -829,18 +829,3 @@ except ImportError:
         return data
 
 
-def wavelet_coherence(signal1: np.ndarray, signal2: np.ndarray, scales: np.ndarray) -> Dict[str, Any]:
-    """Базовая реализация вейвлет-когерентности."""
-    try:
-        # Упрощенная реализация для случаев когда продвинутые методы недоступны
-        coherence_matrix = np.random.random((len(scales), len(signal1))) * 0.5 + 0.25
-        phase_matrix = np.random.random((len(scales), len(signal1))) * 2 * np.pi - np.pi
-        
-        return {
-            "coherence": coherence_matrix,
-            "phase": phase_matrix
-        }
-        
-    except Exception as e:
-        logger.error(f"Error in basic wavelet coherence: {e}")
-        return {"coherence": np.array([]), "phase": np.array([])}

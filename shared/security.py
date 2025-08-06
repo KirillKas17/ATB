@@ -642,7 +642,7 @@ class AdvancedEncryption:
             # Дополнительное шифрование с RSA
             encrypted_data = self.fernet.encrypt(data.encode())
             # Кодирование в base64 для безопасной передачи
-            return encrypted_data.decode()
+            return str(encrypted_data.decode())
         except Exception as e:
             self.logger.error(f"Encryption error: {e}")
             raise
@@ -654,7 +654,7 @@ class AdvancedEncryption:
             encrypted_bytes = encrypted_data.encode()
             # Расшифровка
             decrypted_data = self.fernet.decrypt(encrypted_bytes)
-            return decrypted_data.decode()
+            return str(decrypted_data.decode())
         except Exception as e:
             self.logger.error(f"Decryption error: {e}")
             raise

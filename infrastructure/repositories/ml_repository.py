@@ -655,7 +655,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
             return result == "DELETE 1"
         pool = await self._get_pool()
         result = await self._execute_with_retry(_delete_operation, pool)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def get_active_models(self) -> List[Model]:
         """Получить активные модели."""
@@ -698,7 +698,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
                 prediction.id,
                 prediction.model_id,
                 str(prediction.trading_pair),
-                float(prediction.value),  # type: ignore[arg-type]
+                float(prediction.value),
                 float(prediction.confidence),
                 prediction.timestamp,
                 json.dumps(prediction.metadata) if prediction.metadata else None
@@ -747,7 +747,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
             return result == "UPDATE 1"
         pool = await self._get_pool()
         result = await self._execute_with_retry(_update_operation, pool)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def update(self, entity: Model) -> Model:
         """Обновить сущность."""
@@ -763,7 +763,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
         
         pool = await self._get_pool()
         result = await self._execute_with_retry(_soft_delete_operation, pool)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def restore(self, entity_id: Union[UUID, str]) -> bool:
         """Восстановить сущность."""
@@ -775,7 +775,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
         
         pool = await self._get_pool()
         result = await self._execute_with_retry(_restore_operation, pool)
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def find_by(self, filters: List[QueryFilter], options: Optional[QueryOptions] = None) -> List[Model]:
         """Найти сущности по фильтрам."""
@@ -816,7 +816,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
         result: Any = await self._execute_with_retry(
             lambda: pool.acquire().__aenter__().then(_exists_operation)
         )
-        return result  # type: ignore[no-any-return]
+        return result
 
     async def count(self, filters: Optional[List[QueryFilter]] = None) -> int:
         """Подсчитать количество сущностей."""
@@ -833,7 +833,7 @@ class PostgresMLRepository(MLRepositoryProtocol):
         result: Any = await self._execute_with_retry(
             lambda: pool.acquire().__aenter__().then(_count_operation)
         )
-        return result if result is not None else 0  # type: ignore[no-any-return]
+        return result if result is not None else 0
 
     async def stream(
         self, options: Optional[QueryOptions] = None, batch_size: int = 100

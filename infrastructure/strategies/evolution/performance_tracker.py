@@ -133,7 +133,8 @@ class PerformanceTracker:
             
             # Безопасный расчет expectancy
             expectancy = float(np.mean(performances)) if performances else 0.0
-            if not isinstance(expectancy, (int, float)):
+            # Проверяем на NaN или infinity
+            if not (isinstance(expectancy, (int, float)) and np.isfinite(expectancy)):
                 expectancy = 0.0
             
             # Безопасный расчет volatility

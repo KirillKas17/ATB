@@ -780,7 +780,7 @@ class PostgresPortfolioRepository(PortfolioRepositoryProtocol):
         result: Any = await self._execute_with_retry(
             lambda: pool.acquire().__aenter__().then(_delete_operation)
         )
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def get_open_positions(
         self, portfolio_id: Optional[PortfolioId] = None
@@ -860,7 +860,7 @@ class PostgresPortfolioRepository(PortfolioRepositoryProtocol):
         result: Any = await self._execute_with_retry(
             lambda: pool.acquire().__aenter__().then(_soft_delete_operation)
         )
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def restore(self, entity_id: Union[UUID, str]) -> bool:
         """Восстановить портфель."""
@@ -884,7 +884,7 @@ class PostgresPortfolioRepository(PortfolioRepositoryProtocol):
         result: Any = await self._execute_with_retry(
             lambda: pool.acquire().__aenter__().then(_restore_operation)
         )
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def find_by(
         self, filters: List[QueryFilter], options: Optional[QueryOptions] = None
@@ -944,7 +944,7 @@ class PostgresPortfolioRepository(PortfolioRepositoryProtocol):
         result: Any = await self._execute_with_retry(
             lambda: pool.acquire().__aenter__().then(_exists_operation)
         )
-        return bool(result)  # type: ignore[no-any-return]
+        return bool(result)
 
     async def count(self, filters: Optional[List[QueryFilter]] = None) -> int:
         """Подсчитать количество сущностей."""
