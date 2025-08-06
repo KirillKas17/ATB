@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Калькуляторы рисков для risk agent."""
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union, cast
 
 from shared.numpy_utils import np
@@ -18,6 +19,21 @@ class DefaultRiskCalculator:
         """Инициализация калькулятора рисков."""
         self._cache: Dict[str, Any] = {}
         self._cache_ttl: Dict[str, datetime] = {}
+    
+    @staticmethod
+    def _safe_decimal(value: Any, default: str = "0") -> Decimal:
+        """Безопасное преобразование в Decimal с сохранением точности."""
+        if value is None:
+            return Decimal(default)
+        try:
+            return Decimal(str(value))
+        except (ValueError, TypeError):
+            return Decimal(default)
+    
+    @staticmethod
+    def _decimal_to_float(value: Decimal) -> float:
+        """Преобразование Decimal в float только когда необходимо для numpy/scipy."""
+        return float(value)
 
     async def initialize(self) -> None:
         """Инициализация калькулятора рисков."""
@@ -274,11 +290,12 @@ class DefaultRiskCalculator:
         try:
             if not positions:
                 return 0.0
-            total_value = sum(
-                abs(float(pos.get("size", 0))) * float(pos.get("current_price", 0)) 
-                for pos in positions.values()
-            )
-            return min(1.0, total_value)
+            total_value = Decimal("0")
+            for pos in positions.values():
+                size = self._safe_decimal(pos.get("size", 0))
+                price = self._safe_decimal(pos.get("current_price", 0))
+                total_value += abs(size) * price
+            return min(1.0, self._decimal_to_float(total_value))
         except Exception as e:
             logger.error(f"Error calculating exposure level: {e}")
             return 0.0
@@ -288,18 +305,28 @@ class DefaultRiskCalculator:
         try:
             if not positions:
                 return 0.0
-            total_value = sum(
-                abs(float(pos.get("size", 0))) * float(pos.get("current_price", 0)) 
-                for pos in positions.values()
-            )
-            if total_value == 0:
+            
+            # Вычисляем общую стоимость портфеля
+            total_value = Decimal("0")
+            position_values = []
+            
+            for pos in positions.values():
+                size = self._safe_decimal(pos.get("size", 0))
+                price = self._safe_decimal(pos.get("current_price", 0))
+                position_value = abs(size) * price
+                position_values.append(position_value)
+                total_value += position_value
+            
+            if total_value == Decimal("0"):
                 return 0.0
-            # Индекс Херфиндаля-Хиршмана
-            hhi = sum(
-                (abs(float(pos.get("size", 0))) * float(pos.get("current_price", 0)) / total_value) ** 2
-                for pos in positions.values()
-            )
-            return min(1.0, hhi)
+            
+            # Индекс Херфиндаля-Хиршмана с точной арифметикой
+            hhi = Decimal("0")
+            for position_value in position_values:
+                weight = position_value / total_value
+                hhi += weight ** 2
+            
+            return min(1.0, self._decimal_to_float(hhi))
         except Exception as e:
             logger.error(f"Error calculating concentration risk: {e}")
             return 0.0
@@ -309,15 +336,23 @@ class DefaultRiskCalculator:
         try:
             if len(positions) < 2:
                 return 0.0
-            # Простая оценка корреляции на основе размера позиций
-            position_sizes = [
-                abs(float(pos.get("size", 0))) * float(pos.get("current_price", 0)) 
-                for pos in positions.values()
-            ]
-            if not position_sizes or sum(position_sizes) == 0:
+            
+            # Простая оценка корреляции на основе размера позиций с точной арифметикой
+            position_values = []
+            total_value = Decimal("0")
+            
+            for pos in positions.values():
+                size = self._safe_decimal(pos.get("size", 0))
+                price = self._safe_decimal(pos.get("current_price", 0))
+                position_value = abs(size) * price
+                position_values.append(position_value)
+                total_value += position_value
+            
+            if not position_values or total_value == Decimal("0"):
                 return 0.0
-            # Нормализуем размеры позиций
-            normalized_sizes = [size / sum(position_sizes) for size in position_sizes]
+                
+            # Нормализуем размеры позиций с сохранением точности
+            normalized_sizes = [self._decimal_to_float(pv / total_value) for pv in position_values]
             # Оценка концентрации как мера корреляционного риска
             concentration = sum(size ** 2 for size in normalized_sizes)
             return min(1.0, concentration)
@@ -370,6 +405,16 @@ class RiskMetricsCalculator:
     async def initialize(self) -> None:
         """Инициализация калькулятора."""
         pass
+    
+    @staticmethod
+    def _safe_decimal(value: Any, default: str = "0") -> Decimal:
+        """Безопасное преобразование в Decimal с сохранением точности."""
+        if value is None:
+            return Decimal(default)
+        try:
+            return Decimal(str(value))
+        except (ValueError, TypeError):
+            return Decimal(default)
 
     async def calculate_stress_test(
         self, portfolio: Dict[str, Any], stress_scenarios: List[Dict[str, float]]
@@ -381,13 +426,15 @@ class RiskMetricsCalculator:
                 scenario_name = scenario.get("name", "unknown")
                 stress_factor = scenario.get("factor", 1.0)
                 
-                # Простая оценка влияния стресса
-                total_value = sum(
-                    abs(float(pos.get("size", 0))) * float(pos.get("current_price", 0)) 
-                    for pos in portfolio.values()
-                )
-                stressed_value = total_value * stress_factor
-                results[scenario_name] = stressed_value
+                # Простая оценка влияния стресса с точной арифметикой
+                total_value = Decimal("0")
+                for pos in portfolio.values():
+                    size = self._safe_decimal(pos.get("size", 0))
+                    price = self._safe_decimal(pos.get("current_price", 0))
+                    total_value += abs(size) * price
+                
+                stressed_value = total_value * Decimal(str(stress_factor))
+                results[scenario_name] = float(stressed_value)
                 
             return results
         except Exception as e:
@@ -471,6 +518,16 @@ class RiskValidator:
     def __init__(self, config: RiskConfig) -> None:
         """Инициализация валидатора."""
         self.config = config
+    
+    @staticmethod
+    def _safe_decimal(value: Any, default: str = "0") -> Decimal:
+        """Безопасное преобразование в Decimal с сохранением точности."""
+        if value is None:
+            return Decimal(default)
+        try:
+            return Decimal(str(value))
+        except (ValueError, TypeError):
+            return Decimal(default)
 
     async def validate_position(
         self, position: Dict[str, Any], portfolio: Dict[str, Any], config: RiskConfig
@@ -487,16 +544,20 @@ class RiskValidator:
         try:
             if not position:
                 return False
-            # Проверка размера позиции
-            position_size = abs(float(position.get("size", 0)))
-            if position_size > config.threshold:
-                logger.warning(f"Position size {position_size} exceeds threshold {config.threshold}")
+            # Проверка размера позиции с точной арифметикой
+            position_size = abs(self._safe_decimal(position.get("size", 0)))
+            threshold = self._safe_decimal(str(config.threshold))
+            
+            if position_size > threshold:
+                logger.warning(f"Position size {position_size} exceeds threshold {threshold}")
                 return False
+                
             # Проверка лимитов портфеля
-            total_exposure = sum(
-                abs(float(pos.get("size", 0))) for pos in portfolio.values()
-            )
-            if total_exposure + position_size > config.threshold * 10:
+            total_exposure = Decimal("0")
+            for pos in portfolio.values():
+                total_exposure += abs(self._safe_decimal(pos.get("size", 0)))
+            
+            if total_exposure + position_size > threshold * 10:
                 logger.warning(f"Total exposure {total_exposure + position_size} exceeds limit")
                 return False
             return True
@@ -519,13 +580,16 @@ class RiskValidator:
             alerts: List[Dict[str, Any]] = []
             if not portfolio:
                 return alerts
-            # Расчет общего риска
-            total_value = sum(
-                abs(float(pos.get("size", 0))) * float(pos.get("current_price", 0)) 
-                for pos in portfolio.values()
-            )
+            # Расчет общего риска с точной арифметикой
+            total_value = Decimal("0")
+            for pos in portfolio.values():
+                size = self._safe_decimal(pos.get("size", 0))
+                price = self._safe_decimal(pos.get("current_price", 0))
+                total_value += abs(size) * price
+                
             # Проверка лимитов
-            if total_value > config.threshold:
+            threshold = self._safe_decimal(str(config.threshold))
+            if total_value > threshold:
                 alerts.append({
                     "type": "exposure_limit",
                     "message": f"Portfolio exposure {total_value:.2%} exceeds limit {config.threshold:.2%}",
@@ -538,10 +602,13 @@ class RiskValidator:
                     "message": f"Number of positions {len(portfolio)} exceeds limit 20",
                     "level": "warning"
                 })
-            # Проверка концентрации
+            # Проверка концентрации с точной арифметикой
             for symbol, position in portfolio.items():
-                position_value = abs(float(position.get("size", 0))) * float(position.get("current_price", 0))
-                if total_value > 0 and position_value / total_value > 0.3:
+                size = self._safe_decimal(position.get("size", 0))
+                price = self._safe_decimal(position.get("current_price", 0))
+                position_value = abs(size) * price
+                
+                if total_value > 0 and position_value / total_value > Decimal("0.3"):
                     alerts.append({
                         "type": "concentration",
                         "message": f"High concentration in {symbol}: {position_value / total_value:.2%}",

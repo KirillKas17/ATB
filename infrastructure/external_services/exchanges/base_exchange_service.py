@@ -229,19 +229,24 @@ class BaseExchangeService(ExchangeServiceProtocol):
                 await self.rate_limiter.acquire()
             # Валидация ордера
             await self._validate_order(request)
-            # Создаем ордер через CCXT
+            # Создаем ордер через CCXT (сохраняем точность до последнего момента)
+            # Преобразуем в строку для максимальной точности, а затем в float для CCXT
+            quantity_str = str(request.quantity)
+            quantity_float = float(quantity_str)
+            
             order_params = {
                 "symbol": request.symbol,
                 "type": request.order_type.value,
                 "side": request.side.value,
-                "amount": float(request.quantity),
+                "amount": quantity_float,
                 "params": {
                     "timeInForce": "GTC",
                 },
             }
             if request.stop_price:
                 params = cast(Dict[str, str], order_params["params"])
-                params["stopPrice"] = str(float(request.stop_price))
+                # Сохраняем точность через строковое представление
+                params["stopPrice"] = str(request.stop_price)
             if not self.ccxt_client:
                 raise ExchangeError("CCXT client not initialized")
             result = await self.ccxt_client.create_order(**order_params)
@@ -251,20 +256,30 @@ class BaseExchangeService(ExchangeServiceProtocol):
                 if key not in result:
                     raise ExchangeError(f"Missing required field '{key}' in order result: {result}")
             
+            # Сохраняем точность при обработке результата
+            def safe_decimal_convert(value, default="0"):
+                """Безопасное преобразование в Decimal с сохранением точности."""
+                if value is None:
+                    return None
+                try:
+                    return Decimal(str(value))
+                except (ValueError, TypeError):
+                    return Decimal(default)
+            
             order_data: Dict[str, Any] = {
                 "id": result["id"],
                 "symbol": result["symbol"],
                 "type": result["type"],
                 "side": result["side"],
-                "amount": float(result["amount"]),
-                "price": float(result.get("price")) if result.get("price") else None,
+                "amount": safe_decimal_convert(result["amount"]),
+                "price": safe_decimal_convert(result.get("price")),
                 "status": result["status"],
                 "timestamp": result["timestamp"],
-                "filled": float(result.get("filled", 0)),
-                "remaining": (
-                    float(result.get("remaining", result.get("amount", 0)))
+                "filled": safe_decimal_convert(result.get("filled"), "0"),
+                "remaining": safe_decimal_convert(
+                    result.get("remaining", result.get("amount", 0)), "0"
                 ),
-                "cost": float(result.get("cost", 0)),
+                "cost": safe_decimal_convert(result.get("cost"), "0"),
             }
             self.metrics["successful_requests"] = self._safe_int(self.metrics.get("successful_requests", 0)) + 1
             return order_data
@@ -330,20 +345,30 @@ class BaseExchangeService(ExchangeServiceProtocol):
                 if key not in result:
                     raise ExchangeError(f"Missing required field '{key}' in order status result: {result}")
             
+            # Используем ту же функцию преобразования для сохранения точности
+            def safe_decimal_convert(value, default="0"):
+                """Безопасное преобразование в Decimal с сохранением точности."""
+                if value is None:
+                    return None
+                try:
+                    return Decimal(str(value))
+                except (ValueError, TypeError):
+                    return Decimal(default)
+            
             order_data: Dict[str, Any] = {
                 "id": result["id"],
                 "symbol": result["symbol"],
                 "type": result["type"],
                 "side": result["side"],
-                "amount": float(result["amount"]),
-                "price": float(result.get("price")) if result.get("price") else None,
+                "amount": safe_decimal_convert(result["amount"]),
+                "price": safe_decimal_convert(result.get("price")),
                 "status": result["status"],
                 "timestamp": result["timestamp"],
-                "filled": float(result.get("filled", 0)),
-                "remaining": (
-                    float(result.get("remaining", result.get("amount", 0)))
+                "filled": safe_decimal_convert(result.get("filled"), "0"),
+                "remaining": safe_decimal_convert(
+                    result.get("remaining", result.get("amount", 0)), "0"
                 ),
-                "cost": float(result.get("cost", 0)),
+                "cost": safe_decimal_convert(result.get("cost"), "0"),
             }
             self.metrics["successful_requests"] = self._safe_int(self.metrics.get("successful_requests", 0)) + 1
             return order_data
@@ -406,36 +431,31 @@ class BaseExchangeService(ExchangeServiceProtocol):
             if not self.ccxt_client:
                 raise ExchangeError("CCXT client not initialized")
             result = await self.ccxt_client.fetch_positions()
+            # Функция для безопасного преобразования в Decimal
+            def safe_decimal_convert(value, default="0"):
+                """Безопасное преобразование в Decimal с сохранением точности."""
+                if value is None:
+                    return Decimal(default)
+                try:
+                    return Decimal(str(value))
+                except (ValueError, TypeError):
+                    return Decimal(default)
+            
             positions: List[Dict[str, Any]] = []
             for pos in result:
-                if float(pos["contracts"]) != 0:
+                contracts = safe_decimal_convert(pos["contracts"])
+                if contracts != Decimal("0"):
                     positions.append(
                         {
                             "symbol": pos["symbol"],
                             "side": pos["side"],
-                            "contracts": float(pos["contracts"]),
-                            "notional": (
-                                float(pos["notional"]) if pos["notional"] else 0.0
-                            ),
-                            "leverage": (
-                                float(pos["leverage"]) if pos["leverage"] else 1.0
-                            ),
-                            "unrealized_pnl": (
-                                float(pos["unrealizedPnl"])
-                                if pos["unrealizedPnl"]
-                                else 0.0
-                            ),
-                            "entry_price": (
-                                float(pos["entryPrice"]) if pos["entryPrice"] else 0.0
-                            ),
-                            "mark_price": (
-                                float(pos["markPrice"]) if pos["markPrice"] else 0.0
-                            ),
-                            "liquidation_price": (
-                                float(pos["liquidationPrice"])
-                                if pos["liquidationPrice"]
-                                else 0.0
-                            ),
+                            "contracts": contracts,
+                            "notional": safe_decimal_convert(pos["notional"]),
+                            "leverage": safe_decimal_convert(pos["leverage"], "1.0"),
+                            "unrealized_pnl": safe_decimal_convert(pos["unrealizedPnl"]),
+                            "entry_price": safe_decimal_convert(pos["entryPrice"]),
+                            "mark_price": safe_decimal_convert(pos["markPrice"]),
+                            "liquidation_price": safe_decimal_convert(pos["liquidationPrice"]),
                         }
                     )
             # Сохраняем в кэш

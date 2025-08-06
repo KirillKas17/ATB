@@ -2,6 +2,7 @@
 """Типизированные типы для модуля symbols."""
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from typing import (
     Any,
@@ -22,8 +23,9 @@ from typing_extensions import NewType, NotRequired
 SymbolId = NewType("SymbolId", UUID)
 OpportunityScoreValue = NewType("OpportunityScoreValue", float)
 ConfidenceValue = NewType("ConfidenceValue", float)
-VolumeValue = NewType("VolumeValue", float)
-PriceValue = NewType("PriceValue", float)
+# ИСПРАВЛЕНО: Используем Decimal для финансовых значений как в __init__.py
+VolumeValue = NewType("VolumeValue", Decimal)
+PriceValue = NewType("PriceValue", Decimal)
 ATRValue = NewType("ATRValue", float)
 VWAPValue = NewType("VWAPValue", float)
 SpreadValue = NewType("SpreadValue", float)
