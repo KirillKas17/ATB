@@ -23,7 +23,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 class ExceptionHandler:
     """Обработчик исключений с контекстом."""
 
-    def __init__(self, context: str = ""):
+    def __init__(self, context: str = "") -> None:
         """Инициализация обработчика."""
         self.context = context
         self.logger = logger.bind(context=context)
@@ -85,7 +85,7 @@ class ExceptionUtils:
 
         def decorator(func: F) -> Any:
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args, **kwargs) -> None:
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
@@ -131,7 +131,7 @@ class ExceptionUtils:
 
         def decorator(func: F) -> Any:
             @functools.wraps(func)
-            async def wrapper(*args, **kwargs):
+            async def wrapper(*args, **kwargs) -> None:
                 try:
                     return await func(*args, **kwargs)
                 except Exception as e:
@@ -286,7 +286,7 @@ class ExceptionUtils:
 
         def decorator(func: F) -> Any:
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args, **kwargs) -> None:
                 last_exception = None
                 current_delay = delay
 
@@ -342,7 +342,7 @@ class ExceptionUtils:
 
         def decorator(func: F) -> Any:
             @functools.wraps(func)
-            async def wrapper(*args, **kwargs):
+            async def wrapper(*args, **kwargs) -> None:
                 last_exception = None
                 current_delay = delay
 

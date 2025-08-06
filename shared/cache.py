@@ -86,7 +86,7 @@ class CacheProtocol(ABC):
 class MemoryCache(CacheProtocol):
     """In-memory реализация кэша с поддержкой TTL и LRU."""
     
-    def __init__(self, max_size: int = 1000, default_ttl: Optional[int] = None):
+    def __init__(self, max_size: int = 1000, default_ttl: Optional[int] = None) -> None:
         self._storage: Dict[str, CacheEntry] = {}
         self._max_size = max_size
         self._default_ttl = default_ttl
@@ -234,7 +234,7 @@ class MemoryCache(CacheProtocol):
 class PersistentCache(MemoryCache):
     """Персистентный кэш с сохранением на диск."""
     
-    def __init__(self, cache_file: str, max_size: int = 1000, default_ttl: Optional[int] = None):
+    def __init__(self, cache_file: str, max_size: int = 1000, default_ttl: Optional[int] = None) -> None:
         super().__init__(max_size, default_ttl)
         self._cache_file = cache_file
         asyncio.create_task(self._load_from_disk())
@@ -282,7 +282,7 @@ class PersistentCache(MemoryCache):
 class CacheManager:
     """Менеджер кэшей с поддержкой нескольких уровней."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._caches: Dict[str, CacheProtocol] = {}
         self._default_cache: Optional[CacheProtocol] = None
     
@@ -324,10 +324,10 @@ def get_cache_manager() -> CacheManager:
     return cache_manager
 
 # Декоратор для кэширования результатов функций
-def cached(ttl: Optional[int] = None, cache_name: Optional[str] = None):
+def cached(ttl: Optional[int] = None, cache_name: Optional[str] = None) -> None:
     """Декоратор для кэширования результатов функций."""
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
+    def decorator(func) -> None:
+        async def wrapper(*args, **kwargs) -> None:
             # Создание ключа кэша
             cache_key = f"{func.__module__}.{func.__name__}:{hash((args, tuple(sorted(kwargs.items()))))}"
             

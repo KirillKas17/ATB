@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 class PerformanceCache:
     """Высокопроизводительный кэш для финансовых расчетов."""
     
-    def __init__(self, max_size: int = 1000, ttl_seconds: int = 300):
+    def __init__(self, max_size: int = 1000, ttl_seconds: int = 300) -> None:
         """
         Инициализация кэша.
         
@@ -118,7 +118,7 @@ def cached_calculation(ttl_seconds: int = 300, cache_instance: PerformanceCache 
         cache = cache_instance or _global_cache
         
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> None:
             # Генерируем ключ кэша
             cache_key = cache._generate_key(func.__name__, args, kwargs)
             

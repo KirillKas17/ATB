@@ -30,7 +30,7 @@ class Event:
 class EventBus:
     """Шина событий для асинхронного обмена сообщениями."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._handlers: Dict[str, List[Callable]] = {}
         self._running = False
         

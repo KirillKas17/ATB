@@ -11,7 +11,7 @@ from typing import Any, Optional
 class SmartAnalyticsLogger:
     """Умный логгер для аналитических модулей."""
     
-    def __init__(self, module_name: str, level: int = logging.INFO):
+    def __init__(self, module_name: str, level: int = logging.INFO) -> None:
         """
         Инициализация логгера.
         

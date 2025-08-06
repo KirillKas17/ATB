@@ -235,11 +235,11 @@ class SyntraConfig:
     # Дополнительные настройки
     custom_settings: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация конфигурации после инициализации."""
         self._validate()
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Валидация конфигурации."""
         errors = []
         # Проверка базы данных
@@ -339,12 +339,12 @@ class SyntraConfig:
 class ConfigManager:
     """Менеджер конфигурации."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None) -> None:
         self.config_path = config_path or "config/config.yaml"
         self.config: Optional[SyntraConfig] = None
         self._load_environment_variables()
 
-    def _load_environment_variables(self):
+    def _load_environment_variables(self) -> None:
         """Загрузка переменных окружения."""
         # База данных
         os.environ.setdefault("DB_HOST", "localhost")

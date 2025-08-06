@@ -76,7 +76,7 @@ class CacheEntry:
 class CachePolicy:
     """Политика кэширования."""
 
-    def __init__(self, max_size: int = 1000, max_memory_mb: int = 100):
+    def __init__(self, max_size: int = 1000, max_memory_mb: int = 100) -> None:
         self.max_size = max_size
         self.max_memory_bytes = max_memory_mb * 1024 * 1024
         self.eviction_policy = "lru"  # lru, lfu, fifo, random

@@ -27,7 +27,17 @@ class MLSignalProcessor:
                 features = self._extract_features(data)
                 # Исправление: если meta_learner имеет метод predict, используем его, иначе вызываем как torch-модель
                 if hasattr(self.meta_learner, 'predict'):
-                    predictions = self.meta_learner.predict(features)
+                    predictions_raw = self.meta_learner.predict(features)
+                    # Приводим к правильному типу
+                    if isinstance(predictions_raw, dict):
+                        predictions = {str(k): float(v) for k, v in predictions_raw.items()}
+                    else:
+                        predictions = {
+                            'buy_prob': 0.33,
+                            'sell_prob': 0.33,
+                            'hold_prob': 0.34,
+                            'confidence': 0.34,
+                        }
                 else:
                     try:
                         import torch

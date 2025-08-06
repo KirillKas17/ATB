@@ -11,7 +11,7 @@ from loguru import logger
 class UniversalSignalValidator:
     """Универсальный валидатор торговых сигналов для предотвращения потерь"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         # Максимальные допустимые риски
         self.max_stop_loss_percent = 0.10  # Максимум 10% стоп-лосс
         self.min_risk_reward_ratio = 0.5   # Минимальное соотношение прибыль/риск

@@ -11,7 +11,7 @@ from loguru import logger
 class AdaptiveThresholds:
     """Управление адаптивными порогами для торговых стратегий"""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация адаптивных порогов.
         

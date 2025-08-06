@@ -88,7 +88,7 @@ class CircuitBreakerMetrics:
 class CircuitBreakerError(Exception):
     """Исключение circuit breaker."""
     
-    def __init__(self, message: str, state: CircuitState, metrics: CircuitBreakerMetrics):
+    def __init__(self, message: str, state: CircuitState, metrics: CircuitBreakerMetrics) -> None:
         super().__init__(message)
         self.state = state
         self.metrics = metrics
@@ -106,7 +106,7 @@ class CircuitBreaker:
     - Поддержка async/sync функций
     """
     
-    def __init__(self, name: str, config: Optional[CircuitBreakerConfig] = None):
+    def __init__(self, name: str, config: Optional[CircuitBreakerConfig] = None) -> None:
         self.name = name
         self.config = config or CircuitBreakerConfig()
         self.state = CircuitState.CLOSED
@@ -183,7 +183,7 @@ class CircuitBreaker:
             await self._record_failure(call_result)
             raise
     
-    async def _check_state(self):
+    async def _check_state(self) -> None:
         """Проверка и обновление состояния circuit breaker."""
         current_time = time.time()
         
@@ -196,7 +196,7 @@ class CircuitBreaker:
             # В состоянии HALF_OPEN разрешаем ограниченное количество вызовов
             pass
     
-    async def _record_success(self, call_result: CallResult):
+    async def _record_success(self, call_result: CallResult) -> None:
         """Запись успешного вызова."""
         async with self._lock:
             self.metrics.total_calls += 1
@@ -219,7 +219,7 @@ class CircuitBreaker:
             if self.consecutive_successes > 20:
                 self._adapt_thresholds_success()
     
-    async def _record_failure(self, call_result: CallResult):
+    async def _record_failure(self, call_result: CallResult) -> None:
         """Запись неудачного вызова."""
         async with self._lock:
             self.metrics.total_calls += 1
@@ -260,7 +260,7 @@ class CircuitBreaker:
         """Получение недавних вызовов в окне мониторинга."""
         return self.metrics.call_history[-self.config.monitor_window:]
     
-    def _add_to_history(self, call_result: CallResult):
+    def _add_to_history(self, call_result: CallResult) -> None:
         """Добавление результата в историю."""
         self.metrics.call_history.append(call_result)
         
@@ -269,7 +269,7 @@ class CircuitBreaker:
         if len(self.metrics.call_history) > max_history:
             self.metrics.call_history = self.metrics.call_history[-max_history:]
     
-    async def _transition_to_open(self):
+    async def _transition_to_open(self) -> None:
         """Переход в состояние OPEN."""
         old_state = self.state
         self.state = CircuitState.OPEN
@@ -285,7 +285,7 @@ class CircuitBreaker:
         # Адаптивная корректировка при открытии
         self._adapt_thresholds_failure()
     
-    async def _transition_to_half_open(self):
+    async def _transition_to_half_open(self) -> None:
         """Переход в состояние HALF_OPEN."""
         old_state = self.state
         self.state = CircuitState.HALF_OPEN
@@ -295,7 +295,7 @@ class CircuitBreaker:
         
         logger.info(f"Circuit breaker '{self.name}' transitioned from {old_state.value} to HALF_OPEN")
     
-    async def _transition_to_closed(self):
+    async def _transition_to_closed(self) -> None:
         """Переход в состояние CLOSED."""
         old_state = self.state
         self.state = CircuitState.CLOSED
@@ -307,7 +307,7 @@ class CircuitBreaker:
             f"Success rate: {self.metrics.success_rate:.2%}"
         )
     
-    def _adapt_thresholds_success(self):
+    def _adapt_thresholds_success(self) -> None:
         """Адаптация порогов при успешной работе."""
         # Постепенно снижаем пороги при стабильной работе
         if self._adaptive_failure_threshold > self.config.failure_threshold:
@@ -322,7 +322,7 @@ class CircuitBreaker:
                 self._adaptive_recovery_timeout * 0.9
             )
     
-    def _adapt_thresholds_failure(self):
+    def _adapt_thresholds_failure(self) -> None:
         """Адаптация порогов при частых сбоях."""
         # Увеличиваем пороги при частых сбоях
         self._adaptive_failure_threshold = min(
@@ -335,7 +335,7 @@ class CircuitBreaker:
             self._adaptive_recovery_timeout * 1.5
         )
     
-    def _log_blocked_call(self):
+    def _log_blocked_call(self) -> None:
         """Логирование заблокированного вызова."""
         logger.debug(
             f"Call blocked by circuit breaker '{self.name}'. "
@@ -372,7 +372,7 @@ class CircuitBreaker:
             }
         }
     
-    async def reset(self):
+    async def reset(self) -> None:
         """Сброс circuit breaker в исходное состояние."""
         async with self._lock:
             self.state = CircuitState.CLOSED
@@ -397,7 +397,7 @@ def get_circuit_breaker(name: str, config: Optional[CircuitBreakerConfig] = None
     return _circuit_breakers[name]
 
 
-def circuit_breaker(name: str, config: Optional[CircuitBreakerConfig] = None):
+def circuit_breaker(name: str, config: Optional[CircuitBreakerConfig] = None) -> None:
     """
     Декоратор circuit breaker для функций.
     
@@ -407,18 +407,18 @@ def circuit_breaker(name: str, config: Optional[CircuitBreakerConfig] = None):
         
     Example:
         @circuit_breaker("external_api", CircuitBreakerConfig(failure_threshold=3))
-        async def call_external_api():
+        async def call_external_api() -> None:
             ...
     """
-    def decorator(func):
+    def decorator(func) -> None:
         cb = get_circuit_breaker(name, config)
         
         @wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args, **kwargs) -> None:
             return await cb.call(func, *args, **kwargs)
         
         @wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args, **kwargs) -> None:
             # Для синхронных функций создаем async wrapper
             return asyncio.run(cb.call(func, *args, **kwargs))
         
@@ -436,7 +436,7 @@ def get_all_circuit_breakers() -> Dict[str, CircuitBreaker]:
     return _circuit_breakers.copy()
 
 
-async def reset_all_circuit_breakers():
+async def reset_all_circuit_breakers() -> None:
     """Сброс всех circuit breakers."""
     for cb in _circuit_breakers.values():
         await cb.reset()

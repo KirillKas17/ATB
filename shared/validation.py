@@ -43,11 +43,11 @@ class ValidationResult:
 class InputValidator:
     """Универсальный валидатор входных данных."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules: Dict[str, List[ValidationRule]] = {}
         self._setup_default_rules()
     
-    def _setup_default_rules(self):
+    def _setup_default_rules(self) -> None:
         """Настройка правил валидации по умолчанию."""
         
         # Правила для торговых символов
@@ -269,7 +269,7 @@ class InputValidator:
             warnings=all_warnings
         )
     
-    def add_rule(self, field_name: str, rule: ValidationRule):
+    def add_rule(self, field_name: str, rule: ValidationRule) -> None:
         """Добавление пользовательского правила."""
         if field_name not in self.rules:
             self.rules[field_name] = []
@@ -280,7 +280,7 @@ class InputValidator:
 _global_validator = InputValidator()
 
 
-def validate_input(**field_rules):
+def validate_input(**field_rules) -> None:
     """
     Декоратор для валидации входных параметров функции.
     
@@ -289,12 +289,12 @@ def validate_input(**field_rules):
         
     Example:
         @validate_input(symbol="symbol", price="price", volume="volume")
-        async def place_order(symbol: str, price: float, volume: float):
+        async def place_order(symbol: str, price: float, volume: float) -> None:
             ...
     """
-    def decorator(func):
+    def decorator(func) -> None:
         @wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args, **kwargs) -> None:
             # Создаем словарь для валидации из kwargs
             validation_data = {}
             
@@ -318,7 +318,7 @@ def validate_input(**field_rules):
             return await func(*args, **kwargs)
         
         @wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args, **kwargs) -> None:
             # Создаем словарь для валидации из kwargs
             validation_data = {}
             

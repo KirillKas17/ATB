@@ -29,15 +29,15 @@ except ImportError:
     config_validator_fallback: Optional[Any] = None
 
 
-def get_performance_monitor():
+def get_performance_monitor() -> None:
     """Безопасное получение performance_monitor."""
     return globals().get('performance_monitor', performance_monitor_fallback)
 
-def get_metrics_analyzer():
+def get_metrics_analyzer() -> None:
     """Безопасное получение MetricsAnalyzer."""
     return globals().get('MetricsAnalyzer', MetricsAnalyzer_fallback)
 
-def get_config_validator():
+def get_config_validator() -> None:
     """Безопасное получение config_validator."""
     return globals().get('config_validator', config_validator_fallback)
 
@@ -96,7 +96,7 @@ class WebSocketManager:
         }
         logger.info(f"WebSocket client {client_id} connected")
 
-    def disconnect(self, websocket: WebSocket):
+    def disconnect(self, websocket: WebSocket) -> None:
         """Отключение клиента."""
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
@@ -106,7 +106,7 @@ class WebSocketManager:
             del self.connection_data[websocket]
             logger.info(f"WebSocket client {client_id} disconnected")
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
+    async def send_personal_message(self, message: str, websocket: WebSocket) -> None:
         """Отправить персональное сообщение."""
         try:
             await websocket.send_text(message)
@@ -114,7 +114,7 @@ class WebSocketManager:
             logger.error(f"Error sending message to WebSocket: {e}")
             self.disconnect(websocket)
 
-    async def broadcast(self, message: str, exclude: Optional[WebSocket] = None):
+    async def broadcast(self, message: str, exclude: Optional[WebSocket] = None) -> None:
         """Отправить сообщение всем клиентам."""
         disconnected = []
         for connection in self.active_connections:
@@ -135,7 +135,7 @@ class MonitoringDashboard:
     производительности и состояния системы.
     """
 
-    def __init__(self, host: str = "0.0.0.0", port: int = 8080):
+    def __init__(self, host: str = "0.0.0.0", port: int = 8080) -> None:
         self.host = host
         self.port = port
         self.app = FastAPI(title="ATB Monitoring Dashboard", version="1.0.0")
@@ -158,16 +158,16 @@ class MonitoringDashboard:
         # Запуск фоновых задач
         self._start_background_tasks()
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         """Настройка маршрутов API."""
 
         @self.app.get("/", response_class=HTMLResponse)
-        async def get_dashboard():
+        async def get_dashboard() -> None:
             """Главная страница дашборда."""
             return self._get_dashboard_html()
 
         @self.app.get("/api/health")
-        async def health_check():
+        async def health_check() -> None:
             """Проверка здоровья системы."""
             return {
                 "status": "healthy",
@@ -177,7 +177,7 @@ class MonitoringDashboard:
             }
 
         @self.app.get("/api/status")
-        async def get_status():
+        async def get_status() -> None:
             """Получить статус системы."""
             return {
                 "status": self.status.value,
@@ -187,47 +187,47 @@ class MonitoringDashboard:
             }
 
         @self.app.get("/api/metrics")
-        async def get_metrics():
+        async def get_metrics() -> None:
             """Получить текущие метрики."""
             return await self._get_current_metrics()
 
         @self.app.get("/api/metrics/{metric_name}")
-        async def get_metric(metric_name: str):
+        async def get_metric(metric_name: str) -> None:
             """Получить конкретную метрику."""
             return await self._get_metric_details(metric_name)
 
         @self.app.get("/api/alerts")
-        async def get_alerts():
+        async def get_alerts() -> None:
             """Получить активные алерты."""
             return await self._get_active_alerts()
 
         @self.app.post("/api/alerts/{alert_id}/acknowledge")
-        async def acknowledge_alert(alert_id: str):
+        async def acknowledge_alert(alert_id: str) -> None:
             """Подтвердить алерт."""
             return await self._acknowledge_alert(alert_id)
 
         @self.app.get("/api/performance")
-        async def get_performance_summary():
+        async def get_performance_summary() -> None:
             """Получить сводку производительности."""
             return await self._get_performance_summary()
 
         @self.app.get("/api/components")
-        async def get_components():
+        async def get_components() -> None:
             """Получить список компонентов."""
             return await self._get_components_list()
 
         @self.app.get("/api/components/{component_name}")
-        async def get_component_details(component_name: str):
+        async def get_component_details(component_name: str) -> None:
             """Получить детали компонента."""
             return await self._get_component_details(component_name)
 
         @self.app.get("/api/config/validation")
-        async def get_config_validation():
+        async def get_config_validation() -> None:
             """Получить результаты валидации конфигурации."""
             return await self._get_config_validation()
 
         @self.app.websocket("/ws")
-        async def websocket_endpoint(websocket: WebSocket):
+        async def websocket_endpoint(websocket: WebSocket) -> None:
             """WebSocket endpoint для real-time обновлений."""
             await self._handle_websocket(websocket)
 
@@ -502,7 +502,7 @@ class MonitoringDashboard:
         </html>
         """
 
-    async def _handle_websocket(self, websocket: WebSocket):
+    async def _handle_websocket(self, websocket: WebSocket) -> None:
         """Обработка WebSocket соединения."""
         client_id = f"client_{len(self.websocket_manager.active_connections)}"
         await self.websocket_manager.connect(websocket, client_id)
@@ -804,10 +804,10 @@ class MonitoringDashboard:
             logger.error(f"Error getting config validation: {e}")
             return {"error": "Failed to get config validation"}
 
-    def _start_background_tasks(self):
+    def _start_background_tasks(self) -> None:
         """Запуск фоновых задач."""
 
-        async def background_updates():
+        async def background_updates() -> None:
             while True:
                 try:
                     # Отправка обновлений через WebSocket
@@ -820,7 +820,7 @@ class MonitoringDashboard:
         # Запускаем асинхронную задачу
         asyncio.create_task(background_updates())
 
-    async def _send_websocket_updates(self):
+    async def _send_websocket_updates(self) -> None:
         """Отправка обновлений через WebSocket."""
         if not self.websocket_manager.active_connections:
             return
@@ -844,12 +844,12 @@ class MonitoringDashboard:
         except Exception as e:
             logger.error(f"Error sending WebSocket updates: {e}")
 
-    def start(self):
+    def start(self) -> None:
         """Запуск дашборда."""
         logger.info(f"Starting monitoring dashboard on {self.host}:{self.port}")
         uvicorn.run(self.app, host=self.host, port=self.port)
 
-    def stop(self):
+    def stop(self) -> None:
         """Остановка дашборда."""
         logger.info("Stopping monitoring dashboard")
         self.status = DashboardStatus.OFFLINE
@@ -859,7 +859,7 @@ class MonitoringDashboard:
 dashboard: Optional[MonitoringDashboard] = None
 
 
-def start_dashboard(host: str = "0.0.0.0", port: int = 8080):
+def start_dashboard(host: str = "0.0.0.0", port: int = 8080) -> None:
     """
     Запуск дашборда мониторинга.
     Args:
@@ -871,7 +871,7 @@ def start_dashboard(host: str = "0.0.0.0", port: int = 8080):
     dashboard.start()
 
 
-def stop_dashboard():
+def stop_dashboard() -> None:
     """Остановка дашборда мониторинга."""
     global dashboard
     if dashboard:
