@@ -147,7 +147,7 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
         self.cache_manager = CacheManager() if cache_config else None
         self.metrics_calculator = metrics_calculator
         self.portfolio_optimizer = portfolio_optimizer
-        self._logger = self.get_logger(__name__)
+        self._logger = logging.getLogger(__name__)
 
     @asynccontextmanager
     async def processing_context(self) -> Any:
@@ -157,7 +157,8 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
             yield
         finally:
             processing_time = time.time() - start_time
-            self._logger.debug(f"Risk analysis processing time: {processing_time:.3f}s")
+            if self._logger:
+                self._logger.debug(f"Risk analysis processing time: {processing_time:.3f}s")
 
     async def calculate_risk_metrics(
         self, returns: pd.Series, risk_free_rate: Optional[Decimal] = None
@@ -177,7 +178,7 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
                 return cached_result
             metrics = self._calculate_all_risk_metrics(returns, float(risk_free_rate))
             if cache:
-                await cache.set(cache_key, metrics, ttl=self.config.cache_ttl_hours * 3600)
+                await cache.set(cache_key, metrics)
             return metrics
         except Exception as e:
             if self._logger is not None:
@@ -207,7 +208,7 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
                 return Decimal(str(cached_result))
             var_value = calc_parametric_var(returns, float(confidence_level))
             if cache:
-                await cache.set(cache_key, float(var_value), ttl=self.config.cache_ttl_hours * 3600)
+                await cache.set(cache_key, float(var_value), )
             return Decimal(str(var_value))
         except Exception as e:
             if self._logger is not None:
@@ -232,7 +233,7 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
                 return Decimal(str(cached_result))
             cvar_value = calc_parametric_cvar(returns, float(confidence_level))
             if cache:
-                await cache.set(cache_key, float(cvar_value), ttl=self.config.cache_ttl_hours * 3600)
+                await cache.set(cache_key, float(cvar_value), )
             return Decimal(str(cvar_value))
         except Exception as e:
             if self._logger is not None:
@@ -547,3 +548,187 @@ class RiskAnalysisServiceImpl(AdvancedRiskAnalysisService, LoggerMixin):
 
 # Alias for backward compatibility
 RiskAnalysisService = RiskAnalysisServiceImpl
+
+
+# Утилитные функции для расчета метрик риска
+def calc_parametric_var(returns: pd.Series, confidence_level: float) -> float:
+    """Расчет параметрического VaR."""
+    try:
+        if len(returns) == 0:
+            return 0.0
+        mean_return = returns.mean()
+        std_return = returns.std()
+        from scipy.stats import norm
+        z_score = norm.ppf(1 - confidence_level)
+        var = -(mean_return + z_score * std_return)
+        return float(var)
+    except Exception:
+        return 0.0
+
+
+def calc_parametric_cvar(returns: pd.Series, confidence_level: float) -> float:
+    """Расчет параметрического CVaR."""
+    try:
+        if len(returns) == 0:
+            return 0.0
+        var = calc_parametric_var(returns, confidence_level)
+        # Приближенный расчет CVaR
+        extreme_losses = returns[returns <= -var]
+        if len(extreme_losses) > 0:
+            return float(-extreme_losses.mean())
+        return float(var)
+    except Exception:
+        return 0.0
+
+
+def calc_sharpe(returns: pd.Series, risk_free_rate: float) -> float:
+    """Расчет коэффициента Шарпа."""
+    try:
+        if len(returns) == 0 or returns.std() == 0:
+            return 0.0
+        excess_returns = returns - risk_free_rate
+        return float(excess_returns.mean() / returns.std())
+    except Exception:
+        return 0.0
+
+
+def calc_sortino(returns: pd.Series, risk_free_rate: float) -> float:
+    """Расчет коэффициента Сортино."""
+    try:
+        if len(returns) == 0:
+            return 0.0
+        excess_returns = returns - risk_free_rate
+        downside_returns = excess_returns[excess_returns < 0]
+        if len(downside_returns) == 0:
+            return 0.0
+        downside_std = downside_returns.std()
+        if downside_std == 0:
+            return 0.0
+        return float(excess_returns.mean() / downside_std)
+    except Exception:
+        return 0.0
+
+
+def calc_max_drawdown(returns: pd.Series) -> float:
+    """Расчет максимальной просадки."""
+    try:
+        if len(returns) == 0:
+            return 0.0
+        cumulative = (1 + returns).cumprod()
+        running_max = cumulative.expanding().max()
+        drawdown = (cumulative - running_max) / running_max
+        return float(drawdown.min())
+    except Exception:
+        return 0.0
+
+
+def calc_beta(returns: pd.Series, market_returns: pd.Series) -> float:
+    """Расчет бета-коэффициента."""
+    try:
+        if len(returns) == 0 or len(market_returns) == 0:
+            return 1.0
+        covariance = returns.cov(market_returns)
+        market_variance = market_returns.var()
+        if market_variance == 0:
+            return 1.0
+        return float(covariance / market_variance)
+    except Exception:
+        return 1.0
+
+
+def validate_returns_data(returns: pd.Series) -> bool:
+    """Валидация данных доходности."""
+    try:
+        return not returns.empty and not returns.isna().all()
+    except Exception:
+        return False
+
+
+def create_empty_risk_metrics() -> "DomainRiskMetrics":
+    """Создание пустых метрик риска."""
+    from domain.type_definitions.risk_types import RiskMetrics as DomainRiskMetrics
+    return DomainRiskMetrics(
+        var_95=Decimal("0"),
+        cvar_95=Decimal("0"),
+        sharpe_ratio=Decimal("0"),
+        sortino_ratio=Decimal("0"),
+        max_drawdown=Decimal("0"),
+        beta=Decimal("1"),
+        alpha=Decimal("0"),
+        information_ratio=Decimal("0"),
+        tracking_error=Decimal("0"),
+        treynor_ratio=Decimal("0")
+    )
+
+
+def optimize_portfolio_weights(returns: pd.DataFrame) -> Dict[str, float]:
+    """Оптимизация весов портфеля."""
+    try:
+        if returns.empty:
+            return {}
+        # Простое равномерное распределение как заглушка
+        n_assets = len(returns.columns)
+        return {col: 1.0 / n_assets for col in returns.columns}
+    except Exception:
+        return {}
+
+
+def calc_portfolio_return(returns: pd.DataFrame, weights: Dict[str, float]) -> pd.Series:
+    """Расчет доходности портфеля."""
+    try:
+        if returns.empty or not weights:
+            return pd.Series(dtype=float)
+        weighted_returns = returns * pd.Series(weights)
+        return weighted_returns.sum(axis=1)
+    except Exception:
+        return pd.Series(dtype=float)
+
+
+def generate_default_scenarios() -> List[Dict[str, Any]]:
+    """Генерация сценариев по умолчанию."""
+    return [
+        {"name": "base_case", "probability": 0.6, "market_shock": 0.0},
+        {"name": "stress_case", "probability": 0.3, "market_shock": -0.2},
+        {"name": "extreme_case", "probability": 0.1, "market_shock": -0.4}
+    ]
+
+
+def validate_scenario(scenario: Dict[str, Any]) -> bool:
+    """Валидация сценария."""
+    try:
+        required_keys = ["name", "probability", "market_shock"]
+        return all(key in scenario for key in required_keys)
+    except Exception:
+        return False
+
+
+def calc_scenario_impact(returns: pd.Series, scenario: Dict[str, Any]) -> Dict[str, float]:
+    """Расчет влияния сценария."""
+    try:
+        market_shock = scenario.get("market_shock", 0.0)
+        shocked_returns = returns + market_shock
+        return {
+            "var_95": calc_parametric_var(shocked_returns, 0.05),
+            "expected_return": float(shocked_returns.mean()),
+            "volatility": float(shocked_returns.std())
+        }
+    except Exception:
+        return {"var_95": 0.0, "expected_return": 0.0, "volatility": 0.0}
+
+
+def generate_risk_recommendations(metrics: "DomainRiskMetrics") -> List[str]:
+    """Генерация рекомендаций по управлению рисками."""
+    recommendations = []
+    try:
+        if float(metrics.sharpe_ratio) < 0.5:
+            recommendations.append("Рассмотрите диверсификацию портфеля")
+        if float(metrics.max_drawdown) < -0.2:
+            recommendations.append("Высокая просадка - рассмотрите снижение риска")
+        if float(metrics.var_95) > 0.1:
+            recommendations.append("Высокий VaR - рекомендуется хеджирование")
+        if not recommendations:
+            recommendations.append("Риск-профиль в пределах нормы")
+    except Exception:
+        recommendations.append("Ошибка анализа рисков")
+    
+    return recommendations

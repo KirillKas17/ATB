@@ -538,6 +538,9 @@ class FeatureEngineer:
                 return features
             
             # Применение селекции
+            if self.feature_selector is None:
+                logger.warning("Feature selector is None, returning original features")
+                return features
             selected_features_result = self.feature_selector.fit_transform(features_clean, target_clean)
             
             # Проверяем, что результат не является функцией

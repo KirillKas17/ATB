@@ -64,7 +64,7 @@ class MarketRegimeDetector:
     def fit(self, data: DataFrame) -> None:
         """Обучение детектора режимов."""
         features = self.extract_features(data)
-        if features.empty:
+        if features is None or features.empty:
             logging.warning("Нет признаков для обучения детектора режимов")
             return
         
@@ -82,7 +82,7 @@ class MarketRegimeDetector:
             self.fit(data)
         
         features = self.extract_features(data)
-        if features.empty:
+        if features is None or features.empty:
             return np.array([0])
         
         features_scaled = self.scaler.transform(features)
@@ -101,7 +101,7 @@ class MarketRegimeDetector:
             - volatility: уровень волатильности
         """
         try:
-            if data.empty or 'close' not in data.columns:
+            if data is None or data.empty or 'close' not in data.columns:
                 return {
                     'trend': 'sideways',
                     'confidence': 0.0,
@@ -110,7 +110,7 @@ class MarketRegimeDetector:
 
             # Получаем признаки
             features = self.extract_features(data)
-            if features.empty:
+            if features is None or features.empty:
                 return {
                     'trend': 'sideways', 
                     'confidence': 0.0,
@@ -170,7 +170,7 @@ class MarketRegimeDetector:
             self.fit(data)
         
         features = self.extract_features(data)
-        if features.empty:
+        if features is None or features.empty:
             return {}
         
         regimes = self.predict(data)

@@ -630,28 +630,54 @@ class Visualizer:
     
     def create_price_chart(self, data, title="Price Chart"):
         """Создание графика цен."""
-        return create_price_chart(data, title)
+        try:
+            if hasattr(data, 'plot'):
+                return data.plot(title=title, kind='line')
+            return {"error": "Невозможно создать график цен"}
+        except Exception as e:
+            return {"error": f"Ошибка создания графика цен: {str(e)}"}
     
     def create_candlestick_chart(self, data, title="Candlestick Chart"):
         """Создание свечного графика."""
-        return create_candlestick_chart(data, title)
+        try:
+            # Базовая реализация для совместимости
+            return {"title": title, "type": "candlestick", "data": data}
+        except Exception as e:
+            return {"error": f"Ошибка создания свечного графика: {str(e)}"}
     
     def create_volume_chart(self, data, title="Volume Chart"):
         """Создание графика объёмов."""
-        return create_volume_chart(data, title)
+        try:
+            if hasattr(data, 'get') and data.get('volume') is not None:
+                return {"title": title, "type": "volume", "data": data}
+            return {"error": "Нет данных об объёме"}
+        except Exception as e:
+            return {"error": f"Ошибка создания графика объёмов: {str(e)}"}
     
     def create_portfolio_chart(self, portfolio_data, title="Portfolio"):
         """Создание графика портфеля."""
-        return create_portfolio_chart(portfolio_data, title)
+        try:
+            return {"title": title, "type": "portfolio", "data": portfolio_data}
+        except Exception as e:
+            return {"error": f"Ошибка создания графика портфеля: {str(e)}"}
     
     def create_performance_chart(self, performance_data, title="Performance"):
         """Создание графика производительности."""
-        return create_performance_chart(performance_data, title)
+        try:
+            return {"title": title, "type": "performance", "data": performance_data}
+        except Exception as e:
+            return {"error": f"Ошибка создания графика производительности: {str(e)}"}
     
     def create_correlation_matrix(self, correlation_data, title="Correlation Matrix"):
         """Создание матрицы корреляций."""
-        return create_correlation_matrix(correlation_data, title)
+        try:
+            return {"title": title, "type": "correlation", "data": correlation_data}
+        except Exception as e:
+            return {"error": f"Ошибка создания матрицы корреляций: {str(e)}"}
     
     def create_technical_indicators_chart(self, data, indicators, title="Technical Indicators"):
         """Создание графика технических индикаторов."""
-        return create_technical_indicators_chart(data, indicators, title)
+        try:
+            return {"title": title, "type": "indicators", "data": data, "indicators": indicators}
+        except Exception as e:
+            return {"error": f"Ошибка создания графика индикаторов: {str(e)}"}

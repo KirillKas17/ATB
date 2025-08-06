@@ -20,7 +20,7 @@ from domain.entities.trading import (
     SignalType,
     Trade,
 )
-from domain.type_definitions import TradeId
+from domain.type_definitions import TradeId, OrderId
 from domain.value_objects import Price as DomainPrice, Volume as DomainVolume
 from domain.value_objects.price import Price
 

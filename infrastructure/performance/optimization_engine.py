@@ -319,8 +319,8 @@ class PerformanceOptimizer:
             "optimization_status": {
                 "gc_disabled": self.gc_disabled,
                 "optimization_enabled": self.optimization_enabled,
-                "thread_pool_workers": self.thread_pool._max_workers,
-                "process_pool_workers": self.process_pool._max_workers
+                "thread_pool_workers": getattr(self.thread_pool, '_max_workers', 'unknown'),
+                "process_pool_workers": getattr(self.process_pool, '_max_workers', 'unknown')
             },
             "performance_analysis": {
                 "slowest_functions": slowest_functions,

@@ -119,6 +119,7 @@ class BaseStrategy(ABC):
         self.symbols = self.config.get("symbols", [])
         self.risk_per_trade = self.config.get("risk_per_trade", 0.02)
         self.max_position_size = self.config.get("max_position_size", 0.1)
+        self.position_size_ratio = self.config.get("position_size_ratio", 0.05)
         self.confidence_threshold = self.config.get("confidence_threshold", 0.7)
         self.use_stop_loss = self.config.get("use_stop_loss", True)
         self.use_take_profit = self.config.get("use_take_profit", True)

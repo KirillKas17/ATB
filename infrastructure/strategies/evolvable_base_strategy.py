@@ -766,20 +766,20 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
         try:
             # Адаптация порогов на основе производительности
             if self.performance > 0.8:
-                self.config.confidence_threshold = min(
-                    0.9, self.config.confidence_threshold + 0.05
+                self.config["confidence_threshold"] = min(
+                    0.9, self.config.get("confidence_threshold", 0.7) + 0.05
                 )
             elif self.performance < 0.3:
-                self.config.confidence_threshold = max(
-                    0.3, self.config.confidence_threshold - 0.05
+                self.config["confidence_threshold"] = max(
+                    0.3, self.config.get("confidence_threshold", 0.7) - 0.05
                 )
             # Адаптация скорости обучения
             if self.performance > 0.7:
-                self.config.learning_rate = max(1e-4, self.config.learning_rate * 0.9)
+                self.config["learning_rate"] = max(1e-4, self.config.get("learning_rate", 0.001) * 0.9)
             else:
-                self.config.learning_rate = min(1e-2, self.config.learning_rate * 1.1)
+                self.config["learning_rate"] = min(1e-2, self.config.get("learning_rate", 0.001) * 1.1)
             logger.info(
-                f"Strategy parameters evolved: confidence_threshold={self.config.confidence_threshold:.3f}, learning_rate={self.config.learning_rate:.6f}"
+                f"Strategy parameters evolved: confidence_threshold={self.config.get('confidence_threshold', 0.7):.3f}, learning_rate={self.config.get('learning_rate', 0.001):.6f}"
             )
         except Exception as e:
             logger.error(f"Error evolving strategy parameters: {e}")

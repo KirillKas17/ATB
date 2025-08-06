@@ -550,7 +550,8 @@ class MarketSimulator:
             from sklearn.cluster import KMeans
 
             self.regime_model = KMeans(n_clusters=4, random_state=42)
-            self.regime_model.fit(X)
+            if self.regime_model is not None:
+                self.regime_model.fit(X)
             # Сохранение модели
             joblib.dump(
                 self.regime_model, self.config.models_dir / "regime_model.joblib"

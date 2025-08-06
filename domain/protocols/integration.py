@@ -62,7 +62,7 @@ from domain.type_definitions import (
     QueryOptions,
 )
 from domain.entities.signal import Signal
-from domain.protocols.strategy_protocol import MarketRegime
+from domain.type_definitions.strategy_types import MarketRegime
 from domain.type_definitions.protocol_types import (
     PatternDetectionResult,
     SignalFilterDict,
@@ -595,16 +595,11 @@ class IntegrationTestStrategyProtocol(StrategyProtocol):
             total_trades=100,
             winning_trades=60,
             losing_trades=40,
-            win_rate=Decimal("0.6"),
-            profit_factor=Decimal("1.5"),
-            sharpe_ratio=Decimal("1.0"),
-            max_drawdown=Decimal("0.05"),
-            total_return=Decimal("0.2"),
-            average_trade=Decimal("0.01"),
-            calmar_ratio=Decimal("4.0"),
-            sortino_ratio=Decimal("1.2"),
-            var_95=Decimal("0.02"),
-            cvar_95=Decimal("0.03")
+            win_rate="0.6",
+            profit_factor="1.5",
+            sharpe_ratio="1.0",
+            max_drawdown="0.05",
+            average_trade="0.01"
         )
 
     async def calculate_performance_metrics(self, trades: List[Trade], initial_capital: Decimal) -> PerformanceMetrics:
@@ -612,16 +607,11 @@ class IntegrationTestStrategyProtocol(StrategyProtocol):
             total_trades=len(trades),
             winning_trades=60,
             losing_trades=40,
-            win_rate=Decimal("0.6"),
-            profit_factor=Decimal("1.5"),
-            sharpe_ratio=Decimal("1.0"),
-            max_drawdown=Decimal("0.05"),
-            total_return=Decimal("0.2"),
-            average_trade=Decimal("0.01"),
-            calmar_ratio=Decimal("4.0"),
-            sortino_ratio=Decimal("1.2"),
-            var_95=Decimal("0.02"),
-            cvar_95=Decimal("0.03")
+            win_rate="0.6",
+            profit_factor="1.5",
+            sharpe_ratio="1.0",
+            max_drawdown="0.05",
+            average_trade="0.01"
         )
 
     async def monitor_strategy_health(self, strategy_id: StrategyId, market_data: pd.DataFrame) -> Dict[str, float]:

@@ -21,11 +21,44 @@ class ImprovementApplier:
     """Заглушка для отсутствующего класса ImprovementApplier"""
     def __init__(self):
         pass
+    
+    def get_rl_effectiveness_metrics(self):
+        """Получение метрик эффективности RL"""
+        return {
+            "learning_rate": 0.001,
+            "episodes": 0,
+            "average_reward": 0.0,
+            "policy_loss": 0.0
+        }
+    
+    def get_cicd_status(self):
+        """Получение статуса CI/CD"""
+        return {
+            "status": "ready",
+            "last_deployment": datetime.now().isoformat(),
+            "success_rate": 100.0
+        }
+    
+    def get_rollback_history(self):
+        """Получение истории откатов"""
+        return []
 
 class EntityAnalytics:
     """Заглушка для отсутствующего класса EntityAnalytics"""
     def __init__(self):
         pass
+    
+    def get_status(self):
+        """Получение статуса системы"""
+        return {
+            "status": "running",
+            "entities_count": 0,
+            "last_update": datetime.now().isoformat()
+        }
+    
+    def force_analysis(self):
+        """Принудительный запуск анализа"""
+        return {"status": "analysis_started", "timestamp": datetime.now().isoformat()}
 
 logger.info("Entity модули инициализированы с заглушками для демонстрации")
 

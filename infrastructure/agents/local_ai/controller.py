@@ -626,7 +626,7 @@ class LocalAIController:
             }
             
             # Анализ через AI агента
-            analysis_result = await self.analyze_request(decision_data)
+            analysis_result = await self.analyze(decision_data)
             
             if analysis_result and analysis_result.get("status") == "completed":
                 result = analysis_result.get("result", {})
