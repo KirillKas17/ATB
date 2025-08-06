@@ -11,11 +11,8 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
-try:
-    from typing import Complex
-except ImportError:
-    from numbers import Complex
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from numbers import Complex
 from enum import Enum
 import concurrent.futures
 
@@ -62,12 +59,13 @@ class PatternDimension(Enum):
     VOLATILITY = "volatility"
     CORRELATION = "correlation"
     ENTROPY = "entropy"
+    ENERGY = "energy"
 
 
 @dataclass
 class QuantumPatternState:
     """Квантовое состояние рыночного паттерна."""
-    amplitude: Complex
+    amplitude: complex
     phase: float
     probability: float
     coherence: float
@@ -154,7 +152,7 @@ class QuantumPatternAnalyzer:
         self.clustering_model = DBSCAN(eps=0.3, min_samples=5)
         
         # Статистика и метрики
-        self.statistics = {
+        self.statistics: Dict[str, Union[int, float, deque]] = {
             'total_patterns_analyzed': 0,
             'quantum_states_created': 0,
             'entangled_patterns_found': 0,
@@ -202,8 +200,10 @@ class QuantumPatternAnalyzer:
             
             # Обновление статистики
             processing_time = (time.time() - start_time) * 1000
-            self.statistics['processing_time_history'].append(processing_time)
-            self.statistics['total_patterns_analyzed'] += len(patterns)
+            processing_time_history = cast(deque, self.statistics['processing_time_history'])
+            processing_time_history.append(processing_time)
+            total_patterns = cast(int, self.statistics['total_patterns_analyzed'])
+            self.statistics['total_patterns_analyzed'] = total_patterns + len(patterns)
             
             logger.info(f"Analyzed {len(patterns)} patterns in {processing_time:.2f}ms")
             
@@ -271,8 +271,14 @@ class QuantumPatternAnalyzer:
         if additional_features:
             for feature_name, feature_data in additional_features.items():
                 # Создаём кастомные измерения для дополнительных признаков
-                custom_dimension = f"custom_{feature_name}"
-                dimensions[custom_dimension] = feature_data
+                # Используем существующие измерения или создаем временное
+                if feature_name.lower() in ['energy', 'momentum']:
+                    dimensions[PatternDimension.ENERGY] = feature_data
+                elif feature_name.lower() in ['frequency', 'oscillation']:
+                    dimensions[PatternDimension.FREQUENCY] = feature_data
+                else:
+                    # Для остальных используем измерение CORRELATION как fallback
+                    dimensions[PatternDimension.CORRELATION] = feature_data
         
         return dimensions
     
@@ -326,7 +332,8 @@ class QuantumPatternAnalyzer:
             )
             
             quantum_states.append(quantum_state)
-            self.statistics['quantum_states_created'] += 1
+            states_created = cast(int, self.statistics['quantum_states_created'])
+            self.statistics['quantum_states_created'] = states_created + 1
         
         return quantum_states
     
@@ -427,7 +434,7 @@ class QuantumPatternAnalyzer:
         quantum_states: List[QuantumPatternState]
     ) -> List[MultidimensionalPattern]:
         """Квантовое обнаружение аномалий."""
-        patterns = []
+        patterns: List[MultidimensionalPattern] = []
         
         # Поиск квантовых состояний с высокой когерентностью
         high_coherence_states = [
@@ -488,7 +495,7 @@ class QuantumPatternAnalyzer:
         quantum_states: List[QuantumPatternState]
     ) -> List[MultidimensionalPattern]:
         """Квантовая кластеризация паттернов."""
-        patterns = []
+        patterns: List[MultidimensionalPattern] = []
         
         # Подготовка данных для кластеризации
         feature_matrix = []
@@ -698,7 +705,7 @@ class QuantumPatternAnalyzer:
                     
                     pattern = MultidimensionalPattern(
                         pattern_id=pattern_id,
-                        dimensions={dimension: trend_line, f"{dimension}_residuals": residuals},
+                        dimensions={dimension: trend_line},
                         quantum_states=[trend_quantum_state],
                         complexity_score=complexity,
                         confidence=trend_probability,
@@ -711,7 +718,8 @@ class QuantumPatternAnalyzer:
                             'p_value': float(p_value),
                             'trend_direction': 'upward' if slope > 0 else 'downward',
                             'trend_strength': float(trend_strength),
-                            'dimension': dimension.value
+                            'dimension': dimension.value,
+                            'residuals': residuals.tolist()  # Сохраняем residuals в метаданных
                         }
                     )
                     
@@ -764,7 +772,7 @@ class QuantumPatternAnalyzer:
             
             # Комбинированная оценка сложности
             complexity = (shannon_entropy / np.log2(len(data)) + fractal_dimension / 3.0) / 2.0
-            return min(complexity, 1.0)  # Нормализация к [0, 1]
+            return float(min(complexity, 1.0))  # Нормализация к [0, 1]
             
         except Exception as e:
             logger.debug(f"Error calculating pattern complexity: {e}")
@@ -800,7 +808,8 @@ class QuantumPatternAnalyzer:
                         'entanglement_strength': entanglement_strength
                     })
                     
-                    self.statistics['entangled_patterns_found'] += 1
+                    entangled_found = cast(int, self.statistics['entangled_patterns_found'])
+                    self.statistics['entangled_patterns_found'] = entangled_found + 1
         
         self.entanglement_matrix = entanglement_matrix
     
@@ -872,9 +881,10 @@ class QuantumPatternAnalyzer:
     
     def get_analysis_statistics(self) -> Dict[str, Any]:
         """Получение статистики анализа."""
+        processing_time_history = cast(deque, self.statistics['processing_time_history'])
         avg_processing_time = (
-            np.mean(list(self.statistics['processing_time_history']))
-            if self.statistics['processing_time_history']
+            np.mean(list(processing_time_history))
+            if processing_time_history
             else 0.0
         )
         

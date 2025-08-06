@@ -128,7 +128,7 @@ class BaseStrategy(ABC):
         """
         pass
 
-    def validate_data(self, market_data: MarketData) -> tuple[bool, Optional[str]]:
+    def validate_data(self, market_data: Optional[MarketData]) -> tuple[bool, Optional[str]]:
         try:
             if market_data is None:
                 return False, "Empty market data"
