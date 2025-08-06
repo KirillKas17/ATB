@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from shared.numpy_utils import np
 import pandas as pd
@@ -54,7 +54,7 @@ class DefaultDataProvider(IDataProvider):
     async def get_order_book(self, pair: str) -> Dict[str, Any]:
         try:
             if hasattr(self.market_data, "order_book") and self.market_data.order_book:
-                return self.market_data.order_book
+                return cast(Dict[str, Any], self.market_data.order_book)
             return {
                 "bids": [
                     {"price": 50000.0, "size": 1.5},

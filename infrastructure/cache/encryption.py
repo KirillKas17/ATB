@@ -67,7 +67,7 @@ class KeyManager:
             raise EncryptionError("Master key is not set")
         key = base64.urlsafe_b64decode(self.master_key.encode("utf-8"))
         derived_key = kdf.derive(key)
-        return derived_key
+        return bytes(derived_key)
 
     def get_key_for_namespace(self, namespace: str) -> bytes:
         """Get encryption key for specific namespace."""
@@ -105,7 +105,7 @@ class AESEncryptor:
             # Combine IV, tag, and ciphertext
             encrypted_data = iv + encryptor.tag + ciphertext
 
-            return encrypted_data
+            return bytes(encrypted_data)
 
         except Exception as e:
             logger.error(f"AES encryption failed: {e}")
@@ -130,7 +130,7 @@ class AESEncryptor:
             # Decrypt data
             plaintext = decryptor.update(ciphertext) + decryptor.finalize()
 
-            return plaintext
+            return bytes(plaintext)
 
         except Exception as e:
             logger.error(f"AES decryption failed: {e}")
@@ -157,7 +157,7 @@ class FernetEncryptor:
         """Encrypt data using Fernet."""
         try:
             fernet = self._get_fernet(namespace)
-            return fernet.encrypt(data)
+            return bytes(fernet.encrypt(data))
         except Exception as e:
             logger.error(f"Fernet encryption failed: {e}")
             raise EncryptionError(f"Fernet encryption failed: {e}")
@@ -166,7 +166,7 @@ class FernetEncryptor:
         """Decrypt data using Fernet."""
         try:
             fernet = self._get_fernet(namespace)
-            return fernet.decrypt(encrypted_data)
+            return bytes(fernet.decrypt(encrypted_data))
         except Exception as e:
             logger.error(f"Fernet decryption failed: {e}")
             raise EncryptionError(f"Fernet decryption failed: {e}")

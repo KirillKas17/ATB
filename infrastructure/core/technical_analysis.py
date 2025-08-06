@@ -705,7 +705,7 @@ def calculate_wave_clusters(
             
             result.append({
                 "cluster_id": int(label),
-                "waves": cluster_waves,
+                "waves": cluster_waves,  # type: ignore[dict-item]
                 "avg_amplitude": float(np.mean([w["amplitude"] for w in cluster_waves])),
                 "count": len(cluster_waves),
             })

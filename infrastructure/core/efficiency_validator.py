@@ -195,7 +195,8 @@ class EfficiencyValidator:
             # Например, изменение архитектуры модели, параметров и т.д.
             # Временная реализация - просто вызываем evolve
             test_data = {"proposed_changes": changes, "timestamp": datetime.now()}
-            return await component.evolve(test_data)
+            result = await component.evolve(test_data)
+            return bool(result)
         except Exception as e:
             logger.error(f"Error applying proposed changes: {e}")
             return False
@@ -504,7 +505,7 @@ class EfficiencyValidator:
             with open(log_file, "r", encoding="utf-8") as f:
                 log_data = json.load(f)
             logger.info(f"Validation log loaded from {log_file}")
-            return log_data
+            return cast(Dict[str, Any], log_data)
         except Exception as e:
             logger.error(f"Error loading validation log: {e}")
             return {}
