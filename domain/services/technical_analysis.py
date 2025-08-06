@@ -17,7 +17,11 @@ from loguru import logger
 # Временные замены для отсутствующих библиотек
 try:
     import talib
-except ImportError:
+    # Проверка совместимости версий
+    import numpy as np
+    if not hasattr(np, 'dtype') or not hasattr(talib, 'RSI'):
+        raise ImportError("Incompatible talib version")
+except (ImportError, ValueError, AttributeError):
     # Простая замена для talib
     class TalibMock:
         @staticmethod
@@ -84,6 +88,7 @@ except ImportError:
             return pd.Series([0.0] * len(high), index=high.index), pd.Series([0.0] * len(low), index=low.index)
 
     talib = TalibMock()
+    logger.warning("Using mock talib implementation due to compatibility issues")
 try:
     from sklearn.preprocessing import StandardScaler
 except ImportError:

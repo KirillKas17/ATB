@@ -1,70 +1,72 @@
 @echo off
-title ATB Trading Dashboard - Launcher
-color 0A
-
-echo.
-echo ===============================================================
-echo          ATB Trading Dashboard v2.0 - Windows Launcher
-echo ===============================================================
+chcp 65001 >nul
+echo ========================================
+echo    ATB Dashboard Launcher
+echo ========================================
 echo.
 
-REM Проверка наличия Python
+:: Проверка наличия Python
 python --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] Python не найден в системе!
-    echo Пожалуйста, установите Python 3.8+ с https://python.org
-    echo.
+if errorlevel 1 (
+    echo ОШИБКА: Python не найден в системе!
+    echo Установите Python с https://python.org
     pause
     exit /b 1
 )
 
-echo [INFO] Python найден...
-
-REM Проверка зависимостей
-echo [INFO] Проверка зависимостей...
-python -c "import tkinter, decimal" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] Отсутствуют базовые модули Python!
+:: Проверка наличия pip
+pip --version >nul 2>&1
+if errorlevel 1 (
+    echo ОШИБКА: pip не найден!
     pause
     exit /b 1
 )
 
-echo [INFO] Базовые модули найдены...
+:: Переход в корневую папку проекта
+cd /d "%~dp0"
 
-REM Попытка установки дополнительных зависимостей
-echo [INFO] Проверка дополнительных библиотек...
-python -c "import numpy, pandas, matplotlib" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [WARNING] Дополнительные библиотеки не найдены.
-    echo [INFO] Попытка автоматической установки...
-    pip install numpy pandas matplotlib
-    if %errorlevel% neq 0 (
-        echo [WARNING] Не удалось установить некоторые библиотеки.
-        echo [INFO] Запуск в упрощенном режиме...
+:: Проверка наличия виртуального окружения
+if not exist "venv\Scripts\activate.bat" (
+    echo Создание виртуального окружения...
+    python -m venv venv
+    if errorlevel 1 (
+        echo ОШИБКА: Не удалось создать виртуальное окружение!
+        pause
+        exit /b 1
     )
 )
 
-echo [INFO] Все проверки завершены.
-echo.
+:: Активация виртуального окружения
+echo Активация виртуального окружения...
+call venv\Scripts\activate.bat
 
-REM Запуск дашборда
-echo ===============================================================
-echo                    Запуск дашборда...
-echo ===============================================================
-echo.
-
-python run_dashboard.py
-
-REM Обработка завершения
-if %errorlevel% neq 0 (
-    echo.
-    echo [ERROR] Дашборд завершился с ошибкой (код: %errorlevel%)
-    echo [INFO] Проверьте сообщения выше для диагностики.
-) else (
-    echo.
-    echo [INFO] Дашборд завершен успешно.
+:: Установка зависимостей
+echo Установка зависимостей...
+pip install -r requirements.txt >nul 2>&1
+if errorlevel 1 (
+    echo Предупреждение: Не удалось установить зависимости из requirements.txt
+    echo Устанавливаем основные пакеты...
+    pip install dash plotly fastapi uvicorn websockets
 )
 
+:: Проверка наличия файлов дашборда
+if not exist "interfaces\presentation\dashboard\index.html" (
+    echo ОШИБКА: Файлы дашборда не найдены!
+    echo Проверьте структуру проекта
+    pause
+    exit /b 1
+)
+
+:: Запуск HTTP сервера для статического дашборда
 echo.
-echo Нажмите любую клавишу для выхода...
-pause >nul
+echo Запуск дашборда...
+echo URL: http://localhost:8080
+echo.
+echo Нажмите Ctrl+C для остановки
+echo.
+
+:: Запуск Python HTTP сервера
+cd interfaces\presentation\dashboard
+python -m http.server 8080
+
+pause

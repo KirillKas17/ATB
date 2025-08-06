@@ -87,11 +87,63 @@ ParameterValue = Union[
     List[str],
     Dict[str, Union[str, int, float, Decimal, bool]],
 ]
+
+# Более конкретные типы для улучшения типизации
 ParameterDict = Dict[str, ParameterValue]
-RiskMetricsDict = Dict[str, Union[float, Decimal, str]]
-PerformanceMetricsDict = Dict[str, Union[float, Decimal, str, int]]
-TechnicalIndicatorsDict = Dict[str, Union[float, Decimal, Optional[float]]]
-VolumeProfileDict = Dict[str, Union[List[Dict[str, float]], float, str]]
+
+# Типизированные словари для метрик
+class RiskMetrics(TypedDict, total=False):
+    var_95: Decimal
+    var_99: Decimal
+    max_drawdown: Decimal
+    sharpe_ratio: Decimal
+    sortino_ratio: Decimal
+    beta: Decimal
+    correlation: Decimal
+    volatility: Decimal
+    risk_score: float
+    confidence_level: float
+
+class PerformanceMetrics(TypedDict, total=False):
+    total_return: Decimal
+    annualized_return: Decimal
+    volatility: Decimal
+    max_drawdown: Decimal
+    sharpe_ratio: Decimal
+    sortino_ratio: Decimal
+    win_rate: Decimal
+    profit_factor: Decimal
+    total_trades: int
+    winning_trades: int
+    losing_trades: int
+    average_win: float
+    average_loss: float
+
+class TechnicalIndicators(TypedDict, total=False):
+    sma_20: Optional[float]
+    sma_50: Optional[float]
+    sma_200: Optional[float]
+    rsi: Optional[float]
+    macd: Optional[float]
+    macd_signal: Optional[float]
+    macd_histogram: Optional[float]
+    bollinger_upper: Optional[float]
+    bollinger_middle: Optional[float]
+    bollinger_lower: Optional[float]
+    atr: Optional[float]
+
+class VolumeProfileData(TypedDict, total=False):
+    poc_price: float
+    value_areas: List[Dict[str, float]]
+    volume_nodes: List[Dict[str, float]]
+    total_volume: float
+    price_levels: List[float]
+
+# Обратная совместимость
+RiskMetricsDict = RiskMetrics
+PerformanceMetricsDict = PerformanceMetrics
+TechnicalIndicatorsDict = TechnicalIndicators
+VolumeProfileDict = VolumeProfileData
 OrderBookLevel = TypedDict(
     "OrderBookLevel", {"price": float, "quantity": float, "total": float}
 )

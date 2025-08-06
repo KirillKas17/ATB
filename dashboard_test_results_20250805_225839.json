@@ -1,0 +1,47 @@
+{
+  "http_endpoints": {
+    "/": true,
+    "/api/status": true,
+    "/api/trading": true,
+    "/api/positions": true,
+    "/api/analytics": true,
+    "/api/health": true
+  },
+  "websocket": true,
+  "data_consistency": {
+    "/api/status_structure": true,
+    "/api/trading_structure": true,
+    "/api/positions_structure": true,
+    "/api/analytics_structure": true,
+    "/api/status_types": true,
+    "/api/trading_types": true
+  },
+  "performance": {
+    "/api/status": {
+      "avg": 0.41916866302490235,
+      "max": 2.0682897567749023,
+      "min": 0.0029993057250976562
+    },
+    "/api/trading": {
+      "avg": 0.007074689865112305,
+      "max": 0.009998083114624023,
+      "min": 0.004993915557861328
+    },
+    "/api/positions": {
+      "avg": 0.007920789718627929,
+      "max": 0.013612508773803711,
+      "min": 0.004997968673706055
+    },
+    "/api/analytics": {
+      "avg": 0.007759189605712891,
+      "max": 0.012012958526611328,
+      "min": 0.004247903823852539
+    }
+  },
+  "summary": {
+    "total_tests": 17,
+    "passed_tests": 17,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  }
+}

@@ -85,40 +85,21 @@ class RiskConfig:
     volatility_threshold_high: Decimal = Decimal("0.05")  # 5% дневная волатильность
     risk_reduction_factor: Decimal = Decimal("0.5")  # Уменьшение риска при высокой волатильности
 
-    def adjust_for_volatility(self, current_volatility: Decimal) -> 'RiskConfig':
-        """Динамическая корректировка параметров риска на основе волатильности."""
+    def get_volatility_adjustment_factor(self, current_volatility: Decimal) -> Decimal:
+        """Получение коэффициента корректировки на основе волатильности."""
         if not self.volatility_adjustment_enabled:
-            return self
+            return Decimal("1.0")
         
-        adjustment_factor = Decimal("1.0")
         if current_volatility > self.volatility_threshold_high:
-            # Высокая волатильность - снижаем риски
-            adjustment_factor = self.risk_reduction_factor
+            return self.risk_reduction_factor
         elif current_volatility < self.volatility_threshold_low:
-            # Низкая волатильность - можем увеличить риски
-            adjustment_factor = Decimal("1.2")
+            return Decimal("1.2")
         
-        # Создаем новый экземпляр с скорректированными параметрами
-        return RiskConfig(
-            max_position_size=self.max_position_size * adjustment_factor,
-            max_daily_loss=self.max_daily_loss * adjustment_factor,
-            max_portfolio_risk=self.max_portfolio_risk * adjustment_factor,
-            stop_loss_pct=self.stop_loss_pct / adjustment_factor,  # Обратная зависимость
-            take_profit_pct=self.take_profit_pct * adjustment_factor,
-            max_leverage=self.max_leverage / adjustment_factor,  # Обратная зависимость
-            max_drawdown=self.max_drawdown,
-            position_sizing_method=self.position_sizing_method,
-            volatility_adjustment_enabled=self.volatility_adjustment_enabled,
-            volatility_threshold_low=self.volatility_threshold_low,
-            volatility_threshold_high=self.volatility_threshold_high,
-            risk_reduction_factor=self.risk_reduction_factor
-        )
+        return Decimal("1.0")
     
-    def calculate_position_size(self, account_balance: Decimal, price: Decimal, 
-                              confidence: Decimal = Decimal("1.0")) -> Decimal:
-        """Расчет размера позиции с учетом риска и уверенности."""
-        risk_amount = account_balance * self.max_position_size * confidence
-        return risk_amount / price
+    def get_position_size_risk_amount(self, account_balance: Decimal, confidence: Decimal = Decimal("1.0")) -> Decimal:
+        """Получение суммы риска для расчета размера позиции."""
+        return account_balance * self.max_position_size * confidence
 
 
 @dataclass
@@ -148,12 +129,11 @@ class TradingConfig:
         default_factory=lambda: {"BTC/USDT": 6, "ETH/USDT": 5}
     )
 
-    def validate_order_size(self, exchange: str, symbol: str, quantity: Decimal) -> bool:
-        """Валидация размера ордера согласно требованиям биржи."""
+    def get_min_order_size(self, exchange: str, symbol: str) -> Decimal:
+        """Получение минимального размера ордера для биржи и символа."""
         if exchange in self.exchange_min_order_sizes:
-            min_size = self.exchange_min_order_sizes[exchange].get(symbol, self.min_order_size)
-            return quantity >= min_size
-        return quantity >= self.min_order_size
+            return self.exchange_min_order_sizes[exchange].get(symbol, self.min_order_size)
+        return self.min_order_size
 
     def get_precision_for_symbol(self, symbol: str) -> Tuple[int, int]:
         """Получение точности цены и количества для символа."""
@@ -407,15 +387,15 @@ class ConfigManager:
         if os.getenv("MAX_POSITION_SIZE"):
             max_position_size = os.getenv("MAX_POSITION_SIZE")
             if max_position_size is not None:
-                config.risk.max_position_size = float(max_position_size)
+                config.risk.max_position_size = Decimal(max_position_size)
         if os.getenv("MAX_DAILY_LOSS"):
             max_daily_loss = os.getenv("MAX_DAILY_LOSS")
             if max_daily_loss is not None:
-                config.risk.max_daily_loss = float(max_daily_loss)
+                config.risk.max_daily_loss = Decimal(max_daily_loss)
         if os.getenv("STOP_LOSS_PCT"):
             stop_loss_pct = os.getenv("STOP_LOSS_PCT")
             if stop_loss_pct is not None:
-                config.risk.stop_loss_pct = float(stop_loss_pct)
+                config.risk.stop_loss_pct = Decimal(stop_loss_pct)
 
     def save_config(self, config: SyntraConfig, path: Optional[str] = None) -> None:
         """Сохранение конфигурации в файл."""

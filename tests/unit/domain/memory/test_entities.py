@@ -10,7 +10,7 @@ Unit тесты для domain.memory.entities
 - MemoryOptimizationResult
 """
 import pytest
-from shared.numpy_utils import np
+import numpy as np
 from datetime import datetime
 from domain.memory.entities import (
     PatternSnapshot, PatternOutcome, PredictionResult, PatternCluster, PatternAnalysis, MemoryOptimizationResult
@@ -28,10 +28,10 @@ def make_market_features():
         whale_signal=0.0, mm_signal=0.0, external_sync=False
     )
 
-    def test_pattern_snapshot_to_from_dict():
+def test_pattern_snapshot_to_from_dict():
     ts = Timestamp(datetime.now())
     snap = PatternSnapshot(
-        pattern_id="pid", timestamp=ts, symbol="BTC/USDT", pattern_type=PatternType.CANDLE,
+        pattern_id="pid", timestamp=ts, symbol="BTC/USDT", pattern_type=PatternType.BREAKOUT,
         confidence=0.9, strength=0.8, direction="up", features=make_market_features(), metadata={"a":1}
     )
     d = snap.to_dict()
@@ -42,7 +42,7 @@ def make_market_features():
     assert snap.confidence == snap2.confidence
     assert snap.features.to_dict() == snap2.features.to_dict()
 
-    def test_pattern_outcome_to_from_dict():
+def test_pattern_outcome_to_from_dict():
     ts = Timestamp(datetime.now())
     out = PatternOutcome(
         pattern_id="pid", symbol="BTC/USDT", outcome_type=OutcomeType.PROFITABLE, timestamp=ts,
@@ -57,7 +57,7 @@ def make_market_features():
     assert out.outcome_type == out2.outcome_type
     assert out.price_change_percent == out2.price_change_percent
 
-    def test_prediction_result_to_from_dict():
+def test_prediction_result_to_from_dict():
     pr = PredictionResult(
         pattern_id="pid", symbol="BTC/USDT", confidence=0.8, predicted_direction="up",
         predicted_return_percent=1.2, predicted_duration_minutes=10, predicted_volatility=0.01,
@@ -70,10 +70,10 @@ def make_market_features():
     assert pr.confidence == pr2.confidence
     assert pr.predicted_direction == pr2.predicted_direction
 
-    def test_pattern_cluster_to_dict():
+def test_pattern_cluster_to_dict():
     mf = make_market_features()
     snap = PatternSnapshot(
-        pattern_id="pid", timestamp=Timestamp(datetime.now()), symbol="BTC/USDT", pattern_type=PatternType.CANDLE,
+        pattern_id="pid", timestamp=Timestamp(datetime.now()), symbol="BTC/USDT", pattern_type=PatternType.BREAKOUT,
         confidence=0.9, strength=0.8, direction="up", features=mf, metadata={}
     )
     out = PatternOutcome(
@@ -91,18 +91,18 @@ def make_market_features():
     assert isinstance(d["patterns"], list)
     assert isinstance(d["outcomes"], list)
 
-    def test_pattern_analysis_to_dict():
+def test_pattern_analysis_to_dict():
     pa = PatternAnalysis(
-        pattern_id="pid", symbol="BTC/USDT", pattern_type=PatternType.CANDLE, timestamp=Timestamp(datetime.now()),
+        pattern_id="pid", symbol="BTC/USDT", pattern_type=PatternType.BREAKOUT, timestamp=Timestamp(datetime.now()),
         quality_score=0.9, reliability_score=0.8, uniqueness_score=0.7, market_impact=0.5, volume_significance=0.6,
         price_momentum=0.4, volatility_impact=0.3, cluster_id=None, cluster_similarity=None, metadata={}
     )
     d = pa.to_dict()
     assert d["pattern_id"] == "pid"
     assert d["symbol"] == "BTC/USDT"
-    assert d["pattern_type"] == PatternType.CANDLE.value
+    assert d["pattern_type"] == PatternType.BREAKOUT.value
 
-    def test_memory_optimization_result_to_dict():
+def test_memory_optimization_result_to_dict():
     mor = MemoryOptimizationResult(
         optimal_similarity_threshold=0.9, optimal_feature_weights=np.array([1.0,2.0,3.0]),
         optimal_prediction_params={"param":1}, accuracy_improvement=0.1, precision_improvement=0.2,

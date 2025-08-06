@@ -6,7 +6,7 @@ import ast
 import json
 import logging
 from decimal import Decimal
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ def safe_literal_eval(data: str, default: Any = None, max_size: int = MAX_PARSE_
         return default
 
 
-def safe_metadata_parse(metadata_str: Optional[str], default: Dict = None) -> Dict[str, Any]:
+def safe_metadata_parse(metadata_str: Optional[str], default: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Безопасный парсинг метаданных.
     
@@ -129,7 +129,14 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
     
     # Если уже нужный тип
     if isinstance(value, target_type):
-        return value
+        if target_type == Decimal:
+            return cast(Decimal, value)
+        elif target_type == int:
+            return cast(int, value)
+        elif target_type == float:
+            return cast(float, value)
+        else:
+            return None
     
     try:
         if target_type == Decimal:
@@ -141,19 +148,24 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
                     logger.error(f"Numeric string too long: {len(value)}")
                     return None
                 return Decimal(value)
+            else:
+                # Для других типов пытаемся преобразовать через строку
+                return Decimal(str(value))
         elif target_type == int:
             return int(float(value))
         elif target_type == float:
             return float(value)
         else:
-            return target_type(value)
+            # Для других типов возвращаем None
+            logger.warning(f"Unsupported target type: {target_type}")
+            return None
             
     except (ValueError, TypeError, OverflowError) as e:
         logger.warning(f"Failed to convert {value} to {target_type}: {e}")
         return None
 
 
-def validate_dict_structure(data: Dict, required_keys: list = None, allowed_keys: list = None) -> bool:
+def validate_dict_structure(data: Dict[str, Any], required_keys: Optional[List[str]] = None, allowed_keys: Optional[List[str]] = None) -> bool:
     """
     Валидация структуры словаря.
     

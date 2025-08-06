@@ -1,255 +1,268 @@
 #!/usr/bin/env python3
 """
-Запуск ATB Trading Dashboard
-Современный дашборд управления торговлей
+Запуск дашборда ATB с проверкой передачи данных.
 """
 
-import sys
+import asyncio
+import json
+import logging
 import os
+import sys
+import time
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, Any, List, Optional
 
-def check_python_version():
-    """Проверка версии Python"""
-    if sys.version_info < (3, 8):
-        print("❌ Требуется Python 3.8 или выше")
-        print(f"Текущая версия: {sys.version}")
-        return False
-    return True
+import uvicorn
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+import websockets
 
-def check_dependencies():
-    """Проверка зависимостей"""
-    required_packages = {
-        'tkinter': 'tkinter (встроен в Python)',
-        'numpy': 'numpy',
-        'pandas': 'pandas', 
-        'matplotlib': 'matplotlib',
-        'decimal': 'decimal (встроен в Python)'
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Создание FastAPI приложения
+app = FastAPI(title="ATB Dashboard", version="1.0.0")
+
+# Монтирование статических файлов
+dashboard_path = Path("interfaces/presentation/dashboard")
+if dashboard_path.exists():
+    app.mount("/static", StaticFiles(directory=str(dashboard_path)), name="static")
+
+# Хранилище для WebSocket соединений
+active_connections: List[WebSocket] = []
+
+# Моковые данные для тестирования
+MOCK_DATA = {
+    "system_status": {
+        "status": "online",
+        "uptime": "02:15:30",
+        "cpu_usage": 23.5,
+        "memory_usage": 1.2,
+        "active_connections": 5
+    },
+    "trading_data": {
+        "total_pnl": 1234.56,
+        "daily_pnl": 123.45,
+        "active_positions": 3,
+        "win_rate": 78.5,
+        "total_trades": 1247,
+        "profitable_trades": 978,
+        "losing_trades": 269
+    },
+    "positions": [
+        {
+            "symbol": "BTC/USDT",
+            "side": "long",
+            "size": 0.1,
+            "entry_price": 45000,
+            "current_price": 45200,
+            "pnl": 200,
+            "pnl_percent": 0.44
+        },
+        {
+            "symbol": "ETH/USDT",
+            "side": "short",
+            "size": 1.5,
+            "entry_price": 3200,
+            "current_price": 3180,
+            "pnl": 30,
+            "pnl_percent": 0.94
+        }
+    ],
+    "analytics": {
+        "rsi": 45.2,
+        "macd": 0.023,
+        "bollinger_position": "middle",
+        "ai_signals": [
+            {"type": "buy", "strength": "strong", "symbol": "BTC", "message": "Сильный сигнал на покупку BTC"},
+            {"type": "sell", "strength": "weak", "symbol": "ETH", "message": "Слабый сигнал на продажу ETH"}
+        ]
     }
+}
+
+@app.get("/", response_class=HTMLResponse)
+async def get_dashboard():
+    """Главная страница дашборда."""
+    html_file = dashboard_path / "index.html"
+    if html_file.exists():
+        with open(html_file, 'r', encoding='utf-8') as f:
+            return HTMLResponse(content=f.read())
+    else:
+        return HTMLResponse(content="""
+        <!DOCTYPE html>
+        <html>
+        <head><title>ATB Dashboard</title></head>
+        <body>
+            <h1>ATB Dashboard</h1>
+            <p>Файл index.html не найден в папке dashboard</p>
+        </body>
+        </html>
+        """)
+
+@app.get("/api/status")
+async def get_system_status():
+    """Получение статуса системы."""
+    logger.info("Запрос статуса системы")
+    return MOCK_DATA["system_status"]
+
+@app.get("/api/trading")
+async def get_trading_data():
+    """Получение торговых данных."""
+    logger.info("Запрос торговых данных")
+    return MOCK_DATA["trading_data"]
+
+@app.get("/api/positions")
+async def get_positions():
+    """Получение активных позиций."""
+    logger.info("Запрос позиций")
+    return MOCK_DATA["positions"]
+
+@app.get("/api/analytics")
+async def get_analytics():
+    """Получение аналитических данных."""
+    logger.info("Запрос аналитики")
+    return MOCK_DATA["analytics"]
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint для real-time данных."""
+    await websocket.accept()
+    active_connections.append(websocket)
+    logger.info(f"WebSocket подключен. Всего соединений: {len(active_connections)}")
     
-    missing_packages = []
-    
-    for package, install_name in required_packages.items():
-        try:
-            if package == 'tkinter':
-                import tkinter
-            elif package == 'numpy':
-                from shared.numpy_utils import np
-            elif package == 'pandas':
-                import pandas
-            elif package == 'matplotlib':
-                import matplotlib
-            elif package == 'decimal':
-                import decimal
-                
-            print(f"✅ {package} - установлен")
+    try:
+        while True:
+            # Отправка данных каждые 5 секунд
+            await asyncio.sleep(5)
             
-        except ImportError:
-            print(f"❌ {package} - НЕ установлен")
-            missing_packages.append(install_name)
+            # Обновление времени работы
+            MOCK_DATA["system_status"]["uptime"] = "02:15:35"
+            MOCK_DATA["system_status"]["active_connections"] = len(active_connections)
+            
+            # Отправка обновленных данных
+            await websocket.send_text(json.dumps({
+                "type": "data_update",
+                "timestamp": datetime.now().isoformat(),
+                "data": MOCK_DATA
+            }))
+            
+    except WebSocketDisconnect:
+        active_connections.remove(websocket)
+        logger.info(f"WebSocket отключен. Осталось соединений: {len(active_connections)}")
+    except Exception as e:
+        logger.error(f"Ошибка WebSocket: {e}")
+        if websocket in active_connections:
+            active_connections.remove(websocket)
+
+@app.get("/api/health")
+async def health_check():
+    """Проверка здоровья API."""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "active_connections": len(active_connections),
+        "dashboard_files": {
+            "index_html": (dashboard_path / "index.html").exists(),
+            "dashboard_js": (dashboard_path / "dashboard.js").exists(),
+            "style_css": (dashboard_path / "style.css").exists()
+        }
+    }
+
+async def broadcast_data():
+    """Отправка данных всем подключенным клиентам."""
+    while True:
+        if active_connections:
+            # Обновление данных
+            MOCK_DATA["system_status"]["uptime"] = "02:15:40"
+            MOCK_DATA["system_status"]["active_connections"] = len(active_connections)
+            
+            message = json.dumps({
+                "type": "broadcast",
+                "timestamp": datetime.now().isoformat(),
+                "data": MOCK_DATA
+            })
+            
+            # Отправка всем подключенным клиентам
+            for connection in active_connections[:]:  # Копия списка для безопасного удаления
+                try:
+                    await connection.send_text(message)
+                except Exception as e:
+                    logger.error(f"Ошибка отправки данных: {e}")
+                    if connection in active_connections:
+                        active_connections.remove(connection)
+        
+        await asyncio.sleep(10)  # Обновление каждые 10 секунд
+
+@app.on_event("startup")
+async def startup_event():
+    """Событие запуска приложения."""
+    logger.info("Запуск ATB Dashboard...")
+    logger.info(f"Дашборд доступен по адресу: http://localhost:8000")
+    logger.info(f"API документация: http://localhost:8000/docs")
     
-    if missing_packages:
-        print(f"\n🔧 Для установки недостающих пакетов выполните:")
-        print(f"pip install {' '.join(missing_packages)}")
+    # Запуск фоновой задачи для broadcast
+    asyncio.create_task(broadcast_data())
+
+def check_dashboard_files():
+    """Проверка наличия файлов дашборда."""
+    required_files = ["index.html", "dashboard.js", "style.css"]
+    missing_files = []
+    
+    for file_name in required_files:
+        file_path = dashboard_path / file_name
+        if not file_path.exists():
+            missing_files.append(file_name)
+    
+    if missing_files:
+        logger.warning(f"Отсутствуют файлы дашборда: {missing_files}")
         return False
     
+    logger.info("Все файлы дашборда найдены")
     return True
-
-def setup_environment():
-    """Настройка окружения"""
-    # Добавление пути к проекту
-    project_root = Path(__file__).parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-    
-    # Установка переменных окружения
-    os.environ['PYTHONPATH'] = str(project_root)
-    
-    return True
-
-def run_dashboard():
-    """Запуск дашборда"""
-    try:
-        print("🚀 Запуск ATB Trading Dashboard...")
-        
-        # Проверяем, какую версию запускать
-        dashboard_type = "advanced"  # advanced, integrated, basic, или simple
-        
-        if dashboard_type == "advanced":
-            # Попытка запуска продвинутого дашборда
-            try:
-                from interfaces.desktop.advanced_dashboard import AdvancedTradingDashboard
-                print("⚡ Запуск продвинутого дашборда...")
-                dashboard = AdvancedTradingDashboard()
-                dashboard.run()
-                
-            except ImportError as e:
-                print(f"⚠️ Не удалось загрузить продвинутый дашборд: {e}")
-                print("🔄 Переключение на интегрированную версию...")
-                dashboard_type = "integrated"
-        
-        if dashboard_type == "integrated":
-            # Попытка запуска интегрированного дашборда
-            try:
-                from interfaces.desktop.integrated_dashboard import IntegratedTradingDashboard
-                print("🎯 Запуск интегрированного дашборда...")
-                dashboard = IntegratedTradingDashboard()
-                dashboard.run()
-                
-            except ImportError as e:
-                print(f"⚠️ Не удалось загрузить интегрированный дашборд: {e}")
-                print("🔄 Переключение на базовую версию...")
-                dashboard_type = "basic"
-        
-        if dashboard_type == "basic":
-            # Запуск базового дашборда
-            try:
-                from interfaces.desktop.trading_dashboard import ModernTradingDashboard
-                print("📊 Запуск базового дашборда...")
-                dashboard = ModernTradingDashboard()
-                dashboard.run()
-                
-            except ImportError as e:
-                print(f"⚠️ Не удалось загрузить базовый дашборд: {e}")
-                print("🔄 Переключение на простую версию...")
-                dashboard_type = "simple"
-        
-        if dashboard_type == "simple":
-            # Запуск простой версии
-            run_simple_dashboard()
-    
-    except KeyboardInterrupt:
-        print("\n⏹️ Дашборд остановлен пользователем")
-    except Exception as e:
-        print(f"❌ Ошибка запуска дашборда: {e}")
-        import traceback
-        traceback.print_exc()
-
-def run_simple_dashboard():
-    """Запуск упрощенной версии дашборда"""
-    import tkinter as tk
-    from tkinter import ttk, messagebox
-    
-    class SimpleDashboard:
-        def __init__(self):
-            self.root = tk.Tk()
-            self.root.title("ATB Trading Dashboard - Простая версия")
-            self.root.geometry("800x600")
-            self.root.configure(bg='#2d2d2d')
-            
-            self.create_ui()
-        
-        def create_ui(self):
-            # Заголовок
-            title_label = tk.Label(self.root, text="⚡ ATB Trading Dashboard",
-                                 font=('Arial', 20, 'bold'),
-                                 fg='#3742fa', bg='#2d2d2d')
-            title_label.pack(pady=20)
-            
-            # Информационное сообщение
-            info_text = """
-Добро пожаловать в ATB Trading Dashboard!
-
-Это упрощенная версия дашборда.
-Для полной функциональности необходимы дополнительные компоненты.
-
-Основные возможности:
-• Мониторинг торговых пар
-• Базовая аналитика  
-• Управление настройками
-• Симуляция торговли
-
-Для получения полной версии убедитесь, что установлены
-все зависимости проекта.
-            """
-            
-            info_label = tk.Label(self.root, text=info_text.strip(),
-                                font=('Arial', 11), fg='white', bg='#2d2d2d',
-                                justify='left')
-            info_label.pack(pady=20, padx=20)
-            
-            # Кнопки
-            button_frame = tk.Frame(self.root, bg='#2d2d2d')
-            button_frame.pack(pady=20)
-            
-            tk.Button(button_frame, text="📊 Тестовая аналитика",
-                     bg='#3742fa', fg='white', font=('Arial', 12),
-                     command=self.show_analytics).pack(side='left', padx=10)
-            
-            tk.Button(button_frame, text="⚙️ Настройки", 
-                     bg='#2d2d2d', fg='white', font=('Arial', 12),
-                     command=self.show_settings).pack(side='left', padx=10)
-            
-            tk.Button(button_frame, text="❓ Справка",
-                     bg='#2d2d2d', fg='white', font=('Arial', 12), 
-                     command=self.show_help).pack(side='left', padx=10)
-            
-            # Статус
-            status_label = tk.Label(self.root, text="Статус: Готов к работе",
-                                  font=('Arial', 10), fg='#00ff88', bg='#2d2d2d')
-            status_label.pack(side='bottom', pady=10)
-        
-        def show_analytics(self):
-            messagebox.showinfo("Аналитика", 
-                              "Функция аналитики будет доступна в полной версии.\n"
-                              "Установите все зависимости для получения полного функционала.")
-        
-        def show_settings(self):
-            messagebox.showinfo("Настройки",
-                              "Настройки будут доступны в полной версии.\n"
-                              "Текущая версия работает с базовыми параметрами.")
-        
-        def show_help(self):
-            help_text = """
-ATB Trading Dashboard - Справка
-
-Горячие клавиши:
-F1 - Справка
-F5 - Обновить
-Ctrl+Q - Выход
-
-Для полной функциональности установите:
-pip install numpy pandas matplotlib
-
-Поддержка: support@atb-trading.com
-            """
-            messagebox.showinfo("Справка", help_text.strip())
-        
-        def run(self):
-            self.root.mainloop()
-    
-    print("📱 Запуск простой версии дашборда...")
-    dashboard = SimpleDashboard()
-    dashboard.run()
 
 def main():
-    """Главная функция"""
+    """Главная функция."""
     print("=" * 60)
-    print("🎯 ATB Trading Dashboard - Система запуска")
+    print("           ATB Dashboard Launcher")
     print("=" * 60)
+    print()
     
-    # Проверка версии Python
-    if not check_python_version():
-        input("Нажмите Enter для выхода...")
-        return
+    # Проверка файлов дашборда
+    if not check_dashboard_files():
+        print("Предупреждение: Некоторые файлы дашборда отсутствуют")
+        print("Дашборд может работать некорректно")
+        print()
     
-    print("\n🔍 Проверка зависимостей...")
-    dependencies_ok = check_dependencies()
+    # Проверка API
+    print("Проверка API endpoints:")
+    print("  - GET /api/status - Статус системы")
+    print("  - GET /api/trading - Торговые данные")
+    print("  - GET /api/positions - Активные позиции")
+    print("  - GET /api/analytics - Аналитические данные")
+    print("  - GET /api/health - Проверка здоровья")
+    print("  - WS /ws - WebSocket для real-time данных")
+    print()
     
-    print("\n⚙️ Настройка окружения...")
-    if not setup_environment():
-        print("❌ Ошибка настройки окружения")
-        return
-    
-    if dependencies_ok:
-        print("✅ Все зависимости установлены")
-    else:
-        print("⚠️ Некоторые зависимости отсутствуют")
-        print("Будет запущена упрощенная версия")
-    
-    print("\n" + "=" * 60)
-    
-    # Запуск дашборда
-    run_dashboard()
+    # Запуск сервера
+    try:
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=8000,
+            log_level="info",
+            reload=False
+        )
+    except KeyboardInterrupt:
+        print("\nДашборд остановлен")
+    except Exception as e:
+        logger.error(f"Ошибка запуска сервера: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

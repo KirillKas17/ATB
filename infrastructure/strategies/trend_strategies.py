@@ -345,12 +345,12 @@ class TrendStrategy(BaseStrategy):
                     nearest_liquidity = min(liquidity_levels)
                     stop_distance = min(stop_distance, nearest_liquidity - entry_price)
                 calculated_stop = float(entry_price + stop_distance)
-                                 # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для short должен быть больше цены входа
-                 if calculated_stop <= entry_price:
-                     # Безопасный fallback с Decimal точностью
-                     calculated_stop = float(TradingDecimal.calculate_stop_loss(
-                         entry_decimal, "short", to_trading_decimal(1.0)  # 1% стоп
-                     ))
+                # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для short должен быть больше цены входа
+                if calculated_stop <= entry_price:
+                    # Безопасный fallback с Decimal точностью
+                    calculated_stop = float(TradingDecimal.calculate_stop_loss(
+                        entry_decimal, "short", to_trading_decimal(1.0)  # 1% стоп
+                    ))
                 return calculated_stop
         except Exception as e:
             logger.error(f"Error calculating stop loss: {str(e)}")

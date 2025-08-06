@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ATB Trading Dashboard - Десктопное приложение">
+    <meta name="theme-color" content="#000000">
+    
+    <title>ATB Trading Dashboard</title>
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/charts.css">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Заголовок приложения -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="app-title">
+                    <div class="logo">ATB</div>
+                    <span class="title-text">Trading Dashboard</span>
+                    <span class="version">v1.0.0</span>
+                </div>
+                
+                <div class="header-controls">
+                    <div class="status-indicator" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Подключение...</span>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button class="control-btn start-btn" id="startBotBtn" title="Запустить бота (Ctrl+Shift+S)">
+                            <span class="btn-icon">▶</span>
+                            <span class="btn-text">Запуск</span>
+                        </button>
+                        <button class="control-btn stop-btn" id="stopBotBtn" title="Остановить бота (Ctrl+Shift+X)">
+                            <span class="btn-icon">⏹</span>
+                            <span class="btn-text">Стоп</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Навигация -->
+            <nav class="sidebar">
+                <div class="nav-menu">
+                    <button class="nav-item active" data-section="overview" title="Обзор">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Обзор</span>
+                    </button>
+                    <button class="nav-item" data-section="trading" title="Торговля">
+                        <span class="nav-icon">💼</span>
+                        <span class="nav-text">Торговля</span>
+                    </button>
+                    <button class="nav-item" data-section="analytics" title="Аналитика">
+                        <span class="nav-icon">🔍</span>
+                        <span class="nav-text">Аналитика</span>
+                    </button>
+                    <button class="nav-item" data-section="performance" title="Производительность">
+                        <span class="nav-icon">📈</span>
+                        <span class="nav-text">Производительность</span>
+                    </button>
+                    <button class="nav-item" data-section="settings" title="Настройки">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Настройки</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Контент секций -->
+            <div class="content-area">
+                <!-- Секция Обзор -->
+                <section class="content-section active" id="overviewSection">
+                    <div class="section-header">
+                        <h2>Обзор системы</h2>
+                        <div class="section-controls">
+                            <button class="refresh-btn" id="refreshOverview" title="Обновить (F5)">
+                                <span class="btn-icon">🔄</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Статус карточки -->
+                    <div class="status-grid">
+                        <div class="status-card">
+                            <div class="card-header">
+                                <h3>Статус системы</h3>
+                                <div class="status-badge online" id="systemStatus">Активен</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="metric">
+                                    <span class="metric-label">Время работы</span>
+                                    <span class="metric-value" id="uptime">00:00:00</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">CPU</span>
+                                    <span class="metric-value" id="cpuUsage">0%</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Память</span>
+                                    <span class="metric-value" id="memoryUsage">0 MB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card">
+                            <div class="card-header">
+                                <h3>Баланс</h3>
+                                <div class="status-badge positive" id="balanceStatus">Положительный</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="metric">
+                                    <span class="metric-label">Общий P&L</span>
+                                    <span class="metric-value positive" id="totalPnl">$0.00</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">24ч P&L</span>
+                                    <span class="metric-value positive" id="dailyPnl">$0.00</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Win Rate</span>
+                                    <span class="metric-value" id="winRate">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card">
+                            <div class="card-header">
+                                <h3>Торговля</h3>
+                                <div class="status-badge active" id="tradingStatus">Активна</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="metric">
+                                    <span class="metric-label">Активных позиций</span>
+                                    <span class="metric-value" id="activePositions">0</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Всего сделок</span>
+                                    <span class="metric-value" id="totalTrades">0</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Сегодня</span>
+                                    <span class="metric-value" id="todayTrades">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Графики -->
+                    <div class="charts-grid">
+                        <div class="chart-card large">
+                            <div class="chart-header">
+                                <h3>P&L по времени</h3>
+                                <div class="chart-controls">
+                                    <button class="time-btn active" data-period="1h">1H</button>
+                                    <button class="time-btn" data-period="24h">24H</button>
+                                    <button class="time-btn" data-period="7d">7D</button>
+                                    <button class="time-btn" data-period="30d">30D</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="pnlChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Распределение прибыли</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция Торговля -->
+                <section class="content-section" id="tradingSection">
+                    <div class="section-header">
+                        <h2>Торговые операции</h2>
+                        <div class="section-controls">
+                            <button class="btn primary" id="newTradeBtn" title="Новая сделка (Ctrl+N)">
+                                <span class="btn-icon">➕</span>
+                                <span class="btn-text">Новая сделка</span>
+                            </button>
+                            <button class="refresh-btn" id="refreshTrading" title="Обновить">
+                                <span class="btn-icon">🔄</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="trading-content">
+                        <div class="positions-panel">
+                            <h3>Активные позиции</h3>
+                            <div class="positions-list" id="positionsList">
+                                <!-- Позиции будут добавляться динамически -->
+                            </div>
+                        </div>
+
+                        <div class="trades-panel">
+                            <h3>Последние сделки</h3>
+                            <div class="trades-list" id="tradesList">
+                                <!-- Сделки будут добавляться динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция Аналитика -->
+                <section class="content-section" id="analyticsSection">
+                    <div class="section-header">
+                        <h2>Аналитика рынка</h2>
+                        <div class="section-controls">
+                            <button class="refresh-btn" id="refreshAnalytics" title="Обновить">
+                                <span class="btn-icon">🔄</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>Технические индикаторы</h3>
+                            <div class="indicators-list" id="indicatorsList">
+                                <!-- Индикаторы будут добавляться динамически -->
+                            </div>
+                        </div>
+
+                        <div class="analytics-card">
+                            <h3>AI сигналы</h3>
+                            <div class="signals-list" id="signalsList">
+                                <!-- Сигналы будут добавляться динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция Производительность -->
+                <section class="content-section" id="performanceSection">
+                    <div class="section-header">
+                        <h2>Производительность</h2>
+                        <div class="section-controls">
+                            <button class="refresh-btn" id="refreshPerformance" title="Обновить">
+                                <span class="btn-icon">🔄</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="performance-grid">
+                        <div class="performance-card">
+                            <h3>Метрики эффективности</h3>
+                            <div class="metrics-list" id="performanceMetrics">
+                                <!-- Метрики будут добавляться динамически -->
+                            </div>
+                        </div>
+
+                        <div class="performance-card">
+                            <h3>Статистика торгов</h3>
+                            <div class="stats-list" id="tradingStats">
+                                <!-- Статистика будет добавляться динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция Настройки -->
+                <section class="content-section" id="settingsSection">
+                    <div class="section-header">
+                        <h2>Настройки приложения</h2>
+                    </div>
+
+                    <div class="settings-content">
+                        <div class="settings-group">
+                            <h3>Подключение</h3>
+                            <div class="setting-item">
+                                <label for="apiUrl">API URL:</label>
+                                <input type="text" id="apiUrl" value="http://localhost:8000" />
+                            </div>
+                            <div class="setting-item">
+                                <label for="wsUrl">WebSocket URL:</label>
+                                <input type="text" id="wsUrl" value="ws://localhost:8000/ws" />
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Обновления</h3>
+                            <div class="setting-item">
+                                <label for="updateInterval">Интервал обновления (сек):</label>
+                                <input type="number" id="updateInterval" value="5" min="1" max="60" />
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Экспорт</h3>
+                            <div class="setting-item">
+                                <button class="btn secondary" id="exportDataBtn">Экспорт данных</button>
+                                <button class="btn secondary" id="exportReportBtn">Экспорт отчета</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="notifications-container" id="notificationsContainer"></div>
+
+    <!-- Модальные окна -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Заголовок</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Содержимое модального окна -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="js/app.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html> 

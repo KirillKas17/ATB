@@ -24,87 +24,63 @@ from shared.safe_imports import (
 # Настройка логирования
 logger = primary_logger
 
+# Проверка критических зависимостей
+def check_critical_dependencies() -> bool:
+    """Проверка наличия критических зависимостей."""
+    critical_modules = [
+        'shared.models.config',
+        'application.di_container_refactored',
+        'domain.strategies',
+        'infrastructure.core.evolution_integration'
+    ]
+    
+    missing_modules = []
+    for module in critical_modules:
+        try:
+            __import__(module)
+        except ImportError:
+            missing_modules.append(module)
+    
+    if missing_modules:
+        logger.error(f"Критические модули отсутствуют: {missing_modules}")
+        logger.error("Установите зависимости: pip install -r requirements_enhanced.txt")
+        return False
+    
+    return True
+
 # Импорт типизированных конфигураций
-try:
-    from shared.models.config import ApplicationConfig, TradingConfig, RiskConfig, create_default_config, validate_config
-except ImportError as e:
-    logger.warning(f"Failed to import config models: {e}")
-    # Создаем заглушки для базовой работы
-    ApplicationConfig = dict  # type: ignore[misc,assignment]
-    TradingConfig = dict  # type: ignore[misc,assignment]
-    RiskConfig = dict  # type: ignore[misc,assignment]
-    create_default_config = lambda: {}  # type: ignore[assignment,return-value]
-    validate_config = lambda x: True  # type: ignore[assignment,return-value]
+from shared.models.config import ApplicationConfig, TradingConfig, RiskConfig, create_default_config, validate_config
 
 # Импорт DI контейнера
-try:
-    from application.di_container_refactored import get_service_locator
-except ImportError as e:
-    logger.warning(f"Failed to import DI container: {e}")
-    get_service_locator = lambda: None  # type: ignore[assignment,return-value]
+from application.di_container_refactored import get_service_locator
 
 # Импорты для торговой оркестрации
-try:
-    from application.use_cases.manage_orders import DefaultOrderManagementUseCase
-    from application.use_cases.manage_positions import DefaultPositionManagementUseCase
-    from application.use_cases.manage_risk import DefaultRiskManagementUseCase
-    from application.use_cases.manage_trading_pairs import DefaultTradingPairManagementUseCase
-    from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
-except ImportError as e:
-    logger.warning(f"Failed to import use cases: {e}")
-    # Создаем заглушки
-    DefaultOrderManagementUseCase = type('DefaultOrderManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
-    DefaultPositionManagementUseCase = type('DefaultPositionManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
-    DefaultRiskManagementUseCase = type('DefaultRiskManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
-    DefaultTradingPairManagementUseCase = type('DefaultTradingPairManagementUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
-    DefaultTradingOrchestratorUseCase = type('DefaultTradingOrchestratorUseCase', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+from application.use_cases.manage_orders import DefaultOrderManagementUseCase
+from application.use_cases.manage_positions import DefaultPositionManagementUseCase
+from application.use_cases.manage_risk import DefaultRiskManagementUseCase
+from application.use_cases.manage_trading_pairs import DefaultTradingPairManagementUseCase
+from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 
 # Импорты сервисов
-try:
-    from application.services.market_service import MarketService
-    from application.services.trading_service import TradingService
-    from application.services.risk_service import RiskService
-except ImportError as e:
-    logger.warning(f"Failed to import services: {e}")
-    MarketService = type('MarketService', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
-    TradingService = type('TradingService', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
-    RiskService = type('RiskService', (), {})  # type: ignore[misc,assignment]  # type: ignore[misc,assignment]
+from application.services.market_service import MarketService
+from application.services.trading_service import TradingService
+from application.services.risk_service import RiskService
 
 # Импорты новых компонентов domain/strategies
-try:
-    from domain.strategies import (
-        StrategyFactory, get_strategy_factory,
-        StrategyRegistry, get_strategy_registry,
-        StrategyValidator, get_strategy_validator
-    )
-except ImportError as e:
-    logger.warning(f"Failed to import domain strategies: {e}")
-    StrategyFactory = type('StrategyFactory', (), {})  # type: ignore[misc,assignment]
-    get_strategy_factory = lambda: StrategyFactory()
-    StrategyRegistry = type('StrategyRegistry', (), {})  # type: ignore[misc,assignment]
-    get_strategy_registry = lambda: StrategyRegistry()
-    StrategyValidator = type('StrategyValidator', (), {})  # type: ignore[misc,assignment]
-    get_strategy_validator = lambda: StrategyValidator()
+from domain.strategies import (
+    StrategyFactory, get_strategy_factory,
+    StrategyRegistry, get_strategy_registry,
+    StrategyValidator, get_strategy_validator
+)
 
 # Импорты стратегий из infrastructure/strategies
-try:
-    from infrastructure.strategies.trend_strategies import TrendStrategy
-    from infrastructure.strategies.sideways_strategies import SidewaysStrategy
-    from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
-    from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
-    from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
-    from infrastructure.strategies.volatility_strategy import VolatilityStrategy
-    from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
-except ImportError as e:
-    logger.warning(f"Failed to import infrastructure strategies: {e}")
-    # Создаем базовые заглушки стратегий
-    TrendStrategy = type('TrendStrategy', (), {})  # type: ignore[misc,assignment]
-    SidewaysStrategy = type('SidewaysStrategy', (), {})  # type: ignore[misc,assignment]
-    AdaptiveStrategyGenerator = type('AdaptiveStrategyGenerator', (), {})  # type: ignore[misc,assignment]
-    EvolvableBaseStrategy = type('EvolvableBaseStrategy', (), {})  # type: ignore[misc,assignment]
-    ManipulationStrategy = type('ManipulationStrategy', (), {})  # type: ignore[misc,assignment]
-    VolatilityStrategy = type('VolatilityStrategy', (), {})  # type: ignore[misc,assignment]
-    PairsTradingStrategy = type('PairsTradingStrategy', (), {})  # type: ignore[misc,assignment]
+from infrastructure.strategies.trend_strategies import TrendStrategy
+from infrastructure.strategies.sideways_strategies import SidewaysStrategy
+from infrastructure.strategies.adaptive.adaptive_strategy_generator import AdaptiveStrategyGenerator
+from infrastructure.strategies.evolution.evolvable_base_strategy import EvolvableBaseStrategy
+from infrastructure.strategies.manipulation_strategies import ManipulationStrategy
+from infrastructure.strategies.volatility_strategy import VolatilityStrategy
+from infrastructure.strategies.pairs_trading_strategy import PairsTradingStrategy
 
 # Импорты для интеграции с эволюционными агентами
 from infrastructure.core.evolution_integration import EvolutionIntegration
@@ -164,41 +140,40 @@ from infrastructure.monitoring import (
 )
 
 # Импорт основных компонентов
-try:
-    from shared.performance_monitor import performance_monitor
-    from shared.metrics_analyzer import MetricsAnalyzer
-    from shared.config_validator import config_validator
-    from shared.monitoring_dashboard import MonitoringDashboard
-    from shared.exception_handler import SafeExceptionHandler as ExceptionHandler
-    from scripts.deployment import DeploymentOrchestrator
-except ImportError as e:
-    logger.error(f"Failed to import components: {e}")
-    sys.exit(1)
+from shared.performance_monitor import performance_monitor
+from shared.metrics_analyzer import MetricsAnalyzer
+from shared.config_validator import config_validator
+from shared.monitoring_dashboard import MonitoringDashboard
+from shared.exception_handler import SafeExceptionHandler as ExceptionHandler
+from scripts.deployment import DeploymentOrchestrator
 
 # Импорт основных модулей ATB
-try:
-    from application.di_container_refactored import Container, get_service_locator
-    from application.orchestration.orchestrator_factory import create_trading_orchestrator
-    from domain.strategies import get_strategy_registry
-    from infrastructure.agents.agent_context_refactored import AgentContext
-    from domain.intelligence.entanglement_detector import EntanglementDetector
-    from domain.intelligence.mirror_detector import MirrorDetector
-    from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
-    from application.orchestration.strategy_integration import strategy_integration
-except ImportError as e:
-    logger.error(f"Failed to import ATB modules: {e}")
-    sys.exit(1)
+from application.di_container_refactored import Container, get_service_locator
+from application.orchestration.orchestrator_factory import create_trading_orchestrator
+from domain.strategies import get_strategy_registry
+from infrastructure.agents.agent_context_refactored import AgentContext
+from domain.intelligence.entanglement_detector import EntanglementDetector
+from domain.intelligence.mirror_detector import MirrorDetector
+from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
+from application.orchestration.strategy_integration import strategy_integration
 
 async def main() -> None:
     """Main entry point for the trading system."""
-    config = create_default_config()
-    service_locator = get_service_locator()
+    
+    # Проверка критических зависимостей
+    if not check_critical_dependencies():
+        logger.error("Критические зависимости отсутствуют. Завершение работы.")
+        sys.exit(1)
     
     print("🚀 Торговая система ATB запущена успешно!")
     print("📊 Инициализация компонентов:")
     
-    # Инициализация основных агентов
     try:
+        # Создание конфигурации
+        config = create_default_config()
+        service_locator = get_service_locator()
+        
+        # Инициализация основных агентов
         entanglement_detector = EntanglementDetector()
         print("   ✅ EntanglementDetector")
         
@@ -223,6 +198,7 @@ async def main() -> None:
         print("   ✅ Зависимости установлены")
         
     except Exception as e:
+        logger.error(f"Ошибка инициализации: {e}")
         print(f"   ❌ Ошибка инициализации: {e}")
         return
 
