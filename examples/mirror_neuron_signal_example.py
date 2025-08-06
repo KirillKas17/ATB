@@ -365,13 +365,13 @@ class MirrorNeuronSignalExample(BaseExample):
                 # Закрытие позиции
                 exit_price = float(str(signal.metadata.get('current_price', 100.0)))
                 # Используем Decimal для точного расчета PnL
-        from shared.decimal_utils import TradingDecimal
-        exit_decimal = TradingDecimal.to_decimal(exit_price)
-        entry_decimal = TradingDecimal.to_decimal(entry_price)
-        position_decimal = TradingDecimal.to_decimal(current_position)
-        
-        pnl_decimal = TradingDecimal.calculate_pnl(entry_decimal, exit_decimal, position_decimal, "long")
-        pnl = float(pnl_decimal)
+                from shared.decimal_utils import TradingDecimal
+                exit_decimal = TradingDecimal.to_decimal(exit_price)
+                entry_decimal = TradingDecimal.to_decimal(entry_price)
+                position_decimal = TradingDecimal.to_decimal(current_position)
+                
+                pnl_decimal = TradingDecimal.calculate_pnl(entry_decimal, exit_decimal, position_decimal, "long")
+                pnl = float(pnl_decimal)
                 
                 trades.append({
                     'entry_price': entry_price,

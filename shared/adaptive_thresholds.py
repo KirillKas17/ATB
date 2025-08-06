@@ -11,7 +11,7 @@ from loguru import logger
 class AdaptiveThresholds:
     """Управление адаптивными порогами для торговых стратегий"""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация адаптивных порогов.
         
@@ -49,9 +49,9 @@ class AdaptiveThresholds:
             float: Коэффициент нормализации (обычно от 0.1 до 10.0)
         """
         try:
-            avg_price = data["close"].mean()
+            avg_price = float(data["close"].mean())
             price_level_factor = max(0.1, min(10.0, avg_price / self.base_price_level))
-            return price_level_factor
+            return float(price_level_factor)
         except Exception as e:
             logger.error(f"Error calculating price level factor: {str(e)}")
             return 1.0
@@ -139,16 +139,16 @@ class AdaptiveThresholds:
             
             if volatility_regime == 'high':
                 # В высоковолатильных условиях требуем более сильный тренд
-                return base_threshold * 1.5
+                return float(base_threshold * 1.5)
             elif volatility_regime == 'low':
                 # В низковолатильных условиях достаточно слабого тренда
-                return base_threshold * 0.7
+                return float(base_threshold * 0.7)
             else:
-                return base_threshold
+                return float(base_threshold)
                 
         except Exception as e:
             logger.error(f"Error calculating adaptive trend threshold: {str(e)}")
-            return self.trend_strength_threshold
+            return float(self.trend_strength_threshold)
     
     def get_adaptive_volume_thresholds(self, data: pd.DataFrame) -> Tuple[float, float]:
         """

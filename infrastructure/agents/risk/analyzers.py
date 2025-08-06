@@ -181,8 +181,10 @@ class RiskMetricsCalculator:
         try:
             if len(returns) == 0:
                 return 0.0
+            # Преобразуем в numpy array для операций
+            returns_array = np.asarray(returns)
             excess_returns = (
-                returns - risk_free_rate / 252
+                returns_array - risk_free_rate / 252
             )  # Дневная безрисковая ставка
             excess_mean = float(np.mean(excess_returns))
             excess_std = float(np.std(excess_returns))
@@ -202,7 +204,9 @@ class RiskMetricsCalculator:
         try:
             if len(returns) == 0:
                 return 0.0
-            excess_returns = returns - risk_free_rate / 252
+            # Преобразуем в numpy array для операций
+            returns_array = np.asarray(returns)
+            excess_returns = returns_array - risk_free_rate / 252
             downside_returns = excess_returns[excess_returns < 0]
             if len(downside_returns) == 0:
                 return 0.0

@@ -6,6 +6,7 @@ from loguru import logger
 from shared.signal_validator import validate_trading_signal
 import pandas as pd
 from shared.numpy_utils import np
+from shared.decimal_utils import to_trading_decimal
 
 from .base_strategy import BaseStrategy, Signal
 
@@ -263,8 +264,8 @@ class VolatilityStrategy(BaseStrategy):
                         entry_price=current_price,
                         stop_loss=stop_loss,
                         take_profit=take_profit,
-                        volume=position_size,
-                        confidence=confidence,
+                        volume=to_trading_decimal(position_size),
+                        confidence=to_trading_decimal(confidence),
                     )
                     # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
                     if not validate_trading_signal(signal):
@@ -290,8 +291,8 @@ class VolatilityStrategy(BaseStrategy):
                         entry_price=current_price,
                         stop_loss=stop_loss,
                         take_profit=take_profit,
-                        volume=position_size,
-                        confidence=confidence,
+                        volume=to_trading_decimal(position_size),
+                        confidence=to_trading_decimal(confidence),
                     )
                     # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
                     if not validate_trading_signal(signal):
@@ -333,8 +334,8 @@ class VolatilityStrategy(BaseStrategy):
                             entry_price=current_price,
                             stop_loss=current_price,
                             take_profit=current_price,
-                            volume=1.0,
-                            confidence=1.0,
+                            volume=to_trading_decimal(1.0),
+                            confidence=to_trading_decimal(1.0),
                         )
                 # Проверяем partial close
                 if self._config.partial_close:
@@ -349,8 +350,8 @@ class VolatilityStrategy(BaseStrategy):
                                 entry_price=current_price,
                                 stop_loss=current_price,
                                 take_profit=current_price,
-                                volume=self._config.partial_close_sizes[i],
-                                confidence=1.0,
+                                volume=to_trading_decimal(self._config.partial_close_sizes[i]),
+                                confidence=to_trading_decimal(1.0),
                             )
             elif self.position == "short":
                 # Проверяем trailing stop
@@ -366,8 +367,8 @@ class VolatilityStrategy(BaseStrategy):
                             entry_price=current_price,
                             stop_loss=current_price,
                             take_profit=current_price,
-                            volume=1.0,
-                            confidence=1.0,
+                            volume=to_trading_decimal(1.0),
+                            confidence=to_trading_decimal(1.0),
                         )
                 # Проверяем partial close
                 if self._config.partial_close:
@@ -382,8 +383,8 @@ class VolatilityStrategy(BaseStrategy):
                                 entry_price=current_price,
                                 stop_loss=current_price,
                                 take_profit=current_price,
-                                volume=self._config.partial_close_sizes[i],
-                                confidence=1.0,
+                                volume=to_trading_decimal(self._config.partial_close_sizes[i]),
+                                confidence=to_trading_decimal(1.0),
                             )
             return None
         except Exception as e:
@@ -400,20 +401,20 @@ class VolatilityStrategy(BaseStrategy):
         try:
             if signal.direction == "long":
                 self.position = "long"
-                self.entry_price = signal.entry_price
+                self.entry_price = float(signal.entry_price)
                 self.entry_time = data.index[-1]
-                self.stop_loss = signal.stop_loss
-                self.take_profit = signal.take_profit
+                self.stop_loss = float(signal.stop_loss)
+                self.take_profit = float(signal.take_profit)
                 if self._config.trailing_stop:
-                    self.trailing_stop_price = signal.stop_loss
+                    self.trailing_stop_price = float(signal.stop_loss)
             elif signal.direction == "short":
                 self.position = "short"
-                self.entry_price = signal.entry_price
+                self.entry_price = float(signal.entry_price)
                 self.entry_time = data.index[-1]
-                self.stop_loss = signal.stop_loss
-                self.take_profit = signal.take_profit
+                self.stop_loss = float(signal.stop_loss)
+                self.take_profit = float(signal.take_profit)
                 if self._config.trailing_stop:
-                    self.trailing_stop_price = signal.stop_loss
+                    self.trailing_stop_price = float(signal.stop_loss)
             elif signal.direction == "close":
                 self.position = None
                 self.entry_price = None
@@ -424,7 +425,7 @@ class VolatilityStrategy(BaseStrategy):
                 self.partial_closes = []
             elif signal.direction == "partial_close":
                 if signal.volume is not None:
-                    self.partial_closes.append(signal.volume)
+                    self.partial_closes.append(float(signal.volume))
         except Exception as e:
             logger.error(f"Error updating position state: {str(e)}")
 

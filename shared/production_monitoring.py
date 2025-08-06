@@ -83,7 +83,7 @@ class HealthCheck:
 class ProductionMonitor:
     """Комплексная система мониторинга производственного уровня."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or self._get_default_config()
         self.metrics: Dict[str, List[Metric]] = {}
         self.alerts: List[Alert] = []

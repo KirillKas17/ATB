@@ -408,16 +408,16 @@ class DeepLearningStrategy(BaseStrategy):
                 # Рассчитываем размер позиции
                 volume = self._calculate_position_size(current_price, indicators["atr"])
                 # Устанавливаем стоп-лосс и тейк-профит
-                                    # Используем Decimal для точных расчетов
-                    current_price_decimal = to_trading_decimal(current_price)
-                    atr_decimal = to_trading_decimal(indicators["atr"])
-                    
-                    stop_loss_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(2))
-                    stop_distance = current_price_decimal - stop_loss_decimal
-                    take_profit_decimal = current_price_decimal + (stop_distance * to_trading_decimal(2))
-                    
-                    stop_loss = float(stop_loss_decimal)
-                    take_profit = float(take_profit_decimal)
+                # Используем Decimal для точных расчетов
+                current_price_decimal = to_trading_decimal(current_price)
+                atr_decimal = to_trading_decimal(indicators["atr"])
+                
+                stop_loss_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(2))
+                stop_distance = current_price_decimal - stop_loss_decimal
+                take_profit_decimal = current_price_decimal + (stop_distance * to_trading_decimal(2))
+                
+                stop_loss = float(stop_loss_decimal)
+                take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="long",
                     entry_price=current_price,
@@ -438,13 +438,16 @@ class DeepLearningStrategy(BaseStrategy):
                 # Рассчитываем размер позиции
                 volume = self._calculate_position_size(current_price, indicators["atr"])
                 # Устанавливаем стоп-лосс и тейк-профит
-                                    # Используем Decimal для точных расчетов (short позиция)
-                    stop_loss_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(2))
-                    stop_distance = stop_loss_decimal - current_price_decimal
-                    take_profit_decimal = current_price_decimal - (stop_distance * to_trading_decimal(2))
-                    
-                    stop_loss = float(stop_loss_decimal)
-                    take_profit = float(take_profit_decimal)
+                # Используем Decimal для точных расчетов (short позиция)
+                current_price_decimal = to_trading_decimal(current_price)
+                atr_decimal = to_trading_decimal(indicators["atr"])
+                
+                stop_loss_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(2))
+                stop_distance = stop_loss_decimal - current_price_decimal
+                take_profit_decimal = current_price_decimal - (stop_distance * to_trading_decimal(2))
+                
+                stop_loss = float(stop_loss_decimal)
+                take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="short",
                     entry_price=current_price,

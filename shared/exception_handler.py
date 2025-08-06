@@ -51,7 +51,7 @@ class ExceptionContext:
 class SafeExceptionHandler:
     """Безопасный обработчик исключений."""
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: Optional[logging.Logger] = None) -> None:
         self.logger = logger or logging.getLogger(__name__)
         self._exception_handlers: Dict[Type[Exception], Callable] = {}
         self._default_handler: Optional[Callable] = None

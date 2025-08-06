@@ -10,6 +10,7 @@ except ImportError:
 from loguru import logger
 import pandas as pd
 from shared.numpy_utils import np
+from shared.decimal_utils import to_trading_decimal
 
 from .base_strategy import BaseStrategy, Signal
 
@@ -237,8 +238,8 @@ class StatisticalArbitrageStrategy(BaseStrategy):
             signal = Signal(
                 direction=direction,
                 entry_price=entry_price,
-                stop_loss=stop_loss,
-                take_profit=take_profit,
+                stop_loss=to_trading_decimal(stop_loss),
+                take_profit=to_trading_decimal(take_profit),
                 volume=volume,
                 confidence=confidence,
                 metadata={"analysis": analysis, "timestamp": datetime.now()},

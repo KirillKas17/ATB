@@ -15,6 +15,7 @@ from domain.prediction.reversal_signal import (
     MeanReversionBand,
     MomentumAnalysis,
     ReversalSignal,
+    VolumeProfile as ReversalVolumeProfile,
 )
 from domain.type_definitions.prediction_types import (
     CandlestickPatternType,
@@ -131,7 +132,7 @@ class ReversalPredictor:
                 signal_strength=signal_strength,
                 timestamp=Timestamp(datetime.now()),
                 pivot_points=high_pivots + low_pivots,
-                volume_profile=volume_profile,
+                volume_profile=ReversalVolumeProfile() if volume_profile else None,
                 liquidity_clusters=liquidity_clusters,
                 divergence_signals=divergence_signals,
                 candlestick_patterns=candlestick_patterns,

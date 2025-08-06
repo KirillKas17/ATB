@@ -87,7 +87,7 @@ class TradeDecision:
     signal_strength: Decimal = Decimal("0")
     priority: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Пост-инициализация с валидацией типов."""
         # Конвертация типов для совместимости
         if isinstance(self.action, str):

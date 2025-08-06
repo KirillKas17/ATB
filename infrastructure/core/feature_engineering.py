@@ -73,6 +73,7 @@ class FeatureEngineer:
         """Инициализация инженера признаков."""
         self.config = config or FeatureConfig()
         self.scaler = StandardScaler()
+        self._features_cache: Dict[str, pd.DataFrame] = {}
         self.feature_selector = None
         self.feature_names: List[str] = []
         self.is_fitted = False
@@ -538,6 +539,9 @@ class FeatureEngineer:
                 return features
             
             # Применение селекции
+            if self.feature_selector is None:
+                logger.error("Feature selector not initialized")
+                return features
             selected_features_result = self.feature_selector.fit_transform(features_clean, target_clean)
             
             # Проверяем, что результат не является функцией

@@ -235,11 +235,11 @@ class SyntraConfig:
     # Дополнительные настройки
     custom_settings: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Валидация конфигурации после инициализации."""
         self._validate()
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Валидация конфигурации."""
         errors = []
         # Проверка базы данных
@@ -339,12 +339,12 @@ class SyntraConfig:
 class ConfigManager:
     """Менеджер конфигурации."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None) -> None:
         self.config_path = config_path or "config/config.yaml"
         self.config: Optional[SyntraConfig] = None
         self._load_environment_variables()
 
-    def _load_environment_variables(self):
+    def _load_environment_variables(self) -> None:
         """Загрузка переменных окружения."""
         # База данных
         os.environ.setdefault("DB_HOST", "localhost")
@@ -407,15 +407,15 @@ class ConfigManager:
         if os.getenv("MAX_POSITION_SIZE"):
             max_position_size = os.getenv("MAX_POSITION_SIZE")
             if max_position_size is not None:
-                config.risk.max_position_size = float(max_position_size)
+                config.risk.max_position_size = Decimal(max_position_size)
         if os.getenv("MAX_DAILY_LOSS"):
             max_daily_loss = os.getenv("MAX_DAILY_LOSS")
             if max_daily_loss is not None:
-                config.risk.max_daily_loss = float(max_daily_loss)
+                config.risk.max_daily_loss = Decimal(max_daily_loss)
         if os.getenv("STOP_LOSS_PCT"):
             stop_loss_pct = os.getenv("STOP_LOSS_PCT")
             if stop_loss_pct is not None:
-                config.risk.stop_loss_pct = float(stop_loss_pct)
+                config.risk.stop_loss_pct = Decimal(stop_loss_pct)
 
     def save_config(self, config: SyntraConfig, path: Optional[str] = None) -> None:
         """Сохранение конфигурации в файл."""

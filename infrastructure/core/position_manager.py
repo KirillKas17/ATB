@@ -513,8 +513,8 @@ class PositionManager:
             float: Уровень стоп-лосса
         """
         if side == PositionSide.LONG:
-            return entry_price * (1 - self.stop_loss)
-        return entry_price * (1 + self.stop_loss)
+            return float(entry_price * (1 - self.stop_loss))
+        return float(entry_price * (1 + self.stop_loss))
 
     def _calculate_default_take_profit(
         self, entry_price: float, side: PositionSide
@@ -528,8 +528,8 @@ class PositionManager:
             float: Уровень тейк-профита
         """
         if side == PositionSide.LONG:
-            return entry_price * (1 + self.take_profit)
-        return entry_price * (1 - self.take_profit)
+            return float(entry_price * (1 + self.take_profit))
+        return float(entry_price * (1 - self.take_profit))
 
     def _generate_position_id(self, position: Position) -> str:
         """

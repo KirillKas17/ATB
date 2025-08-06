@@ -12,14 +12,15 @@ _import_cache: Dict[str, Any] = {}
 class SafeQtImporter:
     """Безопасный импортер PyQt модулей."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.imported_modules = {}
         self.namespace_conflicts = []
     
     def safe_import_widgets(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtWidgets."""
         if 'widgets' in _import_cache:
-            return _import_cache['widgets']
+            cached = _import_cache['widgets']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtWidgets import (
@@ -87,7 +88,8 @@ class SafeQtImporter:
     def safe_import_core(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtCore."""
         if 'core' in _import_cache:
-            return _import_cache['core']
+            cached = _import_cache['core']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtCore import (
@@ -138,7 +140,8 @@ class SafeQtImporter:
     def safe_import_gui(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtGui."""
         if 'gui' in _import_cache:
-            return _import_cache['gui']
+            cached = _import_cache['gui']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtGui import (
@@ -184,7 +187,8 @@ class SafeQtImporter:
     def safe_import_charts(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtCharts."""
         if 'charts' in _import_cache:
-            return _import_cache['charts']
+            cached = _import_cache['charts']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtCharts import (
@@ -248,29 +252,29 @@ class SafeQtImporter:
 _safe_importer = SafeQtImporter()
 
 # Удобные функции для использования
-def get_qt_widgets():
+def get_qt_widgets() -> None:
     """Получение безопасных виджетов PyQt."""
     return _safe_importer.safe_import_widgets()
 
-def get_qt_core():
+def get_qt_core() -> None:
     """Получение безопасных классов PyQt Core."""
     return _safe_importer.safe_import_core()
 
-def get_qt_gui():
+def get_qt_gui() -> None:
     """Получение безопасных классов PyQt GUI."""
     return _safe_importer.safe_import_gui()
 
-def get_qt_charts():
+def get_qt_charts() -> None:
     """Получение безопасных классов PyQt Charts."""
     return _safe_importer.safe_import_charts()
 
-def get_all_qt():
+def get_all_qt() -> None:
     """Получение всех безопасных классов PyQt."""
     return _safe_importer.get_all_safe_imports()
 
 
 # Проверка безопасности при импорте модуля
-def validate_import_safety():
+def validate_import_safety() -> None:
     """Валидация безопасности импортов."""
     all_imports = get_all_qt()
     conflicts = _safe_importer.check_conflicts(all_imports)

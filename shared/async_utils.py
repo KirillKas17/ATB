@@ -184,7 +184,7 @@ class AsyncResourceManager:
             await self.release_lock(resource_id, owner)
 
     @asynccontextmanager
-    async def resource_semaphore(self, resource_id: str, max_concurrent: int = 1):
+    async def resource_semaphore(self, resource_id: str, max_concurrent: int = 1) -> None:
         """
         Контекстный менеджер для семафора ресурса.
         Args:

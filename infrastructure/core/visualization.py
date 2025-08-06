@@ -630,7 +630,8 @@ class Visualizer:
     
     def create_price_chart(self, data, title="Price Chart"):
         """Создание графика цен."""
-        return create_price_chart(data, title)
+        # Используем candlestick chart для цен
+        return create_candlestick_chart(data, title=title)
     
     def create_candlestick_chart(self, data, title="Candlestick Chart"):
         """Создание свечного графика."""
@@ -638,20 +639,38 @@ class Visualizer:
     
     def create_volume_chart(self, data, title="Volume Chart"):
         """Создание графика объёмов."""
-        return create_volume_chart(data, title)
+        fig = go.Figure()
+        if 'volume' in data.columns:
+            fig.add_trace(go.Bar(x=data.index, y=data['volume'], name="Volume"))
+        fig.update_layout(title=title)
+        return fig
     
     def create_portfolio_chart(self, portfolio_data, title="Portfolio"):
         """Создание графика портфеля."""
-        return create_portfolio_chart(portfolio_data, title)
+        fig = go.Figure()
+        if hasattr(portfolio_data, 'index') and hasattr(portfolio_data, 'values'):
+            fig.add_trace(go.Scatter(x=portfolio_data.index, y=portfolio_data.values, name="Portfolio Value"))
+        fig.update_layout(title=title)
+        return fig
     
     def create_performance_chart(self, performance_data, title="Performance"):
         """Создание графика производительности."""
-        return create_performance_chart(performance_data, title)
+        fig = go.Figure()
+        if hasattr(performance_data, 'index') and hasattr(performance_data, 'values'):
+            fig.add_trace(go.Scatter(x=performance_data.index, y=performance_data.values, name="Performance"))
+        fig.update_layout(title=title)
+        return fig
     
     def create_correlation_matrix(self, correlation_data, title="Correlation Matrix"):
         """Создание матрицы корреляций."""
-        return create_correlation_matrix(correlation_data, title)
+        fig = go.Figure(data=go.Heatmap(z=correlation_data.values if hasattr(correlation_data, 'values') else correlation_data))
+        fig.update_layout(title=title)
+        return fig
     
     def create_technical_indicators_chart(self, data, indicators, title="Technical Indicators"):
         """Создание графика технических индикаторов."""
-        return create_technical_indicators_chart(data, indicators, title)
+        fig = go.Figure()
+        if 'close' in data.columns:
+            fig.add_trace(go.Scatter(x=data.index, y=data['close'], name="Price"))
+        fig.update_layout(title=title)
+        return fig

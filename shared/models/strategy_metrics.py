@@ -62,7 +62,7 @@ class StrategyMetrics:
     timeframe: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Пост-инициализация с валидацией типов."""
         # Конвертация типов для совместимости
         if isinstance(self.win_rate, (int, float, str)):

@@ -426,7 +426,7 @@ class PerformanceMonitor:
             if (resolved is None or alert.resolved == resolved)
             and (cutoff_time is None or (alert.timestamp is not None and alert.timestamp >= cutoff_time))
         ]
-        summary = {
+        summary: Dict[str, Any] = {
             "total": len(filtered_alerts),
             "resolved": len([a for a in filtered_alerts if a.resolved]),
             "active": len([a for a in filtered_alerts if not a.resolved]),
@@ -513,7 +513,7 @@ class PerformanceMonitor:
 performance_monitor = PerformanceMonitor()
 
 
-def monitor_performance(component: str, operation: str):
+def monitor_performance(component: str, operation: str) -> None:
     """
     Декоратор для мониторинга производительности функций.
     Args:
@@ -521,8 +521,8 @@ def monitor_performance(component: str, operation: str):
         operation: Операция
     """
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func) -> None:
+        def wrapper(*args, **kwargs) -> None:
             start_time = time.time()
             try:
                 result = func(*args, **kwargs)
@@ -546,7 +546,7 @@ def monitor_performance(component: str, operation: str):
     return decorator
 
 
-async def monitor_async_performance(component: str, operation: str):
+async def monitor_async_performance(component: str, operation: str) -> None:
     """
     Декоратор для мониторинга производительности асинхронных функций.
     Args:
@@ -554,8 +554,8 @@ async def monitor_async_performance(component: str, operation: str):
         operation: Операция
     """
 
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
+    def decorator(func) -> None:
+        async def wrapper(*args, **kwargs) -> None:
             start_time = time.time()
             try:
                 result = await func(*args, **kwargs)

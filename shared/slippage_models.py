@@ -284,7 +284,7 @@ class AdaptiveSlippageModel(SlippageModel):
 class SlippageCalculator:
     """Основной калькулятор проскальзывания."""
     
-    def __init__(self, model: SlippageModel = None):
+    def __init__(self, model: SlippageModel = None) -> None:
         """
         Инициализация калькулятора.
         

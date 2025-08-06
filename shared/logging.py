@@ -70,7 +70,7 @@ class ColoredFormatter(logging.Formatter):
 class TradingFilter(logging.Filter):
     """Фильтр для торговых логов."""
 
-    def __init__(self, name: str = ""):
+    def __init__(self, name: str = "") -> None:
         super().__init__(name)
         self.trading_keywords = [
             "order",

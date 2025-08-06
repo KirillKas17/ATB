@@ -217,7 +217,7 @@ class NoiseAnalyzer:
                             A += 1
             if B == 0:
                 return 0.0
-            return -np.log(A / B) if A > 0 else np.inf
+            return float(-np.log(A / B)) if A > 0 else float('inf')
         except Exception as e:
             logger.error(f"Error computing sample entropy: {e}")
             return 0.0

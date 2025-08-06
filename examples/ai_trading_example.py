@@ -107,13 +107,13 @@ class AITradingExample:
         risk_context = {"symbol": "BTC/USDT", "position_size": 0.1}
 
         # Принятие решения
-        decision = self.decision_reasoner.make_enhanced_decision(
-            market_data,
-            strategy_signals,
-            ml_predictions,
-            technical_signals,
-            risk_context,
-        )
+        # Используем make_decision если make_enhanced_decision недоступен
+        if hasattr(self.decision_reasoner, 'make_enhanced_decision'):
+            decision = self.decision_reasoner.make_enhanced_decision(
+                market_data, strategy_signals, ml_predictions, technical_signals, risk_context
+            )
+        else:
+            decision = self.decision_reasoner.make_decision(market_data)
 
         logger.info(f"Decision: {decision.action} {decision.direction}")
         logger.info(f"Confidence: {decision.confidence:.3f}")

@@ -41,7 +41,7 @@ class ErrorCategory(Enum):
 class ErrorHandler:
     """Продвинутый обработчик ошибок с метриками и алертингом."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.error_counts: Dict[str, int] = {}
         self.error_history: List[Dict[str, Any]] = []
         self.max_history_size = 1000
@@ -119,7 +119,7 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0,
     def decorator(func: Callable) -> Callable:
         if asyncio.iscoroutinefunction(func):
             @wraps(func)
-            async def async_wrapper(*args, **kwargs):
+            async def async_wrapper(*args, **kwargs) -> None:
                 last_error = None
                 current_delay = delay
                 
@@ -144,7 +144,7 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0,
             return async_wrapper
         else:
             @wraps(func)
-            def sync_wrapper(*args, **kwargs):
+            def sync_wrapper(*args, **kwargs) -> None:
                 last_error = None
                 current_delay = delay
                 
@@ -183,7 +183,7 @@ def handle_exceptions(error_types: Union[Type[Exception], Tuple[Type[Exception],
     def decorator(func: Callable) -> Callable:
         if asyncio.iscoroutinefunction(func):
             @wraps(func)
-            async def async_wrapper(*args, **kwargs):
+            async def async_wrapper(*args, **kwargs) -> None:
                 try:
                     return await func(*args, **kwargs)
                 except error_types as e:
@@ -200,7 +200,7 @@ def handle_exceptions(error_types: Union[Type[Exception], Tuple[Type[Exception],
             return async_wrapper
         else:
             @wraps(func)
-            def sync_wrapper(*args, **kwargs):
+            def sync_wrapper(*args, **kwargs) -> None:
                 try:
                     return func(*args, **kwargs)
                 except error_types as e:
@@ -240,7 +240,7 @@ def safe_execute(func: Callable, *args, default_return: Any = None,
 class CircuitBreaker:
     """Упрощенный Circuit Breaker для предотвращения каскадных сбоев."""
     
-    def __init__(self, failure_threshold: int = 5, recovery_timeout: float = 60.0):
+    def __init__(self, failure_threshold: int = 5, recovery_timeout: float = 60.0) -> None:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
@@ -275,12 +275,12 @@ class CircuitBreaker:
             self.state = "open"
 
 
-def circuit_breaker_decorator(circuit_breaker: CircuitBreaker):
+def circuit_breaker_decorator(circuit_breaker: CircuitBreaker) -> None:
     """Декоратор Circuit Breaker."""
     def decorator(func: Callable) -> Callable:
         if asyncio.iscoroutinefunction(func):
             @wraps(func)
-            async def async_wrapper(*args, **kwargs):
+            async def async_wrapper(*args, **kwargs) -> None:
                 if not circuit_breaker.can_execute():
                     raise RuntimeError("Circuit breaker is open")
                 
@@ -295,7 +295,7 @@ def circuit_breaker_decorator(circuit_breaker: CircuitBreaker):
             return async_wrapper
         else:
             @wraps(func)
-            def sync_wrapper(*args, **kwargs):
+            def sync_wrapper(*args, **kwargs) -> None:
                 if not circuit_breaker.can_execute():
                     raise RuntimeError("Circuit breaker is open")
                 

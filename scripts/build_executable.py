@@ -192,8 +192,8 @@ coll = COLLECT(exe,
                name='{self.config.name}')
 """
 
-            with open(f"{self.config.name}.spec", "w", encoding="utf-8") as f:
-                f.write(spec_content)
+            with open(f"{self.config.name}.spec", "w", encoding="utf-8") as spec_file:
+                spec_file.write(spec_content)
 
             logger.info(f"Создан файл {self.config.name}.spec")
 
