@@ -9,20 +9,7 @@ try {
     ({ startBackendServer } = require('./backend/server'));
     ({ SystemMonitor } = require('./backend/system-monitor'));
     ({ EnvironmentManager } = require('./backend/environment-manager'));
-    
-    // EvolutionManager заглушка пока не создан
-    EvolutionManager = class {
-        async getStatus() {
-            return {
-                enabled: true,
-                running: false,
-                strategies: [],
-                timestamp: new Date().toISOString()
-            };
-        }
-        async start() { return { success: true }; }
-        async stop() { return { success: true }; }
-    };
+    ({ EvolutionManager } = require('./backend/evolution-manager'));
 } catch (error) {
     console.warn('⚠️ Некоторые backend модули недоступны:', error.message);
     
@@ -327,6 +314,23 @@ class ATBDesktopApp {
 
         ipcMain.handle('stop-evolution', async () => {
             return await this.evolutionManager.stop();
+        });
+
+        ipcMain.handle('force-evolution', async (event, strategyId) => {
+            if (strategyId) {
+                return await this.evolutionManager.forceEvolution(strategyId);
+            } else {
+                // Принудительная эволюция случайной стратегии
+                return await this.evolutionManager.performEvolution();
+            }
+        });
+
+        ipcMain.handle('get-strategy-details', async (event, strategyId) => {
+            return await this.evolutionManager.getStrategyDetails(strategyId);
+        });
+
+        ipcMain.handle('update-evolution-config', async (event, config) => {
+            return await this.evolutionManager.updateConfig(config);
         });
 
         // .env управление

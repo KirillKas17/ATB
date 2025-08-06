@@ -9,6 +9,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getEvolutionStatus: () => ipcRenderer.invoke('get-evolution-status'),
     startEvolution: () => ipcRenderer.invoke('start-evolution'),
     stopEvolution: () => ipcRenderer.invoke('stop-evolution'),
+    forceEvolution: (strategyId) => ipcRenderer.invoke('force-evolution', strategyId),
+    getStrategyDetails: (strategyId) => ipcRenderer.invoke('get-strategy-details', strategyId),
+    updateEvolutionConfig: (config) => ipcRenderer.invoke('update-evolution-config', config),
     
     // .env конфигурация
     getEnvConfig: () => ipcRenderer.invoke('get-env-config'),

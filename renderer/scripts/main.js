@@ -535,6 +535,11 @@ class ATBApp {
 
     updateEvolutionData() {
         console.log('🧬 Обновление данных эволюции');
+        
+        // Обновление данных через Evolution UI если доступен
+        if (window.evolutionUI) {
+            window.evolutionUI.updateEvolutionData();
+        }
     }
 
     updateTradingData() {

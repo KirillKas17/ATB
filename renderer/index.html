@@ -474,11 +474,204 @@
                 </div>
             </div>
 
-            <!-- Остальные вкладки будут добавлены аналогично -->
+            <!-- Вкладка Эволюция -->
             <div id="evolution" class="tab-pane">
                 <div class="evolution-layout">
-                    <h2>🧬 Эволюция стратегий</h2>
-                    <p>Раздел в разработке...</p>
+                    <!-- Заголовок и контролы -->
+                    <div class="evolution-header">
+                        <div class="evolution-title">
+                            <h2>🧬 Эволюция стратегий</h2>
+                            <p>Автоматическое улучшение торговых алгоритмов</p>
+                        </div>
+                        
+                        <div class="evolution-controls">
+                            <button class="form-button" id="evolutionStartBtn">
+                                <i class="fas fa-play"></i>
+                                <span>Запустить эволюцию</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="evolutionStopBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                <span>Остановить</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="forceEvolutionBtn">
+                                <i class="fas fa-bolt"></i>
+                                <span>Принудительная эволюция</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Статистика эволюции -->
+                    <div class="evolution-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalStrategies">0</div>
+                                <div class="stat-label">Всего стратегий</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="activeStrategies">0</div>
+                                <div class="stat-label">Активных</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">🔄</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalEvolutions">0</div>
+                                <div class="stat-label">Всего эволюций</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="avgPerformance">$0</div>
+                                <div class="stat-label">Средняя прибыль</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Основной контент -->
+                    <div class="evolution-content">
+                        <!-- Левая панель - список стратегий -->
+                        <div class="evolution-left">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📊 Стратегии</h3>
+                                    <div class="widget-controls">
+                                        <select id="strategyFilter" class="chart-select">
+                                            <option value="all">Все стратегии</option>
+                                            <option value="excellent">Отличные</option>
+                                            <option value="good">Хорошие</option>
+                                            <option value="average">Средние</option>
+                                            <option value="poor">Слабые</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="strategies-evolution-list" id="strategiesEvolutionList">
+                                        <!-- Стратегии будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Центральная панель - детали стратегии -->
+                        <div class="evolution-center">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3 id="selectedStrategyName">🎯 Выберите стратегию</h3>
+                                    <div class="widget-controls">
+                                        <button class="form-button secondary" id="evolveStrategyBtn" disabled>
+                                            <i class="fas fa-dna"></i>
+                                            <span>Эволюционировать</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="strategy-details" id="strategyDetails">
+                                        <div class="no-selection">
+                                            <i class="fas fa-mouse-pointer"></i>
+                                            <p>Выберите стратегию для просмотра деталей</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- График эволюции -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>📈 График эволюции</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <canvas id="evolutionChart" class="chart-canvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая панель - настройки и история -->
+                        <div class="evolution-right">
+                            <!-- Настройки эволюции -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚙️ Настройки эволюции</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="evolution-settings">
+                                        <div class="form-group">
+                                            <label class="form-label">Включить эволюцию:</label>
+                                            <input type="checkbox" id="evolutionEnabled" checked>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Интервал (часы):</label>
+                                            <input type="number" id="evolutionInterval" class="form-input" value="1" min="0.1" step="0.1">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Скорость мутации:</label>
+                                            <input type="range" id="mutationRate" min="0" max="1" step="0.01" value="0.1">
+                                            <span id="mutationRateValue">10%</span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Автоэволюция:</label>
+                                            <input type="checkbox" id="autoEvolution">
+                                        </div>
+                                        
+                                        <button class="form-button" id="saveEvolutionConfig">
+                                            <i class="fas fa-save"></i>
+                                            <span>Сохранить настройки</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- История эволюций -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📜 История эволюций</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="evolution-history" id="evolutionHistory">
+                                        <!-- История будет загружена динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Лучшие и худшие стратегии -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🏆 Топ стратегии</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="top-strategies">
+                                        <div class="top-strategy best" id="bestStrategy">
+                                            <div class="top-strategy-icon">🥇</div>
+                                            <div class="top-strategy-info">
+                                                <div class="top-strategy-name">Загрузка...</div>
+                                                <div class="top-strategy-performance">-</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="top-strategy worst" id="worstStrategy">
+                                            <div class="top-strategy-icon">🔻</div>
+                                            <div class="top-strategy-info">
+                                                <div class="top-strategy-name">Загрузка...</div>
+                                                <div class="top-strategy-performance">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -538,5 +731,6 @@
     <script src="scripts/tabs.js"></script>
     <script src="scripts/charts.js"></script>
     <script src="scripts/system-monitor.js"></script>
+    <script src="scripts/evolution.js"></script>
 </body>
 </html>
