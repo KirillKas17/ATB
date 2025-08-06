@@ -209,7 +209,7 @@ class UnifiedCache:
                 # Сохраняем только если прошло достаточно времени с последнего сохранения
                 if current_time - last_save_time >= 300:  # Минимум 5 минут между сохранениями
                     await self._save_persistent_cache()
-                    last_save_time = current_time
+                    last_save_time = int(current_time)
                     logger.debug(f"Persisted cache with {cache_size} entries")
                 
                 # Сбрасываем счетчик ошибок при успешном выполнении

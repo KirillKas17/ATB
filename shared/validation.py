@@ -354,7 +354,7 @@ def validate_input(**field_rules):
 def validate_trading_params(symbol: str, price: Optional[float] = None, 
                           volume: Optional[float] = None) -> ValidationResult:
     """Специализированная валидация торговых параметров."""
-    data = {"symbol": symbol}
+    data: Dict[str, Union[str, float]] = {"symbol": symbol}
     
     if price is not None:
         data["price"] = price

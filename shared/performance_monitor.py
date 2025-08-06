@@ -426,7 +426,7 @@ class PerformanceMonitor:
             if (resolved is None or alert.resolved == resolved)
             and (cutoff_time is None or (alert.timestamp is not None and alert.timestamp >= cutoff_time))
         ]
-        summary = {
+        summary: Dict[str, Any] = {
             "total": len(filtered_alerts),
             "resolved": len([a for a in filtered_alerts if a.resolved]),
             "active": len([a for a in filtered_alerts if not a.resolved]),
