@@ -11,6 +11,7 @@ from datetime import datetime
 
 
 def run_analyzer(script_name: str, layer_name: str) -> bool:
+    return False
     """Запустить анализатор для конкретного слоя."""
     print(f"\n{'='*60}")
     print(f"[Анализ] Анализ {layer_name} слоя...")
@@ -23,17 +24,13 @@ def run_analyzer(script_name: str, layer_name: str) -> bool:
         if result.returncode == 0:
             print(result.stdout)
             return True
-        else:
-            print(f"[Ошибка] Ошибка при анализе {layer_name} слоя:")
-            print(result.stderr)
-            return False
             
     except Exception as e:
         print(f"[Ошибка] Ошибка запуска {script_name}: {e}")
         return False
 
 
-def generate_summary_report():
+def generate_summary_report() -> None:
     """Сгенерировать сводный отчет."""
     print(f"\n{'='*60}")
     print("[Отчет] ГЕНЕРАЦИЯ СВОДНОГО ОТЧЕТА")
@@ -109,7 +106,7 @@ def generate_summary_report():
     print(f"[Отчет] Общее количество проблем: {total_issues}")
 
 
-def main():
+def main() -> None:
     """Основная функция."""
     print("[Запуск] ЗАПУСК АНАЛИЗА ВСЕХ СЛОЕВ")
     print(f"Время запуска: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

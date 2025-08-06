@@ -13,7 +13,7 @@ try:
     from modern_dashboard_app import MainWindow
     from PyQt6.QtWidgets import QApplication
     
-    def main():
+    def main() -> None:
         """Главная функция запуска приложения"""
         app = QApplication(sys.argv)
         

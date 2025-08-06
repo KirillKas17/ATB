@@ -147,11 +147,11 @@ TRANSLATIONS = {
 
 class GlassmorphismWidget(QWidget):
     """Виджет с эффектом жидкого стекла"""
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         
@@ -167,7 +167,7 @@ class GlassmorphismWidget(QWidget):
 
 class CustomScrollBar(QWidget):
     """Кастомный скроллбар"""
-    def __init__(self, orientation=Qt.Orientation.Vertical, parent=None):
+    def __init__(self, orientation=Qt.Orientation.Vertical, parent=None) -> None:
         super().__init__(parent)
         self.orientation = orientation
         self.setFixedSize(8, 100) if orientation == Qt.Orientation.Vertical else self.setFixedSize(100, 8)
@@ -178,7 +178,7 @@ class CustomScrollBar(QWidget):
             }
         """)
         
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         
@@ -196,14 +196,14 @@ class CustomScrollBar(QWidget):
 
 class CustomTitleBar(QWidget):
     """Кастомная панель заголовка окна"""
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.parent = parent
         self.setFixedHeight(50)
         self.current_language = 'ru'
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QHBoxLayout()
         layout.setContentsMargins(20, 10, 20, 10)
         layout.setSpacing(12)
@@ -314,13 +314,13 @@ class CustomTitleBar(QWidget):
         
         self.setLayout(layout)
         
-    def toggle_maximize(self):
+    def toggle_maximize(self) -> None:
         if self.parent.isMaximized():
             self.parent.showNormal()
         else:
             self.parent.showMaximized()
             
-    def change_language(self, text):
+    def change_language(self, text) -> None:
         if 'Русский' in text:
             self.current_language = 'ru'
         elif 'English' in text:
@@ -336,14 +336,14 @@ class Sidebar(QWidget):
     """Боковое меню с навигацией"""
     page_changed = pyqtSignal(str)  # Сигнал для смены страницы
     
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.setFixedWidth(260)
         self.active_item = "dashboard"
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(12)
@@ -365,7 +365,7 @@ class Sidebar(QWidget):
         layout.addStretch()
         self.setLayout(layout)
         
-    def create_menu_button(self, icon, item_id):
+    def create_menu_button(self, icon, item_id) -> None:
         btn = QPushButton(f"{TRANSLATIONS[self.language].get(item_id, item_id)}")
         btn.setFixedHeight(52)
         btn.setCheckable(True)
@@ -410,7 +410,7 @@ class Sidebar(QWidget):
         
         return btn
     
-    def set_active_item(self, item_id):
+    def set_active_item(self, item_id) -> None:
         self.active_item = item_id
         # Обновляем стили всех кнопок
         for i in range(self.layout().count() - 1):  # -1 для addStretch
@@ -421,7 +421,7 @@ class Sidebar(QWidget):
         # Отправляем сигнал о смене страницы
         self.page_changed.emit(item_id)
                 
-    def update_language(self, language):
+    def update_language(self, language) -> None:
         self.language = language
         # Обновляем текст кнопок
         menu_items = [
@@ -441,7 +441,7 @@ class Sidebar(QWidget):
 
 class MetricCard(GlassmorphismWidget):
     """Карточка с метрикой с эффектом стекла"""
-    def __init__(self, title, value, subtitle="", trend="", color="#FF4560", icon="📊"):
+    def __init__(self, title, value, subtitle="", trend="", color="#FF4560", icon="📊") -> None:
         super().__init__()
         self.title = title
         self.value = value
@@ -451,7 +451,7 @@ class MetricCard(GlassmorphismWidget):
         self.icon = icon
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(12)
@@ -530,7 +530,7 @@ class MetricCard(GlassmorphismWidget):
 
 class ProgressMetricCard(GlassmorphismWidget):
     """Карточка с прогресс-баром"""
-    def __init__(self, title, value, max_value, subtitle="", color="#FF4560", icon="📊"):
+    def __init__(self, title, value, max_value, subtitle="", color="#FF4560", icon="📊") -> None:
         super().__init__()
         self.title = title
         self.value = value
@@ -540,7 +540,7 @@ class ProgressMetricCard(GlassmorphismWidget):
         self.icon = icon
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(12)
@@ -625,13 +625,13 @@ class ProgressMetricCard(GlassmorphismWidget):
 
 class GraphWidget(GlassmorphismWidget):
     """Виджет с графиком"""
-    def __init__(self, title="Visitors Today", language='ru'):
+    def __init__(self, title="Visitors Today", language='ru') -> None:
         super().__init__()
         self.title = title
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
@@ -666,7 +666,7 @@ class GraphWidget(GlassmorphismWidget):
             }
         """)
         
-    def create_graph(self):
+    def create_graph(self) -> None:
         ax = self.figure.add_subplot(111)
         
         # Данные для графика
@@ -690,12 +690,12 @@ class GraphWidget(GlassmorphismWidget):
 
 class DataTable(GlassmorphismWidget):
     """Таблица с данными"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
@@ -785,12 +785,12 @@ class DataTable(GlassmorphismWidget):
 
 class Dashboard(QWidget):
     """Основной дашборд"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         # Создаем скроллируемую область
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -982,12 +982,12 @@ class Dashboard(QWidget):
 
 class AnalyticsPage(QWidget):
     """Страница аналитики"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
@@ -1024,12 +1024,12 @@ class AnalyticsPage(QWidget):
 
 class TradingPage(QWidget):
     """Страница торговли"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
@@ -1066,12 +1066,12 @@ class TradingPage(QWidget):
 
 class PortfolioPage(QWidget):
     """Страница портфеля"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
@@ -1108,12 +1108,12 @@ class PortfolioPage(QWidget):
 
 class SettingsPage(QWidget):
     """Страница настроек"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
@@ -1150,12 +1150,12 @@ class SettingsPage(QWidget):
 
 class ProfilePage(QWidget):
     """Страница профиля"""
-    def __init__(self, language='ru'):
+    def __init__(self, language='ru') -> None:
         super().__init__()
         self.language = language
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
@@ -1191,7 +1191,7 @@ class ProfilePage(QWidget):
 
 class MainWindow(QMainWindow):
     """Главное окно приложения"""
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("ATB Trading Dashboard")
         self.setGeometry(100, 100, 1600, 1000)
@@ -1213,7 +1213,7 @@ class MainWindow(QMainWindow):
         
         self.setup_ui()
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         # Центральный виджет
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -1263,13 +1263,13 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(content_layout)
         central_widget.setLayout(main_layout)
         
-    def switch_page(self, page_name):
+    def switch_page(self, page_name) -> None:
         """Переключение между страницами"""
         if page_name in self.pages:
             self.page_stack.setCurrentWidget(self.pages[page_name])
             self.current_page = page_name
     
-    def update_language(self, language):
+    def update_language(self, language) -> None:
         self.current_language = language
         # Обновляем язык в сайдбаре
         self.sidebar.update_language(language)
@@ -1298,13 +1298,13 @@ class MainWindow(QMainWindow):
         for old_page in old_pages.values():
             old_page.deleteLater()
         
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event) -> None:
         """Обработка нажатия мыши для перетаскивания окна"""
         if event.button() == Qt.MouseButton.LeftButton:
             self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
             event.accept()
             
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event) -> None:
         """Обработка движения мыши для перетаскивания окна"""
         if event.buttons() == Qt.MouseButton.LeftButton and hasattr(self, 'drag_position'):
             self.move(event.globalPosition().toPoint() - self.drag_position)

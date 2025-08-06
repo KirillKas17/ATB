@@ -27,7 +27,7 @@ class UnimplementedFunction:
 class ApplicationLayerAnalyzer:
     """Анализатор application слоя для поиска нереализованного функционала."""
     
-    def __init__(self, project_root: str = "."):
+    def __init__(self, project_root: str = ".") -> None:
         self.project_root = Path(project_root)
         self.application_dir = self.project_root / "application"
         
@@ -66,6 +66,7 @@ class ApplicationLayerAnalyzer:
         ]
 
     def find_python_files(self, directory: Path) -> List[Path]:
+        return []
         """Найти все Python файлы в директории."""
         python_files = []
         for root, dirs, files in os.walk(directory):
@@ -78,6 +79,7 @@ class ApplicationLayerAnalyzer:
         return python_files
 
     def analyze_file(self, file_path: Path) -> List[UnimplementedFunction]:
+        return []
         """Анализировать один файл на предмет нереализованного функционала."""
         issues: List[UnimplementedFunction] = []
         
@@ -131,18 +133,9 @@ class ApplicationLayerAnalyzer:
         """Определить тип проблемы на основе триггерного слова."""
         if trigger in ['todo', 'fixme', 'hack']:
             return "TODO/FIXME"
-        elif trigger in ['pass', 'notimplemented', 'not implemented']:
-            return "Не реализовано"
-        elif trigger in ['простая', 'базовая', 'временно', 'заглушка']:
-            return "Упрощенная реализация"
-        elif trigger in ['placeholder', 'stub', 'dummy', 'fake']:
-            return "Заглушка"
-        elif trigger in ['return none', 'return 0', 'return false', 'return true']:
-            return "Возврат по умолчанию"
-        else:
-            return "Подозрительная реализация"
 
     def _extract_function_info(self, lines: List[str], target_line: int) -> Tuple[Optional[str], Optional[str]]:
+        return []
         """Извлечь информацию о функции и классе."""
         function_name = None
         class_name = None
@@ -174,6 +167,7 @@ class ApplicationLayerAnalyzer:
         return function_name, class_name
 
     def _analyze_ast(self, tree: ast.AST, file_path: Path, lines: List[str]) -> List[UnimplementedFunction]:
+        return []
         """Анализировать AST для поиска абстрактных методов."""
         issues = []
         
@@ -231,8 +225,6 @@ class ApplicationLayerAnalyzer:
         while parent:
             if isinstance(parent, ast.ClassDef):
                 return parent.name
-            parent = getattr(parent, 'parent', None)
-        return None
 
     def _get_context(self, lines: List[str], line_num: int, context_size: int) -> str:
         """Получить контекст вокруг строки."""

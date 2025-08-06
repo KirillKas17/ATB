@@ -16,7 +16,7 @@ from shared.config import get_config
 from shared.logging import setup_logging
 
 
-async def main():
+async def main() -> None:
     """Основная функция запуска эволюции стратегий."""
     logger = setup_logging()
 

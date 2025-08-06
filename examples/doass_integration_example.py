@@ -27,7 +27,7 @@ from unittest.mock import Mock
 class DOASSIntegrationExample:
     """Пример интеграции DOASS в торговый цикл."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Инициализация примера."""
         self.container = None
         self.doass = None
@@ -42,7 +42,7 @@ class DOASSIntegrationExample:
         
         logger.info("DOASS Integration Example initialized")
 
-    async def setup_system(self):
+    async def setup_system(self) -> None:
         """Настройка системы с интеграцией DOASS."""
         try:
             logger.info("Setting up ATB system with DOASS integration...")
@@ -72,7 +72,7 @@ class DOASSIntegrationExample:
             logger.error(f"Error setting up system: {e}")
             return False
 
-    async def demonstrate_symbol_selection(self):
+    async def demonstrate_symbol_selection(self) -> None:
         """Демонстрация выбора символов через DOASS."""
         try:
             logger.info("Demonstrating DOASS symbol selection...")
@@ -108,7 +108,7 @@ class DOASSIntegrationExample:
             logger.error(f"Error in symbol selection demonstration: {e}")
             return None
 
-    async def demonstrate_agent_context_integration(self):
+    async def demonstrate_agent_context_integration(self) -> None:
         """Демонстрация интеграции с AgentContext."""
         try:
             logger.info("Demonstrating DOASS integration with AgentContext...")
@@ -157,7 +157,7 @@ class DOASSIntegrationExample:
             logger.error(f"Error in AgentContext integration demonstration: {e}")
             return None
 
-    async def demonstrate_trading_cycle_integration(self):
+    async def demonstrate_trading_cycle_integration(self) -> None:
         """Демонстрация интеграции в торговый цикл."""
         try:
             logger.info("Demonstrating DOASS integration in trading cycle...")
@@ -207,7 +207,7 @@ class DOASSIntegrationExample:
         except Exception as e:
             logger.error(f"Error in trading cycle integration demonstration: {e}")
 
-    async def demonstrate_performance_monitoring(self):
+    async def demonstrate_performance_monitoring(self) -> None:
         """Демонстрация мониторинга производительности DOASS."""
         try:
             logger.info("Demonstrating DOASS performance monitoring...")
@@ -240,7 +240,7 @@ class DOASSIntegrationExample:
         except Exception as e:
             logger.error(f"Error in performance monitoring demonstration: {e}")
 
-    async def demonstrate_advanced_features(self):
+    async def demonstrate_advanced_features(self) -> None:
         """Демонстрация продвинутых возможностей DOASS."""
         try:
             logger.info("Demonstrating DOASS advanced features...")
@@ -290,7 +290,7 @@ class DOASSIntegrationExample:
         except Exception as e:
             logger.error(f"Error in advanced features demonstration: {e}")
 
-    async def run_full_demonstration(self):
+    async def run_full_demonstration(self) -> None:
         """Запуск полной демонстрации интеграции DOASS."""
         try:
             logger.info("=" * 60)
@@ -325,7 +325,7 @@ class DOASSIntegrationExample:
             logger.error(f"Error in full demonstration: {e}")
 
 
-async def main():
+async def main() -> None:
     """Главная функция для запуска примера."""
     try:
         # Настройка логирования

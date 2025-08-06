@@ -23,7 +23,7 @@ from application.analysis.entanglement_monitor import EntanglementMonitor
 from shared.config import reload_config as load_config
 
 
-def setup_logging():
+def setup_logging() -> None:
     """Настройка логирования."""
     logger.remove()
     logger.add(
@@ -40,13 +40,13 @@ def setup_logging():
     )
 
 
-def signal_handler(signum, frame):
+def signal_handler(signum, frame) -> None:
     """Обработчик сигналов для graceful shutdown."""
     logger.info(f"Получен сигнал {signum}, завершение работы...")
     sys.exit(0)
 
 
-async def main():
+async def main() -> None:
     """Основная функция."""
     parser = argparse.ArgumentParser(
         description="Quantum Order Entanglement Detection Monitor"

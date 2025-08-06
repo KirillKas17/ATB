@@ -7,7 +7,7 @@
 import re
 from pathlib import Path
 
-def fix_unicode_in_file(file_path: str):
+def fix_unicode_in_file(file_path: str) -> None:
     """Исправить Unicode символы в файле."""
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -43,7 +43,7 @@ def fix_unicode_in_file(file_path: str):
     
     print(f"Исправлен файл: {file_path}")
 
-def main():
+def main() -> None:
     """Основная функция."""
     files_to_fix = [
         'application_analyzer.py',

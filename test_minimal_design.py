@@ -12,11 +12,11 @@ from minimal_apple_style import *
 class MinimalDesignTest(QMainWindow):
     """Тестовое окно для проверки минималистичного дизайна"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.init_ui()
     
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Инициализация интерфейса"""
         self.setWindowTitle("Minimal Design Test - ATB Trading System")
         self.setGeometry(100, 100, 1000, 700)
@@ -64,7 +64,7 @@ class MinimalDesignTest(QMainWindow):
         
         layout.addStretch()
     
-    def create_buttons_section(self):
+    def create_buttons_section(self) -> None:
         """Создание секции с кнопками"""
         card = MinimalCard("Buttons")
         layout = QHBoxLayout(card)
@@ -86,7 +86,7 @@ class MinimalDesignTest(QMainWindow):
         layout.addStretch()
         return card
     
-    def create_cards_section(self):
+    def create_cards_section(self) -> None:
         """Создание секции с карточками"""
         card = MinimalCard("Cards")
         layout = QHBoxLayout(card)
@@ -111,7 +111,7 @@ class MinimalDesignTest(QMainWindow):
         layout.addStretch()
         return card
     
-    def create_forms_section(self):
+    def create_forms_section(self) -> None:
         """Создание секции с формами"""
         card = MinimalCard("Forms")
         layout = QVBoxLayout(card)
@@ -155,7 +155,7 @@ class MinimalDesignTest(QMainWindow):
         
         return card
     
-    def create_tables_section(self):
+    def create_tables_section(self) -> None:
         """Создание секции с таблицами"""
         card = MinimalCard("Tables")
         layout = QVBoxLayout(card)
@@ -186,7 +186,7 @@ class MinimalDesignTest(QMainWindow):
         layout.addWidget(table)
         return card
 
-def main():
+def main() -> None:
     """Главная функция"""
     app = QApplication(sys.argv)
     

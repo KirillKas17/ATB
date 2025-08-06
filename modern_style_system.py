@@ -120,17 +120,9 @@ class UltraModernStyleSystem:
     }
     
     @staticmethod
-    def get_ultra_modern_stylesheet():
+    def get_ultra_modern_stylesheet() -> Any:
         """Получить ультрасовременную таблицу стилей"""
         return f"""
-        /* Основные стили приложения */
-        QMainWindow {{
-            background: {UltraModernStyleSystem.COLORS['background']};
-            color: {UltraModernStyleSystem.COLORS['text_primary']};
-            font-family: {UltraModernStyleSystem.FONTS['font_family']};
-            font-size: {UltraModernStyleSystem.FONTS['font_size_base']};
-            font-weight: {UltraModernStyleSystem.FONTS['font_weight_normal']};
-        }}
         
         QWidget {{
             background: transparent;
@@ -666,14 +658,14 @@ class UltraModernStyleSystem:
 class UltraModernCard(QWidget):
     """Ультрасовременная карточка"""
     
-    def __init__(self, title="", content_widget=None, style="default", parent=None):
+    def __init__(self, title="", content_widget=None, style="default", parent=None) -> None:
         super().__init__(parent)
         self.title = title
         self.content_widget = content_widget
         self.style = style
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -697,13 +689,13 @@ class UltraModernCard(QWidget):
 class UltraModernButton(QPushButton):
     """Ультрасовременная кнопка"""
     
-    def __init__(self, text="", icon=None, style="primary", size="normal", parent=None):
+    def __init__(self, text="", icon=None, style="primary", size="normal", parent=None) -> None:
         super().__init__(text, parent)
         self.style = style
         self.size = size
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         if self.style != "primary":
             self.setProperty("class", self.style)
         
@@ -717,12 +709,12 @@ class UltraModernButton(QPushButton):
 class UltraModernProgressBar(QProgressBar):
     """Ультрасовременный прогресс-бар"""
     
-    def __init__(self, style="primary", parent=None):
+    def __init__(self, style="primary", parent=None) -> None:
         super().__init__(parent)
         self.style = style
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         if self.style != "primary":
             # Применение различных стилей прогресс-бара
             pass
@@ -730,11 +722,11 @@ class UltraModernProgressBar(QProgressBar):
 class UltraModernChart(QChartView):
     """Ультрасовременный график"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         # Настройка стиля графика
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setBackgroundBrush(QBrush(QColor(UltraModernStyleSystem.COLORS['surface'])))
@@ -742,11 +734,11 @@ class UltraModernChart(QChartView):
 class UltraModernTable(QTableWidget):
     """Ультрасовременная таблица"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -756,42 +748,42 @@ class UltraModernTable(QTableWidget):
 class UltraModernComboBox(QComboBox):
     """Ультрасовременный комбобокс"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setMinimumHeight(48)
 
 class UltraModernSpinBox(QSpinBox):
     """Ультрасовременный спинбокс"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setMinimumHeight(48)
 
 class UltraModernCheckBox(QCheckBox):
     """Ультрасовременный чекбокс"""
     
-    def __init__(self, text="", parent=None):
+    def __init__(self, text="", parent=None) -> None:
         super().__init__(text, parent)
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         pass
 
 class UltraModernLabel(QLabel):
     """Ультрасовременная метка"""
     
-    def __init__(self, text="", style="body", parent=None):
+    def __init__(self, text="", style="body", parent=None) -> None:
         super().__init__(text, parent)
         self.style = style
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         if self.style == "header":
             self.setProperty("class", "HeaderLabel")
         elif self.style == "subheader":
@@ -808,12 +800,12 @@ class UltraModernLabel(QLabel):
 class UltraModernDivider(QFrame):
     """Ультрасовременный разделитель"""
     
-    def __init__(self, orientation="horizontal", parent=None):
+    def __init__(self, orientation="horizontal", parent=None) -> None:
         super().__init__(parent)
         self.orientation = orientation
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         if self.orientation == "horizontal":
             self.setFrameShape(QFrame.Shape.HLine)
             self.setMaximumHeight(1)
@@ -826,12 +818,12 @@ class UltraModernDivider(QFrame):
 class UltraModernBadge(QLabel):
     """Ультрасовременный бейдж"""
     
-    def __init__(self, text="", color="primary", parent=None):
+    def __init__(self, text="", color="primary", parent=None) -> None:
         super().__init__(text, parent)
         self.color = color
         self.setup_style()
         
-    def setup_style(self):
+    def setup_style(self) -> None:
         gradient_map = {
             'primary': UltraModernStyleSystem.COLORS['gradient_primary'],
             'secondary': UltraModernStyleSystem.COLORS['gradient_secondary'],

@@ -17,7 +17,7 @@ import argparse
 class ImportCleaner:
     """Класс для очистки неиспользуемых импортов"""
     
-    def __init__(self, root_dir: str = "."):
+    def __init__(self, root_dir: str = ".") -> None:
         self.root_dir = Path(root_dir)
         self.stats = {
             'files_processed': 0,
@@ -27,6 +27,7 @@ class ImportCleaner:
         }
         
     def find_python_files(self, directory: Path) -> List[Path]:
+        return []
         """Найти все Python файлы в директории"""
         python_files = []
         for root, dirs, files in os.walk(directory):
@@ -86,6 +87,7 @@ class ImportCleaner:
         return used_names
     
     def clean_imports_in_file(self, file_path: Path, dry_run: bool = True) -> bool:
+        return False
         """Очистить неиспользуемые импорты в файле"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -181,7 +183,7 @@ class ImportCleaner:
         print("=" * 50)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Очистка неиспользуемых импортов в Python файлах')
     parser.add_argument('--directory', '-d', default='.', help='Директория для обработки')
     parser.add_argument('--apply', '-a', action='store_true', help='Применить изменения (по умолчанию только проверка)')

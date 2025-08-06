@@ -28,6 +28,7 @@ class TestNoiseAnalyzerIntegration:
     """Тесты интеграции NoiseAnalyzer."""
 
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.noise_analyzer = NoiseAnalyzer(
             fractal_dimension_lower=1.2,

@@ -44,16 +44,9 @@ class MinimalAppleStyle:
     }
     
     @staticmethod
-    def get_minimal_stylesheet():
+    def get_minimal_stylesheet() -> Any:
         """Получить минималистичную таблицу стилей"""
         return f"""
-        /* Минималистичные основные стили */
-        QMainWindow {{
-            background: {MinimalAppleStyle.COLORS['background']};
-            color: {MinimalAppleStyle.COLORS['text_primary']};
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-            font-weight: 400;
-        }}
         
         /* Минималистичные кнопки */
         QPushButton {{
@@ -306,13 +299,13 @@ class MinimalAppleStyle:
 class MinimalCard(QWidget):
     """Минималистичная карточка"""
     
-    def __init__(self, title="", content_widget=None, parent=None):
+    def __init__(self, title="", content_widget=None, parent=None) -> None:
         super().__init__(parent)
         self.title = title
         self.content_widget = content_widget
         self.init_ui()
     
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(16)
@@ -335,34 +328,34 @@ class MinimalCard(QWidget):
 class MinimalButton(QPushButton):
     """Минималистичная кнопка"""
     
-    def __init__(self, text="", style="default", parent=None):
+    def __init__(self, text="", style="default", parent=None) -> None:
         super().__init__(text, parent)
         self.style_type = style
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setProperty("class", self.style_type)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
 class MinimalProgressBar(QProgressBar):
     """Минималистичный прогресс-бар"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setTextVisible(False)
         self.setFixedHeight(6)
 
 class MinimalChart(QChartView):
     """Минималистичный график"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.chart().setTheme(QChart.ChartTheme.ChartThemeDark)
         self.chart().setBackgroundBrush(QBrush(QColor(MinimalAppleStyle.COLORS['surface'])))
@@ -376,11 +369,11 @@ class MinimalChart(QChartView):
 class MinimalTable(QTableWidget):
     """Минималистичная таблица"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -392,43 +385,43 @@ class MinimalTable(QTableWidget):
 class MinimalComboBox(QComboBox):
     """Минималистичный комбобокс"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setFixedHeight(40)
 
 class MinimalSpinBox(QSpinBox):
     """Минималистичный спинбокс"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setFixedHeight(40)
         self.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)
 
 class MinimalCheckBox(QCheckBox):
     """Минималистичный чекбокс"""
     
-    def __init__(self, text="", parent=None):
+    def __init__(self, text="", parent=None) -> None:
         super().__init__(text, parent)
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
 class MinimalLabel(QLabel):
     """Минималистичная метка"""
     
-    def __init__(self, text="", style="body", parent=None):
+    def __init__(self, text="", style="body", parent=None) -> None:
         super().__init__(text, parent)
         self.style_type = style
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         styles = {
             "title": f"font-size: 20px; font-weight: 500; color: {MinimalAppleStyle.COLORS['text_primary']};",
             "subtitle": f"font-size: 16px; font-weight: 500; color: {MinimalAppleStyle.COLORS['text_primary']};",
@@ -443,12 +436,12 @@ class MinimalLabel(QLabel):
 class MinimalDivider(QFrame):
     """Минималистичный разделитель"""
     
-    def __init__(self, orientation="horizontal", parent=None):
+    def __init__(self, orientation="horizontal", parent=None) -> None:
         super().__init__(parent)
         self.orientation = orientation
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         if self.orientation == "horizontal":
             self.setFrameShape(QFrame.Shape.HLine)
             self.setFixedHeight(1)
@@ -461,12 +454,12 @@ class MinimalDivider(QFrame):
 class MinimalBadge(QLabel):
     """Минималистичный бейдж"""
     
-    def __init__(self, text="", color="primary", parent=None):
+    def __init__(self, text="", color="primary", parent=None) -> None:
         super().__init__(text, parent)
         self.color = color
         self.setup_style()
     
-    def setup_style(self):
+    def setup_style(self) -> None:
         colors = {
             "primary": MinimalAppleStyle.COLORS['primary'],
             "success": MinimalAppleStyle.COLORS['success'],

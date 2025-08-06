@@ -18,9 +18,6 @@ class MockModule:
         if isinstance(attr, MockModule):
             return attr
         # If it's not a MockModule (e.g., a function), wrap it
-        mock = MockModule()
-        mock._attributes[name] = attr
-        return mock
     
     def __setattr__(self, name: str, value: Any) -> None:
         if name.startswith('_'):

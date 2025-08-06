@@ -15,6 +15,7 @@ from domain.value_objects.volume import Volume
 class TestEntanglementDetector:
     """Тесты для EntanglementDetector."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.detector = EntanglementDetector(
             max_lag_ms=3.0,
@@ -150,6 +151,7 @@ class TestEntanglementDetector:
 class TestEntanglementMonitor:
     """Тесты для EntanglementMonitor."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.monitor = EntanglementMonitor(
             log_file_path="test_entanglement_events.json",

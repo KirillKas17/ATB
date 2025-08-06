@@ -11,26 +11,6 @@ class TestOrderbookFilter:
     def filter_instance(self) -> OrderBookPreFilter:
         """Создает экземпляр фильтра."""
         return OrderBookPreFilter()
-    @pytest.fixture
-    def sample_orderbook(self) -> dict[str, Any]:
-        """Создает образец ордербука."""
-        return {
-            "symbol": "BTC/USD",
-            "timestamp": "2024-01-01T00:00:00",
-            "bids": [
-                {"price": "50000", "quantity": "0.1"},
-                {"price": "49999", "quantity": "0.2"},
-                {"price": "49998", "quantity": "0.3"}
-            ],
-            "asks": [
-                {"price": "50001", "quantity": "0.1"},
-                {"price": "50002", "quantity": "0.2"},
-                {"price": "50003", "quantity": "0.3"}
-            ]
-        }
-    def test_filter_by_price_range(self: "TestOrderbookFilter") -> None:
-        """Тест фильтрации по диапазону цен."""
-        filter_instance = OrderBookPreFilter()
         
         # Создаем тестовые данные
         bids = [(50000, 1.0), (49999, 2.0), (49998, 1.5)]

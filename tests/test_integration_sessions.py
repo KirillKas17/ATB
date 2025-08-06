@@ -20,6 +20,7 @@ from domain.sessions.implementations import DefaultSessionMetricsAnalyzer
 class TestSessionProfileRegistry:
     """Тесты для реестра профилей сессий."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
     def test_get_profile(self: "TestSessionProfileRegistry") -> None:
@@ -55,6 +56,7 @@ class TestSessionProfileRegistry:
 class TestSessionMarker:
     """Тесты для маркера сессий."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
         self.marker = SessionMarker(self.registry)
@@ -78,6 +80,7 @@ class TestSessionMarker:
 class TestSessionMetricsAnalyzer:
     """Тесты для анализатора метрик сессий."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.analyzer = DefaultSessionMetricsAnalyzer()
         self.session_profile = SessionProfile(
@@ -157,6 +160,7 @@ class TestSessionMetricsAnalyzer:
 class TestSessionService:
     """Тесты для сервиса сессий."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         from domain.sessions.factories import get_session_service
         self.service = get_session_service()

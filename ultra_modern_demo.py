@@ -20,11 +20,11 @@ from ultra_modern_widgets import (
 class UltraModernDemoApp(QMainWindow):
     """Демонстрационное приложение с ультрасовременным дизайном"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Инициализация пользовательского интерфейса"""
         self.setWindowTitle("ATB Trading System - Ultra Modern Design Demo")
         self.setGeometry(100, 100, 1920, 1080)
@@ -58,7 +58,7 @@ class UltraModernDemoApp(QMainWindow):
         self.update_timer.timeout.connect(self.update_data)
         self.update_timer.start(5000)  # Обновление каждые 5 секунд
         
-    def create_tabs(self, main_layout):
+    def create_tabs(self, main_layout) -> None:
         """Создание вкладок приложения"""
         self.tab_widget = QTabWidget()
         self.tab_widget.setStyleSheet("""
@@ -86,7 +86,7 @@ class UltraModernDemoApp(QMainWindow):
         
         main_layout.addWidget(self.tab_widget)
         
-    def create_components_tab(self):
+    def create_components_tab(self) -> None:
         """Создание вкладки с компонентами"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -138,7 +138,7 @@ class UltraModernDemoApp(QMainWindow):
         
         return widget
         
-    def create_analytics_tab(self):
+    def create_analytics_tab(self) -> None:
         """Создание вкладки аналитики"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -171,12 +171,12 @@ class UltraModernDemoApp(QMainWindow):
         
         return widget
         
-    def update_data(self):
+    def update_data(self) -> None:
         """Обновление данных для демонстрации"""
         # Здесь можно добавить логику обновления данных
         pass
 
-def main():
+def main() -> None:
     """Главная функция приложения"""
     app = QApplication(sys.argv)
     

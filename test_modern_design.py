@@ -12,11 +12,11 @@ from modern_style_system import *
 class ModernDesignTest(QMainWindow):
     """Тестовое окно для проверки современного дизайна"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.init_ui()
     
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Инициализация интерфейса"""
         self.setWindowTitle("🎨 Modern Design Test - ATB Trading System")
         self.setGeometry(100, 100, 1200, 800)
@@ -64,7 +64,7 @@ class ModernDesignTest(QMainWindow):
         
         layout.addStretch()
     
-    def create_buttons_section(self):
+    def create_buttons_section(self) -> None:
         """Создание секции с кнопками"""
         card = GlassCard("🎯 Modern Buttons")
         layout = QHBoxLayout(card)
@@ -86,7 +86,7 @@ class ModernDesignTest(QMainWindow):
         layout.addStretch()
         return card
     
-    def create_cards_section(self):
+    def create_cards_section(self) -> None:
         """Создание секции с карточками"""
         card = GlassCard("📱 Modern Cards")
         layout = QHBoxLayout(card)
@@ -111,7 +111,7 @@ class ModernDesignTest(QMainWindow):
         layout.addStretch()
         return card
     
-    def create_forms_section(self):
+    def create_forms_section(self) -> None:
         """Создание секции с формами"""
         card = GlassCard("📝 Modern Forms")
         layout = QVBoxLayout(card)
@@ -155,7 +155,7 @@ class ModernDesignTest(QMainWindow):
         
         return card
     
-    def create_tables_section(self):
+    def create_tables_section(self) -> None:
         """Создание секции с таблицами"""
         card = GlassCard("📊 Modern Tables")
         layout = QVBoxLayout(card)
@@ -186,7 +186,7 @@ class ModernDesignTest(QMainWindow):
         layout.addWidget(table)
         return card
 
-def main():
+def main() -> None:
     """Главная функция"""
     app = QApplication(sys.argv)
     

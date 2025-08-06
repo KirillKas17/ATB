@@ -18,6 +18,7 @@ from domain.value_objects.money import Money
 
 
 def create_trend_following_strategy() -> Strategy:
+    return ""
     """
     Создание трендследующей стратегии.
     
@@ -54,6 +55,7 @@ def create_trend_following_strategy() -> Strategy:
 
 
 def create_mean_reversion_strategy() -> Strategy:
+    return ""
     """
     Создание стратегии возврата к среднему.
     
@@ -89,6 +91,7 @@ def create_mean_reversion_strategy() -> Strategy:
 
 
 def create_breakout_strategy() -> Strategy:
+    return ""
     """
     Создание стратегии пробоя.
     
@@ -124,6 +127,7 @@ def create_breakout_strategy() -> Strategy:
 
 
 def create_scalping_strategy() -> Strategy:
+    return ""
     """
     Создание скальпинг стратегии.
     
@@ -159,6 +163,7 @@ def create_scalping_strategy() -> Strategy:
 
 
 def create_arbitrage_strategy() -> Strategy:
+    return ""
     """
     Создание арбитражной стратегии.
     
@@ -194,6 +199,7 @@ def create_arbitrage_strategy() -> Strategy:
 
 
 def create_grid_strategy() -> Strategy:
+    return ""
     """
     Создание сеточной стратегии.
     
@@ -229,6 +235,7 @@ def create_grid_strategy() -> Strategy:
 
 
 def create_momentum_strategy() -> Strategy:
+    return ""
     """
     Создание стратегии импульса.
     
@@ -264,6 +271,7 @@ def create_momentum_strategy() -> Strategy:
 
 
 def create_volatility_strategy() -> Strategy:
+    return ""
     """
     Создание волатильной стратегии.
     
@@ -298,7 +306,7 @@ def create_volatility_strategy() -> Strategy:
     return strategy
 
 
-async def demonstrate_strategy_usage():
+async def demonstrate_strategy_usage() -> None:
     """
     Демонстрация использования стратегий.
     
@@ -378,7 +386,7 @@ async def demonstrate_strategy_usage():
         print()
 
 
-async def demonstrate_advanced_features():
+async def demonstrate_advanced_features() -> None:
     """
     Демонстрация продвинутых возможностей стратегий.
     """
@@ -422,7 +430,7 @@ async def demonstrate_advanced_features():
     print()
 
 
-def demonstrate_error_handling():
+def demonstrate_error_handling() -> None:
     """
     Демонстрация обработки ошибок.
     """

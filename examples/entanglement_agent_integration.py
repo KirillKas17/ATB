@@ -23,7 +23,7 @@ from infrastructure.agents.entanglement_integration import (
 class EntanglementAwareMetaController(MetaControllerAgent):
     """Мета-контроллер с поддержкой обнаружения запутанности."""
 
-    def __init__(self, config=None):
+    def __init__(self, config=None) -> None:
         super().__init__(config)
         self.entanglement_integration = EntanglementIntegration(
             enabled=True, impact_threshold=0.3
@@ -85,15 +85,9 @@ class EntanglementAwareMetaController(MetaControllerAgent):
 
         if impact > 0.5:
             return "reduce_position_size"
-        elif correlation > 0.98 and lag < 2.0:
-            return "avoid_trading"
-        elif correlation > 0.95:
-            return "increase_caution"
-        else:
-            return "normal_trading"
 
 
-async def main():
+async def main() -> None:
     """Основная функция примера."""
     logger.info("=== Entanglement Agent Integration Example ===")
 
@@ -180,7 +174,7 @@ async def main():
     logger.info("=== Example completed ===")
 
 
-def test_entanglement_modification():
+def test_entanglement_modification() -> None:
     """Тест модификации сигналов запутанностью."""
     logger.info("=== Testing Entanglement Signal Modification ===")
 
@@ -205,7 +199,7 @@ def test_entanglement_modification():
     logger.info("Signal modification test passed")
 
 
-def test_entanglement_integration():
+def test_entanglement_integration() -> None:
     """Тест интеграции запутанности."""
     logger.info("=== Testing Entanglement Integration ===")
 

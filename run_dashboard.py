@@ -8,15 +8,14 @@ import sys
 import os
 from pathlib import Path
 
-def check_python_version():
+def check_python_version() -> None:
     """Проверка версии Python"""
     if sys.version_info < (3, 8):
         print("❌ Требуется Python 3.8 или выше")
         print(f"Текущая версия: {sys.version}")
         return False
-    return True
 
-def check_dependencies():
+def check_dependencies() -> None:
     """Проверка зависимостей"""
     required_packages = {
         'tkinter': 'tkinter (встроен в Python)',
@@ -54,7 +53,7 @@ def check_dependencies():
     
     return True
 
-def setup_environment():
+def setup_environment() -> None:
     """Настройка окружения"""
     # Добавление пути к проекту
     project_root = Path(__file__).parent
@@ -66,7 +65,7 @@ def setup_environment():
     
     return True
 
-def run_dashboard():
+def run_dashboard() -> None:
     """Запуск дашборда"""
     try:
         print("🚀 Запуск ATB Trading Dashboard...")
@@ -124,13 +123,13 @@ def run_dashboard():
         import traceback
         traceback.print_exc()
 
-def run_simple_dashboard():
+def run_simple_dashboard() -> None:
     """Запуск упрощенной версии дашборда"""
     import tkinter as tk
     from tkinter import ttk, messagebox
     
     class SimpleDashboard:
-        def __init__(self):
+        def __init__(self) -> None:
             self.root = tk.Tk()
             self.root.title("ATB Trading Dashboard - Простая версия")
             self.root.geometry("800x600")
@@ -138,7 +137,7 @@ def run_simple_dashboard():
             
             self.create_ui()
         
-        def create_ui(self):
+        def create_ui(self) -> None:
             # Заголовок
             title_label = tk.Label(self.root, text="⚡ ATB Trading Dashboard",
                                  font=('Arial', 20, 'bold'),
@@ -188,17 +187,17 @@ def run_simple_dashboard():
                                   font=('Arial', 10), fg='#00ff88', bg='#2d2d2d')
             status_label.pack(side='bottom', pady=10)
         
-        def show_analytics(self):
+        def show_analytics(self) -> None:
             messagebox.showinfo("Аналитика", 
                               "Функция аналитики будет доступна в полной версии.\n"
                               "Установите все зависимости для получения полного функционала.")
         
-        def show_settings(self):
+        def show_settings(self) -> None:
             messagebox.showinfo("Настройки",
                               "Настройки будут доступны в полной версии.\n"
                               "Текущая версия работает с базовыми параметрами.")
         
-        def show_help(self):
+        def show_help(self) -> None:
             help_text = """
 ATB Trading Dashboard - Справка
 
@@ -214,14 +213,14 @@ pip install numpy pandas matplotlib
             """
             messagebox.showinfo("Справка", help_text.strip())
         
-        def run(self):
+        def run(self) -> None:
             self.root.mainloop()
     
     print("📱 Запуск простой версии дашборда...")
     dashboard = SimpleDashboard()
     dashboard.run()
 
-def main():
+def main() -> None:
     """Главная функция"""
     print("=" * 60)
     print("🎯 ATB Trading Dashboard - Система запуска")

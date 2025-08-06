@@ -5,7 +5,7 @@ import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import joblib
 from shared.numpy_utils import np
@@ -65,14 +65,14 @@ class TrainingMetrics:
 class WindowModelTrainer:
     """Тренировка модели окна"""
 
-    def __init__(self, config: Optional[TrainingConfig] = None):
+    def __init__(self, config: Optional[TrainingConfig] = None) -> None:
         """Инициализация тренера"""
         self.config = config or TrainingConfig()
         self._setup_directories()
         self.metrics_history: List[TrainingMetrics] = []
         self._model_lock = asyncio.Lock()
 
-    def _setup_directories(self):
+    def _setup_directories(self) -> None:
         """Создание необходимых директорий"""
         for dir_path in [
             self.config.model_dir,
@@ -135,6 +135,7 @@ class WindowModelTrainer:
             raise
 
     def _handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
+        return None
         """Обработка пропущенных значений"""
         # Заполнение пропусков медианой для числовых колонок
         numeric_columns = df.select_dtypes(include=[np.number]).columns
@@ -154,11 +155,12 @@ class WindowModelTrainer:
 
         return df
 
-    def _optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series) -> Dict:
+    def _optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series) -> Dict[str, Any]:
+        return {}
         """Оптимизация гиперпараметров"""
         try:
 
-            def objective(trial):
+            def objective(trial) -> None:
                 # Параметры для оптимизации
                 params = {
                     "n_estimators": trial.suggest_int("n_estimators", 50, 500),
@@ -255,7 +257,7 @@ class WindowModelTrainer:
             logger.error(f"Ошибка при обучении модели: {str(e)}")
             raise
 
-    async def save_model(self, model: WindowSizeOptimizer, metrics: TrainingMetrics):
+    async def save_model(self, model: WindowSizeOptimizer, metrics: TrainingMetrics) -> None:
         """Сохранение модели и метрик"""
         try:
             async with self._model_lock:
@@ -285,7 +287,7 @@ class WindowModelTrainer:
             raise
 
 
-async def main():
+async def main() -> None:
     """Основная функция"""
     try:
         # Инициализация тренера

@@ -17,13 +17,13 @@ from modern_style_system import *
 class TwitchDemoPage(QWidget):
     """Специальная страница для демонстрации на Twitch"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.init_ui()
         self.setup_timers()
         self.generate_demo_data()
     
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Инициализация интерфейса"""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -37,7 +37,7 @@ class TwitchDemoPage(QWidget):
         content = self.create_content()
         layout.addWidget(content)
     
-    def create_header(self):
+    def create_header(self) -> None:
         """Создание заголовка"""
         header_widget = QWidget()
         header_widget.setFixedHeight(80)
@@ -82,7 +82,7 @@ class TwitchDemoPage(QWidget):
         
         return header_widget
     
-    def create_content(self):
+    def create_content(self) -> None:
         """Создание основного контента"""
         content_widget = QWidget()
         layout = QHBoxLayout(content_widget)
@@ -103,7 +103,7 @@ class TwitchDemoPage(QWidget):
         
         return content_widget
     
-    def create_left_panel(self):
+    def create_left_panel(self) -> None:
         """Создание левой панели с основной статистикой"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -133,7 +133,7 @@ class TwitchDemoPage(QWidget):
         layout.addStretch()
         return panel
     
-    def create_stat_card(self, title, value, color_type):
+    def create_stat_card(self, title, value, color_type) -> None:
         """Создание карточки статистики"""
         card = GlassCard()
         card_layout = QVBoxLayout(card)
@@ -160,7 +160,7 @@ class TwitchDemoPage(QWidget):
         
         return card
     
-    def create_time_stats(self):
+    def create_time_stats(self) -> None:
         """Создание статистики по временным интервалам"""
         card = GlassCard("⏰ Time Intervals")
         layout = QGridLayout(card)
@@ -205,7 +205,7 @@ class TwitchDemoPage(QWidget):
         
         return card
     
-    def create_center_panel(self):
+    def create_center_panel(self) -> None:
         """Создание центральной панели с графиками"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -225,7 +225,7 @@ class TwitchDemoPage(QWidget):
         
         return panel
     
-    def create_pnl_chart(self):
+    def create_pnl_chart(self) -> None:
         """Создание графика P&L"""
         card = GlassCard("💰 Profit & Loss")
         
@@ -262,7 +262,7 @@ class TwitchDemoPage(QWidget):
         
         return card
     
-    def create_activity_chart(self):
+    def create_activity_chart(self) -> None:
         """Создание графика активности"""
         card = GlassCard("🔥 Trading Activity")
         
@@ -305,7 +305,7 @@ class TwitchDemoPage(QWidget):
         
         return card
     
-    def create_right_panel(self):
+    def create_right_panel(self) -> None:
         """Создание правой панели с активными позициями"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -325,7 +325,7 @@ class TwitchDemoPage(QWidget):
         
         return panel
     
-    def create_positions_table(self):
+    def create_positions_table(self) -> None:
         """Создание таблицы активных позиций"""
         card = GlassCard("📊 Open Positions")
         
@@ -348,7 +348,7 @@ class TwitchDemoPage(QWidget):
         
         return card
     
-    def create_recent_trades(self):
+    def create_recent_trades(self) -> None:
         """Создание списка последних сделок"""
         card = GlassCard("🔄 Recent Trades")
         
@@ -372,7 +372,7 @@ class TwitchDemoPage(QWidget):
         
         return card
     
-    def setup_timers(self):
+    def setup_timers(self) -> None:
         """Настройка таймеров для обновления данных"""
         # Таймер для обновления статистики
         self.stats_timer = QTimer()
@@ -389,7 +389,7 @@ class TwitchDemoPage(QWidget):
         self.positions_timer.timeout.connect(self.update_positions)
         self.positions_timer.start(3000)  # Обновление каждые 3 секунды
     
-    def generate_demo_data(self):
+    def generate_demo_data(self) -> None:
         """Генерация демонстрационных данных"""
         self.demo_data = {
             'total_pnl': 0.0,
@@ -429,7 +429,7 @@ class TwitchDemoPage(QWidget):
             }
             self.demo_data['trades'].append(trade)
     
-    def update_statistics(self):
+    def update_statistics(self) -> None:
         """Обновление статистики"""
         # Обновляем основные показатели
         self.demo_data['total_pnl'] += random.uniform(-50, 50)
@@ -473,7 +473,7 @@ class TwitchDemoPage(QWidget):
                     border-radius: 20px;
                 """)
     
-    def update_charts(self):
+    def update_charts(self) -> None:
         """Обновление графиков"""
         # Обновляем график P&L
         current_time = datetime.now().hour
@@ -490,7 +490,7 @@ class TwitchDemoPage(QWidget):
         for trades in self.demo_data['hourly_trades']:
             self.activity_set.append(trades)
     
-    def update_positions(self):
+    def update_positions(self) -> None:
         """Обновление позиций и сделок"""
         # Обновляем позиции
         for position in self.demo_data['positions']:

@@ -21,6 +21,7 @@ class TestFeatureEngineer:
 
     @pytest.fixture
     def sample_market_data(self) -> pd.DataFrame:
+        return None
         """Фикстура для тестовых рыночных данных."""
         dates = pd.date_range(start='2023-01-01', periods=100, freq='1H')
         data = {

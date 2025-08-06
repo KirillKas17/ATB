@@ -27,13 +27,13 @@ from shared.config import get_config
 class EnhancedTradingExample:
     """Пример использования расширенной торговой системы с новостной аналитикой."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.container = get_service_locator()
         self.orchestrator = self.container.get("trading_orchestrator_use_case")
         self.enhanced_trading_service = self.container.get("enhanced_trading_service")
         self.logger = logging.getLogger(__name__)
 
-    async def run_comprehensive_example(self):
+    async def run_comprehensive_example(self) -> None:
         """Запуск комплексного примера с новостной аналитикой."""
         try:
             self.logger.info("🚀 Запуск примера интеграции новостной аналитики")
@@ -59,7 +59,7 @@ class EnhancedTradingExample:
             self.logger.error(f"❌ Ошибка в примере: {e}")
             raise
 
-    async def _demonstrate_sentiment_analysis(self):
+    async def _demonstrate_sentiment_analysis(self) -> None:
         """Демонстрация анализа рыночного сентимента."""
         self.logger.info("📊 Анализ рыночного сентимента...")
         
@@ -104,7 +104,7 @@ class EnhancedTradingExample:
             except Exception as e:
                 self.logger.error(f"❌ Ошибка анализа сентимента для {pair}: {e}")
 
-    async def _demonstrate_strategy_execution(self):
+    async def _demonstrate_strategy_execution(self) -> None:
         """Демонстрация выполнения стратегии с учетом сентимента."""
         self.logger.info("🎯 Выполнение стратегии с новостной аналитикой...")
         
@@ -156,7 +156,7 @@ class EnhancedTradingExample:
         except Exception as e:
             self.logger.error(f"❌ Ошибка выполнения стратегии: {e}")
 
-    async def _demonstrate_signal_processing(self):
+    async def _demonstrate_signal_processing(self) -> None:
         """Демонстрация обработки сигналов с новостной аналитикой."""
         self.logger.info("📡 Обработка торговых сигналов с новостной аналитикой...")
         
@@ -210,7 +210,7 @@ class EnhancedTradingExample:
         except Exception as e:
             self.logger.error(f"❌ Ошибка обработки сигнала: {e}")
 
-    async def _demonstrate_portfolio_rebalancing(self):
+    async def _demonstrate_portfolio_rebalancing(self) -> None:
         """Демонстрация ребалансировки портфеля с учетом сентимента."""
         self.logger.info("⚖️ Ребалансировка портфеля с новостной аналитикой...")
         
@@ -259,7 +259,7 @@ class EnhancedTradingExample:
         except Exception as e:
             self.logger.error(f"❌ Ошибка ребалансировки портфеля: {e}")
 
-    async def _demonstrate_monitoring(self):
+    async def _demonstrate_monitoring(self) -> None:
         """Демонстрация мониторинга и отчетности."""
         self.logger.info("📊 Мониторинг и отчетность...")
         
@@ -296,7 +296,7 @@ class EnhancedTradingExample:
         
         self.logger.info("")
 
-    async def run_simple_example(self):
+    async def run_simple_example(self) -> None:
         """Запуск простого примера для быстрого тестирования."""
         self.logger.info("🚀 Запуск простого примера...")
         
@@ -321,7 +321,7 @@ class EnhancedTradingExample:
             self.logger.error(f"❌ Ошибка в простом примере: {e}")
 
 
-async def main():
+async def main() -> None:
     """Основная функция."""
     # Настройка логирования
     logging.basicConfig(

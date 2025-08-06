@@ -14,6 +14,7 @@ from domain.value_objects.volume import Volume
 class TestEntanglementIntegration:
     """Интеграционные тесты для системы обнаружения запутанности."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.detector = EntanglementDetector(
             max_lag_ms=3.0,

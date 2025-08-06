@@ -65,12 +65,12 @@ class ATBSystemThread(QThread):
     error_occurred = pyqtSignal(str)
     status_update = pyqtSignal(str)
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.running = False
         self.orchestrator = None
         
-    def run(self):
+    def run(self) -> None:
         """Запуск системы в отдельном потоке"""
         try:
             self.running = True
@@ -89,7 +89,7 @@ class ATBSystemThread(QThread):
             self.running = False
             self.system_stopped.emit()
     
-    async def _start_system(self):
+    async def _start_system(self) -> None:
         """Асинхронный запуск системы"""
         try:
             config = create_default_config()
@@ -117,7 +117,7 @@ class ATBSystemThread(QThread):
         except Exception as e:
             self.error_occurred.emit(f"Ошибка в системе: {str(e)}")
     
-    def stop_system(self):
+    def stop_system(self) -> None:
         """Остановка системы"""
         if self.orchestrator:
             asyncio.create_task(self.orchestrator.stop())
@@ -127,12 +127,8 @@ class ModernStyleSheet:
     """Современные стили для приложения"""
     
     @staticmethod
-    def get_dark_theme():
+    def get_dark_theme() -> Any:
         return """
-        QMainWindow {
-            background-color: #1e1e1e;
-            color: #ffffff;
-        }
         
         QWidget {
             background-color: #1e1e1e;
@@ -292,7 +288,7 @@ class ModernStyleSheet:
 class ATBDesktopApp(QMainWindow):
     """Главное окно приложения ATB"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.system_thread = None
         self.update_timer = QTimer()
@@ -301,7 +297,7 @@ class ATBDesktopApp(QMainWindow):
         self.init_ui()
         self.setup_connections()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Инициализация пользовательского интерфейса"""
         self.setWindowTitle("ATB Trading System - Professional Edition")
         self.setGeometry(100, 100, 1600, 1000)
@@ -332,7 +328,7 @@ class ATBDesktopApp(QMainWindow):
         # Запуск таймера обновления
         self.update_timer.start(1000)  # Обновление каждую секунду
         
-    def create_menu_bar(self):
+    def create_menu_bar(self) -> None:
         """Создание меню"""
         menubar = self.menuBar()
         
@@ -391,7 +387,7 @@ class ATBDesktopApp(QMainWindow):
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
         
-    def create_toolbar(self):
+    def create_toolbar(self) -> None:
         """Создание панели инструментов"""
         toolbar = QToolBar()
         self.addToolBar(toolbar)
@@ -416,7 +412,7 @@ class ATBDesktopApp(QMainWindow):
         self.status_label.setStyleSheet("color: #ff6b6b; font-weight: bold;")
         toolbar.addWidget(self.status_label)
         
-    def create_main_content(self, main_layout):
+    def create_main_content(self, main_layout) -> None:
         """Создание главного контента"""
         # Создание сплиттера для разделения панелей
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -437,7 +433,7 @@ class ATBDesktopApp(QMainWindow):
         # Установка пропорций
         splitter.setSizes([400, 800, 400])
         
-    def create_left_panel(self):
+    def create_left_panel(self) -> None:
         """Создание левой панели"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -497,7 +493,7 @@ class ATBDesktopApp(QMainWindow):
         layout.addStretch()
         return panel
         
-    def create_center_panel(self):
+    def create_center_panel(self) -> None:
         """Создание центральной панели с графиками"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -520,7 +516,7 @@ class ATBDesktopApp(QMainWindow):
         layout.addWidget(self.chart_tabs)
         return panel
         
-    def create_price_chart(self):
+    def create_price_chart(self) -> None:
         """Создание графика цен"""
         chart = QChart()
         chart.setTitle("График цен BTC/USDT")
@@ -552,7 +548,7 @@ class ATBDesktopApp(QMainWindow):
         
         return chart_view
         
-    def create_pnl_chart(self):
+    def create_pnl_chart(self) -> None:
         """Создание графика P&L"""
         chart = QChart()
         chart.setTitle("График P&L")
@@ -585,7 +581,7 @@ class ATBDesktopApp(QMainWindow):
         
         return chart_view
         
-    def create_analytics_chart(self):
+    def create_analytics_chart(self) -> None:
         """Создание графика аналитики"""
         chart = QChart()
         chart.setTitle("Аналитика торговли")
@@ -620,7 +616,7 @@ class ATBDesktopApp(QMainWindow):
         
         return chart_view
         
-    def create_right_panel(self):
+    def create_right_panel(self) -> None:
         """Создание правой панели"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -662,7 +658,7 @@ class ATBDesktopApp(QMainWindow):
         layout.addStretch()
         return panel
         
-    def create_status_bar(self):
+    def create_status_bar(self) -> None:
         """Создание статусной панели"""
         status_bar = QStatusBar()
         self.setStatusBar(status_bar)
@@ -678,7 +674,7 @@ class ATBDesktopApp(QMainWindow):
         self.last_update = QLabel("Последнее обновление: Никогда")
         status_bar.addPermanentWidget(self.last_update)
         
-    def setup_connections(self):
+    def setup_connections(self) -> None:
         """Настройка соединений сигналов"""
         # Соединения с системным потоком
         if self.system_thread:
@@ -687,14 +683,14 @@ class ATBDesktopApp(QMainWindow):
             self.system_thread.error_occurred.connect(self.on_system_error)
             self.system_thread.status_update.connect(self.on_status_update)
             
-    def toggle_trading(self):
+    def toggle_trading(self) -> None:
         """Переключение состояния торговли"""
         if self.system_thread and self.system_thread.running:
             self.stop_trading()
         else:
             self.start_trading()
             
-    def start_trading(self):
+    def start_trading(self) -> None:
         """Запуск торговли"""
         if not self.system_thread or not self.system_thread.running:
             self.system_thread = ATBSystemThread()
@@ -704,7 +700,7 @@ class ATBDesktopApp(QMainWindow):
             self.trading_button.setText("Остановить торговлю")
             self.trading_button.setStyleSheet("background-color: #dc3545;")
             
-    def stop_trading(self):
+    def stop_trading(self) -> None:
         """Остановка торговли"""
         if self.system_thread and self.system_thread.running:
             self.system_thread.stop_system()
@@ -712,7 +708,7 @@ class ATBDesktopApp(QMainWindow):
             self.trading_button.setText("Запустить торговлю")
             self.trading_button.setStyleSheet("")
             
-    def on_system_started(self):
+    def on_system_started(self) -> None:
         """Обработчик запуска системы"""
         self.system_status.setText("Статус: Запущена")
         self.system_status.setStyleSheet("color: #28a745; font-weight: bold;")
@@ -723,7 +719,7 @@ class ATBDesktopApp(QMainWindow):
         
         self.log_message("Система ATB успешно запущена")
         
-    def on_system_stopped(self):
+    def on_system_stopped(self) -> None:
         """Обработчик остановки системы"""
         self.system_status.setText("Статус: Остановлена")
         self.system_status.setStyleSheet("color: #ff6b6b; font-weight: bold;")
@@ -734,16 +730,16 @@ class ATBDesktopApp(QMainWindow):
         
         self.log_message("Система ATB остановлена")
         
-    def on_system_error(self, error_msg):
+    def on_system_error(self, error_msg) -> None:
         """Обработчик ошибки системы"""
         self.log_message(f"ОШИБКА: {error_msg}")
         QMessageBox.critical(self, "Ошибка системы", f"Произошла ошибка:\n{error_msg}")
         
-    def on_status_update(self, status):
+    def on_status_update(self, status) -> None:
         """Обработчик обновления статуса"""
         self.log_message(f"Статус: {status}")
         
-    def update_displays(self):
+    def update_displays(self) -> None:
         """Обновление отображения данных"""
         current_time = datetime.now()
         self.last_update.setText(f"Последнее обновление: {current_time.strftime('%H:%M:%S')}")
@@ -753,7 +749,7 @@ class ATBDesktopApp(QMainWindow):
             # Здесь можно добавить расчет времени работы
             pass
             
-    def log_message(self, message):
+    def log_message(self, message) -> None:
         """Добавление сообщения в лог"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.log_text.append(f"[{timestamp}] {message}")
@@ -762,7 +758,7 @@ class ATBDesktopApp(QMainWindow):
         scrollbar = self.log_text.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
         
-    def show_about(self):
+    def show_about(self) -> None:
         """Показать информацию о программе"""
         QMessageBox.about(self, "О программе", 
                          "ATB Trading System - Professional Edition\n"
@@ -770,7 +766,7 @@ class ATBDesktopApp(QMainWindow):
                          "Современная торговая система с искусственным интеллектом\n"
                          "© 2024 ATB Trading Team")
         
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         """Обработчик закрытия приложения"""
         if self.system_thread and self.system_thread.running:
             reply = QMessageBox.question(self, 'Подтверждение', 
@@ -786,7 +782,7 @@ class ATBDesktopApp(QMainWindow):
         else:
             event.accept()
 
-def main():
+def main() -> None:
     """Главная функция приложения"""
     app = QApplication(sys.argv)
     

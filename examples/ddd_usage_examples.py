@@ -34,7 +34,7 @@ from domain.exceptions import TradingError
 
 # Заглушка для RiskLimit, так как класс не существует
 class RiskLimit:
-    def __init__(self, risk_type, name, max_value, warning_threshold, critical_threshold):
+    def __init__(self, risk_type, name, max_value, warning_threshold, critical_threshold) -> None:
         self.risk_type = risk_type
         self.name = name
         self.max_value = max_value
@@ -42,7 +42,7 @@ class RiskLimit:
         self.critical_threshold = critical_threshold
 
 
-async def example_1_basic_trading_workflow():
+async def example_1_basic_trading_workflow() -> None:
     """Пример 1: Базовый торговый workflow"""
     print("=== Пример 1: Базовый торговый workflow ===")
 
@@ -108,7 +108,7 @@ async def example_1_basic_trading_workflow():
     print(f"Количество открытых позиций: {summary['open_positions_count']}")
 
 
-async def example_2_risk_management():
+async def example_2_risk_management() -> None:
     """Пример 2: Управление рисками"""
     print("\n=== Пример 2: Управление рисками ===")
 
@@ -157,7 +157,7 @@ async def example_2_risk_management():
         )
 
 
-async def example_3_strategy_workflow():
+async def example_3_strategy_workflow() -> None:
     """Пример 3: Workflow стратегии"""
     print("\n=== Пример 3: Workflow стратегии ===")
 
@@ -204,7 +204,7 @@ async def example_3_strategy_workflow():
     print(f"Можно ли действовать: {signal.is_actionable}")
 
 
-async def example_4_market_data_analysis():
+async def example_4_market_data_analysis() -> None:
     """Пример 4: Анализ рыночных данных"""
     print("\n=== Пример 4: Анализ рыночных данных ===")
 
@@ -279,7 +279,7 @@ async def example_4_market_data_analysis():
         print(f"- Доджи: {latest_candle.is_doji}")
 
 
-async def example_5_ml_integration():
+async def example_5_ml_integration() -> None:
     """Пример 5: Интеграция с ML"""
     print("\n=== Пример 5: Интеграция с ML ===")
 
@@ -339,7 +339,7 @@ async def example_5_ml_integration():
         print(f"- Уверенность: {ensemble_prediction.confidence}")
 
 
-async def example_6_portfolio_management():
+async def example_6_portfolio_management() -> None:
     """Пример 6: Управление портфелем"""
     print("\n=== Пример 6: Управление портфелем ===")
 
@@ -413,7 +413,7 @@ async def example_6_portfolio_management():
         print(f"  Открыта: {position.is_open}")
 
 
-async def example_7_error_handling():
+async def example_7_error_handling() -> None:
     """Пример 7: Обработка ошибок"""
     print("\n=== Пример 7: Обработка ошибок ===")
 
@@ -464,7 +464,7 @@ async def example_7_error_handling():
         print(f"Ошибка при отмене ордера: {e}")
 
 
-async def main():
+async def main() -> None:
     """Главная функция с примерами"""
     print("Примеры использования DDD архитектуры Advanced Trading Bot")
     print("=" * 60)

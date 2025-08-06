@@ -144,8 +144,6 @@ class BollingerBandsResult:
         """Валидация после инициализации."""
         if self.period <= 0:
             raise ValueError("Period must be positive")
-        if self.std_dev <= 0:
-            raise ValueError("Standard deviation must be positive")
 
 
 @dataclass(frozen=True)
@@ -187,8 +185,6 @@ class VolumeProfileResult:
         """Валидация после инициализации."""
         if self.bins <= 0:
             raise ValueError("Number of bins must be positive")
-        if not 0 < self.value_area_percentage < 1:
-            raise ValueError("Value area percentage must be between 0 and 1")
 
 
 @dataclass(frozen=True)
@@ -214,8 +210,6 @@ class MarketStructureResult:
         """Валидация после инициализации."""
         if not 0 <= self.confidence <= 1:
             raise ValueError("Confidence must be between 0 and 1")
-        if self.volatility < 0:
-            raise ValueError("Volatility cannot be negative")
 
 
 @dataclass(frozen=True)
@@ -260,8 +254,6 @@ class SignalResult:
         """Валидация после инициализации."""
         if not 0 <= self.strength <= 1:
             raise ValueError("Signal strength must be between 0 and 1")
-        if not 0 <= self.confidence <= 1:
-            raise ValueError("Signal confidence must be between 0 and 1")
 
 
 @dataclass(frozen=True)

@@ -20,6 +20,7 @@ class TestNoiseAnalyzer:
     """Тесты для NoiseAnalyzer."""
 
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.analyzer = NoiseAnalyzer(
             fractal_dimension_lower=1.2,
@@ -221,6 +222,7 @@ class TestOrderBookPreFilter:
     """Тесты для OrderBookPreFilter."""
 
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.config = FilterConfig(
             enabled=True,

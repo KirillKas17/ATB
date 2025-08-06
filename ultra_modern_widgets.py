@@ -22,7 +22,7 @@ from modern_style_system import (
 class UltraModernMetricCard(QWidget):
     """Ультрасовременная карточка с метрикой"""
     
-    def __init__(self, title="", value="", change="", trend="up", parent=None):
+    def __init__(self, title="", value="", change="", trend="up", parent=None) -> None:
         super().__init__(parent)
         self.title = title
         self.value = value
@@ -30,7 +30,7 @@ class UltraModernMetricCard(QWidget):
         self.trend = trend
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(12)
@@ -75,13 +75,13 @@ class UltraModernMetricCard(QWidget):
 class UltraModernChartCard(QWidget):
     """Ультрасовременная карточка с графиком"""
     
-    def __init__(self, title="", chart_type="line", parent=None):
+    def __init__(self, title="", chart_type="line", parent=None) -> None:
         super().__init__(parent)
         self.title = title
         self.chart_type = chart_type
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
@@ -97,7 +97,7 @@ class UltraModernChartCard(QWidget):
         # Применение стиля карточки
         self.setProperty("class", "UltraModernCard")
         
-    def create_chart(self):
+    def create_chart(self) -> None:
         chart = QChart()
         chart.setTheme(QChart.ChartTheme.ChartThemeDark)
         chart.setBackgroundBrush(QBrush(QColor(UltraModernStyleSystem.COLORS['surface'])))
@@ -129,14 +129,14 @@ class UltraModernChartCard(QWidget):
 class UltraModernStatusCard(QWidget):
     """Ультрасовременная карточка статуса"""
     
-    def __init__(self, title="", status="active", description="", parent=None):
+    def __init__(self, title="", status="active", description="", parent=None) -> None:
         super().__init__(parent)
         self.title = title
         self.status = status
         self.description = description
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QHBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
@@ -180,11 +180,11 @@ class UltraModernStatusCard(QWidget):
 class UltraModernActivityFeed(QWidget):
     """Ультрасовременная лента активности"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
@@ -229,7 +229,7 @@ class UltraModernActivityFeed(QWidget):
         # Применение стиля карточки
         self.setProperty("class", "UltraModernCard")
         
-    def create_activity_item(self, title, description, type_, time):
+    def create_activity_item(self, title, description, type_, time) -> None:
         widget = QWidget()
         layout = QHBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -279,11 +279,11 @@ class UltraModernActivityFeed(QWidget):
 class UltraModernQuickActions(QWidget):
     """Ультрасовременные быстрые действия"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
@@ -317,11 +317,11 @@ class UltraModernQuickActions(QWidget):
 class UltraModernPerformanceWidget(QWidget):
     """Ультрасовременный виджет производительности"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(20)
@@ -357,11 +357,11 @@ class UltraModernPerformanceWidget(QWidget):
 class UltraModernDashboard(QWidget):
     """Ультрасовременная панель управления"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.init_ui()
         
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)

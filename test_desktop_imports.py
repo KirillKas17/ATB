@@ -7,7 +7,7 @@ Test script to verify desktop application imports
 import sys
 from pathlib import Path
 
-def test_imports():
+def test_imports() -> None:
     """Test all desktop application imports"""
     print("Testing desktop application imports...")
     
@@ -52,11 +52,8 @@ def test_imports():
     except ImportError as e:
         print(f"❌ Import error: {e}")
         return False
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}")
-        return False
 
-def test_ui_creation():
+def test_ui_creation() -> None:
     """Test UI creation without showing window"""
     print("\nTesting UI creation...")
     

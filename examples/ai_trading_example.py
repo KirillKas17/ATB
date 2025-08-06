@@ -24,7 +24,7 @@ from utils.event_bus import EventBus
 class AITradingExample:
     """Пример использования ИИ-системы торговли"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.event_bus = EventBus()
 
         # Инициализация ИИ-компонентов
@@ -37,6 +37,7 @@ class AITradingExample:
         self.test_data = self._generate_test_data()
 
     def _generate_test_data(self) -> pd.DataFrame:
+        return None
         """Генерация тестовых рыночных данных"""
         np.random.seed(42)
 
@@ -63,7 +64,7 @@ class AITradingExample:
 
         return data
 
-    async def run_decision_reasoner_example(self):
+    async def run_decision_reasoner_example(self) -> None:
         """Пример работы DecisionReasoner 2.0"""
         logger.info("=== DecisionReasoner 2.0 Example ===")
 
@@ -125,7 +126,7 @@ class AITradingExample:
         metrics = self.decision_reasoner.get_enhanced_metrics()
         logger.info(f"Decision Metrics: {metrics}")
 
-    async def run_transformer_example(self):
+    async def run_transformer_example(self) -> None:
         """Пример работы TransformerPredictor"""
         logger.info("=== TransformerPredictor Example ===")
 
@@ -145,7 +146,7 @@ class AITradingExample:
         metrics = self.transformer_predictor.get_metrics("test_model")
         logger.info(f"Transformer Metrics: {metrics}")
 
-    async def run_meta_learning_example(self):
+    async def run_meta_learning_example(self) -> None:
         """Пример работы MetaLearning"""
         logger.info("=== MetaLearning Example ===")
 
@@ -154,7 +155,7 @@ class AITradingExample:
 
         # Симуляция модели
         class MockModel:
-            def predict(self, X):
+            def predict(self, X) -> None:
                 return np.random.choice([0, 1], size=len(X))
 
         mock_model = MockModel()
@@ -172,7 +173,7 @@ class AITradingExample:
         metrics = self.meta_learner.get_metrics("test_model")
         logger.info(f"Meta Learning Metrics: {metrics}")
 
-    async def run_live_adaptation_example(self):
+    async def run_live_adaptation_example(self) -> None:
         """Пример работы LiveAdaptation"""
         logger.info("=== LiveAdaptation Example ===")
 
@@ -192,7 +193,7 @@ class AITradingExample:
         metrics = await self.live_adaptation.get_metrics()
         logger.info(f"Live Adaptation Metrics: {metrics}")
 
-    async def run_strategy_evolution_example(self):
+    async def run_strategy_evolution_example(self) -> None:
         """Пример эволюции стратегий"""
         logger.info("=== Strategy Evolution Example ===")
 
@@ -220,7 +221,7 @@ class AITradingExample:
                 f"  Performance: {np.mean(strategy.performance_history[-10:]) if strategy.performance_history else 0:.3f}"
             )
 
-    async def run_integrated_example(self):
+    async def run_integrated_example(self) -> None:
         """Интегрированный пример работы всей системы"""
         logger.info("=== Integrated AI Trading System Example ===")
 
@@ -293,7 +294,7 @@ class AITradingExample:
             # Пауза между циклами
             await asyncio.sleep(0.1)
 
-    async def run_all_examples(self):
+    async def run_all_examples(self) -> None:
         """Запуск всех примеров"""
         logger.info("Starting AI Trading System Examples...")
 
@@ -324,7 +325,7 @@ class AITradingExample:
             raise
 
 
-async def main():
+async def main() -> None:
     """Основная функция"""
     # Создание и запуск примера
     example = AITradingExample()

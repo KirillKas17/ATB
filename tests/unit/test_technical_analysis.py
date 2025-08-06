@@ -22,6 +22,7 @@ class TestTechnicalAnalysis:
     
     @pytest.fixture
     def sample_data(self) -> pd.DataFrame:
+        return None
         """Фикстура с тестовыми данными."""
         dates = pd.DatetimeIndex(pd.date_range('2023-01-01', periods=100, freq='1H'))
         np.random.seed(42)
@@ -45,10 +46,10 @@ class TestTechnicalAnalysis:
         # Проверки
         assert len(sma_20) == len(sample_data)
         assert len(sma_50) == len(sample_data)
-        assert not sma_20.iloc[:19].notna().any()  # type: ignore  # Первые 19 значений должны быть NaN
-        assert not sma_50.iloc[:49].notna().any()  # type: ignore  # Первые 49 значений должны быть NaN
-        assert sma_20.iloc[19:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
-        assert sma_50.iloc[49:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
+        assert not sma_20.iloc[:19].notna().any()
+        assert not sma_50.iloc[:49].notna().any()
+        assert sma_20.iloc[19:].notna().all()
+        assert sma_50.iloc[49:].notna().all()
 
     def test_calculate_ema(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета экспоненциальной скользящей средней."""
@@ -58,10 +59,10 @@ class TestTechnicalAnalysis:
         # Проверки
         assert len(ema_20) == len(sample_data)
         assert len(ema_50) == len(sample_data)
-        assert ema_20.iloc[0].notna()  # type: ignore  # EMA должна начинаться с первого значения
-        assert ema_50.iloc[0].notna()  # type: ignore  # EMA должна начинаться с первого значения
-        assert ema_20.iloc[1:].notna().all()  # type: ignore  # Все остальные значения должны быть не NaN
-        assert ema_50.iloc[1:].notna().all()  # type: ignore  # Все остальные значения должны быть не NaN
+        assert ema_20.iloc[0].notna()
+        assert ema_50.iloc[0].notna()
+        assert ema_20.iloc[1:].notna().all()
+        assert ema_50.iloc[1:].notna().all()
 
     def test_calculate_rsi(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета RSI."""
@@ -69,10 +70,10 @@ class TestTechnicalAnalysis:
         rsi_14 = TechnicalIndicators.calculate_rsi(sample_data['close'], 14)
         # Проверки
         assert len(rsi_14) == len(sample_data)
-        assert not rsi_14.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
-        assert rsi_14.iloc[14:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
-        assert (rsi_14 >= 0).all()  # type: ignore  # RSI должен быть >= 0
-        assert (rsi_14 <= 100).all()  # type: ignore  # RSI должен быть <= 100
+        assert not rsi_14.iloc[:14].notna().any()
+        assert rsi_14.iloc[14:].notna().all()
+        assert (rsi_14 >= 0).all()
+        assert (rsi_14 <= 100).all()
 
     def test_calculate_macd(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета MACD."""
@@ -121,9 +122,9 @@ class TestTechnicalAnalysis:
         )
         # Проверки
         assert len(atr_14) == len(sample_data)
-        assert not atr_14.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
-        assert atr_14.iloc[14:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
-        assert (atr_14 >= 0).all()  # type: ignore  # ATR должен быть >= 0
+        assert not atr_14.iloc[:14].notna().any()
+        assert atr_14.iloc[14:].notna().all()
+        assert (atr_14 >= 0).all()
 
     def test_calculate_stochastic(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета стохастического осциллятора."""
@@ -140,10 +141,10 @@ class TestTechnicalAnalysis:
         # Проверки
         assert len(k_percent) == len(sample_data)
         assert len(d_percent) == len(sample_data)
-        assert (k_percent >= 0).all()  # type: ignore  # %K должен быть >= 0
-        assert (k_percent <= 100).all()  # type: ignore  # %K должен быть <= 100
-        assert (d_percent >= 0).all()  # type: ignore  # %D должен быть >= 0
-        assert (d_percent <= 100).all()  # type: ignore  # %D должен быть <= 100
+        assert (k_percent >= 0).all()
+        assert (k_percent <= 100).all()
+        assert (d_percent >= 0).all()
+        assert (d_percent <= 100).all()
 
     def test_calculate_williams_r(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета Williams %R."""
@@ -156,10 +157,10 @@ class TestTechnicalAnalysis:
         )
         # Проверки
         assert len(williams_r) == len(sample_data)
-        assert not williams_r.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
-        assert williams_r.iloc[14:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
-        assert (williams_r >= -100).all()  # type: ignore  # Williams %R должен быть >= -100
-        assert (williams_r <= 0).all()  # type: ignore  # Williams %R должен быть <= 0
+        assert not williams_r.iloc[:14].notna().any()
+        assert williams_r.iloc[14:].notna().all()
+        assert (williams_r >= -100).all()
+        assert (williams_r <= 0).all()
 
     def test_calculate_cci(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета CCI."""
@@ -172,8 +173,8 @@ class TestTechnicalAnalysis:
         )
         # Проверки
         assert len(cci) == len(sample_data)
-        assert not cci.iloc[:20].notna().any()  # type: ignore  # Первые 20 значений должны быть NaN
-        assert cci.iloc[20:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
+        assert not cci.iloc[:20].notna().any()
+        assert cci.iloc[20:].notna().all()
 
     def test_calculate_adx(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета ADX."""
@@ -189,10 +190,10 @@ class TestTechnicalAnalysis:
         minus_di = adx_result['minus_di']
         # Проверки
         assert len(adx) == len(sample_data)
-        assert not adx.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
-        assert adx.iloc[14:].notna().all()  # type: ignore  # Остальные значения должны быть не NaN
-        assert (adx >= 0).all()  # type: ignore  # ADX должен быть >= 0
-        assert (adx <= 100).all()  # type: ignore  # ADX должен быть <= 100
+        assert not adx.iloc[:14].notna().any()
+        assert adx.iloc[14:].notna().all()
+        assert (adx >= 0).all()
+        assert (adx <= 100).all()
 
     def test_calculate_obv(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета OBV."""
@@ -351,12 +352,12 @@ class TestTechnicalAnalysis:
         """Тест граничных случаев."""
         # Тест с очень малым количеством данных
         if hasattr(sample_data, 'head'):
-            small_data: pd.DataFrame = sample_data.head(10)  # type: ignore[no-redef]
+            small_data: pd.DataFrame = sample_data.head(10)
         else:
             if len(sample_data) > 10:
-                small_data: pd.DataFrame = sample_data.iloc[:10]  # type: ignore[no-redef]
+                small_data: pd.DataFrame = sample_data.iloc[:10]
             else:
-                small_data: pd.DataFrame = sample_data  # type: ignore[no-redef]
+                small_data: pd.DataFrame = sample_data
         try:
             TechnicalIndicators.get_all_indicators(small_data)
         except Exception:

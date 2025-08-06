@@ -17,7 +17,7 @@ from application.analysis.entanglement_monitor import EntanglementMonitor
 from domain.intelligence.entanglement_detector import EntanglementDetector
 
 
-async def main():
+async def main() -> None:
     """Основная функция примера."""
     logger.info("=== Quantum Order Entanglement Detection Example ===")
 
@@ -86,7 +86,7 @@ async def main():
     logger.info("=== Example completed ===")
 
 
-def test_entanglement_detector():
+def test_entanglement_detector() -> None:
     """Тестирование EntanglementDetector напрямую."""
     logger.info("=== Testing EntanglementDetector ===")
 

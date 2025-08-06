@@ -20,7 +20,8 @@ from core.evolution_integration import (evolution_integration, start_evolution,
 from loguru import logger
 
 
-def create_sample_market_data():
+def create_sample_market_data() -> Any:
+    return None
     """Создание тестовых рыночных данных"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
 
@@ -47,7 +48,7 @@ def create_sample_market_data():
     return data
 
 
-async def example_1_classic_only():
+async def example_1_classic_only() -> None:
     """Пример 1: Использование только классических агентов"""
     logger.info("=== Пример 1: Только классические агенты ===")
 
@@ -74,7 +75,7 @@ async def example_1_classic_only():
     logger.info(f"Классические веса портфеля: {portfolio_weights}")
 
 
-async def example_2_evolutionary_only():
+async def example_2_evolutionary_only() -> None:
     """Пример 2: Использование только эволюционных агентов"""
     logger.info("=== Пример 2: Только эволюционные агенты ===")
 
@@ -107,7 +108,7 @@ async def example_2_evolutionary_only():
     await stop_evolution()
 
 
-async def example_3_hybrid_approach():
+async def example_3_hybrid_approach() -> None:
     """Пример 3: Гибридный подход - сравнение результатов"""
     logger.info("=== Пример 3: Гибридный подход ===")
 
@@ -149,7 +150,7 @@ async def example_3_hybrid_approach():
     await stop_evolution()
 
 
-async def example_4_evolution_monitoring():
+async def example_4_evolution_monitoring() -> None:
     """Пример 4: Мониторинг эволюции агентов"""
     logger.info("=== Пример 4: Мониторинг эволюции ===")
 
@@ -199,7 +200,7 @@ async def example_4_evolution_monitoring():
     await stop_evolution()
 
 
-async def example_5_adaptive_trading():
+async def example_5_adaptive_trading() -> None:
     """Пример 5: Адаптивная торговля с эволюционными агентами"""
     logger.info("=== Пример 5: Адаптивная торговля ===")
 
@@ -252,7 +253,7 @@ async def example_5_adaptive_trading():
     await stop_evolution()
 
 
-async def example_6_performance_comparison():
+async def example_6_performance_comparison() -> None:
     """Пример 6: Сравнение производительности классических и эволюционных агентов"""
     logger.info("=== Пример 6: Сравнение производительности ===")
 
@@ -324,7 +325,7 @@ async def example_6_performance_comparison():
     return results
 
 
-async def main():
+async def main() -> None:
     """Основная функция с примерами"""
     logger.info("Запуск примеров использования эволюционных агентов")
 

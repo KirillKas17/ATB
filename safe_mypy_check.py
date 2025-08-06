@@ -27,7 +27,6 @@ def contains_python_files(path: str) -> bool:
         for f in files:
             if f.endswith(".py"):
                 return True
-    return False
 
 
 def run_mypy() -> None:

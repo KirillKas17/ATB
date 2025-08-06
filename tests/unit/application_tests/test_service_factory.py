@@ -21,6 +21,7 @@ class TestServiceFactory:
 class TestDefaultServiceFactory:
     """Тесты для реализации фабрики сервисов по умолчанию."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.config = {
             'market_service': {'cache_enabled': True},
@@ -121,6 +122,7 @@ class TestDefaultServiceFactory:
 class TestServiceFactoryRegistry:
     """Тесты для реестра фабрик сервисов."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.registry = ServiceFactoryRegistry()
         self.mock_factory_class = Mock()
@@ -180,6 +182,7 @@ class TestGetServiceFactory:
 class TestServiceFactoryIntegration:
     """Интеграционные тесты фабрики сервисов."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.config = {
             'market_service': {

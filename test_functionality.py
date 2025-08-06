@@ -7,7 +7,7 @@ import sys
 from PyQt6.QtWidgets import QApplication
 from modern_dashboard_app import MainWindow
 
-def test_application():
+def test_application() -> None:
     """Test the main application functionality"""
     app = QApplication(sys.argv)
     

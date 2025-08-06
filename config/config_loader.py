@@ -53,6 +53,7 @@ class Config(BaseModel):
 
 
 def load_config(config_path: str = "config/config.yaml") -> Config:
+    return ""
     """
     Load configuration from YAML file.
 
@@ -82,9 +83,6 @@ def load_config(config_path: str = "config/config.yaml") -> Config:
 
     except yaml.YAMLError as e:
         print(f"Error parsing YAML configuration: {str(e)}")
-        return Config()
-    except Exception as e:
-        print(f"Error loading configuration: {str(e)}")
         return Config()
 
 

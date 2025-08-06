@@ -17,7 +17,7 @@ from loguru import logger
 from main import main as main_function
 
 
-def setup_environment():
+def setup_environment() -> None:
     """Настройка переменных окружения"""
     # Загрузка переменных из .env файла
     env_file = Path(__file__).parent.parent / ".env"
@@ -30,7 +30,7 @@ def setup_environment():
         logger.info("Environment variables loaded from .env file")
 
 
-def check_dependencies():
+def check_dependencies() -> None:
     """Проверка зависимостей"""
     required_dirs = ["logs", "config", "data", "models", "backups"]
 
@@ -40,7 +40,7 @@ def check_dependencies():
         logger.info(f"Directory {dir_name} ready")
 
 
-def parse_arguments():
+def parse_arguments() -> None:
     """Парсинг аргументов командной строки"""
     parser = argparse.ArgumentParser(description="Syntra Trading System")
 
@@ -74,7 +74,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-async def main():
+async def main() -> None:
     """Основная функция"""
     # Парсинг аргументов
     args = parse_arguments()

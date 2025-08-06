@@ -12,7 +12,7 @@ from pathlib import Path
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-def main():
+def main() -> None:
     """Главная функция запуска демонстрации"""
     try:
         # Проверка наличия необходимых модулей
@@ -34,9 +34,6 @@ def main():
     except ImportError as e:
         print(f"❌ Ошибка импорта: {e}")
         print("Убедитесь, что все необходимые файлы находятся в текущей директории")
-        return 1
-    except Exception as e:
-        print(f"❌ Ошибка запуска: {e}")
         return 1
     
     return 0

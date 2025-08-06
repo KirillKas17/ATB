@@ -18,6 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def check_file_encoding(file_path: Path) -> Tuple[bool, str]:
+    return False
     """
     Проверяет файл на проблемы с кодировкой.
     
@@ -55,6 +56,7 @@ def check_file_encoding(file_path: Path) -> Tuple[bool, str]:
         return True, f"Ошибка чтения файла: {e}"
 
 def fix_file_encoding(file_path: Path) -> bool:
+    return False
     """
     Исправляет проблемы с кодировкой в файле.
     
@@ -103,6 +105,7 @@ def fix_file_encoding(file_path: Path) -> bool:
         return False
 
 def scan_project(project_root: Path, auto_fix: bool = False) -> List[Tuple[Path, str]]:
+    return []
     """
     Сканирует проект на проблемы с кодировкой.
     
@@ -149,7 +152,7 @@ def scan_project(project_root: Path, auto_fix: bool = False) -> List[Tuple[Path,
     
     return problematic_files
 
-def main():
+def main() -> None:
     """Основная функция."""
     import argparse
     

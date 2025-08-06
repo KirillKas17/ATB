@@ -15,6 +15,7 @@ from domain.value_objects.timestamp import Timestamp
 class TestMirrorDetector:
     """Тесты для MirrorDetector."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.detector = MirrorDetector(
             min_correlation=0.3,
@@ -239,6 +240,7 @@ class TestMirrorDetector:
 class TestMirrorMapBuilder:
     """Тесты для MirrorMapBuilder."""
     def setup_method(self) -> Any:
+        return None
         """Настройка перед каждым тестом."""
         self.config = MirrorMapConfig(
             min_correlation=0.3,

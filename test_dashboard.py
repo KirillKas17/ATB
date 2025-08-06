@@ -9,7 +9,7 @@ import os
 # Добавляем текущую директорию в путь для импорта
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-def test_imports():
+def test_imports() -> None:
     """Тестирование импортов"""
     try:
         from PyQt6.QtWidgets import QApplication
@@ -30,7 +30,7 @@ def test_imports():
         print(f"❌ Ошибка импорта: {e}")
         return False
 
-def test_application():
+def test_application() -> None:
     """Тестирование запуска приложения"""
     try:
         from PyQt6.QtWidgets import QApplication
@@ -59,7 +59,7 @@ def test_application():
         print(f"❌ Ошибка тестирования приложения: {e}")
         return False
 
-def main():
+def main() -> None:
     """Главная функция тестирования"""
     print("🧪 Тестирование современного дашборда ATB")
     print("=" * 50)

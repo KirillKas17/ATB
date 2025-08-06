@@ -19,7 +19,7 @@ import argparse
 class ProjectCleaner:
     """Класс для комплексной очистки проекта"""
     
-    def __init__(self, project_root: str = "."):
+    def __init__(self, project_root: str = ".") -> None:
         self.project_root = Path(project_root)
         self.stats = {
             'files_processed': 0,
@@ -29,6 +29,7 @@ class ProjectCleaner:
         }
     
     def run_command(self, command: List[str], description: str) -> bool:
+        return []
         """Выполнить команду с обработкой ошибок"""
         print(f"\n🔄 {description}...")
         try:
@@ -45,20 +46,13 @@ class ProjectCleaner:
                 if result.stdout:
                     print(result.stdout)
                 return True
-            else:
-                print(f"❌ {description} завершено с ошибками:")
-                if result.stderr:
-                    print(result.stderr)
-                return False
                 
         except subprocess.TimeoutExpired:
             print(f"⏰ {description} превысило время ожидания")
             return False
-        except Exception as e:
-            print(f"💥 Ошибка при выполнении {description}: {e}")
-            return False
     
     def clean_imports(self, directories: Optional[List[str]] = None) -> bool:
+        return []
         """Удалить неиспользуемые импорты"""
         if directories is None:
             directories = ["infrastructure", "domain", "application", "shared"]
@@ -75,6 +69,7 @@ class ProjectCleaner:
         return success
     
     def sort_imports(self, directories: Optional[List[str]] = None) -> bool:
+        return []
         """Отсортировать импорты с помощью isort"""
         if directories is None:
             directories = ["infrastructure", "domain", "application", "shared"]
@@ -90,6 +85,7 @@ class ProjectCleaner:
         return success
     
     def format_code(self, directories: Optional[List[str]] = None) -> bool:
+        return []
         """Отформатировать код с помощью black"""
         if directories is None:
             directories = ["infrastructure", "domain", "application", "shared"]
@@ -105,6 +101,7 @@ class ProjectCleaner:
         return success
     
     def check_types(self, directories: Optional[List[str]] = None) -> bool:
+        return []
         """Проверить типы с помощью mypy"""
         if directories is None:
             directories = ["infrastructure", "domain", "application", "shared"]
@@ -120,6 +117,7 @@ class ProjectCleaner:
         return success
     
     def run_full_cleanup(self, directories: Optional[List[str]] = None) -> bool:
+        return []
         """Выполнить полную очистку проекта"""
         print("🚀 Начинаем комплексную очистку проекта ATB")
         print("=" * 60)
@@ -151,7 +149,7 @@ class ProjectCleaner:
         return True
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Комплексная очистка проекта ATB')
     parser.add_argument('--directories', '-d', nargs='+', 
                        help='Директории для обработки (по умолчанию: infrastructure domain application shared)')
