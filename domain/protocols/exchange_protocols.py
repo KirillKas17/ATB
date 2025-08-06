@@ -24,11 +24,11 @@ class WebSocketClientProtocol(Protocol):
         """Отписка от символа."""
         ...
 
-    def add_callback(self, callback: Callable) -> None:
+    def add_callback(self, callback: Callable[[Any], None]) -> None:
         """Добавление callback для обработки данных."""
         ...
 
-    def remove_callback(self, callback: Callable) -> None:
+    def remove_callback(self, callback: Callable[[Any], None]) -> None:
         """Удаление callback."""
         ...
 
@@ -92,11 +92,11 @@ class MarketStreamAggregatorProtocol(Protocol):
         """Отписка от символа во всех источниках."""
         ...
 
-    def add_callback(self, callback: Callable) -> None:
+    def add_callback(self, callback: Callable[[Any], None]) -> None:
         """Добавление callback для обработки данных."""
         ...
 
-    def remove_callback(self, callback: Callable) -> None:
+    def remove_callback(self, callback: Callable[[Any], None]) -> None:
         """Удаление callback."""
         ...
 

@@ -4,7 +4,7 @@
 индикаторов и рыночной структуры.
 """
 
-import pandas as pd
+import pandas as pd  # type: ignore
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal

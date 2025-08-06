@@ -179,7 +179,7 @@ class EventEmitterValueObjectProtocol(ValueObjectProtocol, Protocol):
         """Получение истории событий."""
         ...
 
-    def subscribe_to_events(self, callback: Callable) -> None:
+    def subscribe_to_events(self, callback: Callable[[Any], None]) -> None:
         """Подписка на события."""
         ...
 
