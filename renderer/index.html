@@ -940,10 +940,212 @@
                 </div>
             </div>
 
+            <!-- Вкладка Портфель -->
             <div id="portfolio" class="tab-pane">
-                <div class="portfolio-layout">
-                    <h2>💼 Портфель</h2>
-                    <p>Раздел в разработке...</p>
+                <div class="ml-layout">
+                    <!-- Заголовок и контролы ML -->
+                    <div class="ml-header">
+                        <div class="ml-title">
+                            <h2>🤖 Машинное обучение</h2>
+                            <p>Управление моделями и процессом обучения</p>
+                        </div>
+                        
+                        <div class="ml-controls">
+                            <select id="mlModelFilter" class="mode-select">
+                                <option value="all">Все модели</option>
+                                <option value="training">Обучающиеся</option>
+                                <option value="trained">Обученные</option>
+                                <option value="idle">Простаивающие</option>
+                                <option value="evaluating">Оценивающиеся</option>
+                            </select>
+                            
+                            <button class="form-button primary" id="startMLTrainingBtn">
+                                <i class="fas fa-brain"></i>
+                                <span>Запустить обучение</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="stopMLTrainingBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                <span>Остановить</span>
+                            </button>
+                            
+                            <button class="form-button secondary" id="evaluateAllModelsBtn">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Оценить все</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ML статистика -->
+                    <div class="ml-stats-section">
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">🎯</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="totalModels">0</div>
+                                <div class="ml-stat-label">Всего моделей</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">🎓</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="trainingModels">0</div>
+                                <div class="ml-stat-label">Обучается</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">✅</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="trainedModels">0</div>
+                                <div class="ml-stat-label">Обучены</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">📊</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="avgAccuracy">0%</div>
+                                <div class="ml-stat-label">Средняя точность</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-stat-card">
+                            <div class="ml-stat-icon">⚡</div>
+                            <div class="ml-stat-content">
+                                <div class="ml-stat-value" id="activeJobs">0</div>
+                                <div class="ml-stat-label">Активных заданий</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Основной контент ML -->
+                    <div class="ml-content">
+                        <!-- Левая панель - список моделей -->
+                        <div class="ml-left">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🤖 Модели ML</h3>
+                                    <div class="widget-controls">
+                                        <select id="modelTypeFilter" class="chart-select">
+                                            <option value="all">Все типы</option>
+                                            <option value="lstm">LSTM</option>
+                                            <option value="transformer">Transformer</option>
+                                            <option value="xgboost">XGBoost</option>
+                                            <option value="gan">GAN</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="ml-models-list" id="mlModelsList">
+                                        <!-- Модели будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Центральная панель - детали модели -->
+                        <div class="ml-center">
+                            <!-- Детали выбранной модели -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3 id="selectedModelName">🎯 Выберите модель</h3>
+                                    <div class="widget-controls">
+                                        <button class="form-button secondary" id="trainSelectedModelBtn" disabled>
+                                            <i class="fas fa-play"></i>
+                                            <span>Обучить</span>
+                                        </button>
+                                        <button class="form-button secondary" id="evaluateSelectedModelBtn" disabled>
+                                            <i class="fas fa-chart-bar"></i>
+                                            <span>Оценить</span>
+                                        </button>
+                                        <button class="form-button secondary" id="deploySelectedModelBtn" disabled>
+                                            <i class="fas fa-rocket"></i>
+                                            <span>Деплой</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="model-details" id="modelDetails">
+                                        <div class="no-selection">
+                                            <i class="fas fa-robot"></i>
+                                            <p>Выберите модель для просмотра деталей</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- График обучения -->
+                            <div class="widget chart-widget">
+                                <div class="widget-header">
+                                    <h3>📈 Прогресс обучения</h3>
+                                    <div class="chart-controls">
+                                        <select id="trainingMetric" class="chart-select">
+                                            <option value="loss">Loss</option>
+                                            <option value="accuracy">Accuracy</option>
+                                            <option value="both">Оба</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-content">
+                                    <canvas id="trainingChart" class="chart-canvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая панель - задания и история -->
+                        <div class="ml-right">
+                            <!-- Активные задания обучения -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚡ Активные задания</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="training-jobs-list" id="trainingJobsList">
+                                        <!-- Задания будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Настройки гиперпараметров -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>⚙️ Гиперпараметры</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="hyperparameters-section" id="hyperparametersSection">
+                                        <div class="no-model-selected">
+                                            <p>Выберите модель для настройки гиперпараметров</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- История обучения -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>📜 История обучения</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="training-history" id="trainingHistory">
+                                        <!-- История будет загружена динамически -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Результаты оценки -->
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>🏆 Результаты оценки</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <div class="evaluation-results" id="evaluationResults">
+                                        <!-- Результаты будут загружены динамически -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -991,5 +1193,6 @@
     <script src="scripts/system-monitor.js"></script>
     <script src="scripts/evolution.js"></script>
     <script src="scripts/trading.js"></script>
+    <script src="scripts/ml.js"></script>
 </body>
 </html>

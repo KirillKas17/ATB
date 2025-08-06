@@ -1265,3 +1265,1292 @@
         font-size: 22px;
     }
 }
+
+/* ============================================================================ */
+/* ТОРГОВЛЯ */
+/* ============================================================================ */
+
+.trading-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.trading-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--bg-widget) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.trading-title h2 {
+    font-size: 24px;
+    margin: 0 0 5px 0;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.trading-title p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.trading-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.mode-select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    min-width: 180px;
+}
+
+.mode-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.portfolio-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.portfolio-card {
+    background: linear-gradient(135deg, var(--bg-widget) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.portfolio-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.portfolio-icon {
+    font-size: 24px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.portfolio-content {
+    flex: 1;
+}
+
+.portfolio-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.portfolio-value.positive {
+    color: var(--success-color);
+}
+
+.portfolio-value.negative {
+    color: var(--danger-color);
+}
+
+.portfolio-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trading-content {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.trading-left,
+.trading-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.trading-center {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Торговые стратегии */
+.trading-strategies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.trading-strategy-item {
+    padding: 15px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.trading-strategy-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.trading-strategy-item.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, var(--bg-widget) 100%);
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.strategy-trading-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.strategy-trading-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.strategy-trading-status {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.strategy-trading-status.active {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success-color);
+}
+
+.strategy-trading-status.paused {
+    background: rgba(255, 193, 7, 0.2);
+    color: var(--warning-color);
+}
+
+.strategy-trading-status.training {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--info-color);
+}
+
+.strategy-trading-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.strategy-trading-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.strategy-trading-metric span:first-child {
+    color: var(--text-muted);
+}
+
+.strategy-trading-metric .value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.strategy-trading-metric .value.positive {
+    color: var(--success-color);
+}
+
+.strategy-trading-metric .value.negative {
+    color: var(--danger-color);
+}
+
+/* Рыночные данные */
+.market-data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.market-data-item {
+    padding: 12px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.market-data-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.market-data-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.market-data-symbol {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.market-data-change {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.market-data-change.positive {
+    color: var(--success-color);
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.market-data-change.negative {
+    color: var(--danger-color);
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.market-data-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.market-data-volume {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Метрики производительности */
+.performance-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.performance-metric {
+    text-align: center;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.performance-metric:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.metric-name {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.metric-value.positive {
+    color: var(--success-color);
+}
+
+.metric-value.negative {
+    color: var(--danger-color);
+}
+
+/* Таблицы данных */
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-widget);
+}
+
+.data-table th {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.data-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.data-table .no-data {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 20px;
+}
+
+.side-badge {
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.side-badge.long {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success-color);
+}
+
+.side-badge.short {
+    background: rgba(244, 67, 54, 0.2);
+    color: var(--danger-color);
+}
+
+/* Риск-метрики */
+.risk-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.risk-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.risk-metric:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.risk-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.risk-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Модальные окна */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+    animation: slideInUp 0.3s ease-out;
+}
+
+.backtest-modal {
+    width: 800px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 18px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.backtest-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.backtest-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.backtest-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.backtest-metric-card {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.backtest-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.backtest-metric-card .metric-name {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.backtest-metric-card .metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Кнопки */
+.form-button.small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.form-button.small i {
+    font-size: 12px;
+}
+
+/* Анимации */
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность для Trading */
+@media (max-width: 1400px) {
+    .trading-content {
+        grid-template-columns: 260px 1fr 280px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .trading-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    
+    .trading-left,
+    .trading-right {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+    
+    .trading-left .widget,
+    .trading-right .widget {
+        min-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .trading-controls {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .portfolio-section {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .performance-metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 10px;
+    }
+}
+
+/* ============================================================================ */
+/* МАШИННОЕ ОБУЧЕНИЕ */
+/* ============================================================================ */
+
+.ml-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.ml-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--bg-widget) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.ml-title h2 {
+    font-size: 24px;
+    margin: 0 0 5px 0;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ml-title p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.ml-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ml-stats-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.ml-stat-card {
+    background: linear-gradient(135deg, var(--bg-widget) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ml-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.ml-stat-icon {
+    font-size: 28px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.ml-stat-content {
+    flex: 1;
+}
+
+.ml-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.ml-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ml-content {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.ml-left,
+.ml-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ml-center {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Список моделей ML */
+.ml-models-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ml-model-item {
+    padding: 15px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.ml-model-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.ml-model-item.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, var(--bg-widget) 100%);
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.ml-model-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ml-model-icon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.ml-model-icon.lstm {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+}
+
+.ml-model-icon.transformer {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+}
+
+.ml-model-icon.xgboost {
+    background: linear-gradient(45deg, #45b7d1, #96c93d);
+}
+
+.ml-model-icon.gan {
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+}
+
+.ml-model-info {
+    flex: 1;
+}
+
+.ml-model-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.ml-model-version {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.ml-model-status {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ml-model-status.training {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--info-color);
+}
+
+.ml-model-status.trained {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success-color);
+}
+
+.ml-model-status.idle {
+    background: rgba(158, 158, 158, 0.2);
+    color: var(--text-muted);
+}
+
+.ml-model-status.evaluating {
+    background: rgba(255, 193, 7, 0.2);
+    color: var(--warning-color);
+}
+
+.ml-model-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ml-model-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+
+.ml-model-metric span:first-child {
+    color: var(--text-muted);
+}
+
+.ml-model-metric .value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ml-model-progress {
+    margin-top: 12px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    transition: width var(--transition-normal);
+    animation: progressGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes progressGlow {
+    0% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+    100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.8); }
+}
+
+/* Детали модели */
+.model-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.model-detail-header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.model-detail-title h4 {
+    margin: 0 0 10px 0;
+    color: var(--text-primary);
+    font-size: 18px;
+}
+
+.model-detail-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.model-detail-badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.model-detail-badge.type-lstm {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+}
+
+.model-detail-badge.type-transformer {
+    background: rgba(78, 205, 196, 0.2);
+    color: #4ecdc4;
+}
+
+.model-detail-badge.type-xgboost {
+    background: rgba(150, 201, 61, 0.2);
+    color: #96c93d;
+}
+
+.model-detail-badge.type-gan {
+    background: rgba(240, 147, 251, 0.2);
+    color: #f093fb;
+}
+
+.model-detail-badge.status-training {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--info-color);
+}
+
+.model-detail-badge.status-trained {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success-color);
+}
+
+.model-detail-badge.version {
+    background: rgba(158, 158, 158, 0.2);
+    color: var(--text-muted);
+}
+
+.model-detail-performance h5 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.performance-metrics-detailed {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.performance-metric-detailed {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+.metric-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.metric-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.model-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.model-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+.info-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.info-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Активные задания */
+.training-jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.training-job-item {
+    padding: 12px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.training-job-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.job-model-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.job-status {
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.job-status.running {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--info-color);
+}
+
+.job-progress {
+    margin-bottom: 8px;
+}
+
+.job-progress-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.job-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.job-stop-btn {
+    background: var(--danger-color);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+    transition: all var(--transition-fast);
+}
+
+.job-stop-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
+}
+
+/* Гиперпараметры */
+.hyperparameters-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.no-model-selected {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 20px;
+}
+
+/* История обучения */
+.training-history {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.history-entry {
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-color);
+}
+
+.history-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.history-type {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.history-type.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success-color);
+}
+
+.history-type.started {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--info-color);
+}
+
+.history-type.stopped {
+    background: rgba(244, 67, 54, 0.2);
+    color: var(--danger-color);
+}
+
+.history-message {
+    font-size: 11px;
+    color: var(--text-primary);
+}
+
+/* Результаты оценки */
+.evaluation-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.evaluation-result-item {
+    padding: 12px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-widget) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.evaluation-result-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.result-model-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 12px;
+}
+
+.result-time {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.result-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.result-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+
+.result-metric span:first-child {
+    color: var(--text-muted);
+}
+
+.result-metric .value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Пустые состояния */
+.no-jobs,
+.no-history,
+.no-results {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 20px;
+    font-size: 12px;
+}
+
+/* Адаптивность для ML */
+@media (max-width: 1400px) {
+    .ml-content {
+        grid-template-columns: 300px 1fr 280px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .ml-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    
+    .ml-left,
+    .ml-right {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+    
+    .ml-left .widget,
+    .ml-right .widget {
+        min-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ml-controls {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .ml-stats-section {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    
+    .model-detail-badges {
+        justify-content: center;
+    }
+}
