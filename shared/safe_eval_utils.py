@@ -14,12 +14,12 @@ logger = logging.getLogger(__name__)
 MAX_PARSE_SIZE = 10000
 
 
-def safe_literal_eval(data: str, default: Any = None, max_size: int = MAX_PARSE_SIZE) -> Any:
+def safe_literal_eval(data: Any, default: Any = None, max_size: int = MAX_PARSE_SIZE) -> Any:
     """
     Безопасная альтернатива ast.literal_eval с валидацией.
     
     Args:
-        data: Строка для парсинга
+        data: Данные для парсинга (ожидается строка)
         default: Значение по умолчанию при ошибке
         max_size: Максимальный размер входной строки
         
@@ -129,7 +129,7 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
     
     # Если уже нужный тип
     if isinstance(value, target_type):
-        return value
+        return value  # type: ignore[return-value]
     
     try:
         if target_type == Decimal:
@@ -146,14 +146,17 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
         elif target_type == float:
             return float(value)
         else:
-            return target_type(value)
+            return target_type(value)  # type: ignore[return-value]
             
     except (ValueError, TypeError, OverflowError) as e:
         logger.warning(f"Failed to convert {value} to {target_type}: {e}")
         return None
+    
+    # Резервный возврат если ни одна ветка не сработала
+    return None
 
 
-def validate_dict_structure(data: Dict, required_keys: list = None, allowed_keys: list = None) -> bool:
+def validate_dict_structure(data: Any, required_keys: list = None, allowed_keys: list = None) -> bool:
     """
     Валидация структуры словаря.
     

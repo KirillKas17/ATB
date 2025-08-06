@@ -408,12 +408,13 @@ class BreakoutStrategy(BaseStrategy):
                     if not validate_trading_signal(signal):
                         return None
                     return signal
+            
             # Проверяем пробой вниз
             # Расчет breakout level для пробоя вниз с Decimal точностью
             low_price_decimal = to_trading_decimal(low.iloc[-2])
             breakout_level_down = low_price_decimal * (to_trading_decimal(1) - threshold_decimal)
             
-            elif to_trading_decimal(current_price) < breakout_level_down:
+            if to_trading_decimal(current_price) < breakout_level_down:
                 if self._check_breakout_confirmation(data, "down"):
                     position_size = self._calculate_position_size(current_price, volatility)
                     # Используем Decimal для точных расчетов

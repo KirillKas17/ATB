@@ -326,15 +326,15 @@ class RandomForestStrategy(BaseStrategy):
                 atr_value = float(atr_value) if pd.notna(atr_value) else 0.0
                 volume = self._calculate_position_size(current_price, atr_value)
                 # Устанавливаем стоп-лосс и тейк-профит
-                                    # Используем Decimal для точных расчетов
-                    current_price_decimal = to_trading_decimal(current_price)
-                    atr_decimal = to_trading_decimal(atr_value)
-                    
-                    stop_loss_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(2))
-                    take_profit_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(3))
-                    
-                    stop_loss = float(stop_loss_decimal)
-                    take_profit = float(take_profit_decimal)
+                # Используем Decimal для точных расчетов
+                current_price_decimal = to_trading_decimal(current_price)
+                atr_decimal = to_trading_decimal(atr_value)
+                
+                stop_loss_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(2))
+                take_profit_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(3))
+                
+                stop_loss = float(stop_loss_decimal)
+                take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="long",
                     entry_price=current_price,
@@ -358,12 +358,15 @@ class RandomForestStrategy(BaseStrategy):
                 atr_value = float(atr_value) if pd.notna(atr_value) else 0.0
                 volume = self._calculate_position_size(current_price, atr_value)
                 # Устанавливаем стоп-лосс и тейк-профит
-                                    # Используем Decimal для точных расчетов (short позиция)
-                    stop_loss_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(2))
-                    take_profit_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(3))
-                    
-                    stop_loss = float(stop_loss_decimal)
-                    take_profit = float(take_profit_decimal)
+                # Используем Decimal для точных расчетов (short позиция)
+                current_price_decimal = to_trading_decimal(current_price)
+                atr_decimal = to_trading_decimal(atr_value)
+                
+                stop_loss_decimal = current_price_decimal + (atr_decimal * to_trading_decimal(2))
+                take_profit_decimal = current_price_decimal - (atr_decimal * to_trading_decimal(3))
+                
+                stop_loss = float(stop_loss_decimal)
+                take_profit = float(take_profit_decimal)
                 return Signal(
                     direction="short",
                     entry_price=current_price,

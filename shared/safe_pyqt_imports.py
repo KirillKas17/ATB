@@ -19,7 +19,8 @@ class SafeQtImporter:
     def safe_import_widgets(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtWidgets."""
         if 'widgets' in _import_cache:
-            return _import_cache['widgets']
+            cached = _import_cache['widgets']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtWidgets import (
@@ -87,7 +88,8 @@ class SafeQtImporter:
     def safe_import_core(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtCore."""
         if 'core' in _import_cache:
-            return _import_cache['core']
+            cached = _import_cache['core']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtCore import (
@@ -138,7 +140,8 @@ class SafeQtImporter:
     def safe_import_gui(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtGui."""
         if 'gui' in _import_cache:
-            return _import_cache['gui']
+            cached = _import_cache['gui']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtGui import (
@@ -184,7 +187,8 @@ class SafeQtImporter:
     def safe_import_charts(self) -> Dict[str, Any]:
         """Безопасный импорт PyQt6.QtCharts."""
         if 'charts' in _import_cache:
-            return _import_cache['charts']
+            cached = _import_cache['charts']
+            return cached if isinstance(cached, dict) else {}
         
         try:
             from PyQt6.QtCharts import (

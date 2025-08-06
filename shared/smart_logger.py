@@ -96,7 +96,7 @@ def get_analytics_logger(module_name: str) -> SmartAnalyticsLogger:
     return _loggers[module_name]
 
 
-def smart_print(*args, module: str = "general", level: str = "info", **kwargs) -> None:
+def smart_print(*args: Any, module: str = "general", level: str = "info", **kwargs: Any) -> None:
     """
     Умная замена print() с автоматическим логированием.
     

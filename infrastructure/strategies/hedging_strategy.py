@@ -358,14 +358,14 @@ class HedgingStrategy(BaseStrategy):
             if not direction:
                 return None
             # Расчет цены входа
-                        try:
+            try:
                 from shared.signal_validator import get_safe_price
                 entry_price = get_safe_price(data["close"], -1, "entry_price")
             except (ValueError, ImportError):
                 entry_price = data["close"].iloc[-1] if len(data['close']) > 0 else None
                 entry_price = float(entry_price) if entry_price is not None and not pd.isna(entry_price) else None
                 if entry_price is None or entry_price <= 0:
-                return None
+                    return None
             # Расчет стоп-лосса
             stop_loss = self._calculate_stop_loss(entry_price, direction, analysis)
             # Расчет тейк-профита
@@ -450,11 +450,11 @@ class HedgingStrategy(BaseStrategy):
             stop_loss_pct = self._config.stop_loss
             if direction == "long":
                 # Используем Decimal для точных расчетов
-        entry_decimal = to_trading_decimal(entry_price)
-        stop_loss_decimal = TradingDecimal.calculate_stop_loss(
-            entry_decimal, "long", to_trading_decimal(stop_loss_pct * 100)
-        )
-        return float(stop_loss_decimal)
+                entry_decimal = to_trading_decimal(entry_price)
+                stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                    entry_decimal, "long", to_trading_decimal(stop_loss_pct * 100)
+                )
+                return float(stop_loss_decimal)
             else:
                 # Используем Decimal для точных расчетов (short позиция)
                 stop_loss_decimal = TradingDecimal.calculate_stop_loss(
@@ -473,13 +473,14 @@ class HedgingStrategy(BaseStrategy):
             take_profit_pct = self._config.take_profit
             if direction == "long":
                 # Используем Decimal для точных расчетов
-            entry_decimal = to_trading_decimal(entry_price)
-            take_profit_decimal = TradingDecimal.calculate_take_profit(
-                entry_decimal, "long", to_trading_decimal(take_profit_pct * 100)
-            )
-            return float(take_profit_decimal)
+                entry_decimal = to_trading_decimal(entry_price)
+                take_profit_decimal = TradingDecimal.calculate_take_profit(
+                    entry_decimal, "long", to_trading_decimal(take_profit_pct * 100)
+                )
+                return float(take_profit_decimal)
             else:
                 # Используем Decimal для точных расчетов (short позиция)
+                entry_decimal = to_trading_decimal(entry_price)
                 take_profit_decimal = TradingDecimal.calculate_take_profit(
                     entry_decimal, "short", to_trading_decimal(take_profit_pct * 100)
                 )
