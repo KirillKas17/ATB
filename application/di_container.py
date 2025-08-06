@@ -7,13 +7,13 @@ import logging
 
 T = TypeVar('T')
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DIContainer:
     """Контейнер для dependency injection."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._services: Dict[str, Any] = {}
         self._factories: Dict[str, Callable[[], Any]] = {}
         self._singletons: Dict[str, Any] = {}
@@ -82,7 +82,7 @@ class DIContainer:
 
 
 # Глобальный экземпляр контейнера
-container = DIContainer()
+container: DIContainer = DIContainer()
 
 
 def get_container() -> DIContainer:
