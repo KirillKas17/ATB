@@ -64,51 +64,18 @@ class StrategyMetrics:
 
     def __post_init__(self):
         """Пост-инициализация с валидацией типов."""
-        # Конвертация типов для совместимости
-        if isinstance(self.win_rate, (int, float, str)):
-            self.win_rate = Percentage(Decimal(str(self.win_rate)))
-
-        if isinstance(self.profit_factor, (int, float, str)):
-            self.profit_factor = Decimal(str(self.profit_factor))
-
-        if isinstance(self.sharpe_ratio, (int, float, str)):
-            self.sharpe_ratio = Decimal(str(self.sharpe_ratio))
-
-        if isinstance(self.max_drawdown, (int, float, str)):
-            self.max_drawdown = Money(Decimal(str(self.max_drawdown)), Currency.USD)
-
-        if isinstance(self.avg_trade, (int, float, str)):
-            self.avg_trade = Money(Decimal(str(self.avg_trade)), Currency.USD)
-
-        if isinstance(self.total_pnl, (int, float, str)):
-            self.total_pnl = Money(Decimal(str(self.total_pnl)), Currency.USD)
-
-        if isinstance(self.total_commission, (int, float, str)):
-            self.total_commission = Money(
-                Decimal(str(self.total_commission)), Currency.USD
-            )
-
-        if isinstance(self.best_trade, (int, float, str)):
-            self.best_trade = Money(Decimal(str(self.best_trade)), Currency.USD)
-
-        if isinstance(self.worst_trade, (int, float, str)):
-            self.worst_trade = Money(Decimal(str(self.worst_trade)), Currency.USD)
-
-        if isinstance(self.confidence, (int, float, str)):
-            self.confidence = Decimal(str(self.confidence))
-
-        if isinstance(self.accuracy, (int, float, str)):
-            self.accuracy = Decimal(str(self.accuracy))
-
-        if isinstance(self.precision, (int, float, str)):
-            self.precision = Decimal(str(self.precision))
-
-        if isinstance(self.recall, (int, float, str)):
-            self.recall = Decimal(str(self.recall))
-
-        if isinstance(self.f1_score, (int, float, str)):
-            self.f1_score = Decimal(str(self.f1_score))
-
+        # Валидация метрик
+        if self.total_trades < 0:
+            raise ValueError("total_trades must be non-negative")
+        
+        if self.winning_trades < 0:
+            raise ValueError("winning_trades must be non-negative")
+        
+        if self.losing_trades < 0:
+            raise ValueError("losing_trades must be non-negative")
+        
+        if self.winning_trades + self.losing_trades > self.total_trades:
+            raise ValueError("winning_trades + losing_trades cannot exceed total_trades")
     def add_trade(self, pnl: Money, commission: Money, is_winning: bool = True) -> None:
         """
         Добавить сделку к метрикам.

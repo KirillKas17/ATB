@@ -7,12 +7,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
-# Type aliases for better mypy support
-Series = pd.Series
-DataFrame = pd.DataFrame
+# Правильные type aliases для mypy
+DataFrameType = pd.DataFrame
+SeriesType = pd.Series
 
 # Импорт доменных типов
-from domain.type_definitions.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType
+from domain.type_definitions.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType, TradingSignal
 
 from .candle_patterns import CandlePatternAnalyzer
 from .explanation import DecisionExplainer
@@ -48,382 +48,462 @@ except ImportError:
     shap = None
     lime = None
     logger.warning("Библиотеки SHAP/LIME не установлены. Объяснения будут упрощенными.")
+
+
 class DecisionReasoner:
-    """Основной класс для принятия торговых решений"""
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Основной класс для принятия торговых решений на основе ML моделей.
+    """
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Инициализация системы принятия решений."""
         self.config = config or {}
-        # Инициализация компонентов
-        self.market_regime_detector = MarketRegimeDetector()
         self.signal_aggregator = SignalAggregator()
-        self.online_learner = OnlineLearningReasoner()
-        self.ml_model_manager = MLModelManager()
-        self.visualizer = TradingVisualizer()
+        self.market_regime_detector = MarketRegimeDetector()
+        self.ml_models = MLModelManager()
+        self.pattern_analyzer = CandlePatternAnalyzer()
+        self.technical_indicators = TechnicalIndicators()
         self.explainer = DecisionExplainer()
-        self.candle_pattern_analyzer = CandlePatternAnalyzer()  # Добавляем анализатор паттернов
-        # Состояние
-        self.last_decision: Optional[AggregatedSignal] = None
-        self.decision_history: List[AggregatedSignal] = []
-        self.performance_metrics: Dict[str, List[float]] = {
-            'accuracy': [],
-            'profit': [],
-            'risk': []
-        }
-    def make_decision(self, market_data: DataFrame, 
-                     additional_signals: Optional[List[SignalSource]] = None) -> AggregatedSignal:
-        """Принятие торгового решения"""
-        try:
-            if len(market_data) < 50:
-                return self._create_default_signal("Недостаточно данных")
-            # 1. Анализ рыночного режима
-            market_regime = self._detect_market_regime(market_data)
-            # 2. Расчет технических индикаторов
-            indicators = TechnicalIndicators.get_all_indicators(market_data)
-            # 3. Поиск паттернов свечей
-            patterns = self._get_candle_patterns(market_data)
-            # 4. Генерация сигналов
-            signals = self._generate_signals(market_data, indicators, patterns, market_regime)
-            # 5. Добавление внешних сигналов
-            if additional_signals:
-                signals.extend(additional_signals)
-            # 6. Агрегация сигналов
-            aggregated_signal = self.signal_aggregator.aggregate_signals(signals)
-            # 7. Обновление онлайн-обучения
-            self._update_online_learning(market_data, indicators, aggregated_signal)
-            # 8. Сохранение решения
-            self.last_decision = aggregated_signal
-            self.decision_history.append(aggregated_signal)
-            # 9. Обновление метрик
-            self._update_performance_metrics(aggregated_signal)
-            logger.info(f"Принято решение: {aggregated_signal.action} "
-                       f"(уверенность: {aggregated_signal.confidence:.3f})")
-            return aggregated_signal
-        except Exception as e:
-            logger.error(f"Ошибка при принятии решения: {e}")
-            return self._create_default_signal(f"Ошибка: {str(e)}")
+        self.visualizer = TradingVisualizer()
+        self.online_learner = OnlineLearningReasoner()
 
-    def _detect_market_regime(self, market_data: DataFrame) -> str:
-        """Детекция рыночного режима."""
-        try:
-            # Используем метод predict из MarketRegimeDetector
-            if not self.market_regime_detector.is_fitted:
-                self.market_regime_detector.fit(market_data)
-            regimes = self.market_regime_detector.predict(market_data)
-            # Возвращаем последний режим как строку
-            return f"regime_{regimes[-1] if len(regimes) > 0 else 0}"
-        except Exception as e:
-            logger.warning(f"Ошибка при детекции режима: {e}")
-            return "unknown"
+        logger.info("DecisionReasoner инициализирован")
 
-    def _get_candle_patterns(self, market_data: DataFrame) -> List[str]:
-        """Получение паттернов свечей."""
+    def analyze_and_decide(self, market_data: DataFrameType, symbol: str) -> AggregatedSignal:
+        """
+        Главный метод анализа и принятия решений.
+        """
         try:
-            patterns_data = self.candle_pattern_analyzer.detect_patterns(market_data)
-            # Извлекаем названия паттернов
-            pattern_names = []
-            for pattern_name, pattern_list in patterns_data.items():
-                if pattern_list:  # Если найдены паттерны
-                    pattern_names.append(pattern_name)
-            return pattern_names
-        except Exception as e:
-            logger.warning(f"Ошибка при анализе паттернов: {e}")
-            return []
+            # Получаем сигналы от разных источников
+            signals = self._collect_signals(market_data, symbol)
 
-    def _generate_signals(self, market_data: DataFrame, 
-                         indicators: Dict[str, float],
-                         patterns: List[str],
-                         market_regime: str) -> List[SignalSource]:
-        """Генерация сигналов на основе различных источников"""
-        signals: List[SignalSource] = []
-        # Сигнал на основе RSI
-        rsi_signal = self._generate_rsi_signal(indicators.get('rsi', 50))
-        if rsi_signal:
-            signals.append(rsi_signal)
-        # Сигнал на основе MACD
-        macd_signal = self._generate_macd_signal(
-            indicators.get('macd', 0),
-            indicators.get('macd_signal', 0)
-        )
-        if macd_signal:
-            signals.append(macd_signal)
-        # Сигнал на основе Bollinger Bands
-        # Исправляем использование .iloc на .values
-        close_values = market_data['close'].values if hasattr(market_data['close'], 'values') else list(market_data['close'])
-        bb_signal = self._generate_bb_signal(
-            close_values[-1] if len(close_values) > 0 else 0,
-            indicators.get('bb_upper', 0),
-            indicators.get('bb_lower', 0)
-        )
-        if bb_signal:
-            signals.append(bb_signal)
-        # Сигнал на основе паттернов
-        pattern_signal = self._generate_pattern_signal(patterns)
-        if pattern_signal:
-            signals.append(pattern_signal)
-        # Сигнал на основе рыночного режима
-        regime_signal = self._generate_regime_signal(market_regime)
-        if regime_signal:
-            signals.append(regime_signal)
+            # Агрегируем сигналы
+            if hasattr(self.signal_aggregator, 'aggregate_ensemble_signals'):
+                aggregated = self.signal_aggregator.aggregate_ensemble_signals(signals)
+            else:
+                # Создаем базовый агрегированный сигнал
+                aggregated = self._create_basic_aggregated_signal(signals, symbol)
+
+            return aggregated
+
+        except Exception as e:
+            logger.error(f"Ошибка в анализе решений: {e}")
+            # Возвращаем нейтральный сигнал в случае ошибки
+            return AggregatedSignal(
+                action=ActionType.HOLD,
+                confidence=0.0,
+                timestamp=datetime.now(),
+                symbol=symbol,
+                component_signals=[],
+                weights={},
+                consensus_score=0.0
+            )
+
+    def _collect_signals(self, market_data: DataFrameType, symbol: str) -> List[TradingSignal]:
+        """Собирает сигналы от различных источников."""
+        signals = []
+
+        # Технические индикаторы
+        signals.extend(self._get_technical_signals(market_data, symbol))
+
+        # Паттерны свечей
+        signals.extend(self._get_pattern_signals(market_data, symbol))
+
+        # ML модели
+        signals.extend(self._get_ml_signals(market_data, symbol))
+
+        # Режим рынка
+        signals.extend(self._get_regime_signals(market_data, symbol))
+
         return signals
-    def _generate_rsi_signal(self, rsi: float) -> Optional[SignalSource]:
-        """Генерация сигнала на основе RSI"""
-        if rsi < 30:
-            return SignalSource(
-                name="RSI",
-                signal_type=SignalType.BUY,
-                confidence=min((30 - rsi) / 30, 1.0),
-                weight=1.0,
-                metadata={"rsi_value": rsi}
-            )
-        elif rsi > 70:
-            return SignalSource(
-                name="RSI",
-                signal_type=SignalType.SELL,
-                confidence=min((rsi - 70) / 30, 1.0),
-                weight=1.0,
-                metadata={"rsi_value": rsi}
-            )
-        return None
-    def _generate_macd_signal(self, macd: float, macd_signal: float) -> Optional[SignalSource]:
-        """Генерация сигнала на основе MACD"""
-        diff = macd - macd_signal
-        if abs(diff) < 0.001:
-            return None
-        if diff > 0:
-            return SignalSource(
-                name="MACD",
-                signal_type=SignalType.BUY,
-                confidence=min(abs(diff) * 10, 1.0),
-                weight=1.0,
-                metadata={"macd": macd, "signal": macd_signal}
-            )
-        else:
-            return SignalSource(
-                name="MACD",
-                signal_type=SignalType.SELL,
-                confidence=min(abs(diff) * 10, 1.0),
-                weight=1.0,
-                metadata={"macd": macd, "signal": macd_signal}
-            )
-    def _generate_bb_signal(self, close: float, bb_upper: float, bb_lower: float) -> Optional[SignalSource]:
-        """Генерация сигнала на основе полос Боллинджера"""
-        if bb_upper == 0 or bb_lower == 0:
-            return None
-        if close <= bb_lower:
-            return SignalSource(
-                name="Bollinger_Bands",
-                signal_type=SignalType.BUY,
-                confidence=0.8,
-                weight=1.0,
-                metadata={"close": close, "bb_lower": bb_lower}
-            )
-        elif close >= bb_upper:
-            return SignalSource(
-                name="Bollinger_Bands",
-                signal_type=SignalType.SELL,
-                confidence=0.8,
-                weight=1.0,
-                metadata={"close": close, "bb_upper": bb_upper}
-            )
-        return None
-    def _generate_pattern_signal(self, patterns: List[str]) -> Optional[SignalSource]:
-        """Генерация сигнала на основе паттернов"""
-        if not patterns:
-            return None
-        # Определение направления паттернов
-        bullish_patterns = ['three_white_soldiers', 'dragonfly_doji', 'belt_hold']
-        bearish_patterns = ['three_black_crows', 'gravestone_doji', 'kicking']
-        bullish_count = sum(1 for p in patterns if p in bullish_patterns)
-        bearish_count = sum(1 for p in patterns if p in bearish_patterns)
-        if bullish_count > bearish_count:
-            return SignalSource(
-                name="Candle_Patterns",
-                signal_type=SignalType.BUY,
-                confidence=min(bullish_count * 0.3, 1.0),
-                weight=1.0,
-                metadata={"patterns": patterns}
-            )
-        elif bearish_count > bullish_count:
-            return SignalSource(
-                name="Candle_Patterns",
-                signal_type=SignalType.SELL,
-                confidence=min(bearish_count * 0.3, 1.0),
-                weight=1.0,
-                metadata={"patterns": patterns}
-            )
-        return None
-    def _generate_regime_signal(self, regime: str) -> Optional[SignalSource]:
-        """Генерация сигнала на основе рыночного режима"""
-        if regime == "trend":
-            return SignalSource(
-                name="Market_Regime",
-                signal_type=SignalType.BUY,
-                confidence=0.6,
-                weight=1.0,
-                metadata={"regime": regime}
-            )
-        elif regime == "sideways":
-            return SignalSource(
-                name="Market_Regime",
-                signal_type=SignalType.HOLD,
-                confidence=0.7,
-                weight=1.0,
-                metadata={"regime": regime}
-            )
-        return None
-    def _update_online_learning(self, market_data: DataFrame, 
-                               indicators: Dict[str, float],
-                               decision: AggregatedSignal) -> None:
-        """Обновление онлайн-обучения"""
+
+    def _get_technical_signals(self, market_data: DataFrameType, symbol: str) -> List[TradingSignal]:
+        """Получает сигналы технического анализа."""
+        signals = []
+
         try:
-            # Подготовка признаков
-            features = indicators.copy()
-            # Определение целевой переменной (упрощенно)
-            target = 1 if decision.action == ActionType.OPEN else (0 if decision.action == ActionType.CLOSE else 0.5)
-            # Предсказание (упрощенно)
-            prediction = 1 if decision.confidence > 0.5 else 0
-            # Обновление модели
-            self.online_learner.update(features, int(target), int(prediction))
+            # Проверяем, что данные доступны
+            if market_data is None or market_data.empty:
+                return signals
+
+            # RSI сигнал
+            rsi = self.technical_indicators.calculate_rsi(market_data['close'])
+            if rsi.iloc[-1] > 70:
+                signals.append(TradingSignal(
+                    action=ActionType.SELL,
+                    confidence=0.7,
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.MOMENTUM,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"indicator": "rsi", "value": float(rsi.iloc[-1])}
+                ))
+            elif rsi.iloc[-1] < 30:
+                signals.append(TradingSignal(
+                    action=ActionType.BUY,
+                    confidence=0.7,
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.MOMENTUM,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"indicator": "rsi", "value": float(rsi.iloc[-1])}
+                ))
+
+            # MACD сигнал
+            macd = self.technical_indicators.calculate_macd(market_data['close'])
+            if macd['histogram'].iloc[-1] > 0:
+                signals.append(TradingSignal(
+                    action=ActionType.BUY,
+                    confidence=0.6,
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.TREND,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"indicator": "macd", "histogram": float(macd['histogram'].iloc[-1])}
+                ))
+            else:
+                signals.append(TradingSignal(
+                    action=ActionType.SELL,
+                    confidence=0.6,
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.TREND,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"indicator": "macd", "histogram": float(macd['histogram'].iloc[-1])}
+                ))
+
+            # Bollinger Bands сигнал
+            bb = self.technical_indicators.calculate_bollinger_bands(market_data['close'])
+            current_price = market_data['close'].iloc[-1]
+            if current_price > bb['upper'].iloc[-1]:
+                signals.append(TradingSignal(
+                    action=ActionType.SELL,
+                    confidence=0.8,
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.REVERSAL,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"indicator": "bollinger", "position": "above_upper"}
+                ))
+            elif current_price < bb['lower'].iloc[-1]:
+                signals.append(TradingSignal(
+                    action=ActionType.BUY,
+                    confidence=0.8,
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.REVERSAL,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"indicator": "bollinger", "position": "below_lower"}
+                ))
+
         except Exception as e:
-            logger.error(f"Ошибка при обновлении онлайн-обучения: {e}")
-    def _update_performance_metrics(self, decision: AggregatedSignal) -> None:
-        """Обновление метрик производительности"""
+            logger.error(f"Ошибка в получении технических сигналов: {e}")
+
+        return signals
+
+    def _get_pattern_signals(self, market_data: DataFrameType, symbol: str) -> List[TradingSignal]:
+        """Получает сигналы паттернов свечей."""
+        signals = []
+
         try:
-            # Получение метрик онлайн-обучения
-            online_metrics = self.online_learner.get_metrics()
-            if online_metrics:
-                # Правильный доступ к метрикам
-                accuracy = online_metrics.get('accuracy', 0.0) if isinstance(online_metrics, dict) else 0.0
-                self.performance_metrics['accuracy'].append(accuracy)
-                self.performance_metrics['profit'].append(decision.confidence)
-                self.performance_metrics['risk'].append(decision.risk_score)
-        except Exception as e:
-            logger.error(f"Ошибка при обновлении метрик: {e}")
-    def _create_default_signal(self, explanation: str) -> AggregatedSignal:
-        """Создание сигнала по умолчанию"""
-        return AggregatedSignal(
-            action=ActionType.HOLD,
-            confidence=0.0,
-            risk_score=1.0,
-            sources=[],
-            timestamp=datetime.now(),
-            explanation=explanation
-        )
-    def get_explanation(self, market_data: DataFrame, 
-                       indicators: Dict[str, float]) -> str:
-        """Получение объяснения последнего решения"""
-        if not self.last_decision:
-            return "Нет последнего решения для объяснения"
-        return self.explainer.explain_decision(
-            {
-                'action': self.last_decision.action.value,
-                'confidence': self.last_decision.confidence,
-                'risk_score': self.last_decision.risk_score,
-                'sources': self.last_decision.sources
-            },
-            market_data,
-            indicators
-        )
-    def get_performance_summary(self) -> Dict[str, Any]:
-        """Получение сводки производительности"""
-        try:
-            summary: Dict[str, Any] = {
-                'total_decisions': len(self.decision_history),
-                'last_decision': None,
-                'online_learning_metrics': self.online_learner.get_metrics(),
-                'performance_metrics': self.performance_metrics.copy()
-            }
-            if self.last_decision:
-                summary['last_decision'] = {
-                    'action': self.last_decision.action.value,
-                    'confidence': self.last_decision.confidence,
-                    'risk_score': self.last_decision.risk_score,
-                    'timestamp': self.last_decision.timestamp.isoformat()
-                }
-            return summary
-        except Exception as e:
-            logger.error(f"Ошибка при получении сводки производительности: {e}")
-            return {}
-    def create_visualization(self, market_data: DataFrame, 
-                           save_path: Optional[str] = None) -> None:
-        """Создание визуализации"""
-        try:
-            if not self.last_decision:
-                logger.warning("Нет данных для визуализации")
-                return
-            # Подготовка сигналов для визуализации
-            signals = []
-            for source in self.last_decision.sources:
-                # Безопасное получение последней цены
-                if len(market_data) > 0:
-                    close_series = market_data['close']
-                    if hasattr(close_series, 'iloc'):
-                        current_price = close_series.iloc[-1]
-                    else:
-                        current_price = close_series[-1] if len(close_series) > 0 else 0
+            patterns = self.pattern_analyzer.detect_patterns(market_data)
+
+            for pattern in patterns:
+                if pattern['bullish']:
+                    signals.append(TradingSignal(
+                        action=ActionType.BUY,
+                        confidence=pattern['confidence'],
+                        timestamp=datetime.now(),
+                        symbol=symbol,
+                        signal_type=SignalType.REVERSAL,
+                        source=SignalSource.TECHNICAL,
+                        metadata={"pattern": pattern['name'], "type": "bullish"}
+                    ))
                 else:
-                    current_price = 0
-                
-                signals.append({
-                    'timestamp': datetime.now(),
-                    'action': source.signal_type.value,
-                    'price': current_price
-                })
-            # Создание визуализации
-            # Исправление: правильное использование .values для pandas
-            if hasattr(market_data['close'], 'to_numpy'):
-                close_values = market_data['close'].to_numpy()
-            elif hasattr(market_data['close'], 'values'):
-                close_values = market_data['close'].values
-            else:
-                close_values = list(market_data['close'])
-            current_price = close_values[-1] if len(close_values) > 0 else 0
-            
-            # Обновляем сигналы с правильной ценой
-            for signal in signals:
-                signal['price'] = current_price
-                
-            self.visualizer.plot_candlestick_with_signals(
-                market_data, signals, save_path
-            )
+                    signals.append(TradingSignal(
+                        action=ActionType.SELL,
+                        confidence=pattern['confidence'],
+                        timestamp=datetime.now(),
+                        symbol=symbol,
+                        signal_type=SignalType.REVERSAL,
+                        source=SignalSource.TECHNICAL,
+                        metadata={"pattern": pattern['name'], "type": "bearish"}
+                    ))
+
         except Exception as e:
-            logger.error(f"Ошибка при создании визуализации: {e}")
-    def detect_drift(self) -> bool:
-        """Обнаружение дрейфа данных"""
-        return self.online_learner.detect_drift()
-    def retrain_models(self, new_data: DataFrame, new_labels: Series) -> bool:
-        """Переобучение моделей"""
+            logger.error(f"Ошибка в получении сигналов паттернов: {e}")
+
+        return signals
+
+    def _get_ml_signals(self, market_data: DataFrameType, symbol: str) -> List[TradingSignal]:
+        """Получает сигналы от ML моделей."""
+        signals = []
+
         try:
-            # Подготовка признаков
-            features = []
-            for i in range(len(new_data)):
-                if i >= 50:  # Минимум 50 свечей для расчета индикаторов
-                    # Исправление: правильное использование .iloc для pandas
-                    if hasattr(new_data, 'iloc'):
-                        window_data = new_data.iloc[i-50:i+1]
-                    else:
-                        window_data = new_data[i-50:i+1]
-                    indicators = TechnicalIndicators.get_all_indicators(window_data)
-                    features.append(list(indicators.values()))
-            if len(features) < 10:
-                logger.warning("Недостаточно данных для переобучения")
-                return False
-            # Создание DataFrame признаков
-            # Исправление: правильное использование .iloc для pandas
-            if hasattr(new_data, 'iloc'):
-                initial_data = new_data.iloc[:50]
-            else:
-                initial_data = new_data[:50]
-            feature_names = list(TechnicalIndicators.get_all_indicators(initial_data).keys())
-            X: pd.DataFrame = DataFrame(features, columns=feature_names)
-            # Исправление: правильное использование .iloc для pandas
-            if hasattr(new_labels, 'iloc'):
-                y_current = new_labels.iloc[50:len(features)+50]  # Соответствие индексов
-            else:
-                y_current = new_labels[50:len(features)+50]  # Соответствие индексов
-            # Переобучение
-            self.ml_model_manager.train_models(X, y_current)
-            logger.info("Модели успешно переобучены")
-            return True
+            predictions = self.ml_models.predict(market_data)
+
+            for model_name, prediction in predictions.items():
+                action = ActionType.HOLD
+                if prediction['action'] == 'buy':
+                    action = ActionType.BUY
+                elif prediction['action'] == 'sell':
+                    action = ActionType.SELL
+
+                signals.append(TradingSignal(
+                    action=action,
+                    confidence=prediction['confidence'],
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.TREND,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"model": model_name, "features": prediction.get('features', {})}
+                ))
+
         except Exception as e:
-            logger.error(f"Ошибка при переобучении моделей: {e}")
-            return False 
+            logger.error(f"Ошибка в получении ML сигналов: {e}")
+
+        return signals
+
+    def _get_regime_signals(self, market_data: DataFrameType, symbol: str) -> List[TradingSignal]:
+        """Получает сигналы режима рынка."""
+        signals = []
+
+        try:
+            regime = self.market_regime_detector.detect_regime(market_data)
+
+            if regime['trend'] == 'bullish':
+                signals.append(TradingSignal(
+                    action=ActionType.BUY,
+                    confidence=regime['confidence'],
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.TREND,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"regime": "bullish", "volatility": regime.get('volatility', 0)}
+                ))
+            elif regime['trend'] == 'bearish':
+                signals.append(TradingSignal(
+                    action=ActionType.SELL,
+                    confidence=regime['confidence'],
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.TREND,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"regime": "bearish", "volatility": regime.get('volatility', 0)}
+                ))
+            else:
+                signals.append(TradingSignal(
+                    action=ActionType.HOLD,
+                    confidence=regime['confidence'],
+                    timestamp=datetime.now(),
+                    symbol=symbol,
+                    signal_type=SignalType.TREND,
+                    source=SignalSource.TECHNICAL,
+                    metadata={"regime": "sideways", "volatility": regime.get('volatility', 0)}
+                ))
+
+        except Exception as e:
+            logger.error(f"Ошибка в получении сигналов режима: {e}")
+
+        return signals
+
+    def _create_basic_aggregated_signal(self, signals: List[TradingSignal], symbol: str) -> AggregatedSignal:
+        """Создает базовый агрегированный сигнал."""
+        if not signals:
+            return AggregatedSignal(
+                action=ActionType.HOLD,
+                confidence=0.0,
+                timestamp=datetime.now(),
+                symbol=symbol,
+                component_signals=[],
+                weights={},
+                consensus_score=0.0
+            )
+
+        # Простое голосование
+        buy_votes = sum(1 for s in signals if s.action == ActionType.BUY)
+        sell_votes = sum(1 for s in signals if s.action == ActionType.SELL)
+        hold_votes = sum(1 for s in signals if s.action == ActionType.HOLD)
+
+        if buy_votes > sell_votes and buy_votes > hold_votes:
+            action = ActionType.BUY
+        elif sell_votes > buy_votes and sell_votes > hold_votes:
+            action = ActionType.SELL
+        else:
+            action = ActionType.HOLD
+
+        # Средняя уверенность
+        avg_confidence = sum(s.confidence for s in signals) / len(signals)
+
+        # Подсчет весов источников
+        weights = {}
+        for signal in signals:
+            if signal.source:
+                weights[signal.source] = weights.get(signal.source, 0) + 1
+
+        # Нормализация весов
+        total_weight = sum(weights.values())
+        if total_weight > 0:
+            weights = {k: v / total_weight for k, v in weights.items()}
+
+        consensus_score = max(buy_votes, sell_votes, hold_votes) / len(signals)
+
+        return AggregatedSignal(
+            action=action,
+            confidence=avg_confidence,
+            timestamp=datetime.now(),
+            symbol=symbol,
+            component_signals=signals,
+            weights=weights,
+            consensus_score=consensus_score
+        )
+
+    def analyze_risk(self, signal: AggregatedSignal, market_data: DataFrameType) -> float:
+        """Анализирует риск торгового сигнала."""
+        try:
+            # Базовый анализ риска
+            volatility = self._calculate_volatility(market_data)
+            volume_risk = self._calculate_volume_risk(market_data)
+            
+            # Комбинированный риск
+            risk_score = (volatility + volume_risk) / 2
+            
+            # Учитываем уверенность в сигнале
+            adjusted_risk = risk_score * (1 - signal.confidence)
+            
+            return min(max(adjusted_risk, 0.0), 1.0)
+
+        except Exception as e:
+            logger.error(f"Ошибка в анализе риска: {e}")
+            return 0.5  # Средний риск по умолчанию
+
+    def _calculate_volatility(self, market_data: DataFrameType) -> float:
+        """Рассчитывает волатильность."""
+        try:
+            if market_data is None or market_data.empty:
+                return 0.5
+
+            returns = market_data['close'].pct_change().dropna()
+            volatility = returns.std()
+            
+            # Нормализуем к диапазону [0, 1]
+            normalized_vol = min(volatility * 100, 1.0)
+            return normalized_vol
+
+        except Exception as e:
+            logger.error(f"Ошибка расчета волатильности: {e}")
+            return 0.5
+
+    def _calculate_volume_risk(self, market_data: DataFrameType) -> float:
+        """Рассчитывает риск по объему."""
+        try:
+            if market_data is None or market_data.empty or 'volume' not in market_data.columns:
+                return 0.5
+
+            # Анализ объемов
+            volume_ma = market_data['volume'].rolling(window=20).mean()
+            current_volume = market_data['volume'].iloc[-1]
+            avg_volume = volume_ma.iloc[-1]
+
+            if pd.isna(avg_volume) or avg_volume == 0:
+                return 0.5
+
+            volume_ratio = current_volume / avg_volume
+            
+            # Низкий объем = высокий риск
+            if volume_ratio < 0.5:
+                return 0.8
+            elif volume_ratio > 2.0:
+                return 0.3
+            else:
+                return 0.5
+
+        except Exception as e:
+            logger.error(f"Ошибка расчета риска по объему: {e}")
+            return 0.5
+
+    def get_explanation(self, signal: AggregatedSignal, market_data: DataFrameType) -> Dict[str, Any]:
+        """Получает объяснение торгового решения."""
+        try:
+            explanation = {
+                "decision": signal.action.value,
+                "confidence": signal.confidence,
+                "consensus_score": signal.consensus_score,
+                "component_count": len(signal.component_signals),
+                "sources": list(signal.weights.keys()) if hasattr(signal, 'weights') else [],
+                "technical_factors": self._get_technical_factors(market_data),
+                "risk_assessment": self.analyze_risk(signal, market_data)
+            }
+
+            # Добавляем детали компонентных сигналов
+            if hasattr(signal, 'component_signals') and signal.component_signals:
+                explanation["signal_breakdown"] = []
+                for component in signal.component_signals:
+                    explanation["signal_breakdown"].append({
+                        "action": component.action.value,
+                        "confidence": component.confidence,
+                        "source": component.source.value if component.source else "unknown",
+                        "type": component.signal_type.value if component.signal_type else "unknown",
+                        "metadata": component.metadata
+                    })
+
+            return explanation
+
+        except Exception as e:
+            logger.error(f"Ошибка создания объяснения: {e}")
+            return {
+                "decision": signal.action.value,
+                "confidence": signal.confidence,
+                "error": str(e)
+            }
+
+    def _get_technical_factors(self, market_data: DataFrameType) -> Dict[str, Any]:
+        """Получает технические факторы для объяснения."""
+        try:
+            if market_data is None or market_data.empty:
+                return {}
+
+            factors = {}
+
+            # RSI
+            if len(market_data) >= 14:
+                rsi = self.technical_indicators.calculate_rsi(market_data['close'])
+                if not rsi.empty:
+                    factors["rsi"] = float(rsi.iloc[-1])
+
+            # MACD
+            if len(market_data) >= 26:
+                macd = self.technical_indicators.calculate_macd(market_data['close'])
+                if 'histogram' in macd and not macd['histogram'].empty:
+                    factors["macd_histogram"] = float(macd['histogram'].iloc[-1])
+
+            # Цена относительно скользящих средних
+            if len(market_data) >= 20:
+                ma20 = market_data['close'].rolling(20).mean()
+                if not ma20.empty:
+                    current_price = market_data['close'].iloc[-1]
+                    factors["price_vs_ma20"] = float((current_price - ma20.iloc[-1]) / ma20.iloc[-1] * 100)
+
+            return factors
+
+        except Exception as e:
+            logger.error(f"Ошибка получения технических факторов: {e}")
+            return {}
+
+    def update_models(self, market_data: DataFrameType, actual_outcome: float) -> None:
+        """Обновляет модели на основе фактических результатов."""
+        try:
+            self.online_learner.update(market_data, actual_outcome)
+            logger.info("Модели обновлены на основе фактических результатов")
+
+        except Exception as e:
+            logger.error(f"Ошибка обновления моделей: {e}")
+
+    def get_model_performance(self) -> Dict[str, Any]:
+        """Возвращает метрики производительности моделей."""
+        try:
+            return self.ml_models.get_model_metrics()
+
+        except Exception as e:
+            logger.error(f"Ошибка получения метрик производительности: {e}")
+            return {} 

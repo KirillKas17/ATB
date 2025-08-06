@@ -214,7 +214,7 @@ class StressTestResult:
         elif loss_pct < 0.50:
             return RiskLevel.VERY_HIGH
         else:
-            return RiskLevel.EXTREME
+            return RiskLevel.VERY_HIGH
 
 class RiskAnalysisService(ABC):
     """Абстрактный базовый класс для сервиса анализа рисков."""
@@ -903,7 +903,7 @@ class AdvancedRiskAnalysisService(RiskAnalysisService):
         elif risk_score < 0.95:
             return RiskLevel.VERY_HIGH
         else:
-            return RiskLevel.EXTREME
+            return RiskLevel.VERY_HIGH
     
     def _create_default_portfolio_risk(self, portfolio_value: float) -> PortfolioRisk:
         """Создание объекта PortfolioRisk с значениями по умолчанию."""

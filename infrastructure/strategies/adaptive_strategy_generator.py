@@ -177,7 +177,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             logger.error(f"Error in adaptive analysis: {str(e)}")
             raise
 
-    def generate_signal(self, data: pd.DataFrame) -> Signal:
+    def generate_signal(self, data: pd.DataFrame) -> DomainSignal:
         try:
             # Определение рыночного режима
             market_regime = self._detect_market_regime(data)
@@ -186,51 +186,60 @@ class AdaptiveStrategyGenerator(BaseStrategy):
             # Выбор лучшей стратегии для режима
             best_strategy = self._select_best_strategy_for_regime(market_regime, data)
             if not best_strategy:
-                return Signal(
-                    id="no_strategy_signal",
-                    symbol="BTC/USDT",
-                    signal_type="hold",
-                    confidence=Decimal("0.5"),
-                    price=Decimal("50000.0"),
-                    amount=Decimal("0.0"),
-                    created_at=datetime.now()
+                return DomainSignal(
+                    direction=StrategyDirection.HOLD,
+                    entry_price=50000.0,
+                    confidence=0.5,
+                    timestamp=datetime.now(),
+                    metadata={
+                        "id": "no_strategy_signal",
+                        "symbol": "BTC/USDT",
+                        "amount": "0.0"
+                    }
                 )
             # Генерация базового сигнала
             base_signal = self._generate_base_signal(best_strategy, data)
             if not base_signal:
-                return Signal(
-                    id="no_base_signal",
-                    symbol="BTC/USDT",
-                    signal_type="hold",
-                    confidence=Decimal("0.5"),
-                    price=Decimal("50000.0"),
-                    amount=Decimal("0.0"),
-                    created_at=datetime.now()
+                return DomainSignal(
+                    direction=StrategyDirection.HOLD,
+                    entry_price=50000.0,
+                    confidence=0.5,
+                    timestamp=datetime.now(),
+                    metadata={
+                        "id": "no_base_signal",
+                        "symbol": "BTC/USDT",
+                        "amount": "0.0"
+                    }
                 )
             # Адаптация сигнала
             adapted_signal = self._adapt_signal(base_signal, ml_predictions, market_regime)
             # Проверка условий адаптации
             if not self._check_adaptation_conditions(adapted_signal, market_regime):
-                return Signal(
-                    id="adaptation_failed_signal",
-                    symbol="BTC/USDT",
-                    signal_type="hold",
-                    confidence=Decimal("0.5"),
-                    price=Decimal("50000.0"),
-                    amount=Decimal("0.0"),
-                    created_at=datetime.now()
+                return DomainSignal(
+                    direction=StrategyDirection.HOLD,
+                    entry_price=50000.0,
+                    confidence=0.5,
+                    timestamp=datetime.now(),
+                    metadata={
+                        "id": "adaptation_failed_signal",
+                        "symbol": "BTC/USDT",
+                        "amount": "0.0"
+                    }
                 )
             return adapted_signal
         except Exception as e:
             logger.error(f"Error generating adaptive signal: {str(e)}")
-            return Signal(
-                id="error_signal",
-                symbol="BTC/USDT",
-                signal_type="hold",
-                confidence=Decimal("0.5"),
-                price=Decimal("50000.0"),
-                amount=Decimal("0.0"),
-                created_at=datetime.now()
+            return DomainSignal(
+                direction=StrategyDirection.HOLD,
+                entry_price=50000.0,
+                confidence=0.5,
+                timestamp=datetime.now(),
+                metadata={
+                    "id": "error_signal",
+                    "symbol": "BTC/USDT",
+                    "amount": "0.0",
+                    "error": str(e)
+                }
             )
 
     def _detect_market_regime(self, data: pd.DataFrame) -> MarketRegime:
@@ -488,7 +497,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
 
     def _generate_base_signal(
         self, strategy: Callable, data: pd.DataFrame
-    ) -> Optional[Signal]:
+    ) -> Optional[DomainSignal]:
         """Генерация базового сигнала от стратегии"""
         try:
             # Вызов стратегии
@@ -503,22 +512,23 @@ class AdaptiveStrategyGenerator(BaseStrategy):
 
     def _convert_to_signal(
         self, result: Dict[str, Any], data: pd.DataFrame
-    ) -> Optional[Signal]:
+    ) -> Optional[DomainSignal]:
         """Преобразование результата стратегии в Signal"""
         try:
             if not result or "direction" not in result:
                 return None
             direction = StrategyDirection(result["direction"])
             entry_price = float(result.get("entry_price", data["close"].iloc[-1]))  # type: ignore[index]
-            return Signal(
+            return DomainSignal(
                 direction=direction,
                 entry_price=entry_price,
                 stop_loss=result.get("stop_loss"),
                 take_profit=result.get("take_profit"),
                 confidence=result.get("confidence", 0.5),
-                # strategy_type=StrategyType.ADAPTIVE,  # type: ignore[call-arg]
-                # market_regime=MarketRegime.SIDEWAYS,  # Will be updated  # type: ignore[call-arg]
-                # risk_score=result.get("risk_score", 0.5),  # type: ignore[call-arg]
+                timestamp=datetime.now(),
+                strategy_type=StrategyType.ADAPTIVE,
+                market_regime=MarketRegime.SIDEWAYS,
+                risk_score=result.get("risk_score", 0.5),
                 # expected_return=result.get("expected_return", 0.0),  # type: ignore[call-arg]
             )
         except Exception as e:

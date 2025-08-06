@@ -163,41 +163,35 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
             logger.error(f"Error in evolutionary analysis: {str(e)}")
             raise
 
-    def generate_signal(self, market_data: pd.DataFrame) -> Signal:
+    def generate_signal(self, market_data: pd.DataFrame) -> DomainSignal:
         """Генерация торгового сигнала."""
         try:
             # Исправление: используем правильный тип возвращаемого значения
             if market_data.empty:
-                return Signal(
-                    direction="hold",  # type: ignore[call-arg]
-                    trading_pair="BTC/USDT",  # type: ignore[call-arg]
-                    signal_type="hold",  # type: ignore[call-arg]
-                    confidence=0.0,  # type: ignore[call-arg]
-                    strength=0.0,  # type: ignore[call-arg]
+                return DomainSignal(
+                    direction=StrategyDirection.HOLD,
+                    entry_price=0.0,
+                    confidence=0.0,
                     metadata={"id": "empty_signal", "price": "0.0", "amount": "0.0"}
                 )
             
             # Анализ данных
             features = self._extract_strategy_features(market_data)
             if features is None:
-                return Signal(
-                    direction="hold",  # type: ignore[call-arg]
-                    trading_pair="BTC/USDT",  # type: ignore[call-arg]
-                    signal_type="hold",  # type: ignore[call-arg]
-                    confidence=0.0,  # type: ignore[call-arg]
-                    strength=0.0,  # type: ignore[call-arg]
+                return DomainSignal(
+                    direction=StrategyDirection.HOLD,
+                    entry_price=0.0,
+                    confidence=0.0,
                     metadata={"id": "no_features_signal", "price": "0.0", "amount": "0.0"}
                 )
             
             # Предсказание
             prediction = self._get_ml_predictions(features)
             if prediction is None:
-                return Signal(
-                    direction="hold",  # type: ignore[call-arg]
-                    trading_pair="BTC/USDT",  # type: ignore[call-arg]
-                    signal_type="hold",  # type: ignore[call-arg]
-                    confidence=0.0,  # type: ignore[call-arg]
-                    strength=0.0,  # type: ignore[call-arg]
+                return DomainSignal(
+                    direction=StrategyDirection.HOLD,
+                    entry_price=0.0,
+                    confidence=0.0,
                     metadata={"id": "no_prediction_signal", "price": "0.0", "amount": "0.0"}
                 )
             
@@ -205,7 +199,7 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
             direction = StrategyDirection.LONG if prediction.get("direction", "hold") == "buy" else StrategyDirection.SHORT
             entry_price = float(market_data["close"].iloc[-1]) if not market_data.empty else 50000.0
             confidence = float(prediction.get("confidence", 0.5))
-            signal = Signal(
+            signal = DomainSignal(
                 direction=direction,
                 entry_price=entry_price,
                 confidence=confidence,
@@ -222,12 +216,10 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
             return signal
         except Exception as e:
             self.logger.error(f"Error generating signal: {e}")
-            return Signal(
-                direction="hold",  # type: ignore[call-arg]
-                trading_pair="BTC/USDT",  # type: ignore[call-arg]
-                signal_type="hold",  # type: ignore[call-arg]
-                confidence=0.0,  # type: ignore[call-arg]
-                strength=0.0,  # type: ignore[call-arg]
+            return DomainSignal(
+                direction=StrategyDirection.HOLD,
+                entry_price=0.0,
+                confidence=0.0,
                 metadata={"error": str(e)}
             )
 
@@ -883,25 +875,29 @@ class EvolvableBaseStrategy(BaseStrategy, EvolvableComponent):
         """Преобразование действия RL-агента в торговый сигнал"""
         try:
             if action == 0:  # Buy
-                signal = Signal(
-                    id="evolvable_signal",
-                    symbol="BTC/USDT",
-                    signal_type="buy",
-                    confidence=Decimal("0.7"),
-                    price=Decimal(str(market_data["close"].iloc[-1])),
-                    amount=Decimal("0.1"),
-                    created_at=datetime.now()
+                signal = DomainSignal(
+                    direction=StrategyDirection.LONG,
+                    entry_price=float(market_data["close"].iloc[-1]),
+                    confidence=0.7,
+                    timestamp=datetime.now(),
+                    metadata={
+                        "id": "evolvable_signal",
+                        "symbol": "BTC/USDT",
+                        "amount": "0.1"
+                    }
                 )
                 return signal
             elif action == 1:  # Sell
-                signal = Signal(
-                    id="evolvable_signal",
-                    symbol="BTC/USDT",
-                    signal_type="sell",
-                    confidence=Decimal("0.7"),
-                    price=Decimal(str(market_data["close"].iloc[-1])),
-                    amount=Decimal("0.1"),
-                    created_at=datetime.now()
+                signal = DomainSignal(
+                    direction=StrategyDirection.SHORT,
+                    entry_price=float(market_data["close"].iloc[-1]),
+                    confidence=0.7,
+                    timestamp=datetime.now(),
+                    metadata={
+                        "id": "evolvable_signal",
+                        "symbol": "BTC/USDT",
+                        "amount": "0.1"
+                    }
                 )
                 return signal
             else:  # Hold
