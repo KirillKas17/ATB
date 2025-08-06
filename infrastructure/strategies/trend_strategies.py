@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from loguru import logger
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from domain.services.technical_analysis import DefaultTechnicalAnalysisService
 from domain.type_definitions.strategy_types import (
@@ -268,8 +269,12 @@ class TrendStrategy(BaseStrategy):
             # Расчет объема
             volume_ma = float(data["volume"].rolling(20).mean().iloc[-1])
             volume_ratio = float(data["volume"].iloc[-1] / volume_ma)
-            # Базовый стоп на основе ATR с безопасными границами
-            base_stop = max(atr * 1.5, entry_price * 0.005)  # Минимум 0.5% от цены входа
+            # Базовый стоп на основе ATR с безопасными границами - используем Decimal для точности
+            entry_decimal = to_trading_decimal(entry_price)
+            atr_decimal = to_trading_decimal(atr)
+            min_percent_stop = TradingDecimal.calculate_percentage(entry_decimal, to_trading_decimal(0.5))
+            base_stop_decimal = max(atr_decimal * to_trading_decimal(1.5), min_percent_stop)
+            base_stop = float(base_stop_decimal)  # Конвертируем обратно для совместимости
             
             # Безопасные корректировки с ограничениями
             volatility_multiplier = max(0.5, min(2.0, 1 + volatility * 5))  # 0.5x - 2.0x
@@ -290,12 +295,14 @@ class TrendStrategy(BaseStrategy):
             # Расчет стопа с абсолютными границами
             stop_distance = base_stop * final_multiplier
             
-            # Абсолютные границы стоп-лосса
-            min_stop_percent = 0.003  # Минимум 0.3% от цены входа
-            max_stop_percent = 0.05   # Максимум 5% от цены входа
+            # Абсолютные границы стоп-лосса - используем Decimal для точности
+            min_stop_percent = to_trading_decimal(0.3)  # Минимум 0.3% от цены входа
+            max_stop_percent = to_trading_decimal(5.0)  # Максимум 5% от цены входа
             
-            min_stop_distance = entry_price * min_stop_percent
-            max_stop_distance = entry_price * max_stop_percent
+            min_stop_distance_decimal = TradingDecimal.calculate_percentage(entry_decimal, min_stop_percent)
+            max_stop_distance_decimal = TradingDecimal.calculate_percentage(entry_decimal, max_stop_percent)
+            min_stop_distance = float(min_stop_distance_decimal)
+            max_stop_distance = float(max_stop_distance_decimal)
             
             stop_distance = max(min_stop_distance, min(stop_distance, max_stop_distance))
             # Поиск ближайшего уровня поддержки/сопротивления
@@ -315,9 +322,12 @@ class TrendStrategy(BaseStrategy):
                     nearest_liquidity = max(liquidity_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_liquidity)
                 calculated_stop = float(entry_price - stop_distance)
-                # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для long должен быть меньше цены входа
-                if calculated_stop >= entry_price:
-                    calculated_stop = entry_price * 0.99  # Безопасный fallback
+                            # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для long должен быть меньше цены входа
+            if calculated_stop >= entry_price:
+                # Безопасный fallback с Decimal точностью
+                calculated_stop = float(TradingDecimal.calculate_stop_loss(
+                    entry_decimal, "long", to_trading_decimal(1.0)  # 1% стоп
+                ))
                 return calculated_stop
             else:
                 # Для короткой позиции ищем ближайший уровень сопротивления
@@ -335,15 +345,24 @@ class TrendStrategy(BaseStrategy):
                     nearest_liquidity = min(liquidity_levels)
                     stop_distance = min(stop_distance, nearest_liquidity - entry_price)
                 calculated_stop = float(entry_price + stop_distance)
-                # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для short должен быть больше цены входа
-                if calculated_stop <= entry_price:
-                    calculated_stop = entry_price * 1.01  # Безопасный fallback
+                                 # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для short должен быть больше цены входа
+                 if calculated_stop <= entry_price:
+                     # Безопасный fallback с Decimal точностью
+                     calculated_stop = float(TradingDecimal.calculate_stop_loss(
+                         entry_decimal, "short", to_trading_decimal(1.0)  # 1% стоп
+                     ))
                 return calculated_stop
         except Exception as e:
             logger.error(f"Error calculating stop loss: {str(e)}")
-            return float(
-                entry_price * 0.99 if position_type == "long" else entry_price * 1.01
-            )
+            # Безопасный fallback с Decimal точностью
+            if position_type == "long":
+                return float(TradingDecimal.calculate_stop_loss(
+                    to_trading_decimal(entry_price), "long", to_trading_decimal(1.0)
+                ))
+            else:
+                return float(TradingDecimal.calculate_stop_loss(
+                    to_trading_decimal(entry_price), "short", to_trading_decimal(1.0)
+                ))
 
     def _validate_signal(self, signal) -> bool:
         """Критическая валидация торгового сигнала"""

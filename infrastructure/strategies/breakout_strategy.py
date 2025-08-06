@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 from loguru import logger
 from shared.signal_validator import validate_trading_signal
+from shared.decimal_utils import TradingDecimal, to_trading_decimal
 
 from .base_strategy import BaseStrategy, Signal
 
@@ -372,8 +373,16 @@ class BreakoutStrategy(BaseStrategy):
             if current_price > high.iloc[-2] * (1 + self._config.breakout_threshold):
                 if self._check_breakout_confirmation(data, "up"):
                     position_size = self._calculate_position_size(current_price, volatility)
-                    stop_loss = current_price * (1 - self._config.stop_loss)
-                    take_profit = current_price * (1 + self._config.take_profit)
+                    # Используем Decimal для точных расчетов
+                    current_price_decimal = to_trading_decimal(current_price)
+                    stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                        current_price_decimal, "long", to_trading_decimal(self._config.stop_loss * 100)
+                    )
+                    take_profit_decimal = TradingDecimal.calculate_take_profit(
+                        current_price_decimal, "long", to_trading_decimal(self._config.take_profit * 100)
+                    )
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
                     signal = Signal(
                         direction="long",
                         entry_price=current_price,
@@ -398,8 +407,15 @@ class BreakoutStrategy(BaseStrategy):
             elif current_price < low.iloc[-2] * (1 - self._config.breakout_threshold):
                 if self._check_breakout_confirmation(data, "down"):
                     position_size = self._calculate_position_size(current_price, volatility)
-                    stop_loss = current_price * (1 + self._config.stop_loss)
-                    take_profit = current_price * (1 - self._config.take_profit)
+                    # Используем Decimal для точных расчетов
+                    stop_loss_decimal = TradingDecimal.calculate_stop_loss(
+                        current_price_decimal, "short", to_trading_decimal(self._config.stop_loss * 100)
+                    )
+                    take_profit_decimal = TradingDecimal.calculate_take_profit(
+                        current_price_decimal, "short", to_trading_decimal(self._config.take_profit * 100)
+                    )
+                    stop_loss = float(stop_loss_decimal)
+                    take_profit = float(take_profit_decimal)
                     signal = Signal(
                         direction="short",
                         entry_price=current_price,
