@@ -61,26 +61,45 @@ class StrategyMetrics:
 class Signal:
     """
     Торговый сигнал с ОБЯЗАТЕЛЬНЫМИ уровнями риска.
-    КРИТИЧЕСКИ ВАЖНО: stop_loss и take_profit ДОЛЖНЫ быть установлены для безопасной торговли!
+    КРИТИЧЕСКИ ВАЖНО: 
+    - stop_loss и take_profit ДОЛЖНЫ быть установлены для безопасной торговли!
+    - Все финансовые значения используют Decimal для точности
     """
 
     direction: str
-    entry_price: float
-    stop_loss: float  # ИЗМЕНЕНО: Теперь ОБЯЗАТЕЛЬНЫЙ параметр!
-    take_profit: float  # ИЗМЕНЕНО: Теперь ОБЯЗАТЕЛЬНЫЙ параметр!
-    volume: Optional[float] = None
-    confidence: float = 1.0
+    entry_price: Decimal  # ИЗМЕНЕНО: Decimal для точности!
+    stop_loss: Decimal    # ИЗМЕНЕНО: Decimal для точности!
+    take_profit: Decimal  # ИЗМЕНЕНО: Decimal для точности!
+    volume: Optional[Decimal] = None  # ИЗМЕНЕНО: Decimal для точности!
+    confidence: Decimal = Decimal('1.0')  # ИЗМЕНЕНО: Decimal для точности!
     timestamp: datetime = field(default_factory=datetime.now)
     metadata: Dict[str, Any] = field(default_factory=dict)
     
     def __post_init__(self):
         """Проверка критически важных параметров после создания сигнала"""
+        # Автоматическое преобразование в Decimal если пришли float
+        if isinstance(self.entry_price, (int, float)):
+            object.__setattr__(self, 'entry_price', Decimal(str(self.entry_price)))
+        if isinstance(self.stop_loss, (int, float)):
+            object.__setattr__(self, 'stop_loss', Decimal(str(self.stop_loss)))
+        if isinstance(self.take_profit, (int, float)):
+            object.__setattr__(self, 'take_profit', Decimal(str(self.take_profit)))
+        if self.volume is not None and isinstance(self.volume, (int, float)):
+            object.__setattr__(self, 'volume', Decimal(str(self.volume)))
+        if isinstance(self.confidence, (int, float)):
+            object.__setattr__(self, 'confidence', Decimal(str(self.confidence)))
+            
+        # Проверка на положительные значения
         if self.entry_price <= 0:
-            raise ValueError("entry_price должен быть больше 0")
+            raise ValueError(f"entry_price должен быть больше 0, получено: {self.entry_price}")
         if self.stop_loss <= 0:
-            raise ValueError("stop_loss должен быть больше 0")
+            raise ValueError(f"stop_loss должен быть больше 0, получено: {self.stop_loss}")
         if self.take_profit <= 0:
-            raise ValueError("take_profit должен быть больше 0")
+            raise ValueError(f"take_profit должен быть больше 0, получено: {self.take_profit}")
+        if self.volume is not None and self.volume <= 0:
+            raise ValueError(f"volume должен быть больше 0, получено: {self.volume}")
+        if self.confidence < 0 or self.confidence > 1:
+            raise ValueError(f"confidence должен быть в диапазоне [0, 1], получено: {self.confidence}")
             
         # Проверка логики для LONG позиций
         if self.direction.lower() in ["long", "buy"]:
@@ -95,6 +114,15 @@ class Signal:
                 raise ValueError(f"Для SHORT позиции stop_loss ({self.stop_loss}) должен быть больше entry_price ({self.entry_price})")
             if self.take_profit >= self.entry_price:
                 raise ValueError(f"Для SHORT позиции take_profit ({self.take_profit}) должен быть меньше entry_price ({self.entry_price})")
+                
+        # Проверка разумности расстояний (максимум 50% стоп-лосс, минимум 0.01% тейк-профит)
+        stop_distance_pct = abs(self.stop_loss - self.entry_price) / self.entry_price
+        profit_distance_pct = abs(self.take_profit - self.entry_price) / self.entry_price
+        
+        if stop_distance_pct > Decimal('0.5'):  # 50%
+            raise ValueError(f"Стоп-лосс слишком далеко: {stop_distance_pct:.2%} от цены входа")
+        if profit_distance_pct < Decimal('0.0001'):  # 0.01%
+            raise ValueError(f"Тейк-профит слишком близко: {profit_distance_pct:.2%} от цены входа")
 
 
 class BaseStrategy(ABC):
@@ -271,9 +299,9 @@ class BaseStrategy(ABC):
             risk_per_trade = Decimal(str(self.risk_per_trade))  # Обычно 1-2%
             
             if signal.stop_loss is not None and signal.entry_price is not None:
-                # Рассчитываем риск на единицу
-                entry_price = Decimal(str(signal.entry_price))
-                stop_loss = Decimal(str(signal.stop_loss))
+                # Теперь это уже Decimal, но на всякий случай проверим
+                entry_price = signal.entry_price if isinstance(signal.entry_price, Decimal) else Decimal(str(signal.entry_price))
+                stop_loss = signal.stop_loss if isinstance(signal.stop_loss, Decimal) else Decimal(str(signal.stop_loss))
                 
                 # Риск на единицу зависит от направления
                 if signal.direction == "long":
