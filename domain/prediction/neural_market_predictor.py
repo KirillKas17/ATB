@@ -346,8 +346,8 @@ class NeuralMarketPredictor:
     
     def __init__(
         self,
-        prediction_horizons: List[PredictionHorizon] = None,
-        model_types: List[ModelType] = None,
+        prediction_horizons: Optional[List[PredictionHorizon]] = None,
+        model_types: Optional[List[ModelType]] = None,
         feature_engineering_enabled: bool = True,
         ensemble_enabled: bool = True,
         quantum_layers_enabled: bool = True
@@ -437,7 +437,7 @@ class NeuralMarketPredictor:
     async def prepare_features(
         self,
         market_data: Dict[str, Any],
-        additional_data: Dict[str, Any] = None
+        additional_data: Optional[Dict[str, Any]] = None
     ) -> Dict[FeatureType, FeatureSet]:
         """Подготовка и инженерия признаков."""
         feature_sets = {}
@@ -720,7 +720,7 @@ class NeuralMarketPredictor:
     def _calculate_rsi(self, prices: np.ndarray, period: int = 14) -> float:
         """Расчёт RSI."""
         if len(prices) < period + 1:
-            return np.nan
+            return float('nan')
         
         deltas = np.diff(prices)
         gains = np.where(deltas > 0, deltas, 0)
@@ -735,12 +735,12 @@ class NeuralMarketPredictor:
         rs = avg_gain / avg_loss
         rsi = 100 - (100 / (1 + rs))
         
-        return rsi
+        return float(rsi)
     
     def _calculate_macd(self, prices: np.ndarray, fast: int = 12, slow: int = 26, signal: int = 9) -> Tuple[float, float]:
         """Расчёт MACD."""
         if len(prices) < slow:
-            return np.nan, np.nan
+            return float('nan'), float('nan')
         
         ema_fast = self._ema(prices, fast)
         ema_slow = self._ema(prices, slow)
@@ -784,17 +784,17 @@ class NeuralMarketPredictor:
     def _calculate_volatility(self, prices: np.ndarray, period: int = 20) -> float:
         """Расчёт волатильности."""
         if len(prices) < period + 1:
-            return np.nan
+            return float('nan')
         
         returns = np.diff(prices[-period-1:]) / prices[-period-1:-1]
-        return np.std(returns)
+        return float(np.std(returns))
     
     def _calculate_vwap(self, prices: np.ndarray, volumes: np.ndarray) -> float:
         """Расчёт VWAP."""
         if len(prices) != len(volumes) or len(prices) == 0:
-            return np.nan
+            return float('nan')
         
-        return np.sum(prices * volumes) / np.sum(volumes)
+        return float(np.sum(prices * volumes) / np.sum(volumes))
     
     async def train_models(
         self,
@@ -803,7 +803,7 @@ class NeuralMarketPredictor:
         validation_split: float = 0.2
     ) -> Dict[str, Any]:
         """Обучение всех моделей."""
-        training_results = {}
+        training_results: Dict[str, Any] = {}
         
         try:
             # Подготовка признаков
@@ -897,6 +897,7 @@ class NeuralMarketPredictor:
             
             # Создание и обучение модели
             config = self.model_configs[model_type]
+            model: Union[LSTMAttentionModel, QuantumNeuralLayer, Dict[str, Any]]
             
             if model_type == ModelType.LSTM_ATTENTION:
                 model = self._create_lstm_attention_model(X_train_scaled.shape[1], config)
@@ -1017,7 +1018,7 @@ class NeuralMarketPredictor:
         market_data: Dict[str, Any],
         horizon: PredictionHorizon,
         target: PredictionTarget,
-        additional_data: Dict[str, Any] = None
+        additional_data: Optional[Dict[str, Any]] = None
     ) -> PredictionResult:
         """Выполнение прогнозирования."""
         try:
@@ -1037,7 +1038,7 @@ class NeuralMarketPredictor:
             # Получение предсказаний от всех моделей
             predictions = []
             confidences = []
-            feature_importances = {}
+            feature_importances: Dict[str, List[float]] = {}
             
             for model_type in self.model_types:
                 model_key = f"{horizon.value}_{model_type.value}"

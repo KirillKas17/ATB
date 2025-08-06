@@ -34,6 +34,7 @@ class RiskLevel(Enum):
     MODERATE = "moderate"
     HIGH = "high"
     VERY_HIGH = "very_high"
+    EXTREME = "extreme"
 
 
 @dataclass

@@ -71,18 +71,16 @@ class Signal(ValueObject):
         self._validate_signal()
 
     def _normalize_strength(self, strength: Union[Decimal, int, float]) -> Decimal:
-        if isinstance(strength, (int, float)):
-            return Decimal(str(strength))
         if isinstance(strength, Decimal):
             return strength
-        raise ValueError(f"Invalid strength type: {type(strength)}")
+        # Преобразование numeric типов в Decimal
+        return Decimal(str(strength))
 
     def _normalize_confidence(self, confidence: Union[Decimal, int, float]) -> Decimal:
-        if isinstance(confidence, (int, float)):
-            return Decimal(str(confidence))
         if isinstance(confidence, Decimal):
             return confidence
-        raise ValueError(f"Invalid confidence type: {type(confidence)}")
+        # Преобразование numeric типов в Decimal
+        return Decimal(str(confidence))
 
     def _validate_signal(self) -> ValidationResult:
         errors: List[str] = []
