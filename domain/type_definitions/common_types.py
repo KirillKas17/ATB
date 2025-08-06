@@ -18,7 +18,7 @@ class CacheValue(Protocol):
     pass
 
 
-ConfigValue = Union[str, int, float, bool, List, Dict, None]
+ConfigValue = Union[str, int, float, bool, List[Any], Dict[str, Any], None]
 """Тип для значений конфигурации."""
 
 

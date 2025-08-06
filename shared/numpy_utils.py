@@ -263,5 +263,11 @@ if not HAS_NUMPY:
             if isinstance(other, (int, float)):
                 return ndarray([x - other for x in self])
             return ndarray([x - y for x, y in zip(self, other)])
+    
+    # Create mock np instance
+    np = MockNumpy()
 else:
     ndarray = np.ndarray  # type: ignore[misc]
+
+# Export np for external use
+__all__ = ['np', 'ndarray', 'HAS_NUMPY']

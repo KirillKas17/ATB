@@ -392,7 +392,7 @@ if __name__ == "__main__":
     # Пример использования
     import asyncio
     
-    async def main():
+    async def main() -> None:
         # Создание компонентов (в реальном приложении они должны быть уже инициализированы)
         from infrastructure.core.system_monitor import SystemMonitor
         from infrastructure.messaging.optimized_event_bus import EventBus

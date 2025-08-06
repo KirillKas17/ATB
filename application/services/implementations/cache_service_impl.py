@@ -459,3 +459,26 @@ class CacheServiceImpl(BaseApplicationService, CacheService):
         # Очищаем кэш
         self._cache.clear()
         self._stats["total_size_bytes"] = 0
+
+    # Реализация абстрактных методов из BaseService
+    def validate_input(self, data: Any) -> bool:
+        """Валидация входных данных для кэш-операций."""
+        if isinstance(data, dict):
+            if "operation" in data:
+                return data["operation"] in ["get", "set", "delete", "clear", "exists"]
+            return True
+        return False
+
+    def process(self, data: Any) -> Any:
+        """Обработка кэш-данных."""
+        if not self.validate_input(data):
+            return {"error": "Invalid input data"}
+        
+        try:
+            if isinstance(data, dict) and "operation" in data:
+                operation = data["operation"]
+                return {"status": f"{operation}_processing", "data": data}
+            
+            return {"status": "processed", "data": data}
+        except Exception as e:
+            return {"error": f"Processing failed: {str(e)}"}

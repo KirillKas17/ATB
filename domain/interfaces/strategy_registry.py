@@ -30,7 +30,7 @@ class StrategyRegistryProtocol(Protocol):
     """Протокол для реестра стратегий."""
     
     async def register_strategy(self, strategy_id: str, 
-                              strategy_class: Type, 
+                              strategy_class: Type[Any], 
                               config: Dict[str, Any]) -> bool:
         """Регистрация новой стратегии."""
         ...

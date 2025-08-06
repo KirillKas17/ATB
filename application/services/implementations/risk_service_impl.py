@@ -149,3 +149,26 @@ class RiskServiceImpl(BaseApplicationService, RiskService):
         # Очищаем кэши
         self._risk_cache.clear()
         self.logger.info("RiskService stopped")
+
+    # Реализация абстрактных методов из BaseService
+    def validate_input(self, data: Any) -> bool:
+        """Валидация входных данных для риск-операций."""
+        if isinstance(data, dict):
+            if "operation" in data:
+                return data["operation"] in ["assess_risk", "calculate_var", "validate_limits"]
+            return True
+        return False
+
+    def process(self, data: Any) -> Any:
+        """Обработка риск-данных."""
+        if not self.validate_input(data):
+            return {"error": "Invalid input data"}
+        
+        try:
+            if isinstance(data, dict) and "operation" in data:
+                operation = data["operation"]
+                return {"status": f"{operation}_processing", "data": data}
+            
+            return {"status": "processed", "data": data}
+        except Exception as e:
+            return {"error": f"Processing failed: {str(e)}"}

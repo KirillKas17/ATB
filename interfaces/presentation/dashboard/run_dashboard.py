@@ -22,7 +22,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 
-def main():
+def main() -> None:
     # Переходим в папку dashboard
     dashboard_dir = Path(__file__).parent
     os.chdir(dashboard_dir)

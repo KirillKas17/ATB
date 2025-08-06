@@ -32,10 +32,10 @@ class SafeTradingService:
     def cancel_order(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         return {"status": "cancelled", "timestamp": datetime.now()}
     
-    def get_active_orders(self) -> List[Dict]:
+    def get_active_orders(self) -> List[Dict[str, Any]]:
         return []
     
-    def get_order_history(self) -> List[Dict]:
+    def get_order_history(self) -> List[Dict[str, Any]]:
         return []
     
     def create_position(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:

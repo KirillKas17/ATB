@@ -59,7 +59,7 @@ class AdvancedWebDashboard:
         
         logger.info("AdvancedWebDashboard инициализирован")
     
-    def _initialize_ml_components(self):
+    def _initialize_ml_components(self) -> None:
         """Инициализация ML компонентов."""
         try:
             self.ml_predictor = AdvancedPricePredictor()
@@ -68,7 +68,7 @@ class AdvancedWebDashboard:
         except Exception as e:
             logger.warning(f"ML компоненты недоступны: {e}")
     
-    def _setup_layout(self):
+    def _setup_layout(self) -> None:
         """Настройка основного layout."""
         self.app.layout = dbc.Container([
             # Заголовок
@@ -107,7 +107,7 @@ class AdvancedWebDashboard:
             
         ], fluid=True)
     
-    def _setup_callbacks(self):
+    def _setup_callbacks(self) -> None:
         """Настройка callbacks."""
         
         @self.app.callback(
@@ -136,7 +136,7 @@ class AdvancedWebDashboard:
             """Обновление данных в реальном времени."""
             return self._fetch_real_time_data()
     
-    def _create_overview_tab(self):
+    def _create_overview_tab(self) -> Any:
         """Создание таба обзора."""
         return dbc.Container([
             # Метрики в реальном времени
@@ -212,7 +212,7 @@ class AdvancedWebDashboard:
             ])
         ])
     
-    def _create_trading_tab(self):
+    def _create_trading_tab(self) -> Any:
         """Создание таба торговли."""
         return dbc.Container([
             dbc.Row([
@@ -272,7 +272,7 @@ class AdvancedWebDashboard:
             ])
         ])
     
-    def _create_ml_analysis_tab(self):
+    def _create_ml_analysis_tab(self) -> Any:
         """Создание таба ML анализа."""
         return dbc.Container([
             dbc.Row([
@@ -324,7 +324,7 @@ class AdvancedWebDashboard:
             ])
         ])
     
-    def _create_portfolio_tab(self):
+    def _create_portfolio_tab(self) -> Any:
         """Создание таба портфеля."""
         return dbc.Container([
             dbc.Row([
@@ -362,7 +362,7 @@ class AdvancedWebDashboard:
             ])
         ])
     
-    def _create_settings_tab(self):
+    def _create_settings_tab(self) -> Any:
         """Создание таба настроек."""
         return dbc.Container([
             dbc.Row([
@@ -422,7 +422,7 @@ class AdvancedWebDashboard:
             ])
         ])
     
-    def _create_price_chart(self):
+    def _create_price_chart(self) -> Any:
         """Создание графика цен."""
         # Генерируем демо данные
         dates = pd.date_range(start='2025-01-01', periods=100, freq='H')
@@ -446,7 +446,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_trading_chart(self):
+    def _create_trading_chart(self) -> Any:
         """Создание торгового графика."""
         # Candlestick chart
         dates = pd.date_range(start='2025-01-01', periods=50, freq='D')
@@ -468,7 +468,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_ml_predictions_chart(self):
+    def _create_ml_predictions_chart(self) -> Any:
         """Создание графика ML предсказаний."""
         x = list(range(24))
         actual = [50000 + i * 100 + np.random.randn() * 200 for i in x]
@@ -488,7 +488,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_pattern_analysis_chart(self):
+    def _create_pattern_analysis_chart(self) -> Any:
         """Создание графика анализа паттернов."""
         patterns = ['Head&Shoulders', 'Double Bottom', 'Triangle', 'Flag', 'Cup&Handle']
         confidence = [85, 72, 68, 55, 49]
@@ -502,7 +502,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_sentiment_chart(self):
+    def _create_sentiment_chart(self) -> Any:
         """Создание графика sentiment."""
         sentiments = ['Очень позитивный', 'Позитивный', 'Нейтральный', 'Негативный', 'Очень негативный']
         values = [25, 35, 20, 15, 5]
@@ -516,7 +516,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_portfolio_pie_chart(self):
+    def _create_portfolio_pie_chart(self) -> Any:
         """Создание круговой диаграммы портфеля."""
         assets = ['BTC', 'ETH', 'ADA', 'DOT', 'USDT']
         values = [40, 25, 15, 10, 10]
@@ -530,7 +530,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_performance_chart(self):
+    def _create_performance_chart(self) -> Any:
         """Создание графика производительности."""
         dates = pd.date_range(start='2025-01-01', periods=30, freq='D')
         performance = np.cumsum(np.random.randn(30) * 0.02) * 100
@@ -553,7 +553,7 @@ class AdvancedWebDashboard:
         
         return fig
     
-    def _create_signals_list(self):
+    def _create_signals_list(self) -> Any:
         """Создание списка сигналов."""
         signals = [
             {"symbol": "BTC/USDT", "action": "BUY", "strength": "STRONG", "time": "10:30"},
@@ -571,7 +571,7 @@ class AdvancedWebDashboard:
             ]) for signal in signals
         ]
     
-    def _create_components_status(self):
+    def _create_components_status(self) -> Any:
         """Создание статуса компонентов."""
         components = [
             {"name": "🤖 ML Predictor", "status": "✅ Активен"},
@@ -588,7 +588,7 @@ class AdvancedWebDashboard:
             ], className="mb-2") for comp in components
         ]
     
-    def _create_orders_table(self):
+    def _create_orders_table(self) -> Any:
         """Создание таблицы ордеров."""
         return dbc.Table([
             html.Thead([
@@ -618,7 +618,7 @@ class AdvancedWebDashboard:
             ])
         ], striped=True, bordered=True, hover=True)
     
-    def _create_positions_table(self):
+    def _create_positions_table(self) -> Any:
         """Создание таблицы позиций."""
         return dbc.Table([
             html.Thead([
@@ -651,7 +651,7 @@ class AdvancedWebDashboard:
             ])
         ], striped=True, bordered=True, hover=True)
     
-    def _fetch_real_time_data(self):
+    def _fetch_real_time_data(self) -> Any:
         """Получение данных в реальном времени."""
         # Здесь была бы реальная интеграция с системой
         return {

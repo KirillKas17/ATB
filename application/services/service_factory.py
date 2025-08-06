@@ -290,7 +290,7 @@ class DefaultServiceFactory(ServiceFactory):
         merged.update(override_config)
         return merged
 
-    def _get_risk_repository(self) -> None:
+    def _get_risk_repository(self) -> Any:
         """Получить репозиторий рисков."""
         try:
             from infrastructure.repositories.risk_repository import RiskRepositoryImpl
@@ -300,7 +300,7 @@ class DefaultServiceFactory(ServiceFactory):
             from application.safe_services import SafeRiskService
             return SafeRiskService()
 
-    def _get_technical_analysis_service(self) -> None:
+    def _get_technical_analysis_service(self) -> Any:
         """Получить сервис технического анализа."""
         try:
             from infrastructure.services.technical_analysis_service import TechnicalAnalysisService
@@ -310,7 +310,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("TechnicalAnalysisService")
 
-    def _get_market_metrics_service(self) -> None:
+    def _get_market_metrics_service(self) -> Any:
         """Получить сервис рыночных метрик."""
         try:
             from infrastructure.services.market_metrics_service import MarketMetricsService
@@ -324,7 +324,7 @@ class DefaultServiceFactory(ServiceFactory):
                 from application.safe_services import SafeMarketService
                 return SafeMarketService()
 
-    def _get_market_repository(self) -> None:
+    def _get_market_repository(self) -> Any:
         """Получить репозиторий рынка."""
         try:
             from infrastructure.repositories.market_repository import MarketRepositoryImpl
@@ -334,7 +334,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("MarketRepository")
 
-    def _get_ml_predictor(self) -> None:
+    def _get_ml_predictor(self) -> Any:
         """Получить ML предиктор."""
         try:
             from infrastructure.ml_services.predictor import MLPredictor
@@ -344,7 +344,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("MLPredictor")
 
-    def _get_ml_repository(self) -> None:
+    def _get_ml_repository(self) -> Any:
         """Получить ML репозиторий."""
         try:
             from infrastructure.repositories.ml_repository import MLRepositoryImpl
@@ -354,7 +354,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("MLRepository")
 
-    def _get_signal_service(self) -> None:
+    def _get_signal_service(self) -> Any:
         """Получить сервис сигналов."""
         try:
             from infrastructure.services.signal_service import SignalService
@@ -364,7 +364,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("SignalService")
 
-    def _get_trading_repository(self) -> None:
+    def _get_trading_repository(self) -> Any:
         """Получить торговый репозиторий."""
         try:
             from infrastructure.repositories.trading_repository import TradingRepositoryImpl
@@ -374,7 +374,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("TradingRepository")
 
-    def _get_portfolio_optimizer(self) -> None:
+    def _get_portfolio_optimizer(self) -> Any:
         """Получить оптимизатор портфеля."""
         try:
             from infrastructure.agents.portfolio.optimizers import PortfolioOptimizer
@@ -384,7 +384,7 @@ class DefaultServiceFactory(ServiceFactory):
             from safe_import_wrapper import SafeImportMock
             return SafeImportMock("PortfolioOptimizer")
 
-    def _get_portfolio_repository(self) -> None:
+    def _get_portfolio_repository(self) -> Any:
         """Получить репозиторий портфеля."""
         try:
             from infrastructure.repositories.portfolio_repository import PortfolioRepositoryImpl

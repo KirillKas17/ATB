@@ -891,7 +891,7 @@ class EntityDashboard:
         self.app.run_server(debug=debug, port=port)
 
 
-def main():
+def main() -> None:
     """Основная функция запуска dashboard."""
     dashboard = EntityDashboard()
     dashboard.run()

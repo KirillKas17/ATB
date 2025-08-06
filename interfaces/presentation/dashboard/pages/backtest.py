@@ -11,7 +11,7 @@ st.set_page_config(page_title="Бектестинг", page_icon="📊", layout="
 
 
 class Backtest:
-    def __init__(self):
+    def __init__(self) -> None:
         self.data_dir = Path("data")
         self.results_dir = Path("results")
 
@@ -42,7 +42,7 @@ class Backtest:
             return pd.DataFrame()
 
 
-def main():
+def main() -> None:
     backtest = Backtest()
 
     st.title("📊 Бектестинг")

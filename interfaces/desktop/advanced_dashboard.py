@@ -1393,7 +1393,7 @@ Alt+F4 - Выход
             self.logger.error(f"Критическая ошибка дашборда: {e}")
             messagebox.showerror("Критическая ошибка", f"Произошла критическая ошибка:\n{e}")
 
-def main():
+def main() -> None:
     """Главная функция"""
     try:
         dashboard = AdvancedTradingDashboard()

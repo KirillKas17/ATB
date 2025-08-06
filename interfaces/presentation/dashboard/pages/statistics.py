@@ -10,7 +10,7 @@ st.set_page_config(page_title="Статистика", page_icon="📊", layout="
 
 
 class Statistics:
-    def __init__(self):
+    def __init__(self) -> None:
         self.stats_dir = Path("stats")
 
     def load_trades_history(self) -> pd.DataFrame:
@@ -40,7 +40,7 @@ class Statistics:
             return {}
 
 
-def main():
+def main() -> None:
     stats = Statistics()
 
     st.title("📊 Детальная статистика")

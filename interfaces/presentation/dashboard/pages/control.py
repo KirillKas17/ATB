@@ -10,7 +10,7 @@ st.set_page_config(page_title="Управление", page_icon="🎮", layout="
 
 
 class BotControl:
-    def __init__(self):
+    def __init__(self) -> None:
         self.config_dir = Path("config")
         self.data_dir = Path("data")
 
@@ -51,7 +51,7 @@ class BotControl:
             return []
 
 
-def main():
+def main() -> None:
     control = BotControl()
 
     st.title("🎮 Управление ботом")

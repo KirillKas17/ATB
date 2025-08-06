@@ -678,3 +678,32 @@ class TradingServiceImpl(BaseApplicationService, TradingService):
                 "efficiency_score": 0.5,
                 "annualized_return": 0
             }
+
+    # Реализация абстрактных методов из BaseService
+    def validate_input(self, data: Any) -> bool:
+        """Валидация входных данных для торговых операций."""
+        if isinstance(data, dict):
+            # Проверяем базовые требования для торговых данных
+            if "operation" in data:
+                return data["operation"] in ["place_order", "cancel_order", "get_status"]
+            return True
+        return False
+
+    def process(self, data: Any) -> Any:
+        """Обработка торговых данных.""" 
+        if not self.validate_input(data):
+            return {"error": "Invalid input data"}
+        
+        try:
+            if isinstance(data, dict) and "operation" in data:
+                operation = data["operation"]
+                if operation == "place_order":
+                    return {"status": "order_processing", "data": data}
+                elif operation == "cancel_order": 
+                    return {"status": "cancel_processing", "data": data}
+                elif operation == "get_status":
+                    return {"status": "status_processing", "data": data}
+            
+            return {"status": "processed", "data": data}
+        except Exception as e:
+            return {"error": f"Processing failed: {str(e)}"}
