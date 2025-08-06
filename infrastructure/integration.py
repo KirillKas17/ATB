@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class InfrastructureManager:
     """Manages all infrastructure components."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
         self.health_checker: Optional[HealthChecker] = None
         self.cache_manager: Optional[CacheManager] = None
@@ -388,14 +388,14 @@ def get_default_config() -> Dict[str, Any]:
 class InfrastructureContext:
     """Context manager for infrastructure lifecycle."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or get_default_config()
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Any:
         await initialize_infrastructure(self.config)
         return await get_infrastructure_manager()
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[Any]) -> None:
         await shutdown_infrastructure()
 
 

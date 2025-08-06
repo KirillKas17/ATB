@@ -543,7 +543,7 @@ class SessionAnalysisResult:
             if hasattr(val, "value"):
                 val = getattr(val, "value")
             try:
-                return float(val)
+                return float(str(val))
             except (TypeError, ValueError):
                 return 0.0
 

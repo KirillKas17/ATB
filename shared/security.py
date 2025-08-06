@@ -60,7 +60,7 @@ class SecurityConfig:
 class AdvancedInputValidator:
     """Продвинутый валидатор входных данных с ML-анализом."""
 
-    def __init__(self, config: SecurityConfig):
+    def __init__(self, config: SecurityConfig) -> None:
         self.config = config
         self.logger = logger.bind(service="AdvancedInputValidator")
         self.anomaly_detector = IsolationForest(contamination=0.1, random_state=42)
@@ -290,7 +290,7 @@ advanced_validator = AdvancedInputValidator(security_config)
 class AdvancedAuthenticator:
     """Продвинутая система аутентификации с криптографически стойкими алгоритмами."""
 
-    def __init__(self, config: SecurityConfig):
+    def __init__(self, config: SecurityConfig) -> None:
         self.config = config
         self.logger = logger.bind(service="AdvancedAuthenticator")
         self.private_key = self._generate_private_key()
@@ -477,7 +477,7 @@ class AdvancedAuthenticator:
 class AdvancedAuthorizer:
     """Продвинутая система авторизации с контекстным анализом."""
 
-    def __init__(self, config: SecurityConfig):
+    def __init__(self, config: SecurityConfig) -> None:
         self.config = config
         self.logger = logger.bind(service="AdvancedAuthorizer")
         self.permissions_cache: Dict[str, Dict[str, Any]] = {}
@@ -630,7 +630,7 @@ class AdvancedAuthorizer:
 class AdvancedEncryption:
     """Продвинутое шифрование с квантово-стойкими алгоритмами."""
 
-    def __init__(self, config: SecurityConfig):
+    def __init__(self, config: SecurityConfig) -> None:
         self.config = config
         self.logger = logger.bind(service="AdvancedEncryption")
         self.fernet_key = Fernet.generate_key()
@@ -693,7 +693,7 @@ class AdvancedEncryption:
 class AdvancedAuditLogger:
     """Продвинутый audit log с AI-анализом."""
 
-    def __init__(self, config: SecurityConfig):
+    def __init__(self, config: SecurityConfig) -> None:
         self.config = config
         self.logger = logger.bind(service="AdvancedAuditLogger")
         self.audit_events: List[Dict[str, Any]] = []
@@ -831,7 +831,7 @@ class AdvancedAuditLogger:
 class AdvancedRateLimiter:
     """Продвинутый rate limiter с адаптивными алгоритмами."""
 
-    def __init__(self, config: SecurityConfig):
+    def __init__(self, config: SecurityConfig) -> None:
         self.config = config
         self.logger = logger.bind(service="AdvancedRateLimiter")
         self.request_counts: Dict[str, List[datetime]] = {}

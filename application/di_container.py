@@ -2,18 +2,18 @@
 Dependency Injection Container для приложения.
 """
 
-from typing import Any, Callable, Dict, TypeVar, Type, Optional
+from typing import Any, Callable, Dict, TypeVar, Type, Optional, cast
 import logging
 
 T = TypeVar('T')
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DIContainer:
     """Контейнер для dependency injection."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._services: Dict[str, Any] = {}
         self._factories: Dict[str, Callable[[], Any]] = {}
         self._singletons: Dict[str, Any] = {}
@@ -42,11 +42,11 @@ class DIContainer:
         
         # Проверяем singleton
         if key in self._singletons:
-            return self._singletons[key]
+            return cast(T, self._singletons[key])
         
         # Проверяем зарегистрированные экземпляры
         if key in self._services:
-            return self._services[key]
+            return cast(T, self._services[key])
         
         # Проверяем factories
         if key in self._factories:
@@ -54,7 +54,7 @@ class DIContainer:
                 instance = self._factories[key]()
                 # Сохраняем как singleton если это factory
                 self._singletons[key] = instance
-                return instance
+                return cast(T, instance)
             except Exception as e:
                 logger.error(f"Error creating instance for {key}: {e}")
                 return None
@@ -82,7 +82,7 @@ class DIContainer:
 
 
 # Глобальный экземпляр контейнера
-container = DIContainer()
+container: DIContainer = DIContainer()
 
 
 def get_container() -> DIContainer:

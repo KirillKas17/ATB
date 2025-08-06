@@ -423,7 +423,7 @@ class RiskMetricsCalculator:
         try:
             results = {}
             for scenario in stress_scenarios:
-                scenario_name = scenario.get("name", "unknown")
+                scenario_name = str(scenario.get("name", "unknown"))
                 stress_factor = scenario.get("factor", 1.0)
                 
                 # Простая оценка влияния стресса с точной арифметикой
@@ -476,15 +476,15 @@ class RiskMetricsCalculator:
                 return 0.0
             # Получаем значения returns
             if hasattr(returns, 'values'):
-                returns_array: np.ndarray = returns.values
+                returns_array = returns.values
             else:
-                returns_array: np.ndarray = np.asarray(returns)
+                returns_array = np.asarray(returns)
             # Расчет VaR
             var = np.percentile(returns_array, (1 - confidence) * 100)
             # Расчет ES как среднее значений ниже VaR
             tail_returns = returns_array[returns_array <= float(var)]
             if len(tail_returns) == 0:
-                return abs(var)
+                return float(abs(var))
             es = float(np.mean(tail_returns))
             return abs(es)
         except Exception as e:

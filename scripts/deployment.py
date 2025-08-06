@@ -12,7 +12,7 @@ import time
 import json
 import yaml
 import shutil
-from typing import Dict, Any, List, Optional, Tuple, Callable
+from typing import Dict, Any, List, Optional, Tuple, Callable, cast
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime, timedelta
@@ -484,9 +484,9 @@ class DeploymentOrchestrator:
         """Загрузить конфигурацию."""
         with open(self.config_file, 'r') as f:
             if self.config_file.endswith('.yaml') or self.config_file.endswith('.yml'):
-                return yaml.safe_load(f)
+                return cast(Dict[str, Any], yaml.safe_load(f))
             else:
-                return json.load(f)
+                return cast(Dict[str, Any], json.load(f))
                 
     def create_deployment_manager(self, service_name: str) -> DeploymentManager:
         """Создать менеджер развёртывания для сервиса."""

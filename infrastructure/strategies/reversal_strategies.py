@@ -391,17 +391,17 @@ class ReversalStrategy(BaseStrategy):
             atr_value = float(atr_value) if atr_value is not None and not pd.isna(atr_value) else 0.0 
             
             if reversal["type"] == "bullish":
-                            # Используем Decimal для точных расчетов
-            entry_decimal = to_trading_decimal(entry_price)
-            atr_decimal = to_trading_decimal(atr_value)
-            stop_multiplier = to_trading_decimal(self._config.stop_loss_atr_multiplier)
-            take_multiplier = to_trading_decimal(self._config.take_profit_atr_multiplier)
-            
-            stop_distance = atr_decimal * stop_multiplier
-            take_distance = atr_decimal * take_multiplier
-            
-            stop_loss = float(entry_decimal - stop_distance)
-            take_profit = float(entry_decimal + take_distance)
+                # Используем Decimal для точных расчетов
+                entry_decimal = to_trading_decimal(entry_price)
+                atr_decimal = to_trading_decimal(atr_value)
+                stop_multiplier = to_trading_decimal(self._config.stop_loss_atr_multiplier)
+                take_multiplier = to_trading_decimal(self._config.take_profit_atr_multiplier)
+                
+                stop_distance = atr_decimal * stop_multiplier
+                take_distance = atr_decimal * take_multiplier
+                
+                stop_loss = float(entry_decimal - stop_distance)
+                take_profit = float(entry_decimal + take_distance)
                 direction = "long"
             else:
                 # Используем Decimal для точных расчетов (short позиция)

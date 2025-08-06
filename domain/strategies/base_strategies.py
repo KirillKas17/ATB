@@ -3,6 +3,7 @@
 """
 
 import logging
+from typing import List, Type, Union
 
 from domain.strategies.trend_following_strategy import TrendFollowingStrategy
 from domain.strategies.mean_reversion_strategy import MeanReversionStrategy
@@ -30,8 +31,9 @@ from domain.strategies.utils import (
     detect_support_resistance,
 )
 
-logger = logging.getLogger(__name__)
-__all__ = [
+logger: logging.Logger = logging.getLogger(__name__)
+
+__all__: List[str] = [
     "TrendFollowingStrategy",
     "MeanReversionStrategy",
     "BreakoutStrategy",

@@ -76,7 +76,7 @@ class CacheEntry:
 class CachePolicy:
     """Политика кэширования."""
 
-    def __init__(self, max_size: int = 1000, max_memory_mb: int = 100):
+    def __init__(self, max_size: int = 1000, max_memory_mb: int = 100) -> None:
         self.max_size = max_size
         self.max_memory_bytes = max_memory_mb * 1024 * 1024
         self.eviction_policy = "lru"  # lru, lfu, fifo, random
@@ -209,7 +209,7 @@ class UnifiedCache:
                 # Сохраняем только если прошло достаточно времени с последнего сохранения
                 if current_time - last_save_time >= 300:  # Минимум 5 минут между сохранениями
                     await self._save_persistent_cache()
-                    last_save_time = current_time
+                    last_save_time = int(current_time)
                     logger.debug(f"Persisted cache with {cache_size} entries")
                 
                 # Сбрасываем счетчик ошибок при успешном выполнении

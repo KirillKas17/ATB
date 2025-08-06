@@ -43,7 +43,7 @@ class Symbol:
     def __str__(self) -> str:
         return self.symbol_name
     
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Symbol):
             return False
         return (self.base_currency == other.base_currency and 

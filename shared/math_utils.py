@@ -3,7 +3,7 @@ from shared.numpy_utils import np
 # Миграция из utils/math_utils.py
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 
 def calculate_fibonacci_levels(high: Decimal, low: Decimal) -> List[Decimal]:
@@ -363,7 +363,7 @@ def calculate_liquidity_impact(
         "market_impact": market_impact,
         "filled_size": filled_size,
         "remaining_size": remaining_size,
-        "levels_consumed": consumed_levels
+        "levels_consumed": Decimal(consumed_levels)
     }
 
 
@@ -372,7 +372,7 @@ def should_split_order(
     orderbook_data: List[Tuple[Decimal, Decimal]], 
     max_slippage_pct: Decimal = Decimal("0.5"),
     max_liquidity_impact_pct: Decimal = Decimal("10")
-) -> Dict[str, Union[bool, List[Decimal]]]:
+) -> Dict[str, Any]:
     """
     Определяет, нужно ли разбить крупный ордер на части.
     

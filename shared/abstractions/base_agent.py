@@ -88,7 +88,7 @@ class BaseAgent(ABC):
     - Конфигурация и состояние
     """
 
-    def __init__(self, config: AgentConfig):
+    def __init__(self, config: AgentConfig) -> None:
         """
         Инициализация базового агента.
         Args:

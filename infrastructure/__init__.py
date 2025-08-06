@@ -2,6 +2,8 @@
 Infrastructure Layer - слой инфраструктуры.
 """
 
+from typing import List
+
 from .market_data import (
     BaseExchangeConnector,
     BinanceConnector,
@@ -57,7 +59,7 @@ from .repositories import (
     PostgresTradingRepository,
 )
 
-__all__ = [
+__all__: List[str] = [
     # Repositories
     "PostgresTradingRepository",
     "PostgresPortfolioRepository",

@@ -100,27 +100,27 @@ except ImportError:
     
     class DataFrameFallback:
         """Минимальная реализация DataFrame для fallback."""
-        def __init__(self, data=None, **kwargs):
+        def __init__(self, data=None, **kwargs) -> None:
             self.data = data if data is not None else {}
             self._shape = (0, 0)
         
         @property
-        def shape(self):
+        def shape(self) -> None:
             return self._shape
         
-        def dropna(self):
+        def dropna(self) -> None:
             return self
         
-        def set_index(self, keys):
+        def set_index(self, keys) -> None:
             return self
         
-        def __getitem__(self, key):
+        def __getitem__(self, key) -> Any:
             return self.data.get(key, [])
         
-        def __setitem__(self, key, value):
+        def __setitem__(self, key, value) -> None:
             self.data[key] = value
         
-        def get(self, key, default=None):
+        def get(self, key, default=None) -> Any:
             return self.data.get(key, default)
     
     DataFrame = DataFrameFallback
@@ -144,17 +144,17 @@ except ImportError:
         """Минимальная реализация numpy для fallback."""
         
         @staticmethod
-        def array(data):
+        def array(data) -> None:
             return list(data) if hasattr(data, '__iter__') else [data]
         
         @staticmethod
-        def mean(data):
+        def mean(data) -> float:
             if not data:
                 return 0.0
             return sum(data) / len(data)
         
         @staticmethod
-        def std(data):
+        def std(data) -> float:
             if not data:
                 return 0.0
             mean_val = sum(data) / len(data)
@@ -162,13 +162,13 @@ except ImportError:
             return variance ** 0.5
         
         @staticmethod
-        def corrcoef(x, y=None):
+        def corrcoef(x, y=None) -> None:
             if y is None:
                 return [[1.0]]
             return [[1.0, 0.0], [0.0, 1.0]]
         
         @staticmethod
-        def linspace(start, stop, num):
+        def linspace(start, stop, num) -> None:
             if num <= 1:
                 return [start]
             step = (stop - start) / (num - 1)
@@ -200,11 +200,11 @@ except ImportError:
         """Fallback для requests."""
         
         @staticmethod
-        def get(*args, **kwargs):
+        def get(*args, **kwargs) -> None:
             raise RuntimeError("HTTP requests not available - install requests library")
         
         @staticmethod
-        def post(*args, **kwargs):
+        def post(*args, **kwargs) -> None:
             raise RuntimeError("HTTP requests not available - install requests library")
     
     requests = RequestsFallback()
@@ -228,16 +228,16 @@ except ImportError:
     
     class FernetFallback:
         """Fallback для Fernet."""
-        def __init__(self, key):
+        def __init__(self, key) -> None:
             self.key = key
         
-        def encrypt(self, data):
+        def encrypt(self, data) -> bytes:
             logger.warning("Encryption not available - returning plain data")
-            return data
+            return data if isinstance(data, bytes) else data.encode() if hasattr(data, 'encode') else b''
         
-        def decrypt(self, data):
+        def decrypt(self, data) -> bytes:
             logger.warning("Decryption not available - returning plain data")
-            return data
+            return data if isinstance(data, bytes) else data.encode() if hasattr(data, 'encode') else b''
     
     Fernet = FernetFallback
 

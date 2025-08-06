@@ -2,7 +2,9 @@
 Shared Layer - общие компоненты.
 """
 
-__all__ = [
+from typing import List
+
+__all__: List[str] = [
     # Config
     "get_config",
     "SyntraConfig",

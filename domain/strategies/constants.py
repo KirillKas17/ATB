@@ -3,6 +3,7 @@
 """
 
 from decimal import Decimal
+from typing import Any, Dict, List, Union
 
 from domain.strategies.strategy_types import (
     ArbitrageParams,
@@ -20,7 +21,7 @@ from domain.strategies.strategy_types import (
 )
 
 # Поддерживаемые торговые пары
-SUPPORTED_TRADING_PAIRS = [
+SUPPORTED_TRADING_PAIRS: List[str] = [
     "BTC/USDT",
     "ETH/USDT",
     "ADA/USDT",
@@ -42,8 +43,9 @@ SUPPORTED_TRADING_PAIRS = [
     "ALGO/USDT",
     "VET/USDT",
 ]
+
 # Уровни риска
-RISK_LEVELS = {
+RISK_LEVELS: Dict[str, Dict[str, Decimal]] = {
     "low": {
         "max_position_size": Decimal("0.05"),
         "stop_loss": Decimal("0.01"),
@@ -66,16 +68,18 @@ RISK_LEVELS = {
         "max_drawdown": Decimal("0.3"),
     },
 }
+
 # Пороги уверенности
-CONFIDENCE_THRESHOLDS = {
+CONFIDENCE_THRESHOLDS: Dict[str, Decimal] = {
     "very_low": Decimal("0.3"),
     "low": Decimal("0.5"),
     "medium": Decimal("0.7"),
     "high": Decimal("0.8"),
     "very_high": Decimal("0.9"),
 }
+
 # Метрики производительности
-PERFORMANCE_METRICS = [
+PERFORMANCE_METRICS: List[str] = [
     "total_trades",
     "winning_trades",
     "losing_trades",
@@ -93,8 +97,9 @@ PERFORMANCE_METRICS = [
     "avg_execution_time",
     "success_rate",
 ]
+
 # Категории стратегий
-STRATEGY_CATEGORIES = {
+STRATEGY_CATEGORIES: Dict[StrategyCategory, Dict[str, Union[str, RiskProfile, TimeHorizon, List[MarketCondition]]]] = {
     StrategyCategory.TREND_FOLLOWING: {
         "name": "Trend Following",
         "description": "Стратегии следования за трендом",
@@ -147,8 +152,9 @@ STRATEGY_CATEGORIES = {
         ],
     },
 }
+
 # Конфигурации по умолчанию для стратегий
-DEFAULT_STRATEGY_CONFIG = {
+DEFAULT_STRATEGY_CONFIG: Dict[str, Dict[str, Union[bool, int, Decimal, str]]] = {
     "general": {
         "enable_logging": True,
         "enable_metrics": True,
@@ -179,8 +185,9 @@ DEFAULT_STRATEGY_CONFIG = {
         },
     },
 }
+
 # Конфигурации по умолчанию для конкретных стратегий
-DEFAULT_TREND_FOLLOWING_CONFIG = TrendFollowingParams(
+DEFAULT_TREND_FOLLOWING_CONFIG: TrendFollowingParams = TrendFollowingParams(
     short_period=10,
     long_period=20,
     rsi_period=14,
@@ -194,7 +201,8 @@ DEFAULT_TREND_FOLLOWING_CONFIG = TrendFollowingParams(
     volume_confirmation=True,
     volume_threshold=Decimal("1.5"),
 )
-DEFAULT_MEAN_REVERSION_CONFIG = MeanReversionParams(
+
+DEFAULT_MEAN_REVERSION_CONFIG: MeanReversionParams = MeanReversionParams(
     lookback_period=50,
     deviation_threshold=Decimal("2.0"),
     rsi_period=14,
@@ -205,7 +213,8 @@ DEFAULT_MEAN_REVERSION_CONFIG = MeanReversionParams(
     min_reversion_probability=Decimal("0.6"),
     max_holding_period=24,
 )
-DEFAULT_BREAKOUT_CONFIG = BreakoutParams(
+
+DEFAULT_BREAKOUT_CONFIG: BreakoutParams = BreakoutParams(
     breakout_threshold=Decimal("1.5"),
     volume_multiplier=Decimal("2.0"),
     volume_confirmation_period=3,
@@ -216,7 +225,8 @@ DEFAULT_BREAKOUT_CONFIG = BreakoutParams(
     min_volatility=Decimal("0.01"),
     max_volatility=Decimal("0.1"),
 )
-DEFAULT_SCALPING_CONFIG = ScalpingParams(
+
+DEFAULT_SCALPING_CONFIG: ScalpingParams = ScalpingParams(
     profit_threshold=Decimal("0.001"),
     stop_loss=Decimal("0.0005"),
     max_hold_time=300,
@@ -228,7 +238,8 @@ DEFAULT_SCALPING_CONFIG = ScalpingParams(
     execution_timeout=5,
     max_slippage=Decimal("0.0001"),
 )
-DEFAULT_ARBITRAGE_CONFIG = ArbitrageParams(
+
+DEFAULT_ARBITRAGE_CONFIG: ArbitrageParams = ArbitrageParams(
     min_spread=Decimal("0.001"),
     max_slippage=Decimal("0.0005"),
     execution_timeout=10,
@@ -240,8 +251,9 @@ DEFAULT_ARBITRAGE_CONFIG = ArbitrageParams(
     exchange_monitoring_interval=1,
     price_update_frequency=1,
 )
+
 # Временные фреймы и их настройки
-TIMEFRAME_CONFIGS = {
+TIMEFRAME_CONFIGS: Dict[Timeframe, Dict[str, Union[str, int, List[StrategyCategory]]]] = {
     Timeframe.TICK: {
         "description": "Tick data",
         "min_interval": 1,
@@ -342,8 +354,9 @@ TIMEFRAME_CONFIGS = {
         "suitable_strategies": [StrategyCategory.TREND_FOLLOWING],
     },
 }
+
 # Ограничения и лимиты
-STRATEGY_LIMITS = {
+STRATEGY_LIMITS: Dict[str, Union[int, Decimal]] = {
     "max_strategies_per_account": 10,
     "max_concurrent_strategies": 5,
     "max_trades_per_strategy": 1000,
@@ -353,8 +366,9 @@ STRATEGY_LIMITS = {
     "max_strategy_cpu_percent": 50,
     "max_strategy_disk_mb": 100,
 }
+
 # Настройки логирования
-LOGGING_CONFIG = {
+LOGGING_CONFIG: Dict[str, Union[str, int, bool]] = {
     "level": "INFO",
     "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     "file": "strategies.log",
@@ -363,8 +377,9 @@ LOGGING_CONFIG = {
     "enable_console": True,
     "enable_file": True,
 }
+
 # Настройки мониторинга
-MONITORING_CONFIG = {
+MONITORING_CONFIG: Dict[str, Union[bool, int, List[str]]] = {
     "enable_performance_monitoring": True,
     "enable_risk_monitoring": True,
     "enable_system_monitoring": True,
@@ -374,8 +389,9 @@ MONITORING_CONFIG = {
     "alert_channels": ["log", "email", "webhook"],
     "metrics_retention_days": 30,
 }
+
 # Настройки оптимизации
-OPTIMIZATION_CONFIG = {
+OPTIMIZATION_CONFIG: Dict[str, Union[bool, int, str, List[str]]] = {
     "enable_auto_optimization": False,
     "optimization_interval_hours": 24,
     "optimization_method": "grid_search",
@@ -384,8 +400,9 @@ OPTIMIZATION_CONFIG = {
     "cross_validation_folds": 5,
     "min_optimization_data_points": 100,
 }
+
 # Настройки бэктестинга
-BACKTEST_CONFIG = {
+BACKTEST_CONFIG: Dict[str, Union[Decimal, str, bool, int]] = {
     "default_commission": Decimal("0.001"),
     "default_slippage": Decimal("0.0005"),
     "default_initial_balance": Decimal("10000"),
@@ -395,8 +412,9 @@ BACKTEST_CONFIG = {
     "enable_slippage_simulation": True,
     "min_data_points": 1000,
 }
+
 # Настройки уведомлений
-ALERT_CONFIG = {
+ALERT_CONFIG: Dict[str, Union[bool, List[str], Dict[str, Union[List[str], Decimal, int]]]] = {
     "enable_alerts": True,
     "alert_levels": ["info", "warning", "error", "critical"],
     "alert_channels": {
@@ -413,8 +431,9 @@ ALERT_CONFIG = {
         "error_rate": Decimal("0.1"),
     },
 }
+
 # Настройки безопасности
-SECURITY_CONFIG = {
+SECURITY_CONFIG: Dict[str, Union[bool, int, Decimal]] = {
     "enable_parameter_validation": True,
     "enable_risk_checks": True,
     "enable_execution_limits": True,
@@ -424,8 +443,9 @@ SECURITY_CONFIG = {
     "enable_fraud_detection": True,
     "suspicious_activity_threshold": 5,
 }
+
 # Настройки кэширования
-CACHE_CONFIG = {
+CACHE_CONFIG: Dict[str, Union[bool, int]] = {
     "enable_strategy_cache": True,
     "enable_data_cache": True,
     "strategy_cache_ttl": 3600,
@@ -433,8 +453,9 @@ CACHE_CONFIG = {
     "max_cache_size_mb": 1000,
     "cache_cleanup_interval": 3600,
 }
+
 # Настройки производительности
-PERFORMANCE_CONFIG = {
+PERFORMANCE_CONFIG: Dict[str, Union[bool, int, Dict[str, Union[int, Decimal]]]] = {
     "enable_profiling": False,
     "enable_metrics_collection": True,
     "metrics_aggregation_interval": 60,

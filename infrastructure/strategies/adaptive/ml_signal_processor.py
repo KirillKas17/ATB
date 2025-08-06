@@ -2,7 +2,7 @@
 Обработчик ML сигналов для адаптивных стратегий
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from loguru import logger
@@ -15,8 +15,8 @@ from infrastructure.core.technical_analysis import calculate_rsi
 class MLSignalProcessor:
     """Обработчик ML сигналов"""
 
-    def __init__(self, meta_learner: Optional[Any] = None):
-        self.meta_learner = meta_learner
+    def __init__(self, meta_learner: Optional[Any] = None) -> None:
+        self.meta_learner: Optional[Any] = meta_learner
 
     def get_predictions(self, data: pd.DataFrame) -> Dict[str, float]:
         """
@@ -24,14 +24,24 @@ class MLSignalProcessor:
         """
         try:
             if self.meta_learner:
-                features = self._extract_features(data)
+                features: Dict[str, float] = self._extract_features(data)
                 # Исправление: если meta_learner имеет метод predict, используем его, иначе вызываем как torch-модель
                 if hasattr(self.meta_learner, 'predict'):
-                    predictions = self.meta_learner.predict(features)
+                    predictions_raw = self.meta_learner.predict(features)
+                    # Приводим к правильному типу
+                    if isinstance(predictions_raw, dict):
+                        predictions = {str(k): float(v) for k, v in predictions_raw.items()}
+                    else:
+                        predictions = {
+                            'buy_prob': 0.33,
+                            'sell_prob': 0.33,
+                            'hold_prob': 0.34,
+                            'confidence': 0.34,
+                        }
                 else:
                     try:
                         import torch
-                        features_list = list(features.values())
+                        features_list: List[float] = list(features.values())
                         features_tensor = torch.tensor(features_list, dtype=torch.float32).unsqueeze(0)
                         if hasattr(self.meta_learner, 'forward'):
                             import inspect
@@ -48,160 +58,167 @@ class MLSignalProcessor:
                         import torch.nn.functional as F
                         probs = F.softmax(output, dim=1).detach().cpu().numpy()[0]
                         predictions = {
-                            'buy_prob': float(probs[0]),
-                            'sell_prob': float(probs[1]) if len(probs) > 1 else 0.0,
-                            'hold_prob': float(probs[2]) if len(probs) > 2 else 0.0,
-                            'confidence': float(max(probs)),
+                            'buy_probability': float(probs[0]),
+                            'hold_probability': float(probs[1]), 
+                            'sell_probability': float(probs[2])
                         }
-                    except Exception as e:
-                        logger.error(f"Error in torch processing: {str(e)}")
-                        predictions = {
-                            'buy_prob': 0.33,
-                            'sell_prob': 0.33,
-                            'hold_prob': 0.34,
-                            'confidence': 0.34,
-                        }
+                    except ImportError:
+                        # Torch недоступен, используем базовые расчеты
+                        predictions = self._calculate_basic_predictions(features)
+                    
                 return predictions
             else:
-                return {}
+                # Если meta_learner недоступен, используем базовые расчеты
+                features = self._extract_features(data)
+                return self._calculate_basic_predictions(features)
+        
         except Exception as e:
-            logger.error(f"Error getting ML predictions: {str(e)}")
-            return {}
+            logger.warning(f"Ошибка при получении ML предсказаний: {e}")
+            return self._get_default_predictions()
 
     def _extract_features(self, data: pd.DataFrame) -> Dict[str, float]:
-        """Извлечение признаков для ML"""
+        """Извлечение признаков из данных"""
         try:
-            features = {}
+            if len(data) < 20:
+                return self._get_default_features()
             
-            # Безопасная проверка данных
-            if len(data) < 50:
-                return {"rsi": 50.0, "volatility": 0.0, "momentum": 0.0, "volume_ratio": 1.0, "trend_strength": 0.0}
+            features: Dict[str, float] = {}
             
-            # Технические индикаторы - RSI
-            try:
-                rsi_series = calculate_rsi(data["close"], 14)
-                # Исправление: добавляем явную аннотацию типа
-                rsi_series_alt: pd.Series = rsi_series if hasattr(rsi_series, 'iloc') else pd.Series([50.0])
-                if hasattr(rsi_series, 'iloc') and callable(rsi_series.iloc):
-                    features["rsi"] = float(rsi_series.iloc[-1]) if not rsi_series.empty and len(rsi_series) > 0 else 50.0
-                else:
-                    features["rsi"] = 50.0
-            except (IndexError, TypeError, AttributeError):
-                features["rsi"] = 50.0
+            # Технические индикаторы
+            close_prices = data['close'].astype(float)
+            
+            # RSI
+            rsi_values = calculate_rsi(close_prices)
+            features['rsi'] = float(rsi_values.iloc[-1]) if len(rsi_values) > 0 else 50.0
+            
+            # Скользящие средние
+            features['sma_20'] = float(close_prices.rolling(20).mean().iloc[-1])
+            features['sma_50'] = float(close_prices.rolling(50).mean().iloc[-1]) if len(close_prices) >= 50 else features['sma_20']
             
             # Волатильность
-            try:
-                if len(data) >= 20:
-                    pct_change = data["close"].pct_change()
-                    if len(pct_change) >= 20:
-                        rolling_std = pct_change.rolling(20).std()
-                        if len(rolling_std) > 0:
-                            features["volatility"] = float(rolling_std.iloc[-1])
-                        else:
-                            features["volatility"] = 0.0
-                    else:
-                        features["volatility"] = 0.0
-                else:
-                    features["volatility"] = 0.0
-            except (IndexError, TypeError):
-                features["volatility"] = 0.0
+            features['volatility'] = float(close_prices.pct_change().rolling(20).std().iloc[-1] * 100)
             
-            # Моментум
-            try:
-                if len(data) >= 10:
-                    pct_change_10 = data["close"].pct_change(10)
-                    if len(pct_change_10) > 0:
-                        features["momentum"] = float(pct_change_10.iloc[-1])
-                    else:
-                        features["momentum"] = 0.0
-                else:
-                    features["momentum"] = 0.0
-            except (IndexError, TypeError):
-                features["momentum"] = 0.0
+            # Объем (если доступен)
+            if 'volume' in data.columns:
+                volume_series = data['volume'].astype(float)
+                features['volume_ratio'] = float(volume_series.iloc[-1] / volume_series.rolling(20).mean().iloc[-1])
+            else:
+                features['volume_ratio'] = 1.0
             
-            # Объемные метрики
-            try:
-                if len(data) >= 20 and "volume" in data.columns:
-                    current_volume = data["volume"].iloc[-1]
-                    volume_rolling = data["volume"].rolling(20).mean()
-                    if len(volume_rolling) > 0:
-                        avg_volume = volume_rolling.iloc[-1]
-                        if avg_volume > 0:
-                            features["volume_ratio"] = float(current_volume / avg_volume)
-                        else:
-                            features["volume_ratio"] = 1.0
-                    else:
-                        features["volume_ratio"] = 1.0
-                else:
-                    features["volume_ratio"] = 1.0
-            except (IndexError, TypeError, ZeroDivisionError):
-                features["volume_ratio"] = 1.0
-            
-            # Трендовые метрики
-            try:
-                ema_20 = data["close"].ewm(span=20).mean()
-                ema_50 = data["close"].ewm(span=50).mean()
-                if len(ema_20) > 0 and len(ema_50) > 0:
-                    ema_20_val = ema_20.iloc[-1]
-                    ema_50_val = ema_50.iloc[-1]
-                    if ema_50_val > 0:
-                        features["trend_strength"] = float(abs(ema_20_val - ema_50_val) / ema_50_val)
-                    else:
-                        features["trend_strength"] = 0.0
-                else:
-                    features["trend_strength"] = 0.0
-            except (IndexError, TypeError, ZeroDivisionError):
-                features["trend_strength"] = 0.0
+            # Ценовая динамика
+            features['price_change'] = float((close_prices.iloc[-1] - close_prices.iloc[-20]) / close_prices.iloc[-20] * 100)
             
             return features
+            
         except Exception as e:
-            logger.error(f"Error extracting features: {str(e)}")
-            return {"rsi": 50.0, "volatility": 0.0, "momentum": 0.0, "volume_ratio": 1.0, "trend_strength": 0.0}
+            logger.warning(f"Ошибка при извлечении признаков: {e}")
+            return self._get_default_features()
 
-    def adapt_signal(
-        self, base_signal: Any, ml_predictions: Dict[str, float], regime: str
-    ) -> Any:
-        """Адаптация сигнала на основе ML предсказаний"""
+    def _calculate_basic_predictions(self, features: Dict[str, float]) -> Dict[str, float]:
+        """Базовые расчеты предсказаний без ML"""
         try:
-            # Адаптация направления
-            if "direction_confidence" in ml_predictions:
-                ml_confidence = ml_predictions["direction_confidence"]
-                base_signal.confidence = (base_signal.confidence + ml_confidence) / 2
-            # Адаптация размера позиции
-            if "position_size" in ml_predictions:
-                base_signal.position_size = ml_predictions["position_size"]
-            # Адаптация стоп-лосса
-            if "stop_loss_adjustment" in ml_predictions:
-                adjustment = ml_predictions["stop_loss_adjustment"]
-                if base_signal.stop_loss:
-                    base_signal.stop_loss *= 1 + adjustment
-            # Адаптация тейк-профита
-            if "take_profit_adjustment" in ml_predictions:
-                adjustment = ml_predictions["take_profit_adjustment"]
-                if base_signal.take_profit:
-                    base_signal.take_profit *= 1 + adjustment
-            return base_signal
+            rsi = features.get('rsi', 50.0)
+            price_change = features.get('price_change', 0.0)
+            volatility = features.get('volatility', 1.0)
+            volume_ratio = features.get('volume_ratio', 1.0)
+            
+            # Простая логика на основе технических индикаторов
+            buy_score = 0.0
+            sell_score = 0.0
+            
+            # RSI анализ
+            if rsi < 30:
+                buy_score += 0.3
+            elif rsi > 70:
+                sell_score += 0.3
+            
+            # Ценовая динамика
+            if price_change > 2:
+                buy_score += 0.2
+            elif price_change < -2:
+                sell_score += 0.2
+            
+            # Объем
+            if volume_ratio > 1.5:
+                if price_change > 0:
+                    buy_score += 0.2
+                else:
+                    sell_score += 0.2
+            
+            # Нормализация
+            total_score = buy_score + sell_score
+            if total_score > 0:
+                buy_probability = buy_score / total_score
+                sell_probability = sell_score / total_score
+            else:
+                buy_probability = 0.33
+                sell_probability = 0.33
+            
+            hold_probability = 1.0 - buy_probability - sell_probability
+            
+            return {
+                'buy_probability': max(0.0, min(1.0, buy_probability)),
+                'hold_probability': max(0.0, min(1.0, hold_probability)),
+                'sell_probability': max(0.0, min(1.0, sell_probability))
+            }
+            
         except Exception as e:
-            logger.error(f"Error adapting signal: {str(e)}")
-            return base_signal
+            logger.warning(f"Ошибка в базовых расчетах: {e}")
+            return self._get_default_predictions()
 
-    def calculate_ml_confidence(
-        self, data: pd.DataFrame, ml_predictions: Dict[str, float]
-    ) -> float:
-        """Расчет уверенности ML модели"""
+    def _get_default_features(self) -> Dict[str, float]:
+        """Признаки по умолчанию"""
+        return {
+            'rsi': 50.0,
+            'sma_20': 100.0,
+            'sma_50': 100.0,
+            'volatility': 1.0,
+            'volume_ratio': 1.0,
+            'price_change': 0.0
+        }
+
+    def _get_default_predictions(self) -> Dict[str, float]:
+        """Предсказания по умолчанию"""
+        return {
+            'buy_probability': 0.33,
+            'hold_probability': 0.34,
+            'sell_probability': 0.33
+        }
+
+    def get_signal_strength(self, predictions: Dict[str, float]) -> float:
+        """Получение силы сигнала"""
         try:
-            ml_confidence = ml_predictions.get("confidence", 0.5)
-            # Оценка качества данных
-            data_quality = 0.9
-            try:
-                if not data.empty and hasattr(data, 'isnull'):
-                    if hasattr(data.isnull(), 'to_numpy'):
-                        if np.any(data.isnull().to_numpy()):  # type: ignore[attr-defined]
-                            data_quality = 0.6
-            except (AttributeError, TypeError):
-                data_quality = 0.9
-            confidence = (ml_confidence + data_quality) / 2
-            return max(0.1, min(1.0, confidence))
+            buy_prob = predictions.get('buy_probability', 0.33)
+            sell_prob = predictions.get('sell_probability', 0.33)
+            hold_prob = predictions.get('hold_probability', 0.34)
+            
+            max_prob = max(buy_prob, sell_prob, hold_prob)
+            
+            # Сила сигнала - отклонение от нейтрального состояния
+            strength = (max_prob - 0.33) / 0.67
+            
+            return max(0.0, min(1.0, strength))
+            
         except Exception as e:
-            logger.error(f"Error calculating ML confidence: {str(e)}")
-            return 0.5
+            logger.warning(f"Ошибка при расчете силы сигнала: {e}")
+            return 0.0
+
+    def get_signal_direction(self, predictions: Dict[str, float]) -> str:
+        """Получение направления сигнала"""
+        try:
+            buy_prob = predictions.get('buy_probability', 0.33)
+            sell_prob = predictions.get('sell_probability', 0.33)
+            hold_prob = predictions.get('hold_probability', 0.34)
+            
+            max_prob = max(buy_prob, sell_prob, hold_prob)
+            
+            if max_prob == buy_prob:
+                return 'buy'
+            elif max_prob == sell_prob:
+                return 'sell'
+            else:
+                return 'hold'
+                
+        except Exception as e:
+            logger.warning(f"Ошибка при определении направления сигнала: {e}")
+            return 'hold'

@@ -5,14 +5,14 @@ ATB Trading Engine
 
 import asyncio
 import logging
-import time
 from datetime import datetime
 from decimal import Decimal
+from typing import Any, Dict, Optional, Union
 
 class TradingEngine:
-    def __init__(self):
-        self.is_running = False
-        self.logger = logging.getLogger(__name__)
+    def __init__(self) -> None:
+        self.is_running: bool = False
+        self.logger: logging.Logger = logging.getLogger(__name__)
         
         # Настройка логирования
         logging.basicConfig(
@@ -20,7 +20,7 @@ class TradingEngine:
             format='%(asctime)s | TRADING ENGINE | %(levelname)s | %(message)s'
         )
     
-    async def start(self):
+    async def start(self) -> None:
         """Запуск торгового движка"""
         self.is_running = True
         self.logger.info("🚀 Торговый движок запущен")
@@ -35,10 +35,10 @@ class TradingEngine:
                 self.logger.error(f"❌ Ошибка в торговом цикле: {e}")
                 await asyncio.sleep(10)
     
-    async def process_trading_cycle(self):
+    async def process_trading_cycle(self) -> None:
         """Обработка торгового цикла"""
         # Симуляция торговых операций
-        current_time = datetime.now()
+        current_time: datetime = datetime.now()
         self.logger.info(f"📊 Торговый цикл: {current_time.strftime('%H:%M:%S')}")
         
         # Здесь будет реальная логика торговли
@@ -47,13 +47,13 @@ class TradingEngine:
         # - Выполнение ордеров
         # - Управление позициями
     
-    def stop(self):
+    def stop(self) -> None:
         """Остановка торгового движка"""
         self.is_running = False
         self.logger.info("⏹️ Торговый движок остановлен")
 
-async def main():
-    engine = TradingEngine()
+async def main() -> None:
+    engine: TradingEngine = TradingEngine()
     
     try:
         await engine.start()

@@ -824,7 +824,7 @@ def calculate_entropy(data: np.ndarray, bins: int = 50) -> float:
 try:
     from scipy.ndimage import gaussian_filter1d
 except ImportError:
-    def gaussian_filter1d(data, sigma, axis=None):
+    def gaussian_filter1d(data, sigma, axis=None) -> None:
         """Заглушка для gaussian_filter1d если scipy недоступна."""
         return data
 

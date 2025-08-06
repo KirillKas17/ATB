@@ -2,6 +2,8 @@
 Use case для оркестрации торговли.
 """
 
+from typing import List, Type, Union
+
 # Импортируем основной класс из core.py
 from .trading_orchestrator.core import (
     DefaultTradingOrchestratorUseCase,
@@ -20,7 +22,7 @@ from .trading_orchestrator.dtos import (
 )
 
 # Экспортируем все публичные интерфейсы
-__all__ = [
+__all__: List[str] = [
     "TradingOrchestratorUseCase",
     "DefaultTradingOrchestratorUseCase",
     "ExecuteStrategyRequest",
