@@ -212,7 +212,8 @@ class RiskMetrics:
                 return {}
             
             # Используем ast.literal_eval для безопасного парсинга
-            result = ast.literal_eval(metadata_str)
+            from shared.safe_eval_utils import safe_metadata_parse
+        result = safe_metadata_parse(metadata_str)
             
             # Проверяем что результат - словарь
             if not isinstance(result, dict):

@@ -1,4 +1,5 @@
 import pandas as pd
+from decimal import Decimal
 from typing import List
 
 from .types import (
@@ -108,20 +109,29 @@ class MarketMetricsCalculator:
                 "kelly_criterion": 0.0,
             }
 
-        # Базовые метрики
+        # Утилита для безопасного преобразования PnL в Decimal
+        def safe_pnl_decimal(pnl) -> Decimal:
+            """Безопасное преобразование PnL в Decimal."""
+            try:
+                return Decimal(str(pnl))
+            except (ValueError, TypeError):
+                return Decimal("0")
+
+        # Базовые метрики с точной арифметикой
         total_trades = len(trades)
-        winning_trades = len([t for t in trades if float(t.pnl) > 0])
-        losing_trades = len([t for t in trades if float(t.pnl) < 0])
+        winning_trades = len([t for t in trades if safe_pnl_decimal(t.pnl) > Decimal("0")])
+        losing_trades = len([t for t in trades if safe_pnl_decimal(t.pnl) < Decimal("0")])
         win_rate = winning_trades / total_trades if total_trades > 0 else 0.0
 
-        # Расчёт прибыли/убытков
-        total_profit = sum(float(t.pnl) for t in trades if float(t.pnl) > 0)
-        total_loss = abs(sum(float(t.pnl) for t in trades if float(t.pnl) < 0))
-        profit_factor = total_profit / total_loss if total_loss > 0 else float("inf")
+        # Расчёт прибыли/убытков с точной арифметикой
+        total_profit = sum(safe_pnl_decimal(t.pnl) for t in trades if safe_pnl_decimal(t.pnl) > Decimal("0"))
+        total_loss = abs(sum(safe_pnl_decimal(t.pnl) for t in trades if safe_pnl_decimal(t.pnl) < Decimal("0")))
+        profit_factor = float(total_profit / total_loss) if total_loss > 0 else float("inf")
 
-        # Расчёт доходности
-        returns = [float(t.pnl) for t in trades]
-        avg_return = sum(returns) / len(returns) if returns else 0.0
+        # Расчёт доходности с сохранением точности
+        returns_decimal = [safe_pnl_decimal(t.pnl) for t in trades]
+        returns = [float(r) for r in returns_decimal]  # Преобразуем только для numpy/pandas
+        avg_return = float(sum(returns_decimal) / len(returns_decimal)) if returns_decimal else 0.0
         return_std = (
             (sum((r - avg_return) ** 2 for r in returns) / len(returns)) ** 0.5
             if returns
