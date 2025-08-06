@@ -146,7 +146,7 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
         elif target_type == float:
             return float(value)
         else:
-            return target_type(value)  # type: ignore[return-value]
+            return target_type(value)  # type: ignore[no-any-return]
             
     except (ValueError, TypeError, OverflowError) as e:
         logger.warning(f"Failed to convert {value} to {target_type}: {e}")

@@ -397,7 +397,7 @@ class SignalProcessor:
             base_size * volatility_factor * liquidity_factor * strength_factor
         )
 
-        return min(position_size, self.max_position_size)
+        return float(min(position_size, self.max_position_size))
 
     def _calculate_risk_metrics(
         self, signal: Signal, context: MarketContext, position_size: float
