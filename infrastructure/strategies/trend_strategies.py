@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
+from decimal import Decimal
 
 import pandas as pd
 from loguru import logger
@@ -15,6 +16,7 @@ from domain.type_definitions.strategy_types import (
     StrategyMetrics,
     StrategyType,
 )
+from domain.type_definitions.technical_types import MarketStructureResult
 from infrastructure.core.technical_analysis import (
     calculate_adx,
     calculate_atr,
@@ -240,13 +242,12 @@ class TrendStrategy(BaseStrategy):
             volatility = float(data["close"].pct_change().rolling(20).std().iloc[-1])
             # Расчет структуры рынка
             market_structure = self.technical_analysis.calculate_market_structure(data)
-            # Исправление: безопасное извлечение данных из market_structure
-            support_resistance = []
-            if hasattr(market_structure, '__iter__') and not isinstance(market_structure, (str, bytes)):
-                support_resistance = [
-                    float(level) if hasattr(level, '__float__') else 0.0
-                    for level in market_structure
-                ]
+            # Исправление: правильное извлечение уровней из MarketStructureResult
+            support_resistance: List[float] = []
+            if isinstance(market_structure, MarketStructureResult):
+                support_resistance.extend(market_structure.support_levels)
+                support_resistance.extend(market_structure.resistance_levels)
+            
             liquidity_zones: List[float] = []
             # Расчет импульса
             rsi_series = calculate_rsi(data["close"], 14)
@@ -315,11 +316,11 @@ class TrendStrategy(BaseStrategy):
                     nearest_support = max(support_levels)
                     stop_distance = min(stop_distance, entry_price - nearest_support)
                 # Проверка ликвидности
-                liquidity_levels = [
+                liquidity_levels_below = [
                     level for level in liquidity_zones if level < entry_price
                 ]
-                if liquidity_levels:
-                    nearest_liquidity = max(liquidity_levels)
+                if liquidity_levels_below:
+                    nearest_liquidity = max(liquidity_levels_below)
                     stop_distance = min(stop_distance, entry_price - nearest_liquidity)
                 calculated_stop = float(entry_price - stop_distance)
                 # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для long должен быть меньше цены входа
@@ -338,11 +339,11 @@ class TrendStrategy(BaseStrategy):
                     nearest_resistance = min(resistance_levels)
                     stop_distance = min(stop_distance, nearest_resistance - entry_price)
                 # Проверка ликвидности
-                liquidity_levels = [
+                liquidity_levels_above = [
                     level for level in liquidity_zones if level > entry_price
                 ]
-                if liquidity_levels:
-                    nearest_liquidity = min(liquidity_levels)
+                if liquidity_levels_above:
+                    nearest_liquidity = min(liquidity_levels_above)
                     stop_distance = min(stop_distance, nearest_liquidity - entry_price)
                 calculated_stop = float(entry_price + stop_distance)
                 # КРИТИЧЕСКАЯ ПРОВЕРКА: стоп-лосс для short должен быть больше цены входа
@@ -364,7 +365,7 @@ class TrendStrategy(BaseStrategy):
                     to_trading_decimal(entry_price), "short", to_trading_decimal(1.0)
                 ))
 
-    def _validate_signal(self, signal) -> bool:
+    def _validate_signal(self, signal: Signal) -> bool:
         """Критическая валидация торгового сигнала"""
         try:
             # Проверка цены входа
@@ -373,29 +374,29 @@ class TrendStrategy(BaseStrategy):
                 return False
                 
             # Проверка стоп-лосса
-            if not hasattr(signal, 'stop_loss') or signal.stop_loss <= 0:
+            if not hasattr(signal, 'stop_loss') or signal.stop_loss is None or signal.stop_loss <= 0:
                 logger.warning("Invalid stop_loss in signal")
                 return False
                 
             # Проверка тейк-профита
-            if not hasattr(signal, 'take_profit') or signal.take_profit <= 0:
+            if not hasattr(signal, 'take_profit') or signal.take_profit is None or signal.take_profit <= 0:
                 logger.warning("Invalid take_profit in signal")
                 return False
                 
             # Проверка направления сигнала
-            if not hasattr(signal, 'direction') or signal.direction not in ["long", "short"]:
+            if not hasattr(signal, 'direction') or signal.direction not in [StrategyDirection.LONG, StrategyDirection.SHORT]:
                 logger.warning("Invalid direction in signal")
                 return False
                 
             # Критическая проверка логики стоп-лосса
-            if signal.direction == "long":
+            if signal.direction == StrategyDirection.LONG:
                 if signal.stop_loss >= signal.entry_price:
                     logger.warning(f"Long signal: stop_loss ({signal.stop_loss}) >= entry_price ({signal.entry_price})")
                     return False
                 if signal.take_profit <= signal.entry_price:
                     logger.warning(f"Long signal: take_profit ({signal.take_profit}) <= entry_price ({signal.entry_price})")
                     return False
-            elif signal.direction == "short":
+            elif signal.direction == StrategyDirection.SHORT:
                 if signal.stop_loss <= signal.entry_price:
                     logger.warning(f"Short signal: stop_loss ({signal.stop_loss}) <= entry_price ({signal.entry_price})")
                     return False
@@ -442,13 +443,12 @@ class TrendStrategy(BaseStrategy):
             volatility = float(data["close"].pct_change().rolling(20).std().iloc[-1])
             # Расчет структуры рынка
             market_structure = self.technical_analysis.calculate_market_structure(data)
-            # Исправление: безопасное извлечение данных из market_structure
-            support_resistance = []
-            if hasattr(market_structure, '__iter__') and not isinstance(market_structure, (str, bytes)):
-                support_resistance = [
-                    float(level) if hasattr(level, '__float__') else 0.0
-                    for level in market_structure
-                ]
+            # Исправление: правильное извлечение уровней из MarketStructureResult
+            support_resistance: List[float] = []
+            if isinstance(market_structure, MarketStructureResult):
+                support_resistance.extend(market_structure.support_levels)
+                support_resistance.extend(market_structure.resistance_levels)
+            
             liquidity_zones: List[float] = []
             # Расчет импульса
             rsi_series = calculate_rsi(data["close"], 14)
@@ -504,13 +504,13 @@ class TrendStrategy(BaseStrategy):
                         take_profit_distance, float(nearest_resistance - entry_price)
                     )
                 # Проверка ликвидности
-                liquidity_levels = [
+                liquidity_levels_above = [
                     float(level)
                     for level in liquidity_zones
                     if float(level) > float(entry_price)
                 ]
-                if liquidity_levels:
-                    nearest_liquidity = min(liquidity_levels)
+                if liquidity_levels_above:
+                    nearest_liquidity = min(liquidity_levels_above)
                     take_profit_distance = min(
                         take_profit_distance, float(nearest_liquidity - entry_price)
                     )
@@ -528,13 +528,13 @@ class TrendStrategy(BaseStrategy):
                         take_profit_distance, float(entry_price - nearest_support)
                     )
                 # Проверка ликвидности
-                liquidity_levels = [
+                liquidity_levels_below = [
                     float(level)
                     for level in liquidity_zones
                     if float(level) < float(entry_price)
                 ]
-                if liquidity_levels:
-                    nearest_liquidity = max(liquidity_levels)
+                if liquidity_levels_below:
+                    nearest_liquidity = max(liquidity_levels_below)
                     take_profit_distance = min(
                         take_profit_distance, float(entry_price - nearest_liquidity)
                     )
@@ -545,20 +545,14 @@ class TrendStrategy(BaseStrategy):
                 entry_price * 1.02 if position_type == "long" else entry_price * 0.98
             )
 
-    def analyze(self, data: pd.DataFrame) -> dict[str, Any]:
+    def analyze(self, data: pd.DataFrame) -> Dict[str, Any]:
         """
         Анализ рыночных данных для определения тренда.
         Args:
             data: DataFrame с OHLCV данными
         Returns:
-            dict[str, Any]: Результат анализа
+            Dict[str, Any]: Результат анализа
         """
-        from domain.type_definitions.strategy_types import (
-            MarketRegime,
-            StrategyAnalysis,
-            StrategyMetrics,
-        )
-
         try:
             # Валидация данных
             is_valid, error_msg = self.validate_data(data)
@@ -601,7 +595,7 @@ class TrendStrategy(BaseStrategy):
                 volatility=float(df["close"].pct_change().std()),
             )
             # Генерация сигналов
-            signals = []
+            signals: List[Signal] = []
             if trend_strength:
                 signal = self.generate_signal(data)
                 if signal:
@@ -620,7 +614,7 @@ class TrendStrategy(BaseStrategy):
             # Возвращаем словарь вместо StrategyAnalysis
             return {
                 "strategy_id": f"trend_{id(self)}",
-                "timestamp": pd.Timestamp.now(),
+                "timestamp": datetime.now(),
                 "market_data": data,
                 "indicators": indicators,
                 "signals": signals,
@@ -661,8 +655,6 @@ class TrendStrategy(BaseStrategy):
         Returns:
             Optional[Signal]: Торговый сигнал или None
         """
-        from domain.type_definitions.strategy_types import Signal as DomainSignal
-
         try:
             df = self._calculate_indicators(data.copy())
             if df.shape[0] < max(self._trend_config.ema_fast, self._trend_config.ema_slow):
@@ -680,8 +672,8 @@ class TrendStrategy(BaseStrategy):
                     df, entry_price, stop_loss, "long"
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
-                signal = DomainSignal(
-                    direction="long",
+                signal = Signal(
+                    direction=StrategyDirection.LONG,
                     entry_price=entry_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
@@ -699,8 +691,8 @@ class TrendStrategy(BaseStrategy):
                     df, entry_price, stop_loss, "short"
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
-                signal = DomainSignal(
-                    direction="short",
+                signal = Signal(
+                    direction=StrategyDirection.SHORT,
                     entry_price=entry_price,
                     stop_loss=stop_loss,
                     take_profit=take_profit,
@@ -717,7 +709,7 @@ class TrendStrategy(BaseStrategy):
             return None
 
 
-def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
+def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict[str, Any]]:
     """
     Стратегия на основе EMA и MACD.
     Args:
@@ -781,7 +773,7 @@ def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
         return None
 
 
-def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict]:
+def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict[str, Any]]:
     """
     Стратегия на основе Price Action.
     Args:
