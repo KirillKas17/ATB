@@ -154,7 +154,7 @@ class WindowModelTrainer:
 
         return df
 
-    def _optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series) -> Dict:
+    def _optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series) -> Dict[str, Any]:
         """Оптимизация гиперпараметров"""
         try:
 
@@ -187,7 +187,7 @@ class WindowModelTrainer:
             study = optuna.create_study(direction="minimize")
             study.optimize(objective, n_trials=self.config.n_trials)
 
-            return study.best_params
+            return dict(study.best_params)
 
         except Exception as e:
             logger.error(f"Ошибка оптимизации гиперпараметров: {str(e)}")

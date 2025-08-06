@@ -12,7 +12,7 @@ Series = pd.Series
 DataFrame = pd.DataFrame
 
 # Импорт доменных типов
-from domain.type_definitions.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType
+from domain.type_definitions.ml_types import ActionType, AggregatedSignal, SignalSource, SignalType, TradingSignal
 
 from .candle_patterns import CandlePatternAnalyzer
 from .explanation import DecisionExplainer
@@ -164,26 +164,30 @@ class DecisionReasoner:
         if regime_signal:
             signals.append(regime_signal)
         return signals
-    def _generate_rsi_signal(self, rsi: float) -> Optional[SignalSource]:
+    def _generate_rsi_signal(self, rsi: float, symbol: str = "UNKNOWN") -> Optional[TradingSignal]:
         """Генерация сигнала на основе RSI"""
         if rsi < 30:
-            return SignalSource(
-                name="RSI",
-                signal_type=SignalType.BUY,
+            return TradingSignal(
+                action=ActionType.BUY,
                 confidence=min((30 - rsi) / 30, 1.0),
-                weight=1.0,
+                timestamp=datetime.now(),
+                symbol=symbol,
+                signal_type=SignalType.MOMENTUM,
+                source=SignalSource.TECHNICAL,
                 metadata={"rsi_value": rsi}
             )
         elif rsi > 70:
-            return SignalSource(
-                name="RSI",
-                signal_type=SignalType.SELL,
+            return TradingSignal(
+                action=ActionType.SELL,
                 confidence=min((rsi - 70) / 30, 1.0),
-                weight=1.0,
+                timestamp=datetime.now(),
+                symbol=symbol,
+                signal_type=SignalType.MOMENTUM,
+                source=SignalSource.TECHNICAL,
                 metadata={"rsi_value": rsi}
             )
         return None
-    def _generate_macd_signal(self, macd: float, macd_signal: float) -> Optional[SignalSource]:
+    def _generate_macd_signal(self, macd: float, macd_signal: float, symbol: str = "UNKNOWN") -> Optional[TradingSignal]:
         """Генерация сигнала на основе MACD"""
         diff = macd - macd_signal
         if abs(diff) < 0.001:
@@ -204,7 +208,7 @@ class DecisionReasoner:
                 weight=1.0,
                 metadata={"macd": macd, "signal": macd_signal}
             )
-    def _generate_bb_signal(self, close: float, bb_upper: float, bb_lower: float) -> Optional[SignalSource]:
+    def _generate_bb_signal(self, *args, symbol: str = "UNKNOWN", **kwargs) -> Optional[TradingSignal]:
         """Генерация сигнала на основе полос Боллинджера"""
         if bb_upper == 0 or bb_lower == 0:
             return None
@@ -225,7 +229,7 @@ class DecisionReasoner:
                 metadata={"close": close, "bb_upper": bb_upper}
             )
         return None
-    def _generate_pattern_signal(self, patterns: List[str]) -> Optional[SignalSource]:
+    def _generate_pattern_signal(self, *args, symbol: str = "UNKNOWN", **kwargs) -> Optional[TradingSignal]:
         """Генерация сигнала на основе паттернов"""
         if not patterns:
             return None
@@ -251,7 +255,7 @@ class DecisionReasoner:
                 metadata={"patterns": patterns}
             )
         return None
-    def _generate_regime_signal(self, regime: str) -> Optional[SignalSource]:
+    def _generate_regime_signal(self, *args, symbol: str = "UNKNOWN", **kwargs) -> Optional[TradingSignal]:
         """Генерация сигнала на основе рыночного режима"""
         if regime == "trend":
             return SignalSource(

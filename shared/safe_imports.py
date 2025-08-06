@@ -114,13 +114,13 @@ except ImportError:
         def set_index(self, keys) -> None:
             return self
         
-        def __getitem__(self, key) -> None:
+        def __getitem__(self, key) -> Any:
             return self.data.get(key, [])
         
         def __setitem__(self, key, value) -> None:
             self.data[key] = value
         
-        def get(self, key, default=None) -> None:
+        def get(self, key, default=None) -> Any:
             return self.data.get(key, default)
     
     DataFrame = DataFrameFallback
@@ -148,13 +148,13 @@ except ImportError:
             return list(data) if hasattr(data, '__iter__') else [data]
         
         @staticmethod
-        def mean(data) -> None:
+        def mean(data) -> float:
             if not data:
                 return 0.0
             return sum(data) / len(data)
         
         @staticmethod
-        def std(data) -> None:
+        def std(data) -> float:
             if not data:
                 return 0.0
             mean_val = sum(data) / len(data)
@@ -231,13 +231,13 @@ except ImportError:
         def __init__(self, key) -> None:
             self.key = key
         
-        def encrypt(self, data) -> None:
+        def encrypt(self, data) -> bytes:
             logger.warning("Encryption not available - returning plain data")
-            return data
+            return data if isinstance(data, bytes) else data.encode() if hasattr(data, 'encode') else b''
         
-        def decrypt(self, data) -> None:
+        def decrypt(self, data) -> bytes:
             logger.warning("Decryption not available - returning plain data")
-            return data
+            return data if isinstance(data, bytes) else data.encode() if hasattr(data, 'encode') else b''
     
     Fernet = FernetFallback
 
@@ -273,11 +273,11 @@ def safe_function_call(func: Callable[..., T], *args: Any, **kwargs: Any) -> Opt
         return None
 
 # Декоратор для безопасного выполнения
-def safe_execution(fallback_value=None) -> None:
+def safe_execution(fallback_value=None):
     """Декоратор для безопасного выполнения функций."""
-    def decorator(func) -> None:
+    def decorator(func):
         @wraps(func)
-        def wrapper(*args, **kwargs) -> None:
+        def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except Exception as e:

@@ -804,7 +804,7 @@ def calculate_ema(prices: List[float], period: int) -> List[float]:
             multiplier_decimal = to_trading_decimal(multiplier)
             previous_ema_decimal = to_trading_decimal(ema_values[-1])
             
-            ema_decimal = (price_decimal * multiplier_decimal) + (previous_ema_decimal * (TradingDecimal.ONE - multiplier_decimal))
+            ema_decimal = (price_decimal * multiplier_decimal) + (previous_ema_decimal * (to_trading_decimal(1) - multiplier_decimal))
             ema = float(ema_decimal)
         else:
             ema = prices[i]  # Fallback если ema_values пуст
