@@ -17,9 +17,9 @@ class Symbol:
     quote_currency: Currency
     name: Optional[str] = None
     is_active: bool = True
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.created_at is None:
             self.created_at = datetime.now()
         if self.name is None:

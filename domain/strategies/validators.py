@@ -232,7 +232,7 @@ class StrategyValidator:
         return errors
 
     @staticmethod
-    def validate_risk_level(risk_level: Union[str, Decimal]) -> List[str]:
+    def validate_risk_level(risk_level: Any) -> List[str]:
         errors = []
         if isinstance(risk_level, str):
             try:
@@ -251,7 +251,7 @@ class StrategyValidator:
         return errors
 
     @staticmethod
-    def validate_time_horizon(time_horizon: Union[str, Enum]) -> List[str]:
+    def validate_time_horizon(time_horizon: Any) -> List[str]:
         errors = []
         if isinstance(time_horizon, str):
             # Временное решение - проверяем только строку
@@ -267,7 +267,7 @@ class StrategyValidator:
         return errors
 
     @staticmethod
-    def validate_market_condition(condition: Union[str, Enum]) -> List[str]:
+    def validate_market_condition(condition: Any) -> List[str]:
         errors = []
         if isinstance(condition, str):
             # Временное решение - проверяем только строку
@@ -308,48 +308,50 @@ class StrategyValidator:
         return errors
 
     @staticmethod
-    def _validate_trading_pairs(trading_pairs: List[str]) -> List[str]:
+    def _validate_trading_pairs(trading_pairs: Any) -> List[str]:
         """Валидировать список торговых пар."""
         errors = []
         if not isinstance(trading_pairs, list):
             errors.append("Trading pairs must be a list")
             return errors
-        elif not trading_pairs:
+        
+        if not trading_pairs:
             errors.append("At least one trading pair is required")
-            return errors  # Енумы всегда валидны
-        else:
-            if len(trading_pairs) > 50:
-                errors.append("Too many trading pairs (max 50)")
-            for pair in trading_pairs:
-                pair_errors = StrategyValidator.validate_trading_pair(pair)
-                errors.extend(pair_errors)
+            return errors
+        
+        if len(trading_pairs) > 50:
+            errors.append("Too many trading pairs (max 50)")
+        for pair in trading_pairs:
+            pair_errors = StrategyValidator.validate_trading_pair(pair)
+            errors.extend(pair_errors)
             # Проверка на дубликаты
             if len(trading_pairs) != len(set(trading_pairs)):
                 errors.append("Duplicate trading pairs are not allowed")
-            return errors
+        return errors
 
     @staticmethod
-    def _validate_metadata(metadata: Dict[str, Any]) -> List[str]:
+    def _validate_metadata(metadata: Any) -> List[str]:
         """Валидировать метаданные."""
         errors = []
         if not isinstance(metadata, dict):
             errors.append("Metadata must be a dictionary")
             return errors
-        elif len(metadata) > 100:
+        
+        if len(metadata) > 100:
             errors.append("Too many metadata entries (max 100)")
-            return errors  # Енумы всегда валидны
-        else:
-            for key, value in metadata.items():
-                if not isinstance(key, str):
-                    errors.append("Metadata keys must be strings")
-                elif len(key) > 50:
-                    errors.append("Metadata key is too long (max 50 characters)")
-                elif not isinstance(value, (str, int, float, bool, list, dict)):
-                    errors.append("Metadata values must be basic types")
-            return errors  # Енумы всегда валидны
+            return errors
+        
+        for key, value in metadata.items():
+            if not isinstance(key, str):
+                errors.append("Metadata keys must be strings")
+            elif len(key) > 50:
+                errors.append("Metadata key is too long (max 50 characters)")
+            elif not isinstance(value, (str, int, float, bool, list, dict)):
+                errors.append("Metadata values must be basic types")
+        return errors
 
     @staticmethod
-    def validate_trading_pairs(trading_pairs: List[str]) -> List[str]:
+    def validate_trading_pairs(trading_pairs: Any) -> List[str]:
         """
         Валидировать торговые пары.
         Args:

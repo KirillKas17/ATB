@@ -21,7 +21,7 @@ class StrategyUtils:
     """Утилиты для работы со стратегиями."""
 
     @staticmethod
-    def validate_strategy_name(name: str) -> bool:
+    def validate_strategy_name(name: Any) -> bool:
         """Валидировать название стратегии."""
         if not isinstance(name, str):
             return False
@@ -42,7 +42,7 @@ class StrategyUtils:
         return f"{normalized_name}_{unique_id}"
 
     @staticmethod
-    def validate_parameters(parameters: Dict[str, Any]) -> List[str]:
+    def validate_parameters(parameters: Any) -> List[str]:
         """Валидировать параметры стратегии."""
         errors = []
         if not isinstance(parameters, dict):
@@ -269,7 +269,7 @@ def calculate_avg_trade(trades: List[Dict[str, Any]]) -> Decimal:
 
 
 # Функции валидации
-def validate_trading_pair(trading_pair: str) -> bool:
+def validate_trading_pair(trading_pair: Any) -> bool:
     """
     Валидировать торговую пару.
     Args:

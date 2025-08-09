@@ -128,15 +128,12 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
         return None
     
     # Если уже нужный тип
-    if isinstance(value, target_type):
-        if target_type == Decimal:
-            return cast(Decimal, value)
-        elif target_type == int:
-            return cast(int, value)
-        elif target_type == float:
-            return cast(float, value)
-        else:
-            return None
+    if target_type == Decimal and isinstance(value, Decimal):
+        return value
+    elif target_type == int and isinstance(value, int):
+        return value
+    elif target_type == float and isinstance(value, float):
+        return value
     
     try:
         if target_type == Decimal:
@@ -156,7 +153,7 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
         elif target_type == float:
             return float(value)
         else:
-            # Для других типов возвращаем None
+            # Неподдерживаемый тип
             logger.warning(f"Unsupported target type: {target_type}")
             return None
             
@@ -165,7 +162,7 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
         return None
 
 
-def validate_dict_structure(data: Dict[str, Any], required_keys: Optional[List[str]] = None, allowed_keys: Optional[List[str]] = None) -> bool:
+def validate_dict_structure(data: Any, required_keys: Optional[List[str]] = None, allowed_keys: Optional[List[str]] = None) -> bool:
     """
     Валидация структуры словаря.
     
