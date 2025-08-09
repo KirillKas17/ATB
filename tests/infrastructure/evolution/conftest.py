@@ -1,28 +1,42 @@
 """
 Фикстуры для тестов infrastructure/evolution модуля.
 """
+
 import tempfile
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Any
 from uuid import uuid4
 import pytest
 from domain.evolution.strategy_fitness import StrategyEvaluationResult, TradeResult
 from domain.evolution.strategy_model import (
-    EvolutionContext, EvolutionStatus, StrategyCandidate,
-    EntryRule, ExitRule, FilterConfig, FilterType,
-    IndicatorConfig, IndicatorType, SignalType, StrategyType
+    EvolutionContext,
+    EvolutionStatus,
+    StrategyCandidate,
+    EntryRule,
+    ExitRule,
+    FilterConfig,
+    FilterType,
+    IndicatorConfig,
+    IndicatorType,
+    SignalType,
+    StrategyType,
 )
 from infrastructure.evolution.cache import EvolutionCache
 from infrastructure.evolution.exceptions import (
-    BackupError, CacheError, ConnectionError, MigrationError,
-    QueryError, SerializationError, StorageError, ValidationError
+    BackupError,
+    CacheError,
+    ConnectionError,
+    MigrationError,
+    QueryError,
+    SerializationError,
+    StorageError,
+    ValidationError,
 )
-from infrastructure.evolution.models import (
-    EvolutionContextModel, StrategyCandidateModel, StrategyEvaluationModel
-)
+from infrastructure.evolution.models import EvolutionContextModel, StrategyCandidateModel, StrategyEvaluationModel
 from infrastructure.evolution.storage import StrategyStorage
+
 
 @pytest.fixture
 def temp_db_path() -> Generator[str, None, None]:
@@ -36,21 +50,20 @@ def temp_db_path() -> Generator[str, None, None]:
     except Exception:
         pass
 
+
 @pytest.fixture
 def storage(temp_db_path: str) -> Generator[StrategyStorage, None, None]:
     """Фикстура хранилища стратегий."""
     storage = StrategyStorage(temp_db_path)
     yield storage
 
+
 @pytest.fixture
 def cache() -> Generator[EvolutionCache, None, None]:
     """Фикстура кэша эволюции."""
-    cache = EvolutionCache({
-        "cache_size": 100,
-        "cache_ttl": 60,
-        "cache_strategy": "lru"
-    })
+    cache = EvolutionCache({"cache_size": 100, "cache_ttl": 60, "cache_strategy": "lru"})
     yield cache
+
 
 @pytest.fixture
 def sample_indicator() -> IndicatorConfig:
@@ -61,8 +74,9 @@ def sample_indicator() -> IndicatorConfig:
         indicator_type=IndicatorType.TREND,
         parameters={"period": 20},
         weight=Decimal("1.0"),
-        is_active=True
+        is_active=True,
     )
+
 
 @pytest.fixture
 def sample_filter() -> FilterConfig:
@@ -73,8 +87,9 @@ def sample_filter() -> FilterConfig:
         filter_type=FilterType.VOLATILITY,
         parameters={"min_atr": 0.01, "max_atr": 0.05},
         threshold=Decimal("0.5"),
-        is_active=True
+        is_active=True,
     )
+
 
 @pytest.fixture
 def sample_entry_rule() -> EntryRule:
@@ -89,14 +104,15 @@ def sample_entry_rule() -> EntryRule:
                 "threshold": 0.0,
                 "direction": "up",
                 "operator": "gt",
-                "value": 0.0
+                "value": 0.0,
             }
         ],
         signal_type=SignalType.BUY,
         confidence_threshold=Decimal("0.7"),
         volume_ratio=Decimal("1.0"),
-        is_active=True
+        is_active=True,
     )
+
 
 @pytest.fixture
 def sample_exit_rule() -> ExitRule:
@@ -104,29 +120,23 @@ def sample_exit_rule() -> ExitRule:
     return ExitRule(
         id=uuid4(),
         conditions=[
-            {
-                "indicator": "SMA",
-                "condition": "below",
-                "period": 20,
-                "threshold": 0.0,
-                "operator": "lt",
-                "value": 0.0
-            }
+            {"indicator": "SMA", "condition": "below", "period": 20, "threshold": 0.0, "operator": "lt", "value": 0.0}
         ],
         signal_type=SignalType.SELL,
         stop_loss_pct=Decimal("0.02"),
         take_profit_pct=Decimal("0.04"),
         trailing_stop=False,
         trailing_distance=Decimal("0.01"),
-        is_active=True
+        is_active=True,
     )
+
 
 @pytest.fixture
 def sample_candidate(
     sample_indicator: IndicatorConfig,
     sample_filter: FilterConfig,
     sample_entry_rule: EntryRule,
-    sample_exit_rule: ExitRule
+    sample_exit_rule: ExitRule,
 ) -> StrategyCandidate:
     """Образец кандидата стратегии."""
     return StrategyCandidate(
@@ -148,8 +158,9 @@ def sample_candidate(
         mutation_count=0,
         created_at=datetime.now(),
         updated_at=datetime.now(),
-        metadata={"test": True}
+        metadata={"test": True},
     )
+
 
 @pytest.fixture
 def sample_trade() -> TradeResult:
@@ -167,8 +178,9 @@ def sample_trade() -> TradeResult:
         signal_type="buy",
         holding_time=3600,
         success=True,
-        metadata={"test": True}
+        metadata={"test": True},
     )
+
 
 @pytest.fixture
 def sample_evaluation(sample_candidate: StrategyCandidate, sample_trade: TradeResult) -> StrategyEvaluationResult:
@@ -204,10 +216,11 @@ def sample_evaluation(sample_candidate: StrategyCandidate, sample_trade: TradeRe
         is_approved=True,
         approval_reason="All criteria met",
         evaluation_time=datetime.now(),
-        metadata={"test": True}
+        metadata={"test": True},
     )
     evaluation.trades = [sample_trade]
     return evaluation
+
 
 @pytest.fixture
 def sample_context() -> EvolutionContext:
@@ -231,8 +244,9 @@ def sample_context() -> EvolutionContext:
         max_exit_rules=3,
         created_at=datetime.now(),
         updated_at=datetime.now(),
-        metadata={"test": True}
+        metadata={"test": True},
     )
+
 
 @pytest.fixture
 def temp_backup_dir() -> Generator[Path, None, None]:
@@ -242,6 +256,7 @@ def temp_backup_dir() -> Generator[Path, None, None]:
         backup_dir.mkdir(parents=True, exist_ok=True)
         yield backup_dir
 
+
 @pytest.fixture
 def temp_migration_dir() -> Generator[Path, None, None]:
     """Временная директория для миграций."""
@@ -250,48 +265,57 @@ def temp_migration_dir() -> Generator[Path, None, None]:
         migration_dir.mkdir(parents=True, exist_ok=True)
         yield migration_dir
 
+
 @pytest.fixture
 def sample_migration_data() -> dict:
     """Образец данных миграции."""
     return {
         "version": "1.0",
         "description": "Test migration",
-        "scripts": [
-            "CREATE TABLE IF NOT EXISTS test_table (id INTEGER PRIMARY KEY, name TEXT)"
-        ],
-        "rollback_scripts": [
-            "DROP TABLE IF EXISTS test_table"
-        ],
+        "scripts": ["CREATE TABLE IF NOT EXISTS test_table (id INTEGER PRIMARY KEY, name TEXT)"],
+        "rollback_scripts": ["DROP TABLE IF EXISTS test_table"],
         "rollback_supported": True,
-        "dependencies": []
+        "dependencies": [],
     }
+
 
 @pytest.fixture
 def mock_engine() -> Any:
     """Mock для SQLAlchemy engine."""
+
     class MockEngine:
         def __init__(self) -> Any:
             self.closed = False
+
         def dispose(self) -> Any:
             self.closed = True
+
     return MockEngine()
+
 
 @pytest.fixture
 def mock_session() -> Any:
     """Mock для SQLModel Session."""
+
     class MockSession:
         def __init__(self) -> Any:
             self.committed = False
             self.rolled_back = False
             self.closed = False
+
         def commit(self) -> Any:
             self.committed = True
+
         def rollback(self) -> Any:
             self.rolled_back = True
+
         def close(self) -> Any:
             self.closed = True
+
         def __enter__(self) -> Any:
             return self
+
         def __exit__(self, exc_type, exc_val, exc_tb) -> Any:
             self.close()
-    return MockSession() 
+
+    return MockSession()

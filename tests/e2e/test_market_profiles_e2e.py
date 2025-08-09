@@ -1,6 +1,7 @@
 """
 E2E тесты для модуля market_profiles.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import asyncio
@@ -9,29 +10,50 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, AsyncMock
+
 # from infrastructure.market_profiles import (
 #     MarketMakerStorage, PatternMemoryRepository, BehaviorHistoryRepository,
 #     PatternAnalyzer, SimilarityCalculator, SuccessRateAnalyzer,
 #     StorageConfig, AnalysisConfig
 # )
 from domain.market_maker.mm_pattern import (
-    MarketMakerPattern, PatternFeatures, MarketMakerPatternType,
-    PatternResult, PatternOutcome, PatternMemory
+    MarketMakerPattern,
+    PatternFeatures,
+    MarketMakerPatternType,
+    PatternResult,
+    PatternOutcome,
+    PatternMemory,
 )
 from domain.type_definitions.market_maker_types import (
-    BookPressure, VolumeDelta, PriceReaction, SpreadChange,
-    OrderImbalance, LiquidityDepth, TimeDuration, VolumeConcentration,
-    PriceVolatility, MarketMicrostructure, Confidence, Accuracy,
-    AverageReturn, SuccessCount, TotalCount, Symbol
+    BookPressure,
+    VolumeDelta,
+    PriceReaction,
+    SpreadChange,
+    OrderImbalance,
+    LiquidityDepth,
+    TimeDuration,
+    VolumeConcentration,
+    PriceVolatility,
+    MarketMicrostructure,
+    Confidence,
+    Accuracy,
+    AverageReturn,
+    SuccessCount,
+    TotalCount,
+    Symbol,
 )
+
+
 class TestMarketProfilesE2E:
     """E2E тесты для market_profiles."""
+
     @pytest.fixture
     def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
         shutil.rmtree(temp_dir)
+
     @pytest.fixture
     def e2e_config(self, temp_dir) -> Any:
         """E2E конфигурация."""
@@ -63,7 +85,7 @@ class TestMarketProfilesE2E:
             "backup_enabled": True,
             "backup_interval_hours": 1,
             "cleanup_enabled": True,
-            "cleanup_interval_days": 1
+            "cleanup_interval_days": 1,
         }
         analysis_config = {
             "min_confidence": Confidence(0.6),
@@ -73,12 +95,10 @@ class TestMarketProfilesE2E:
             "spread_threshold": 0.001,
             "time_window_seconds": 300,
             "min_trades_count": 10,
-            "max_history_size": 1000
+            "max_history_size": 1000,
         }
-        return {
-            "storage_config": storage_config,
-            "analysis_config": analysis_config
-        }
+        return {"storage_config": storage_config, "analysis_config": analysis_config}
+
     @pytest.fixture
     def e2e_components(self, e2e_config) -> Any:
         """E2E компоненты системы."""
@@ -94,7 +114,7 @@ class TestMarketProfilesE2E:
         analyzer = Mock()
         similarity_calc = Mock()
         success_analyzer = Mock()
-        
+
         # Настройка mock объектов
         storage.save_pattern = AsyncMock(return_value=True)
         storage.get_patterns_by_symbol = AsyncMock(return_value=[])
@@ -104,15 +124,16 @@ class TestMarketProfilesE2E:
         analyzer.analyze_pattern = AsyncMock(return_value={"confidence": 0.8})
         similarity_calc.calculate_similarity = AsyncMock(return_value=0.8)
         success_analyzer.calculate_success_rate = AsyncMock(return_value=0.7)
-        
+
         return {
             "storage": storage,
             "pattern_repo": pattern_repo,
             "behavior_repo": behavior_repo,
             "analyzer": analyzer,
             "similarity_calc": similarity_calc,
-            "success_analyzer": success_analyzer
+            "success_analyzer": success_analyzer,
         }
+
     @pytest.fixture
     def realistic_patterns(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Реалистичные паттерны для E2E тестов."""
@@ -123,7 +144,7 @@ class TestMarketProfilesE2E:
             (MarketMakerPatternType.EXIT, 0.75, "trending"),
             (MarketMakerPatternType.ABSORPTION, 0.65, "sideways"),
             (MarketMakerPatternType.DISTRIBUTION, 0.70, "trending"),
-            (MarketMakerPatternType.MARKUP, 0.80, "trending")
+            (MarketMakerPatternType.MARKUP, 0.80, "trending"),
         ]
         for i, (pattern_type, confidence, market_regime) in enumerate(pattern_types):
             features = PatternFeatures(
@@ -136,24 +157,27 @@ class TestMarketProfilesE2E:
                 time_duration=TimeDuration(200 + i * 50),
                 volume_concentration=VolumeConcentration(0.6 + i * 0.05),
                 price_volatility=PriceVolatility(0.02 + i * 0.005),
-                market_microstructure=MarketMicrostructure({
-                    # Убираем лишние ключи, оставляем только разрешенные
-                })
+                market_microstructure=MarketMicrostructure(
+                    {
+                        # Убираем лишние ключи, оставляем только разрешенные
+                    }
+                ),
             )
             pattern = MarketMakerPattern(
                 pattern_type=pattern_type,
                 symbol=Symbol("BTCUSDT"),
-                timestamp=datetime.now() + timedelta(minutes=i*10),
+                timestamp=datetime.now() + timedelta(minutes=i * 10),
                 features=features,
                 confidence=Confidence(confidence),
                 context={
                     "volatility": "medium",
                     "volume_profile": "normal",
-                    "price_action": "trending" if market_regime == "trending" else "sideways"
-                }
+                    "price_action": "trending" if market_regime == "trending" else "sideways",
+                },
             )
             patterns.append(pattern)
         return patterns
+
     @pytest.mark.asyncio
     async def test_complete_trading_session_e2e(self, e2e_components, realistic_patterns) -> None:
         """E2E тест полной торговой сессии."""
@@ -186,7 +210,7 @@ class TestMarketProfilesE2E:
                 "market_phase": pattern.context["market_regime"],
                 "volatility_regime": pattern.context["volatility"],
                 "liquidity_regime": "high",
-                "analysis_result": analysis
+                "analysis_result": analysis,
             }
             success = await behavior_repo.save_behavior_record("BTCUSDT", behavior_data)
             assert success is True, f"Ошибка сохранения поведения {i}"
@@ -200,17 +224,13 @@ class TestMarketProfilesE2E:
         # Анализируем схожесть
         reference_pattern = realistic_patterns[0]
         similar_patterns = await storage.find_similar_patterns(
-            "BTCUSDT",
-            reference_pattern.features.to_dict(),
-            similarity_threshold=0.7
+            "BTCUSDT", reference_pattern.features.to_dict(), similarity_threshold=0.7
         )
         print(f"🔍 Найдено {len(similar_patterns)} похожих паттернов")
         # Анализируем успешность
         success_rates = {}
         for pattern_type in MarketMakerPatternType:
-            success_rate = await success_analyzer.calculate_success_rate(
-                "BTCUSDT", pattern_type
-            )
+            success_rate = await success_analyzer.calculate_success_rate("BTCUSDT", pattern_type)
             success_rates[pattern_type.value] = success_rate
             print(f"📈 Успешность {pattern_type.value}: {success_rate:.2f}")
         # Фаза 3: Симуляция торговых результатов
@@ -225,7 +245,7 @@ class TestMarketProfilesE2E:
                     price_change_1h=0.05 + i * 0.01,
                     volume_change=0.1 + i * 0.02,
                     execution_time=300 + i * 30,
-                    confidence=Confidence(0.8 + i * 0.02)
+                    confidence=Confidence(0.8 + i * 0.02),
                 )
             elif i == 3:  # 4-й паттерн частично успешен
                 result = PatternResult(
@@ -234,7 +254,7 @@ class TestMarketProfilesE2E:
                     price_change_1h=0.01,
                     volume_change=0.02,
                     execution_time=300,
-                    confidence=Confidence(0.7)
+                    confidence=Confidence(0.7),
                 )
             else:  # Последний паттерн неуспешен
                 result = PatternResult(
@@ -243,7 +263,7 @@ class TestMarketProfilesE2E:
                     price_change_1h=-0.02,
                     volume_change=-0.05,
                     execution_time=300,
-                    confidence=Confidence(0.6)
+                    confidence=Confidence(0.6),
                 )
             results.append(result)
             # Обновляем результат паттерна
@@ -282,6 +302,7 @@ class TestMarketProfilesE2E:
         assert storage_stats.cache_hit_ratio > 0.5, "Низкий коэффициент попаданий в кэш"
         assert storage_stats.compression_ratio < 1.0, "Сжатие не работает"
         print("✅ E2E тест полной торговой сессии завершен успешно!")
+
     @pytest.mark.asyncio
     async def test_multi_symbol_trading_e2e(self, e2e_components) -> None:
         """E2E тест торговли по нескольким символам."""
@@ -304,17 +325,19 @@ class TestMarketProfilesE2E:
                     time_duration=TimeDuration(200 + i * 50),
                     volume_concentration=VolumeConcentration(0.6 + i * 0.05),
                     price_volatility=PriceVolatility(0.02 + i * 0.005),
-                    market_microstructure=MarketMicrostructure({
-                        # Убираем лишние ключи, оставляем только разрешенные
-                    })
+                    market_microstructure=MarketMicrostructure(
+                        {
+                            # Убираем лишние ключи, оставляем только разрешенные
+                        }
+                    ),
                 )
                 pattern = MarketMakerPattern(
                     pattern_type=MarketMakerPatternType.ACCUMULATION,
                     symbol=Symbol(symbol),
-                    timestamp=datetime.now() + timedelta(minutes=i*5),
+                    timestamp=datetime.now() + timedelta(minutes=i * 5),
                     features=features,
                     confidence=Confidence(0.8),
-                    context={"market_regime": "trending", "session": "asian"}
+                    context={"market_regime": "trending", "session": "asian"},
                 )
                 # Сохраняем паттерн
                 success = await storage.save_pattern(symbol, pattern)
@@ -331,7 +354,7 @@ class TestMarketProfilesE2E:
                     "spread": 0.001 + i * 0.0001,
                     "imbalance": 0.3 + i * 0.1,
                     "pressure": 0.4 + i * 0.05,
-                    "confidence": float(pattern.confidence)
+                    "confidence": float(pattern.confidence),
                 }
                 success = await behavior_repo.save_behavior_record(symbol, behavior_data)
                 assert success is True
@@ -340,6 +363,7 @@ class TestMarketProfilesE2E:
         assert total_stats.total_symbols == len(symbols)
         assert total_stats.total_patterns == len(symbols) * 3
         print(f"✅ Обработано {len(symbols)} символов, {total_stats.total_patterns} паттернов")
+
     @pytest.mark.asyncio
     async def test_high_load_e2e(self, e2e_components) -> None:
         """E2E тест высокой нагрузки."""
@@ -350,6 +374,7 @@ class TestMarketProfilesE2E:
         # Создаем большое количество паттернов
         num_patterns = 100
         tasks = []
+
         async def process_pattern(i: int) -> Any:
             features = PatternFeatures(
                 book_pressure=BookPressure(0.5 + (i % 10) * 0.05),
@@ -361,9 +386,11 @@ class TestMarketProfilesE2E:
                 time_duration=TimeDuration(150 + (i % 10) * 20),
                 volume_concentration=VolumeConcentration(0.5 + (i % 10) * 0.03),
                 price_volatility=PriceVolatility(0.015 + (i % 10) * 0.002),
-                market_microstructure=MarketMicrostructure({
-                    # Убираем лишние ключи, оставляем только разрешенные
-                })
+                market_microstructure=MarketMicrostructure(
+                    {
+                        # Убираем лишние ключи, оставляем только разрешенные
+                    }
+                ),
             )
             pattern = MarketMakerPattern(
                 pattern_type=MarketMakerPatternType.ACCUMULATION,
@@ -371,7 +398,7 @@ class TestMarketProfilesE2E:
                 timestamp=datetime.now() + timedelta(seconds=i),
                 features=features,
                 confidence=Confidence(0.7 + (i % 10) * 0.02),
-                context={"market_regime": "trending", "session": "asian"}
+                context={"market_regime": "trending", "session": "asian"},
             )
             # Сохраняем паттерн
             success = await storage.save_pattern("BTCUSDT", pattern)
@@ -388,11 +415,12 @@ class TestMarketProfilesE2E:
                 "spread": 0.001 + (i % 100) * 0.00001,
                 "imbalance": 0.3 + (i % 10) * 0.05,
                 "pressure": 0.4 + (i % 10) * 0.03,
-                "confidence": float(pattern.confidence)
+                "confidence": float(pattern.confidence),
             }
             success = await behavior_repo.save_behavior_record("BTCUSDT", behavior_data)
             assert success is True
             return True
+
         # Запускаем задачи конкурентно
         for i in range(num_patterns):
             tasks.append(process_pattern(i))
@@ -408,6 +436,7 @@ class TestMarketProfilesE2E:
         stats = await storage.get_storage_statistics()
         assert stats.total_patterns >= num_patterns * 0.95
         print(f"📊 Финальная статистика: {stats.total_patterns} паттернов")
+
     @pytest.mark.asyncio
     async def test_data_recovery_e2e(self, e2e_components, realistic_patterns) -> None:
         """E2E тест восстановления данных."""
@@ -424,7 +453,7 @@ class TestMarketProfilesE2E:
                 price_change_1h=0.05 if i < 3 else -0.02,
                 volume_change=0.1 if i < 3 else -0.05,
                 execution_time=300,
-                confidence=Confidence(0.8 if i < 3 else 0.6)
+                confidence=Confidence(0.8 if i < 3 else 0.6),
             )
             pattern_id = f"BTCUSDT_{pattern.pattern_type.value}_{pattern.timestamp.strftime('%Y%m%d_%H%M%S')}"
             await storage.update_pattern_result("BTCUSDT", pattern_id, result)
@@ -445,6 +474,7 @@ class TestMarketProfilesE2E:
             assert pattern_memory.avg_return != 0.0
         await new_storage.close()
         print("✅ Восстановление данных прошло успешно!")
+
     @pytest.mark.asyncio
     async def test_error_scenarios_e2e(self, e2e_components) -> None:
         """E2E тест сценариев ошибок."""
@@ -483,9 +513,11 @@ class TestMarketProfilesE2E:
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.75),
             price_volatility=PriceVolatility(0.03),
-            market_microstructure=MarketMicrostructure({
-                # Убираем лишние ключи, оставляем только разрешенные
-            })
+            market_microstructure=MarketMicrostructure(
+                {
+                    # Убираем лишние ключи, оставляем только разрешенные
+                }
+            ),
         )
         pattern = MarketMakerPattern(
             pattern_type=MarketMakerPatternType.ACCUMULATION,
@@ -493,13 +525,14 @@ class TestMarketProfilesE2E:
             timestamp=datetime.now(),
             features=features,
             confidence=Confidence(0.85),
-            context={}
+            context={},
         )
         success = await storage.save_pattern("BTCUSDT", pattern)
         assert success is True
         analysis = await analyzer.analyze_pattern("BTCUSDT", pattern)
         assert analysis is not None
         print("✅ Система продолжает работать после ошибок")
+
     @pytest.mark.asyncio
     async def test_performance_benchmark_e2e(self, e2e_components) -> None:
         """E2E тест бенчмарка производительности."""
@@ -520,9 +553,11 @@ class TestMarketProfilesE2E:
                 time_duration=TimeDuration(150 + (i % 10) * 20),
                 volume_concentration=VolumeConcentration(0.5 + (i % 10) * 0.03),
                 price_volatility=PriceVolatility(0.015 + (i % 10) * 0.002),
-                market_microstructure=MarketMicrostructure({
-                    # Убираем лишние ключи, оставляем только разрешенные
-                })
+                market_microstructure=MarketMicrostructure(
+                    {
+                        # Убираем лишние ключи, оставляем только разрешенные
+                    }
+                ),
             )
             pattern = MarketMakerPattern(
                 pattern_type=MarketMakerPatternType.ACCUMULATION,
@@ -530,7 +565,7 @@ class TestMarketProfilesE2E:
                 timestamp=datetime.now() + timedelta(seconds=i),
                 features=features,
                 confidence=Confidence(0.7 + (i % 10) * 0.02),
-                context={}  # Убираем лишние ключи
+                context={},  # Убираем лишние ключи
             )
             await storage.save_pattern("BTCUSDT", pattern)
         write_time = (datetime.now() - start_time).total_seconds()
@@ -562,5 +597,7 @@ class TestMarketProfilesE2E:
         print(f"   - Коэффициент кэша: {stats.cache_hit_ratio:.2f}")
         print(f"   - Коэффициент сжатия: {stats.compression_ratio:.2f}")
         print("✅ Бенчмарк производительности завершен!")
+
+
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"]) 
+    pytest.main([__file__, "-v"])

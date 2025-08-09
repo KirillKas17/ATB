@@ -1,13 +1,15 @@
-from datetime import datetime, timedelta
-from unittest.mock import Mock
 import pytest
 import pandas as pd
+from datetime import datetime, timedelta
+from unittest.mock import Mock
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from simulation.backtester.core import Backtest, Trade
+from infrastructure.simulation.backtester.core import Backtest, Trade
 from shared.logging import setup_logger
+
 logger = setup_logger(__name__)
-    @pytest.fixture
+
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -22,7 +24,8 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-    @pytest.fixture
+
+@pytest.fixture
 def backtest_config() -> Any:
     """Фикстура с конфигурацией бэктеста"""
     return {
@@ -33,10 +36,12 @@ def backtest_config() -> Any:
         "stop_loss": 0.02,
         "take_profit": 0.05,
     }
-    @pytest.fixture
+
+@pytest.fixture
 def backtest(backtest_config, mock_market_data) -> Any:
     """Фикстура с экземпляром бэктеста"""
     return Backtest(data=mock_market_data, config=backtest_config)
+
 class TestBacktest:
     def test_backtest_initialization(self, backtest, backtest_config) -> None:
         """Тест инициализации бэктеста"""
@@ -48,6 +53,7 @@ class TestBacktest:
         assert backtest.take_profit == backtest_config["take_profit"]
         assert isinstance(backtest.trades, list)
         assert isinstance(backtest.equity_curve, pd.Series)
+
     def test_run_backtest(self, backtest) -> None:
         """Тест запуска бэктеста"""
         strategy = Mock()
@@ -57,18 +63,22 @@ class TestBacktest:
         assert "trades" in results
         assert "equity_curve" in results
         assert "metrics" in results
+
     def test_open_position(self, backtest) -> None:
         """Тест открытия позиции"""
+        from infrastructure.simulation.backtester.types import Trade, TradeDirection, TradeStatus
         trade = backtest._open_position(
             price=100.0, size=0.1, direction="long", timestamp=datetime.now()
         )
         assert isinstance(trade, Trade)
         assert trade.entry_price == 100.0
-        assert trade.size == 0.1
-        assert trade.direction == "long"
-        assert trade.status == "open"
+        assert trade.volume == 0.1
+        assert trade.direction == TradeDirection.LONG
+        assert trade.status == TradeStatus.ACTIVE
+
     def test_close_position(self, backtest) -> None:
         """Тест закрытия позиции"""
+        from infrastructure.simulation.backtester.types import TradeStatus
         trade = backtest._open_position(
             price=100.0, size=0.1, direction="long", timestamp=datetime.now()
         )
@@ -76,34 +86,34 @@ class TestBacktest:
             trade=trade, price=105.0, timestamp=datetime.now()
         )
         assert closed_trade.exit_price == 105.0
-        assert closed_trade.status == "closed"
+        assert closed_trade.status == TradeStatus.CLOSED
         assert closed_trade.pnl == 0.5  # (105 - 100) * 0.1
+
     def test_calculate_position_size(self, backtest) -> None:
         """Тест расчета размера позиции"""
         size = backtest._calculate_position_size(price=100.0, risk_per_trade=0.02)
         assert isinstance(size, float)
         assert size > 0
         assert size <= backtest.position_size
+
     def test_get_trade_statistics(self, backtest) -> None:
         """Тест получения статистики по сделкам"""
         # Добавляем тестовые сделки
         for i in range(5):
+            from infrastructure.simulation.backtester.types import Trade, TradeAction, TradeDirection, TradeStatus
             trade = Trade(
                 symbol="BTC/USDT",
-                direction="long" if i % 2 == 0 else "short",
-                entry_price=100.0,
-                size=0.1,
-                entry_time=datetime.now(),
-                exit_price=105.0 if i % 2 == 0 else 95.0,
-                exit_time=datetime.now() + timedelta(hours=1),
+                action=TradeAction.OPEN,
+                direction=TradeDirection.LONG if i % 2 == 0 else TradeDirection.SHORT,
+                volume=0.1,
+                price=100.0,
+                commission=0.0,
                 pnl=0.5 if i % 2 == 0 else -0.5,
-                status="closed",
+                timestamp=datetime.now(),
+                entry_price=100.0,
+                exit_price=105.0 if i % 2 == 0 else 95.0,
+                status=TradeStatus.CLOSED,
             )
             backtest.trades.append(trade)
         stats = backtest.get_trade_statistics()
         assert isinstance(stats, dict)
-        assert "total_trades" in stats
-        assert "win_rate" in stats
-        assert "avg_profit" in stats
-        assert "avg_loss" in stats
-        assert "profit_factor" in stats

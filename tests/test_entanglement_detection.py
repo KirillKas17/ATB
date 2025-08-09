@@ -6,14 +6,15 @@ import pytest
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from application.analysis.entanglement_monitor import EntanglementMonitor
-from domain.intelligence.entanglement_detector import (EntanglementDetector,
-                                                       EntanglementResult,
-                                                       OrderBookUpdate)
+from domain.intelligence.entanglement_detector import EntanglementDetector, EntanglementResult, OrderBookUpdate
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
+
+
 class TestEntanglementDetector:
     """Тесты для EntanglementDetector."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.detector = EntanglementDetector(
@@ -22,6 +23,7 @@ class TestEntanglementDetector:
             window_size=50,
             min_data_points=20,
         )
+
     def test_initialization(self: "TestEntanglementDetector") -> None:
         """Тест инициализации детектора."""
         assert self.detector.max_lag_ms == 3.0
@@ -29,6 +31,7 @@ class TestEntanglementDetector:
         assert self.detector.window_size == 50
         assert self.detector.min_data_points == 20
         assert len(self.detector.exchange_buffers) == 0
+
     def test_add_order_book_update(self: "TestEntanglementDetector") -> None:
         """Тест добавления обновления ордербука."""
         update = OrderBookUpdate(
@@ -44,6 +47,7 @@ class TestEntanglementDetector:
         buffer_item = self.detector.exchange_buffers["binance"][0]
         assert buffer_item["price"].value == 50005.0  # Средняя цена
         assert buffer_item["spread"].value == 10.0
+
     def test_normalize_price_changes(self: "TestEntanglementDetector") -> None:
         """Тест нормализации изменений цен."""
         # Создаем тестовые данные
@@ -58,6 +62,7 @@ class TestEntanglementDetector:
         assert len(normalized) == 4  # n-1 изменений
         assert isinstance(normalized, np.ndarray)
         assert np.all(np.isfinite(normalized))  # Все значения конечные
+
     def test_calculate_cross_correlation(self: "TestEntanglementDetector") -> None:
         """Тест расчета кросс-корреляции."""
         # Создаем коррелированные данные
@@ -68,10 +73,12 @@ class TestEntanglementDetector:
         assert isinstance(lag, int)
         assert correlation > 0.9  # Высокая корреляция
         assert abs(lag) <= len(data1)  # Lag в разумных пределах
+
     def test_detect_entanglement_no_data(self: "TestEntanglementDetector") -> None:
         """Тест обнаружения запутанности без данных."""
         result = self.detector.detect_entanglement("binance", "coinbase", "BTCUSDT")
         assert result is None
+
     def test_detect_entanglement_insufficient_data(self: "TestEntanglementDetector") -> None:
         """Тест обнаружения запутанности с недостаточными данными."""
         # Добавляем мало данных
@@ -86,6 +93,7 @@ class TestEntanglementDetector:
             self.detector._add_order_book_update(update)
         result = self.detector.detect_entanglement("binance", "coinbase", "BTCUSDT")
         assert result is None
+
     def test_detect_entanglement_with_data(self: "TestEntanglementDetector") -> None:
         """Тест обнаружения запутанности с достаточными данными."""
         # Создаем коррелированные данные для двух бирж
@@ -116,6 +124,7 @@ class TestEntanglementDetector:
         assert result.exchange_pair == ("binance", "coinbase")
         assert result.symbol == "BTCUSDT"
         assert result.confidence > 0
+
     def test_get_buffer_status(self: "TestEntanglementDetector") -> None:
         """Тест получения статуса буферов."""
         # Добавляем данные
@@ -132,6 +141,7 @@ class TestEntanglementDetector:
         assert status["binance"]["buffer_size"] == 1
         assert status["binance"]["price_range"]["min"] == 50005.0
         assert status["binance"]["price_range"]["max"] == 50005.0
+
     def test_clear_buffers(self: "TestEntanglementDetector") -> None:
         """Тест очистки буферов."""
         # Добавляем данные
@@ -147,8 +157,11 @@ class TestEntanglementDetector:
         self.detector.clear_buffers()
         assert len(self.detector.exchange_buffers) == 0
         assert len(self.detector.last_processed) == 0
+
+
 class TestEntanglementMonitor:
     """Тесты для EntanglementMonitor."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.monitor = EntanglementMonitor(
@@ -157,12 +170,14 @@ class TestEntanglementMonitor:
             max_lag_ms=3.0,
             correlation_threshold=0.95,
         )
+
     def test_initialization(self: "TestEntanglementMonitor") -> None:
         """Тест инициализации монитора."""
         assert self.monitor.detection_interval == 0.1
         assert self.monitor.is_running == False
         assert len(self.monitor.connectors) == 3  # binance, coinbase, kraken
         assert len(self.monitor.exchange_pairs) > 0
+
     def test_add_exchange_pair(self: "TestEntanglementMonitor") -> None:
         """Тест добавления пары бирж."""
         initial_count = len(self.monitor.exchange_pairs)
@@ -174,6 +189,7 @@ class TestEntanglementMonitor:
         assert pair.exchange2 == "test2"
         assert pair.symbol == "TESTUSDT"
         assert pair.is_active == True
+
     def test_remove_exchange_pair(self: "TestEntanglementMonitor") -> None:
         """Тест удаления пары бирж."""
         # Добавляем пару
@@ -182,6 +198,7 @@ class TestEntanglementMonitor:
         # Удаляем пару
         self.monitor.remove_exchange_pair("test1", "test2", "TESTUSDT")
         assert len(self.monitor.exchange_pairs) == initial_count - 1
+
     def test_get_status(self: "TestEntanglementMonitor") -> None:
         """Тест получения статуса."""
         status = self.monitor.get_status()
@@ -194,13 +211,15 @@ class TestEntanglementMonitor:
         assert status["is_running"] == False
         assert status["stats"]["total_detections"] == 0
         assert status["stats"]["entangled_detections"] == 0
+
     def test_stop_monitoring(self: "TestEntanglementMonitor") -> None:
         """Тест остановки мониторинга."""
         self.monitor.is_running = True
         self.monitor.stop_monitoring()
         assert self.monitor.is_running == False
+
     @pytest.mark.asyncio
-    def test_start_monitoring_short(self: "TestEntanglementMonitor") -> None:
+    async def test_start_monitoring_short(self: "TestEntanglementMonitor") -> None:
         """Тест кратковременного запуска мониторинга."""
         # Запускаем мониторинг на короткое время
         monitor_task = asyncio.create_task(self.monitor.start_monitoring())
@@ -211,11 +230,13 @@ class TestEntanglementMonitor:
         await monitor_task
         # Проверяем, что мониторинг остановлен
         assert self.monitor.is_running == False
+
     def test_get_entanglement_history_empty(self: "TestEntanglementMonitor") -> None:
         """Тест получения истории запутанности (пустая)."""
         history = self.monitor.get_entanglement_history()
         assert isinstance(history, list)
         assert len(history) == 0
+
     def test_log_entanglement_event(self: "TestEntanglementMonitor") -> None:
         """Тест логирования события запутанности."""
         result = EntanglementResult(
@@ -233,8 +254,11 @@ class TestEntanglementMonitor:
         assert self.monitor.stats["total_detections"] == 1
         assert self.monitor.stats["entangled_detections"] == 1
         assert self.monitor.stats["last_detection_time"] is not None
+
+
 class TestOrderBookUpdate:
     """Тесты для OrderBookUpdate."""
+
     def test_creation(self: "TestOrderBookUpdate") -> None:
         """Тест создания OrderBookUpdate."""
         update = OrderBookUpdate(
@@ -249,6 +273,7 @@ class TestOrderBookUpdate:
         assert len(update.bids) == 1
         assert len(update.asks) == 1
         assert update.sequence_id is None
+
     def test_get_mid_price(self: "TestOrderBookUpdate") -> None:
         """Тест получения средней цены."""
         update = OrderBookUpdate(
@@ -260,6 +285,7 @@ class TestOrderBookUpdate:
         )
         mid_price = update.get_mid_price()
         assert mid_price.value == 50005.0
+
     def test_get_spread(self: "TestOrderBookUpdate") -> None:
         """Тест получения спреда."""
         update = OrderBookUpdate(
@@ -271,6 +297,7 @@ class TestOrderBookUpdate:
         )
         spread = update.get_spread()
         assert spread.value == 10.0
+
     def test_get_mid_price_empty(self: "TestOrderBookUpdate") -> None:
         """Тест получения средней цены при пустых данных."""
         update = OrderBookUpdate(
@@ -282,8 +309,11 @@ class TestOrderBookUpdate:
         )
         mid_price = update.get_mid_price()
         assert mid_price.value == 0.0
+
+
 class TestEntanglementResult:
     """Тесты для EntanglementResult."""
+
     def test_creation(self: "TestEntanglementResult") -> None:
         """Тест создания EntanglementResult."""
         result = EntanglementResult(
@@ -303,6 +333,7 @@ class TestEntanglementResult:
         assert result.symbol == "BTCUSDT"
         assert result.confidence == 0.95
         assert result.metadata == {"test": "data"}
+
     def test_to_dict(self: "TestEntanglementResult") -> None:
         """Тест преобразования в словарь."""
         result = EntanglementResult(
@@ -324,5 +355,7 @@ class TestEntanglementResult:
         assert data["timestamp"] == 1640995200.0
         assert data["confidence"] == 0.95
         assert data["metadata"] == {"test": "data"}
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from domain.type_definitions.agent_types import AgentConfig, AgentStatus, ProcessingResult, AgentType
-from domain.value_objects.social_media import SocialSentimentResult
+from infrastructure.agents.social_media.types import SocialSentimentResult
 from infrastructure.agents.base_agent import BaseAgent
 from infrastructure.agents.social_media.providers import (
     DiscordProvider,

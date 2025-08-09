@@ -1,12 +1,16 @@
 """
 Тесты для эволюции application слоя.
 """
+
 import pytest
 from unittest.mock import Mock, AsyncMock
 from typing import Any
 from application.evolution.evolution_orchestrator import EvolutionOrchestrator
+
+
 class TestEvolutionOrchestrator:
     """Тесты для EvolutionOrchestrator."""
+
     @pytest.fixture
     def mock_repositories(self) -> tuple[Mock, Mock, Mock]:
         """Создает mock репозитории."""
@@ -21,11 +25,13 @@ class TestEvolutionOrchestrator:
         evolution_repo.save_generation = AsyncMock()
         evolution_repo.get_best_strategies = AsyncMock()
         return strategy_repo, performance_repo, evolution_repo
+
     @pytest.fixture
     def orchestrator(self, mock_repositories: tuple[Mock, Mock, Mock]) -> EvolutionOrchestrator:
         """Создает экземпляр оркестратора."""
         strategy_repo, performance_repo, evolution_repo = mock_repositories
         return EvolutionOrchestrator(strategy_repo, performance_repo, evolution_repo)
+
     @pytest.fixture
     def sample_strategies(self) -> list[dict[str, Any]]:
         """Создает образец стратегий."""
@@ -35,25 +41,31 @@ class TestEvolutionOrchestrator:
                 "name": "Strategy A",
                 "parameters": {"param1": 0.5, "param2": 0.3},
                 "fitness_score": 0.8,
-                "generation": 1
+                "generation": 1,
             },
             {
-                "id": "strategy_2", 
+                "id": "strategy_2",
                 "name": "Strategy B",
                 "parameters": {"param1": 0.7, "param2": 0.4},
                 "fitness_score": 0.6,
-                "generation": 1
+                "generation": 1,
             },
             {
                 "id": "strategy_3",
-                "name": "Strategy C", 
+                "name": "Strategy C",
                 "parameters": {"param1": 0.4, "param2": 0.2},
                 "fitness_score": 0.9,
-                "generation": 1
-            }
+                "generation": 1,
+            },
         ]
+
     @pytest.mark.asyncio
-    async def test_run_evolution_cycle(self, orchestrator: EvolutionOrchestrator, mock_repositories: tuple[Mock, Mock, Mock], sample_strategies: list[dict[str, Any]]) -> None:
+    async def test_run_evolution_cycle(
+        self,
+        orchestrator: EvolutionOrchestrator,
+        mock_repositories: tuple[Mock, Mock, Mock],
+        sample_strategies: list[dict[str, Any]],
+    ) -> None:
         """Тест запуска цикла эволюции."""
         strategy_repo, performance_repo, evolution_repo = mock_repositories
         # Используем существующий метод run_single_generation
@@ -65,7 +77,12 @@ class TestEvolutionOrchestrator:
         assert "evolution_status" in result
 
     @pytest.mark.asyncio
-    async def test_evaluate_population(self, orchestrator: EvolutionOrchestrator, mock_repositories: tuple[Mock, Mock, Mock], sample_strategies: list[dict[str, Any]]) -> None:
+    async def test_evaluate_population(
+        self,
+        orchestrator: EvolutionOrchestrator,
+        mock_repositories: tuple[Mock, Mock, Mock],
+        sample_strategies: list[dict[str, Any]],
+    ) -> None:
         """Тест оценки популяции."""
         strategy_repo, performance_repo, evolution_repo = mock_repositories
         # Используем существующий метод get_current_status
@@ -104,14 +121,21 @@ class TestEvolutionOrchestrator:
         assert isinstance(metrics, dict)
         assert "best_fitness_achieved" in metrics
 
-    def test_tournament_selection(self, orchestrator: EvolutionOrchestrator, sample_strategies: list[dict[str, Any]]) -> None:
+    def test_tournament_selection(
+        self, orchestrator: EvolutionOrchestrator, sample_strategies: list[dict[str, Any]]
+    ) -> None:
         """Тест турнирного отбора."""
         # Используем существующий метод get_selection_statistics
         stats = orchestrator.get_selection_statistics()
         assert isinstance(stats, dict)
 
     @pytest.mark.asyncio
-    async def test_create_new_generation(self, orchestrator: EvolutionOrchestrator, mock_repositories: tuple[Mock, Mock, Mock], sample_strategies: list[dict[str, Any]]) -> None:
+    async def test_create_new_generation(
+        self,
+        orchestrator: EvolutionOrchestrator,
+        mock_repositories: tuple[Mock, Mock, Mock],
+        sample_strategies: list[dict[str, Any]],
+    ) -> None:
         """Тест создания нового поколения."""
         strategy_repo, performance_repo, evolution_repo = mock_repositories
         # Используем существующий метод run_single_generation
@@ -123,13 +147,15 @@ class TestEvolutionOrchestrator:
         # Используем существующий метод get_current_status
         status = orchestrator.get_current_status()
         assert isinstance(status, dict)
-        
+
         # Тестируем с пустыми параметрами
         empty_parameters: dict[str, Any] = {}
         assert isinstance(empty_parameters, dict)
 
     @pytest.mark.asyncio
-    async def test_get_evolution_statistics(self, orchestrator: EvolutionOrchestrator, mock_repositories: tuple[Mock, Mock, Mock]) -> None:
+    async def test_get_evolution_statistics(
+        self, orchestrator: EvolutionOrchestrator, mock_repositories: tuple[Mock, Mock, Mock]
+    ) -> None:
         """Тест получения статистики эволюции."""
         strategy_repo, performance_repo, evolution_repo = mock_repositories
         # Используем существующий метод get_evolution_metrics
@@ -140,22 +166,31 @@ class TestEvolutionOrchestrator:
         assert "total_candidates_generated" in stats
         assert "total_candidates_evaluated" in stats
 
-    def test_calculate_population_diversity(self, orchestrator: EvolutionOrchestrator, sample_strategies: list[dict[str, Any]]) -> None:
+    def test_calculate_population_diversity(
+        self, orchestrator: EvolutionOrchestrator, sample_strategies: list[dict[str, Any]]
+    ) -> None:
         """Тест расчета разнообразия популяции."""
         # Используем существующий метод get_current_status
         status = orchestrator.get_current_status()
         assert isinstance(status, dict)
 
     @pytest.mark.asyncio
-    async def test_save_generation(self, orchestrator: EvolutionOrchestrator, mock_repositories: tuple[Mock, Mock, Mock], sample_strategies: list[dict[str, Any]]) -> None:
+    async def test_save_generation(
+        self,
+        orchestrator: EvolutionOrchestrator,
+        mock_repositories: tuple[Mock, Mock, Mock],
+        sample_strategies: list[dict[str, Any]],
+    ) -> None:
         """Тест сохранения поколения."""
         strategy_repo, performance_repo, evolution_repo = mock_repositories
         # Используем существующий метод create_evolution_backup
         result = await orchestrator.create_evolution_backup()
         assert isinstance(result, bool)
 
-    def test_elite_selection(self, orchestrator: EvolutionOrchestrator, sample_strategies: list[dict[str, Any]]) -> None:
+    def test_elite_selection(
+        self, orchestrator: EvolutionOrchestrator, sample_strategies: list[dict[str, Any]]
+    ) -> None:
         """Тест элитного отбора."""
         # Используем существующий метод get_approved_strategies
         elite = orchestrator.get_approved_strategies()
-        assert isinstance(elite, list) 
+        assert isinstance(elite, list)

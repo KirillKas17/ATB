@@ -24,7 +24,7 @@ from domain.interfaces.risk_protocols import (
     BaseRiskAnalyzer,
     BaseLiquidityAnalyzer,
     BaseStressTester,
-    BasePortfolioOptimizer
+    BasePortfolioOptimizer,
 )
 from domain.type_definitions.risk_types import (
     PortfolioOptimizationMethod,
@@ -32,7 +32,7 @@ from domain.type_definitions.risk_types import (
     PositionRisk,
     RiskLevel,
     RiskMetrics,
-    StressTestResult
+    StressTestResult,
 )
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
@@ -52,7 +52,7 @@ class TestRiskAssessmentResult:
                 systematic_risk=0.45,
                 unsystematic_risk=0.20,
                 var_95=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-                expected_shortfall=Money(amount=Decimal("1500.00"), currency=Currency.USD)
+                expected_shortfall=Money(amount=Decimal("1500.00"), currency=Currency.USD),
             ),
             "position_risks": [
                 PositionRisk(
@@ -60,7 +60,7 @@ class TestRiskAssessmentResult:
                     risk_score=0.7,
                     var_95=Money(amount=Decimal("500.00"), currency=Currency.USD),
                     beta=1.2,
-                    correlation=0.8
+                    correlation=0.8,
                 )
             ],
             "stress_test_results": [
@@ -68,18 +68,18 @@ class TestRiskAssessmentResult:
                     scenario_name="Market Crash",
                     portfolio_loss=Money(amount=Decimal("2000.00"), currency=Currency.USD),
                     risk_metrics=RiskMetrics(var=Decimal("1500.00"), es=Decimal("2000.00")),
-                    passed=False
+                    passed=False,
                 )
             ],
             "recommendations": ["Reduce BTC exposure", "Increase diversification"],
             "timestamp": datetime.now(),
-            "metadata": {"volatility": 0.025, "correlation": 0.75}
+            "metadata": {"volatility": 0.025, "correlation": 0.75},
         }
 
     def test_valid_risk_assessment_creation(self, valid_risk_data):
         """Тест создания валидной оценки рисков."""
         result = RiskAssessmentResult(**valid_risk_data)
-        
+
         assert result.risk_level == RiskLevel.MEDIUM
         assert result.risk_score == 0.65
         assert len(result.position_risks) == 1
@@ -89,21 +89,21 @@ class TestRiskAssessmentResult:
     def test_invalid_risk_score_too_high(self, valid_risk_data):
         """Тест валидации слишком высокого риска."""
         valid_risk_data["risk_score"] = 1.5
-        
+
         with pytest.raises(ValueError, match="Risk score must be between 0.0 and 1.0"):
             RiskAssessmentResult(**valid_risk_data)
 
     def test_invalid_risk_score_too_low(self, valid_risk_data):
         """Тест валидации слишком низкого риска."""
         valid_risk_data["risk_score"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Risk score must be between 0.0 and 1.0"):
             RiskAssessmentResult(**valid_risk_data)
 
     def test_future_timestamp_validation(self, valid_risk_data):
         """Тест валидации временной метки в будущем."""
         valid_risk_data["timestamp"] = datetime.now() + timedelta(days=1)
-        
+
         with pytest.raises(ValueError, match="Timestamp cannot be in the future"):
             RiskAssessmentResult(**valid_risk_data)
 
@@ -129,19 +129,16 @@ class TestLiquidityGravityMetrics:
         return {
             "liquidity_score": 0.75,
             "gravity_center": 50000.0,
-            "pressure_zones": [
-                {"price": 49900.0, "pressure": 0.8},
-                {"price": 50100.0, "pressure": 0.6}
-            ],
+            "pressure_zones": [{"price": 49900.0, "pressure": 0.8}, {"price": 50100.0, "pressure": 0.6}],
             "flow_direction": "bullish",
             "concentration_level": 0.65,
-            "timestamp": datetime.now()
+            "timestamp": datetime.now(),
         }
 
     def test_valid_liquidity_metrics_creation(self, valid_liquidity_data):
         """Тест создания валидных метрик ликвидности."""
         metrics = LiquidityGravityMetrics(**valid_liquidity_data)
-        
+
         assert metrics.liquidity_score == 0.75
         assert metrics.gravity_center == 50000.0
         assert len(metrics.pressure_zones) == 2
@@ -151,28 +148,28 @@ class TestLiquidityGravityMetrics:
     def test_invalid_liquidity_score_too_high(self, valid_liquidity_data):
         """Тест валидации слишком высокого показателя ликвидности."""
         valid_liquidity_data["liquidity_score"] = 1.5
-        
+
         with pytest.raises(ValueError, match="Liquidity score must be between 0.0 and 1.0"):
             LiquidityGravityMetrics(**valid_liquidity_data)
 
     def test_invalid_liquidity_score_too_low(self, valid_liquidity_data):
         """Тест валидации слишком низкого показателя ликвидности."""
         valid_liquidity_data["liquidity_score"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Liquidity score must be between 0.0 and 1.0"):
             LiquidityGravityMetrics(**valid_liquidity_data)
 
     def test_invalid_concentration_level_too_high(self, valid_liquidity_data):
         """Тест валидации слишком высокого уровня концентрации."""
         valid_liquidity_data["concentration_level"] = 1.2
-        
+
         with pytest.raises(ValueError, match="Concentration level must be between 0.0 and 1.0"):
             LiquidityGravityMetrics(**valid_liquidity_data)
 
     def test_invalid_concentration_level_too_low(self, valid_liquidity_data):
         """Тест валидации слишком низкого уровня концентрации."""
         valid_liquidity_data["concentration_level"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Concentration level must be between 0.0 and 1.0"):
             LiquidityGravityMetrics(**valid_liquidity_data)
 
@@ -211,25 +208,21 @@ class TestRiskAnalyzerProtocol:
         return {
             "positions": [
                 {"symbol": "BTC/USD", "value": 10000.0, "quantity": 0.2},
-                {"symbol": "ETH/USD", "value": 5000.0, "quantity": 2.0}
+                {"symbol": "ETH/USD", "value": 5000.0, "quantity": 2.0},
             ],
-            "total_value": 15000.0
+            "total_value": 15000.0,
         }
 
     @pytest.fixture
     def sample_market_data(self) -> Dict[str, Any]:
         """Тестовые рыночные данные."""
-        return {
-            "volatility": 0.025,
-            "correlation_matrix": [[1.0, 0.7], [0.7, 1.0]],
-            "risk_free_rate": 0.02
-        }
+        return {"volatility": 0.025, "correlation_matrix": [[1.0, 0.7], [0.7, 1.0]], "risk_free_rate": 0.02}
 
     def test_protocol_definition(self):
         """Тест определения протокола."""
-        assert hasattr(RiskAnalyzerProtocol, 'analyze_portfolio_risk')
-        assert hasattr(RiskAnalyzerProtocol, 'calculate_var')
-        assert hasattr(RiskAnalyzerProtocol, 'calculate_expected_shortfall')
+        assert hasattr(RiskAnalyzerProtocol, "analyze_portfolio_risk")
+        assert hasattr(RiskAnalyzerProtocol, "calculate_var")
+        assert hasattr(RiskAnalyzerProtocol, "calculate_expected_shortfall")
 
     @pytest.mark.asyncio
     async def test_analyze_portfolio_risk(self, mock_risk_analyzer, sample_portfolio_data, sample_market_data):
@@ -242,13 +235,13 @@ class TestRiskAnalyzerProtocol:
                 systematic_risk=0.45,
                 unsystematic_risk=0.20,
                 var_95=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-                expected_shortfall=Money(amount=Decimal("1500.00"), currency=Currency.USD)
+                expected_shortfall=Money(amount=Decimal("1500.00"), currency=Currency.USD),
             ),
             position_risks=[],
             stress_test_results=[],
             recommendations=["Reduce exposure"],
             timestamp=datetime.now(),
-            metadata={}
+            metadata={},
         )
         mock_risk_analyzer.analyze_portfolio_risk.return_value = expected_result
 
@@ -259,10 +252,7 @@ class TestRiskAnalyzerProtocol:
 
     def test_calculate_var(self, mock_risk_analyzer):
         """Тест расчета Value at Risk."""
-        positions = [
-            {"symbol": "BTC/USD", "value": 10000.0},
-            {"symbol": "ETH/USD", "value": 5000.0}
-        ]
+        positions = [{"symbol": "BTC/USD", "value": 10000.0}, {"symbol": "ETH/USD", "value": 5000.0}]
         confidence = 0.95
         expected_var = Money(amount=Decimal("750.00"), currency=Currency.USD)
         mock_risk_analyzer.calculate_var.return_value = expected_var
@@ -274,10 +264,7 @@ class TestRiskAnalyzerProtocol:
 
     def test_calculate_expected_shortfall(self, mock_risk_analyzer):
         """Тест расчета Expected Shortfall."""
-        positions = [
-            {"symbol": "BTC/USD", "value": 10000.0},
-            {"symbol": "ETH/USD", "value": 5000.0}
-        ]
+        positions = [{"symbol": "BTC/USD", "value": 10000.0}, {"symbol": "ETH/USD", "value": 5000.0}]
         confidence = 0.95
         expected_es = Money(amount=Decimal("1125.00"), currency=Currency.USD)
         mock_risk_analyzer.calculate_expected_shortfall.return_value = expected_es
@@ -301,7 +288,7 @@ class TestBaseRiskAnalyzer:
         """Тестовые позиции."""
         return [
             {"symbol": "BTC/USD", "value": 10000.0, "quantity": 0.2},
-            {"symbol": "ETH/USD", "value": 5000.0, "quantity": 2.0}
+            {"symbol": "ETH/USD", "value": 5000.0, "quantity": 2.0},
         ]
 
     def test_initialization(self):
@@ -318,7 +305,7 @@ class TestBaseRiskAnalyzer:
         """Тест расчета Value at Risk."""
         confidence = 0.95
         result = base_risk_analyzer.calculate_var(sample_positions, confidence)
-        
+
         assert isinstance(result, Money)
         assert result.currency == Currency.USD
         assert result.amount > 0
@@ -327,7 +314,7 @@ class TestBaseRiskAnalyzer:
         """Тест расчета Expected Shortfall."""
         confidence = 0.95
         result = base_risk_analyzer.calculate_expected_shortfall(sample_positions, confidence)
-        
+
         assert isinstance(result, Money)
         assert result.currency == Currency.USD
         assert result.amount > 0
@@ -343,13 +330,13 @@ class TestBaseRiskAnalyzer:
                 systematic_risk=0.2,
                 unsystematic_risk=0.1,
                 var_95=Money(amount=Decimal("500.00"), currency=Currency.USD),
-                expected_shortfall=Money(amount=Decimal("750.00"), currency=Currency.USD)
+                expected_shortfall=Money(amount=Decimal("750.00"), currency=Currency.USD),
             ),
             position_risks=[],
             stress_test_results=[],
             recommendations=[],
             timestamp=datetime.now(),
-            metadata={}
+            metadata={},
         )
         result2 = RiskAssessmentResult(
             risk_level=RiskLevel.HIGH,
@@ -359,23 +346,23 @@ class TestBaseRiskAnalyzer:
                 systematic_risk=0.6,
                 unsystematic_risk=0.2,
                 var_95=Money(amount=Decimal("2000.00"), currency=Currency.USD),
-                expected_shortfall=Money(amount=Decimal("3000.00"), currency=Currency.USD)
+                expected_shortfall=Money(amount=Decimal("3000.00"), currency=Currency.USD),
             ),
             position_risks=[],
             stress_test_results=[],
             recommendations=[],
             timestamp=datetime.now(),
-            metadata={}
+            metadata={},
         )
-        
+
         base_risk_analyzer._risk_history = [result1, result2]
-        
+
         # Тест получения всей истории
         history = base_risk_analyzer.get_risk_history()
         assert len(history) == 2
         assert history[0] == result1
         assert history[1] == result2
-        
+
         # Тест ограничения истории
         limited_history = base_risk_analyzer.get_risk_history(limit=1)
         assert len(limited_history) == 1
@@ -385,15 +372,15 @@ class TestBaseRiskAnalyzer:
         """Тест получения истории VaR."""
         var_data1 = {"timestamp": datetime.now(), "var": 1000.0, "confidence": 0.95}
         var_data2 = {"timestamp": datetime.now(), "var": 1200.0, "confidence": 0.95}
-        
+
         base_risk_analyzer._var_history = [var_data1, var_data2]
-        
+
         # Тест получения всей истории
         history = base_risk_analyzer.get_var_history()
         assert len(history) == 2
         assert history[0] == var_data1
         assert history[1] == var_data2
-        
+
         # Тест ограничения истории
         limited_history = base_risk_analyzer.get_var_history(limit=1)
         assert len(limited_history) == 1
@@ -417,10 +404,7 @@ class TestBaseLiquidityAnalyzer:
     @pytest.fixture
     def sample_orderbook_data(self) -> Dict[str, Any]:
         """Тестовые данные ордербука."""
-        return {
-            "bids": [[50000.0, 1.0], [49999.0, 2.0]],
-            "asks": [[50001.0, 1.5], [50002.0, 2.5]]
-        }
+        return {"bids": [[50000.0, 1.0], [49999.0, 2.0]], "asks": [[50001.0, 1.5], [50002.0, 2.5]]}
 
     def test_initialization(self):
         """Тест инициализации."""
@@ -434,13 +418,13 @@ class TestBaseLiquidityAnalyzer:
     def test_detect_liquidity_clusters(self, base_liquidity_analyzer, sample_orderbook_data):
         """Тест обнаружения кластеров ликвидности."""
         result = base_liquidity_analyzer.detect_liquidity_clusters(sample_orderbook_data)
-        
+
         assert isinstance(result, list)
 
     def test_calculate_liquidity_pressure(self, base_liquidity_analyzer, sample_orderbook_data):
         """Тест расчета давления ликвидности."""
         result = base_liquidity_analyzer.calculate_liquidity_pressure(sample_orderbook_data)
-        
+
         assert isinstance(result, float)
         assert result == 0.0  # Базовая реализация возвращает 0.0
 
@@ -452,7 +436,7 @@ class TestBaseLiquidityAnalyzer:
             pressure_zones=[],
             flow_direction="neutral",
             concentration_level=0.5,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         metrics2 = LiquidityGravityMetrics(
             liquidity_score=0.8,
@@ -460,17 +444,17 @@ class TestBaseLiquidityAnalyzer:
             pressure_zones=[],
             flow_direction="bullish",
             concentration_level=0.7,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
-        
+
         base_liquidity_analyzer._liquidity_history = [metrics1, metrics2]
-        
+
         # Тест получения всей истории
         history = base_liquidity_analyzer.get_liquidity_history()
         assert len(history) == 2
         assert history[0] == metrics1
         assert history[1] == metrics2
-        
+
         # Тест ограничения истории
         limited_history = base_liquidity_analyzer.get_liquidity_history(limit=1)
         assert len(limited_history) == 1
@@ -502,13 +486,9 @@ class TestBaseStressTester:
 
     def test_generate_stress_scenarios(self, base_stress_tester):
         """Тест генерации сценариев стресс-тестирования."""
-        market_conditions = {
-            "volatility": 0.025,
-            "correlation": 0.75,
-            "liquidity": "high"
-        }
+        market_conditions = {"volatility": 0.025, "correlation": 0.75, "liquidity": "high"}
         result = base_stress_tester.generate_stress_scenarios(market_conditions)
-        
+
         assert isinstance(result, list)
 
     def test_get_stress_history(self, base_stress_tester):
@@ -517,23 +497,23 @@ class TestBaseStressTester:
             scenario_name="Market Crash",
             portfolio_loss=Money(amount=Decimal("2000.00"), currency=Currency.USD),
             risk_metrics=RiskMetrics(var=Decimal("1500.00"), es=Decimal("2000.00")),
-            passed=False
+            passed=False,
         )
         result2 = StressTestResult(
             scenario_name="Liquidity Crisis",
             portfolio_loss=Money(amount=Decimal("1000.00"), currency=Currency.USD),
             risk_metrics=RiskMetrics(var=Decimal("800.00"), es=Decimal("1200.00")),
-            passed=True
+            passed=True,
         )
-        
+
         base_stress_tester._stress_history = [result1, result2]
-        
+
         # Тест получения всей истории
         history = base_stress_tester.get_stress_history()
         assert len(history) == 2
         assert history[0] == result1
         assert history[1] == result2
-        
+
         # Тест ограничения истории
         limited_history = base_stress_tester.get_stress_history(limit=1)
         assert len(limited_history) == 1
@@ -568,9 +548,9 @@ class TestBasePortfolioOptimizer:
         assets = ["BTC/USD", "ETH/USD", "ADA/USD"]
         returns = [0.20, 0.15, 0.10]
         risks = [0.30, 0.25, 0.20]
-        
+
         result = base_portfolio_optimizer.calculate_optimal_weights(assets, returns, risks)
-        
+
         assert isinstance(result, list)
         assert len(result) == 3
         assert all(isinstance(w, float) for w in result)
@@ -579,7 +559,7 @@ class TestBasePortfolioOptimizer:
     def test_calculate_optimal_weights_empty_assets(self, base_portfolio_optimizer):
         """Тест расчета оптимальных весов для пустого списка активов."""
         result = base_portfolio_optimizer.calculate_optimal_weights([], [], [])
-        
+
         assert isinstance(result, list)
         assert len(result) == 0
 
@@ -589,23 +569,23 @@ class TestBasePortfolioOptimizer:
             "timestamp": datetime.now(),
             "method": PortfolioOptimizationMethod.MARKOWITZ,
             "expected_return": 0.18,
-            "expected_risk": 0.22
+            "expected_risk": 0.22,
         }
         optimization2 = {
             "timestamp": datetime.now(),
             "method": PortfolioOptimizationMethod.BLACK_LITTERMAN,
             "expected_return": 0.20,
-            "expected_risk": 0.25
+            "expected_risk": 0.25,
         }
-        
+
         base_portfolio_optimizer._optimization_history = [optimization1, optimization2]
-        
+
         # Тест получения всей истории
         history = base_portfolio_optimizer.get_optimization_history()
         assert len(history) == 2
         assert history[0] == optimization1
         assert history[1] == optimization2
-        
+
         # Тест ограничения истории
         limited_history = base_portfolio_optimizer.get_optimization_history(limit=1)
         assert len(limited_history) == 1
@@ -615,4 +595,4 @@ class TestBasePortfolioOptimizer:
     async def test_optimize_portfolio_abstract(self, base_portfolio_optimizer):
         """Тест что optimize_portfolio является абстрактным методом."""
         with pytest.raises(TypeError):
-            await base_portfolio_optimizer.optimize_portfolio({}, {}, PortfolioOptimizationMethod.MARKOWITZ) 
+            await base_portfolio_optimizer.optimize_portfolio({}, {}, PortfolioOptimizationMethod.MARKOWITZ)

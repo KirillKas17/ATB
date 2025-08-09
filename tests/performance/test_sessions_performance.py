@@ -1,6 +1,7 @@
 """
 Тесты производительности для модуля sessions.
 """
+
 import pytest
 import time
 import cProfile
@@ -10,9 +11,17 @@ import pandas as pd
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
 from domain.type_definitions.session_types import (
-    SessionType, SessionPhase, SessionProfile, SessionBehavior, SessionTimeWindow,
-    MarketConditions, MarketRegime, SessionIntensity, SessionAnalysisResult,
-    SessionMetrics, ConfidenceScore
+    SessionType,
+    SessionPhase,
+    SessionProfile,
+    SessionBehavior,
+    SessionTimeWindow,
+    MarketConditions,
+    MarketRegime,
+    SessionIntensity,
+    SessionAnalysisResult,
+    SessionMetrics,
+    ConfidenceScore,
 )
 from domain.value_objects.timestamp import Timestamp
 from domain.sessions.session_profile import SessionProfileRegistry
@@ -25,8 +34,11 @@ from domain.sessions.session_predictor import SessionPredictor
 from domain.sessions.session_analyzer_factory import SessionAnalyzerFactory
 from domain.sessions.factories import get_session_service
 from domain.sessions.repositories import SessionDataRepository, SessionConfigurationRepository
+
+
 class TestSessionsPerformance:
     """Тесты производительности для модуля sessions."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
@@ -40,6 +52,7 @@ class TestSessionsPerformance:
         self.service = get_session_service()
         self.data_repo = SessionDataRepository()
         self.config_repo = SessionConfigurationRepository()
+
     @pytest.mark.performance
     def test_session_profile_registry_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionProfileRegistry."""
@@ -61,6 +74,7 @@ class TestSessionsPerformance:
         end_time = time.time()
         execution_time = end_time - start_time
         assert execution_time < 0.5, f"Execution time: {execution_time:.3f}s"
+
     @pytest.mark.performance
     def test_session_marker_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionMarker."""
@@ -81,6 +95,7 @@ class TestSessionsPerformance:
         end_time = time.time()
         execution_time = end_time - start_time
         assert execution_time < 2.0, f"Execution time: {execution_time:.3f}s"
+
     @pytest.mark.performance
     def test_session_influence_analyzer_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionInfluenceAnalyzer."""
@@ -91,9 +106,7 @@ class TestSessionsPerformance:
         profiler.enable()
         start_time = time.time()
         for _ in range(10):
-            result = self.influence_analyzer.analyze_session_influence(
-                "BTCUSDT", market_data, session_profile
-            )
+            result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
             assert isinstance(result, SessionAnalysisResult)
         end_time = time.time()
         profiler.disable()
@@ -102,10 +115,11 @@ class TestSessionsPerformance:
         assert execution_time < 5.0, f"Execution time: {execution_time:.3f}s"
         # Анализируем профиль
         stats = pstats.Stats(profiler)
-        stats.sort_stats('cumulative')
+        stats.sort_stats("cumulative")
         # Проверяем, что нет узких мест
         total_calls = sum(stat[1] for stat in stats.stats.values())
         assert total_calls < 10000, f"Too many function calls: {total_calls}"
+
     @pytest.mark.performance
     def test_session_analyzer_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionAnalyzer."""
@@ -128,6 +142,7 @@ class TestSessionsPerformance:
         end_time = time.time()
         execution_time = end_time - start_time
         assert execution_time < 3.0, f"Execution time: {execution_time:.3f}s"
+
     @pytest.mark.performance
     def test_session_manager_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionManager."""
@@ -149,6 +164,7 @@ class TestSessionsPerformance:
         end_time = time.time()
         analysis_time = end_time - start_time
         assert analysis_time < 5.0, f"Analysis time: {analysis_time:.3f}s"
+
     @pytest.mark.performance
     def test_session_optimizer_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionOptimizer."""
@@ -158,23 +174,18 @@ class TestSessionsPerformance:
         start_time = time.time()
         for _ in range(5):
             # Оптимизация параметров сессии
-            optimized_profile = self.optimizer.optimize_session_parameters(
-                session_profile, market_data
-            )
+            optimized_profile = self.optimizer.optimize_session_parameters(session_profile, market_data)
             assert isinstance(optimized_profile, SessionProfile)
             # Оптимизация торговой стратегии
-            strategy_params = self.optimizer.optimize_trading_strategy(
-                session_profile, market_conditions
-            )
+            strategy_params = self.optimizer.optimize_trading_strategy(session_profile, market_conditions)
             assert isinstance(strategy_params, dict)
             # Оптимизация управления рисками
-            risk_params = self.optimizer.optimize_risk_management(
-                session_profile, market_conditions
-            )
+            risk_params = self.optimizer.optimize_risk_management(session_profile, market_conditions)
             assert isinstance(risk_params, dict)
         end_time = time.time()
         execution_time = end_time - start_time
         assert execution_time < 3.0, f"Execution time: {execution_time:.3f}s"
+
     @pytest.mark.performance
     def test_session_predictor_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionPredictor."""
@@ -185,23 +196,18 @@ class TestSessionsPerformance:
         start_time = time.time()
         for _ in range(50):
             # Предсказание поведения сессии
-            behavior_prediction = self.predictor.predict_session_behavior(
-                session_profile, market_conditions
-            )
+            behavior_prediction = self.predictor.predict_session_behavior(session_profile, market_conditions)
             assert isinstance(behavior_prediction, dict)
             # Предсказание переходов сессий
-            transitions = self.predictor.predict_session_transitions(
-                current_session, market_conditions
-            )
+            transitions = self.predictor.predict_session_transitions(current_session, market_conditions)
             assert isinstance(transitions, list)
             # Предсказание изменений рыночного режима
-            regime_changes = self.predictor.predict_market_regime_changes(
-                current_regime, session_profile
-            )
+            regime_changes = self.predictor.predict_market_regime_changes(current_regime, session_profile)
             assert isinstance(regime_changes, list)
         end_time = time.time()
         execution_time = end_time - start_time
         assert execution_time < 2.0, f"Execution time: {execution_time:.3f}s"
+
     @pytest.mark.performance
     def test_session_service_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности SessionService."""
@@ -227,6 +233,7 @@ class TestSessionsPerformance:
         end_time = time.time()
         execution_time = end_time - start_time
         assert execution_time < 5.0, f"Execution time: {execution_time:.3f}s"
+
     @pytest.mark.performance
     def test_repositories_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности репозиториев."""
@@ -254,11 +261,13 @@ class TestSessionsPerformance:
         end_time = time.time()
         analysis_time = end_time - start_time
         assert analysis_time < 2.0, f"Analysis operations time: {analysis_time:.3f}s"
+
     @pytest.mark.performance
     def test_memory_usage_performance(self: "TestSessionsPerformance") -> None:
         """Тест использования памяти."""
         import psutil
         import os
+
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
         # Выполняем интенсивные операции
@@ -266,39 +275,36 @@ class TestSessionsPerformance:
         for _ in range(10):
             for session_type in SessionType:
                 session_profile = self.registry.get_profile(session_type)
-                result = self.influence_analyzer.analyze_session_influence(
-                    "BTCUSDT", market_data, session_profile
-                )
+                result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
                 self.data_repo.save_session_analysis(result)
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = final_memory - initial_memory
         # Проверяем, что увеличение памяти не превышает 100 MB
         assert memory_increase < 100, f"Memory increase: {memory_increase:.1f} MB"
+
     @pytest.mark.performance
     def test_concurrent_operations_performance(self: "TestSessionsPerformance") -> None:
         """Тест производительности при конкурентных операциях."""
         import threading
         import queue
+
         results_queue = queue.Queue()
         errors_queue = queue.Queue()
+
         def analyze_session(session_type: SessionType, market_data: pd.DataFrame) -> Any:
             try:
                 session_profile = self.registry.get_profile(session_type)
-                result = self.influence_analyzer.analyze_session_influence(
-                    "BTCUSDT", market_data, session_profile
-                )
+                result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
                 results_queue.put((session_type, result))
             except Exception as e:
                 errors_queue.put((session_type, e))
+
         # Создаем потоки для каждого типа сессии
         market_data = self._create_large_market_data(1000)
         threads = []
         start_time = time.time()
         for session_type in SessionType:
-            thread = threading.Thread(
-                target=analyze_session,
-                args=(session_type, market_data)
-            )
+            thread = threading.Thread(target=analyze_session, args=(session_type, market_data))
             threads.append(thread)
             thread.start()
         # Ждем завершения всех потоков
@@ -311,26 +317,30 @@ class TestSessionsPerformance:
         assert results_queue.qsize() == len(SessionType)
         # Проверяем производительность
         assert execution_time < 3.0, f"Concurrent execution time: {execution_time:.3f}s"
+
     def _create_large_market_data(self, size: int) -> pd.DataFrame:
         """Создает большие рыночные данные для тестирования производительности."""
         # Создаем тестовые данные
-        dates = pd.DatetimeIndex(pd.date_range('2023-01-01', periods=1000, freq='1H'))
+        dates = pd.DatetimeIndex(pd.date_range("2023-01-01", periods=1000, freq="1H"))
         # Создаем реалистичные данные с трендами
         base_price = 50000
         trend = np.linspace(0, 1000, size)  # Линейный тренд
         noise = np.random.normal(0, 50, size)  # Шум
         prices = base_price + trend + noise
         volumes = np.random.uniform(500, 2000, size)
-        return pd.DataFrame({
-            'timestamp': dates,
-            'open': prices,
-            'high': prices * np.random.uniform(1.0, 1.02, size),
-            'low': prices * np.random.uniform(0.98, 1.0, size),
-            'close': prices,
-            'volume': volumes,
-            'bid': prices * np.random.uniform(0.999, 1.0, size),
-            'ask': prices * np.random.uniform(1.0, 1.001, size)
-        })
+        return pd.DataFrame(
+            {
+                "timestamp": dates,
+                "open": prices,
+                "high": prices * np.random.uniform(1.0, 1.02, size),
+                "low": prices * np.random.uniform(0.98, 1.0, size),
+                "close": prices,
+                "volume": volumes,
+                "bid": prices * np.random.uniform(0.999, 1.0, size),
+                "ask": prices * np.random.uniform(1.0, 1.001, size),
+            }
+        )
+
     def _create_market_conditions(self) -> MarketConditions:
         """Создает рыночные условия для тестирования."""
         return MarketConditions(
@@ -341,8 +351,9 @@ class TestSessionsPerformance:
             momentum=0.6,
             trend_strength=0.4,
             market_regime=MarketRegime.RANGING,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
+
     def _create_test_analysis_result(self) -> SessionAnalysisResult:
         """Создает тестовый результат анализа."""
         return SessionAnalysisResult(
@@ -362,7 +373,7 @@ class TestSessionsPerformance:
                 peak_influence_time_minutes=30,
                 spread_impact=1.0,
                 liquidity_impact=1.0,
-                correlation_with_other_sessions=0.8
+                correlation_with_other_sessions=0.8,
             ),
             market_conditions=MarketConditions(
                 volatility=1.1,
@@ -372,8 +383,8 @@ class TestSessionsPerformance:
                 momentum=0.5,
                 trend_strength=0.3,
                 market_regime=MarketRegime.RANGING,
-                session_intensity=SessionIntensity.NORMAL
+                session_intensity=SessionIntensity.NORMAL,
             ),
             predictions={"volatility": 1.1, "volume": 1.2},
-            risk_factors=["manipulation", "gap"]
-        ) 
+            risk_factors=["manipulation", "gap"],
+        )

@@ -77,7 +77,7 @@ class MetricsResult:
 class MetricsCalculator:
     """Промышленный калькулятор метрик с полной реализацией."""
 
-    def __init__(self, config: Optional[MetricsConfig] = None):
+    def __init__(self, config: Optional[MetricsConfig] = None) -> None:
         """Инициализация калькулятора метрик."""
         self.config = config or MetricsConfig()
         self._setup_logger()

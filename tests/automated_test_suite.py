@@ -3,6 +3,7 @@
 Обеспечивает автоматическое выполнение тестов, мониторинг
 производительности и генерацию отчётов.
 """
+
 import time
 from typing import Dict, List, Optional, Any, Callable, Union, Type
 from datetime import datetime, timedelta
@@ -15,31 +16,43 @@ import json
 import pytest
 from loguru import logger
 from shared.performance_monitor import performance_monitor, monitor_performance
+
+
 class TestType(Enum):
     """Типы тестов."""
+
     UNIT = "unit"
     INTEGRATION = "integration"
     PERFORMANCE = "performance"
     LOAD = "load"
     STRESS = "stress"
     SECURITY = "security"
+
+
 class TestStatus(Enum):
     """Статусы тестов."""
+
     PENDING = "pending"
     RUNNING = "running"
     PASSED = "passed"
     FAILED = "failed"
     SKIPPED = "skipped"
     ERROR = "error"
+
+
 class TestPriority(Enum):
     """Приоритеты тестов."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+
+
 @dataclass
 class TestResult:
     """Результат теста."""
+
     test_name: str
     test_type: TestType
     status: TestStatus
@@ -51,9 +64,12 @@ class TestResult:
     performance_metrics: Dict[str, float] = field(default_factory=dict)
     memory_usage: Optional[float] = None
     cpu_usage: Optional[float] = None
+
+
 @dataclass
 class TestSuite:
     """Набор тестов."""
+
     name: str
     description: str
     tests: List[str]
@@ -63,12 +79,15 @@ class TestSuite:
     retries: int = 1
     parallel: bool = False
     dependencies: List[str] = field(default_factory=list)
+
+
 class AutomatedTestRunner:
     """
     Автоматизированный запуск тестов.
     Выполняет тесты, собирает метрики производительности
     и генерирует отчёты.
     """
+
     def __init__(self) -> None:
         self.test_suites: Dict[str, TestSuite] = {}
         self.test_results: List[TestResult] = []
@@ -81,6 +100,7 @@ class AutomatedTestRunner:
         self.performance_threshold = 1000.0  # мс
         # Инициализация мониторинга
         # performance_monitor.start_monitoring()  # Закомментировано для избежания ошибки корутины
+
     def register_test_suite(self, suite: TestSuite) -> None:
         """
         Зарегистрировать набор тестов.
@@ -89,6 +109,7 @@ class AutomatedTestRunner:
         """
         self.test_suites[suite.name] = suite
         logger.info(f"Registered test suite: {suite.name}")
+
     def register_test_executor(self, test_name: str, executor: Callable) -> None:
         """
         Зарегистрировать исполнитель теста.
@@ -98,8 +119,8 @@ class AutomatedTestRunner:
         """
         self.test_executors[test_name] = executor
         logger.info(f"Registered test executor: {test_name}")
-    def run_test_suite(self, suite_name: str, 
-                      include_performance: bool = True) -> List[TestResult]:
+
+    def run_test_suite(self, suite_name: str, include_performance: bool = True) -> List[TestResult]:
         """
         Запустить набор тестов.
         Args:
@@ -120,8 +141,8 @@ class AutomatedTestRunner:
         # Анализ результатов
         self._analyze_suite_results(suite_name, results)
         return results
-    def _run_tests_sequential(self, suite: TestSuite, 
-                            include_performance: bool) -> List[TestResult]:
+
+    def _run_tests_sequential(self, suite: TestSuite, include_performance: bool) -> List[TestResult]:
         """Последовательное выполнение тестов."""
         results = []
         for test_name in suite.tests:
@@ -140,7 +161,7 @@ class AutomatedTestRunner:
                                 duration=0.0,
                                 start_time=datetime.now(),
                                 end_time=datetime.now(),
-                                error_message=f"Skipped due to failed dependency: {test_name}"
+                                error_message=f"Skipped due to failed dependency: {test_name}",
                             )
                             results.append(skip_result)
             except Exception as e:
@@ -152,20 +173,18 @@ class AutomatedTestRunner:
                     start_time=datetime.now(),
                     end_time=datetime.now(),
                     error_message=str(e),
-                    stack_trace=self._get_stack_trace()
+                    stack_trace=self._get_stack_trace(),
                 )
                 results.append(error_result)
         return results
-    def _run_tests_parallel(self, suite: TestSuite, 
-                          include_performance: bool) -> List[TestResult]:
+
+    def _run_tests_parallel(self, suite: TestSuite, include_performance: bool) -> List[TestResult]:
         """Параллельное выполнение тестов."""
         results = []
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_to_test = {}
             for test_name in suite.tests:
-                future = executor.submit(
-                    self._run_single_test, test_name, suite, include_performance
-                )
+                future = executor.submit(self._run_single_test, test_name, suite, include_performance)
                 future_to_test[future] = test_name
             for future in as_completed(future_to_test, timeout=suite.timeout):
                 try:
@@ -181,12 +200,12 @@ class AutomatedTestRunner:
                         start_time=datetime.now(),
                         end_time=datetime.now(),
                         error_message=str(e),
-                        stack_trace=self._get_stack_trace()
+                        stack_trace=self._get_stack_trace(),
                     )
                     results.append(error_result)
         return results
-    def _run_single_test(self, test_name: str, suite: TestSuite,
-                        include_performance: bool) -> TestResult:
+
+    def _run_single_test(self, test_name: str, suite: TestSuite, include_performance: bool) -> TestResult:
         """Выполнить один тест."""
         start_time = datetime.now()
         # Создаём результат теста
@@ -196,7 +215,7 @@ class AutomatedTestRunner:
             status=TestStatus.RUNNING,
             duration=0.0,
             start_time=start_time,
-            end_time=start_time
+            end_time=start_time,
         )
         self.running_tests[test_name] = result
         try:
@@ -207,8 +226,9 @@ class AutomatedTestRunner:
                     # С мониторингом производительности
                     start_timing = time.time()
                     res = executor()
-                    if hasattr(res, '__await__'):
+                    if hasattr(res, "__await__"):
                         import asyncio
+
                         # Правильное использование корутины
                         if asyncio.iscoroutine(res):
                             # await res  # Закомментировано для избежания ошибки await
@@ -222,8 +242,9 @@ class AutomatedTestRunner:
                     performance_monitor.record_timing(f"test.{test_name}", duration, "test_runner")
                 else:
                     res = executor()
-                    if hasattr(res, '__await__'):
+                    if hasattr(res, "__await__"):
                         import asyncio
+
                         # Правильное использование корутины
                         if asyncio.iscoroutine(res):
                             # await res  # Закомментировано для избежания ошибки await
@@ -252,18 +273,19 @@ class AutomatedTestRunner:
             if test_name in self.running_tests:
                 del self.running_tests[test_name]
         return result
+
     def _collect_performance_metrics(self, test_name: str) -> Dict[str, float]:
         """Собрать метрики производительности для теста."""
         metrics = {}
         # Получаем метрики из монитора производительности
         summary = performance_monitor.get_metrics_summary(
-            component=f"test.{test_name}",
-            time_window=timedelta(minutes=5)
+            component=f"test.{test_name}", time_window=timedelta(minutes=5)
         )
         for metric_name, metric_data in summary.items():
             if metric_data:
                 metrics[metric_name] = metric_data.get("avg", 0.0)
         return metrics
+
     def _get_dependent_tests(self, test_name: str) -> List[str]:
         """Получить зависимые тесты."""
         dependent_tests = []
@@ -271,10 +293,13 @@ class AutomatedTestRunner:
             if test_name in suite.dependencies:
                 dependent_tests.extend(suite.tests)
         return dependent_tests
+
     def _get_stack_trace(self) -> str:
         """Получить стек вызовов."""
         import traceback
+
         return traceback.format_exc()
+
     def _analyze_suite_results(self, suite_name: str, results: List[TestResult]) -> None:
         """Анализ результатов набора тестов."""
         if not results:
@@ -299,8 +324,8 @@ class AutomatedTestRunner:
                 logger.warning(f"    {test.test_name}: {test.duration:.2f}s")
         # Сохраняем результаты
         self.test_results.extend(results)
-    def run_performance_test(self, test_name: str, iterations: int = 100,
-                           concurrent_users: int = 1) -> Dict[str, Any]:
+
+    def run_performance_test(self, test_name: str, iterations: int = 100, concurrent_users: int = 1) -> Dict[str, Any]:
         """
         Запустить нагрузочный тест.
         Args:
@@ -371,10 +396,11 @@ class AutomatedTestRunner:
             "min_response_time": min_response_time,
             "max_response_time": max_response_time,
             "start_time": start_time,
-            "end_time": end_time
+            "end_time": end_time,
         }
         logger.info(f"Performance test completed: {success_rate:.2%} success rate, {throughput:.2f} ops/sec")
         return performance_report
+
     def generate_test_report(self, output_file: Optional[str] = None) -> Dict[str, Any]:
         """
         Генерация отчёта по тестам.
@@ -401,42 +427,41 @@ class AutomatedTestRunner:
             "median_duration": statistics.median(durations) if durations else 0.0,
             "min_duration": min(durations) if durations else 0.0,
             "max_duration": max(durations) if durations else 0.0,
-            "slow_tests": len([r for r in self.test_results if r.duration > self.performance_threshold / 1000])
+            "slow_tests": len([r for r in self.test_results if r.duration > self.performance_threshold / 1000]),
         }
         # Детальные результаты
         detailed_results = []
         for result in self.test_results:
-            detailed_results.append({
-                "test_name": result.test_name,
-                "test_type": result.test_type.value,
-                "status": result.status.value,
-                "duration": result.duration,
-                "start_time": result.start_time.isoformat(),
-                "end_time": result.end_time.isoformat(),
-                "error_message": result.error_message,
-                "performance_metrics": result.performance_metrics
-            })
+            detailed_results.append(
+                {
+                    "test_name": result.test_name,
+                    "test_type": result.test_type.value,
+                    "status": result.status.value,
+                    "duration": result.duration,
+                    "start_time": result.start_time.isoformat(),
+                    "end_time": result.end_time.isoformat(),
+                    "error_message": result.error_message,
+                    "performance_metrics": result.performance_metrics,
+                }
+            )
         report = {
             "generated_at": datetime.now().isoformat(),
-            "summary": {
-                "status_counts": status_counts,
-                "type_counts": type_counts,
-                "performance": performance_stats
-            },
-            "detailed_results": detailed_results
+            "summary": {"status_counts": status_counts, "type_counts": type_counts, "performance": performance_stats},
+            "detailed_results": detailed_results,
         }
         # Сохраняем отчёт
         if output_file:
-            with open(output_file, 'w', encoding='utf-8') as f:
+            with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(report, f, indent=2, ensure_ascii=False)
             logger.info(f"Test report saved to: {output_file}")
         return report
+
     def cleanup(self) -> None:
         """Очистка ресурсов."""
         try:
             # Проверяем, является ли stop_monitoring корутиной
             result = performance_monitor.stop_monitoring()
-            if hasattr(result, '__await__'):
+            if hasattr(result, "__await__"):
                 # Если это корутина, игнорируем её
                 pass
         except Exception:
@@ -444,10 +469,15 @@ class AutomatedTestRunner:
             pass
         self.test_results.clear()
         self.running_tests.clear()
+
+
 # Глобальный экземпляр тестового раннера
 test_runner = AutomatedTestRunner()
-def register_test(test_name: str, test_type: TestType = TestType.UNIT,
-                 priority: TestPriority = TestPriority.MEDIUM) -> Any:
+
+
+def register_test(
+    test_name: str, test_type: TestType = TestType.UNIT, priority: TestPriority = TestPriority.MEDIUM
+) -> Any:
     """
     Декоратор для регистрации тестов.
     Args:
@@ -455,6 +485,7 @@ def register_test(test_name: str, test_type: TestType = TestType.UNIT,
         test_type: Тип теста
         priority: Приоритет теста
     """
+
     def decorator(func) -> Any:
         def wrapper(*args, **kwargs) -> Any:
             start_time = time.time()
@@ -462,21 +493,19 @@ def register_test(test_name: str, test_type: TestType = TestType.UNIT,
                 result = func(*args, **kwargs)
                 duration = time.time() - start_time
                 # Записываем метрику производительности
-                performance_monitor.record_timing(
-                    f"test.{test_name}", duration, "test_runner"
-                )
+                performance_monitor.record_timing(f"test.{test_name}", duration, "test_runner")
                 return result
             except Exception as e:
                 duration = time.time() - start_time
-                performance_monitor.record_timing(
-                    f"test.{test_name}_error", duration, "test_runner"
-                )
-                performance_monitor.record_counter(
-                    f"test.{test_name}_errors", 1, "test_runner"
-                )
+                performance_monitor.record_timing(f"test.{test_name}_error", duration, "test_runner")
+                performance_monitor.record_counter(f"test.{test_name}_errors", 1, "test_runner")
                 raise
+
         return wrapper
+
     return decorator
+
+
 # Примеры тестовых наборов
 def create_default_test_suites() -> Any:
     """Создание стандартных наборов тестов."""
@@ -487,7 +516,7 @@ def create_default_test_suites() -> Any:
         tests=["test_domain_entities", "test_services", "test_repositories"],
         test_type=TestType.UNIT,
         priority=TestPriority.HIGH,
-        timeout=60
+        timeout=60,
     )
     # Интеграционные тесты
     integration_suite = TestSuite(
@@ -497,7 +526,7 @@ def create_default_test_suites() -> Any:
         test_type=TestType.INTEGRATION,
         priority=TestPriority.HIGH,
         timeout=300,
-        dependencies=["unit_tests"]
+        dependencies=["unit_tests"],
     )
     # Нагрузочные тесты
     performance_suite = TestSuite(
@@ -507,13 +536,15 @@ def create_default_test_suites() -> Any:
         test_type=TestType.PERFORMANCE,
         priority=TestPriority.MEDIUM,
         timeout=600,
-        parallel=True
+        parallel=True,
     )
     # Регистрируем наборы
     test_runner.register_test_suite(unit_suite)
     test_runner.register_test_suite(integration_suite)
     test_runner.register_test_suite(performance_suite)
     return [unit_suite, integration_suite, performance_suite]
+
+
 # Автоматический запуск тестов при импорте
 if __name__ == "__main__":
     create_default_test_suites()
@@ -526,4 +557,4 @@ if __name__ == "__main__":
             logger.error(f"Error running suite {suite_name}: {e}")
     # Генерируем отчёт
     report = test_runner.generate_test_report("test_report.json")
-    logger.info("Test execution completed") 
+    logger.info("Test execution completed")

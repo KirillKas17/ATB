@@ -6,7 +6,7 @@ from infrastructure.core.signal_processor import (MarketContext, ProcessedSignal
                                    SignalProcessor)
 
 
-    @pytest.fixture
+@pytest.fixture
 def market_context() -> Any:
     """Фикстура для MarketContext"""
     return MarketContext(
@@ -27,7 +27,7 @@ def market_context() -> Any:
     )
 
 
-    @pytest.fixture
+@pytest.fixture
 def signal_processor() -> Any:
     """Фикстура для SignalProcessor"""
     config = {
@@ -46,8 +46,7 @@ def signal_processor() -> Any:
     }
     return SignalProcessor(config)
 
-
-    @pytest.fixture
+@pytest.fixture
 def buy_signal() -> Any:
     """Фикстура для сигнала на покупку"""
     return Signal(
@@ -68,7 +67,7 @@ def buy_signal() -> Any:
     )
 
 
-    @pytest.fixture
+@pytest.fixture
 def sell_signal() -> Any:
     """Фикстура для сигнала на продажу"""
     return Signal(

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Set, Any
 
 import aiohttp
-from core.correlation_chain import CorrelationChain
+# from core.correlation_chain import CorrelationChain  # Временно отключен
 from fastapi import BackgroundTasks, FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -15,12 +15,12 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
 from loguru import logger
-from ml.meta_learning import MetaLearning
+# from ml.meta_learning import MetaLearning  # Временно отключен
 from pydantic import BaseModel, field_validator
 from redis import asyncio as aioredis
 
-from .status import broadcast_status  # и другие необходимые функции
-from .status import get_all_pairs_status
+# from .status import broadcast_status  # Временно отключен
+# from .status import get_all_pairs_status  # Временно отключен
 
 # Импорт системы аналитики
 try:
@@ -162,8 +162,8 @@ mock_data: Dict[str, Any] = {
 }
 
 # Инициализация компонентов
-meta_learning = MetaLearning()
-correlation_chain = CorrelationChain()
+# meta_learning = MetaLearning()  # Временно отключен
+# correlation_chain = CorrelationChain()  # Временно отключен
 
 
 @asynccontextmanager

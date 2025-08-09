@@ -11,7 +11,7 @@ from .checker import HealthChecker, HealthStatus
 class HealthCheckEndpoint:
     """Health check endpoint for web frameworks."""
 
-    def __init__(self, health_checker: Optional[HealthChecker] = None):
+    def __init__(self, health_checker: Optional[HealthChecker] = None) -> None:
         """
         Initialize health check endpoint.
 

@@ -103,6 +103,19 @@ class MarketDataConfig(TypedDict, total=False):
     include_trades: bool
 
 
+class OHLCVData(TypedDict):
+    """Данные OHLCV (Open, High, Low, Close, Volume)."""
+    
+    timestamp: datetime
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+    symbol: str
+    timeframe: str
+
+
 class OrderRequest(TypedDict, total=False):
     """Запрос на создание ордера."""
 
@@ -660,6 +673,7 @@ __all__ = [
     # TypedDict
     "StrategyConfig",
     "MarketDataConfig",
+    "OHLCVData",
     "OrderRequest",
     "PositionUpdate",
     "SignalMetadata",

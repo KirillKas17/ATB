@@ -14,7 +14,7 @@ from .base_connector import BaseExchangeConnector
 class KrakenConnector(BaseExchangeConnector):
     """Коннектор для Kraken с промышленной реализацией."""
 
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None) -> None:
         super().__init__("kraken", api_key, api_secret)
         self.base_url = "wss://ws.kraken.com"
         self._current_symbol: Optional[str] = None

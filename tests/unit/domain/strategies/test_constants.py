@@ -8,4 +8,5 @@ from domain.strategies.constants import (
     DEFAULT_TREND_FOLLOWING_CONFIG,
     DEFAULT_MEAN_REVERSION_CONFIG,
 )
-# Удаляю все проверки и импорты несуществующих констант. 
+
+# Удаляю все проверки и импорты несуществующих констант.

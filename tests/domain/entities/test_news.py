@@ -368,7 +368,9 @@ class TestNewsCollection:
         end_time = start_time + timedelta(hours=24)
         return (start_time, end_time)
 
-    def test_news_collection_creation(self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]) -> None:
+    def test_news_collection_creation(
+        self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]
+    ) -> None:
         """Тест создания коллекции новостей."""
         collection = NewsCollection(
             items=sample_news_items,
@@ -381,7 +383,9 @@ class TestNewsCollection:
         assert collection.filtered_count == 3
         assert collection.time_range == valid_time_range
 
-    def test_news_collection_validation_negative_total_count(self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]) -> None:
+    def test_news_collection_validation_negative_total_count(
+        self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]
+    ) -> None:
         """Тест валидации отрицательного total_count."""
         with pytest.raises(ValueError, match="Total count cannot be negative"):
             NewsCollection(
@@ -391,7 +395,9 @@ class TestNewsCollection:
                 time_range=valid_time_range,
             )
 
-    def test_news_collection_validation_negative_filtered_count(self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]) -> None:
+    def test_news_collection_validation_negative_filtered_count(
+        self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]
+    ) -> None:
         """Тест валидации отрицательного filtered_count."""
         with pytest.raises(ValueError, match="Filtered count cannot be negative"):
             NewsCollection(
@@ -401,7 +407,9 @@ class TestNewsCollection:
                 time_range=valid_time_range,
             )
 
-    def test_news_collection_validation_filtered_exceeds_total(self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]) -> None:
+    def test_news_collection_validation_filtered_exceeds_total(
+        self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]
+    ) -> None:
         """Тест валидации превышения filtered_count над total_count."""
         with pytest.raises(ValueError, match="Filtered count cannot exceed total count"):
             NewsCollection(
@@ -435,7 +443,9 @@ class TestNewsCollection:
                 time_range=invalid_time_range,
             )
 
-    def test_news_collection_boundary_values(self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]) -> None:
+    def test_news_collection_boundary_values(
+        self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]
+    ) -> None:
         """Тест граничных значений."""
         collection = NewsCollection(
             items=sample_news_items,
@@ -446,7 +456,9 @@ class TestNewsCollection:
         assert collection.total_count == 0
         assert collection.filtered_count == 0
 
-    def test_news_collection_equal_counts(self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]) -> None:
+    def test_news_collection_equal_counts(
+        self, sample_news_items: list[NewsItem], valid_time_range: tuple[datetime, datetime]
+    ) -> None:
         """Тест равных значений total_count и filtered_count."""
         collection = NewsCollection(
             items=sample_news_items,
@@ -455,4 +467,4 @@ class TestNewsCollection:
             time_range=valid_time_range,
         )
         assert collection.total_count == 3
-        assert collection.filtered_count == 3 
+        assert collection.filtered_count == 3

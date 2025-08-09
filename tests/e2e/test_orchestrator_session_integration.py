@@ -7,7 +7,7 @@ from domain.type_definitions.session_types import SessionType, MarketRegime, Ses
 import pandas as pd
 
 
-class TestOrchestratorSessionIntegration:
+class OrchestratorSessionIntegrationHelper:
     def __init__(self) -> None:
         """Инициализация тестового класса."""
         self.test_data: dict[str, Any] = {}
@@ -17,7 +17,6 @@ class TestOrchestratorSessionIntegration:
         """Настройка тестового метода."""
         # Убираем переопределение переменных
         pass
-
 
     @pytest.mark.e2e
     @pytest.mark.asyncio
@@ -31,23 +30,23 @@ class TestOrchestratorSessionIntegration:
         # Получаем контекст сессии через orchestrator
         context = orchestrator.session_service.get_current_session_context()
         assert isinstance(context, dict)
-        assert 'active_sessions' in context
-        assert 'primary_session' in context
+        assert "active_sessions" in context
+        assert "primary_session" in context
         # Анализ влияния сессии (передаем пустой DataFrame)
         empty_df = pd.DataFrame()
-        result = orchestrator.session_service.analyze_session_influence('BTCUSDT', empty_df)
-        assert result is None or hasattr(result, 'influence_score') or isinstance(result, dict)
+        result = orchestrator.session_service.analyze_session_influence("BTCUSDT", empty_df)
+        assert result is None or hasattr(result, "influence_score") or isinstance(result, dict)
         # Прогноз поведения сессии
         market_conditions = {
-            'volatility': 1.0,
-            'volume': 1000.0,
-            'spread': 10.0,
-            'liquidity': 100000.0,
-            'momentum': 0.5,
-            'trend_strength': 0.7,
-            'market_regime': MarketRegime.TRENDING_BULL,
-            'session_intensity': SessionIntensity.NORMAL
+            "volatility": 1.0,
+            "volume": 1000.0,
+            "spread": 10.0,
+            "liquidity": 100000.0,
+            "momentum": 0.5,
+            "trend_strength": 0.7,
+            "market_regime": MarketRegime.TRENDING_BULL,
+            "session_intensity": SessionIntensity.NORMAL,
         }
         prediction = orchestrator.session_service.predict_session_behavior(SessionType.ASIAN, market_conditions)
         assert isinstance(prediction, dict)
-        assert 'predicted_volatility' in prediction 
+        assert "predicted_volatility" in prediction

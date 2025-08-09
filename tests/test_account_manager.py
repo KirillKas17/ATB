@@ -1,18 +1,19 @@
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
-from exchange.account_manager import AccountManager, AccountMetrics
-from exchange.bybit_client import BybitClient, BybitConfig
-from exchange.order_manager import OrderConfig, OrderManager
+from infrastructure.external_services.account_manager import AccountManager, AccountMetrics
+from infrastructure.external_services.bybit_client import BybitClient, BybitConfig
+from domain.type_definitions.external_service_types import OrderConfig
+from infrastructure.external_services.order_manager import OrderManager
 
 
-    @pytest.fixture
+@pytest.fixture
 def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return BybitConfig(api_key="test_key", api_secret="test_secret", testnet=True)
 
 
-    @pytest.fixture
+@pytest.fixture
 def order_config() -> Any:
     """Фикстура с конфигурацией ордеров"""
     return OrderConfig(
@@ -27,7 +28,7 @@ def order_config() -> Any:
     )
 
 
-    @pytest.fixture
+@pytest.fixture
 def risk_config() -> Any:
     """Фикстура с конфигурацией рисков"""
     return {
@@ -38,7 +39,7 @@ def risk_config() -> Any:
     }
 
 
-    @pytest.fixture
+@pytest.fixture
 async def bybit_client(bybit_config) -> Any:
     """Фикстура с клиентом Bybit"""
     client = BybitClient(bybit_config)
@@ -49,7 +50,7 @@ async def bybit_client(bybit_config) -> Any:
         await client.close()
 
 
-    @pytest.fixture
+@pytest.fixture
 async def order_manager(bybit_client, order_config) -> Any:
     """Фикстура с менеджером ордеров"""
     manager = OrderManager(bybit_client, order_config)
@@ -60,7 +61,7 @@ async def order_manager(bybit_client, order_config) -> Any:
         await manager.stop()
 
 
-    @pytest.fixture
+@pytest.fixture
 async def account_manager(bybit_client, order_manager, risk_config) -> Any:
     """Фикстура с менеджером аккаунта"""
     manager = AccountManager(bybit_client, order_manager, risk_config)
@@ -71,10 +72,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         await manager.stop()
 
 
-    @pytest.mark.asyncio
-    async def test_initialization(
-    account_manager, bybit_client, order_manager, risk_config
-) -> None:
+@pytest.mark.asyncio
+async def test_initialization(account_manager, bybit_client, order_manager, risk_config) -> None:
     """Тест инициализации"""
     assert account_manager.client == bybit_client
     assert account_manager.order_manager == order_manager
@@ -85,8 +84,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
     assert account_manager.monitor_task is not None
 
 
-    @pytest.mark.asyncio
-    async def test_get_metrics(account_manager) -> None:
+@pytest.mark.asyncio
+async def test_get_metrics(account_manager) -> None:
     """Тест получения метрик"""
     try:
         metrics = await account_manager.get_metrics()
@@ -108,8 +107,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         pytest.skip(f"Get metrics test skipped: {str(e)}")
 
 
-    @pytest.mark.asyncio
-    async def test_get_available_margin(account_manager) -> None:
+@pytest.mark.asyncio
+async def test_get_available_margin(account_manager) -> None:
     """Тест расчета доступной маржи"""
     try:
         margin = await account_manager.get_available_margin("BTCUSDT")
@@ -122,10 +121,7 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         if metrics.leverage_usage >= account_manager.risk_config["max_leverage_usage"]:
             assert margin == 0
 
-        if (
-            metrics.free_margin / metrics.equity
-            < account_manager.risk_config["min_free_margin"]
-        ):
+        if metrics.free_margin / metrics.equity < account_manager.risk_config["min_free_margin"]:
             assert margin == 0
 
         if metrics.total_positions >= account_manager.risk_config["max_positions"]:
@@ -135,14 +131,12 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         pytest.skip(f"Get available margin test skipped: {str(e)}")
 
 
-    @pytest.mark.asyncio
-    async def test_can_open_position(account_manager) -> None:
+@pytest.mark.asyncio
+async def test_can_open_position(account_manager) -> None:
     """Тест проверки возможности открытия позиции"""
     try:
         # Тест с допустимыми параметрами
-        can_open = await account_manager.can_open_position(
-            symbol="BTCUSDT", amount=0.001, leverage=2.0
-        )
+        can_open = await account_manager.can_open_position(symbol="BTCUSDT", amount=0.001, leverage=2.0)
 
         assert isinstance(can_open, bool)
 
@@ -159,8 +153,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         pytest.skip(f"Can open position test skipped: {str(e)}")
 
 
-    @pytest.mark.asyncio
-    async def test_unrealized_pnl_calculation(account_manager) -> None:
+@pytest.mark.asyncio
+async def test_unrealized_pnl_calculation(account_manager) -> None:
     """Тест расчета нереализованной прибыли"""
     try:
         # Создание тестовой позиции
@@ -183,8 +177,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         pytest.skip(f"Unrealized PnL calculation test skipped: {str(e)}")
 
 
-    @pytest.mark.asyncio
-    async def test_risk_limits_check(account_manager) -> None:
+@pytest.mark.asyncio
+async def test_risk_limits_check(account_manager) -> None:
     """Тест проверки ограничений риска"""
     try:
         # Проверка ограничений
@@ -198,8 +192,8 @@ async def account_manager(bybit_client, order_manager, risk_config) -> Any:
         pytest.skip(f"Risk limits check test skipped: {str(e)}")
 
 
-    @pytest.mark.asyncio
-    async def test_error_handling(account_manager) -> None:
+@pytest.mark.asyncio
+async def test_error_handling(account_manager) -> None:
     """Тест обработки ошибок"""
     # Тест с неверным символом
     with pytest.raises(Exception):

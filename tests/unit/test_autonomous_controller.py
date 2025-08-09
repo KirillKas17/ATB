@@ -60,19 +60,19 @@ class TestAutonomousController:
     def test_auto_config_structure(self, autonomous_controller: AutonomousController) -> None:
         """Тест структуры автономной конфигурации."""
         auto_config = autonomous_controller.auto_config
-        
+
         # Проверка наличия всех секций
         assert "risk_management" in auto_config
         assert "strategy_selection" in auto_config
         assert "market_regime" in auto_config
-        
+
         # Проверка параметров риск-менеджмента
         risk_config = auto_config["risk_management"]
         assert "max_daily_loss" in risk_config
         assert "max_weekly_loss" in risk_config
         assert "position_sizing" in risk_config
         assert "correlation_threshold" in risk_config
-        
+
         # Проверка валидности значений
         assert 0.0 <= risk_config["max_daily_loss"] <= 1.0
         assert 0.0 <= risk_config["max_weekly_loss"] <= 1.0
@@ -82,14 +82,14 @@ class TestAutonomousController:
     def test_system_state_initialization(self, autonomous_controller: AutonomousController) -> None:
         """Тест инициализации состояния системы."""
         system_state = autonomous_controller.system_state
-        
+
         # Проверка наличия всех ключей
         assert "is_healthy" in system_state
         assert "current_regime" in system_state
         assert "active_strategies" in system_state
         assert "performance_metrics" in system_state
         assert "risk_metrics" in system_state
-        
+
         # Проверка начальных значений
         assert system_state["is_healthy"] is True
         assert system_state["current_regime"] == "unknown"
@@ -102,20 +102,10 @@ class TestAutonomousController:
         """Тест автономного принятия решений."""
         # Мок рыночных данных
         market_data = {
-            "BTCUSDT": {
-                "price": 50000.0,
-                "volume": 1000000.0,
-                "volatility": 0.025,
-                "trend": "upward"
-            },
-            "ETHUSDT": {
-                "price": 3000.0,
-                "volume": 500000.0,
-                "volatility": 0.03,
-                "trend": "sideways"
-            }
+            "BTCUSDT": {"price": 50000.0, "volume": 1000000.0, "volatility": 0.025, "trend": "upward"},
+            "ETHUSDT": {"price": 3000.0, "volume": 500000.0, "volatility": 0.03, "trend": "sideways"},
         }
-        
+
         # Проверка, что контроллер может обрабатывать данные
         assert autonomous_controller is not None
         assert autonomous_controller.system_state is not None
@@ -128,11 +118,9 @@ class TestAutonomousController:
             "total_value": 100000.0,
             "daily_pnl": -500.0,
             "weekly_pnl": -2000.0,
-            "positions": [
-                {"symbol": "BTCUSDT", "size": 0.1, "unrealized_pnl": -100.0}
-            ]
+            "positions": [{"symbol": "BTCUSDT", "size": 0.1, "unrealized_pnl": -100.0}],
         }
-        
+
         # Проверка, что контроллер может обрабатывать данные портфеля
         assert autonomous_controller is not None
         assert autonomous_controller.risk_manager is not None
@@ -142,26 +130,11 @@ class TestAutonomousController:
         """Тест выбора стратегии."""
         # Мок доступных стратегий
         available_strategies = [
-            {
-                "name": "trend_following",
-                "confidence": 0.75,
-                "performance": 0.12,
-                "risk_score": 0.3
-            },
-            {
-                "name": "mean_reversion",
-                "confidence": 0.65,
-                "performance": 0.08,
-                "risk_score": 0.4
-            },
-            {
-                "name": "momentum",
-                "confidence": 0.55,
-                "performance": 0.15,
-                "risk_score": 0.5
-            }
+            {"name": "trend_following", "confidence": 0.75, "performance": 0.12, "risk_score": 0.3},
+            {"name": "mean_reversion", "confidence": 0.65, "performance": 0.08, "risk_score": 0.4},
+            {"name": "momentum", "confidence": 0.55, "performance": 0.15, "risk_score": 0.5},
         ]
-        
+
         # Проверка, что контроллер может обрабатывать стратегии
         assert autonomous_controller is not None
         assert autonomous_controller.system_state is not None
@@ -177,9 +150,9 @@ class TestAutonomousController:
             "price_change_24h": 0.05,
             "correlation_matrix": [[1.0, 0.8], [0.8, 1.0]],
             "liquidity": 0.8,
-            "momentum": 0.6
+            "momentum": 0.6,
         }
-        
+
         # Проверка, что контроллер может обрабатывать рыночные данные
         assert autonomous_controller is not None
         assert autonomous_controller.regime_discovery is not None
@@ -194,9 +167,9 @@ class TestAutonomousController:
             "profit_factor": 1.8,
             "sharpe_ratio": 1.2,
             "max_drawdown": 0.08,
-            "avg_trade_duration": 3600
+            "avg_trade_duration": 3600,
         }
-        
+
         # Проверка, что контроллер может обрабатывать метрики
         assert autonomous_controller is not None
         assert autonomous_controller.metrics is not None
@@ -206,7 +179,7 @@ class TestAutonomousController:
         """Тест обработки ошибок."""
         # Тест с некорректными данными
         invalid_data = None
-        
+
         # Обработка должна быть устойчивой к ошибкам
         try:
             await autonomous_controller._handle_error(Exception("Test error"))
@@ -219,7 +192,7 @@ class TestAutonomousController:
         """Тест мониторинга здоровья системы."""
         # Проверка здоровья системы
         await autonomous_controller._check_system_health()
-        
+
         # Проверяем, что метод выполнился без ошибок
         assert True
 
@@ -231,14 +204,9 @@ class TestAutonomousController:
             name="market.update",
             type=EventType.MARKET_DATA_UPDATED,
             data={"symbol": "BTCUSDT", "price": 50000.0},
-            metadata=EventMetadata(
-                source="test",
-                correlation_id=None,
-                user_id=None,
-                session_id=None
-            )
+            metadata=EventMetadata(source="test", correlation_id=None, user_id=None, session_id=None),
         )
-        
+
         # Проверка, что контроллер может обрабатывать события
         assert autonomous_controller is not None
         assert autonomous_controller.event_bus is not None
@@ -247,7 +215,7 @@ class TestAutonomousController:
         """Тест получения статуса системы."""
         # Получение статуса
         status = autonomous_controller.get_system_status()
-        
+
         # Проверка структуры статуса
         assert status is not None
         assert isinstance(status, dict)
@@ -293,4 +261,4 @@ class TestAutonomousController:
         # Проверка, что контроллер может очищать ресурсы
         assert autonomous_controller is not None
         # Метод cleanup может не существовать, но контроллер должен быть валидным
-        assert hasattr(autonomous_controller, 'system_state') 
+        assert hasattr(autonomous_controller, "system_state")

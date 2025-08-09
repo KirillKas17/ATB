@@ -41,7 +41,7 @@ class TestTradingRepositoryExtended:
             order_type=OrderType.MARKET,
             quantity=Volume(Decimal("0.1")),
             price=Price(Decimal("50000")),
-            status=OrderStatus.FILLED
+            status=OrderStatus.FILLED,
         )
 
     @pytest.fixture
@@ -54,7 +54,7 @@ class TestTradingRepositoryExtended:
             side=OrderSide.BUY,
             quantity=Volume(Decimal("0.1")),
             price=Price(Decimal("50000")),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
 
     @pytest.fixture
@@ -63,19 +63,16 @@ class TestTradingRepositoryExtended:
         balances = [
             Balance("USDT", Decimal("10000"), Decimal("10000")),
             Balance("BTC", Decimal("1.5"), Decimal("1.5")),
-            Balance("ETH", Decimal("10"), Decimal("10"))
+            Balance("ETH", Decimal("10"), Decimal("10")),
         ]
-        return Account(
-            account_id="test_account_001",
-            balances=balances
-        )
+        return Account(account_id="test_account_001", balances=balances)
 
     async def test_save_and_get_trade(self, repository, sample_trade) -> None:
         """Тест сохранения и получения сделки."""
         # Сохраняем сделку
         saved_trade = await repository.save_trade(sample_trade)
         assert saved_trade.id == sample_trade.id
-        
+
         # Получаем сделку по ID
         retrieved_trade = repository._trades.get(str(sample_trade.id))
         assert retrieved_trade is not None
@@ -86,7 +83,7 @@ class TestTradingRepositoryExtended:
         # Сохраняем ордер и сделку
         await repository.save_order(sample_order)
         await repository.save_trade(sample_trade)
-        
+
         # Получаем сделки по ордеру
         trades = await repository.get_trades_by_order(sample_order.id)
         assert len(trades) == 1
@@ -96,7 +93,7 @@ class TestTradingRepositoryExtended:
         """Тест получения сделок по символу."""
         # Сохраняем сделку
         await repository.save_trade(sample_trade)
-        
+
         # Получаем сделки по символу
         trades = await repository.get_trades_by_symbol(Symbol("BTCUSDT"))
         assert len(trades) == 1
@@ -106,12 +103,12 @@ class TestTradingRepositoryExtended:
         """Тест получения сделок с фильтрами."""
         # Сохраняем сделку
         await repository.save_trade(sample_trade)
-        
+
         # Получаем сделки с фильтром по символу
         trades = await repository.get_trade(symbol=Symbol("BTCUSDT"), limit=10)
         assert len(trades) == 1
         assert trades[0].symbol == Symbol("BTCUSDT")
-        
+
         # Получаем все сделки с лимитом
         all_trades = await repository.get_trade(limit=5)
         assert len(all_trades) == 1
@@ -121,7 +118,7 @@ class TestTradingRepositoryExtended:
         # Сохраняем аккаунт
         saved_account = await repository.save_account(sample_account)
         assert saved_account.account_id == sample_account.account_id
-        
+
         # Получаем аккаунт по ID
         retrieved_account = await repository.get_account(sample_account.account_id)
         assert retrieved_account is not None
@@ -131,7 +128,7 @@ class TestTradingRepositoryExtended:
         """Тест получения баланса аккаунта."""
         # Сохраняем аккаунт
         await repository.save_account(sample_account)
-        
+
         # Получаем баланс
         balance = await repository.get_balance(sample_account.account_id)
         assert "USDT" in balance
@@ -143,14 +140,12 @@ class TestTradingRepositoryExtended:
         """Тест обновления баланса аккаунта."""
         # Сохраняем аккаунт
         await repository.save_account(sample_account)
-        
+
         # Обновляем баланс
         new_balance = Money(Decimal("15000"), Currency.USDT)
-        success = await repository.update_account_balance(
-            sample_account.account_id, "USDT", new_balance
-        )
+        success = await repository.update_account_balance(sample_account.account_id, "USDT", new_balance)
         assert success is True
-        
+
         # Проверяем обновленный баланс
         balance = await repository.get_balance(sample_account.account_id)
         assert balance["USDT"].value == Decimal("15000")
@@ -169,12 +164,12 @@ class TestTradingRepositoryExtended:
         """Тест получения торговых метрик с учетом сделок."""
         # Сохраняем сделку
         await repository.save_trade(sample_trade)
-        
+
         # Получаем метрики
         metrics_result = await repository.get_trading_metrics()
         assert metrics_result.success is True
         metrics = metrics_result.data
-        
+
         assert metrics["total_trades"] == 1
         assert metrics["total_trade_volume"] > 0
         assert "trade_currencies" in metrics
@@ -184,15 +179,15 @@ class TestTradingRepositoryExtended:
         # Сохраняем данные
         await repository.save_trade(sample_trade)
         await repository.save_account(sample_account)
-        
+
         # Проверяем, что данные сохранены
         assert len(repository._trades) == 1
         assert len(repository._accounts) == 1
-        
+
         # Очищаем все данные
         result = await repository.clear_all_data()
         assert result.success is True
-        
+
         # Проверяем, что все данные очищены
         assert len(repository._trades) == 0
         assert len(repository._accounts) == 0
@@ -210,17 +205,17 @@ class TestTradingRepositoryExtended:
             side=OrderSide.SELL,
             quantity=Volume(Decimal("0.05")),
             price=Price(Decimal("51000")),
-            timestamp=Timestamp(datetime.now() + timedelta(hours=1))
+            timestamp=Timestamp(datetime.now() + timedelta(hours=1)),
         )
-        
+
         # Сохраняем обе сделки
         await repository.save_trade(sample_trade)
         await repository.save_trade(second_trade)
-        
+
         # Получаем сделки по символу
         trades = await repository.get_trades_by_symbol(Symbol("BTCUSDT"))
         assert len(trades) == 2
-        
+
         # Проверяем сортировку по времени (новые сначала)
         assert trades[0].timestamp.value > trades[1].timestamp.value
 
@@ -228,17 +223,15 @@ class TestTradingRepositoryExtended:
         """Тест инвалидации кэша баланса."""
         # Сохраняем аккаунт
         await repository.save_account(sample_account)
-        
+
         # Получаем баланс (должен закэшироваться)
         balance1 = await repository.get_balance(sample_account.account_id)
         assert "USDT" in balance1
-        
+
         # Обновляем баланс
         new_balance = Money(Decimal("20000"), Currency.USDT)
-        await repository.update_account_balance(
-            sample_account.account_id, "USDT", new_balance
-        )
-        
+        await repository.update_account_balance(sample_account.account_id, "USDT", new_balance)
+
         # Получаем баланс снова (должен быть обновлен)
         balance2 = await repository.get_balance(sample_account.account_id)
-        assert balance2["USDT"].value == Decimal("20000") 
+        assert balance2["USDT"].value == Decimal("20000")

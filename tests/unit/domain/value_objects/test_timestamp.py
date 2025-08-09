@@ -85,7 +85,7 @@ class TestTimestamp:
         """Тест равенства временных меток."""
         same_timestamp = Timestamp(value=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
         different_timestamp = Timestamp(value=datetime(2023, 1, 1, 13, 0, 0, tzinfo=timezone.utc))
-        
+
         assert sample_timestamp == same_timestamp
         assert sample_timestamp != different_timestamp
         assert sample_timestamp != "not a timestamp"
@@ -194,7 +194,7 @@ class TestTimestamp:
     def test_timestamp_time_difference(self, sample_timestamp):
         """Тест вычисления разности времени."""
         later_timestamp = Timestamp(value=datetime(2023, 1, 1, 13, 0, 0, tzinfo=timezone.utc))
-        
+
         # Разность в секундах
         diff_seconds = later_timestamp.time_difference(sample_timestamp)
         assert diff_seconds == 3600.0  # 1 час = 3600 секунд
@@ -217,13 +217,13 @@ class TestTimestamp:
         same_day_timestamp = Timestamp(value=datetime(2023, 1, 1, 13, 0, 0, tzinfo=timezone.utc))
         same_hour_timestamp = Timestamp(value=datetime(2023, 1, 1, 12, 30, 0, tzinfo=timezone.utc))
         same_minute_timestamp = Timestamp(value=datetime(2023, 1, 1, 12, 0, 30, tzinfo=timezone.utc))
-        
+
         # Одинаковый день
         assert sample_timestamp.is_same_day(same_day_timestamp) is True
-        
+
         # Одинаковый час
         assert sample_timestamp.is_same_hour(same_hour_timestamp) is True
-        
+
         # Одинаковая минута
         assert sample_timestamp.is_same_minute(same_minute_timestamp) is True
 
@@ -242,7 +242,7 @@ class TestTimestamp:
         """Тест проверок торговых часов."""
         # 12:00 - в торговых часах
         assert sample_timestamp.is_trading_hours() is True
-        
+
         # 18:00 - вне торговых часов
         evening_timestamp = Timestamp(value=datetime(2023, 1, 1, 18, 0, 0, tzinfo=timezone.utc))
         assert evening_timestamp.is_trading_hours() is False
@@ -272,7 +272,7 @@ class TestTimestamp:
         """Тест методов min и max."""
         min_timestamp = sample_timestamp.min(past_timestamp)
         assert min_timestamp == past_timestamp
-        
+
         max_timestamp = sample_timestamp.max(future_timestamp)
         assert max_timestamp == future_timestamp
 
@@ -316,17 +316,14 @@ class TestTimestamp:
     def test_timestamp_to_dict(self, sample_timestamp):
         """Тест сериализации в словарь."""
         result = sample_timestamp.to_dict()
-        
+
         assert result["value"] == "2023-01-01T12:00:00+00:00"
         assert result["type"] == "Timestamp"
 
     def test_timestamp_from_dict(self, sample_timestamp):
         """Тест десериализации из словаря."""
-        data = {
-            "value": "2023-01-01T12:00:00+00:00",
-            "type": "Timestamp"
-        }
-        
+        data = {"value": "2023-01-01T12:00:00+00:00", "type": "Timestamp"}
+
         timestamp = Timestamp.from_dict(data)
         assert timestamp.value == sample_timestamp.value
 
@@ -399,20 +396,20 @@ class TestTimestampOperations:
         # Разные временные зоны
         utc_dt = datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         utc_timestamp = Timestamp(value=utc_dt)
-        
+
         # Должен сохранить timezone
         assert utc_timestamp.value.tzinfo == timezone.utc
 
     def test_timestamp_serialization_roundtrip(self):
         """Тест сериализации и десериализации."""
         original_timestamp = Timestamp(value=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
-        
+
         # Сериализация
         data = original_timestamp.to_dict()
-        
+
         # Десериализация
         restored_timestamp = Timestamp.from_dict(data)
-        
+
         # Проверка равенства
         assert restored_timestamp == original_timestamp
         assert restored_timestamp.value == original_timestamp.value
@@ -500,21 +497,21 @@ class TestTimestampEdgeCases:
             Timestamp(value=datetime(2023, 1, 2, 12, 0, 0, tzinfo=timezone.utc)),
             Timestamp(value=datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)),
         ]
-        
+
         hashes = [timestamp.hash for timestamp in timestamps]
         assert len(hashes) == len(set(hashes))  # Все хеши должны быть уникальными
 
     def test_timestamp_performance(self):
         """Тест производительности операций с временными метками."""
         import time
-        
+
         timestamp = Timestamp.now()
-        
+
         # Тест скорости арифметических операций
         start_time = time.time()
         for _ in range(1000):
             result = timestamp.add_seconds(1)
         end_time = time.time()
-        
+
         # Операция должна выполняться быстро
-        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций 
+        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций

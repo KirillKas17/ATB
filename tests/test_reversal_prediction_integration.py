@@ -14,7 +14,7 @@ from domain.prediction.reversal_predictor import ReversalPredictor
 from domain.prediction.reversal_signal import ReversalSignal, ReversalDirection
 from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency
-from domain.value_objects.confidence_score import ConfidenceScore
+from domain.type_definitions.session_types import ConfidenceScore
 from domain.value_objects.signal_strength_score import SignalStrengthScore
 from domain.value_objects.timestamp import Timestamp
 from domain.type_definitions import OHLCVData  # Исправление: правильный импорт OHLCVData
@@ -23,8 +23,10 @@ from application.prediction.reversal_controller import ReversalController
 from infrastructure.data.price_pattern_extractor import PricePatternExtractor
 from domain.protocols.agent_protocols import AgentContextProtocol
 
+
 class TestReversalPredictionIntegration:
     """Интеграционные тесты системы прогнозирования разворотов."""
+
     @pytest.fixture
     def sample_market_data(self) -> pd.DataFrame:
         """Создание тестовых рыночных данных."""
@@ -51,6 +53,7 @@ class TestReversalPredictionIntegration:
         data["high"] = data[["open", "high", "close"]].max(axis=1)
         data["low"] = data[["open", "low", "close"]].min(axis=1)
         return data
+
     @pytest.fixture
     def sample_order_book(self) -> Dict[str, Any]:
         """Создание тестового ордербука."""
@@ -70,20 +73,20 @@ class TestReversalPredictionIntegration:
                 ["50005.0", "0.6"],
             ],
         }
+
     @pytest.fixture
     def mock_agent_context(self) -> Mock:
         """Создание мока AgentContext."""
         context = Mock(spec=AgentContextProtocol)
         # Мокаем методы получения данных
-        context.get_trading_config.return_value = {
-            "active_symbols": ["BTCUSDT", "ETHUSDT"]
-        }
+        context.get_trading_config.return_value = {"active_symbols": ["BTCUSDT", "ETHUSDT"]}
         # Мокаем market service
         market_service = Mock()
         market_service.get_ohlcv_data = AsyncMock()
         market_service.get_order_book = AsyncMock()
         context.get_market_service.return_value = market_service
         return context
+
     @pytest.fixture
     def mock_global_predictor(self) -> Mock:
         """Создание мока GlobalPredictionEngine."""
@@ -91,6 +94,7 @@ class TestReversalPredictionIntegration:
         predictor.get_prediction = AsyncMock()
         predictor.add_reversal_signal = AsyncMock()
         return predictor
+
     @pytest.fixture
     def reversal_predictor(self) -> ReversalPredictor:
         """Создание экземпляра ReversalPredictor."""
@@ -101,10 +105,9 @@ class TestReversalPredictionIntegration:
             prediction_horizon=timedelta(hours=2),
         )
         return ReversalPredictor(config)
+
     @pytest.fixture
-    def reversal_controller(
-        self, mock_agent_context: Mock, mock_global_predictor: Mock
-    ) -> ReversalController:
+    def reversal_controller(self, mock_agent_context: Mock, mock_global_predictor: Mock) -> ReversalController:
         """Создание экземпляра ReversalController."""
         # Исправление: создаем конфигурацию напрямую как словарь
         config = {
@@ -118,12 +121,14 @@ class TestReversalPredictionIntegration:
         controller.active_signals = {}
         controller.signal_history = []
         return controller
+
     def test_pattern_extractor_initialization(self: "TestReversalPredictionIntegration") -> None:
         """Тест инициализации извлекателя паттернов."""
         extractor = PricePatternExtractor(pivot_window=5, min_pivot_strength=0.3)
         assert extractor.pivot_window == 5
         assert extractor.min_pivot_strength == 0.3
         assert extractor.fibonacci_levels == [23.6, 38.2, 50.0, 61.8, 78.6]
+
     def test_pivot_point_extraction(self, sample_market_data: pd.DataFrame) -> None:
         """Тест извлечения точек разворота."""
         extractor = PricePatternExtractor(pivot_window=5, min_pivot_strength=0.1)
@@ -139,6 +144,7 @@ class TestReversalPredictionIntegration:
             assert hasattr(pivot, "pivot_type")
             assert hasattr(pivot, "strength")
             assert 0.0 <= pivot.strength <= 1.0
+
     def test_fibonacci_levels_calculation(self, sample_market_data: pd.DataFrame) -> None:
         """Тест вычисления уровней Фибоначчи."""
         extractor = PricePatternExtractor()
@@ -153,6 +159,7 @@ class TestReversalPredictionIntegration:
             assert hasattr(level, "strength")
             assert level.level in [23.6, 38.2, 50.0, 61.8, 78.6]
             assert 0.0 <= level.strength <= 1.0
+
     def test_volume_profile_extraction(self, sample_market_data: pd.DataFrame) -> None:
         """Тест извлечения профиля объема."""
         extractor = PricePatternExtractor()
@@ -163,6 +170,7 @@ class TestReversalPredictionIntegration:
         assert "volume_density" in volume_profile
         assert "poc_price" in volume_profile
         assert "timestamp" in volume_profile
+
     def test_liquidity_clusters_extraction(self, sample_order_book: Dict[str, Any]) -> None:
         """Тест извлечения кластеров ликвидности."""
         extractor = PricePatternExtractor()
@@ -178,18 +186,16 @@ class TestReversalPredictionIntegration:
             assert hasattr(cluster, "strength")
             assert cluster.side in ["bid", "ask"]
             assert 0.0 <= cluster.strength <= 1.0
+
     def test_reversal_predictor_initialization(self: "TestReversalPredictionIntegration") -> None:
         """Тест инициализации прогнозатора разворотов."""
-        config = PredictionConfig(
-            lookback_period=100, min_confidence=0.3, min_signal_strength=0.4
-        )
+        config = PredictionConfig(lookback_period=100, min_confidence=0.3, min_signal_strength=0.4)
         predictor = ReversalPredictor(config)
         assert predictor.config.lookback_period == 100
         assert predictor.config.min_confidence == 0.3
         assert predictor.config.min_signal_strength == 0.4
-    def test_reversal_prediction(
-        self, reversal_predictor: ReversalPredictor, sample_market_data: pd.DataFrame
-    ) -> None:
+
+    def test_reversal_prediction(self, reversal_predictor: ReversalPredictor, sample_market_data: pd.DataFrame) -> None:
         """Тест прогнозирования разворота."""
         # Исправление: используем OHLCVData тип
         signal = reversal_predictor.predict_reversal("BTCUSDT", OHLCVData(sample_market_data))
@@ -204,6 +210,7 @@ class TestReversalPredictionIntegration:
             assert 0.0 <= signal.confidence <= 1.0
             assert 0.0 <= signal.signal_strength <= 1.0
             assert signal.horizon > timedelta(0)
+
     def test_reversal_signal_properties(self: "TestReversalPredictionIntegration") -> None:
         """Тест свойств сигнала разворота."""
         signal = ReversalSignal(
@@ -216,13 +223,14 @@ class TestReversalPredictionIntegration:
             timestamp=Timestamp(datetime.now().timestamp()),
         )
         # Тест категории силы сигнала
-        assert hasattr(signal, 'strength_category')
+        assert hasattr(signal, "strength_category")
         # Тест уровня риска
-        assert hasattr(signal, 'risk_level')
+        assert hasattr(signal, "risk_level")
         # Тест истечения срока
-        assert hasattr(signal, 'is_expired')
+        assert hasattr(signal, "is_expired")
         # Тест времени до истечения
-        assert hasattr(signal, 'time_to_expiry')
+        assert hasattr(signal, "time_to_expiry")
+
     def test_signal_confidence_management(self: "TestReversalPredictionIntegration") -> None:
         """Тест управления уверенностью сигнала."""
         signal = ReversalSignal(
@@ -241,6 +249,7 @@ class TestReversalPredictionIntegration:
         # Тест снижения уверенности
         signal.reduce_confidence(0.1)
         assert signal.confidence < signal.confidence  # Должно быть меньше после reduce
+
     def test_signal_controversy_detection(self: "TestReversalPredictionIntegration") -> None:
         """Тест обнаружения спорных сигналов."""
         signal = ReversalSignal(
@@ -256,12 +265,14 @@ class TestReversalPredictionIntegration:
         signal.mark_controversial("Test controversy", {"test": "data"})
         assert signal.is_controversial
         assert len(signal.controversy_reasons) > 0
+
     def test_controller_initialization(self, reversal_controller: ReversalController) -> None:
         """Тест инициализации контроллера."""
         assert reversal_controller.config.update_interval == 1.0
         assert reversal_controller.config.max_signals_per_symbol == 3
         assert len(reversal_controller.active_signals) == 0
         assert len(reversal_controller.signal_history) == 0
+
     @pytest.mark.asyncio
     async def test_controller_signal_integration(
         self,
@@ -302,6 +313,7 @@ class TestReversalPredictionIntegration:
         assert "BTCUSDT" in reversal_controller.active_signals
         assert len(reversal_controller.active_signals["BTCUSDT"]) == 1
         assert len(reversal_controller.signal_history) == 1
+
     @pytest.mark.asyncio
     async def test_controller_agreement_scoring(
         self, reversal_controller: ReversalController, mock_global_predictor: Mock
@@ -328,6 +340,7 @@ class TestReversalPredictionIntegration:
         agreement_score = await reversal_controller._calculate_agreement_score(signal)
         # Проверяем результат
         assert 0.0 <= agreement_score <= 1.0
+
     @pytest.mark.asyncio
     async def test_controller_controversy_detection(
         self, reversal_controller: ReversalController, mock_global_predictor: Mock
@@ -357,6 +370,7 @@ class TestReversalPredictionIntegration:
         assert "conflicts_with_global_prediction" in controversy_reasons
         assert "short_time_to_expiry" in controversy_reasons
         assert "weak_signal_strength" in controversy_reasons
+
     @pytest.mark.asyncio
     async def test_controller_statistics(self, reversal_controller: ReversalController) -> None:
         """Тест получения статистики контроллера."""
@@ -369,6 +383,7 @@ class TestReversalPredictionIntegration:
         assert "controller_config" in stats
         assert "direction_distribution" in stats
         assert "strength_distribution" in stats
+
     def test_end_to_end_prediction_pipeline(
         self,
         reversal_predictor: ReversalPredictor,
@@ -386,9 +401,7 @@ class TestReversalPredictionIntegration:
         assert volume_profile is not None
         assert len(liquidity_clusters) > 0
         # Прогнозируем разворот
-        signal = reversal_predictor.predict_reversal(
-            "BTCUSDT", OHLCVData(sample_market_data), sample_order_book
-        )
+        signal = reversal_predictor.predict_reversal("BTCUSDT", OHLCVData(sample_market_data), sample_order_book)
         # Проверяем результат (может быть None при недостаточных данных)
         if signal is not None:
             assert isinstance(signal, ReversalSignal)
@@ -396,6 +409,7 @@ class TestReversalPredictionIntegration:
             assert len(signal.pivot_points) > 0
             assert signal.volume_profile is not None
             assert len(signal.liquidity_clusters) > 0
+
     def test_signal_serialization(self: "TestReversalPredictionIntegration") -> None:
         """Тест сериализации сигнала."""
         signal = ReversalSignal(
@@ -418,6 +432,7 @@ class TestReversalPredictionIntegration:
         assert "timestamp" in signal_dict
         assert "strength_category" in signal_dict
         assert "risk_level" in signal_dict
+
     def test_error_handling(self: "TestReversalPredictionIntegration") -> None:
         """Тест обработки ошибок."""
         # Тест с пустыми данными
@@ -447,6 +462,7 @@ class TestReversalPredictionIntegration:
             signal_strength=SignalStrengthScore(0.7),
             timestamp=Timestamp(datetime.now().timestamp()),
         )
+
     @pytest.mark.asyncio
     async def test_controller_cleanup(self, reversal_controller: ReversalController) -> None:
         """Тест очистки устаревших сигналов."""

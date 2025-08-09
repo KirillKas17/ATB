@@ -55,7 +55,7 @@ class HealthChecker:
     - Внешние сервисы
     """
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus) -> None:
         """Инициализация проверяющего здоровья."""
         self.event_bus = event_bus
         self.components: Dict[str, HealthStatus] = {}

@@ -27,7 +27,7 @@ class MetricsRecord(TypedDict):
 class PerformanceTracker:
     """Трекер производительности стратегий"""
 
-    def __init__(self, window_size: int = 100):
+    def __init__(self, window_size: int = 100) -> None:
         self.window_size = window_size
         self.performance_history: List[PerformanceRecord] = []
         self.metrics_history: List[MetricsRecord] = []

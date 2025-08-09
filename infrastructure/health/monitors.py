@@ -32,7 +32,7 @@ class HealthCheckResult:
 class BaseHealthMonitor(ABC):
     """Base class for health monitors."""
     
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.logger = logging.getLogger(f"{__name__}.{name}")
     

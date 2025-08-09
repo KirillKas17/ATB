@@ -56,7 +56,7 @@ class MLConfig:
 class MLIntegration:
     """Интеграция с машинным обучением."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация ML интеграции.
         Args:

@@ -14,7 +14,7 @@ from domain.value_objects.volume import Volume
 from domain.value_objects.percentage import Percentage
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.signal import Signal
-from domain.value_objects.signal_type import SignalType
+from domain.entities.signal import SignalType
 from domain.value_objects.signal_strength import SignalStrength
 from domain.value_objects.trading_pair import TradingPair
 from domain.value_objects.factory import factory
@@ -34,10 +34,10 @@ class TestCurrency:
         """Тест создания валюты из строки."""
         currency = Currency.from_string("ETH")
         assert currency == Currency.ETH
-        
+
         currency = Currency.from_string("eth")
         assert currency == Currency.ETH
-        
+
         currency = Currency.from_string("invalid")
         assert currency is None
 
@@ -79,17 +79,17 @@ class TestMoney:
         """Тест арифметических операций."""
         money1 = Money(100, Currency.USD)
         money2 = Money(50, Currency.USD)
-        
+
         result = money1 + money2
         assert result.amount == Decimal("150")
         assert result.currency == Currency.USD
-        
+
         result = money1 - money2
         assert result.amount == Decimal("50")
-        
+
         result = money1 * 2
         assert result.amount == Decimal("200")
-        
+
         result = money1 / 2
         assert result.amount == Decimal("50")
 
@@ -97,7 +97,7 @@ class TestMoney:
         """Тест сравнения денежных сумм."""
         money1 = Money(100, Currency.USD)
         money2 = Money(50, Currency.USD)
-        
+
         assert money1 > money2
         assert money2 < money1
         assert money1 >= money2
@@ -118,13 +118,13 @@ class TestMoney:
     def test_money_percentage_operations(self: "TestMoney") -> None:
         """Тест процентных операций."""
         money = Money(100, Currency.USD)
-        
+
         result = money.apply_percentage(Decimal("10"))
         assert result.amount == Decimal("10")
-        
+
         result = money.increase_by_percentage(Decimal("10"))
         assert result.amount == Decimal("110")
-        
+
         result = money.decrease_by_percentage(Decimal("10"))
         assert result.amount == Decimal("90")
 
@@ -147,7 +147,7 @@ class TestPrice:
         """Тест расчета процентного изменения."""
         price1 = Price(100, Currency.USD)
         price2 = Price(110, Currency.USD)
-        
+
         change = price2.percentage_change_from(price1)
         assert change == Decimal("10")
 
@@ -155,7 +155,7 @@ class TestPrice:
         """Тест расчета спреда."""
         price1 = Price(100, Currency.USD)
         price2 = Price(102, Currency.USD)
-        
+
         spread = price1.spread_with(price2)
         assert spread.amount == Decimal("2")
 
@@ -163,7 +163,7 @@ class TestPrice:
         """Тест применения проскальзывания."""
         price = Price(100, Currency.USD)
         buy_price, sell_price = price.apply_slippage(Decimal("1"))
-        
+
         assert buy_price.amount < price.amount  # Цена покупки меньше (99)
         assert sell_price.amount > price.amount  # Цена продажи больше (101)
 
@@ -186,10 +186,10 @@ class TestVolume:
         """Тест арифметических операций."""
         volume1 = Volume(1000)
         volume2 = Volume(500)
-        
+
         result = volume1 + volume2
         assert result.value == Decimal("1500")
-        
+
         result = volume1 - volume2
         assert result.value == Decimal("500")
 
@@ -197,7 +197,7 @@ class TestVolume:
         """Тест процентных операций."""
         volume = Volume(1000)
         total = Volume(2000)
-        
+
         percentage = volume.percentage_of(total)
         assert percentage == Decimal("50")
 
@@ -253,10 +253,10 @@ class TestTimestamp:
     def test_timestamp_arithmetic(self: "TestTimestamp") -> None:
         """Тест арифметических операций."""
         timestamp = Timestamp.now()
-        
+
         future = timestamp.add_hours(1)
         assert future > timestamp
-        
+
         past = timestamp.subtract_hours(1)
         assert past < timestamp
 
@@ -264,17 +264,17 @@ class TestTimestamp:
         """Тест разности времени."""
         t1 = Timestamp.now()
         t2 = t1.add_hours(1)
-        
+
         diff = t2.time_difference(t1)
         assert diff == 3600  # 1 час в секундах
 
     def test_timestamp_rounding(self: "TestTimestamp") -> None:
         """Тест округления времени."""
         timestamp = Timestamp.now()
-        
+
         rounded_minute = timestamp.round_to_minute()
         assert rounded_minute.value.second == 0
-        
+
         rounded_hour = timestamp.round_to_hour()
         assert rounded_hour.value.minute == 0
 
@@ -293,14 +293,14 @@ class TestSignal:
         """Тест создания сигнала."""
         from domain.value_objects.trading_pair import TradingPair
         from domain.value_objects.currency import Currency
-        
+
         trading_pair = TradingPair(Currency.BTC, Currency.USDT)
         signal = Signal(
             direction=SignalType.BUY,
             signal_type=SignalType.BUY,
             strength=Decimal("0.8"),
             confidence=Decimal("0.7"),
-            trading_pair=trading_pair
+            trading_pair=trading_pair,
         )
         assert signal.signal_type == SignalType.BUY
         assert signal.is_buy_signal
@@ -310,15 +310,15 @@ class TestSignal:
         """Тест фабричных методов."""
         from domain.value_objects.trading_pair import TradingPair
         from domain.value_objects.currency import Currency
-        
+
         trading_pair = TradingPair(Currency.BTC, Currency.USDT)
-        
+
         buy_signal = Signal.create_buy_signal(trading_pair)
         assert buy_signal.is_buy_signal
-        
+
         sell_signal = Signal.create_sell_signal(trading_pair)
         assert sell_signal.is_sell_signal
-        
+
         hold_signal = Signal.create_hold_signal(trading_pair)
         assert hold_signal.is_hold_signal
 
@@ -326,16 +326,16 @@ class TestSignal:
         """Тест свойств сигнала."""
         from domain.value_objects.trading_pair import TradingPair
         from domain.value_objects.currency import Currency
-        
+
         trading_pair = TradingPair(Currency.BTC, Currency.USDT)
         signal = Signal(
             direction=SignalType.BUY,
             signal_type=SignalType.BUY,
             strength=Decimal("0.5"),
             confidence=Decimal("0.6"),
-            trading_pair=trading_pair
+            trading_pair=trading_pair,
         )
-        
+
         assert signal.is_trading_signal
         assert not signal.is_weak_signal
 
@@ -343,16 +343,16 @@ class TestSignal:
         """Тест скоринга сигнала."""
         from domain.value_objects.trading_pair import TradingPair
         from domain.value_objects.currency import Currency
-        
+
         trading_pair = TradingPair(Currency.BTC, Currency.USDT)
         signal = Signal(
             direction=SignalType.BUY,
             signal_type=SignalType.BUY,
             strength=Decimal("0.8"),
             confidence=Decimal("0.8"),
-            trading_pair=trading_pair
+            trading_pair=trading_pair,
         )
-        
+
         score = signal.get_combined_score()
         assert 0 < score <= 1
 
@@ -375,7 +375,7 @@ class TestTradingPair:
     def test_trading_pair_properties(self: "TestTradingPair") -> None:
         """Тест свойств торговой пары."""
         pair = TradingPair(Currency.BTC, Currency.USDT)
-        
+
         assert pair.is_crypto_pair
         assert pair.is_stablecoin_pair
         assert pair.is_major_pair
@@ -458,14 +458,14 @@ class TestIntegration:
         """Тест рабочего процесса с value objects."""
         # Создаем торговую пару
         pair = TradingPair(Currency.BTC, Currency.USDT)
-        
+
         # Создаем цену и объем
         price = Price(50000, Currency.USD)
         volume = Volume(1.5)
-        
+
         # Создаем временную метку
         timestamp = Timestamp.now()
-        
+
         # Создаем сигнал
         signal = Signal(
             direction=SignalType.BUY,
@@ -474,9 +474,9 @@ class TestIntegration:
             confidence=Decimal("0.7"),
             trading_pair=pair,
             price=price.amount,
-            volume=volume.value
+            volume=volume.value,
         )
-        
+
         # Проверяем, что все работает вместе
         assert signal.is_buy_signal
         assert signal.price == price.amount
@@ -491,14 +491,14 @@ class TestIntegration:
         price = Price(50000, Currency.USD)
         volume = Volume(1.5)
         timestamp = Timestamp.now()
-        
+
         # Сериализуем
         objects = [money, price, volume, timestamp]
         serialized = [obj.to_dict() for obj in objects]
-        
+
         # Десериализуем
         deserialized = [factory.from_dict(data) for data in serialized]
-        
+
         # Проверяем равенство
         for original, reconstructed in zip(objects, deserialized):
-            assert original == reconstructed 
+            assert original == reconstructed

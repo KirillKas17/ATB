@@ -5,13 +5,14 @@ import pytest
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from application.risk.liquidity_gravity_monitor import LiquidityGravityMonitor, MonitorConfig
-from domain.market.liquidity_gravity import (LiquidityGravityConfig,
-                                             LiquidityGravityModel,
-                                             OrderBookSnapshot)
+from domain.market.liquidity_gravity import LiquidityGravityConfig, LiquidityGravityModel, OrderBookSnapshot
 from domain.value_objects.timestamp import Timestamp
 from datetime import datetime
+
+
 class TestLiquidityGravityIntegration:
     """Интеграционные тесты для системы гравитации ликвидности."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.gravity_config = LiquidityGravityConfig(
@@ -30,13 +31,10 @@ class TestLiquidityGravityIntegration:
             stop_trading_threshold=2.0,
         )
         self.gravity_model = LiquidityGravityModel(self.gravity_config)
-        self.risk_assessor = LiquidityRiskAssessor(
-            self.gravity_config, self.risk_thresholds
-        )
+        self.risk_assessor = LiquidityRiskAssessor(self.gravity_config, self.risk_thresholds)
         self.gravity_filter = LiquidityGravityFilter(self.risk_assessor)
-    def create_test_order_book(
-        self, spread_percentage: float = 0.1, volumes: tuple = (1.0, 1.0)
-    ) -> OrderBookSnapshot:
+
+    def create_test_order_book(self, spread_percentage: float = 0.1, volumes: tuple = (1.0, 1.0)) -> OrderBookSnapshot:
         """Создание тестового ордербука."""
         base_price = 50000.0
         spread = base_price * spread_percentage / 100
@@ -48,9 +46,8 @@ class TestLiquidityGravityIntegration:
             (base_price + spread / 2, volumes[1]),
             (base_price + spread / 2 + 1, volumes[1] * 0.8),
         ]
-        return OrderBookSnapshot(
-            bids=bids, asks=asks, timestamp=datetime.fromtimestamp(time.time()), symbol="BTC/USDT"
-        )
+        return OrderBookSnapshot(bids=bids, asks=asks, timestamp=datetime.fromtimestamp(time.time()), symbol="BTC/USDT")
+
     def test_full_pipeline_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест полной интеграции системы."""
         # Создание ордербука
@@ -76,13 +73,12 @@ class TestLiquidityGravityIntegration:
         assert isinstance(should_proceed, bool)
         assert isinstance(trade_metadata, dict)
         # 5. Получение скорректированной агрессивности
-        adjusted_aggression, aggression_metadata = (
-            self.gravity_filter.get_adjusted_aggression(
-                order_book, "test_agent", base_aggression=0.8
-            )
+        adjusted_aggression, aggression_metadata = self.gravity_filter.get_adjusted_aggression(
+            order_book, "test_agent", base_aggression=0.8
         )
         assert isinstance(adjusted_aggression, float)
         assert 0.0 <= adjusted_aggression <= 1.0
+
     def test_agent_state_evolution(self: "TestLiquidityGravityIntegration") -> None:
         """Тест эволюции состояния агента."""
         agent_id = "evolution_test_agent"
@@ -92,21 +88,15 @@ class TestLiquidityGravityIntegration:
         order_books = []
         # Низкий риск
         for i in range(3):
-            order_book = self.create_test_order_book(
-                spread_percentage=0.5, volumes=(0.1, 0.1)
-            )
+            order_book = self.create_test_order_book(spread_percentage=0.5, volumes=(0.1, 0.1))
             order_books.append(order_book)
         # Средний риск
         for i in range(3):
-            order_book = self.create_test_order_book(
-                spread_percentage=0.1, volumes=(1.0, 1.0)
-            )
+            order_book = self.create_test_order_book(spread_percentage=0.1, volumes=(1.0, 1.0))
             order_books.append(order_book)
         # Высокий риск
         for i in range(3):
-            order_book = self.create_test_order_book(
-                spread_percentage=0.05, volumes=(5.0, 5.0)
-            )
+            order_book = self.create_test_order_book(spread_percentage=0.05, volumes=(5.0, 5.0))
             order_books.append(order_book)
         # Симуляция эволюции состояния
         aggressions = []
@@ -123,28 +113,22 @@ class TestLiquidityGravityIntegration:
         high_risk_aggression = np.mean(aggressions[6:])
         # Агрессивность должна быть ниже при высоком риске
         assert high_risk_aggression <= low_risk_aggression
+
     def test_risk_threshold_behavior(self: "TestLiquidityGravityIntegration") -> None:
         """Тест поведения на разных порогах риска."""
         agent_id = "threshold_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 1.0)
         # Тест с очень низким риском
-        low_risk_order_book = self.create_test_order_book(
-            spread_percentage=2.0, volumes=(0.01, 0.01)
-        )
-        low_risk_result = self.risk_assessor.assess_liquidity_risk(
-            low_risk_order_book, agent_id
-        )
+        low_risk_order_book = self.create_test_order_book(spread_percentage=2.0, volumes=(0.01, 0.01))
+        low_risk_result = self.risk_assessor.assess_liquidity_risk(low_risk_order_book, agent_id)
         assert low_risk_result.risk_level == "low"
         assert low_risk_result.agent_aggression >= 0.9  # Высокая агрессивность
         # Тест с высоким риском
-        high_risk_order_book = self.create_test_order_book(
-            spread_percentage=0.01, volumes=(10.0, 10.0)
-        )
-        high_risk_result = self.risk_assessor.assess_liquidity_risk(
-            high_risk_order_book, agent_id
-        )
+        high_risk_order_book = self.create_test_order_book(spread_percentage=0.01, volumes=(10.0, 10.0))
+        high_risk_result = self.risk_assessor.assess_liquidity_risk(high_risk_order_book, agent_id)
         assert high_risk_result.risk_level in ["high", "extreme", "critical"]
         assert high_risk_result.agent_aggression < 0.9  # Сниженная агрессивность
+
     def test_filter_decision_logic(self: "TestLiquidityGravityIntegration") -> None:
         """Тест логики принятия решений фильтром."""
         agent_id = "filter_test_agent"
@@ -157,14 +141,13 @@ class TestLiquidityGravityIntegration:
         assert should_proceed == True
         assert metadata["decision"]["reason"] == "normal_operation"
         # Тест с критическим риском
-        critical_order_book = self.create_test_order_book(
-            spread_percentage=0.001, volumes=(20.0, 20.0)
-        )
+        critical_order_book = self.create_test_order_book(spread_percentage=0.001, volumes=(20.0, 20.0))
         should_proceed, metadata = self.gravity_filter.should_proceed_with_trade(
             critical_order_book, agent_id, trade_aggression=0.9
         )
         # Может быть False в зависимости от настроек
         assert isinstance(should_proceed, bool)
+
     def test_aggression_adjustment_consistency(self: "TestLiquidityGravityIntegration") -> None:
         """Тест консистентности корректировки агрессивности."""
         agent_id = "adjustment_test_agent"
@@ -174,9 +157,7 @@ class TestLiquidityGravityIntegration:
         for i in range(5):
             spread = 0.1 + i * 0.1
             volume = 0.1 + i * 0.5
-            order_book = self.create_test_order_book(
-                spread_percentage=spread, volumes=(volume, volume)
-            )
+            order_book = self.create_test_order_book(spread_percentage=spread, volumes=(volume, volume))
             order_books.append(order_book)
         # Проверка корректировки агрессивности
         adjusted_aggressions = []
@@ -189,6 +170,7 @@ class TestLiquidityGravityIntegration:
         assert all(0.0 <= agg <= 1.0 for agg in adjusted_aggressions)
         # Проверка, что корректировка консистентна
         assert len(set(adjusted_aggressions)) > 1  # Должны быть разные значения
+
     def test_performance_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест производительности интеграции."""
         # Создание большого количества ордербуков
@@ -196,9 +178,7 @@ class TestLiquidityGravityIntegration:
         for i in range(50):
             spread = 0.1 + (i % 10) * 0.1
             volume = 0.1 + (i % 5) * 0.5
-            order_book = self.create_test_order_book(
-                spread_percentage=spread, volumes=(volume, volume)
-            )
+            order_book = self.create_test_order_book(spread_percentage=spread, volumes=(volume, volume))
             order_books.append(order_book)
         # Тест производительности полного пайплайна
         start_time = time.time()
@@ -206,9 +186,7 @@ class TestLiquidityGravityIntegration:
         for order_book in order_books:
             # Полный анализ
             gravity_result = self.gravity_model.analyze_liquidity_gravity(order_book)
-            risk_result = self.risk_assessor.assess_liquidity_risk(
-                order_book, "perf_agent"
-            )
+            risk_result = self.risk_assessor.assess_liquidity_risk(order_book, "perf_agent")
             should_proceed, _ = self.gravity_filter.should_proceed_with_trade(
                 order_book, "perf_agent", trade_aggression=0.8
             )
@@ -223,9 +201,7 @@ class TestLiquidityGravityIntegration:
         end_time = time.time()
         processing_time = end_time - start_time
         # Проверка производительности
-        assert (
-            processing_time < 10.0
-        )  # Должно обработать 50 ордербуков менее чем за 10 секунд
+        assert processing_time < 10.0  # Должно обработать 50 ордербуков менее чем за 10 секунд
         assert len(results) == 50
         # Проверка результатов
         for result in results:
@@ -233,6 +209,7 @@ class TestLiquidityGravityIntegration:
             assert isinstance(result["risk_level"], str)
             assert isinstance(result["aggression"], float)
             assert isinstance(result["should_proceed"], bool)
+
     def test_error_handling_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест обработки ошибок в интеграции."""
         agent_id = "error_test_agent"
@@ -244,9 +221,7 @@ class TestLiquidityGravityIntegration:
         # Должно обработать без ошибок
         gravity = self.gravity_model.compute_liquidity_gravity(empty_order_book)
         assert gravity == 0.0
-        risk_result = self.risk_assessor.assess_liquidity_risk(
-            empty_order_book, agent_id
-        )
+        risk_result = self.risk_assessor.assess_liquidity_risk(empty_order_book, agent_id)
         assert risk_result.risk_level == "low"
         assert risk_result.gravity_value == 0.0
         should_proceed, metadata = self.gravity_filter.should_proceed_with_trade(
@@ -263,10 +238,9 @@ class TestLiquidityGravityIntegration:
         # Должно обработать без ошибок
         gravity = self.gravity_model.compute_liquidity_gravity(invalid_order_book)
         assert isinstance(gravity, float)
-        risk_result = self.risk_assessor.assess_liquidity_risk(
-            invalid_order_book, agent_id
-        )
+        risk_result = self.risk_assessor.assess_liquidity_risk(invalid_order_book, agent_id)
         assert isinstance(risk_result, type(risk_result))
+
     def test_configuration_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции конфигурации."""
         # Создание кастомной конфигурации
@@ -287,9 +261,7 @@ class TestLiquidityGravityIntegration:
         )
         # Создание системы с кастомной конфигурацией
         custom_gravity_model = LiquidityGravityModel(custom_gravity_config)
-        custom_risk_assessor = LiquidityRiskAssessor(
-            custom_gravity_config, custom_risk_thresholds
-        )
+        custom_risk_assessor = LiquidityRiskAssessor(custom_gravity_config, custom_risk_thresholds)
         LiquidityGravityFilter(custom_risk_assessor)
         # Тест с кастомной конфигурацией
         order_book = self.create_test_order_book(spread_percentage=0.1)
@@ -300,11 +272,10 @@ class TestLiquidityGravityIntegration:
         assert abs(default_gravity - custom_gravity) > 1e-10
         # Тест оценки риска с кастомными порогами
         custom_risk_assessor.set_agent_base_aggression("custom_agent", 0.8)
-        custom_risk_result = custom_risk_assessor.assess_liquidity_risk(
-            order_book, "custom_agent"
-        )
+        custom_risk_result = custom_risk_assessor.assess_liquidity_risk(order_book, "custom_agent")
         assert isinstance(custom_risk_result.risk_level, str)
         assert isinstance(custom_risk_result.agent_aggression, float)
+
     def test_multi_agent_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции с несколькими агентами."""
         agents = ["agent_1", "agent_2", "agent_3"]
@@ -313,15 +284,11 @@ class TestLiquidityGravityIntegration:
         self.risk_assessor.set_agent_base_aggression("agent_2", 0.8)  # Умеренный
         self.risk_assessor.set_agent_base_aggression("agent_3", 1.0)  # Агрессивный
         # Создание ордербука с высоким риском
-        high_risk_order_book = self.create_test_order_book(
-            spread_percentage=0.01, volumes=(10.0, 10.0)
-        )
+        high_risk_order_book = self.create_test_order_book(spread_percentage=0.01, volumes=(10.0, 10.0))
         # Тест реакции разных агентов
         agent_results = {}
         for agent_id in agents:
-            risk_result = self.risk_assessor.assess_liquidity_risk(
-                high_risk_order_book, agent_id
-            )
+            risk_result = self.risk_assessor.assess_liquidity_risk(high_risk_order_book, agent_id)
             should_proceed, _ = self.gravity_filter.should_proceed_with_trade(
                 high_risk_order_book, agent_id, trade_aggression=0.8
             )
@@ -340,6 +307,7 @@ class TestLiquidityGravityIntegration:
         # Проверка, что более агрессивные агенты имеют более высокую агрессивность
         aggressions = [result["aggression"] for result in agent_results.values()]
         assert len(set(aggressions)) >= 1  # Должны быть разные значения
+
     def test_statistics_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции статистики."""
         agent_id = "stats_test_agent"
@@ -369,14 +337,13 @@ class TestLiquidityGravityIntegration:
         assert "base_aggression" in agent_state_stats
         assert "risk_level" in agent_state_stats
         assert "gravity_history_length" in agent_state_stats
+
     def test_recovery_mechanism_integration(self: "TestLiquidityGravityIntegration") -> None:
         """Тест интеграции механизма восстановления."""
         agent_id = "recovery_test_agent"
         self.risk_assessor.set_agent_base_aggression(agent_id, 0.8)
         # Создание высокого риска
-        high_risk_order_book = self.create_test_order_book(
-            spread_percentage=0.01, volumes=(10.0, 10.0)
-        )
+        high_risk_order_book = self.create_test_order_book(spread_percentage=0.01, volumes=(10.0, 10.0))
         # Применение высокого риска
         for i in range(5):
             self.risk_assessor.assess_liquidity_risk(high_risk_order_book, agent_id)
@@ -384,9 +351,7 @@ class TestLiquidityGravityIntegration:
         agent_state = self.risk_assessor.get_agent_risk_state(agent_id)
         assert agent_state.current_aggression < agent_state.base_aggression
         # Создание низкого риска для восстановления
-        low_risk_order_book = self.create_test_order_book(
-            spread_percentage=2.0, volumes=(0.01, 0.01)
-        )
+        low_risk_order_book = self.create_test_order_book(spread_percentage=2.0, volumes=(0.01, 0.01))
         # Применение низкого риска для восстановления
         for i in range(10):
             self.risk_assessor.assess_liquidity_risk(low_risk_order_book, agent_id)
@@ -394,5 +359,7 @@ class TestLiquidityGravityIntegration:
         agent_state = self.risk_assessor.get_agent_risk_state(agent_id)
         # Агрессивность должна восстановиться или быть близкой к базовой
         assert agent_state.current_aggression >= agent_state.base_aggression * 0.8
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

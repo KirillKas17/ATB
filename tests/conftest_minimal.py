@@ -14,26 +14,26 @@ def mock_exchange():
     """Мок биржи"""
     exchange = Mock()
     exchange.fetch_ticker.return_value = {
-        'symbol': 'BTC/USDT',
-        'last': 50000.0,
-        'bid': 49999.0,
-        'ask': 50001.0,
-        'volume': 1000.0,
-        'timestamp': datetime.now().timestamp()
+        "symbol": "BTC/USDT",
+        "last": 50000.0,
+        "bid": 49999.0,
+        "ask": 50001.0,
+        "volume": 1000.0,
+        "timestamp": datetime.now().timestamp(),
     }
     return exchange
 
 
-@pytest.fixture  
+@pytest.fixture
 def sample_price():
     """Образец цены"""
-    return Decimal('50000.00')
+    return Decimal("50000.00")
 
 
 @pytest.fixture
 def sample_volume():
     """Образец объема"""
-    return Decimal('1.5')
+    return Decimal("1.5")
 
 
 @pytest.fixture

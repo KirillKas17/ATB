@@ -1,6 +1,7 @@
 """
 Упрощенный e2e-тест интеграции SessionService без ML-зависимостей.
 """
+
 import pytest
 import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
@@ -19,28 +20,28 @@ async def test_session_service_integration_simple() -> None:
     # Тест 1: Получение контекста сессии
     context = session_service.get_current_session_context()
     assert isinstance(context, dict)
-    assert 'active_sessions' in context
-    assert 'primary_session' in context
+    assert "active_sessions" in context
+    assert "primary_session" in context
     # Тест 2: Анализ влияния сессии (с пустыми данными)
     empty_df = pd.DataFrame()
-    result = session_service.analyze_session_influence('BTCUSDT', empty_df)
-    assert result is None or hasattr(result, 'influence_score') or isinstance(result, dict)
+    result = session_service.analyze_session_influence("BTCUSDT", empty_df)
+    assert result is None or hasattr(result, "influence_score") or isinstance(result, dict)
     # Тест 3: Прогноз поведения сессии
     market_conditions = {
-        'volatility': 1.0,
-        'volume': 1000.0,
-        'spread': 10.0,
-        'liquidity': 100000.0,
-        'momentum': 0.5,
-        'trend_strength': 0.7,
-        'market_regime': MarketRegime.TRENDING_BULL,
-        'session_intensity': SessionIntensity.NORMAL
+        "volatility": 1.0,
+        "volume": 1000.0,
+        "spread": 10.0,
+        "liquidity": 100000.0,
+        "momentum": 0.5,
+        "trend_strength": 0.7,
+        "market_regime": MarketRegime.TRENDING_BULL,
+        "session_intensity": SessionIntensity.NORMAL,
     }
     prediction = session_service.predict_session_behavior(SessionType.ASIAN, market_conditions)
     assert isinstance(prediction, dict)
-    assert 'predicted_volatility' in prediction
+    assert "predicted_volatility" in prediction
     # Тест 4: Получение рекомендаций
-    recommendations = session_service.get_session_recommendations('BTCUSDT', SessionType.ASIAN)
+    recommendations = session_service.get_session_recommendations("BTCUSDT", SessionType.ASIAN)
     assert isinstance(recommendations, list)
     # Тест 5: Получение статистики
     statistics = session_service.get_session_statistics(SessionType.ASIAN)
@@ -60,5 +61,5 @@ async def test_session_service_integration_simple() -> None:
     # Тест 10: Проверка здоровья сервиса
     health = session_service.get_session_health_check()
     assert isinstance(health, dict)
-    assert 'status' in health
-    assert 'components' in health 
+    assert "status" in health
+    assert "components" in health

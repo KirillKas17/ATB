@@ -111,7 +111,7 @@ class TestTradingSession:
         """Тест создания из словаря."""
         data = session.to_dict()
         restored_session = TradingSession.from_dict(data)
-        
+
         assert str(restored_session.id) == str(session.id)
         assert str(restored_session.portfolio_id) == str(session.portfolio_id)
         assert str(restored_session.strategy_id) == str(session.strategy_id)
@@ -128,7 +128,7 @@ class TestTradingSession:
             "start_time": {"value": "2024-01-01T12:00:00"},
         }
         session = TradingSession.from_dict(data)
-        
+
         assert str(session.id) == "550e8400-e29b-41d4-a716-446655440013"
         assert str(session.portfolio_id) == "550e8400-e29b-41d4-a716-446655440014"
         assert session.strategy_id is None
@@ -166,7 +166,7 @@ class TestTradingSession:
             portfolio_id=UUID("550e8400-e29b-41d4-a716-446655440016"),
             name="Session without strategy",
         )
-        
+
         assert session.strategy_id is None
         assert session.name == "Session without strategy"
         assert session.status == SessionStatus.ACTIVE
@@ -189,15 +189,15 @@ class TestTradingSession:
     def test_session_metadata_persistence(self, session: TradingSession) -> None:
         """Тест сохранения метаданных при операциях."""
         original_metadata = session.metadata.copy()
-        
+
         session.pause()
         assert session.metadata == original_metadata
-        
+
         session.resume()
         assert session.metadata == original_metadata
-        
+
         session.close()
         assert session.metadata == original_metadata
-        
+
         session.set_error()
-        assert session.metadata == original_metadata 
+        assert session.metadata == original_metadata

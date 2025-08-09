@@ -8,6 +8,7 @@ Unit тесты для domain.value_objects.price
 - Сериализация/десериализация
 - Округление и форматирование
 """
+
 import pytest
 from decimal import Decimal
 from domain.value_objects.price import Price
@@ -93,7 +94,7 @@ class TestPrice:
         price1 = Price(amount=Decimal("50000.00"), currency=Currency.USD)
         price2 = Price(amount=Decimal("50000.00"), currency=Currency.USD)
         price3 = Price(amount=Decimal("60000.00"), currency=Currency.USD)
-        
+
         assert price1 == price2
         assert price1 != price3
         assert price1 < price3
@@ -155,7 +156,7 @@ class TestPrice:
         price1 = Price(amount=Decimal("50000.00"), currency=Currency.USD)
         price2 = Price(amount=Decimal("50000.00"), currency=Currency.USD)
         price3 = Price(amount=Decimal("60000.00"), currency=Currency.USD)
-        
+
         assert hash(price1) == hash(price2)
         assert hash(price1) != hash(price3)
 
@@ -198,4 +199,4 @@ class TestPrice:
         new_price = price.with_currency(Currency.EUR)
         assert new_price.amount == Decimal("50000.00")
         assert new_price.currency == Currency.EUR
-        assert price.currency == Currency.USD  # оригинал не изменился 
+        assert price.currency == Currency.USD  # оригинал не изменился

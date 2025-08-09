@@ -3,7 +3,8 @@ from typing import cast
 from domain.symbols.cache import MemorySymbolCache
 from domain.symbols.symbol_profile import SymbolProfile, VolumeProfile, PriceStructure, OrderBookMetricsData, PatternMetricsData, SessionMetricsData
 from domain.type_definitions import MarketPhase, VolumeValue, PriceValue, SpreadValue, ConfidenceValue
-    def test_memory_symbol_cache_basic() -> None:
+
+def test_memory_symbol_cache_basic() -> None:
     cache = MemorySymbolCache(default_ttl=1)
     profile = SymbolProfile(
         symbol="BTCUSDT",
@@ -22,7 +23,8 @@ from domain.type_definitions import MarketPhase, VolumeValue, PriceValue, Spread
     retrieved_profile = cast(SymbolProfile, retrieved)
     assert retrieved_profile.symbol == "BTCUSDT"
     assert retrieved_profile.opportunity_score == 0.8
-    def test_memory_symbol_cache_expiry() -> None:
+
+def test_memory_symbol_cache_expiry() -> None:
     import time
     cache = MemorySymbolCache(default_ttl=1)
     profile = SymbolProfile(
@@ -40,7 +42,8 @@ from domain.type_definitions import MarketPhase, VolumeValue, PriceValue, Spread
     time.sleep(1.1)  # Ждем истечения TTL
     retrieved = cache.get_profile("ETHUSDT")
     assert retrieved is None
-    def test_memory_symbol_cache_invalid_type() -> None:
+
+def test_memory_symbol_cache_invalid_type() -> None:
     cache = MemorySymbolCache()
     cache.set_profile("BTCUSDT", "invalid_profile")
     retrieved = cache.get_profile("BTCUSDT")

@@ -69,7 +69,7 @@ class MarketState:
 class MarketStateManager:
     """Расширенный менеджер состояния рынка."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация менеджера состояния рынка.
         Args:

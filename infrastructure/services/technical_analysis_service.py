@@ -414,7 +414,7 @@ class TechnicalAnalysisServiceImpl(TechnicalAnalysisService):
             return create_empty_technical_result()
 
     def calculate_indicator(
-        self, indicator_name: str, market_data: pd.DataFrame, **kwargs
+        self, indicator_name: str, market_data: pd.DataFrame, **kwargs: Any
     ) -> TechnicalIndicatorResult:
         """Расчет конкретного индикатора."""
         try:

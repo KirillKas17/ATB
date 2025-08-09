@@ -187,7 +187,7 @@ class RequestContext:
 class SpanContext:
     """Context manager for span context."""
 
-    def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None):
+    def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
         self.name = name
         self.attributes = attributes or {}
         self.span: Optional[Any] = None
@@ -280,7 +280,7 @@ def trace_business_operation(operation: str, **attributes: Any) -> Any:
 class AsyncSpanContext:
     """Async context manager for span context."""
 
-    def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None):
+    def __init__(self, name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
         self.name = name
         self.attributes = attributes or {}
         self.span: Optional[Any] = None

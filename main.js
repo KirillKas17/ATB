@@ -420,7 +420,7 @@ class ATBDesktopApp {
             return await this.mlManager.getTrainingLogs(jobId);
         });
 
-        // .env управление
+        // .env конфигурация
         ipcMain.handle('get-env-config', async () => {
             return await this.environmentManager.getConfig();
         });
@@ -433,39 +433,48 @@ class ATBDesktopApp {
             return await this.environmentManager.resetToDefaults();
         });
 
-        // Торговля
-        ipcMain.handle('start-trading', async () => {
-            return await this.startTradingSystem();
-        });
-
-        ipcMain.handle('stop-trading', async () => {
-            return await this.stopTradingSystem();
-        });
-
         // Диалоги
         ipcMain.handle('show-message-box', async (event, options) => {
-            const result = await dialog.showMessageBox(this.mainWindow, options);
-            return result;
+            const { dialog } = require('electron');
+            return await dialog.showMessageBox(this.mainWindow, options);
         });
 
         ipcMain.handle('show-save-dialog', async (event, options) => {
-            const result = await dialog.showSaveDialog(this.mainWindow, options);
-            return result;
+            const { dialog } = require('electron');
+            return await dialog.showSaveDialog(this.mainWindow, options);
         });
 
         ipcMain.handle('show-open-dialog', async (event, options) => {
-            const result = await dialog.showOpenDialog(this.mainWindow, options);
-            return result;
+            const { dialog } = require('electron');
+            return await dialog.showOpenDialog(this.mainWindow, options);
         });
 
         // Уведомления
-        ipcMain.handle('show-notification', (event, title, body) => {
+        ipcMain.handle('show-notification', async (event, title, body) => {
             this.showTrayNotification(title, body);
+            return { success: true };
         });
 
         // Логирование
         ipcMain.on('log', (event, level, message) => {
             console.log(`[${level.toUpperCase()}] ${message}`);
+        });
+
+        // Дополнительные системные метрики
+        ipcMain.handle('get-system-processes', async () => {
+            return await this.systemMonitor.getProcesses();
+        });
+
+        ipcMain.handle('get-system-temperature', async () => {
+            return await this.systemMonitor.getCPUTemperature();
+        });
+
+        ipcMain.handle('get-system-network', async () => {
+            return await this.systemMonitor.getNetworkInterfaces();
+        });
+
+        ipcMain.handle('get-system-disk', async () => {
+            return await this.systemMonitor.getDiskInfo();
         });
     }
 

@@ -29,7 +29,7 @@ class ParallelConfig:
 class ParallelProcessor:
     """Параллельный процессор для обработки данных"""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация процессора.
         Args:

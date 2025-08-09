@@ -8,6 +8,7 @@ Unit тесты для domain.value_objects.volume
 - Сериализация/десериализация
 - Округление и форматирование
 """
+
 import pytest
 from decimal import Decimal
 from domain.value_objects.volume import Volume
@@ -94,7 +95,7 @@ class TestVolume:
         volume1 = Volume(amount=Decimal("1000.50"), currency=Currency.USD)
         volume2 = Volume(amount=Decimal("1000.50"), currency=Currency.USD)
         volume3 = Volume(amount=Decimal("2000.00"), currency=Currency.USD)
-        
+
         assert volume1 == volume2
         assert volume1 != volume3
         assert volume1 < volume3
@@ -154,7 +155,7 @@ class TestVolume:
         """Тест проверки на ноль"""
         zero_volume = Volume.zero(Currency.USD)
         non_zero_volume = Volume(amount=Decimal("1000.50"), currency=Currency.USD)
-        
+
         assert zero_volume.is_zero() is True
         assert non_zero_volume.is_zero() is False
 
@@ -163,7 +164,7 @@ class TestVolume:
         volume1 = Volume(amount=Decimal("1000.50"), currency=Currency.USD)
         volume2 = Volume(amount=Decimal("1000.50"), currency=Currency.USD)
         volume3 = Volume(amount=Decimal("2000.00"), currency=Currency.USD)
-        
+
         assert hash(volume1) == hash(volume2)
         assert hash(volume1) != hash(volume3)
 
@@ -206,4 +207,4 @@ class TestVolume:
         new_volume = volume.with_currency(Currency.EUR)
         assert new_volume.amount == Decimal("1000.50")
         assert new_volume.currency == Currency.EUR
-        assert volume.currency == Currency.USD  # оригинал не изменился 
+        assert volume.currency == Currency.USD  # оригинал не изменился

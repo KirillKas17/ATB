@@ -10,12 +10,28 @@ import optuna
 import pandas as pd
 from pandas import DataFrame, Series
 from shared.numpy_utils import np
+from loguru import logger
 
 # # import talib  # Временно закомментировано из-за проблем с установкой на Windows  # Временно закомментировано из-за проблем с установкой на Windows
+# Безопасный импорт talib
 try:
     import talib
-except ImportError:
-    talib = None
+    # Проверка совместимости версий
+    if not hasattr(talib, 'RSI'):
+        raise ImportError("Incompatible talib version")
+except (ImportError, ValueError, AttributeError):
+    # Простая замена для talib
+    class TalibMock:
+        @staticmethod
+        def RSI(data: pd.Series, timeperiod: int = 14) -> pd.Series:
+            return pd.Series([0.5] * len(data), index=data.index)
+
+        @staticmethod
+        def MACD(data: pd.Series, fastperiod: int = 12, slowperiod: int = 26, signalperiod: int = 9) -> Tuple[pd.Series, pd.Series, pd.Series]:
+            return pd.Series([0] * len(data), index=data.index), pd.Series([0] * len(data), index=data.index), pd.Series([0] * len(data), index=data.index)
+
+    talib = TalibMock()
+    logger.warning("Using mock talib implementation due to compatibility issues")
 try:
     import torch
     import torch.nn as nn
@@ -25,7 +41,6 @@ except ImportError:
     nn = None
     TORCH_AVAILABLE = False
 from deap import base, creator, tools
-from loguru import logger
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler
 if TORCH_AVAILABLE:

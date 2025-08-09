@@ -4,6 +4,7 @@
 """
 
 import asyncio
+
 # Добавление корневой директории в путь
 import sys
 from pathlib import Path
@@ -13,16 +14,16 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from ai.local_ai_controller import LocalAIController
+from infrastructure.agents.local_ai.controller import LocalAIController
 from infrastructure.core.circuit_breaker import CircuitBreaker
 from infrastructure.core.integration_manager import IntegrationManager
 from infrastructure.core.portfolio_manager import PortfolioManager
 from infrastructure.core.risk_manager import RiskManager
-from ml.regime_discovery import RegimeDiscovery
+from infrastructure.ml_services.regime_discovery import RegimeDiscovery
 
 from shared.event_bus import Event, EventBus, EventPriority
-from shared.health_checker import HealthChecker
-from shared.metrics import MetricsCollector
+# from shared.health_checker import HealthChecker  # Временно отключен
+# from shared.metrics import MetricsCollector  # Временно отключен
 from shared.unified_cache import get_cache_manager
 
 
@@ -199,7 +200,7 @@ class TestIntegration:
         assert "system" in all_metrics
 
     @pytest.mark.asyncio
-    def test_cache_manager_integration(self: "TestIntegration") -> None:
+    async def test_cache_manager_integration(self: "TestIntegration") -> None:
         """Тест интеграции CacheManager"""
         cache_manager = get_cache_manager()
         cache = cache_manager.get_async_cache("test")

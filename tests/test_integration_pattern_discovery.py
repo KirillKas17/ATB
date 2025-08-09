@@ -6,7 +6,9 @@ from domain.services.pattern_discovery import (Pattern, PatternConfig,
                                                PatternDiscovery)
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
-    @pytest.fixture
+
+
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
@@ -21,7 +23,9 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-    @pytest.fixture
+
+
+@pytest.fixture
 def pattern_config() -> Any:
     """Фикстура с конфигурацией паттернов"""
     return PatternConfig(
@@ -41,10 +45,14 @@ def pattern_config() -> Any:
         price_threshold=0.02,
         trend_window=20,
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def pattern_discovery(pattern_config) -> Any:
     """Фикстура с экземпляром PatternDiscovery"""
     return PatternDiscovery(config=pattern_config)
+
+
 class TestPatternDiscovery:
     def test_discover_patterns(self, pattern_discovery, mock_market_data) -> None:
         """Тест обнаружения паттернов"""

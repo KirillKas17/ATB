@@ -8,7 +8,7 @@ from domain.strategies.strategy_interface import (
     StrategyAnalysisResult,
     StrategyInterface,
 )
-from domain.strategies.strategy_types import TrendFollowingParams
+from domain.type_definitions.strategy_types import TrendFollowingParams
 from domain.type_definitions import ConfidenceLevel, RiskLevel, StrategyId
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency

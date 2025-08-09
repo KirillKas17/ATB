@@ -5,11 +5,12 @@
 - Полный цикл мониторинга
 - Интеграцию с основными компонентами системы
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import asyncio
 import time
-from infrastructure.monitoring.monitoring_performance import (
+from infrastructure.monitoring.monitoring_dashboard import (
     get_monitor,
     get_alert_manager,
     get_tracer,
@@ -22,13 +23,16 @@ from infrastructure.monitoring.monitoring_performance import (
 from domain.type_definitions.monitoring_types import MetricType, AlertSeverity
 from datetime import timedelta
 from infrastructure.monitoring.monitoring_alerts import AlertRule
+
 # from infrastructure.monitoring.monitoring_dashboard import ChartConfig  # Исправлено: убираем неиспользуемый импорт
 from infrastructure.monitoring.logging_system import get_logger
 from infrastructure.monitoring.logging_tracing import LogContext
 from infrastructure.monitoring.logging_tracing import get_tracer as get_log_tracer
 
+
 class TestMonitoringIntegration:
     """Интеграционные тесты для системы мониторинга."""
+
     def test_full_monitoring_cycle(self: "TestMonitoringIntegration") -> None:
         """Тест полного цикла мониторинга."""
         # Получаем все компоненты мониторинга
@@ -43,9 +47,7 @@ class TestMonitoringIntegration:
         record_metric("test_metric", 30.2, {"host": "server1"})
         # Создаем алерт
         alert = create_alert(
-            message="Test integration alert",
-            severity=AlertSeverity.WARNING,
-            source="integration_test"
+            message="Test integration alert", severity=AlertSeverity.WARNING, source="integration_test"
         )
         # Логируем события
         log_info("Integration test info message", {"test": "data"})
@@ -64,24 +66,23 @@ class TestMonitoringIntegration:
         assert len(tracer.get_active_traces()) == 0  # Трейс завершен
         assert "metrics" in dashboard_data
         assert "alerts" in dashboard_data
-    def test_async_monitoring_integration(self: "TestMonitoringIntegration") -> None:
+
+    async def test_async_monitoring_integration(self: "TestMonitoringIntegration") -> None:
         """Тест асинхронной интеграции мониторинга."""
         # Получаем компоненты
         monitor = get_monitor()
         alert_manager = get_alert_manager()
         # Запускаем мониторинг
         start_monitoring()
+
         # Имитируем асинхронную работу
         async def async_operation() -> Any:
             # Записываем метрики
             record_metric("async_metric", 42.0, {"operation": "async"})
             # Создаем алерт
-            create_alert(
-                message="Async operation alert",
-                severity=AlertSeverity.INFO,
-                source="async_test"
-            )
+            create_alert(message="Async operation alert", severity=AlertSeverity.INFO, source="async_test")
             await asyncio.sleep(0.01)  # Имитируем работу
+
         # Запускаем несколько асинхронных операций
         tasks = [async_operation() for _ in range(5)]
         await asyncio.gather(*tasks)
@@ -92,6 +93,7 @@ class TestMonitoringIntegration:
         alerts = alert_manager.get_alerts()
         assert len(metrics) > 0
         assert len(alerts) > 0
+
     def test_monitoring_with_high_load(self: "TestMonitoringIntegration") -> None:
         """Тест мониторинга под высокой нагрузкой."""
         monitor = get_monitor()
@@ -100,6 +102,7 @@ class TestMonitoringIntegration:
         # Запускаем мониторинг
         start_monitoring()
         import threading
+
         def worker(worker_id: int) -> Any:
             """Рабочая функция для имитации нагрузки."""
             for i in range(100):
@@ -115,8 +118,9 @@ class TestMonitoringIntegration:
                     create_alert(
                         message=f"Worker {worker_id} alert {i}",
                         severity=AlertSeverity.WARNING,
-                        source=f"worker_{worker_id}"
+                        source=f"worker_{worker_id}",
                     )
+
         # Запускаем несколько потоков
         threads = []
         for i in range(5):
@@ -133,8 +137,9 @@ class TestMonitoringIntegration:
         alerts = alert_manager.get_alerts()
         traces = tracer.get_trace_statistics()
         assert len(metrics) >= 5  # По одной метрике на поток
-        assert len(alerts) >= 5   # По одному алерту на поток
+        assert len(alerts) >= 5  # По одному алерту на поток
         assert traces["total_traces"] >= 500  # 5 потоков * 100 трейсов
+
     def test_monitoring_error_handling(self: "TestMonitoringIntegration") -> None:
         """Тест обработки ошибок в мониторинге."""
         monitor = get_monitor()
@@ -148,12 +153,7 @@ class TestMonitoringIntegration:
             # Логируем ошибку
             log_error("Test error occurred", e, {"context": "error_test"})
             # Создаем алерт об ошибке
-            create_alert(
-                message="Test error alert",
-                severity=AlertSeverity.ERROR,
-                source="error_test",
-                exception=e
-            )
+            create_alert(message="Test error alert", severity=AlertSeverity.ERROR, source="error_test", exception=e)
         # Останавливаем мониторинг
         stop_monitoring()
         # Проверяем, что ошибки обработаны
@@ -161,6 +161,7 @@ class TestMonitoringIntegration:
         error_alerts = [a for a in alerts if a.severity == AlertSeverity.ERROR]
         assert len(error_alerts) > 0
         assert any("Test error" in a.message for a in error_alerts)
+
     def test_monitoring_data_persistence(self: "TestMonitoringIntegration") -> None:
         """Тест персистентности данных мониторинга."""
         monitor = get_monitor()
@@ -184,9 +185,11 @@ class TestMonitoringIntegration:
         assert len(metrics) > 0
         assert len(alerts) > 0
         assert traces["total_traces"] > 0
+
     def test_monitoring_performance_impact(self: "TestMonitoringIntegration") -> None:
         """Тест влияния мониторинга на производительность."""
         import time
+
         # Тест без мониторинга
         start_time = time.time()
         for i in range(1000):
@@ -203,10 +206,12 @@ class TestMonitoringIntegration:
         # Проверяем, что мониторинг не сильно влияет на производительность
         # Допускаем увеличение времени в 2 раза
         assert monitoring_time < baseline_time * 2
+
     def test_monitoring_memory_usage(self: "TestMonitoringIntegration") -> None:
         """Тест использования памяти мониторингом."""
         import psutil
         import os
+
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
         # Запускаем мониторинг
@@ -222,6 +227,7 @@ class TestMonitoringIntegration:
         memory_increase = final_memory - initial_memory
         # Увеличение памяти должно быть разумным (менее 100MB)
         assert memory_increase < 100 * 1024 * 1024
+
     def test_monitoring_concurrent_access(self: "TestMonitoringIntegration") -> None:
         """Тест конкурентного доступа к мониторингу."""
         monitor = get_monitor()
@@ -230,8 +236,10 @@ class TestMonitoringIntegration:
         start_monitoring()
         import threading
         import queue
+
         # Очередь для результатов
         results = queue.Queue()
+
         def concurrent_worker(worker_id: int) -> Any:
             """Рабочая функция для конкурентного доступа."""
             try:
@@ -240,14 +248,11 @@ class TestMonitoringIntegration:
                     record_metric(f"concurrent_metric_{worker_id}", i, {"worker": worker_id})
                 # Создаем алерты
                 for i in range(10):
-                    create_alert(
-                        f"Concurrent alert {worker_id}_{i}",
-                        AlertSeverity.WARNING,
-                        f"worker_{worker_id}"
-                    )
+                    create_alert(f"Concurrent alert {worker_id}_{i}", AlertSeverity.WARNING, f"worker_{worker_id}")
                 results.put(("success", worker_id))
             except Exception as e:
                 results.put(("error", worker_id, str(e)))
+
         # Запускаем несколько потоков
         threads = []
         for i in range(10):
@@ -271,25 +276,28 @@ class TestMonitoringIntegration:
         # Все потоки должны завершиться успешно
         assert success_count == 10
         assert error_count == 0
+
     def test_monitoring_alert_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции алертов с мониторингом."""
         monitor = get_monitor()
         alert_manager = get_alert_manager()
         # Запускаем мониторинг
         start_monitoring()
+
         # Создаем правило алерта на основе метрик
         def check_high_cpu() -> Any:
             metrics = monitor.get_metrics(name="cpu_usage")
             if metrics and metrics[0]["value"] > 80:
                 return True
             return False
+
         # Добавляем правило в alert manager
         rule = AlertRule(
             name="high_cpu_rule",
             condition=check_high_cpu,
             severity=AlertSeverity.WARNING,
             message="High CPU usage detected",
-            source="cpu_monitor"
+            source="cpu_monitor",
         )
         alert_manager.add_alert_rule(rule)
         # Записываем метрику с высоким значением CPU
@@ -300,6 +308,7 @@ class TestMonitoringIntegration:
         assert len(high_cpu_alerts) > 0
         # Останавливаем мониторинг
         stop_monitoring()
+
     def test_monitoring_dashboard_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции дашборда с мониторингом."""
         monitor = get_monitor()
@@ -329,6 +338,7 @@ class TestMonitoringIntegration:
         # assert "datasets" in chart_data # Исправлено: убираем неиспользуемый импорт
         # Останавливаем мониторинг
         stop_monitoring()
+
     def test_monitoring_tracing_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции трейсинга с мониторингом."""
         monitor = get_monitor()
@@ -355,17 +365,14 @@ class TestMonitoringIntegration:
         assert "cpu_usage" in trace["performance_metrics"]
         # Останавливаем мониторинг
         stop_monitoring()
+
     def test_monitoring_logging_integration(self: "TestMonitoringIntegration") -> None:
         """Тест интеграции логирования с мониторингом."""
         logger = get_logger("integration_test")
         # Запускаем мониторинг
         start_monitoring()
         # Логируем события с контекстом
-        context = LogContext(
-            request_id="integration-request-123",
-            user_id="test-user",
-            session_id="test-session"
-        )
+        context = LogContext(request_id="integration-request-123", user_id="test-user", session_id="test-session")
         logger.info("Integration test info", context=context)
         logger.warning("Integration test warning", context=context)
         # Создаем трейс для логирования
@@ -378,6 +385,7 @@ class TestMonitoringIntegration:
         assert traces["total_traces"] > 0
         # Останавливаем мониторинг
         stop_monitoring()
+
     def test_monitoring_complete_workflow(self: "TestMonitoringIntegration") -> None:
         """Тест полного рабочего процесса мониторинга."""
         # Получаем все компоненты
@@ -388,6 +396,7 @@ class TestMonitoringIntegration:
         logger = get_logger("workflow_test")
         # Запускаем мониторинг
         start_monitoring()
+
         # Имитируем рабочий процесс
         def simulate_workflow() -> Any:
             # 1. Логируем начало процесса
@@ -404,15 +413,12 @@ class TestMonitoringIntegration:
                 logger.info(f"Workflow step {i} completed", {"step": i})
                 # Создаем алерт при ошибке
                 if i == 2:
-                    create_alert(
-                        f"Workflow step {i} warning",
-                        AlertSeverity.WARNING,
-                        "workflow_test"
-                    )
+                    create_alert(f"Workflow step {i} warning", AlertSeverity.WARNING, "workflow_test")
             # 4. Завершаем трейс
             tracer.end_trace("workflow-trace", "success")
             # 5. Логируем завершение
             logger.info("Workflow completed", {"workflow": "test"})
+
         # Выполняем рабочий процесс
         simulate_workflow()
         # Получаем все данные
@@ -428,5 +434,7 @@ class TestMonitoringIntegration:
         assert "alerts" in dashboard_data
         # Останавливаем мониторинг
         stop_monitoring()
+
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

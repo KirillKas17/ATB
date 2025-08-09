@@ -17,7 +17,7 @@ from .base_connector import BaseExchangeConnector
 class BinanceConnector(BaseExchangeConnector):
     """Коннектор для Binance с промышленной реализацией."""
 
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None) -> None:
         super().__init__("binance", api_key, api_secret)
         self.base_url = "wss://stream.binance.com:9443/ws"
 

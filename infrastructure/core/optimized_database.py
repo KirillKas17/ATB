@@ -45,7 +45,7 @@ class OptimizedDatabase:
 
     def __init__(
         self, connection_string: str, pool_size: int = 10, max_overflow: int = 20
-    ):
+    ) -> None:
         """
         Инициализация оптимизированного подключения к базе данных.
         Args:

@@ -173,7 +173,7 @@ class SessionRepository(SessionRepositoryProtocol):
     - Обработку ошибок и retry логику
     """
 
-    def __init__(self, config: Optional[SessionRepositoryConfig] = None):
+    def __init__(self, config: Optional[SessionRepositoryConfig] = None) -> None:
         """Инициализация репозитория."""
         self.config = config or SessionRepositoryConfig()
         if not self.config.validate():

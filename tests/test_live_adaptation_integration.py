@@ -1,6 +1,7 @@
 """
 Unit тесты для интеграции LiveAdaptationModel в систему Syntra.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from unittest.mock import Mock, AsyncMock, MagicMock
@@ -11,14 +12,16 @@ from domain.value_objects.money import Money
 from domain.value_objects.volume import Volume
 from domain.value_objects.currency import Currency
 from domain.value_objects.percentage import Percentage
-from infrastructure.agents.agent_context_refactored import AgentContext, StrategyModifiers
+from infrastructure.agents.agent_context_refactored import AgentContext, StrategyModifier
 from application.use_cases.trading_orchestrator.core import DefaultTradingOrchestratorUseCase
 from application.di_container import Container
 import pandas as pd
 from shared.numpy_utils import np
 
+
 class TestLiveAdaptationIntegration:
     """Тесты интеграции LiveAdaptationModel в систему Syntra."""
+
     @pytest.fixture
     def mock_live_adaptation_model(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для LiveAdaptationModel."""
@@ -35,12 +38,14 @@ class TestLiveAdaptationIntegration:
         mock.get_metrics = AsyncMock(return_value=mock_metrics)
         mock.predict = AsyncMock(return_value=(1.0, 0.85))
         return mock
+
     @pytest.fixture
     def mock_agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для AgentContext."""
         context = AgentContext(symbol="BTC/USD")
         context.live_adaptation_result = None
         return context
+
     @pytest.fixture
     def mock_trading_orchestrator(self, mock_live_adaptation_model) -> Any:
         """Мок для TradingOrchestrator с LiveAdaptationModel."""
@@ -49,6 +54,7 @@ class TestLiveAdaptationIntegration:
         orchestrator._live_adaptation_cache = {}
         orchestrator._last_live_adaptation_update = None
         return orchestrator
+
     @pytest.fixture
     def sample_signal(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец торгового сигнала."""
@@ -60,20 +66,22 @@ class TestLiveAdaptationIntegration:
             confidence=Percentage(Decimal("0.8")),
             strength=Percentage(Decimal("0.7")),
             timestamp=1234567890,
-            metadata={}
+            metadata={},
         )
+
     @pytest.fixture
     def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец рыночных данных."""
-        dates = pd.date_range(start='2024-01-01', end='2024-01-02', freq='1H')
+        dates = pd.date_range(start="2024-01-01", end="2024-01-02", freq="1H")
         data = {
-            'open': np.random.uniform(45000, 55000, len(dates)),
-            'high': np.random.uniform(45000, 55000, len(dates)),
-            'low': np.random.uniform(45000, 55000, len(dates)),
-            'close': np.random.uniform(45000, 55000, len(dates)),
-            'volume': np.random.uniform(100, 1000, len(dates))
+            "open": np.random.uniform(45000, 55000, len(dates)),
+            "high": np.random.uniform(45000, 55000, len(dates)),
+            "low": np.random.uniform(45000, 55000, len(dates)),
+            "close": np.random.uniform(45000, 55000, len(dates)),
+            "volume": np.random.uniform(100, 1000, len(dates)),
         }
         return pd.DataFrame(data, index=dates)
+
     def test_di_container_integration(self: "TestLiveAdaptationIntegration") -> None:
         """Тест интеграции LiveAdaptationModel в DI контейнер."""
         # Создаем контейнер
@@ -82,11 +90,13 @@ class TestLiveAdaptationIntegration:
         live_adaptation_model = container.live_adaptation_model()
         assert live_adaptation_model is not None
         assert isinstance(live_adaptation_model, LiveAdaptation)
+
     def test_agent_context_live_adaptation_field(self, mock_agent_context) -> None:
         """Тест поля live_adaptation_result в AgentContext."""
         # Проверяем, что поле существует
-        assert hasattr(mock_agent_context, 'live_adaptation_result')
+        assert hasattr(mock_agent_context, "live_adaptation_result")
         assert mock_agent_context.live_adaptation_result is None
+
     def test_agent_context_apply_live_adaptation_modifier(self, mock_agent_context, sample_signal) -> None:
         """Тест метода apply_live_adaptation_modifier в AgentContext."""
         # Создаем мок результат адаптации
@@ -96,7 +106,7 @@ class TestLiveAdaptationIntegration:
             "accuracy": 0.78,
             "precision": 0.82,
             "recall": 0.75,
-            "f1": 0.78
+            "f1": 0.78,
         }
         mock_agent_context.live_adaptation_result = adaptation_data
         # Применяем модификатор
@@ -105,6 +115,7 @@ class TestLiveAdaptationIntegration:
         assert modified_signal is not None
         assert modified_signal.confidence > sample_signal.confidence  # Увеличена уверенность
         assert "live_adaptation" in modified_signal.metadata
+
     def test_trading_orchestrator_live_adaptation_constructor(self, mock_live_adaptation_model) -> None:
         """Тест конструктора TradingOrchestrator с LiveAdaptationModel."""
         # Создаем моки для зависимостей
@@ -122,12 +133,13 @@ class TestLiveAdaptationIntegration:
             trading_repository=mock_trading_repo,
             strategy_repository=mock_strategy_repo,
             enhanced_trading_service=mock_enhanced_trading_service,
-            live_adaptation_model=mock_live_adaptation_model
+            live_adaptation_model=mock_live_adaptation_model,
         )
         # Проверяем, что LiveAdaptationModel был добавлен
         assert orchestrator.live_adaptation_model == mock_live_adaptation_model
-        assert hasattr(orchestrator, '_live_adaptation_cache')
-        assert hasattr(orchestrator, '_last_live_adaptation_update')
+        assert hasattr(orchestrator, "_live_adaptation_cache")
+        assert hasattr(orchestrator, "_last_live_adaptation_update")
+
     @pytest.mark.asyncio
     async def test_update_live_adaptation(self, mock_trading_orchestrator, sample_market_data) -> None:
         """Тест метода _update_live_adaptation."""
@@ -142,6 +154,7 @@ class TestLiveAdaptationIntegration:
         # Проверяем, что кэш был обновлен
         assert len(mock_trading_orchestrator._live_adaptation_cache) > 0
         assert mock_trading_orchestrator._last_live_adaptation_update is not None
+
     @pytest.mark.asyncio
     async def test_apply_live_adaptation_analysis(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест метода _apply_live_adaptation_analysis."""
@@ -154,16 +167,14 @@ class TestLiveAdaptationIntegration:
         mock_metrics.precision = 0.82
         mock_metrics.recall = 0.75
         mock_metrics.f1 = 0.78
-        mock_trading_orchestrator._live_adaptation_cache[symbol] = {
-            "metrics": mock_metrics,
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._live_adaptation_cache[symbol] = {"metrics": mock_metrics, "timestamp": 1234567890}
         # Применяем анализ
         modified_signal = await mock_trading_orchestrator._apply_live_adaptation_analysis(symbol, sample_signal)
         # Проверяем результат
         assert modified_signal is not None
         assert modified_signal.confidence > sample_signal.confidence
         assert "live_adaptation" in modified_signal.metadata
+
     @pytest.mark.asyncio
     async def test_live_adaptation_in_execute_strategy(self, mock_trading_orchestrator) -> None:
         """Тест интеграции LiveAdaptationModel в execute_strategy."""
@@ -178,6 +189,7 @@ class TestLiveAdaptationIntegration:
         await mock_trading_orchestrator._update_live_adaptation([mock_request.symbol])
         # Проверяем, что LiveAdaptationModel был обновлен
         mock_trading_orchestrator._update_live_adaptation.assert_called_once_with([mock_request.symbol])
+
     @pytest.mark.asyncio
     async def test_live_adaptation_in_process_signal(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест интеграции LiveAdaptationModel в process_signal."""
@@ -198,13 +210,15 @@ class TestLiveAdaptationIntegration:
             mock_request.signal.trading_pair, mock_request.signal
         )
         assert modified_signal is not None
+
     def test_live_adaptation_strategy_modifiers(self: "TestLiveAdaptationIntegration") -> None:
         """Тест модификаторов стратегий для LiveAdaptationModel."""
         modifiers = StrategyModifiers()
         # Проверяем, что модификаторы для LiveAdaptationModel существуют
-        assert hasattr(modifiers, 'live_adaptation_confidence_multiplier')
-        assert hasattr(modifiers, 'live_adaptation_strength_multiplier')
-        assert hasattr(modifiers, 'live_adaptation_execution_delay_ms')
+        assert hasattr(modifiers, "live_adaptation_confidence_multiplier")
+        assert hasattr(modifiers, "live_adaptation_strength_multiplier")
+        assert hasattr(modifiers, "live_adaptation_execution_delay_ms")
+
     def test_live_adaptation_error_handling(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест обработки ошибок в LiveAdaptationModel."""
         symbol = "BTC/USD"
@@ -217,19 +231,18 @@ class TestLiveAdaptationIntegration:
             assert modified_signal == sample_signal
         except Exception:
             pytest.fail("Live adaptation error should be handled gracefully")
+
     def test_live_adaptation_cache_management(self, mock_trading_orchestrator) -> None:
         """Тест управления кэшем LiveAdaptationModel."""
         symbol = "BTC/USD"
         # Проверяем, что кэш пустой изначально
         assert symbol not in mock_trading_orchestrator._live_adaptation_cache
         # Добавляем данные в кэш
-        mock_trading_orchestrator._live_adaptation_cache[symbol] = {
-            "metrics": Mock(),
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._live_adaptation_cache[symbol] = {"metrics": Mock(), "timestamp": 1234567890}
         # Проверяем, что данные добавлены
         assert symbol in mock_trading_orchestrator._live_adaptation_cache
         assert mock_trading_orchestrator._live_adaptation_cache[symbol]["timestamp"] == 1234567890
+
     def test_live_adaptation_metadata_structure(self, mock_agent_context, sample_signal) -> None:
         """Тест структуры метаданных LiveAdaptationModel."""
         # Создаем мок результат
@@ -239,7 +252,7 @@ class TestLiveAdaptationIntegration:
             "accuracy": 0.78,
             "precision": 0.82,
             "recall": 0.75,
-            "f1": 0.78
+            "f1": 0.78,
         }
         mock_agent_context.live_adaptation_result = adaptation_data
         # Применяем модификатор
@@ -256,6 +269,7 @@ class TestLiveAdaptationIntegration:
         assert adaptation_metadata["confidence"] == 0.85
         assert adaptation_metadata["drift_score"] == 0.3
         assert adaptation_metadata["accuracy"] == 0.78
+
     @pytest.mark.asyncio
     async def test_live_adaptation_high_confidence_scenario(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест сценария с высокой уверенностью модели."""
@@ -268,15 +282,13 @@ class TestLiveAdaptationIntegration:
         mock_metrics.precision = 0.94
         mock_metrics.recall = 0.90
         mock_metrics.f1 = 0.92
-        mock_trading_orchestrator._live_adaptation_cache[symbol] = {
-            "metrics": mock_metrics,
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._live_adaptation_cache[symbol] = {"metrics": mock_metrics, "timestamp": 1234567890}
         # Применяем анализ
         modified_signal = await mock_trading_orchestrator._apply_live_adaptation_analysis(symbol, sample_signal)
         # Проверяем, что сигнал был усилен
         assert modified_signal.confidence > sample_signal.confidence
         assert modified_signal.strength > sample_signal.strength
+
     @pytest.mark.asyncio
     async def test_live_adaptation_low_confidence_scenario(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест сценария с низкой уверенностью модели."""
@@ -289,16 +301,14 @@ class TestLiveAdaptationIntegration:
         mock_metrics.precision = 0.42
         mock_metrics.recall = 0.48
         mock_metrics.f1 = 0.45
-        mock_trading_orchestrator._live_adaptation_cache[symbol] = {
-            "metrics": mock_metrics,
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._live_adaptation_cache[symbol] = {"metrics": mock_metrics, "timestamp": 1234567890}
         # Применяем анализ
         modified_signal = await mock_trading_orchestrator._apply_live_adaptation_analysis(symbol, sample_signal)
         # Проверяем, что сигнал был ослаблен
         assert modified_signal.confidence < sample_signal.confidence
         assert modified_signal.strength < sample_signal.strength
         assert "execution_delay_ms" in modified_signal.metadata
+
     @pytest.mark.asyncio
     async def test_live_adaptation_high_drift_scenario(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест сценария с высоким дрейфом данных."""
@@ -311,15 +321,13 @@ class TestLiveAdaptationIntegration:
         mock_metrics.precision = 0.52
         mock_metrics.recall = 0.58
         mock_metrics.f1 = 0.55
-        mock_trading_orchestrator._live_adaptation_cache[symbol] = {
-            "metrics": mock_metrics,
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._live_adaptation_cache[symbol] = {"metrics": mock_metrics, "timestamp": 1234567890}
         # Применяем анализ
         modified_signal = await mock_trading_orchestrator._apply_live_adaptation_analysis(symbol, sample_signal)
         # Проверяем, что добавлена задержка исполнения
         assert "execution_delay_ms" in modified_signal.metadata
         assert modified_signal.metadata["execution_delay_ms"] >= 1000
+
     def test_live_adaptation_performance_metrics(self, mock_agent_context, sample_signal) -> None:
         """Тест метрик производительности LiveAdaptationModel."""
         # Создаем мок результат с различными метриками
@@ -329,7 +337,7 @@ class TestLiveAdaptationIntegration:
             "accuracy": 0.78,
             "precision": 0.82,
             "recall": 0.75,
-            "f1": 0.78
+            "f1": 0.78,
         }
         mock_agent_context.live_adaptation_result = adaptation_data
         # Применяем модификатор
@@ -349,7 +357,7 @@ class TestLiveAdaptationIntegration:
         mock_live_adaptation_model.adapt_to_market_changes.return_value = {
             "adaptation_score": 0.85,
             "confidence": 0.9,
-            "recommendations": ["increase_position_size", "adjust_stop_loss"]
+            "recommendations": ["increase_position_size", "adjust_stop_loss"],
         }
 
         # Тестируем асинхронную адаптацию
@@ -360,5 +368,6 @@ class TestLiveAdaptationIntegration:
         assert "confidence" in result
         assert "recommendations" in result
 
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

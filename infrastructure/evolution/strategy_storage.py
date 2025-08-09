@@ -10,7 +10,36 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 
-from sqlmodel import Session, SQLModel, create_engine, select
+# Безопасный импорт sqlmodel
+try:
+    from sqlmodel import Session, SQLModel, create_engine, select
+    SQLMODEL_AVAILABLE = True
+except ImportError:
+    # Простая замена для sqlmodel
+    class Session:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def add(self, *args, **kwargs):
+            pass
+        
+        def commit(self, *args, **kwargs):
+            pass
+        
+        def close(self, *args, **kwargs):
+            pass
+    
+    class SQLModel:
+        pass
+    
+    def create_engine(*args, **kwargs):
+        return None
+    
+    def select(*args, **kwargs):
+        return None
+    
+    SQLMODEL_AVAILABLE = False
+    logging.warning("Using mock sqlmodel implementation due to missing dependency")
 
 from domain.evolution.strategy_fitness import StrategyEvaluationResult
 from domain.evolution.strategy_model import (

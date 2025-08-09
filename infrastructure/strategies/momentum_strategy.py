@@ -49,7 +49,7 @@ class MomentumConfig:
 class MomentumStrategy(BaseStrategy):
     """Стратегия импульса (расширенная)"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], MomentumConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], MomentumConfig]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

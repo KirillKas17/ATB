@@ -15,6 +15,171 @@ from .types import ControllerSignal, MetaControllerConfig, PortfolioState
 logger = setup_logger(__name__)
 
 
+class BayesianMetaController:
+    """Байесовский мета-контроллер для принятия решений на основе вероятностных моделей."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        self.prior_beliefs: Dict[str, float] = {}
+        self.observation_history: List[Dict[str, Any]] = []
+        self.confidence_threshold = self.config.get("confidence_threshold", 0.7)
+        self.learning_rate = self.config.get("learning_rate", 0.1)
+        
+    def update_beliefs(self, observations: Dict[str, Any]) -> Dict[str, float]:
+        """Обновление байесовских убеждений на основе новых наблюдений."""
+        updated_beliefs = {}
+        
+        for key, observation in observations.items():
+            if key not in self.prior_beliefs:
+                self.prior_beliefs[key] = 0.5  # Нейтральное убеждение
+            
+            # Простое байесовское обновление
+            prior = self.prior_beliefs[key]
+            likelihood = self._calculate_likelihood(observation)
+            
+            # Нормализация
+            evidence = prior * likelihood + (1 - prior) * (1 - likelihood)
+            if evidence > 0:
+                posterior = (prior * likelihood) / evidence
+            else:
+                posterior = prior
+            
+            # Обновление с учетом скорости обучения
+            updated_belief = prior + self.learning_rate * (posterior - prior)
+            updated_beliefs[key] = max(0.0, min(1.0, updated_belief))
+            self.prior_beliefs[key] = updated_beliefs[key]
+        
+        self.observation_history.append(observations)
+        return updated_beliefs
+    
+    def _calculate_likelihood(self, observation: Any) -> float:
+        """Вычисление правдоподобия наблюдения."""
+        if isinstance(observation, (int, float)):
+            # Нормализация числовых значений
+            return max(0.0, min(1.0, abs(observation)))
+        elif isinstance(observation, bool):
+            return 1.0 if observation else 0.0
+        elif isinstance(observation, str):
+            # Простая эвристика для строковых значений
+            positive_words = ["good", "positive", "up", "buy", "long", "profit"]
+            negative_words = ["bad", "negative", "down", "sell", "short", "loss"]
+            
+            observation_lower = observation.lower()
+            if any(word in observation_lower for word in positive_words):
+                return 0.8
+            elif any(word in observation_lower for word in negative_words):
+                return 0.2
+            else:
+                return 0.5
+        else:
+            return 0.5
+    
+    def get_decision_confidence(self, decision_type: str) -> float:
+        """Получение уверенности в решении."""
+        return self.prior_beliefs.get(decision_type, 0.5)
+    
+    def should_act(self, decision_type: str) -> bool:
+        """Определение необходимости действия."""
+        confidence = self.get_decision_confidence(decision_type)
+        return confidence >= self.confidence_threshold
+    
+    def get_recommendations(self) -> List[Dict[str, Any]]:
+        """Получение рекомендаций на основе текущих убеждений."""
+        recommendations = []
+        
+        for decision_type, belief in self.prior_beliefs.items():
+            if belief >= self.confidence_threshold:
+                recommendations.append({
+                    "type": decision_type,
+                    "confidence": belief,
+                    "action": "recommended"
+                })
+            elif belief <= (1 - self.confidence_threshold):
+                recommendations.append({
+                    "type": decision_type,
+                    "confidence": 1 - belief,
+                    "action": "avoid"
+                })
+        
+        return recommendations
+
+
+class PairManager:
+    """Менеджер торговых пар для мета-контроллера."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        self.pairs: Dict[str, Dict[str, Any]] = {}
+        self.correlation_matrix: Dict[str, Dict[str, float]] = {}
+        self.volatility_cache: Dict[str, float] = {}
+        self.liquidity_cache: Dict[str, float] = {}
+        
+    def add_pair(self, symbol: str, config: Dict[str, Any]) -> None:
+        """Добавление торговой пары."""
+        self.pairs[symbol] = {
+            "config": config,
+            "status": "active",
+            "added_at": datetime.now(),
+            "last_update": datetime.now()
+        }
+        
+    def remove_pair(self, symbol: str) -> bool:
+        """Удаление торговой пары."""
+        if symbol in self.pairs:
+            del self.pairs[symbol]
+            return True
+        return False
+    
+    def get_pair_config(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Получение конфигурации пары."""
+        pair = self.pairs.get(symbol)
+        return pair["config"] if pair else None
+    
+    def update_correlation(self, symbol1: str, symbol2: str, correlation: float) -> None:
+        """Обновление корреляции между парами."""
+        if symbol1 not in self.correlation_matrix:
+            self.correlation_matrix[symbol1] = {}
+        if symbol2 not in self.correlation_matrix:
+            self.correlation_matrix[symbol2] = {}
+            
+        self.correlation_matrix[symbol1][symbol2] = correlation
+        self.correlation_matrix[symbol2][symbol1] = correlation
+    
+    def get_correlation(self, symbol1: str, symbol2: str) -> float:
+        """Получение корреляции между парами."""
+        return self.correlation_matrix.get(symbol1, {}).get(symbol2, 0.0)
+    
+    def update_volatility(self, symbol: str, volatility: float) -> None:
+        """Обновление волатильности пары."""
+        self.volatility_cache[symbol] = volatility
+    
+    def get_volatility(self, symbol: str) -> float:
+        """Получение волатильности пары."""
+        return self.volatility_cache.get(symbol, 0.0)
+    
+    def update_liquidity(self, symbol: str, liquidity: float) -> None:
+        """Обновление ликвидности пары."""
+        self.liquidity_cache[symbol] = liquidity
+    
+    def get_liquidity(self, symbol: str) -> float:
+        """Получение ликвидности пары."""
+        return self.liquidity_cache.get(symbol, 0.0)
+    
+    def get_active_pairs(self) -> List[str]:
+        """Получение активных пар."""
+        return [symbol for symbol, pair in self.pairs.items() if pair["status"] == "active"]
+    
+    def get_pair_statistics(self) -> Dict[str, Any]:
+        """Получение статистики по парам."""
+        return {
+            "total_pairs": len(self.pairs),
+            "active_pairs": len(self.get_active_pairs()),
+            "correlation_pairs": len(self.correlation_matrix),
+            "volatility_cache_size": len(self.volatility_cache),
+            "liquidity_cache_size": len(self.liquidity_cache)
+        }
+
+
 class MetaControllerAgent(BaseAgent):
     """
     Мета-контроллер для координации стратегий и управления рисками.

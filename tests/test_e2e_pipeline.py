@@ -4,16 +4,19 @@ import pandas as pd
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.core.market_state import MarketStateManager
 from infrastructure.core.ml_integration import MLIntegration
-    @pytest.fixture
+
+@pytest.fixture
 def sample_candles() -> Any:
     with open("tests/data/sample_candles.json", "r") as f:
         data = json.load(f)
     return pd.DataFrame(data)
-    @pytest.fixture
+
+@pytest.fixture
 def market_state_manager() -> Any:
     config = {"atr_period": 14, "buffer_size": 10, "min_candles": 5}
     return MarketStateManager(config)
-    @pytest.fixture
+
+@pytest.fixture
 def ml_integration() -> Any:
     """Фикстура с ML интеграцией"""
     return MLIntegration(
@@ -28,16 +31,20 @@ def ml_integration() -> Any:
             "random_state": 42,
         }
     )
-    @pytest.fixture
+
+@pytest.fixture
 def mock_dashboard() -> Any:
     # Мокаем API/dashboard
     class Dashboard:
         def __init__(self) -> Any:
             self.last_update = None
+
         def update(self, snapshot) -> Any:
             self.last_update = snapshot
+
     return Dashboard()
-    def test_e2e_trading_pipeline(
+
+def test_e2e_trading_pipeline(
     sample_candles, market_state_manager, ml_integration, mock_dashboard
 ) -> None:
     pair = "BTCUSDT"

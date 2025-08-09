@@ -3,45 +3,67 @@ Unit тесты для technical_analysis.py.
 Тестирует расчет технических индикаторов, распознавание паттернов
 и генерацию торговых сигналов.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import pandas as pd
 from shared.numpy_utils import np
 from infrastructure.core.technical_analysis import (
-    sma, ema, rsi, macd, bollinger_bands, atr, stoch_rsi,
-    cci, adx, vwap, calculate_fibonacci_levels, calculate_support_resistance,
-    calculate_volume_profile, calculate_market_structure, calculate_momentum,
-    calculate_volatility, calculate_liquidity_zones, calculate_obv,
-    calculate_ichimoku, calculate_stochastic, calculate_adx,
-    calculate_volume_delta, calculate_fractals
+    sma,
+    ema,
+    rsi,
+    macd,
+    bollinger_bands,
+    atr,
+    stoch_rsi,
+    cci,
+    adx,
+    vwap,
+    calculate_fibonacci_levels,
+    calculate_support_resistance,
+    calculate_volume_profile,
+    calculate_market_structure,
+    calculate_momentum,
+    calculate_volatility,
+    calculate_liquidity_zones,
+    calculate_obv,
+    calculate_ichimoku,
+    calculate_stochastic,
+    calculate_adx,
+    calculate_volume_delta,
+    calculate_fractals,
 )
 from infrastructure.ml_services.technical_indicators import TechnicalIndicators
 
+
 class TestTechnicalAnalysis:
     """Тесты для технического анализа."""
-    
+
     @pytest.fixture
     def sample_data(self) -> pd.DataFrame:
         """Фикстура с тестовыми данными."""
-        dates = pd.DatetimeIndex(pd.date_range('2023-01-01', periods=100, freq='1H'))
+        dates = pd.DatetimeIndex(pd.date_range("2023-01-01", periods=100, freq="1H"))
         np.random.seed(42)
-        data = pd.DataFrame({
-            'open': np.random.uniform(45000, 55000, 100),
-            'high': np.random.uniform(46000, 56000, 100),
-            'low': np.random.uniform(44000, 54000, 100),
-            'close': np.random.uniform(45000, 55000, 100),
-            'volume': np.random.uniform(1000000, 5000000, 100)
-        }, index=dates)
+        data = pd.DataFrame(
+            {
+                "open": np.random.uniform(45000, 55000, 100),
+                "high": np.random.uniform(46000, 56000, 100),
+                "low": np.random.uniform(44000, 54000, 100),
+                "close": np.random.uniform(45000, 55000, 100),
+                "volume": np.random.uniform(1000000, 5000000, 100),
+            },
+            index=dates,
+        )
         # Создание более реалистичных данных
-        data['high'] = data[['open', 'close']].max(axis=1) + np.random.uniform(0, 1000, 100)
-        data['low'] = data[['open', 'close']].min(axis=1) - np.random.uniform(0, 1000, 100)
+        data["high"] = data[["open", "close"]].max(axis=1) + np.random.uniform(0, 1000, 100)
+        data["low"] = data[["open", "close"]].min(axis=1) - np.random.uniform(0, 1000, 100)
         return data
 
     def test_calculate_sma(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета простой скользящей средней."""
         # Расчет SMA
-        sma_20 = TechnicalIndicators.calculate_sma(sample_data['close'], 20)
-        sma_50 = TechnicalIndicators.calculate_sma(sample_data['close'], 50)
+        sma_20 = TechnicalIndicators.calculate_sma(sample_data["close"], 20)
+        sma_50 = TechnicalIndicators.calculate_sma(sample_data["close"], 50)
         # Проверки
         assert len(sma_20) == len(sample_data)
         assert len(sma_50) == len(sample_data)
@@ -53,8 +75,8 @@ class TestTechnicalAnalysis:
     def test_calculate_ema(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета экспоненциальной скользящей средней."""
         # Расчет EMA
-        ema_20 = TechnicalIndicators.calculate_ema(sample_data['close'], 20)
-        ema_50 = TechnicalIndicators.calculate_ema(sample_data['close'], 50)
+        ema_20 = TechnicalIndicators.calculate_ema(sample_data["close"], 20)
+        ema_50 = TechnicalIndicators.calculate_ema(sample_data["close"], 50)
         # Проверки
         assert len(ema_20) == len(sample_data)
         assert len(ema_50) == len(sample_data)
@@ -66,7 +88,7 @@ class TestTechnicalAnalysis:
     def test_calculate_rsi(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета RSI."""
         # Расчет RSI
-        rsi_14 = TechnicalIndicators.calculate_rsi(sample_data['close'], 14)
+        rsi_14 = TechnicalIndicators.calculate_rsi(sample_data["close"], 14)
         # Проверки
         assert len(rsi_14) == len(sample_data)
         assert not rsi_14.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
@@ -77,28 +99,24 @@ class TestTechnicalAnalysis:
     def test_calculate_macd(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета MACD."""
         # Расчет MACD
-        macd_result = TechnicalIndicators.calculate_macd(sample_data['close'])
-        macd_line = macd_result['macd']
-        signal_line = macd_result['signal']
-        histogram = macd_result['histogram']
+        macd_result = TechnicalIndicators.calculate_macd(sample_data["close"])
+        macd_line = macd_result["macd"]
+        signal_line = macd_result["signal"]
+        histogram = macd_result["histogram"]
         # Проверки
         assert len(macd_line) == len(sample_data)
         assert len(signal_line) == len(sample_data)
         assert len(histogram) == len(sample_data)
         # Проверка, что histogram = macd_line - signal_line
-        np.testing.assert_array_almost_equal(
-            histogram.to_numpy(), 
-            (macd_line - signal_line).to_numpy(), 
-            decimal=10
-        )
+        np.testing.assert_array_almost_equal(histogram.to_numpy(), (macd_line - signal_line).to_numpy(), decimal=10)
 
     def test_calculate_bollinger_bands(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета полос Боллинджера."""
         # Расчет полос Боллинджера
-        bb_result = TechnicalIndicators.calculate_bollinger_bands(sample_data['close'], 20, 2)
-        upper = bb_result['upper']
-        middle = bb_result['middle']
-        lower = bb_result['lower']
+        bb_result = TechnicalIndicators.calculate_bollinger_bands(sample_data["close"], 20, 2)
+        upper = bb_result["upper"]
+        middle = bb_result["middle"]
+        lower = bb_result["lower"]
         # Проверки
         assert len(upper) == len(sample_data)
         assert len(middle) == len(sample_data)
@@ -107,18 +125,13 @@ class TestTechnicalAnalysis:
         assert (upper >= middle).all()
         assert (middle >= lower).all()
         # Проверка, что middle = SMA
-        sma_20 = TechnicalIndicators.calculate_sma(sample_data['close'], 20)
+        sma_20 = TechnicalIndicators.calculate_sma(sample_data["close"], 20)
         np.testing.assert_array_almost_equal(middle.to_numpy(), sma_20.to_numpy(), decimal=10)
 
     def test_calculate_atr(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета ATR."""
         # Расчет ATR
-        atr_14 = TechnicalIndicators.calculate_atr(
-            sample_data['high'], 
-            sample_data['low'], 
-            sample_data['close'], 
-            14
-        )
+        atr_14 = TechnicalIndicators.calculate_atr(sample_data["high"], sample_data["low"], sample_data["close"], 14)
         # Проверки
         assert len(atr_14) == len(sample_data)
         assert not atr_14.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
@@ -129,14 +142,10 @@ class TestTechnicalAnalysis:
         """Тест расчета стохастического осциллятора."""
         # Расчет стохастика
         stoch_result = TechnicalIndicators.calculate_stochastic(
-            sample_data['high'], 
-            sample_data['low'], 
-            sample_data['close'], 
-            14, 
-            3
+            sample_data["high"], sample_data["low"], sample_data["close"], 14, 3
         )
-        k_percent = stoch_result['k']
-        d_percent = stoch_result['d']
+        k_percent = stoch_result["k"]
+        d_percent = stoch_result["d"]
         # Проверки
         assert len(k_percent) == len(sample_data)
         assert len(d_percent) == len(sample_data)
@@ -149,10 +158,7 @@ class TestTechnicalAnalysis:
         """Тест расчета Williams %R."""
         # Расчет Williams %R
         williams_r = TechnicalIndicators.calculate_williams_r(
-            sample_data['high'], 
-            sample_data['low'], 
-            sample_data['close'], 
-            14
+            sample_data["high"], sample_data["low"], sample_data["close"], 14
         )
         # Проверки
         assert len(williams_r) == len(sample_data)
@@ -164,12 +170,7 @@ class TestTechnicalAnalysis:
     def test_calculate_cci(self, sample_data: pd.DataFrame) -> None:
         """Тест расчета CCI."""
         # Расчет CCI
-        cci = TechnicalIndicators.calculate_cci(
-            sample_data['high'], 
-            sample_data['low'], 
-            sample_data['close'], 
-            20
-        )
+        cci = TechnicalIndicators.calculate_cci(sample_data["high"], sample_data["low"], sample_data["close"], 20)
         # Проверки
         assert len(cci) == len(sample_data)
         assert not cci.iloc[:20].notna().any()  # type: ignore  # Первые 20 значений должны быть NaN
@@ -179,14 +180,11 @@ class TestTechnicalAnalysis:
         """Тест расчета ADX."""
         # Расчет ADX
         adx_result = TechnicalIndicators.calculate_adx(
-            sample_data['high'], 
-            sample_data['low'], 
-            sample_data['close'], 
-            14
+            sample_data["high"], sample_data["low"], sample_data["close"], 14
         )
-        adx = adx_result['adx']
-        plus_di = adx_result['plus_di']
-        minus_di = adx_result['minus_di']
+        adx = adx_result["adx"]
+        plus_di = adx_result["plus_di"]
+        minus_di = adx_result["minus_di"]
         # Проверки
         assert len(adx) == len(sample_data)
         assert not adx.iloc[:14].notna().any()  # type: ignore  # Первые 14 значений должны быть NaN
@@ -350,7 +348,7 @@ class TestTechnicalAnalysis:
     def test_edge_cases(self, sample_data: pd.DataFrame) -> None:
         """Тест граничных случаев."""
         # Тест с очень малым количеством данных
-        if hasattr(sample_data, 'head'):
+        if hasattr(sample_data, "head"):
             small_data: pd.DataFrame = sample_data.head(10)  # type: ignore[no-redef]
         else:
             if len(sample_data) > 10:
@@ -365,4 +363,4 @@ class TestTechnicalAnalysis:
         # Тест с копией данных
         data_copy = sample_data.copy()
         indicators = TechnicalIndicators.get_all_indicators(data_copy)
-        assert isinstance(indicators, dict) 
+        assert isinstance(indicators, dict)

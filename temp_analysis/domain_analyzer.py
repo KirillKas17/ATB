@@ -101,24 +101,8 @@ class DomainLayerAnalyzer(BaseAnalyzer):
             'optimize_', 'balance_', 'allocate_', 'distribute_', 'aggregate_'
         ]
         
-<<<<<<< HEAD
         function_name_lower = node.name.lower()
-        return any(pattern in function_name_lower for pattern in business_logic_patterns) 
-=======
-        for pattern, description in todo_patterns:
-            if re.search(pattern, function_code, re.IGNORECASE):
-                issues.append(ProblemFunction(
-                    file_path=str(file_path.relative_to(self.project_root)),
-                    line_number=node.lineno,
-                    function_name=node.name,
-                    class_name=self._get_class_name(node),
-                    issue_type="TODO/FIXME",
-                    description=description,
-                    location=f"{file_path.relative_to(self.project_root)}:{node.lineno}"
-                ))
-                break
-        
-        return issues
+        return any(pattern in function_name_lower for pattern in business_logic_patterns)
 
     def _check_simple_returns(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], file_path: Path, function_code: str) -> List[ProblemFunction]:
         """Проверить простые возвраты."""
@@ -274,5 +258,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main() 
->>>>>>> e90116ec91962c532322996f100c96a0340b15b3
+    main()

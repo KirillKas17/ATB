@@ -31,7 +31,6 @@ from domain.value_objects.money import Money
 from domain.value_objects.price import Price
 from domain.value_objects.volume import Volume
 
-from infrastructure.external_services.exchange import ExchangeConfig  # Конфиг биржи для тестов
 from domain.entities.market import MarketData, OrderBook
 from domain.entities.account import Balance
 from domain.exceptions import (
@@ -41,6 +40,18 @@ from domain.exceptions import (
     NetworkError,
     TimeoutError,
 )
+
+
+@dataclass
+class ExchangeConfig:
+    """Конфигурация биржи для domain слоя."""
+    api_key: str
+    api_secret: str
+    sandbox: bool = True
+    timeout: int = 30
+    rate_limit: int = 100
+    retry_attempts: int = 3
+
 
 __all__ = [
     "ExchangeProtocol",

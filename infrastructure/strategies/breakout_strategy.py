@@ -49,7 +49,7 @@ class BreakoutConfig:
 class BreakoutStrategy(BaseStrategy):
     """Стратегия пробоя (расширенная)"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], BreakoutConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], BreakoutConfig]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

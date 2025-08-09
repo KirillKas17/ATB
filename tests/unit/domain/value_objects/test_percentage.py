@@ -99,7 +99,7 @@ class TestPercentage:
         """Тест равенства процентов."""
         same_percentage = Percentage(value=Decimal("25.50"))
         different_percentage = Percentage(value=Decimal("50.00"))
-        
+
         assert sample_percentage == same_percentage
         assert sample_percentage != different_percentage
         assert sample_percentage != "not a percentage"
@@ -218,17 +218,17 @@ class TestPercentage:
     def test_percentage_min_max(self, sample_percentage):
         """Тест методов min и max."""
         other_percentage = Percentage(value=Decimal("50.00"))
-        
+
         min_percentage = sample_percentage.min(other_percentage)
         assert min_percentage.value == Decimal("25.50")
-        
+
         max_percentage = sample_percentage.max(other_percentage)
         assert max_percentage.value == Decimal("50.00")
 
     def test_percentage_compound_operations(self, sample_percentage):
         """Тест составных операций."""
         other_percentage = Percentage(value=Decimal("10.00"))
-        
+
         # Составной процент
         compound = sample_percentage.compound_with(other_percentage)
         expected = Decimal("25.50") + Decimal("10.00") + (Decimal("25.50") * Decimal("10.00") / Decimal("100"))
@@ -291,17 +291,14 @@ class TestPercentage:
     def test_percentage_to_dict(self, sample_percentage):
         """Тест сериализации в словарь."""
         result = sample_percentage.to_dict()
-        
+
         assert result["value"] == "25.50"
         assert result["type"] == "Percentage"
 
     def test_percentage_from_dict(self, sample_percentage):
         """Тест десериализации из словаря."""
-        data = {
-            "value": "25.50",
-            "type": "Percentage"
-        }
-        
+        data = {"value": "25.50", "type": "Percentage"}
+
         percentage = Percentage.from_dict(data)
         assert percentage.value == Decimal("25.50")
 
@@ -371,13 +368,13 @@ class TestPercentageOperations:
     def test_percentage_serialization_roundtrip(self):
         """Тест сериализации и десериализации."""
         original_percentage = Percentage(value=Decimal("123.45"))
-        
+
         # Сериализация
         data = original_percentage.to_dict()
-        
+
         # Десериализация
         restored_percentage = Percentage.from_dict(data)
-        
+
         # Проверка равенства
         assert restored_percentage == original_percentage
         assert restored_percentage.value == original_percentage.value
@@ -406,11 +403,11 @@ class TestPercentageRiskAnalysis:
     def test_acceptable_risk_calculation(self):
         """Тест расчета приемлемого риска."""
         percentages = [
-            Percentage(value=Decimal("5.00")),   # Низкий риск
+            Percentage(value=Decimal("5.00")),  # Низкий риск
             Percentage(value=Decimal("25.00")),  # Средний риск
             Percentage(value=Decimal("75.00")),  # Высокий риск
         ]
-        
+
         # Проверка с разными порогами
         assert percentages[0].is_acceptable_risk(Decimal("10")) is True
         assert percentages[1].is_acceptable_risk(Decimal("30")) is True
@@ -469,11 +466,11 @@ class TestPercentageEdgeCases:
     def test_percentage_nan_infinite_handling(self):
         """Тест обработки NaN и бесконечности."""
         import math
-        
+
         # NaN
         with pytest.raises(ValueError, match="Percentage cannot be NaN"):
             Percentage(value=Decimal("NaN"))
-        
+
         # Бесконечность
         with pytest.raises(ValueError, match="Percentage cannot be infinite"):
             Percentage(value=Decimal("Infinity"))
@@ -511,21 +508,21 @@ class TestPercentageEdgeCases:
             Percentage(value=Decimal("-10.00")),
             Percentage(value=Decimal("0.00")),
         ]
-        
+
         hashes = [percentage.hash for percentage in percentages]
         assert len(hashes) == len(set(hashes))  # Все хеши должны быть уникальными
 
     def test_percentage_performance(self):
         """Тест производительности операций с процентами."""
         import time
-        
+
         percentage = Percentage(value=Decimal("25.00"))
-        
+
         # Тест скорости арифметических операций
         start_time = time.time()
         for _ in range(1000):
             result = percentage * 2
         end_time = time.time()
-        
+
         # Операция должна выполняться быстро
-        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций 
+        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций

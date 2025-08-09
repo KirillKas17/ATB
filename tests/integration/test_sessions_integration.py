@@ -1,15 +1,24 @@
 """
 Интеграционные тесты для модуля sessions.
 """
+
 from unittest.mock import Mock, AsyncMock, patch
 from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
 from domain.type_definitions.session_types import (
-    SessionType, SessionPhase, SessionProfile, SessionBehavior, SessionTimeWindow,
-    MarketConditions, MarketRegime, SessionIntensity, SessionAnalysisResult,
-    SessionMetrics, ConfidenceScore
+    SessionType,
+    SessionPhase,
+    SessionProfile,
+    SessionBehavior,
+    SessionTimeWindow,
+    MarketConditions,
+    MarketRegime,
+    SessionIntensity,
+    SessionAnalysisResult,
+    SessionMetrics,
+    ConfidenceScore,
 )
 from domain.value_objects.timestamp import Timestamp
 from domain.sessions.session_profile import SessionProfileRegistry
@@ -23,133 +32,151 @@ from domain.sessions.session_analyzer_factory import SessionAnalyzerFactory
 from domain.sessions.factories import get_session_service
 from domain.sessions.repositories import SessionDataRepository, SessionConfigurationRepository
 
+
 # Заглушки для отсутствующих классов
 class MockSessionProfileRegistry:
     def get_profile(self, session_type) -> Any:
         return Mock(spec=SessionProfile)
+
 
 class MockSessionMarker:
     def get_session_context(self) -> Any:
         return {
             "timestamp": datetime.now(),
             "active_sessions": [SessionType.ASIAN],
-            "primary_session": {"session_type": SessionType.ASIAN}
+            "primary_session": {"session_type": SessionType.ASIAN},
         }
-    
+
     def is_session_active(self, session_type) -> Any:
         return True
-    
+
     def get_session_overlap(self, session1, session2) -> Any:
         return 0.5
-    
+
     def get_next_session_change(self) -> Any:
         return {"time_ahead_hours": 2.0}
-    
+
     def get_session_phase(self, session_type) -> Any:
         return SessionPhase.MID_SESSION
+
 
 class MockSessionInfluenceAnalyzer:
     def analyze_session_influence(self, symbol, market_data, session_profile) -> Any:
         return Mock(spec=SessionAnalysisResult)
 
+
 class MockSessionAnalyzer:
     def analyze_session_metrics(self, market_data, session_profile) -> Any:
         return {"volume": 1.0, "volatility": 1.0}
-    
+
     def analyze_market_conditions(self, market_data, session_profile) -> Any:
         return {"regime": MarketRegime.RANGING}
-    
+
     def generate_predictions(self, metrics, conditions, session_profile) -> Any:
         return {"volatility": 1.1, "volume": 1.2}
-    
+
     def identify_risk_factors(self, metrics, conditions, session_profile) -> Any:
         return ["manipulation", "gap"]
+
 
 class MockSessionManager:
     def register_session_analyzer(self, session_type, analyzer) -> Any:
         pass
-    
+
     def get_session_analyzer(self, session_type) -> Any:
         return Mock()
-    
+
     def analyze_session(self, session_type, symbol, market_data) -> Any:
         return Mock(spec=SessionAnalysisResult)
-    
+
     def get_session_statistics(self, session_type) -> Any:
         return {"total_analyses": 10}
+
 
 class MockSessionOptimizer:
     def optimize_session_parameters(self, session_profile, market_data) -> Any:
         return Mock(spec=SessionProfile)
-    
+
     def optimize_trading_strategy(self, session_profile, market_conditions) -> Any:
         return {"strategy": "optimized"}
-    
+
     def optimize_risk_management(self, session_profile, market_conditions) -> Any:
         return {"risk": "optimized"}
+
 
 class MockSessionPredictor:
     def predict_session_behavior(self, session_profile, market_conditions) -> Any:
         return {"behavior": "predicted"}
-    
+
     def predict_session_transitions(self, current_session, market_conditions) -> Any:
-        return [{"from_session": current_session, "to_session": SessionType.LONDON, "probability": 0.8, "time_ahead_hours": 2.0}]
-    
+        return [
+            {
+                "from_session": current_session,
+                "to_session": SessionType.LONDON,
+                "probability": 0.8,
+                "time_ahead_hours": 2.0,
+            }
+        ]
+
     def predict_market_regime_changes(self, current_regime, session_profile) -> Any:
         return [{"regime": MarketRegime.TRENDING_BULL, "probability": 0.6}]
+
 
 class MockSessionAnalyzerFactory:
     def create_analyzer(self, session_type, config=None) -> Any:
         return Mock()
-    
+
     def get_available_analyzers(self) -> Any:
         return ["analyzer1", "analyzer2"]
 
+
 class MockSessionService:
     def get_current_session_context(self) -> Any:
-        return {
-            "active_sessions": [SessionType.ASIAN],
-            "primary_session": SessionType.ASIAN
-        }
-    
+        return {"active_sessions": [SessionType.ASIAN], "primary_session": SessionType.ASIAN}
+
     def analyze_session_influence(self, symbol, market_data) -> Any:
         return Mock(spec=SessionAnalysisResult)
-    
+
     def predict_session_behavior(self, session_type, market_conditions) -> Any:
         return {"behavior": "predicted"}
-    
+
     def get_session_recommendations(self, session_type) -> Any:
         return ["recommendation1", "recommendation2"]
-    
+
     def get_session_statistics(self, session_type) -> Any:
         return {"total_analyses": 10}
+
 
 class MockSessionDataRepository:
     def save_session_analysis(self, analysis_result) -> Any:
         pass
-    
+
     def get_session_analysis(self, session_type, start_time, end_time) -> Any:
         return [Mock(spec=SessionAnalysisResult)]
-    
+
     def get_session_statistics(self, session_type, lookback_days=1) -> Any:
         return {"total_analyses": 10}
+
 
 class MockSessionConfigurationRepository:
     def save_session_profile(self, session_profile) -> Any:
         pass
-    
+
     def get_session_profile(self, session_type) -> Any:
         return Mock(spec=SessionProfile)
-    
+
     def get_all_session_profiles(self) -> Any:
         return {SessionType.ASIAN: Mock(spec=SessionProfile)}
+
 
 # Заглушка для get_session_service
 def get_session_service_mock() -> Any:
     return MockSessionService()
 
+
 class TestSessionsIntegration:
     """Интеграционные тесты для модуля sessions."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.registry = MockSessionProfileRegistry()
@@ -163,6 +190,7 @@ class TestSessionsIntegration:
         self.service = MockSessionService()
         self.data_repo = MockSessionDataRepository()
         self.config_repo = MockSessionConfigurationRepository()
+
     def test_full_session_analysis_pipeline(self: "TestSessionsIntegration") -> None:
         """Тест полного пайплайна анализа сессии."""
         # 1. Получаем профиль сессии
@@ -171,9 +199,7 @@ class TestSessionsIntegration:
         # 2. Создаем тестовые рыночные данные
         market_data = self._create_test_market_data()
         # 3. Анализируем влияние сессии
-        influence_result = self.influence_analyzer.analyze_session_influence(
-            "BTCUSDT", market_data, session_profile
-        )
+        influence_result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
         assert isinstance(influence_result, SessionAnalysisResult)
         # 4. Анализируем метрики сессии
         metrics = self.analyzer.analyze_session_metrics(market_data, session_profile)
@@ -193,6 +219,7 @@ class TestSessionsIntegration:
         statistics = self.data_repo.get_session_statistics(SessionType.ASIAN, lookback_days=1)
         assert isinstance(statistics, dict)
         assert "total_analyses" in statistics
+
     def test_session_manager_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionManager."""
         # 1. Регистрируем анализатор
@@ -209,6 +236,7 @@ class TestSessionsIntegration:
         # 4. Получаем статистику
         statistics = self.manager.get_session_statistics(session_type)
         assert isinstance(statistics, dict)
+
     def test_session_optimizer_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionOptimizer."""
         # 1. Создаем тестовые данные
@@ -216,61 +244,48 @@ class TestSessionsIntegration:
         market_data = self._create_test_market_data()
         market_conditions = self._create_test_market_conditions()
         # 2. Оптимизируем параметры сессии
-        optimized_profile = self.optimizer.optimize_session_parameters(
-            session_profile, market_data
-        )
+        optimized_profile = self.optimizer.optimize_session_parameters(session_profile, market_data)
         assert isinstance(optimized_profile, SessionProfile)
         # 3. Оптимизируем торговую стратегию
-        strategy_params = self.optimizer.optimize_trading_strategy(
-            session_profile, market_conditions
-        )
+        strategy_params = self.optimizer.optimize_trading_strategy(session_profile, market_conditions)
         assert isinstance(strategy_params, dict)
         # 4. Оптимизируем управление рисками
-        risk_params = self.optimizer.optimize_risk_management(
-            session_profile, market_conditions
-        )
+        risk_params = self.optimizer.optimize_risk_management(session_profile, market_conditions)
         assert isinstance(risk_params, dict)
+
     def test_session_predictor_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionPredictor."""
         # 1. Создаем тестовые данные
         session_profile = self.registry.get_profile(SessionType.NEW_YORK)
         market_conditions = self._create_test_market_conditions()
         # 2. Предсказываем поведение сессии
-        behavior_prediction = self.predictor.predict_session_behavior(
-            session_profile, market_conditions
-        )
+        behavior_prediction = self.predictor.predict_session_behavior(session_profile, market_conditions)
         assert isinstance(behavior_prediction, dict)
         # 3. Предсказываем переходы сессий
         current_session = SessionType.ASIAN
-        transitions = self.predictor.predict_session_transitions(
-            current_session, market_conditions
-        )
+        transitions = self.predictor.predict_session_transitions(current_session, market_conditions)
         assert isinstance(transitions, list)
         # 4. Предсказываем изменения рыночного режима
         current_regime = MarketRegime.RANGING
-        regime_changes = self.predictor.predict_market_regime_changes(
-            current_regime, session_profile
-        )
+        regime_changes = self.predictor.predict_market_regime_changes(current_regime, session_profile)
         assert isinstance(regime_changes, list)
+
     def test_session_analyzer_factory_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionAnalyzerFactory."""
         # 1. Создаем анализаторы для всех типов сессий
         for session_type in SessionType:
             analyzer = self.factory.create_analyzer(session_type)
             assert analyzer is not None
-            assert hasattr(analyzer, 'analyze_session_influence')
+            assert hasattr(analyzer, "analyze_session_influence")
         # 2. Создаем анализатор с кастомной конфигурацией
-        config = {
-            "analysis_depth": "deep",
-            "prediction_horizon": 24,
-            "confidence_threshold": 0.8
-        }
+        config = {"analysis_depth": "deep", "prediction_horizon": 24, "confidence_threshold": 0.8}
         analyzer = self.factory.create_analyzer(SessionType.ASIAN, config=config)
         assert analyzer is not None
         # 3. Получаем доступные анализаторы
         analyzers = self.factory.get_available_analyzers()
         assert isinstance(analyzers, list)
         assert len(analyzers) > 0
+
     def test_session_service_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionService."""
         # 1. Получаем текущий контекст сессии
@@ -292,6 +307,7 @@ class TestSessionsIntegration:
         # 5. Получаем статистику
         statistics = self.service.get_session_statistics(SessionType.ASIAN)
         assert isinstance(statistics, dict)
+
     def test_repositories_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции репозиториев."""
         # 1. Создаем тестовые данные
@@ -312,14 +328,13 @@ class TestSessionsIntegration:
         # 6. Получаем анализ
         start_time = Timestamp(analysis_result.timestamp.to_datetime())
         end_time = Timestamp(analysis_result.timestamp.to_datetime())
-        retrieved_analyses = self.data_repo.get_session_analysis(
-            SessionType.ASIAN, start_time, end_time
-        )
+        retrieved_analyses = self.data_repo.get_session_analysis(SessionType.ASIAN, start_time, end_time)
         assert len(retrieved_analyses) > 0
         # 7. Получаем статистику
         statistics = self.data_repo.get_session_statistics(SessionType.ASIAN, lookback_days=1)
         assert isinstance(statistics, dict)
         assert "total_analyses" in statistics
+
     def test_session_marker_integration(self: "TestSessionsIntegration") -> None:
         """Тест интеграции SessionMarker."""
         # 1. Получаем контекст сессии
@@ -347,6 +362,7 @@ class TestSessionsIntegration:
         for session_type in SessionType:
             phase = self.marker.get_session_phase(session_type)
             assert isinstance(phase, SessionPhase)
+
     def test_cross_session_analysis_integration(self: "TestSessionsIntegration") -> None:
         """Тест кросс-сессионного анализа."""
         # 1. Анализируем все типы сессий
@@ -354,9 +370,7 @@ class TestSessionsIntegration:
         results = {}
         for session_type in SessionType:
             session_profile = self.registry.get_profile(session_type)
-            result = self.influence_analyzer.analyze_session_influence(
-                "BTCUSDT", market_data, session_profile
-            )
+            result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
             results[session_type] = result
         # 2. Проверяем результаты
         assert len(results) == len(SessionType)
@@ -369,11 +383,12 @@ class TestSessionsIntegration:
             metrics_comparison[session_type] = {
                 "confidence": float(result.confidence),
                 "volatility": result.predictions.get("volatility", 0.0),
-                "volume": result.predictions.get("volume", 0.0)
+                "volume": result.predictions.get("volume", 0.0),
             }
         # 4. Проверяем, что метрики различаются между сессиями
         confidences = [metrics["confidence"] for metrics in metrics_comparison.values()]
         assert len(set(confidences)) > 1  # Должны быть различия
+
     def test_session_transition_analysis_integration(self: "TestSessionsIntegration") -> None:
         """Тест анализа переходов между сессиями."""
         # 1. Получаем текущий контекст
@@ -381,9 +396,7 @@ class TestSessionsIntegration:
         current_session = context["primary_session"]["session_type"]
         # 2. Предсказываем переходы
         market_conditions = self._create_test_market_conditions()
-        transitions = self.predictor.predict_session_transitions(
-            current_session, market_conditions
-        )
+        transitions = self.predictor.predict_session_transitions(current_session, market_conditions)
         # 3. Проверяем переходы
         assert isinstance(transitions, list)
         for transition in transitions:
@@ -398,24 +411,26 @@ class TestSessionsIntegration:
             session_profile = self.registry.get_profile(to_session)
             # Анализируем влияние будущей сессии
             market_data = self._create_test_market_data()
-            result = self.influence_analyzer.analyze_session_influence(
-                "BTCUSDT", market_data, session_profile
-            )
+            result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
             assert isinstance(result, SessionAnalysisResult)
+
     def _create_test_market_data(self) -> pd.DataFrame:
         """Создает тестовые рыночные данные."""
         # Создаем тестовые данные
-        dates = pd.DatetimeIndex(pd.date_range('2023-01-01', periods=1000, freq='1H'))
-        return pd.DataFrame({
-            'timestamp': dates,
-            'open': np.random.uniform(50000, 51000, 1000),
-            'high': np.random.uniform(50000, 51000, 1000),
-            'low': np.random.uniform(50000, 51000, 1000),
-            'close': np.random.uniform(50000, 51000, 1000),
-            'volume': np.random.uniform(100, 1000, 1000),
-            'bid': np.random.uniform(50000, 51000, 1000),
-            'ask': np.random.uniform(50000, 51000, 1000)
-        })
+        dates = pd.DatetimeIndex(pd.date_range("2023-01-01", periods=1000, freq="1H"))
+        return pd.DataFrame(
+            {
+                "timestamp": dates,
+                "open": np.random.uniform(50000, 51000, 1000),
+                "high": np.random.uniform(50000, 51000, 1000),
+                "low": np.random.uniform(50000, 51000, 1000),
+                "close": np.random.uniform(50000, 51000, 1000),
+                "volume": np.random.uniform(100, 1000, 1000),
+                "bid": np.random.uniform(50000, 51000, 1000),
+                "ask": np.random.uniform(50000, 51000, 1000),
+            }
+        )
+
     def _create_test_market_conditions(self) -> MarketConditions:
         """Создает тестовые рыночные условия."""
         return MarketConditions(
@@ -426,8 +441,9 @@ class TestSessionsIntegration:
             momentum=0.6,
             trend_strength=0.4,
             market_regime=MarketRegime.RANGING,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
+
     def _create_test_analysis_result(self) -> SessionAnalysisResult:
         """Создает тестовый результат анализа."""
         return SessionAnalysisResult(
@@ -447,7 +463,7 @@ class TestSessionsIntegration:
                 peak_influence_time_minutes=30,
                 spread_impact=1.0,
                 liquidity_impact=1.0,
-                correlation_with_other_sessions=0.8
+                correlation_with_other_sessions=0.8,
             ),
             market_conditions=MarketConditions(
                 volatility=1.1,
@@ -457,8 +473,8 @@ class TestSessionsIntegration:
                 momentum=0.5,
                 trend_strength=0.3,
                 market_regime=MarketRegime.RANGING,
-                session_intensity=SessionIntensity.NORMAL
+                session_intensity=SessionIntensity.NORMAL,
             ),
             predictions={"volatility": 1.1, "volume": 1.2},
-            risk_factors=["manipulation", "gap"]
-        ) 
+            risk_factors=["manipulation", "gap"],
+        )

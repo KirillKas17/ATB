@@ -20,8 +20,11 @@ from domain.value_objects.volume import Volume
 from domain.value_objects.price import Price
 from domain.value_objects.currency import Currency
 from infrastructure.external_services.bybit_client import BybitClient
+
+
 class TestCompleteTradingSession:
     """E2E тесты полной торговой сессии."""
+
     @pytest.fixture
     def mock_di_container(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для мока DI контейнера."""
@@ -56,6 +59,7 @@ class TestCompleteTradingSession:
             "portfolio_repository": mock_portfolio_repo,
         }.get(service_type, Mock())
         return container
+
     @pytest.fixture
     def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с тестовыми рыночными данными."""
@@ -69,27 +73,21 @@ class TestCompleteTradingSession:
             "low": 49800.0,
             "close": 50000.0,
         }
+
     @pytest.mark.e2e
     @pytest.mark.asyncio
-    async def test_complete_trading_session_buy_sell(
-        self,
-        mock_di_container,
-        sample_market_data
-    ) -> None:
+    async def test_complete_trading_session_buy_sell(self, mock_di_container, sample_market_data) -> None:
         """Тест полной торговой сессии: покупка и продажа."""
         # Arrange
-        with patch('application.di_container.DIContainer', return_value=mock_di_container):
+        with patch("application.di_container.DIContainer", return_value=mock_di_container):
             # Создание use cases
             manage_orders = OrderManagementUseCase(
-                exchange=mock_di_container.get(BybitClient),
-                order_repository=mock_di_container.get("order_repository")
+                exchange=mock_di_container.get(BybitClient), order_repository=mock_di_container.get("order_repository")
             )
             manage_positions = PositionManagementUseCase(
                 position_repository=mock_di_container.get("position_repository")
             )
-            manage_risk = RiskManagementUseCase(
-                portfolio_repository=mock_di_container.get("portfolio_repository")
-            )
+            manage_risk = RiskManagementUseCase(portfolio_repository=mock_di_container.get("portfolio_repository"))
         # Act - Шаг 1: Анализ рынка и принятие решения о покупке
         market_analysis = await self._analyze_market(sample_market_data)
         assert market_analysis["should_trade"] is True
@@ -137,28 +135,20 @@ class TestCompleteTradingSession:
         sell_result = await manage_orders.create_order(sell_order)
         assert sell_result["id"] == "e2e_order_123"
         # Act - Шаг 8: Закрытие позиции
-        close_result = await manage_positions.close_position(
-            "BTCUSDT", 
-            Decimal("0.001"), 
-            Decimal("51000")
-        )
+        close_result = await manage_positions.close_position("BTCUSDT", Decimal("0.001"), Decimal("51000"))
         assert close_result is True
         # Act - Шаг 9: Расчет PnL
         pnl = await self._calculate_session_pnl(50000, 51000, Decimal("0.001"))
         assert pnl == 10.0  # (51000-50000)*0.001
+
     @pytest.mark.e2e
     @pytest.mark.asyncio
-    async def test_trading_session_with_stop_loss(
-        self,
-        mock_di_container,
-        sample_market_data
-    ) -> None:
+    async def test_trading_session_with_stop_loss(self, mock_di_container, sample_market_data) -> None:
         """Тест торговой сессии со стоп-лоссом."""
         # Arrange
-        with patch('application.di_container.DIContainer', return_value=mock_di_container):
+        with patch("application.di_container.DIContainer", return_value=mock_di_container):
             manage_orders = OrderManagementUseCase(
-                exchange=mock_di_container.get(BybitClient),
-                order_repository=mock_di_container.get("order_repository")
+                exchange=mock_di_container.get(BybitClient), order_repository=mock_di_container.get("order_repository")
             )
             manage_positions = PositionManagementUseCase(
                 position_repository=mock_di_container.get("position_repository")
@@ -175,11 +165,7 @@ class TestCompleteTradingSession:
         # Act - Шаг 2: Падение цены и срабатывание стоп-лосса
         falling_market_data = {**sample_market_data, "price": 47500.0}  # Падение на 5%
         # Проверка стоп-лосса
-        stop_loss_triggered = await self._check_stop_loss(
-            position, 
-            Decimal("47500"), 
-            Decimal("0.05")  # 5% стоп-лосс
-        )
+        stop_loss_triggered = await self._check_stop_loss(position, Decimal("47500"), Decimal("0.05"))  # 5% стоп-лосс
         assert stop_loss_triggered is True
         # Act - Шаг 3: Автоматическое закрытие позиции
         stop_loss_order = Order(
@@ -193,19 +179,15 @@ class TestCompleteTradingSession:
         # Act - Шаг 4: Расчет убытка
         loss = await self._calculate_session_pnl(50000, 47500, Decimal("0.001"))
         assert loss == -25.0  # (47500-50000)*0.001
+
     @pytest.mark.e2e
     @pytest.mark.asyncio
-    async def test_trading_session_with_take_profit(
-        self,
-        mock_di_container,
-        sample_market_data
-    ) -> None:
+    async def test_trading_session_with_take_profit(self, mock_di_container, sample_market_data) -> None:
         """Тест торговой сессии с тейк-профитом."""
         # Arrange
-        with patch('application.di_container.DIContainer', return_value=mock_di_container):
+        with patch("application.di_container.DIContainer", return_value=mock_di_container):
             manage_orders = OrderManagementUseCase(
-                exchange=mock_di_container.get(BybitClient),
-                order_repository=mock_di_container.get("order_repository")
+                exchange=mock_di_container.get(BybitClient), order_repository=mock_di_container.get("order_repository")
             )
             manage_positions = PositionManagementUseCase(
                 position_repository=mock_di_container.get("position_repository")
@@ -223,9 +205,7 @@ class TestCompleteTradingSession:
         rising_market_data = {**sample_market_data, "price": 55000.0}  # Рост на 10%
         # Проверка тейк-профита
         take_profit_triggered = await self._check_take_profit(
-            position, 
-            Decimal("55000"), 
-            Decimal("0.10")  # 10% тейк-профит
+            position, Decimal("55000"), Decimal("0.10")  # 10% тейк-профит
         )
         assert take_profit_triggered is True
         # Act - Шаг 3: Автоматическое закрытие позиции
@@ -241,21 +221,17 @@ class TestCompleteTradingSession:
         # Act - Шаг 4: Расчет прибыли
         profit = await self._calculate_session_pnl(50000, 55000, Decimal("0.001"))
         assert profit == 50.0  # (55000-50000)*0.001
+
     @pytest.mark.e2e
     @pytest.mark.asyncio
-    async def test_trading_session_error_handling(
-        self,
-        mock_di_container,
-        sample_market_data
-    ) -> None:
+    async def test_trading_session_error_handling(self, mock_di_container, sample_market_data) -> None:
         """Тест обработки ошибок в торговой сессии."""
         # Arrange - Настройка ошибки биржи
         mock_exchange = mock_di_container.get(BybitClient)
         mock_exchange.create_order.side_effect = Exception("Network error")
-        with patch('application.di_container.DIContainer', return_value=mock_di_container):
+        with patch("application.di_container.DIContainer", return_value=mock_di_container):
             manage_orders = OrderManagementUseCase(
-                exchange=mock_exchange,
-                order_repository=mock_di_container.get("order_repository")
+                exchange=mock_exchange, order_repository=mock_di_container.get("order_repository")
             )
         # Act & Assert - Проверка обработки ошибки
         order = Order(
@@ -272,19 +248,15 @@ class TestCompleteTradingSession:
         mock_exchange.create_order.return_value = {"id": "recovery_order", "status": "pending"}
         recovery_result = await manage_orders.create_order(order)
         assert recovery_result["id"] == "recovery_order"
+
     @pytest.mark.e2e
     @pytest.mark.asyncio
-    async def test_trading_session_performance_metrics(
-        self,
-        mock_di_container,
-        sample_market_data
-    ) -> None:
+    async def test_trading_session_performance_metrics(self, mock_di_container, sample_market_data) -> None:
         """Тест метрик производительности торговой сессии."""
         # Arrange
-        with patch('application.di_container.DIContainer', return_value=mock_di_container):
+        with patch("application.di_container.DIContainer", return_value=mock_di_container):
             manage_orders = OrderManagementUseCase(
-                exchange=mock_di_container.get(BybitClient),
-                order_repository=mock_di_container.get("order_repository")
+                exchange=mock_di_container.get(BybitClient), order_repository=mock_di_container.get("order_repository")
             )
         # Act - Выполнение нескольких сделок
         trades = []
@@ -305,19 +277,15 @@ class TestCompleteTradingSession:
         assert metrics["success_rate"] == 1.0  # Все ордера успешны в моке
         assert "average_execution_time" in metrics
         assert "total_volume" in metrics
+
     @pytest.mark.e2e
     @pytest.mark.asyncio
-    async def test_trading_session_concurrent_orders(
-        self,
-        mock_di_container,
-        sample_market_data
-    ) -> None:
+    async def test_trading_session_concurrent_orders(self, mock_di_container, sample_market_data) -> None:
         """Тест конкурентных ордеров в торговой сессии."""
         # Arrange
-        with patch('application.di_container.DIContainer', return_value=mock_di_container):
+        with patch("application.di_container.DIContainer", return_value=mock_di_container):
             manage_orders = OrderManagementUseCase(
-                exchange=mock_di_container.get(BybitClient),
-                order_repository=mock_di_container.get("order_repository")
+                exchange=mock_di_container.get(BybitClient), order_repository=mock_di_container.get("order_repository")
             )
         # Act - Создание конкурентных ордеров
         orders = [
@@ -348,6 +316,7 @@ class TestCompleteTradingSession:
         # Assert - Проверка результатов
         assert len(results) == 3
         assert all(result["id"] == "e2e_order_123" for result in results)
+
     # Вспомогательные методы
     async def _analyze_market(self, market_data: dict) -> dict:
         """Анализ рыночных данных."""
@@ -359,19 +328,23 @@ class TestCompleteTradingSession:
             return {"should_trade": True, "action": "buy"}
         else:
             return {"should_trade": False, "action": "hold"}
+
     async def _check_stop_loss(self, position: Position, current_price: Decimal, stop_loss_pct: Decimal) -> bool:
         """Проверка срабатывания стоп-лосса."""
         entry_price = position.entry_price.amount
         stop_loss_price = entry_price * (1 - stop_loss_pct)
         return current_price <= stop_loss_price
+
     async def _check_take_profit(self, position: Position, current_price: Decimal, take_profit_pct: Decimal) -> bool:
         """Проверка срабатывания тейк-профита."""
         entry_price = position.entry_price.amount
         take_profit_price = entry_price * (1 + take_profit_pct)
         return current_price >= take_profit_price
+
     async def _calculate_session_pnl(self, entry_price: int, exit_price: int, quantity: Decimal) -> float:
         """Расчет PnL сессии."""
         return float((exit_price - entry_price) * quantity)
+
     async def _calculate_performance_metrics(self, trades: list) -> dict:
         """Расчет метрик производительности."""
         return {
@@ -379,4 +352,4 @@ class TestCompleteTradingSession:
             "success_rate": 1.0,
             "average_execution_time": 0.1,
             "total_volume": len(trades) * 0.001,
-        } 
+        }

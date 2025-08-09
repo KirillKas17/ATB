@@ -5,6 +5,7 @@
 
 import logging
 from abc import ABC
+from enum import Enum
 from typing import Dict, Optional, TypeVar, Any
 
 from domain.type_definitions import StrategyId
@@ -20,6 +21,18 @@ from domain.protocols.strategy_optimization_protocol import StrategyOptimization
 from domain.protocols.lifecycle_management_protocol import LifecycleManagementProtocolImpl
 from domain.protocols.error_handling_protocol import ErrorHandlingProtocolImpl
 from domain.protocols.strategy_utilities_protocol import StrategyUtilitiesProtocolImpl
+
+
+class MarketRegime(Enum):
+    """Режимы рынка."""
+    TRENDING = "trending"
+    SIDEWAYS = "sideways"
+    VOLATILE = "volatile"
+    RANGING = "ranging"
+    BREAKOUT = "breakout"
+    CONSOLIDATION = "consolidation"
+    ACCUMULATION = "accumulation"
+    DISTRIBUTION = "distribution"
 
 
 T = TypeVar("T", bound=Strategy)

@@ -9,7 +9,7 @@ from shared.decimal_utils import TradingDecimal, to_trading_decimal
 from domain.services.technical_analysis import DefaultTechnicalAnalysisService
 from domain.type_definitions.strategy_types import (
     MarketRegime,
-    Signal,
+    Signal as DomainSignal,
     StrategyAnalysis,
     StrategyDirection,
     StrategyMetrics,
@@ -23,7 +23,7 @@ from infrastructure.core.technical_analysis import (
     calculate_rsi,
 )
 
-from .base_strategy import BaseStrategy
+from .base_strategy import BaseStrategy, Signal as BaseSignal
 
 
 @dataclass
@@ -241,7 +241,7 @@ class TrendStrategy(BaseStrategy):
             # Расчет структуры рынка
             market_structure = self.technical_analysis.calculate_market_structure(data)
             # Исправление: безопасное извлечение данных из market_structure
-            support_resistance = []
+            support_resistance: List[float] = []
             if hasattr(market_structure, '__iter__') and not isinstance(market_structure, (str, bytes)):
                 support_resistance = [
                     float(level) if hasattr(level, '__float__') else 0.0
@@ -364,21 +364,21 @@ class TrendStrategy(BaseStrategy):
                     to_trading_decimal(entry_price), "short", to_trading_decimal(1.0)
                 ))
 
-    def _validate_signal(self, signal) -> bool:
+    def _validate_signal(self, signal: Union[BaseSignal, DomainSignal]) -> bool:
         """Критическая валидация торгового сигнала"""
         try:
             # Проверка цены входа
-            if not hasattr(signal, 'entry_price') or signal.entry_price <= 0:
+            if not hasattr(signal, 'entry_price') or signal.entry_price is None or signal.entry_price <= 0:
                 logger.warning("Invalid entry_price in signal")
                 return False
                 
             # Проверка стоп-лосса
-            if not hasattr(signal, 'stop_loss') or signal.stop_loss <= 0:
+            if not hasattr(signal, 'stop_loss') or signal.stop_loss is None or signal.stop_loss <= 0:
                 logger.warning("Invalid stop_loss in signal")
                 return False
                 
             # Проверка тейк-профита
-            if not hasattr(signal, 'take_profit') or signal.take_profit <= 0:
+            if not hasattr(signal, 'take_profit') or signal.take_profit is None or signal.take_profit <= 0:
                 logger.warning("Invalid take_profit in signal")
                 return False
                 
@@ -389,21 +389,25 @@ class TrendStrategy(BaseStrategy):
                 
             # Критическая проверка логики стоп-лосса
             if signal.direction == "long":
-                if signal.stop_loss >= signal.entry_price:
+                if signal.stop_loss is not None and signal.entry_price is not None and signal.stop_loss >= signal.entry_price:
                     logger.warning(f"Long signal: stop_loss ({signal.stop_loss}) >= entry_price ({signal.entry_price})")
                     return False
-                if signal.take_profit <= signal.entry_price:
+                if signal.take_profit is not None and signal.entry_price is not None and signal.take_profit <= signal.entry_price:
                     logger.warning(f"Long signal: take_profit ({signal.take_profit}) <= entry_price ({signal.entry_price})")
                     return False
             elif signal.direction == "short":
-                if signal.stop_loss <= signal.entry_price:
+                if signal.stop_loss is not None and signal.entry_price is not None and signal.stop_loss <= signal.entry_price:
                     logger.warning(f"Short signal: stop_loss ({signal.stop_loss}) <= entry_price ({signal.entry_price})")
                     return False
-                if signal.take_profit >= signal.entry_price:
+                if signal.take_profit is not None and signal.entry_price is not None and signal.take_profit >= signal.entry_price:
                     logger.warning(f"Short signal: take_profit ({signal.take_profit}) >= entry_price ({signal.entry_price})")
                     return False
                     
             # Проверка разумности расстояний
+            if signal.entry_price is None or signal.stop_loss is None or signal.take_profit is None:
+                logger.warning("Missing required price values in signal")
+                return False
+                
             entry_price = float(signal.entry_price)
             stop_distance = abs(float(signal.stop_loss) - entry_price)
             profit_distance = abs(float(signal.take_profit) - entry_price)
@@ -443,7 +447,7 @@ class TrendStrategy(BaseStrategy):
             # Расчет структуры рынка
             market_structure = self.technical_analysis.calculate_market_structure(data)
             # Исправление: безопасное извлечение данных из market_structure
-            support_resistance = []
+            support_resistance: List[float] = []
             if hasattr(market_structure, '__iter__') and not isinstance(market_structure, (str, bytes)):
                 support_resistance = [
                     float(level) if hasattr(level, '__float__') else 0.0
@@ -545,7 +549,7 @@ class TrendStrategy(BaseStrategy):
                 entry_price * 1.02 if position_type == "long" else entry_price * 0.98
             )
 
-    def analyze(self, data: pd.DataFrame) -> dict[str, Any]:
+    def analyze(self, data: pd.DataFrame) -> Dict[str, Any]:
         """
         Анализ рыночных данных для определения тренда.
         Args:
@@ -653,16 +657,14 @@ class TrendStrategy(BaseStrategy):
             logger.error(f"Error in analyze: {str(e)}")
             raise
 
-    def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:
+    def generate_signal(self, data: pd.DataFrame) -> Optional[BaseSignal]:
         """
         Генерация торгового сигнала на основе трендовой логики и индикаторов.
         Args:
             data: DataFrame с OHLCV данными
         Returns:
-            Optional[Signal]: Торговый сигнал или None
+            Optional[BaseSignal]: Торговый сигнал или None
         """
-        from domain.type_definitions.strategy_types import Signal as DomainSignal
-
         try:
             df = self._calculate_indicators(data.copy())
             if df.shape[0] < max(self._trend_config.ema_fast, self._trend_config.ema_slow):
@@ -680,12 +682,13 @@ class TrendStrategy(BaseStrategy):
                     df, entry_price, stop_loss, "long"
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
-                signal = DomainSignal(
+                from decimal import Decimal
+                signal = BaseSignal(
                     direction="long",
-                    entry_price=entry_price,
-                    stop_loss=stop_loss,
-                    take_profit=take_profit,
-                    confidence=confidence,
+                    entry_price=Decimal(str(entry_price)),
+                    stop_loss=Decimal(str(stop_loss)),
+                    take_profit=Decimal(str(take_profit)),
+                    confidence=Decimal(str(confidence)),
                 )
                 # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
                 if not self._validate_signal(signal):
@@ -699,12 +702,12 @@ class TrendStrategy(BaseStrategy):
                     df, entry_price, stop_loss, "short"
                 )
                 confidence = min(1.0, (adx - self._trend_config.adx_threshold) / 20 + 0.7)
-                signal = DomainSignal(
+                signal = BaseSignal(
                     direction="short",
-                    entry_price=entry_price,
-                    stop_loss=stop_loss,
-                    take_profit=take_profit,
-                    confidence=confidence,
+                    entry_price=Decimal(str(entry_price)),
+                    stop_loss=Decimal(str(stop_loss)),
+                    take_profit=Decimal(str(take_profit)),
+                    confidence=Decimal(str(confidence)),
                 )
                 # КРИТИЧЕСКАЯ ВАЛИДАЦИЯ сигнала
                 if not self._validate_signal(signal):
@@ -717,13 +720,13 @@ class TrendStrategy(BaseStrategy):
             return None
 
 
-def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
+def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict[str, Any]]:
     """
     Стратегия на основе EMA и MACD.
     Args:
         data: Рыночные данные
     Returns:
-        Optional[Dict]: Сигнал на вход
+        Optional[Dict[str, Any]]: Сигнал на вход
     """
     try:
         strategy = TrendStrategy()
@@ -781,13 +784,13 @@ def trend_strategy_ema_macd(data: pd.DataFrame) -> Optional[Dict]:
         return None
 
 
-def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict]:
+def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict[str, Any]]:
     """
     Стратегия на основе Price Action.
     Args:
         data: Рыночные данные
     Returns:
-        Optional[Dict]: Сигнал на вход
+        Optional[Dict[str, Any]]: Сигнал на вход
     """
     try:
         strategy = TrendStrategy()
@@ -800,10 +803,10 @@ def trend_strategy_price_action(data: pd.DataFrame) -> Optional[Dict]:
             "up" if data["ema_fast"].iloc[-1] > data["ema_slow"].iloc[-1] else "down"
         )
         # Проверка паттернов
-        last_candle: pd.Series = data.iloc[-1] if hasattr(data, "iloc") and callable(data.iloc) else None
-        prev_candle: pd.Series = data.iloc[-2] if hasattr(data, "iloc") and callable(data.iloc) else None
+        last_candle: pd.Series = data.iloc[-1] if hasattr(data, "iloc") and callable(data.iloc) else pd.Series()
+        prev_candle: pd.Series = data.iloc[-2] if hasattr(data, "iloc") and callable(data.iloc) else pd.Series()
         
-        if last_candle is None or prev_candle is None:
+        if last_candle.empty or prev_candle.empty:
             return None
             
         # Простая проверка импульсной свечи (заменяем несуществующую функцию)

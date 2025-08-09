@@ -42,7 +42,7 @@ class NotificationConfig:
 class NotificationSystem:
     """Система уведомлений"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], NotificationConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], NotificationConfig]] = None) -> None:
         """
         Инициализация системы уведомлений.
 

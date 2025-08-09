@@ -30,7 +30,7 @@ from domain.protocols.ml_protocol import (
     ModelMetrics,
     ModelTrainingProtocol,
     ModelEvaluationProtocol,
-    PredictionProtocol
+    PredictionProtocol,
 )
 from domain.entities.ml import Model, ModelType, PredictionType
 from domain.entities.trading_pair import Symbol
@@ -59,7 +59,7 @@ class TestMLProtocol:
             description="Test model",
             version="1.0.0",
             author="Test Author",
-            tags=["test", "regression"]
+            tags=["test", "regression"],
         )
 
     @pytest.fixture
@@ -74,7 +74,7 @@ class TestMLProtocol:
             learning_rate=0.001,
             batch_size=32,
             epochs=100,
-            callbacks=[]
+            callbacks=[],
         )
 
     @pytest.fixture
@@ -85,145 +85,145 @@ class TestMLProtocol:
             ensemble_method="weighted_average",
             post_processing=True,
             uncertainty_estimation=True,
-            feature_importance=True
+            feature_importance=True,
         )
 
     def test_create_model_method_exists(self, mock_ml_protocol, sample_model_config):
         """Тест наличия метода create_model."""
         mock_ml_protocol.create_model = AsyncMock(return_value=Mock(spec=Model))
-        assert hasattr(mock_ml_protocol, 'create_model')
+        assert hasattr(mock_ml_protocol, "create_model")
         assert callable(mock_ml_protocol.create_model)
 
     def test_train_model_method_exists(self, mock_ml_protocol, sample_training_config):
         """Тест наличия метода train_model."""
         mock_ml_protocol.train_model = AsyncMock(return_value=Mock(spec=Model))
-        assert hasattr(mock_ml_protocol, 'train_model')
+        assert hasattr(mock_ml_protocol, "train_model")
         assert callable(mock_ml_protocol.train_model)
 
     def test_predict_method_exists(self, mock_ml_protocol):
         """Тест наличия метода predict."""
         mock_ml_protocol.predict = AsyncMock(return_value=Mock())
-        assert hasattr(mock_ml_protocol, 'predict')
+        assert hasattr(mock_ml_protocol, "predict")
         assert callable(mock_ml_protocol.predict)
 
     def test_batch_predict_method_exists(self, mock_ml_protocol):
         """Тест наличия метода batch_predict."""
         mock_ml_protocol.batch_predict = AsyncMock(return_value=[])
-        assert hasattr(mock_ml_protocol, 'batch_predict')
+        assert hasattr(mock_ml_protocol, "batch_predict")
         assert callable(mock_ml_protocol.batch_predict)
 
     def test_evaluate_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода evaluate_model."""
         mock_ml_protocol.evaluate_model = AsyncMock(return_value=Mock(spec=ModelMetrics))
-        assert hasattr(mock_ml_protocol, 'evaluate_model')
+        assert hasattr(mock_ml_protocol, "evaluate_model")
         assert callable(mock_ml_protocol.evaluate_model)
 
     def test_cross_validate_method_exists(self, mock_ml_protocol):
         """Тест наличия метода cross_validate."""
         mock_ml_protocol.cross_validate = AsyncMock(return_value={})
-        assert hasattr(mock_ml_protocol, 'cross_validate')
+        assert hasattr(mock_ml_protocol, "cross_validate")
         assert callable(mock_ml_protocol.cross_validate)
 
     def test_backtest_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода backtest_model."""
         mock_ml_protocol.backtest_model = AsyncMock(return_value={})
-        assert hasattr(mock_ml_protocol, 'backtest_model')
+        assert hasattr(mock_ml_protocol, "backtest_model")
         assert callable(mock_ml_protocol.backtest_model)
 
     def test_optimize_hyperparameters_method_exists(self, mock_ml_protocol):
         """Тест наличия метода optimize_hyperparameters."""
         mock_ml_protocol.optimize_hyperparameters = AsyncMock(return_value={})
-        assert hasattr(mock_ml_protocol, 'optimize_hyperparameters')
+        assert hasattr(mock_ml_protocol, "optimize_hyperparameters")
         assert callable(mock_ml_protocol.optimize_hyperparameters)
 
     def test_feature_selection_method_exists(self, mock_ml_protocol):
         """Тест наличия метода feature_selection."""
         mock_ml_protocol.feature_selection = AsyncMock(return_value=[])
-        assert hasattr(mock_ml_protocol, 'feature_selection')
+        assert hasattr(mock_ml_protocol, "feature_selection")
         assert callable(mock_ml_protocol.feature_selection)
 
     def test_calculate_feature_importance_method_exists(self, mock_ml_protocol):
         """Тест наличия метода calculate_feature_importance."""
         mock_ml_protocol.calculate_feature_importance = AsyncMock(return_value={})
-        assert hasattr(mock_ml_protocol, 'calculate_feature_importance')
+        assert hasattr(mock_ml_protocol, "calculate_feature_importance")
         assert callable(mock_ml_protocol.calculate_feature_importance)
 
     def test_save_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода save_model."""
         mock_ml_protocol.save_model = AsyncMock(return_value=True)
-        assert hasattr(mock_ml_protocol, 'save_model')
+        assert hasattr(mock_ml_protocol, "save_model")
         assert callable(mock_ml_protocol.save_model)
 
     def test_load_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода load_model."""
         mock_ml_protocol.load_model = AsyncMock(return_value=Mock(spec=Model))
-        assert hasattr(mock_ml_protocol, 'load_model')
+        assert hasattr(mock_ml_protocol, "load_model")
         assert callable(mock_ml_protocol.load_model)
 
     def test_get_model_status_method_exists(self, mock_ml_protocol):
         """Тест наличия метода get_model_status."""
         mock_ml_protocol.get_model_status = AsyncMock(return_value=Mock())
-        assert hasattr(mock_ml_protocol, 'get_model_status')
+        assert hasattr(mock_ml_protocol, "get_model_status")
         assert callable(mock_ml_protocol.get_model_status)
 
     def test_activate_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода activate_model."""
         mock_ml_protocol.activate_model = AsyncMock(return_value=True)
-        assert hasattr(mock_ml_protocol, 'activate_model')
+        assert hasattr(mock_ml_protocol, "activate_model")
         assert callable(mock_ml_protocol.activate_model)
 
     def test_deactivate_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода deactivate_model."""
         mock_ml_protocol.deactivate_model = AsyncMock(return_value=True)
-        assert hasattr(mock_ml_protocol, 'deactivate_model')
+        assert hasattr(mock_ml_protocol, "deactivate_model")
         assert callable(mock_ml_protocol.deactivate_model)
 
     def test_delete_model_method_exists(self, mock_ml_protocol):
         """Тест наличия метода delete_model."""
         mock_ml_protocol.delete_model = AsyncMock(return_value=True)
-        assert hasattr(mock_ml_protocol, 'delete_model')
+        assert hasattr(mock_ml_protocol, "delete_model")
         assert callable(mock_ml_protocol.delete_model)
 
     def test_monitor_model_drift_method_exists(self, mock_ml_protocol):
         """Тест наличия метода monitor_model_drift."""
         mock_ml_protocol.monitor_model_drift = AsyncMock(return_value={})
-        assert hasattr(mock_ml_protocol, 'monitor_model_drift')
+        assert hasattr(mock_ml_protocol, "monitor_model_drift")
         assert callable(mock_ml_protocol.monitor_model_drift)
 
     def test_create_ensemble_method_exists(self, mock_ml_protocol):
         """Тест наличия метода create_ensemble."""
         mock_ml_protocol.create_ensemble = AsyncMock(return_value=uuid4())
-        assert hasattr(mock_ml_protocol, 'create_ensemble')
+        assert hasattr(mock_ml_protocol, "create_ensemble")
         assert callable(mock_ml_protocol.create_ensemble)
 
     def test_ensemble_predict_method_exists(self, mock_ml_protocol):
         """Тест наличия метода ensemble_predict."""
         mock_ml_protocol.ensemble_predict = AsyncMock(return_value=Mock())
-        assert hasattr(mock_ml_protocol, 'ensemble_predict')
+        assert hasattr(mock_ml_protocol, "ensemble_predict")
         assert callable(mock_ml_protocol.ensemble_predict)
 
     def test_online_learning_method_exists(self, mock_ml_protocol):
         """Тест наличия метода online_learning."""
         mock_ml_protocol.online_learning = AsyncMock(return_value=True)
-        assert hasattr(mock_ml_protocol, 'online_learning')
+        assert hasattr(mock_ml_protocol, "online_learning")
         assert callable(mock_ml_protocol.online_learning)
 
     def test_transfer_learning_method_exists(self, mock_ml_protocol):
         """Тест наличия метода transfer_learning."""
         mock_ml_protocol.transfer_learning = AsyncMock(return_value=uuid4())
-        assert hasattr(mock_ml_protocol, 'transfer_learning')
+        assert hasattr(mock_ml_protocol, "transfer_learning")
         assert callable(mock_ml_protocol.transfer_learning)
 
     def test_handle_model_error_method_exists(self, mock_ml_protocol):
         """Тест наличия метода handle_model_error."""
         mock_ml_protocol.handle_model_error = AsyncMock(return_value=True)
-        assert hasattr(mock_ml_protocol, 'handle_model_error')
+        assert hasattr(mock_ml_protocol, "handle_model_error")
         assert callable(mock_ml_protocol.handle_model_error)
 
     def test_retry_prediction_method_exists(self, mock_ml_protocol):
         """Тест наличия метода retry_prediction."""
         mock_ml_protocol.retry_prediction = AsyncMock(return_value=Mock())
-        assert hasattr(mock_ml_protocol, 'retry_prediction')
+        assert hasattr(mock_ml_protocol, "retry_prediction")
         assert callable(mock_ml_protocol.retry_prediction)
 
 
@@ -252,9 +252,9 @@ class TestModelState:
             ModelState.ACTIVE: [ModelState.INACTIVE, ModelState.DEPRECATED, ModelState.ERROR],
             ModelState.INACTIVE: [ModelState.ACTIVE, ModelState.DEPRECATED, ModelState.ERROR],
             ModelState.ERROR: [ModelState.CREATED, ModelState.TRAINING],
-            ModelState.DEPRECATED: [ModelState.ERROR]
+            ModelState.DEPRECATED: [ModelState.ERROR],
         }
-        
+
         for state, valid_next_states in valid_transitions.items():
             assert isinstance(state, str)
             assert all(isinstance(next_state, str) for next_state in valid_next_states)
@@ -278,9 +278,9 @@ class TestFeatureType:
             FeatureType.FUNDAMENTAL,
             FeatureType.SENTIMENT,
             FeatureType.MARKET_MICROSTRUCTURE,
-            FeatureType.EXTERNAL
+            FeatureType.EXTERNAL,
         ]
-        
+
         for feature_type in valid_types:
             assert isinstance(feature_type, str)
             assert feature_type in [ft.value for ft in FeatureType]
@@ -304,9 +304,9 @@ class TestOptimizationMethod:
             OptimizationMethod.RANDOM_SEARCH,
             OptimizationMethod.BAYESIAN_OPTIMIZATION,
             OptimizationMethod.GENETIC_ALGORITHM,
-            OptimizationMethod.HYPEROPT
+            OptimizationMethod.HYPEROPT,
         ]
-        
+
         for method in valid_methods:
             assert isinstance(method, str)
             assert method in [om.value for om in OptimizationMethod]
@@ -339,7 +339,7 @@ class TestModelConfig:
             prediction_type=PredictionType.PRICE_PREDICTION,
             hyperparameters={},
             features=[],
-            target="price"
+            target="price",
         )
         assert valid_config.name == "Valid Model"
         assert valid_config.model_type == ModelType.LINEAR_REGRESSION
@@ -353,7 +353,7 @@ class TestModelConfig:
                 prediction_type=PredictionType.PRICE_PREDICTION,
                 hyperparameters={},
                 features=[],
-                target="price"
+                target="price",
             )
 
 
@@ -441,9 +441,9 @@ class TestModelMetrics:
             profit_factor=1.8,
             total_return=0.25,
             volatility=0.15,
-            calmar_ratio=2.5
+            calmar_ratio=2.5,
         )
-        
+
         assert metrics.mse == 0.01
         assert metrics.mae == 0.05
         assert metrics.r2 == 0.85
@@ -468,7 +468,7 @@ class TestModelMetrics:
             profit_factor=1.8,
             total_return=0.25,
             volatility=0.15,
-            calmar_ratio=2.5
+            calmar_ratio=2.5,
         )
         assert valid_metrics.mse >= 0
         assert valid_metrics.mae >= 0
@@ -486,37 +486,31 @@ class TestMLProtocolIntegration:
     async def test_ml_protocol_workflow(self, mock_ml_protocol, sample_model_config, sample_training_config):
         """Тест полного рабочего процесса ML протокола."""
         model_id = uuid4()
-        
+
         # Создание модели
         mock_model = Mock(spec=Model)
         mock_model.id = model_id
         mock_ml_protocol.create_model = AsyncMock(return_value=mock_model)
-        
+
         created_model = await mock_ml_protocol.create_model(sample_model_config)
         assert created_model.id == model_id
         mock_ml_protocol.create_model.assert_called_once_with(sample_model_config)
 
         # Обучение модели
-        training_data = pd.DataFrame({
-            'feature1': [1, 2, 3, 4, 5],
-            'feature2': [2, 4, 6, 8, 10],
-            'price': [100, 200, 300, 400, 500]
-        })
-        
-        mock_ml_protocol.train_model = AsyncMock(return_value=mock_model)
-        trained_model = await mock_ml_protocol.train_model(
-            model_id, training_data, sample_training_config
-        )
-        assert trained_model.id == model_id
-        mock_ml_protocol.train_model.assert_called_once_with(
-            model_id, training_data, sample_training_config, None
+        training_data = pd.DataFrame(
+            {"feature1": [1, 2, 3, 4, 5], "feature2": [2, 4, 6, 8, 10], "price": [100, 200, 300, 400, 500]}
         )
 
+        mock_ml_protocol.train_model = AsyncMock(return_value=mock_model)
+        trained_model = await mock_ml_protocol.train_model(model_id, training_data, sample_training_config)
+        assert trained_model.id == model_id
+        mock_ml_protocol.train_model.assert_called_once_with(model_id, training_data, sample_training_config, None)
+
         # Предсказание
-        features = {'feature1': 6, 'feature2': 12}
+        features = {"feature1": 6, "feature2": 12}
         mock_prediction = Mock()
         mock_ml_protocol.predict = AsyncMock(return_value=mock_prediction)
-        
+
         prediction = await mock_ml_protocol.predict(model_id, features)
         assert prediction == mock_prediction
         mock_ml_protocol.predict.assert_called_once_with(model_id, features, None)
@@ -525,22 +519,22 @@ class TestMLProtocolIntegration:
     async def test_error_handling_in_ml_protocol(self, mock_ml_protocol, sample_model_config):
         """Тест обработки ошибок в ML протоколе."""
         model_id = uuid4()
-        
+
         # Ошибка создания модели
         mock_ml_protocol.create_model = AsyncMock(side_effect=ValidationError("Invalid model type"))
-        
+
         with pytest.raises(ValidationError, match="Invalid model type"):
             await mock_ml_protocol.create_model(sample_model_config)
 
         # Ошибка обучения
         mock_ml_protocol.train_model = AsyncMock(side_effect=Exception("Training failed"))
-        
+
         with pytest.raises(Exception, match="Training failed"):
             await mock_ml_protocol.train_model(model_id, pd.DataFrame(), Mock())
 
         # Ошибка предсказания
         mock_ml_protocol.predict = AsyncMock(side_effect=Exception("Prediction failed"))
-        
+
         with pytest.raises(Exception, match="Prediction failed"):
             await mock_ml_protocol.predict(model_id, {})
 
@@ -548,7 +542,7 @@ class TestMLProtocolIntegration:
     async def test_model_lifecycle_management(self, mock_ml_protocol):
         """Тест управления жизненным циклом модели."""
         model_id = uuid4()
-        
+
         # Получение статуса
         mock_status = Mock()
         mock_ml_protocol.get_model_status = AsyncMock(return_value=mock_status)
@@ -575,19 +569,17 @@ class TestMLProtocolIntegration:
         """Тест операций с ансамблями."""
         model_ids = [uuid4(), uuid4(), uuid4()]
         ensemble_id = uuid4()
-        
+
         # Создание ансамбля
         mock_ml_protocol.create_ensemble = AsyncMock(return_value=ensemble_id)
-        created_ensemble = await mock_ml_protocol.create_ensemble(
-            "Test Ensemble", model_ids
-        )
+        created_ensemble = await mock_ml_protocol.create_ensemble("Test Ensemble", model_ids)
         assert created_ensemble == ensemble_id
 
         # Предсказание ансамбля
-        features = {'feature1': 1, 'feature2': 2}
+        features = {"feature1": 1, "feature2": 2}
         mock_prediction = Mock()
         mock_ml_protocol.ensemble_predict = AsyncMock(return_value=mock_prediction)
-        
+
         prediction = await mock_ml_protocol.ensemble_predict(ensemble_id, features)
         assert prediction == mock_prediction
 
@@ -601,22 +593,15 @@ class TestMLProtocolIntegration:
     async def test_advanced_ml_features(self, mock_ml_protocol):
         """Тест продвинутых функций ML."""
         model_id = uuid4()
-        
+
         # Мониторинг дрейфа модели
-        recent_data = pd.DataFrame({
-            'feature1': [1, 2, 3],
-            'feature2': [2, 4, 6]
-        })
-        mock_ml_protocol.monitor_model_drift = AsyncMock(return_value={'drift_detected': False})
+        recent_data = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [2, 4, 6]})
+        mock_ml_protocol.monitor_model_drift = AsyncMock(return_value={"drift_detected": False})
         drift_info = await mock_ml_protocol.monitor_model_drift(model_id, recent_data)
-        assert drift_info['drift_detected'] is False
+        assert drift_info["drift_detected"] is False
 
         # Онлайн обучение
-        new_data = pd.DataFrame({
-            'feature1': [7, 8, 9],
-            'feature2': [14, 16, 18],
-            'price': [700, 800, 900]
-        })
+        new_data = pd.DataFrame({"feature1": [7, 8, 9], "feature2": [14, 16, 18], "price": [700, 800, 900]})
         mock_ml_protocol.online_learning = AsyncMock(return_value=True)
         learned = await mock_ml_protocol.online_learning(model_id, new_data)
         assert learned is True
@@ -631,27 +616,27 @@ class TestMLProtocolIntegration:
     def test_protocol_compliance(self):
         """Тест соответствия протоколам."""
         # Проверка соответствия ModelTrainingProtocol
-        assert hasattr(ModelTrainingProtocol, 'prepare_data')
-        assert hasattr(ModelTrainingProtocol, 'validate_data')
-        assert hasattr(ModelTrainingProtocol, 'split_data')
-        assert hasattr(ModelTrainingProtocol, 'feature_engineering')
-        assert hasattr(ModelTrainingProtocol, 'train_model')
-        assert hasattr(ModelTrainingProtocol, 'validate_model')
+        assert hasattr(ModelTrainingProtocol, "prepare_data")
+        assert hasattr(ModelTrainingProtocol, "validate_data")
+        assert hasattr(ModelTrainingProtocol, "split_data")
+        assert hasattr(ModelTrainingProtocol, "feature_engineering")
+        assert hasattr(ModelTrainingProtocol, "train_model")
+        assert hasattr(ModelTrainingProtocol, "validate_model")
 
         # Проверка соответствия ModelEvaluationProtocol
-        assert hasattr(ModelEvaluationProtocol, 'calculate_metrics')
-        assert hasattr(ModelEvaluationProtocol, 'cross_validate')
-        assert hasattr(ModelEvaluationProtocol, 'backtest_model')
-        assert hasattr(ModelEvaluationProtocol, 'calculate_feature_importance')
+        assert hasattr(ModelEvaluationProtocol, "calculate_metrics")
+        assert hasattr(ModelEvaluationProtocol, "cross_validate")
+        assert hasattr(ModelEvaluationProtocol, "backtest_model")
+        assert hasattr(ModelEvaluationProtocol, "calculate_feature_importance")
 
         # Проверка соответствия PredictionProtocol
-        assert hasattr(PredictionProtocol, 'preprocess_features')
-        assert hasattr(PredictionProtocol, 'postprocess_prediction')
-        assert hasattr(PredictionProtocol, 'validate_prediction')
-        assert hasattr(PredictionProtocol, 'calculate_confidence')
+        assert hasattr(PredictionProtocol, "preprocess_features")
+        assert hasattr(PredictionProtocol, "postprocess_prediction")
+        assert hasattr(PredictionProtocol, "validate_prediction")
+        assert hasattr(PredictionProtocol, "calculate_confidence")
 
         # Проверка соответствия MarketAnalysisProtocol
-        assert hasattr(MarketAnalysisProtocol, 'analyze_market_conditions')
-        assert hasattr(MarketAnalysisProtocol, 'detect_patterns')
-        assert hasattr(MarketAnalysisProtocol, 'calculate_technical_indicators')
-        assert hasattr(MarketAnalysisProtocol, 'predict_market_regime') 
+        assert hasattr(MarketAnalysisProtocol, "analyze_market_conditions")
+        assert hasattr(MarketAnalysisProtocol, "detect_patterns")
+        assert hasattr(MarketAnalysisProtocol, "calculate_technical_indicators")
+        assert hasattr(MarketAnalysisProtocol, "predict_market_regime")

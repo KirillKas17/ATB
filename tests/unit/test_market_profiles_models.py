@@ -1,6 +1,7 @@
 """
 Юнит-тесты для моделей данных market_profiles.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import datetime, timedelta
@@ -8,14 +9,18 @@ from pathlib import Path
 from infrastructure.market_profiles.models.storage_config import StorageConfig
 from infrastructure.market_profiles.models.analysis_config import AnalysisConfig
 from infrastructure.market_profiles.models.storage_models import (
-    StorageStatistics, PatternMetadata, BehaviorRecord, SuccessMapEntry,
-    StorageStatus
+    StorageStatistics,
+    PatternMetadata,
+    BehaviorRecord,
+    SuccessMapEntry,
+    StorageStatus,
 )
-from domain.type_definitions.market_maker_types import (
-    Confidence, SimilarityScore, Accuracy
-)
+from domain.type_definitions.market_maker_types import Confidence, SimilarityScore, Accuracy
+
+
 class TestStorageConfig:
     """Тесты для StorageConfig."""
+
     def test_storage_config_default_values(self: "TestStorageConfig") -> None:
         """Тест значений по умолчанию для StorageConfig."""
         config = StorageConfig()
@@ -28,6 +33,7 @@ class TestStorageConfig:
         assert config.backup_interval_hours == 24
         assert config.cleanup_enabled is True
         assert config.cleanup_interval_days == 30
+
     def test_storage_config_custom_values(self: "TestStorageConfig") -> None:
         """Тест кастомных значений для StorageConfig."""
         custom_path = Path("/custom/path")
@@ -40,7 +46,7 @@ class TestStorageConfig:
             backup_enabled=False,
             backup_interval_hours=12,
             cleanup_enabled=False,
-            cleanup_interval_days=7
+            cleanup_interval_days=7,
         )
         assert config.base_path == custom_path
         assert config.compression_enabled is False
@@ -51,6 +57,7 @@ class TestStorageConfig:
         assert config.backup_interval_hours == 12
         assert config.cleanup_enabled is False
         assert config.cleanup_interval_days == 7
+
     def test_storage_config_paths(self: "TestStorageConfig") -> None:
         """Тест путей в StorageConfig."""
         config = StorageConfig(base_path=Path("/test/path"))
@@ -58,6 +65,7 @@ class TestStorageConfig:
         assert config.metadata_directory == Path("/test/path/metadata")
         assert config.behavior_directory == Path("/test/path/behavior")
         assert config.backup_directory == Path("/test/path/backup")
+
     def test_storage_config_validation(self: "TestStorageConfig") -> None:
         """Тест валидации StorageConfig."""
         # Тест с отрицательными значениями
@@ -69,14 +77,18 @@ class TestStorageConfig:
             StorageConfig(compression_level=0)
         with pytest.raises(ValueError):
             StorageConfig(compression_level=10)
+
     def test_storage_config_immutability(self: "TestStorageConfig") -> None:
         """Тест неизменяемости StorageConfig."""
         config = StorageConfig()
         # Попытка изменения должна вызвать ошибку
         with pytest.raises(Exception):
             config.base_path = Path("/new/path")
+
+
 class TestAnalysisConfig:
     """Тесты для AnalysisConfig."""
+
     def test_analysis_config_default_values(self: "TestAnalysisConfig") -> None:
         """Тест значений по умолчанию для AnalysisConfig."""
         config = AnalysisConfig()
@@ -88,6 +100,7 @@ class TestAnalysisConfig:
         assert config.time_window_seconds == 300
         assert config.min_trades_count == 10
         assert config.max_history_size == 1000
+
     def test_analysis_config_custom_values(self: "TestAnalysisConfig") -> None:
         """Тест кастомных значений для AnalysisConfig."""
         config = AnalysisConfig(
@@ -98,7 +111,7 @@ class TestAnalysisConfig:
             spread_threshold=0.002,
             time_window_seconds=600,
             min_trades_count=20,
-            max_history_size=2000
+            max_history_size=2000,
         )
         assert config.min_confidence == Confidence(0.8)
         assert config.similarity_threshold == 0.9
@@ -108,6 +121,7 @@ class TestAnalysisConfig:
         assert config.time_window_seconds == 600
         assert config.min_trades_count == 20
         assert config.max_history_size == 2000
+
     def test_analysis_config_feature_weights(self: "TestAnalysisConfig") -> None:
         """Тест весов признаков в AnalysisConfig."""
         config = AnalysisConfig()
@@ -121,6 +135,7 @@ class TestAnalysisConfig:
         # Проверяем, что веса в диапазоне [0, 1]
         for weight in config.feature_weights.values():
             assert 0.0 <= weight <= 1.0
+
     def test_analysis_config_market_phase_weights(self: "TestAnalysisConfig") -> None:
         """Тест весов рыночных фаз в AnalysisConfig."""
         config = AnalysisConfig()
@@ -129,6 +144,7 @@ class TestAnalysisConfig:
         assert "distribution" in config.market_phase_weights
         assert "markdown" in config.market_phase_weights
         assert "transition" in config.market_phase_weights
+
     def test_analysis_config_volatility_weights(self: "TestAnalysisConfig") -> None:
         """Тест весов волатильности в AnalysisConfig."""
         config = AnalysisConfig()
@@ -136,6 +152,7 @@ class TestAnalysisConfig:
         assert "medium" in config.volatility_regime_weights
         assert "high" in config.volatility_regime_weights
         assert "extreme" in config.volatility_regime_weights
+
     def test_analysis_config_liquidity_weights(self: "TestAnalysisConfig") -> None:
         """Тест весов ликвидности в AnalysisConfig."""
         config = AnalysisConfig()
@@ -143,6 +160,7 @@ class TestAnalysisConfig:
         assert "medium" in config.liquidity_regime_weights
         assert "low" in config.liquidity_regime_weights
         assert "very_low" in config.liquidity_regime_weights
+
     def test_analysis_config_validation(self: "TestAnalysisConfig") -> None:
         """Тест валидации AnalysisConfig."""
         # Тест с некорректными порогами
@@ -154,14 +172,18 @@ class TestAnalysisConfig:
             AnalysisConfig(volume_threshold=-100.0)
         with pytest.raises(ValueError):
             AnalysisConfig(time_window_seconds=0)
+
     def test_analysis_config_immutability(self: "TestAnalysisConfig") -> None:
         """Тест неизменяемости AnalysisConfig."""
         config = AnalysisConfig()
         # Попытка изменения должна вызвать ошибку
         with pytest.raises(Exception):
             config.similarity_threshold = 0.9
+
+
 class TestStorageStatistics:
     """Тесты для StorageStatistics."""
+
     def test_storage_statistics_creation(self: "TestStorageStatistics") -> None:
         """Тест создания StorageStatistics."""
         stats = StorageStatistics(
@@ -175,7 +197,7 @@ class TestStorageStatistics:
             avg_read_time_ms=5.0,
             avg_write_time_ms=10.0,
             error_count=2,
-            warning_count=5
+            warning_count=5,
         )
         assert stats.total_patterns == 100
         assert stats.total_symbols == 10
@@ -188,6 +210,7 @@ class TestStorageStatistics:
         assert stats.avg_write_time_ms == 10.0
         assert stats.error_count == 2
         assert stats.warning_count == 5
+
     def test_storage_statistics_default_values(self: "TestStorageStatistics") -> None:
         """Тест значений по умолчанию для StorageStatistics."""
         stats = StorageStatistics()
@@ -202,6 +225,7 @@ class TestStorageStatistics:
         assert stats.avg_write_time_ms == 0.0
         assert stats.error_count == 0
         assert stats.warning_count == 0
+
     def test_storage_statistics_validation(self: "TestStorageStatistics") -> None:
         """Тест валидации StorageStatistics."""
         # Тест с отрицательными значениями
@@ -213,15 +237,14 @@ class TestStorageStatistics:
             StorageStatistics(compression_ratio=-0.1)
         with pytest.raises(ValueError):
             StorageStatistics(cache_hit_ratio=1.5)
+
     def test_storage_statistics_calculated_properties(self: "TestStorageStatistics") -> None:
         """Тест вычисляемых свойств StorageStatistics."""
-        stats = StorageStatistics(
-            total_patterns=100,
-            total_successful_patterns=80
-        )
+        stats = StorageStatistics(total_patterns=100, total_successful_patterns=80)
         # Вычисляем успешность
         success_rate = stats.total_successful_patterns / stats.total_patterns
         assert success_rate == 0.8
+
     def test_storage_statistics_to_dict(self: "TestStorageStatistics") -> None:
         """Тест преобразования в словарь."""
         stats = StorageStatistics(
@@ -235,7 +258,7 @@ class TestStorageStatistics:
             avg_read_time_ms=5.0,
             avg_write_time_ms=10.0,
             error_count=2,
-            warning_count=5
+            warning_count=5,
         )
         stats_dict = stats.to_dict()
         assert isinstance(stats_dict, dict)
@@ -250,8 +273,11 @@ class TestStorageStatistics:
         assert stats_dict["avg_write_time_ms"] == 10.0
         assert stats_dict["error_count"] == 2
         assert stats_dict["warning_count"] == 5
+
+
 class TestPatternMetadata:
     """Тесты для PatternMetadata."""
+
     def test_pattern_metadata_creation(self: "TestPatternMetadata") -> None:
         """Тест создания PatternMetadata."""
         metadata = PatternMetadata(
@@ -269,7 +295,7 @@ class TestPatternMetadata:
             trend_strength=0.7,
             market_phase="trending",
             volatility_regime="medium",
-            liquidity_regime="high"
+            liquidity_regime="high",
         )
         assert metadata.symbol == "BTCUSDT"
         assert metadata.pattern_type == "accumulation"
@@ -284,6 +310,7 @@ class TestPatternMetadata:
         assert metadata.market_phase == "trending"
         assert metadata.volatility_regime == "medium"
         assert metadata.liquidity_regime == "high"
+
     def test_pattern_metadata_default_values(self: "TestPatternMetadata") -> None:
         """Тест значений по умолчанию для PatternMetadata."""
         metadata = PatternMetadata(symbol="BTCUSDT", pattern_type="accumulation")
@@ -300,6 +327,7 @@ class TestPatternMetadata:
         assert metadata.market_phase == "unknown"
         assert metadata.volatility_regime == "unknown"
         assert metadata.liquidity_regime == "unknown"
+
     def test_pattern_metadata_validation(self: "TestPatternMetadata") -> None:
         """Тест валидации PatternMetadata."""
         # Тест с пустым символом
@@ -310,11 +338,8 @@ class TestPatternMetadata:
             PatternMetadata(symbol="BTCUSDT", pattern_type="")
         # Тест с некорректными значениями
         with pytest.raises(ValueError):
-            PatternMetadata(
-                symbol="BTCUSDT",
-                pattern_type="accumulation",
-                success_rate=1.5
-            )
+            PatternMetadata(symbol="BTCUSDT", pattern_type="accumulation", success_rate=1.5)
+
     def test_pattern_metadata_to_dict(self: "TestPatternMetadata") -> None:
         """Тест преобразования в словарь."""
         metadata = PatternMetadata(
@@ -325,7 +350,7 @@ class TestPatternMetadata:
             avg_accuracy=0.85,
             avg_return=0.02,
             avg_confidence=0.8,
-            success_rate=0.8
+            success_rate=0.8,
         )
         metadata_dict = metadata.to_dict()
         assert isinstance(metadata_dict, dict)
@@ -337,8 +362,11 @@ class TestPatternMetadata:
         assert metadata_dict["avg_return"] == 0.02
         assert metadata_dict["avg_confidence"] == 0.8
         assert metadata_dict["success_rate"] == 0.8
+
+
 class TestBehaviorRecord:
     """Тесты для BehaviorRecord."""
+
     def test_behavior_record_creation(self: "TestBehaviorRecord") -> None:
         """Тест создания BehaviorRecord."""
         record = BehaviorRecord(
@@ -353,7 +381,7 @@ class TestBehaviorRecord:
             market_phase="trending",
             volatility_regime="medium",
             liquidity_regime="high",
-            context={"session": "asian", "market_regime": "trending"}
+            context={"session": "asian", "market_regime": "trending"},
         )
         assert record.symbol == "BTCUSDT"
         assert record.pattern_type == "accumulation"
@@ -366,6 +394,7 @@ class TestBehaviorRecord:
         assert record.volatility_regime == "medium"
         assert record.liquidity_regime == "high"
         assert record.context["session"] == "asian"
+
     def test_behavior_record_default_values(self: "TestBehaviorRecord") -> None:
         """Тест значений по умолчанию для BehaviorRecord."""
         record = BehaviorRecord(symbol="BTCUSDT", timestamp=datetime.now())
@@ -380,6 +409,7 @@ class TestBehaviorRecord:
         assert record.volatility_regime == "unknown"
         assert record.liquidity_regime == "unknown"
         assert record.context == {}
+
     def test_behavior_record_validation(self: "TestBehaviorRecord") -> None:
         """Тест валидации BehaviorRecord."""
         # Тест с пустым символом
@@ -387,11 +417,8 @@ class TestBehaviorRecord:
             BehaviorRecord(symbol="", timestamp=datetime.now())
         # Тест с некорректными значениями
         with pytest.raises(ValueError):
-            BehaviorRecord(
-                symbol="BTCUSDT",
-                timestamp=datetime.now(),
-                confidence=1.5
-            )
+            BehaviorRecord(symbol="BTCUSDT", timestamp=datetime.now(), confidence=1.5)
+
     def test_behavior_record_to_dict(self: "TestBehaviorRecord") -> None:
         """Тест преобразования в словарь."""
         record = BehaviorRecord(
@@ -402,7 +429,7 @@ class TestBehaviorRecord:
             spread=0.001,
             imbalance=0.3,
             pressure=0.4,
-            confidence=0.8
+            confidence=0.8,
         )
         record_dict = record.to_dict()
         assert isinstance(record_dict, dict)
@@ -413,8 +440,11 @@ class TestBehaviorRecord:
         assert record_dict["imbalance"] == 0.3
         assert record_dict["pressure"] == 0.4
         assert record_dict["confidence"] == 0.8
+
+
 class TestSuccessMapEntry:
     """Тесты для SuccessMapEntry."""
+
     def test_success_map_entry_creation(self: "TestSuccessMapEntry") -> None:
         """Тест создания SuccessMapEntry."""
         entry = SuccessMapEntry(
@@ -424,7 +454,7 @@ class TestSuccessMapEntry:
             avg_accuracy=0.85,
             confidence=0.9,
             sample_size=100,
-            last_updated=datetime.now()
+            last_updated=datetime.now(),
         )
         assert entry.pattern_type == "accumulation"
         assert entry.success_rate == 0.8
@@ -432,6 +462,7 @@ class TestSuccessMapEntry:
         assert entry.avg_accuracy == 0.85
         assert entry.confidence == 0.9
         assert entry.sample_size == 100
+
     def test_success_map_entry_default_values(self: "TestSuccessMapEntry") -> None:
         """Тест значений по умолчанию для SuccessMapEntry."""
         entry = SuccessMapEntry(pattern_type="accumulation")
@@ -441,6 +472,7 @@ class TestSuccessMapEntry:
         assert entry.avg_accuracy == 0.0
         assert entry.confidence == 0.0
         assert entry.sample_size == 0
+
     def test_success_map_entry_validation(self: "TestSuccessMapEntry") -> None:
         """Тест валидации SuccessMapEntry."""
         # Тест с пустым типом паттерна
@@ -448,10 +480,8 @@ class TestSuccessMapEntry:
             SuccessMapEntry(pattern_type="")
         # Тест с некорректными значениями
         with pytest.raises(ValueError):
-            SuccessMapEntry(
-                pattern_type="accumulation",
-                success_rate=1.5
-            )
+            SuccessMapEntry(pattern_type="accumulation", success_rate=1.5)
+
     def test_success_map_entry_to_dict(self: "TestSuccessMapEntry") -> None:
         """Тест преобразования в словарь."""
         entry = SuccessMapEntry(
@@ -460,7 +490,7 @@ class TestSuccessMapEntry:
             avg_return=0.02,
             avg_accuracy=0.85,
             confidence=0.9,
-            sample_size=100
+            sample_size=100,
         )
         entry_dict = entry.to_dict()
         assert isinstance(entry_dict, dict)
@@ -470,14 +500,18 @@ class TestSuccessMapEntry:
         assert entry_dict["avg_accuracy"] == 0.85
         assert entry_dict["confidence"] == 0.9
         assert entry_dict["sample_size"] == 100
+
+
 class TestStorageStatus:
     """Тесты для StorageStatus."""
+
     def test_storage_status_values(self: "TestStorageStatus") -> None:
         """Тест значений StorageStatus."""
         assert StorageStatus.ACTIVE.value == "active"
         assert StorageStatus.MAINTENANCE.value == "maintenance"
         assert StorageStatus.ERROR.value == "error"
         assert StorageStatus.READONLY.value == "readonly"
+
     def test_storage_status_enumeration(self: "TestStorageStatus") -> None:
         """Тест перечисления StorageStatus."""
         statuses = list(StorageStatus)
@@ -486,5 +520,7 @@ class TestStorageStatus:
         assert StorageStatus.MAINTENANCE in statuses
         assert StorageStatus.ERROR in statuses
         assert StorageStatus.READONLY in statuses
+
+
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"]) 
+    pytest.main([__file__, "-v"])

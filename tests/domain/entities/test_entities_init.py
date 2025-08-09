@@ -16,7 +16,7 @@ from domain.entities import (
     Signal,
     RiskMetrics,
     Strategy,
-    Pattern
+    Pattern,
 )
 
 
@@ -65,8 +65,6 @@ class TestEntitiesImports:
         assert Strategy.__name__ == "Strategy"
         assert Pattern.__name__ == "Pattern"
 
-
-
     def test_entities_module_paths(self) -> None:
         """Тест путей модулей сущностей."""
         assert Market.__module__ == "domain.entities.market"
@@ -82,4 +80,4 @@ class TestEntitiesImports:
         assert Signal.__module__ == "domain.entities.signal"
         assert RiskMetrics.__module__ == "domain.entities.risk"
         assert Strategy.__module__ == "domain.entities.strategy"
-        assert Pattern.__module__ == "domain.entities.pattern" 
+        assert Pattern.__module__ == "domain.entities.pattern"

@@ -3,46 +3,40 @@ Unit тесты для CacheManager.
 Тестирует управление кешем, включая сохранение, получение,
 инвалидацию и оптимизацию кешированных данных.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import datetime, timedelta
 from decimal import Decimal
 from infrastructure.core.cache_manager import CacheManager
 
+
 class TestCacheManager:
     """Тесты для CacheManager."""
+
     @pytest.fixture
     def cache_manager(self) -> CacheManager:
         """Фикстура для CacheManager."""
         return CacheManager()
+
     @pytest.fixture
     def sample_data(self) -> dict:
         """Фикстура с тестовыми данными."""
         return {
             "market_data": {
-                "BTCUSDT": {
-                    "price": Decimal("50000.0"),
-                    "volume": Decimal("1000000.0"),
-                    "timestamp": datetime.now()
-                }
+                "BTCUSDT": {"price": Decimal("50000.0"), "volume": Decimal("1000000.0"), "timestamp": datetime.now()}
             },
-            "user_preferences": {
-                "theme": "dark",
-                "language": "en",
-                "notifications": True
-            },
-            "strategy_config": {
-                "rsi_period": 14,
-                "ma_short": 10,
-                "ma_long": 50
-            }
+            "user_preferences": {"theme": "dark", "language": "en", "notifications": True},
+            "strategy_config": {"rsi_period": 14, "ma_short": 10, "ma_long": 50},
         }
+
     def test_initialization(self, cache_manager: CacheManager) -> None:
         """Тест инициализации менеджера кеша."""
         assert cache_manager is not None
-        assert hasattr(cache_manager, 'cache')
-        assert hasattr(cache_manager, 'max_size')
-        assert hasattr(cache_manager, 'default_ttl')
+        assert hasattr(cache_manager, "cache")
+        assert hasattr(cache_manager, "max_size")
+        assert hasattr(cache_manager, "default_ttl")
+
     @pytest.mark.asyncio
     async def test_set_cache(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест установки кеша."""
@@ -53,6 +47,7 @@ class TestCacheManager:
         # Проверка, что кеш установлен
         cached_data = await cache_manager.get("test_key")
         assert cached_data == sample_data
+
     @pytest.mark.asyncio
     async def test_get_cache(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест получения кеша."""
@@ -63,6 +58,7 @@ class TestCacheManager:
         # Проверки
         assert get_result is not None
         assert get_result == sample_data
+
     @pytest.mark.asyncio
     async def test_delete_cache(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест удаления кеша."""
@@ -75,6 +71,7 @@ class TestCacheManager:
         # Проверка, что кеш удален
         get_result = await cache_manager.get("test_key")
         assert get_result is None
+
     @pytest.mark.asyncio
     async def test_clear_cache(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест очистки кеша."""
@@ -90,6 +87,7 @@ class TestCacheManager:
         get_result2 = await cache_manager.get("key2")
         assert get_result1 is None
         assert get_result2 is None
+
     @pytest.mark.asyncio
     async def test_cache_exists(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест проверки существования кеша."""
@@ -102,6 +100,7 @@ class TestCacheManager:
         # Проверка несуществующего ключа
         not_exists_result = await cache_manager.exists("nonexistent_key")
         assert not_exists_result is False
+
     @pytest.mark.asyncio
     async def test_get_cache_keys(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест получения ключей кеша."""
@@ -118,6 +117,7 @@ class TestCacheManager:
         assert "key1" in keys_result
         assert "key2" in keys_result
         assert "key3" in keys_result
+
     @pytest.mark.asyncio
     async def test_get_cache_info(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест получения информации о кеше."""
@@ -129,6 +129,7 @@ class TestCacheManager:
         assert size_result is not None
         assert isinstance(size_result, int)
         assert size_result > 0
+
     @pytest.mark.asyncio
     async def test_set_cache_with_ttl(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест установки кеша с TTL."""
@@ -141,6 +142,7 @@ class TestCacheManager:
         ttl_result = await cache_manager.ttl("test_key")
         assert ttl_result > 0
         assert ttl_result <= ttl
+
     @pytest.mark.asyncio
     async def test_cache_expiration(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест истечения срока действия кеша."""
@@ -152,10 +154,12 @@ class TestCacheManager:
         assert exists_result is True
         # Ожидание истечения TTL
         import asyncio
+
         await asyncio.sleep(1.1)
         # Проверка, что кеш истек
         get_result = await cache_manager.get("test_key")
         assert get_result is None
+
     @pytest.mark.asyncio
     async def test_cache_compression(self, cache_manager: CacheManager) -> None:
         """Тест сжатия кеша."""
@@ -167,6 +171,7 @@ class TestCacheManager:
         # Получение данных
         get_result = await cache_manager.get("large_key")
         assert get_result == large_data
+
     @pytest.mark.asyncio
     async def test_cache_serialization(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест сериализации кеша."""
@@ -176,6 +181,7 @@ class TestCacheManager:
         get_result = await cache_manager.get("test_key")
         # Проверки
         assert get_result == sample_data
+
     @pytest.mark.asyncio
     async def test_cache_statistics(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест статистики кеша."""
@@ -189,6 +195,7 @@ class TestCacheManager:
         assert "max_size" in stats_result
         assert isinstance(stats_result["total_keys"], int)
         assert isinstance(stats_result["max_size"], int)
+
     @pytest.mark.asyncio
     async def test_cache_optimization(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест оптимизации кеша."""
@@ -200,6 +207,7 @@ class TestCacheManager:
         # Проверки
         assert stats_result is not None
         assert stats_result["total_keys"] >= 10
+
     @pytest.mark.asyncio
     async def test_cache_backup_restore(self, cache_manager: CacheManager, sample_data: dict) -> None:
         """Тест резервного копирования и восстановления кеша."""
@@ -215,6 +223,7 @@ class TestCacheManager:
         # Проверка восстановления
         restored_data = await cache_manager.get("test_key")
         assert restored_data == sample_data
+
     @pytest.mark.asyncio
     async def test_error_handling(self, cache_manager: CacheManager) -> None:
         """Тест обработки ошибок."""
@@ -223,6 +232,7 @@ class TestCacheManager:
         set_result = await cache_manager.set("invalid_key", invalid_data)
         # Проверки
         assert set_result is True
+
     @pytest.mark.asyncio
     async def test_edge_cases(self, cache_manager: CacheManager) -> None:
         """Тест граничных случаев."""
@@ -240,6 +250,7 @@ class TestCacheManager:
         assert large_set_result is True
         large_get_result = await cache_manager.get("large_key")
         assert large_get_result == large_data
+
     @pytest.mark.asyncio
     async def test_cleanup(self, cache_manager: CacheManager) -> None:
         """Тест очистки ресурсов."""
@@ -249,4 +260,4 @@ class TestCacheManager:
         await cache_manager.clear()
         # Проверки
         size_result = await cache_manager.size()
-        assert size_result == 0 
+        assert size_result == 0

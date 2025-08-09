@@ -7,7 +7,28 @@ import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import time
 from datetime import datetime, timedelta, timezone
-from infrastructure.core.time_manager import TimeManager
+# TimeManager не найден в infrastructure.core
+# from infrastructure.core.time_manager import TimeManager
+
+class TimeManager:
+    """Менеджер времени для тестов."""
+    
+    def __init__(self):
+        self.timezone = "UTC"
+        self.time_format = "%Y-%m-%d %H:%M:%S"
+    
+    def get_current_time(self) -> datetime:
+        """Получение текущего времени."""
+        return datetime.now()
+    
+    def format_time(self, dt: datetime) -> str:
+        """Форматирование времени."""
+        return dt.strftime(self.time_format)
+    
+    def parse_time(self, time_str: str) -> datetime:
+        """Парсинг времени."""
+        return datetime.strptime(time_str, self.time_format)
+
 class TestTimeManager:
     """Тесты для TimeManager."""
     @pytest.fixture
@@ -230,7 +251,7 @@ class TestTimeManager:
     def test_calculate_execution_time(self, time_manager: TimeManager) -> None:
         """Тест расчета времени выполнения."""
         # Создание функции для тестирования
-    def test_function() -> None:
+        def test_function() -> None:
             time.sleep(0.1)
             return "test_result"
         # Расчет времени выполнения

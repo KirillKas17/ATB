@@ -9,10 +9,25 @@ from decimal import Decimal
 from uuid import uuid4
 
 from application.types import (
-    CreateOrderRequest, CreateOrderResponse, CancelOrderRequest, CancelOrderResponse,
-    GetOrdersRequest, GetOrdersResponse, MarketPhase, SignalType, OrderStatus,
-    RiskLevel, MarketSummary, TechnicalIndicators, VolumeProfile, MarketRegime,
-    PriceLevel, VolumeLevel, MoneyAmount, Percentage, Timestamp
+    CreateOrderRequest,
+    CreateOrderResponse,
+    CancelOrderRequest,
+    CancelOrderResponse,
+    GetOrdersRequest,
+    GetOrdersResponse,
+    MarketPhase,
+    SignalType,
+    OrderStatus,
+    RiskLevel,
+    MarketSummary,
+    TechnicalIndicators,
+    VolumeProfile,
+    MarketRegime,
+    PriceLevel,
+    VolumeLevel,
+    MoneyAmount,
+    Percentage,
+    Timestamp,
 )
 
 
@@ -28,9 +43,9 @@ class TestApplicationTypes:
             side="BUY",
             amount=VolumeLevel(Decimal("0.1")),
             price=PriceLevel(Decimal("50000")),
-            stop_price=None
+            stop_price=None,
         )
-        
+
         assert request.portfolio_id is not None
         assert request.symbol == "BTC/USD"
         assert request.order_type == "LIMIT"
@@ -46,9 +61,9 @@ class TestApplicationTypes:
             order=None,  # В реальном случае здесь был бы Order
             estimated_cost=MoneyAmount(Decimal("5000")),
             warnings=["Low liquidity"],
-            message="Order created successfully"
+            message="Order created successfully",
         )
-        
+
         assert response.success is True
         assert response.estimated_cost.amount == Decimal("5000")
         assert "Low liquidity" in response.warnings
@@ -56,12 +71,8 @@ class TestApplicationTypes:
 
     def test_create_order_response_error(self: "TestApplicationTypes") -> None:
         """Тест CreateOrderResponse с ошибкой."""
-        response = CreateOrderResponse(
-            success=False,
-            message="Insufficient funds",
-            errors=["Insufficient balance"]
-        )
-        
+        response = CreateOrderResponse(success=False, message="Insufficient funds", errors=["Insufficient balance"])
+
         assert response.success is False
         assert response.message == "Insufficient funds"
         assert "Insufficient balance" in response.errors
@@ -70,36 +81,25 @@ class TestApplicationTypes:
         """Тест создания CancelOrderRequest."""
         order_id = uuid4()
         portfolio_id = uuid4()
-        
-        request = CancelOrderRequest(
-            order_id=order_id,
-            portfolio_id=portfolio_id
-        )
-        
+
+        request = CancelOrderRequest(order_id=order_id, portfolio_id=portfolio_id)
+
         assert request.order_id == order_id
         assert request.portfolio_id == portfolio_id
 
     def test_cancel_order_response(self: "TestApplicationTypes") -> None:
         """Тест CancelOrderResponse."""
         response = CancelOrderResponse(
-            cancelled=True,
-            order=None,  # В реальном случае здесь был бы Order
-            message="Order cancelled successfully"
+            cancelled=True, order=None, message="Order cancelled successfully"  # В реальном случае здесь был бы Order
         )
-        
+
         assert response.cancelled is True
         assert response.message == "Order cancelled successfully"
 
     def test_get_orders_request(self: "TestApplicationTypes") -> None:
         """Тест создания GetOrdersRequest."""
-        request = GetOrdersRequest(
-            portfolio_id=uuid4(),
-            symbol="BTC/USD",
-            status="PENDING",
-            limit=50,
-            offset=0
-        )
-        
+        request = GetOrdersRequest(portfolio_id=uuid4(), symbol="BTC/USD", status="PENDING", limit=50, offset=0)
+
         assert request.portfolio_id is not None
         assert request.symbol == "BTC/USD"
         assert request.status == "PENDING"
@@ -109,12 +109,9 @@ class TestApplicationTypes:
     def test_get_orders_response(self: "TestApplicationTypes") -> None:
         """Тест GetOrdersResponse."""
         response = GetOrdersResponse(
-            orders=[],  # В реальном случае здесь были бы Order
-            total_count=0,
-            has_more=False,
-            message="No orders found"
+            orders=[], total_count=0, has_more=False, message="No orders found"  # В реальном случае здесь были бы Order
         )
-        
+
         assert response.orders == []
         assert response.total_count == 0
         assert response.has_more is False
@@ -166,9 +163,9 @@ class TestApplicationTypes:
             volatility=Percentage(Decimal("15.5")),
             support_levels=[PriceLevel(Decimal("48000"))],
             resistance_levels=[PriceLevel(Decimal("52000"))],
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         assert summary.symbol == "BTC/USD"
         assert summary.last_price.value == Decimal("50000")
         assert summary.price_change.amount == Decimal("1000")
@@ -198,9 +195,9 @@ class TestApplicationTypes:
             bollinger_middle=[Decimal("50000")],
             bollinger_lower=[Decimal("49000")],
             atr=[Decimal("500")],
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         assert indicators.symbol == "BTC/USD"
         assert indicators.timeframe == "1h"
         assert indicators.rsi[0] == Decimal("65.5")
@@ -224,13 +221,10 @@ class TestApplicationTypes:
             poc_price=PriceLevel(Decimal("50000")),
             total_volume=VolumeLevel(Decimal("10000")),
             volume_profile={"50000": Decimal("5000")},
-            price_range={
-                "min": PriceLevel(Decimal("48000")),
-                "max": PriceLevel(Decimal("52000"))
-            },
-            timestamp=Timestamp(datetime.now())
+            price_range={"min": PriceLevel(Decimal("48000")), "max": PriceLevel(Decimal("52000"))},
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         assert profile.symbol == "BTC/USD"
         assert profile.timeframe == "1h"
         assert profile.poc_price.value == Decimal("50000")
@@ -250,9 +244,9 @@ class TestApplicationTypes:
             price_trend=Decimal("0.001"),
             volume_trend=Decimal("0.05"),
             confidence=Percentage(Decimal("85.0")),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         assert regime.symbol == "BTC/USD"
         assert regime.timeframe == "1h"
         assert regime.regime == "trending"
@@ -267,19 +261,19 @@ class TestApplicationTypes:
         # Тест PriceLevel
         price = PriceLevel(Decimal("50000"))
         assert price.value == Decimal("50000")
-        
+
         # Тест VolumeLevel
         volume = VolumeLevel(Decimal("0.1"))
         assert volume.value == Decimal("0.1")
-        
+
         # Тест MoneyAmount
         money = MoneyAmount(Decimal("5000"))
         assert money.amount == Decimal("5000")
-        
+
         # Тест Percentage
         percentage = Percentage(Decimal("2.5"))
         assert percentage.value == Decimal("2.5")
-        
+
         # Тест Timestamp
         now = datetime.now()
         timestamp = Timestamp(now)
@@ -290,11 +284,11 @@ class TestApplicationTypes:
         # Отрицательная цена должна вызывать ошибку
         with pytest.raises(ValueError):
             PriceLevel(Decimal("-100"))
-        
+
         # Отрицательный объем должен вызывать ошибку
         with pytest.raises(ValueError):
             VolumeLevel(Decimal("-0.1"))
-        
+
         # Процент больше 100 должен вызывать ошибку
         with pytest.raises(ValueError):
             Percentage(Decimal("150"))
@@ -307,9 +301,9 @@ class TestApplicationTypes:
             order_type="LIMIT",
             side="BUY",
             amount=VolumeLevel(Decimal("0.1")),
-            price=PriceLevel(Decimal("50000"))
+            price=PriceLevel(Decimal("50000")),
         )
-        
+
         # Проверяем, что объект можно преобразовать в dict
         data = request.__dict__
         assert "portfolio_id" in data
@@ -317,4 +311,4 @@ class TestApplicationTypes:
         assert "order_type" in data
         assert "side" in data
         assert "amount" in data
-        assert "price" in data 
+        assert "price" in data

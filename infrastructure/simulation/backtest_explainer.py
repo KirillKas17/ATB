@@ -252,7 +252,7 @@ class TradeAnalyzer:
 class BacktestExplainer:
     """Анализатор бэктеста"""
 
-    def __init__(self, config: Optional[ExplainerConfig] = None):
+    def __init__(self, config: Optional[ExplainerConfig] = None) -> None:
         """Инициализация анализатора"""
         self.config = config or ExplainerConfig.from_yaml()
         self.metrics_history: List[Dict] = []

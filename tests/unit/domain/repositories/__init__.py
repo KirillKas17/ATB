@@ -10,7 +10,7 @@ Unit тесты для domain repositories.
 
 __all__ = [
     "test_base_repository",
-    "test_base_repository_impl", 
+    "test_base_repository_impl",
     "test_market_repository",
     "test_portfolio_repository",
     "test_trading_repository",
@@ -18,5 +18,5 @@ __all__ = [
     "test_ml_repository",
     "test_order_repository",
     "test_position_repository",
-    "test_trading_pair_repository"
-] 
+    "test_trading_pair_repository",
+]

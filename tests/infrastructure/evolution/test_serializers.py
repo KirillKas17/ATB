@@ -1,15 +1,24 @@
 """
 Юнит-тесты для сериализаторов.
 """
+
 import json
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from uuid import uuid4
 from domain.evolution.strategy_fitness import StrategyEvaluationResult, TradeResult
 from domain.evolution.strategy_model import (
-    EvolutionContext, EvolutionStatus, StrategyCandidate,
-    EntryRule, ExitRule, FilterConfig, FilterType,
-    IndicatorConfig, IndicatorType, SignalType, StrategyType
+    EvolutionContext,
+    EvolutionStatus,
+    StrategyCandidate,
+    EntryRule,
+    ExitRule,
+    FilterConfig,
+    FilterType,
+    IndicatorConfig,
+    IndicatorType,
+    SignalType,
+    StrategyType,
 )
 from infrastructure.evolution.serializers import (
     candidate_to_model,
@@ -17,15 +26,14 @@ from infrastructure.evolution.serializers import (
     evaluation_to_model,
     model_to_evaluation,
     context_to_model,
-    model_to_context
+    model_to_context,
 )
-from infrastructure.evolution.models import (
-    StrategyCandidateModel,
-    StrategyEvaluationModel,
-    EvolutionContextModel
-)
+from infrastructure.evolution.models import StrategyCandidateModel, StrategyEvaluationModel, EvolutionContextModel
+
+
 class TestCandidateSerializers:
     """Тесты для сериализации StrategyCandidate"""
+
     def test_candidate_to_model_conversion(self: "TestCandidateSerializers") -> None:
         """Тест конвертации StrategyCandidate в StrategyCandidateModel"""
         # Arrange
@@ -48,7 +56,7 @@ class TestCandidateSerializers:
             max_positions=5,
             min_holding_time=300,
             max_holding_time=3600,
-            metadata={"meta1": "value1"}
+            metadata={"meta1": "value1"},
         )
         # Act
         model = candidate_to_model(candidate)
@@ -66,6 +74,7 @@ class TestCandidateSerializers:
         assert model.max_positions == 5
         assert model.min_holding_time == 300
         assert model.max_holding_time == 3600
+
     def test_model_to_candidate_conversion(self: "TestCandidateSerializers") -> None:
         """Тест конвертации StrategyCandidateModel в StrategyCandidate"""
         # Arrange
@@ -91,7 +100,7 @@ class TestCandidateSerializers:
             max_positions=5,
             min_holding_time=300,
             max_holding_time=3600,
-            meta_data=json.dumps({"meta1": "value1"})
+            meta_data=json.dumps({"meta1": "value1"}),
         )
         # Act
         candidate = model_to_candidate(model)
@@ -111,6 +120,7 @@ class TestCandidateSerializers:
         assert candidate.min_holding_time == 300
         assert candidate.max_holding_time == 3600
         assert candidate.metadata == {"meta1": "value1"}
+
     def test_candidate_round_trip(self: "TestCandidateSerializers") -> None:
         """Тест полного цикла сериализации StrategyCandidate"""
         # Arrange
@@ -133,7 +143,7 @@ class TestCandidateSerializers:
             max_positions=5,
             min_holding_time=300,
             max_holding_time=3600,
-            metadata={"meta1": "value1"}
+            metadata={"meta1": "value1"},
         )
         # Act
         model = candidate_to_model(original_candidate)
@@ -154,8 +164,11 @@ class TestCandidateSerializers:
         assert restored_candidate.min_holding_time == original_candidate.min_holding_time
         assert restored_candidate.max_holding_time == original_candidate.max_holding_time
         assert restored_candidate.metadata == original_candidate.metadata
+
+
 class TestEvaluationSerializers:
     """Тесты для сериализации StrategyEvaluationResult"""
+
     def test_evaluation_to_model_conversion(self: "TestEvaluationSerializers") -> None:
         """Тест конвертации StrategyEvaluationResult в StrategyEvaluationModel"""
         # Arrange
@@ -190,7 +203,7 @@ class TestEvaluationSerializers:
             is_approved=True,
             approval_reason="Good performance",
             evaluation_time=datetime(2024, 1, 3, 12, 0, 0, tzinfo=timezone.utc),
-            metadata={"meta1": "value1"}
+            metadata={"meta1": "value1"},
         )
         # Act
         model = evaluation_to_model(evaluation)
@@ -225,6 +238,7 @@ class TestEvaluationSerializers:
         assert model.is_approved is True
         assert model.approval_reason == "Good performance"
         assert model.evaluation_time == datetime(2024, 1, 3, 12, 0, 0, tzinfo=timezone.utc)
+
     def test_model_to_evaluation_conversion(self: "TestEvaluationSerializers") -> None:
         """Тест конвертации StrategyEvaluationModel в StrategyEvaluationResult"""
         # Arrange
@@ -262,7 +276,7 @@ class TestEvaluationSerializers:
             approval_reason="Good performance",
             fitness_score="0.85",
             evaluation_time=datetime(2024, 1, 3, 12, 0, 0, tzinfo=timezone.utc),
-            meta_data=json.dumps({"meta1": "value1"})
+            meta_data=json.dumps({"meta1": "value1"}),
         )
         # Act
         evaluation = model_to_evaluation(model)
@@ -298,8 +312,11 @@ class TestEvaluationSerializers:
         assert evaluation.approval_reason == "Good performance"
         assert evaluation.evaluation_time == datetime(2024, 1, 3, 12, 0, 0, tzinfo=timezone.utc)
         assert evaluation.metadata == {"meta1": "value1"}
+
+
 class TestContextSerializers:
     """Тесты для сериализации EvolutionContext"""
+
     def test_context_to_model_conversion(self: "TestContextSerializers") -> None:
         """Тест конвертации EvolutionContext в EvolutionContextModel"""
         # Arrange
@@ -322,7 +339,7 @@ class TestContextSerializers:
             max_exit_rules=3,
             created_at=datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc),
-            metadata={"meta1": "value1"}
+            metadata={"meta1": "value1"},
         )
         # Act
         model = context_to_model(context)
@@ -345,6 +362,7 @@ class TestContextSerializers:
         assert model.max_exit_rules == 3
         assert model.created_at == datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         assert model.updated_at == datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc)
+
     def test_model_to_context_conversion(self: "TestContextSerializers") -> None:
         """Тест конвертации EvolutionContextModel в EvolutionContext"""
         # Arrange
@@ -368,7 +386,7 @@ class TestContextSerializers:
             max_exit_rules=3,
             created_at=datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc),
-            meta_data=json.dumps({"meta1": "value1"})
+            meta_data=json.dumps({"meta1": "value1"}),
         )
         # Act
         context = model_to_context(model)
@@ -392,6 +410,7 @@ class TestContextSerializers:
         assert context.created_at == datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         assert context.updated_at == datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc)
         assert context.metadata == {"meta1": "value1"}
+
     def test_context_round_trip(self: "TestContextSerializers") -> None:
         """Тест полного цикла сериализации EvolutionContext"""
         # Arrange
@@ -414,7 +433,7 @@ class TestContextSerializers:
             max_exit_rules=3,
             created_at=datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc),
-            metadata={"meta1": "value1"}
+            metadata={"meta1": "value1"},
         )
         # Act
         model = context_to_model(original_context)
@@ -439,15 +458,18 @@ class TestContextSerializers:
         assert restored_context.created_at == original_context.created_at
         assert restored_context.updated_at == original_context.updated_at
         assert restored_context.metadata == original_context.metadata
+
+
 class TestSerializersEdgeCases:
     """Тесты граничных случаев для сериализаторов"""
+
     def test_candidate_with_complex_metadata(self: "TestSerializersEdgeCases") -> None:
         """Тест сериализации StrategyCandidate со сложными метаданными"""
         # Arrange
         complex_metadata = {
             "nested_dict": {"key1": {"key2": [1, 2, 3]}},
             "list_of_dicts": [{"a": 1}, {"b": 2}],
-            "mixed_types": [1, "string", 3.14, True, None]
+            "mixed_types": [1, "string", 3.14, True, None],
         }
         candidate = StrategyCandidate(
             id=uuid4(),
@@ -468,13 +490,14 @@ class TestSerializersEdgeCases:
             max_positions=5,
             min_holding_time=300,
             max_holding_time=3600,
-            metadata=complex_metadata
+            metadata=complex_metadata,
         )
         # Act
         model = candidate_to_model(candidate)
         restored_candidate = model_to_candidate(model)
         # Assert
         assert restored_candidate.metadata == complex_metadata
+
     def test_evaluation_with_extreme_values(self: "TestSerializersEdgeCases") -> None:
         """Тест сериализации StrategyEvaluationResult с экстремальными значениями"""
         # Arrange
@@ -509,7 +532,7 @@ class TestSerializersEdgeCases:
             is_approved=True,
             approval_reason="Excellent performance",
             evaluation_time=datetime(2024, 12, 31, 12, 0, 0, tzinfo=timezone.utc),
-            metadata={"meta1": "value1"}
+            metadata={"meta1": "value1"},
         )
         # Act
         model = evaluation_to_model(evaluation)
@@ -537,4 +560,4 @@ class TestSerializersEdgeCases:
         assert restored_evaluation.largest_win == Decimal("99999.99")
         assert restored_evaluation.largest_loss == Decimal("-0.01")
         assert restored_evaluation.average_holding_time == 86400
-        assert restored_evaluation.total_trading_time == 31536000 
+        assert restored_evaluation.total_trading_time == 31536000

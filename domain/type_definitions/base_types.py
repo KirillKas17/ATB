@@ -27,6 +27,10 @@ SignalId = NewType("SignalId", str)
 SignalScore = NewType("SignalScore", Decimal)
 OrderId = NewType("OrderId", UUID)
 PositionId = NewType("PositionId", UUID)
+StrategyId = NewType("StrategyId", str)
+GenerationId = NewType("GenerationId", str)
+FitnessScore = NewType("FitnessScore", Decimal)
+Symbol = NewType("Symbol", str)
 # Константы для валидации
 MONEY_PRECISION: Final[int] = 8
 PRICE_PRECISION: Final[int] = 8
@@ -40,4 +44,24 @@ MIN_PRICE: Final[Decimal] = Decimal("0.00000001")
 MAX_VOLUME: Final[Decimal] = Decimal("999999999999.99999999")
 MIN_VOLUME: Final[Decimal] = Decimal("0.00000001")
 MAX_PERCENTAGE: Final[Decimal] = Decimal("10000")
-MIN_PERCENTAGE: Final[Decimal] = Decimal("-10000") 
+MIN_PERCENTAGE: Final[Decimal] = Decimal("-10000")
+
+# Дополнительные типы для торговли
+TradingPair = NewType("TradingPair", str)
+
+# Перечисления
+from enum import Enum
+
+class RiskLevel(Enum):
+    """Уровни риска."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    EXTREME = "extreme"
+
+
+class SignalDirection(Enum):
+    """Направления сигналов."""
+    BUY = "buy"
+    SELL = "sell"
+    HOLD = "hold" 

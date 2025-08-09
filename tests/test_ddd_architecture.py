@@ -13,17 +13,17 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 # Импорты сервисов приложения
 from application.services.trading_service import TradingService
 from domain.entities.portfolio_fixed import Balance, Portfolio, Position
-from domain.entities.risk import (RiskLevel, RiskManager,
-                                  RiskProfile, RiskType)
-from domain.entities.strategy import (Signal, SignalStrength, SignalType,
-                                      Strategy, StrategyType)
+from domain.entities.risk import RiskLevel, RiskManager, RiskProfile, RiskType
+from domain.entities.strategy import Signal, SignalStrength, SignalType, Strategy, StrategyType
+
 # Импорты доменных сущностей
 from domain.entities.order import Order, OrderSide, OrderStatus, OrderType
-from domain.repositories.portfolio_repository import \
-    InMemoryPortfolioRepository
+from domain.repositories.portfolio_repository import InMemoryPortfolioRepository
+
 # Импорты репозиториев
 from domain.repositories.trading_repository import InMemoryTradingRepository
 from domain.value_objects.currency import Currency
+
 # Импорты общих компонентов
 from domain.value_objects.money import Money
 from domain.value_objects.percentage import Percentage
@@ -122,9 +122,7 @@ class TestDomainEntities:
         )
 
         long_position._calculate_unrealized_pnl()
-        assert long_position.unrealized_pnl.value == Decimal(
-            "10"
-        )  # (51000-50000)*0.001
+        assert long_position.unrealized_pnl.value == Decimal("10")  # (51000-50000)*0.001
 
         # Короткая позиция с убытком
         short_position = Position(
@@ -136,9 +134,7 @@ class TestDomainEntities:
         )
 
         short_position._calculate_unrealized_pnl()
-        assert short_position.unrealized_pnl.value == Decimal(
-            "-10"
-        )  # (50000-51000)*0.001
+        assert short_position.unrealized_pnl.value == Decimal("-10")  # (50000-51000)*0.001
 
     def test_portfolio_creation(self: "TestDomainEntities") -> None:
         """Тест создания портфеля"""
@@ -204,7 +200,7 @@ class TestRepositories:
     """Тесты репозиториев"""
 
     @pytest.mark.asyncio
-    def test_trading_repository(self: "TestRepositories") -> None:
+    async def test_trading_repository(self: "TestRepositories") -> None:
         """Тест репозитория торговых операций"""
         repo = InMemoryTradingRepository()
 
@@ -243,7 +239,7 @@ class TestRepositories:
         assert retrieved_order is None
 
     @pytest.mark.asyncio
-    def test_portfolio_repository(self: "TestRepositories") -> None:
+    async def test_portfolio_repository(self: "TestRepositories") -> None:
         """Тест репозитория портфеля"""
         repo = InMemoryPortfolioRepository()
 
@@ -313,7 +309,7 @@ class TestApplicationServices:
     """Тесты сервисов приложения"""
 
     @pytest.mark.asyncio
-    def test_trading_service_creation(self: "TestApplicationServices") -> None:
+    async def test_trading_service_creation(self: "TestApplicationServices") -> None:
         """Тест создания торгового сервиса"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -336,7 +332,7 @@ class TestApplicationServices:
         assert service.risk_manager == risk_manager
 
     @pytest.mark.asyncio
-    def test_create_order_success(self: "TestApplicationServices") -> None:
+    async def test_create_order_success(self: "TestApplicationServices") -> None:
         """Тест успешного создания ордера"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -386,7 +382,7 @@ class TestApplicationServices:
         assert order.quantity.value == Decimal("0.001")
 
     @pytest.mark.asyncio
-    def test_create_order_insufficient_funds(self: "TestApplicationServices") -> None:
+    async def test_create_order_insufficient_funds(self: "TestApplicationServices") -> None:
         """Тест создания ордера с недостаточными средствами"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -431,7 +427,7 @@ class TestApplicationServices:
             )
 
     @pytest.mark.asyncio
-    def test_execute_order(self: "TestApplicationServices") -> None:
+    async def test_execute_order(self: "TestApplicationServices") -> None:
         """Тест исполнения ордера"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -483,7 +479,7 @@ class TestApplicationServices:
         assert updated_order.status == OrderStatus.FILLED
 
     @pytest.mark.asyncio
-    def test_cancel_order(self: "TestApplicationServices") -> None:
+    async def test_cancel_order(self: "TestApplicationServices") -> None:
         """Тест отмены ордера"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()
@@ -524,7 +520,7 @@ class TestApplicationServices:
         assert cancelled_order.is_active is False
 
     @pytest.mark.asyncio
-    def test_get_portfolio_summary(self: "TestApplicationServices") -> None:
+    async def test_get_portfolio_summary(self: "TestApplicationServices") -> None:
         """Тест получения сводки портфеля"""
         trading_repo = InMemoryTradingRepository()
         portfolio_repo = InMemoryPortfolioRepository()

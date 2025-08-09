@@ -10,7 +10,7 @@ from domain.strategies.mean_reversion_strategy import MeanReversionStrategy
 from domain.strategies.breakout_strategy import BreakoutStrategy
 from domain.strategies.scalping_strategy import ScalpingStrategy
 from domain.strategies.arbitrage_strategy import ArbitrageStrategy
-from domain.strategies.strategy_types import (
+from domain.type_definitions.strategy_types import (
     ArbitrageParams,
     BreakoutParams,
     MeanReversionParams,

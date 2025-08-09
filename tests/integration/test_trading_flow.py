@@ -65,24 +65,17 @@ class TestTradingFlow:
     @pytest.fixture
     def manage_orders_use_case(self, mock_exchange, mock_order_repository) -> Any:
         """Фикстура для use case управления ордерами."""
-        return OrderManagementUseCase(
-            exchange=mock_exchange,
-            order_repository=mock_order_repository
-        )
+        return OrderManagementUseCase(exchange=mock_exchange, order_repository=mock_order_repository)
 
     @pytest.fixture
     def manage_positions_use_case(self, mock_position_repository) -> Any:
         """Фикстура для use case управления позициями."""
-        return PositionManagementUseCase(
-            position_repository=mock_position_repository
-        )
+        return PositionManagementUseCase(position_repository=mock_position_repository)
 
     @pytest.fixture
     def manage_risk_use_case(self, mock_portfolio_repository) -> Any:
         """Фикстура для use case управления рисками."""
-        return RiskManagementUseCase(
-            portfolio_repository=mock_portfolio_repository
-        )
+        return RiskManagementUseCase(portfolio_repository=mock_portfolio_repository)
 
     @pytest.mark.integration
     @pytest.mark.asyncio
@@ -92,7 +85,7 @@ class TestTradingFlow:
         manage_positions_use_case,
         manage_risk_use_case,
         mock_exchange,
-        mock_portfolio_repository
+        mock_portfolio_repository,
     ) -> None:
         """Тест полного потока покупки."""
         # Arrange
@@ -123,9 +116,9 @@ class TestTradingFlow:
             "id": "test_order_123",
             "status": "filled",
             "filled": "0.001",
-            "price": "50000"
+            "price": "50000",
         }
-        
+
         filled_order = await manage_orders_use_case.get_order("test_order_123")
 
         # Assert - Проверка заполнения
@@ -140,7 +133,7 @@ class TestTradingFlow:
             average_price=Money(Decimal("50000"), Currency.USD),
             current_price=Money(Decimal("50000"), Currency.USD),
         )
-        
+
         position_result = await manage_positions_use_case.create_position(position)
 
         # Assert - Проверка создания позиции
@@ -149,11 +142,7 @@ class TestTradingFlow:
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_complete_sell_order_flow(
-        self,
-        manage_orders_use_case,
-        manage_positions_use_case,
-        mock_exchange,
-        mock_position_repository
+        self, manage_orders_use_case, manage_positions_use_case, mock_exchange, mock_position_repository
     ) -> None:
         """Тест полного потока продажи."""
         # Arrange - Существующая позиция
@@ -186,7 +175,7 @@ class TestTradingFlow:
             "id": "test_order_123",
             "status": "filled",
             "filled": "0.001",
-            "price": "51000"
+            "price": "51000",
         }
 
         filled_order = await manage_orders_use_case.get_order("test_order_123")
@@ -203,11 +192,7 @@ class TestTradingFlow:
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_risk_management_integration(
-        self,
-        manage_orders_use_case,
-        manage_risk_use_case,
-        mock_exchange,
-        mock_portfolio_repository
+        self, manage_orders_use_case, manage_risk_use_case, mock_exchange, mock_portfolio_repository
     ) -> None:
         """Тест интеграции управления рисками."""
         # Arrange
@@ -234,12 +219,7 @@ class TestTradingFlow:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_order_cancellation_flow(
-        self,
-        manage_orders_use_case,
-        mock_exchange,
-        mock_order_repository
-    ) -> None:
+    async def test_order_cancellation_flow(self, manage_orders_use_case, mock_exchange, mock_order_repository) -> None:
         """Тест потока отмены ордера."""
         # Arrange
         order = Order(
@@ -263,12 +243,7 @@ class TestTradingFlow:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_market_order_flow(
-        self,
-        manage_orders_use_case,
-        mock_exchange,
-        mock_order_repository
-    ) -> None:
+    async def test_market_order_flow(self, manage_orders_use_case, mock_exchange, mock_order_repository) -> None:
         """Тест потока рыночного ордера."""
         # Arrange
         market_order = Order(
@@ -279,11 +254,7 @@ class TestTradingFlow:
         )
 
         # Mock текущую цену
-        mock_exchange.fetch_ticker.return_value = {
-            "last": 50000.0,
-            "bid": 49999.0,
-            "ask": 50001.0
-        }
+        mock_exchange.fetch_ticker.return_value = {"last": 50000.0, "bid": 49999.0, "ask": 50001.0}
 
         # Act - Создание рыночного ордера
         order_result = await manage_orders_use_case.create_order(market_order)
@@ -294,11 +265,7 @@ class TestTradingFlow:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_position_pnl_calculation(
-        self,
-        manage_positions_use_case,
-        mock_position_repository
-    ) -> None:
+    async def test_position_pnl_calculation(self, manage_positions_use_case, mock_position_repository) -> None:
         """Тест расчета PnL позиции."""
         # Arrange
         position = Position(
@@ -321,10 +288,7 @@ class TestTradingFlow:
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_error_handling_integration(
-        self,
-        manage_orders_use_case,
-        mock_exchange,
-        mock_order_repository
+        self, manage_orders_use_case, mock_exchange, mock_order_repository
     ) -> None:
         """Тест обработки ошибок в интеграции."""
         # Arrange - Ошибка биржи
@@ -345,10 +309,7 @@ class TestTradingFlow:
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_concurrent_order_handling(
-        self,
-        manage_orders_use_case,
-        mock_exchange,
-        mock_order_repository
+        self, manage_orders_use_case, mock_exchange, mock_order_repository
     ) -> None:
         """Тест обработки конкурентных ордеров."""
         # Arrange
@@ -383,11 +344,7 @@ class TestTradingFlow:
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_portfolio_balance_integration(
-        self,
-        manage_orders_use_case,
-        manage_risk_use_case,
-        mock_exchange,
-        mock_portfolio_repository
+        self, manage_orders_use_case, manage_risk_use_case, mock_exchange, mock_portfolio_repository
     ) -> None:
         """Тест интеграции с балансом портфеля."""
         # Arrange
@@ -399,7 +356,7 @@ class TestTradingFlow:
         # Mock баланс биржи
         mock_exchange.fetch_balance.return_value = {
             "USDT": {"free": 5000.0, "used": 0.0},
-            "BTC": {"free": 0.0, "used": 0.0}
+            "BTC": {"free": 0.0, "used": 0.0},
         }
 
         order = Order(
@@ -419,12 +376,7 @@ class TestTradingFlow:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_order_status_tracking(
-        self,
-        manage_orders_use_case,
-        mock_exchange,
-        mock_order_repository
-    ) -> None:
+    async def test_order_status_tracking(self, manage_orders_use_case, mock_exchange, mock_order_repository) -> None:
         """Тест отслеживания статуса ордера."""
         # Arrange
         order = Order(
@@ -444,7 +396,7 @@ class TestTradingFlow:
             "id": order_id,
             "status": "partially_filled",
             "filled": "0.0005",
-            "remaining": "0.0005"
+            "remaining": "0.0005",
         }
 
         status = await manage_orders_use_case.get_order_status(order_id)
@@ -452,4 +404,4 @@ class TestTradingFlow:
         # Assert - Проверка статуса
         assert status["status"] == "partially_filled"
         assert status["filled"] == "0.0005"
-        assert status["remaining"] == "0.0005" 
+        assert status["remaining"] == "0.0005"

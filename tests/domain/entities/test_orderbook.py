@@ -36,7 +36,9 @@ class TestOrderBookSnapshot:
         ]
 
     @pytest.fixture
-    def orderbook_snapshot(self, sample_bids: list[tuple[Price, Volume]], sample_asks: list[tuple[Price, Volume]]) -> OrderBookSnapshot:
+    def orderbook_snapshot(
+        self, sample_bids: list[tuple[Price, Volume]], sample_asks: list[tuple[Price, Volume]]
+    ) -> OrderBookSnapshot:
         """Фикстура с валидным снимком ордербука."""
         return OrderBookSnapshot(
             exchange="test_exchange",
@@ -310,7 +312,7 @@ class TestOrderBookSnapshot:
         """Тест создания из словаря."""
         data = orderbook_snapshot.to_dict()
         restored_orderbook = OrderBookSnapshot.from_dict(data)
-        
+
         assert restored_orderbook.exchange == orderbook_snapshot.exchange
         assert restored_orderbook.symbol == orderbook_snapshot.symbol
         assert len(restored_orderbook.bids) == len(orderbook_snapshot.bids)
@@ -369,4 +371,4 @@ class TestOrderBookSnapshot:
         assert orderbook.total_bid_volume.value == Decimal("0")
         assert orderbook.total_ask_volume.value == Decimal("0")
         assert orderbook.volume_imbalance == Decimal("0")
-        assert orderbook.volume_imbalance_ratio is None 
+        assert orderbook.volume_imbalance_ratio is None

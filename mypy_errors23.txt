@@ -1,2 +1,0 @@
-infrastructure\core\feature_engineering.py:528: error: cannot assign to conditional expression  [syntax]
-Found 1 error in 1 file (errors prevented further checking)

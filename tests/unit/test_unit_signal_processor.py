@@ -3,6 +3,7 @@ Unit тесты для SignalProcessor.
 Тестирует обработку сигналов, включая генерацию, фильтрацию,
 агрегацию и анализ торговых сигналов.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import numpy as np
@@ -15,28 +16,35 @@ from infrastructure.core.signal_processor import SignalProcessor
 DataFrame = pd.DataFrame
 Series = pd.Series
 
+
 class TestSignalProcessor:
     """Тесты для SignalProcessor."""
+
     @pytest.fixture
     def signal_processor(self) -> SignalProcessor:
         """Фикстура для SignalProcessor."""
         return SignalProcessor()
+
     @pytest.fixture
     def sample_market_data(self) -> pd.DataFrame:
         """Фикстура с тестовыми рыночными данными."""
-        dates = pd.date_range('2023-01-01', periods=1000, freq='1H')
+        dates = pd.date_range("2023-01-01", periods=1000, freq="1H")
         np.random.seed(42)
-        data = pd.DataFrame({
-            'open': np.random.uniform(45000, 55000, 1000),
-            'high': np.random.uniform(46000, 56000, 1000),
-            'low': np.random.uniform(44000, 54000, 1000),
-            'close': np.random.uniform(45000, 55000, 1000),
-            'volume': np.random.uniform(1000000, 5000000, 1000)
-        }, index=dates)
+        data = pd.DataFrame(
+            {
+                "open": np.random.uniform(45000, 55000, 1000),
+                "high": np.random.uniform(46000, 56000, 1000),
+                "low": np.random.uniform(44000, 54000, 1000),
+                "close": np.random.uniform(45000, 55000, 1000),
+                "volume": np.random.uniform(1000000, 5000000, 1000),
+            },
+            index=dates,
+        )
         # Создание более реалистичных данных
-        data['high'] = data[['open', 'close']].max(axis=1) + np.random.uniform(0, 1000, 1000)
-        data['low'] = data[['open', 'close']].min(axis=1) - np.random.uniform(0, 1000, 1000)
+        data["high"] = data[["open", "close"]].max(axis=1) + np.random.uniform(0, 1000, 1000)
+        data["low"] = data[["open", "close"]].min(axis=1) - np.random.uniform(0, 1000, 1000)
         return data
+
     @pytest.fixture
     def sample_signals(self) -> list:
         """Фикстура с тестовыми сигналами."""
@@ -50,7 +58,7 @@ class TestSignalProcessor:
                 "timestamp": datetime.now() - timedelta(hours=1),
                 "price": Decimal("50000.0"),
                 "confidence": 0.75,
-                "metadata": {"rsi_value": 25, "oversold": True}
+                "metadata": {"rsi_value": 25, "oversold": True},
             },
             {
                 "id": "signal_002",
@@ -61,15 +69,17 @@ class TestSignalProcessor:
                 "timestamp": datetime.now() - timedelta(minutes=30),
                 "price": Decimal("3000.0"),
                 "confidence": 0.65,
-                "metadata": {"macd_signal": "bearish", "divergence": True}
-            }
+                "metadata": {"macd_signal": "bearish", "divergence": True},
+            },
         ]
+
     def test_initialization(self, signal_processor: SignalProcessor) -> None:
         """Тест инициализации процессора сигналов."""
         assert signal_processor is not None
-        assert hasattr(signal_processor, 'signal_generators')
-        assert hasattr(signal_processor, 'signal_filters')
-        assert hasattr(signal_processor, 'signal_aggregators')
+        assert hasattr(signal_processor, "signal_generators")
+        assert hasattr(signal_processor, "signal_filters")
+        assert hasattr(signal_processor, "signal_aggregators")
+
     def test_generate_rsi_signals(self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест генерации RSI сигналов."""
         # Генерация RSI сигналов
@@ -94,6 +104,7 @@ class TestSignalProcessor:
             # Проверка диапазонов
             assert 0.0 <= signal["strength"] <= 1.0
             assert 0.0 <= signal["confidence"] <= 1.0
+
     def test_generate_macd_signals(self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест генерации MACD сигналов."""
         # Генерация MACD сигналов
@@ -109,7 +120,10 @@ class TestSignalProcessor:
             assert "timestamp" in signal
             assert "price" in signal
             assert "confidence" in signal
-    def test_generate_moving_average_signals(self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame) -> None:
+
+    def test_generate_moving_average_signals(
+        self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame
+    ) -> None:
         """Тест генерации сигналов скользящих средних."""
         # Генерация сигналов скользящих средних
         ma_signals = signal_processor.generate_moving_average_signals(
@@ -126,7 +140,10 @@ class TestSignalProcessor:
             assert "timestamp" in signal
             assert "price" in signal
             assert "confidence" in signal
-    def test_generate_bollinger_bands_signals(self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame) -> None:
+
+    def test_generate_bollinger_bands_signals(
+        self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame
+    ) -> None:
         """Тест генерации сигналов полос Боллинджера."""
         # Генерация сигналов полос Боллинджера
         bb_signals = signal_processor.generate_bollinger_bands_signals(sample_market_data)
@@ -141,6 +158,7 @@ class TestSignalProcessor:
             assert "timestamp" in signal
             assert "price" in signal
             assert "confidence" in signal
+
     def test_generate_volume_signals(self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame) -> None:
         """Тест генерации объемных сигналов."""
         # Генерация объемных сигналов
@@ -156,16 +174,12 @@ class TestSignalProcessor:
             assert "timestamp" in signal
             assert "price" in signal
             assert "confidence" in signal
+
     def test_filter_signals(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест фильтрации сигналов."""
         # Фильтрация сигналов
         filtered_signals = signal_processor.filter_signals(
-            sample_signals,
-            filters={
-                "min_strength": 0.5,
-                "min_confidence": 0.6,
-                "signal_types": ["buy", "sell"]
-            }
+            sample_signals, filters={"min_strength": 0.5, "min_confidence": 0.6, "signal_types": ["buy", "sell"]}
         )
         # Проверки
         assert filtered_signals is not None
@@ -176,6 +190,7 @@ class TestSignalProcessor:
             assert signal["strength"] >= 0.5
             assert signal["confidence"] >= 0.6
             assert signal["type"] in ["buy", "sell"]
+
     def test_aggregate_signals(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест агрегации сигналов."""
         # Агрегация сигналов
@@ -189,6 +204,7 @@ class TestSignalProcessor:
         assert isinstance(aggregated_signals["aggregated_signal"], dict)
         assert isinstance(aggregated_signals["signal_consensus"], str)
         assert isinstance(aggregated_signals["aggregation_metrics"], dict)
+
     def test_analyze_signal_quality(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест анализа качества сигналов."""
         # Анализ качества сигналов
@@ -208,6 +224,7 @@ class TestSignalProcessor:
         assert 0.0 <= quality_analysis["overall_quality"] <= 1.0
         assert 0.0 <= quality_analysis["signal_reliability"] <= 1.0
         assert 0.0 <= quality_analysis["signal_consistency"] <= 1.0
+
     def test_validate_signals(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест валидации сигналов."""
         # Валидация сигналов
@@ -225,6 +242,7 @@ class TestSignalProcessor:
         assert isinstance(validation_result["validated_signals"], list)
         # Проверка диапазона
         assert 0.0 <= validation_result["validation_score"] <= 1.0
+
     def test_calculate_signal_statistics(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест расчета статистики сигналов."""
         # Расчет статистики
@@ -247,7 +265,10 @@ class TestSignalProcessor:
         # Проверка логики
         assert statistics["total_signals"] >= 0
         assert statistics["buy_signals"] + statistics["sell_signals"] <= statistics["total_signals"]
-    def test_backtest_signals(self, signal_processor: SignalProcessor, sample_signals: list, sample_market_data: pd.DataFrame) -> None:
+
+    def test_backtest_signals(
+        self, signal_processor: SignalProcessor, sample_signals: list, sample_market_data: pd.DataFrame
+    ) -> None:
         """Тест бэктестинга сигналов."""
         # Бэктестинг сигналов
         backtest_result = signal_processor.backtest_signals(sample_signals, sample_market_data)
@@ -267,18 +288,15 @@ class TestSignalProcessor:
         # Проверка диапазонов
         assert 0.0 <= backtest_result["signal_accuracy"] <= 1.0
         assert 0.0 <= backtest_result["win_rate"] <= 1.0
-    def test_optimize_signal_parameters(self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame) -> None:
+
+    def test_optimize_signal_parameters(
+        self, signal_processor: SignalProcessor, sample_market_data: pd.DataFrame
+    ) -> None:
         """Тест оптимизации параметров сигналов."""
         # Параметры для оптимизации
-        param_ranges = {
-            "rsi_period": (10, 20),
-            "rsi_overbought": (65, 75),
-            "rsi_oversold": (25, 35)
-        }
+        param_ranges = {"rsi_period": (10, 20), "rsi_overbought": (65, 75), "rsi_oversold": (25, 35)}
         # Оптимизация параметров
-        optimization_result = signal_processor.optimize_signal_parameters(
-            sample_market_data
-        )
+        optimization_result = signal_processor.optimize_signal_parameters(sample_market_data)
         # Проверки
         assert optimization_result is not None
         assert "best_parameters" in optimization_result
@@ -290,6 +308,7 @@ class TestSignalProcessor:
         assert isinstance(optimization_result["optimization_score"], float)
         # Проверка диапазона
         assert 0.0 <= optimization_result["optimization_score"] <= 1.0
+
     def test_generate_signal_alerts(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест генерации алертов сигналов."""
         # Генерация алертов
@@ -310,6 +329,7 @@ class TestSignalProcessor:
             assert isinstance(alert["message"], str)
             assert isinstance(alert["timestamp"], datetime)
             assert isinstance(alert["signal_id"], str)
+
     def test_get_signal_history(self, signal_processor: SignalProcessor, sample_signals: list) -> None:
         """Тест получения истории сигналов."""
         # Получение истории
@@ -318,6 +338,7 @@ class TestSignalProcessor:
         assert history is not None
         assert isinstance(history, list)
         assert len(history) >= 0
+
     def test_error_handling(self, signal_processor: SignalProcessor) -> None:
         """Тест обработки ошибок."""
         # Тест с некорректными данными
@@ -325,12 +346,11 @@ class TestSignalProcessor:
             signal_processor.generate_rsi_signals(None)
         with pytest.raises(ValueError):
             signal_processor.filter_signals(None, {})
+
     def test_edge_cases(self, signal_processor: SignalProcessor) -> None:
         """Тест граничных случаев."""
         # Тест с очень короткими данными
-        short_data = pd.DataFrame({
-            'close': [100, 101, 102, 103, 104]
-        })
+        short_data = pd.DataFrame({"close": [100, 101, 102, 103, 104]})
         # Эти функции должны обрабатывать короткие данные
         rsi_signals = signal_processor.generate_rsi_signals(short_data, period=2)
         assert isinstance(rsi_signals, list)
@@ -338,6 +358,7 @@ class TestSignalProcessor:
         empty_signals: list[dict] = []
         filtered_signals = signal_processor.filter_signals(empty_signals, {})
         assert filtered_signals == []
+
     def test_cleanup(self, signal_processor: SignalProcessor) -> None:
         """Тест очистки ресурсов."""
         # Проверка корректной очистки
@@ -345,4 +366,4 @@ class TestSignalProcessor:
         # Проверка, что ресурсы освобождены
         assert signal_processor.signal_generators == {}
         assert signal_processor.signal_filters == {}
-        assert signal_processor.signal_aggregators == {} 
+        assert signal_processor.signal_aggregators == {}

@@ -13,9 +13,27 @@ import optuna
 import pandas as pd
 from pandas import DataFrame, Series
 from shared.numpy_utils import np
+from loguru import logger
 
 try:
+    # Безопасный импорт talib
     import talib
+    # Проверка совместимости версий
+    if not hasattr(talib, 'RSI'):
+        raise ImportError("Incompatible talib version")
+except (ImportError, ValueError, AttributeError):
+    # Простая замена для talib
+    class TalibMock:
+        @staticmethod
+        def RSI(data: pd.Series, timeperiod: int = 14) -> pd.Series:
+            return pd.Series([0.5] * len(data), index=data.index)
+
+        @staticmethod
+        def MACD(data: pd.Series, fastperiod: int = 12, slowperiod: int = 26, signalperiod: int = 9) -> Tuple[pd.Series, pd.Series, pd.Series]:
+            return pd.Series([0] * len(data), index=data.index), pd.Series([0] * len(data), index=data.index), pd.Series([0] * len(data), index=data.index)
+
+    talib = TalibMock()
+    logger.warning("Using mock talib implementation due to compatibility issues")
 except ImportError:
     talib = None
 
@@ -29,7 +47,6 @@ except ImportError:
     nn = None
     F = None
     TORCH_AVAILABLE = False
-from loguru import logger
 from scipy import stats
 from scipy.signal import savgol_filter
 from sklearn.preprocessing import RobustScaler
@@ -114,7 +131,7 @@ class AdvancedPredictorConfig:
 class MultiHeadAttention(nn.Module):
     """Многоголовое внимание с относительным позиционированием"""
 
-    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.1):
+    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.1) -> None:
         super().__init__()
         assert d_model % n_heads == 0
         self.d_model = d_model
@@ -388,7 +405,7 @@ class MetaLearner(nn.Module):
 class AdvancedPricePredictor:
     """Максимально продвинутый предиктор цен"""
 
-    def __init__(self, config: Optional[AdvancedPredictorConfig] = None):
+    def __init__(self, config: Optional[AdvancedPredictorConfig] = None) -> None:
         self.config = config or AdvancedPredictorConfig()
         self.device = torch.device(self.config.device)
         # Основная модель

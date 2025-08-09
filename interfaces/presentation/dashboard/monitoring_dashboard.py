@@ -41,13 +41,13 @@ class MonitoringDashboard:
         self.event_bus = event_bus
         self.cache_manager = cache_manager or get_cache_manager()
         
+        # Интервал обновления
+        self.update_interval = 5000  # 5 секунд
+        
         # Создание Dash приложения
         self.app = dash.Dash(__name__, title="Syntra Monitoring Dashboard")
         self.setup_layout()
         self.setup_callbacks()
-        
-        # Интервал обновления
-        self.update_interval = 5000  # 5 секунд
         
     def setup_layout(self) -> None:
         """Настройка макета дашборда."""
@@ -383,7 +383,7 @@ class MonitoringDashboard:
 
 
 def create_monitoring_dashboard(system_monitor: SystemMonitor, event_bus: EventBus, 
-                               cache_manager: CacheManager) -> MonitoringDashboard:
+                               cache_manager: Any) -> MonitoringDashboard:
     """Создание дашборда мониторинга."""
     return MonitoringDashboard(system_monitor, event_bus, cache_manager)
 

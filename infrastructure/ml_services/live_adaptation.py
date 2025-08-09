@@ -82,6 +82,39 @@ class MarketDrift:
     detected_regime: str
 
 
+@dataclass
+class LiveAdaptationModel:
+    """Модель адаптивного обучения."""
+    
+    model_id: str
+    model_type: str
+    model: Any
+    scaler: StandardScaler
+    performance: ModelPerformance
+    created_at: datetime
+    last_updated: datetime
+    is_active: bool = True
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "model_id": self.model_id,
+            "model_type": self.model_type,
+            "performance": {
+                "mse": self.performance.mse,
+                "mae": self.performance.mae,
+                "r2_score": self.performance.r2_score,
+                "prediction_accuracy": self.performance.prediction_accuracy,
+                "adaptation_speed": self.performance.adaptation_speed,
+                "last_update": self.performance.last_update.isoformat(),
+                "is_active": self.performance.is_active
+            },
+            "created_at": self.created_at.isoformat(),
+            "last_updated": self.last_updated.isoformat(),
+            "is_active": self.is_active
+        }
+
+
 class LiveAdaptation:
     """
     Система адаптивного обучения в реальном времени.

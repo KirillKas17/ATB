@@ -10,7 +10,7 @@ Unit тесты для domain services.
 
 __all__ = [
     "test_risk_analysis",
-    "test_pattern_discovery", 
+    "test_pattern_discovery",
     "test_market_metrics",
     "test_signal_service",
     "test_strategy_service",
@@ -20,5 +20,5 @@ __all__ = [
     "test_order_validation_service",
     "test_liquidity_analyzer",
     "test_market_analysis",
-    "test_ml_predictor"
-] 
+    "test_ml_predictor",
+]

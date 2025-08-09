@@ -1,11 +1,15 @@
 """Тесты для калькулятора opportunity score."""
+import pandas as pd
+from typing import cast
 from domain.symbols.opportunity_score import OpportunityScoreCalculator
 from domain.type_definitions import MarketDataFrame, OrderBookData
-    def test_opportunity_score_calculator_init() -> None:
+
+def test_opportunity_score_calculator_init() -> None:
     calc = OpportunityScoreCalculator()
     assert calc is not None
     assert calc.config is not None
-    def test_opportunity_score_calculator_basic() -> None:
+
+def test_opportunity_score_calculator_basic() -> None:
     calc = OpportunityScoreCalculator()
     # Создаем минимальные данные
     symbol = "BTCUSDT"
@@ -28,7 +32,8 @@ from domain.type_definitions import MarketDataFrame, OrderBookData
     assert 'total_score' in result
     assert 'confidence' in result
     assert 'market_phase' in result
-    def test_opportunity_score_config_validation() -> None:
+
+def test_opportunity_score_config_validation() -> None:
     # Проверяем, что калькулятор создается с валидной конфигурацией
     calc = OpportunityScoreCalculator()
     assert calc.config is not None

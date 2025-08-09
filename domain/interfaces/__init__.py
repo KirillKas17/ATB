@@ -4,6 +4,12 @@
 с внешними слоями (infrastructure, shared) без создания циклических зависимостей.
 """
 
+# Базовые интерфейсы
+from .base_service import BaseService
+from .cache_protocol import CacheProtocol
+from .orderbook_protocol import OrderbookProtocol
+from .price_pattern_extractor import PricePatternExtractor
+
 # Новые протоколы для исправления DDD нарушений
 from .prediction_protocols import (
     BaseMarketPhasePredictor,
@@ -50,6 +56,7 @@ from .strategy_protocols import (
 __all__ = [
     # Базовые интерфейсы
     "BaseService",
+    "CacheProtocol",
     "OrderbookProtocol",
     "PricePatternExtractor",
     # Протоколы предсказаний

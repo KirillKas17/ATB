@@ -3,9 +3,9 @@ import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from ml.live_adaptation import (AdaptationConfig, LiveAdaptation,
+from infrastructure.ml_services.live_adaptation import (AdaptationConfig, LiveAdaptation,
                                 LiveAdaptationModel)
-    @pytest.fixture
+@pytest.fixture
 def sample_data() -> Any:
     """Фикстура с тестовыми данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="H")
@@ -26,7 +26,8 @@ def sample_data() -> Any:
         np.random.normal(0, 0.5, 100)
     )
     return data
-    @pytest.fixture
+
+@pytest.fixture
 def sample_trades() -> Any:
     """Фикстура с тестовыми сделками"""
     return [
@@ -39,11 +40,12 @@ def sample_trades() -> Any:
         }
         for i in range(10)
     ]
-    @pytest.fixture
+@pytest.fixture
 def adaptation() -> Any:
     """Фикстура с экземпляром LiveAdaptation"""
     return LiveAdaptation()
-    @pytest.fixture
+
+@pytest.fixture
 def adaptation_model() -> Any:
     """Фикстура с экземпляром LiveAdaptationModel"""
     config = AdaptationConfig(
@@ -54,7 +56,8 @@ def adaptation_model() -> Any:
         confidence_threshold=0.7,
     )
     return LiveAdaptationModel(config)
-    @pytest.fixture
+
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")

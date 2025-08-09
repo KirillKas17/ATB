@@ -28,7 +28,7 @@ class VisualizationConfig:
 class Visualizer:
     """Визуализатор для стратегий"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], VisualizationConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], VisualizationConfig]] = None) -> None:
         """
         Инициализация визуализатора.
         Args:

@@ -126,6 +126,14 @@
                 <i class="fas fa-chart-line"></i>
                 <span>Обзор</span>
             </button>
+            <button class="tab-btn" data-tab="pnl-chart">
+                <i class="fas fa-chart-area"></i>
+                <span>P&L График</span>
+            </button>
+            <button class="tab-btn" data-tab="events">
+                <i class="fas fa-list-alt"></i>
+                <span>События</span>
+            </button>
             <button class="tab-btn" data-tab="system">
                 <i class="fas fa-desktop"></i>
                 <span>Система</span>
@@ -160,19 +168,19 @@
                             <div class="widget-header">
                                 <h3>🖥️ Система</h3>
                             </div>
-                            <div class="widget-content">
-                                <div class="system-info">
-                                    <div class="info-item">
-                                        <span class="label">Статус:</span>
-                                        <span class="value" id="systemStatusText">Остановлена</span>
+                            <div class="widget-content data-container">
+                                <div class="metrics-grid">
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="systemStatusText">Остановлена</div>
+                                        <div class="metric-label">Статус</div>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="label">Время работы:</span>
-                                        <span class="value" id="uptimeText">00:00:00</span>
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="uptimeText">00:00:00</div>
+                                        <div class="metric-label">Время работы</div>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="label">Режим:</span>
-                                        <span class="value" id="modeText">Симуляция</span>
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="modeText">Симуляция</div>
+                                        <div class="metric-label">Режим</div>
                                     </div>
                                 </div>
                             </div>
@@ -182,25 +190,25 @@
                             <div class="widget-header">
                                 <h3>💰 Баланс и P&L</h3>
                             </div>
-                            <div class="widget-content">
-                                <div class="balance-info">
-                                    <div class="balance-main">
-                                        <div class="balance-value" id="totalBalance">$10,000.00</div>
-                                        <div class="balance-label">Общий баланс</div>
+                            <div class="widget-content data-container">
+                                <div class="metrics-grid">
+                                    <div class="metric-card">
+                                        <div class="metric-value" id="totalBalance">$10,000.00</div>
+                                        <div class="metric-label">Общий баланс</div>
                                     </div>
-                                    <div class="pnl-items">
-                                        <div class="pnl-item">
-                                            <span class="pnl-label">Текущий P&L:</span>
-                                            <span class="pnl-value positive" id="currentPnl">$0.00</span>
-                                        </div>
-                                        <div class="pnl-item">
-                                            <span class="pnl-label">Дневной P&L:</span>
-                                            <span class="pnl-value" id="dailyPnl">$0.00</span>
-                                        </div>
-                                        <div class="pnl-item">
-                                            <span class="pnl-label">Месячный P&L:</span>
-                                            <span class="pnl-value" id="monthlyPnl">$0.00</span>
-                                        </div>
+                                </div>
+                                <div class="pnl-container">
+                                    <div class="pnl-item">
+                                        <span class="pnl-label">Текущий P&L:</span>
+                                        <span class="pnl-value positive" id="currentPnl">$0.00</span>
+                                    </div>
+                                    <div class="pnl-item">
+                                        <span class="pnl-label">Дневной P&L:</span>
+                                        <span class="pnl-value" id="dailyPnl">$0.00</span>
+                                    </div>
+                                    <div class="pnl-item">
+                                        <span class="pnl-label">Месячный P&L:</span>
+                                        <span class="pnl-value" id="monthlyPnl">$0.00</span>
                                     </div>
                                 </div>
                             </div>
@@ -210,7 +218,7 @@
                             <div class="widget-header">
                                 <h3>🎯 Активные стратегии</h3>
                             </div>
-                            <div class="widget-content">
+                            <div class="widget-content data-container">
                                 <div class="strategies-list" id="strategiesList">
                                     <div class="strategy-item">
                                         <div class="strategy-icon">🔄</div>
@@ -247,39 +255,11 @@
 
                     <!-- Центральная панель -->
                     <div class="overview-center">
-                        <div class="widget chart-widget">
-                            <div class="widget-header">
-                                <h3>📈 График цен в реальном времени</h3>
-                                <div class="chart-controls">
-                                    <select id="priceSymbol" class="chart-select">
-                                        <option value="BTCUSDT">BTC/USDT</option>
-                                        <option value="ETHUSDT">ETH/USDT</option>
-                                        <option value="BNBUSDT">BNB/USDT</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="widget-content">
-                                <canvas id="priceChart" class="chart-canvas"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="widget chart-widget">
-                            <div class="widget-header">
-                                <h3>💹 График P&L</h3>
-                            </div>
-                            <div class="widget-content">
-                                <canvas id="pnlChart" class="chart-canvas"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Правая панель -->
-                    <div class="overview-right">
                         <div class="widget">
                             <div class="widget-header">
                                 <h3>📊 Активные позиции</h3>
                             </div>
-                            <div class="widget-content">
+                            <div class="widget-content data-container">
                                 <div class="table-container">
                                     <table class="data-table" id="positionsTable">
                                         <thead>
@@ -297,12 +277,15 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    <!-- Правая панель -->
+                    <div class="overview-right">
                         <div class="widget">
                             <div class="widget-header">
                                 <h3>📋 Открытые ордера</h3>
                             </div>
-                            <div class="widget-content">
+                            <div class="widget-content data-container">
                                 <div class="table-container">
                                     <table class="data-table" id="ordersTable">
                                         <thead>
@@ -320,18 +303,115 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <div class="widget">
-                            <div class="widget-header">
-                                <h3>📝 Лог событий</h3>
+            <!-- Вкладка P&L График -->
+            <div id="pnl-chart" class="tab-pane">
+                <div class="pnl-chart-layout">
+                    <div class="widget chart-widget full-width">
+                        <div class="widget-header">
+                            <h3>💹 График P&L</h3>
+                            <div class="chart-controls">
+                                <select id="pnlTimeframe" class="chart-select">
+                                    <option value="1h">1 час</option>
+                                    <option value="4h">4 часа</option>
+                                    <option value="1d" selected>1 день</option>
+                                    <option value="7d">7 дней</option>
+                                    <option value="30d">30 дней</option>
+                                </select>
+                                <button class="chart-btn" id="refreshPnlChart">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
                             </div>
-                            <div class="widget-content">
-                                <div class="log-container" id="logContainer">
-                                    <div class="log-entry">
-                                        <span class="log-time">12:34:56</span>
-                                        <span class="log-level info">INFO</span>
-                                        <span class="log-message">Добро пожаловать в ATB Trading System Enhanced v3.1</span>
-                                    </div>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="pnlChartFull" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="pnl-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalPnL">$0.00</div>
+                                <div class="stat-label">Общий P&L</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="maxDrawdown">0%</div>
+                                <div class="stat-label">Макс. просадка</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="winRate">0%</div>
+                                <div class="stat-label">Винрейт</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📉</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="sharpeRatio">0.00</div>
+                                <div class="stat-label">Коэф. Шарпа</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка События -->
+            <div id="events" class="tab-pane">
+                <div class="events-layout">
+                    <div class="widget full-width">
+                        <div class="widget-header">
+                            <h3>📝 Лог событий</h3>
+                            <div class="widget-controls">
+                                <select id="logLevel" class="chart-select">
+                                    <option value="all">Все уровни</option>
+                                    <option value="info">INFO</option>
+                                    <option value="warning">WARNING</option>
+                                    <option value="error">ERROR</option>
+                                    <option value="success">SUCCESS</option>
+                                </select>
+                                <button class="chart-btn" id="clearLogs">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Очистить</span>
+                                </button>
+                                <button class="chart-btn" id="exportLogs">
+                                    <i class="fas fa-download"></i>
+                                    <span>Экспорт</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div class="log-container full-height" id="eventsLogContainer">
+                                <div class="log-entry">
+                                    <span class="log-time">12:34:56</span>
+                                    <span class="log-level info">INFO</span>
+                                    <span class="log-message">Добро пожаловать в ATB Trading System Enhanced v3.1</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-time">12:34:57</span>
+                                    <span class="log-level success">SUCCESS</span>
+                                    <span class="log-message">Система инициализирована успешно</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-time">12:34:58</span>
+                                    <span class="log-level warning">WARNING</span>
+                                    <span class="log-message">Нет активного подключения к бирже</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-time">12:34:59</span>
+                                    <span class="log-level info">INFO</span>
+                                    <span class="log-message">Запуск в режиме симуляции</span>
                                 </div>
                             </div>
                         </div>

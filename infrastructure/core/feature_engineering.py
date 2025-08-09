@@ -69,7 +69,7 @@ class FeatureEngineer:
     временные паттерны и рыночные микроструктурные признаки.
     """
 
-    def __init__(self, config: Optional[FeatureConfig] = None):
+    def __init__(self, config: Optional[FeatureConfig] = None) -> None:
         """Инициализация инженера признаков."""
         self.config = config or FeatureConfig()
         self.scaler = StandardScaler()

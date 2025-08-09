@@ -17,7 +17,7 @@ from data_loader import DataLoader
 from dotenv import load_dotenv
 from loguru import logger
 from ml.adaptive_strategy_generator import AdaptiveStrategyGenerator
-from ml.meta_learning import MetaLearning
+# from ml.meta_learning import MetaLearning  # Временно отключен
 from ml.pattern_discovery import PatternDiscovery
 from simulation.backtester import BacktestConfig, Backtester
 from tqdm import tqdm

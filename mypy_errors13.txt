@@ -1,2 +1,0 @@
-domain\services\correlation_chain.py:149: error: invalid syntax  [syntax]
-Found 1 error in 1 file (errors prevented further checking)

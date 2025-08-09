@@ -293,7 +293,7 @@ class TestBenchmarkRunner:
         mock_process.cpu_percent.return_value = 25.0
         mock_psutil.Process.return_value = mock_process
 
-    def test_func(x: int) -> int:
+        def test_func(x: int) -> int:
             return x * 2
 
         result = await benchmark_runner.benchmark_function(
@@ -448,7 +448,7 @@ class TestPerformanceDecorators:
         mock_profiler_class.return_value = mock_profiler
 
         @profile_performance("test_function")
-    def test_func(x: int) -> int:
+        def test_func(x: int) -> int:
             return x * 2
 
         result = test_func(5)
@@ -461,7 +461,7 @@ class TestPerformanceDecorators:
         mock_benchmark_class.return_value = mock_runner
 
         @benchmark_performance("test_benchmark", iterations=10)
-    def test_func(x: int) -> int:
+        def test_func(x: int) -> int:
             return x * 2
 
         result = test_func(5)
@@ -474,7 +474,7 @@ class TestPerformanceDecorators:
         mock_optimizer_class.return_value = mock_optimizer
 
         @optimize_performance("test_optimization")
-    def test_func(x: int) -> int:
+        def test_func(x: int) -> int:
             return x * 2
 
         result = test_func(5)
@@ -561,7 +561,7 @@ class TestPerformanceUtilities:
         ))
         mock_benchmark_class.return_value = mock_runner
 
-    def test_func(x: int) -> int:
+        def test_func(x: int) -> int:
             return x * 2
 
         results = await run_performance_benchmarks()
@@ -624,7 +624,7 @@ class TestPerformanceIntegration:
         optimizer = PerformanceOptimizer()
 
         # Тестируем функцию
-    def test_function(n: int) -> List[int]:
+        def test_function(n: int) -> List[int]:
             return [i * 2 for i in range(n)]
 
         # Профилируем

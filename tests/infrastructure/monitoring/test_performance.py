@@ -6,13 +6,14 @@
 - Производительность трейсинга
 - Производительность дашборда
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import time
 import asyncio
 import threading
 from datetime import datetime, timedelta
-from infrastructure.monitoring.monitoring_performance import (
+from infrastructure.monitoring.performance_monitor import (
     get_monitor,
     get_alert_manager,
     get_tracer,
@@ -23,8 +24,11 @@ from infrastructure.monitoring.monitoring_performance import (
     stop_monitoring,
 )
 from domain.type_definitions.monitoring_types import MetricType, AlertSeverity
+
+
 class TestMonitoringPerformance:
     """Тесты производительности системы мониторинга."""
+
     def test_metric_recording_performance(self, performance_test_data) -> None:
         """Тест производительности записи метрик."""
         monitor = get_monitor("perf_test")
@@ -39,17 +43,14 @@ class TestMonitoringPerformance:
         # Проверяем, что все метрики записаны
         metrics = monitor.get_metrics()
         assert len(metrics) >= 10  # 10 уникальных метрик
+
     def test_alert_creation_performance(self, performance_test_data) -> None:
         """Тест производительности создания алертов."""
         alert_manager = get_alert_manager("perf_test")
         # Тест создания алертов
         start_time = time.time()
         for i in range(performance_test_data["medium_dataset"]):
-            create_alert(
-                f"Performance alert {i}",
-                AlertSeverity.WARNING,
-                "perf_test"
-            )
+            create_alert(f"Performance alert {i}", AlertSeverity.WARNING, "perf_test")
         end_time = time.time()
         duration = end_time - start_time
         # Проверяем производительность
@@ -57,6 +58,7 @@ class TestMonitoringPerformance:
         # Проверяем, что все алерты созданы
         alerts = alert_manager.get_alerts()
         assert len(alerts) >= performance_test_data["medium_dataset"]
+
     def test_trace_creation_performance(self, performance_test_data) -> None:
         """Тест производительности создания трейсов."""
         tracer = get_tracer("perf_test")
@@ -74,17 +76,16 @@ class TestMonitoringPerformance:
         # Проверяем, что все трейсы созданы
         trace_stats = tracer.get_trace_statistics()
         assert trace_stats["total_traces"] >= performance_test_data["medium_dataset"]
+
     def test_dashboard_data_processing_performance(self, performance_test_data) -> None:
         """Тест производительности обработки данных дашборда."""
         dashboard = get_dashboard("perf_test")
         # Добавляем много данных
         for i in range(performance_test_data["medium_dataset"]):
             from infrastructure.monitoring.monitoring_dashboard import MetricData
+
             metric_data = MetricData(
-                name=f"dashboard_metric_{i % 10}",
-                values=[i],
-                timestamps=[datetime.now()],
-                labels={"iteration": i}
+                name=f"dashboard_metric_{i % 10}", values=[i], timestamps=[datetime.now()], labels={"iteration": i}
             )
             dashboard.add_metric_data(metric_data)
         # Тест получения данных дашборда
@@ -96,17 +97,16 @@ class TestMonitoringPerformance:
         assert duration < performance_test_data["timeout_threshold"]
         # Проверяем, что данные получены
         assert "metrics" in dashboard_data
+
     def test_concurrent_metric_recording(self, stress_test_config) -> None:
         """Тест конкурентной записи метрик."""
         monitor = get_monitor("concurrent_test")
+
         def worker(worker_id: int) -> Any:
             """Рабочая функция для конкурентной записи метрик."""
             for i in range(stress_test_config["iterations_per_thread"]):
-                record_metric(
-                    f"concurrent_metric_{worker_id}",
-                    i,
-                    {"worker": worker_id, "iteration": i}
-                )
+                record_metric(f"concurrent_metric_{worker_id}", i, {"worker": worker_id, "iteration": i})
+
         # Запускаем конкурентные потоки
         start_time = time.time()
         threads = []
@@ -125,17 +125,16 @@ class TestMonitoringPerformance:
         metrics = monitor.get_metrics()
         expected_metrics = stress_test_config["concurrent_threads"]
         assert len(metrics) >= expected_metrics
+
     def test_concurrent_alert_creation(self, stress_test_config) -> None:
         """Тест конкурентного создания алертов."""
         alert_manager = get_alert_manager("concurrent_test")
+
         def worker(worker_id: int) -> Any:
             """Рабочая функция для конкурентного создания алертов."""
             for i in range(stress_test_config["iterations_per_thread"]):
-                create_alert(
-                    f"Concurrent alert {worker_id}_{i}",
-                    AlertSeverity.WARNING,
-                    f"worker_{worker_id}"
-                )
+                create_alert(f"Concurrent alert {worker_id}_{i}", AlertSeverity.WARNING, f"worker_{worker_id}")
+
         # Запускаем конкурентные потоки
         start_time = time.time()
         threads = []
@@ -152,15 +151,14 @@ class TestMonitoringPerformance:
         assert duration < stress_test_config["timeout"]
         # Проверяем, что все алерты созданы
         alerts = alert_manager.get_alerts()
-        expected_alerts = (
-            stress_test_config["concurrent_threads"] * 
-            stress_test_config["iterations_per_thread"]
-        )
+        expected_alerts = stress_test_config["concurrent_threads"] * stress_test_config["iterations_per_thread"]
         assert len(alerts) >= expected_alerts
+
     def test_memory_usage_under_load(self, performance_test_data) -> None:
         """Тест использования памяти под нагрузкой."""
         import psutil
         import os
+
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
         # Создаем нагрузку
@@ -184,6 +182,7 @@ class TestMonitoringPerformance:
         memory_increase = final_memory - initial_memory
         # Проверяем, что использование памяти разумное
         assert memory_increase < performance_test_data["memory_threshold"]
+
     def test_system_metrics_collection_performance(self: "TestMonitoringPerformance") -> None:
         """Тест производительности сбора системных метрик."""
         monitor = get_monitor("system_test")
@@ -203,20 +202,24 @@ class TestMonitoringPerformance:
         # Проверяем, что системные метрики собраны
         system_metrics = monitor.get_system_metrics()
         assert len(system_metrics) > 0
+
     def test_alert_evaluation_performance(self: "TestMonitoringPerformance") -> None:
         """Тест производительности оценки алертов."""
         alert_manager = get_alert_manager("eval_test")
         # Добавляем много правил алертов
         from infrastructure.monitoring.monitoring_alerts import AlertRule
+
         for i in range(100):
+
             def condition() -> Any:
                 return i % 10 == 0  # Каждое 10-е правило срабатывает
+
             rule = AlertRule(
                 name=f"test_rule_{i}",
                 condition=condition,
                 severity=AlertSeverity.WARNING,
                 message=f"Test rule {i} triggered",
-                source="perf_test"
+                source="perf_test",
             )
             alert_manager.add_alert_rule(rule)
         # Тестируем оценку правил
@@ -232,27 +235,30 @@ class TestMonitoringPerformance:
         # Проверяем, что алерты создались
         alerts = alert_manager.get_alerts()
         assert len(alerts) > 0
+
     def test_dashboard_chart_rendering_performance(self, performance_test_data) -> None:
         """Тест производительности рендеринга графиков дашборда."""
         dashboard = get_dashboard("chart_test")
         # Добавляем много данных для графиков
         for i in range(performance_test_data["medium_dataset"]):
             from infrastructure.monitoring.monitoring_dashboard import MetricData
+
             metric_data = MetricData(
                 name="chart_metric",
                 values=[i],
                 timestamps=[datetime.now() - timedelta(minutes=i)],
-                labels={"iteration": i}
+                labels={"iteration": i},
             )
             dashboard.add_metric_data(metric_data)
         # Создаем график
         from infrastructure.monitoring.monitoring_dashboard import ChartConfig
+
         chart_config = ChartConfig(
             name="perf_chart",
             title="Performance Chart",
             chart_type="line",
             metrics=["chart_metric"],
-            time_range=timedelta(hours=1)
+            time_range=timedelta(hours=1),
         )
         chart = dashboard.create_chart(chart_config)
         # Тестируем рендеринг графика
@@ -265,6 +271,7 @@ class TestMonitoringPerformance:
         # Проверяем, что данные графика получены
         assert chart_data is not None
         assert "datasets" in chart_data
+
     def test_metric_aggregation_performance(self, performance_test_data) -> None:
         """Тест производительности агрегации метрик."""
         monitor = get_monitor("agg_test")
@@ -287,6 +294,7 @@ class TestMonitoringPerformance:
         assert max_value > 0
         assert min_value >= 0
         assert count_value > 0
+
     def test_trace_analysis_performance(self, performance_test_data) -> None:
         """Тест производительности анализа трейсов."""
         tracer = get_tracer("analysis_test")
@@ -313,6 +321,7 @@ class TestMonitoringPerformance:
         assert "total_traces" in trace_stats
         assert len(bottlenecks) >= 0
         assert "total_traces" in summary
+
     def test_export_performance(self, performance_test_data) -> None:
         """Тест производительности экспорта данных."""
         monitor = get_monitor("export_test")
@@ -333,6 +342,7 @@ class TestMonitoringPerformance:
         # Проверяем, что экспорт выполнен
         assert len(json_metrics) > 0
         assert len(csv_metrics) > 0
+
     def test_cleanup_performance(self, performance_test_data) -> None:
         """Тест производительности очистки данных."""
         monitor = get_monitor("cleanup_test")
@@ -361,8 +371,11 @@ class TestMonitoringPerformance:
         assert len(metrics) == 0
         assert len(alerts) == 0
         assert trace_stats["total_traces"] == 0
+
+
 class TestMonitoringScalability:
     """Тесты масштабируемости системы мониторинга."""
+
     def test_metric_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости метрик."""
         monitor = get_monitor("scale_test")
@@ -376,6 +389,7 @@ class TestMonitoringScalability:
             duration = end_time - start_time
             # Проверяем, что время растет линейно или лучше
             assert duration < volume * 0.0001  # Не более 0.1ms на метрику
+
     def test_alert_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости алертов."""
         alert_manager = get_alert_manager("scale_test")
@@ -389,6 +403,7 @@ class TestMonitoringScalability:
             duration = end_time - start_time
             # Проверяем, что время растет линейно или лучше
             assert duration < volume * 0.001  # Не более 1ms на алерт
+
     def test_trace_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости трейсов."""
         tracer = get_tracer("scale_test")
@@ -404,10 +419,12 @@ class TestMonitoringScalability:
             duration = end_time - start_time
             # Проверяем, что время растет линейно или лучше
             assert duration < volume * 0.001  # Не более 1ms на трейс
+
     def test_memory_scalability(self: "TestMonitoringScalability") -> None:
         """Тест масштабируемости использования памяти."""
         import psutil
         import os
+
         process = psutil.Process(os.getpid())
         # Тестируем с разными объемами данных
         volumes = [1000, 10000, 100000]
@@ -433,6 +450,8 @@ class TestMonitoringScalability:
         # Проверяем, что использование памяти на элемент не растет экспоненциально
         for i in range(1, len(memory_usage)):
             # Каждое увеличение объема не должно увеличивать память на элемент более чем в 2 раза
-            assert memory_usage[i] < memory_usage[i-1] * 2
+            assert memory_usage[i] < memory_usage[i - 1] * 2
+
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

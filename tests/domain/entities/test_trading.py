@@ -1,4 +1,5 @@
 """Тесты для Trading entities."""
+
 from datetime import datetime
 from decimal import Decimal
 from uuid import uuid4
@@ -32,7 +33,7 @@ def test_order_creation() -> None:
         created_at=datetime.now(),
         updated_at=datetime.now(),
         filled_at=None,
-        metadata={}
+        metadata={},
     )
     assert order.trading_pair == "BTC/USDT"
     assert order.side == OrderSide.BUY
@@ -51,7 +52,7 @@ def test_trade_creation() -> None:
         executed_at=Timestamp(datetime.now()),
         fee=Money(Decimal("25"), Currency.USDT),
         realized_pnl=None,
-        metadata={}
+        metadata={},
     )
     assert trade.id == "trade_001"
     assert trade.symbol == "BTC/USDT"
@@ -80,7 +81,7 @@ def test_position_creation() -> None:
         closed_at=None,
         stop_loss=None,
         take_profit=None,
-        metadata={}
+        metadata={},
     )
     assert position.id == "pos_001"
     assert position.trading_pair.symbol == "BTC/USDT"
@@ -109,7 +110,7 @@ def test_order_status_transitions() -> None:
         created_at=datetime.now(),
         updated_at=datetime.now(),
         filled_at=None,
-        metadata={}
+        metadata={},
     )
     order.status = OrderStatus.FILLED
     assert order.status == OrderStatus.FILLED
@@ -127,7 +128,7 @@ def test_trade_metadata() -> None:
         executed_at=Timestamp(datetime.now()),
         fee=Money(Decimal("15"), Currency.USDT),
         realized_pnl=None,
-        metadata={"note": "test"}
+        metadata={"note": "test"},
     )
     assert trade.metadata["note"] == "test"
 
@@ -151,7 +152,7 @@ def test_position_pnl() -> None:
         closed_at=None,
         stop_loss=None,
         take_profit=None,
-        metadata={}
+        metadata={},
     )
     pnl = (position.current_price.value - position.entry_price.value) * position.volume.value
-    assert pnl == Decimal("2000") 
+    assert pnl == Decimal("2000")

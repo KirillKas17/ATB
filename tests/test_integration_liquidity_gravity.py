@@ -11,11 +11,13 @@ from application.risk.liquidity_gravity_monitor import (
     MonitorConfig,
     RiskAssessmentResult,
 )
-from domain.market.liquidity_gravity import (LiquidityGravityConfig,
-                                             LiquidityGravityModel,
-                                             LiquidityGravityResult,
-                                             OrderBookSnapshot,
-                                             compute_liquidity_gravity)
+from domain.market.liquidity_gravity import (
+    LiquidityGravityConfig,
+    LiquidityGravityModel,
+    LiquidityGravityResult,
+    OrderBookSnapshot,
+    compute_liquidity_gravity,
+)
 from domain.value_objects.timestamp import Timestamp
 
 
@@ -67,9 +69,7 @@ class TestLiquidityGravityModel:
 
     def test_compute_liquidity_gravity_empty(self: "TestLiquidityGravityModel") -> None:
         """Тест вычисления гравитации с пустым ордербуком."""
-        order_book = OrderBookSnapshot(
-            bids=[], asks=[], timestamp=Timestamp(time.time()), symbol="BTC/USDT"
-        )
+        order_book = OrderBookSnapshot(bids=[], asks=[], timestamp=Timestamp(time.time()), symbol="BTC/USDT")
 
         gravity = self.model.compute_liquidity_gravity(order_book)
         assert gravity == 0.0
@@ -164,9 +164,7 @@ class TestLiquidityGravityModel:
 
     def test_update_config(self: "TestLiquidityGravityModel") -> None:
         """Тест обновления конфигурации."""
-        new_config = LiquidityGravityConfig(
-            gravitational_constant=2e-6, min_volume_threshold=0.002
-        )
+        new_config = LiquidityGravityConfig(gravitational_constant=2e-6, min_volume_threshold=0.002)
 
         self.model.update_config(new_config)
         assert self.model.config.gravitational_constant == 2e-6
@@ -245,19 +243,18 @@ class TestOrderBookSnapshot:
         expected_percentage = (2.0 / 50001.0) * 100
         assert abs(order_book.get_spread_percentage() - expected_percentage) < 1e-6
 
+    def test_compute_liquidity_gravity_function(self) -> None:
+        """Тест удобной функции compute_liquidity_gravity."""
+        order_book = OrderBookSnapshot(
+            bids=[(50000, 1.0), (49999, 1.0)],
+            asks=[(50001, 1.0), (50002, 1.0)],
+            timestamp=Timestamp(time.time()),
+            symbol="BTC/USDT",
+        )
 
-    def test_compute_liquidity_gravity_function() -> None:
-    """Тест удобной функции compute_liquidity_gravity."""
-    order_book = OrderBookSnapshot(
-        bids=[(50000, 1.0), (49999, 1.0)],
-        asks=[(50001, 1.0), (50002, 1.0)],
-        timestamp=Timestamp(time.time()),
-        symbol="BTC/USDT",
-    )
-
-    gravity = compute_liquidity_gravity(order_book)
-    assert isinstance(gravity, float)
-    assert gravity >= 0.0
+        gravity = compute_liquidity_gravity(order_book)
+        assert isinstance(gravity, float)
+        assert gravity >= 0.0
 
 
 if __name__ == "__main__":

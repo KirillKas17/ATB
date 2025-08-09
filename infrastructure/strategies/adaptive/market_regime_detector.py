@@ -15,7 +15,7 @@ from domain.type_definitions.strategy_types import MarketRegime
 class MarketRegimeDetector:
     """Детектор рыночных режимов"""
 
-    def __init__(self, market_regime_agent: Optional[Any] = None):
+    def __init__(self, market_regime_agent: Optional[Any] = None) -> None:
         self.market_regime_agent = market_regime_agent
 
     def detect_regime(self, data: pd.DataFrame) -> MarketRegime:

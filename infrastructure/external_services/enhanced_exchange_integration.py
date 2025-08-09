@@ -36,7 +36,7 @@ class TradingEnvironment:
     order_routing: Dict[str, str] = None
     risk_limits: Dict[str, Any] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.backup_exchanges is None:
             self.backup_exchanges = ["bybit"]
         if self.market_data_sources is None:

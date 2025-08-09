@@ -14,14 +14,30 @@ from datetime import time
 from unittest.mock import Mock
 
 from domain.type_definitions.session_types import (
-    SessionId, Symbol, VolumeMultiplier, VolatilityMultiplier,
-    ConfidenceScore, CorrelationScore,
-    DEFAULT_LOOKBACK_DAYS, DEFAULT_MIN_DATA_POINTS, DEFAULT_CONFIDENCE_THRESHOLD,
-    SessionType, SessionPhase, MarketRegime, SessionIntensity,
-    LiquidityProfile, InfluenceType, PriceDirection,
-    SessionMetrics, MarketConditions, SessionTransition,
-    SessionTimeProvider, SessionMetricsCalculator,
-    SessionTimeWindow, SessionBehavior, SessionProfile,
+    SessionId,
+    Symbol,
+    VolumeMultiplier,
+    VolatilityMultiplier,
+    ConfidenceScore,
+    CorrelationScore,
+    DEFAULT_LOOKBACK_DAYS,
+    DEFAULT_MIN_DATA_POINTS,
+    DEFAULT_CONFIDENCE_THRESHOLD,
+    SessionType,
+    SessionPhase,
+    MarketRegime,
+    SessionIntensity,
+    LiquidityProfile,
+    InfluenceType,
+    PriceDirection,
+    SessionMetrics,
+    MarketConditions,
+    SessionTransition,
+    SessionTimeProvider,
+    SessionMetricsCalculator,
+    SessionTimeWindow,
+    SessionBehavior,
+    SessionProfile,
     SessionAnalysisResult,
 )
 from domain.value_objects.timestamp import Timestamp
@@ -161,7 +177,7 @@ class TestTypedDictClasses:
             peak_influence_time_minutes=60,
             spread_impact=0.1,
             liquidity_impact=0.05,
-            correlation_with_other_sessions=0.6
+            correlation_with_other_sessions=0.6,
         )
         assert metrics["volume_change_percent"] == 15.5
         assert metrics["volatility_change_percent"] == 25.0
@@ -186,7 +202,7 @@ class TestTypedDictClasses:
             momentum=0.6,
             trend_strength=0.7,
             market_regime=MarketRegime.TRENDING_BULL,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
         assert conditions["volatility"] == 0.25
         assert conditions["volume"] == 1000000.0
@@ -208,7 +224,7 @@ class TestTypedDictClasses:
             gap_probability=0.1,
             correlation_shift_probability=0.2,
             liquidity_drain_rate=0.4,
-            manipulation_window_minutes=15
+            manipulation_window_minutes=15,
         )
         assert transition["from_session"] == SessionType.ASIAN
         assert transition["to_session"] == SessionType.LONDON
@@ -228,17 +244,17 @@ class TestProtocolClasses:
         """Тест интерфейса SessionTimeProvider."""
         mock_provider = Mock(spec=SessionTimeProvider)
         assert isinstance(mock_provider, SessionTimeProvider)
-        assert hasattr(mock_provider, 'is_active')
-        assert hasattr(mock_provider, 'get_phase')
-        assert hasattr(mock_provider, 'get_duration')
+        assert hasattr(mock_provider, "is_active")
+        assert hasattr(mock_provider, "get_phase")
+        assert hasattr(mock_provider, "get_duration")
 
     def test_session_metrics_calculator_interface(self):
         """Тест интерфейса SessionMetricsCalculator."""
         mock_calculator = Mock(spec=SessionMetricsCalculator)
         assert isinstance(mock_calculator, SessionMetricsCalculator)
-        assert hasattr(mock_calculator, 'calculate_volume_impact')
-        assert hasattr(mock_calculator, 'calculate_volatility_impact')
-        assert hasattr(mock_calculator, 'calculate_direction_bias')
+        assert hasattr(mock_calculator, "calculate_volume_impact")
+        assert hasattr(mock_calculator, "calculate_volatility_impact")
+        assert hasattr(mock_calculator, "calculate_direction_bias")
 
 
 class TestPydanticModels:
@@ -246,11 +262,7 @@ class TestPydanticModels:
 
     def test_session_time_window_creation(self):
         """Тест создания SessionTimeWindow."""
-        time_window = SessionTimeWindow(
-            start_time=time(9, 0),  # 09:00
-            end_time=time(17, 0),   # 17:00
-            timezone="UTC"
-        )
+        time_window = SessionTimeWindow(start_time=time(9, 0), end_time=time(17, 0), timezone="UTC")  # 09:00  # 17:00
         assert time_window.start_time == time(9, 0)
         assert time_window.end_time == time(17, 0)
         assert time_window.timezone == "UTC"
@@ -264,7 +276,7 @@ class TestPydanticModels:
             end_time=time(17, 0),
             timezone="UTC",
             overlap_start=time(14, 0),
-            overlap_end=time(16, 0)
+            overlap_end=time(16, 0),
         )
         assert time_window.overlap_start == time(14, 0)
         assert time_window.overlap_end == time(16, 0)
@@ -272,38 +284,26 @@ class TestPydanticModels:
     def test_session_time_window_validation(self):
         """Тест валидации SessionTimeWindow."""
         with pytest.raises(ValueError, match="End time cannot be equal to start time"):
-            SessionTimeWindow(
-                start_time=time(9, 0),
-                end_time=time(9, 0),
-                timezone="UTC"
-            )
+            SessionTimeWindow(start_time=time(9, 0), end_time=time(9, 0), timezone="UTC")
 
     def test_session_time_window_is_active(self):
         """Тест метода is_active для SessionTimeWindow."""
-        time_window = SessionTimeWindow(
-            start_time=time(9, 0),
-            end_time=time(17, 0),
-            timezone="UTC"
-        )
-        
+        time_window = SessionTimeWindow(start_time=time(9, 0), end_time=time(17, 0), timezone="UTC")
+
         # Тест активности в пределах сессии
         assert time_window.is_active(time(10, 0)) is True
         assert time_window.is_active(time(15, 30)) is True
         assert time_window.is_active(time(9, 0)) is True
         assert time_window.is_active(time(17, 0)) is True
-        
+
         # Тест неактивности вне сессии
         assert time_window.is_active(time(8, 0)) is False
         assert time_window.is_active(time(18, 0)) is False
 
     def test_session_time_window_get_phase(self):
         """Тест метода get_phase для SessionTimeWindow."""
-        time_window = SessionTimeWindow(
-            start_time=time(9, 0),
-            end_time=time(17, 0),
-            timezone="UTC"
-        )
-        
+        time_window = SessionTimeWindow(start_time=time(9, 0), end_time=time(17, 0), timezone="UTC")
+
         # Тест различных фаз
         assert time_window.get_phase(time(8, 0)) == SessionPhase.PRE_OPENING
         assert time_window.get_phase(time(9, 0)) == SessionPhase.OPENING
@@ -325,7 +325,7 @@ class TestPydanticModels:
             common_patterns=["breakout", "reversal"],
             false_breakout_probability=0.3,
             reversal_probability=0.2,
-            overlap_impact={"london": 0.8, "new_york": 0.9}
+            overlap_impact={"london": 0.8, "new_york": 0.9},
         )
         assert behavior.typical_volatility_spike_minutes == 30
         assert behavior.volume_peak_hours == [2, 4, 6]
@@ -341,10 +341,7 @@ class TestPydanticModels:
     def test_session_behavior_validation(self):
         """Тест валидации SessionBehavior."""
         # Тест валидных часов
-        behavior = SessionBehavior(
-            volume_peak_hours=[0, 12, 23],
-            quiet_hours=[1, 5, 22]
-        )
+        behavior = SessionBehavior(volume_peak_hours=[0, 12, 23], quiet_hours=[1, 5, 22])
         assert behavior.volume_peak_hours == [0, 12, 23]
         assert behavior.quiet_hours == [1, 5, 22]
 
@@ -357,13 +354,9 @@ class TestPydanticModels:
 
     def test_session_profile_creation(self):
         """Тест создания SessionProfile."""
-        time_window = SessionTimeWindow(
-            start_time=time(9, 0),
-            end_time=time(17, 0),
-            timezone="UTC"
-        )
+        time_window = SessionTimeWindow(start_time=time(9, 0), end_time=time(17, 0), timezone="UTC")
         behavior = SessionBehavior()
-        
+
         profile = SessionProfile(
             session_type=SessionType.LONDON,
             time_window=time_window,
@@ -387,9 +380,9 @@ class TestPydanticModels:
             false_breakout_probability=0.25,
             reversal_probability=0.2,
             continuation_probability=0.7,
-            manipulation_susceptibility=0.3
+            manipulation_susceptibility=0.3,
         )
-        
+
         assert profile.session_type == SessionType.LONDON
         assert profile.time_window == time_window
         assert profile.behavior == behavior
@@ -421,7 +414,7 @@ class TestDataclassClasses:
     def test_session_analysis_result_creation(self):
         """Тест создания SessionAnalysisResult."""
         timestamp = Timestamp.from_iso("2023-01-01T10:00:00Z")
-        
+
         metrics = SessionMetrics(
             volume_change_percent=15.5,
             volatility_change_percent=25.0,
@@ -434,9 +427,9 @@ class TestDataclassClasses:
             peak_influence_time_minutes=60,
             spread_impact=0.1,
             liquidity_impact=0.05,
-            correlation_with_other_sessions=0.6
+            correlation_with_other_sessions=0.6,
         )
-        
+
         market_conditions = MarketConditions(
             volatility=0.25,
             volume=1000000.0,
@@ -445,17 +438,13 @@ class TestDataclassClasses:
             momentum=0.6,
             trend_strength=0.7,
             market_regime=MarketRegime.TRENDING_BULL,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
-        
-        predictions = {
-            "price_movement": 0.6,
-            "volume_increase": 0.8,
-            "volatility_spike": 0.4
-        }
-        
+
+        predictions = {"price_movement": 0.6, "volume_increase": 0.8, "volatility_spike": 0.4}
+
         risk_factors = ["low_liquidity", "high_volatility"]
-        
+
         result = SessionAnalysisResult(
             session_type=SessionType.LONDON,
             session_phase=SessionPhase.OPENING,
@@ -464,9 +453,9 @@ class TestDataclassClasses:
             metrics=metrics,
             market_conditions=market_conditions,
             predictions=predictions,
-            risk_factors=risk_factors
+            risk_factors=risk_factors,
         )
-        
+
         assert result.session_type == SessionType.LONDON
         assert result.session_phase == SessionPhase.OPENING
         assert result.timestamp == timestamp
@@ -479,7 +468,7 @@ class TestDataclassClasses:
     def test_session_analysis_result_to_dict(self):
         """Тест метода to_dict для SessionAnalysisResult."""
         timestamp = Timestamp.from_iso("2023-01-01T10:00:00Z")
-        
+
         metrics = SessionMetrics(
             volume_change_percent=15.5,
             volatility_change_percent=25.0,
@@ -492,9 +481,9 @@ class TestDataclassClasses:
             peak_influence_time_minutes=60,
             spread_impact=0.1,
             liquidity_impact=0.05,
-            correlation_with_other_sessions=0.6
+            correlation_with_other_sessions=0.6,
         )
-        
+
         market_conditions = MarketConditions(
             volatility=0.25,
             volume=1000000.0,
@@ -503,12 +492,12 @@ class TestDataclassClasses:
             momentum=0.6,
             trend_strength=0.7,
             market_regime=MarketRegime.TRENDING_BULL,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
-        
+
         predictions = {"price_movement": 0.6}
         risk_factors = ["low_liquidity"]
-        
+
         result = SessionAnalysisResult(
             session_type=SessionType.LONDON,
             session_phase=SessionPhase.OPENING,
@@ -517,11 +506,11 @@ class TestDataclassClasses:
             metrics=metrics,
             market_conditions=market_conditions,
             predictions=predictions,
-            risk_factors=risk_factors
+            risk_factors=risk_factors,
         )
-        
+
         result_dict = result.to_dict()
-        
+
         assert result_dict["session_type"] == "london"
         assert result_dict["session_phase"] == "opening"
         assert result_dict["timestamp"] == "2023-01-01T10:00:00Z"
@@ -541,7 +530,7 @@ class TestTypeValidation:
         """Тест обработки невалидных SessionId."""
         with pytest.raises(TypeError):
             SessionId(123)
-        
+
         with pytest.raises(TypeError):
             SessionId(None)
 
@@ -549,7 +538,7 @@ class TestTypeValidation:
         """Тест обработки невалидных Symbol."""
         with pytest.raises(TypeError):
             Symbol(123)
-        
+
         with pytest.raises(TypeError):
             Symbol(None)
 
@@ -557,7 +546,7 @@ class TestTypeValidation:
         """Тест обработки невалидных множителей."""
         with pytest.raises(TypeError):
             VolumeMultiplier("invalid")
-        
+
         with pytest.raises(TypeError):
             VolatilityMultiplier(None)
 
@@ -565,7 +554,7 @@ class TestTypeValidation:
         """Тест обработки невалидных оценок."""
         with pytest.raises(TypeError):
             ConfidenceScore("invalid")
-        
+
         with pytest.raises(TypeError):
             CorrelationScore(None)
 
@@ -576,12 +565,8 @@ class TestTypeIntegration:
     def test_complete_session_analysis_flow(self):
         """Тест полного потока анализа сессии с типами."""
         # Создаем временное окно сессии
-        time_window = SessionTimeWindow(
-            start_time=time(9, 0),
-            end_time=time(17, 0),
-            timezone="UTC"
-        )
-        
+        time_window = SessionTimeWindow(start_time=time(9, 0), end_time=time(17, 0), timezone="UTC")
+
         # Создаем поведенческие характеристики
         behavior = SessionBehavior(
             typical_volatility_spike_minutes=30,
@@ -589,9 +574,9 @@ class TestTypeIntegration:
             quiet_hours=[1, 5],
             avg_volume_multiplier=1.5,
             avg_volatility_multiplier=1.8,
-            typical_direction_bias=0.2
+            typical_direction_bias=0.2,
         )
-        
+
         # Создаем профиль сессии
         profile = SessionProfile(
             session_type=SessionType.LONDON,
@@ -604,9 +589,9 @@ class TestTypeIntegration:
             typical_direction_bias=0.1,
             liquidity_profile=LiquidityProfile.ABUNDANT,
             intensity_profile=SessionIntensity.HIGH,
-            market_regime_tendency=MarketRegime.TRENDING_BULL
+            market_regime_tendency=MarketRegime.TRENDING_BULL,
         )
-        
+
         # Создаем базовые метрики
         base_metrics = SessionMetrics(
             volume_change_percent=10.0,
@@ -620,9 +605,9 @@ class TestTypeIntegration:
             peak_influence_time_minutes=60,
             spread_impact=0.05,
             liquidity_impact=0.1,
-            correlation_with_other_sessions=0.8
+            correlation_with_other_sessions=0.8,
         )
-        
+
         # Создаем рыночные условия
         market_conditions = MarketConditions(
             volatility=0.25,
@@ -632,19 +617,17 @@ class TestTypeIntegration:
             momentum=0.6,
             trend_strength=0.7,
             market_regime=MarketRegime.TRENDING_BULL,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
-        
+
         # Рассчитываем влияние сессии
-        session_impact = profile.calculate_session_impact(
-            base_metrics, SessionPhase.OPENING, market_conditions
-        )
-        
+        session_impact = profile.calculate_session_impact(base_metrics, SessionPhase.OPENING, market_conditions)
+
         # Создаем результат анализа
         timestamp = Timestamp.from_iso("2023-01-01T10:00:00Z")
         predictions = {"price_movement": 0.6, "volume_increase": 0.8}
         risk_factors = ["low_liquidity", "high_volatility"]
-        
+
         analysis_result = SessionAnalysisResult(
             session_type=SessionType.LONDON,
             session_phase=SessionPhase.OPENING,
@@ -653,9 +636,9 @@ class TestTypeIntegration:
             metrics=session_impact,
             market_conditions=market_conditions,
             predictions=predictions,
-            risk_factors=risk_factors
+            risk_factors=risk_factors,
         )
-        
+
         # Проверяем, что все типы работают корректно
         assert isinstance(profile.session_type, SessionType)
         assert isinstance(profile.time_window, SessionTimeWindow)
@@ -675,7 +658,7 @@ class TestTypeIntegration:
         # Создаем мок объекты, реализующие протоколы
         mock_time_provider = Mock(spec=SessionTimeProvider)
         mock_metrics_calculator = Mock(spec=SessionMetricsCalculator)
-        
+
         # Проверяем, что все объекты реализуют соответствующие протоколы
         assert isinstance(mock_time_provider, SessionTimeProvider)
-        assert isinstance(mock_metrics_calculator, SessionMetricsCalculator) 
+        assert isinstance(mock_metrics_calculator, SessionMetricsCalculator)

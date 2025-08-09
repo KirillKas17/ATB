@@ -18,14 +18,9 @@ from domain.interfaces.signal_protocols import (
     SignalEngineProtocol,
     MarketMakerSignalProtocol,
     BaseSignalEngine,
-    BaseMarketMakerSignalEngine
+    BaseMarketMakerSignalEngine,
 )
-from domain.type_definitions.session_types import (
-    MarketConditions,
-    MarketRegime,
-    SessionIntensity,
-    SessionType
-)
+from domain.type_definitions.session_types import MarketConditions, MarketRegime, SessionIntensity, SessionType
 from domain.value_objects.timestamp import Timestamp
 
 
@@ -46,18 +41,18 @@ class TestSessionInfluenceSignal:
                 momentum=0.1,
                 trend_strength=0.6,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH
+                session_intensity=SessionIntensity.HIGH,
             ),
             "confidence": 0.85,
             "timestamp": Timestamp.now(),
             "metadata": {"volatility": 0.02, "volume": 1000000.0},
-            "predicted_impact": {"price_change": 0.015, "volume_change": 0.2}
+            "predicted_impact": {"price_change": 0.015, "volume_change": 0.2},
         }
 
     def test_valid_signal_creation(self, valid_signal_data):
         """Тест создания валидного сигнала."""
         signal = SessionInfluenceSignal(**valid_signal_data)
-        
+
         assert signal.session_type == valid_signal_data["session_type"]
         assert signal.influence_strength == 0.75
         assert signal.confidence == 0.85
@@ -66,28 +61,28 @@ class TestSessionInfluenceSignal:
     def test_invalid_influence_strength_too_high(self, valid_signal_data):
         """Тест валидации слишком высокой силы влияния."""
         valid_signal_data["influence_strength"] = 1.5
-        
+
         with pytest.raises(ValueError, match="Influence strength must be between 0.0 and 1.0"):
             SessionInfluenceSignal(**valid_signal_data)
 
     def test_invalid_influence_strength_too_low(self, valid_signal_data):
         """Тест валидации слишком низкой силы влияния."""
         valid_signal_data["influence_strength"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Influence strength must be between 0.0 and 1.0"):
             SessionInfluenceSignal(**valid_signal_data)
 
     def test_invalid_confidence_too_high(self, valid_signal_data):
         """Тест валидации слишком высокой уверенности."""
         valid_signal_data["confidence"] = 1.2
-        
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             SessionInfluenceSignal(**valid_signal_data)
 
     def test_invalid_confidence_too_low(self, valid_signal_data):
         """Тест валидации слишком низкой уверенности."""
         valid_signal_data["confidence"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             SessionInfluenceSignal(**valid_signal_data)
 
@@ -121,13 +116,13 @@ class TestMarketMakerSignal:
             "confidence": 0.9,
             "timestamp": Timestamp.now(),
             "pattern_data": {"volume": 1000.0, "price_change": 0.02},
-            "market_context": {"volatility": 0.025, "liquidity": "high"}
+            "market_context": {"volatility": 0.025, "liquidity": "high"},
         }
 
     def test_valid_mm_signal_creation(self, valid_mm_signal_data):
         """Тест создания валидного сигнала маркет-мейкера."""
         signal = MarketMakerSignal(**valid_mm_signal_data)
-        
+
         assert signal.signal_type == "liquidity_grab"
         assert signal.strength == 0.8
         assert signal.direction == "bullish"
@@ -136,28 +131,28 @@ class TestMarketMakerSignal:
     def test_invalid_strength_too_high(self, valid_mm_signal_data):
         """Тест валидации слишком высокой силы сигнала."""
         valid_mm_signal_data["strength"] = 1.5
-        
+
         with pytest.raises(ValueError, match="Signal strength must be between 0.0 and 1.0"):
             MarketMakerSignal(**valid_mm_signal_data)
 
     def test_invalid_strength_too_low(self, valid_mm_signal_data):
         """Тест валидации слишком низкой силы сигнала."""
         valid_mm_signal_data["strength"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Signal strength must be between 0.0 and 1.0"):
             MarketMakerSignal(**valid_mm_signal_data)
 
     def test_invalid_confidence_too_high(self, valid_mm_signal_data):
         """Тест валидации слишком высокой уверенности."""
         valid_mm_signal_data["confidence"] = 1.2
-        
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             MarketMakerSignal(**valid_mm_signal_data)
 
     def test_invalid_confidence_too_low(self, valid_mm_signal_data):
         """Тест валидации слишком низкой уверенности."""
         valid_mm_signal_data["confidence"] = -0.1
-        
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             MarketMakerSignal(**valid_mm_signal_data)
 
@@ -197,24 +192,19 @@ class TestSignalEngineProtocol:
             "session_type": "asian",
             "start_time": "2024-01-01T00:00:00Z",
             "end_time": "2024-01-01T08:00:00Z",
-            "volume": 1000000.0
+            "volume": 1000000.0,
         }
 
     @pytest.fixture
     def sample_market_data(self) -> Dict[str, Any]:
         """Тестовые рыночные данные."""
-        return {
-            "price": 50000.0,
-            "volume": 1000000.0,
-            "volatility": 0.02,
-            "spread": 0.001
-        }
+        return {"price": 50000.0, "volume": 1000000.0, "volatility": 0.02, "spread": 0.001}
 
     def test_protocol_definition(self):
         """Тест определения протокола."""
-        assert hasattr(SignalEngineProtocol, 'generate_session_signals')
-        assert hasattr(SignalEngineProtocol, 'analyze_market_conditions')
-        assert hasattr(SignalEngineProtocol, 'validate_signal')
+        assert hasattr(SignalEngineProtocol, "generate_session_signals")
+        assert hasattr(SignalEngineProtocol, "analyze_market_conditions")
+        assert hasattr(SignalEngineProtocol, "validate_signal")
 
     @pytest.mark.asyncio
     async def test_generate_session_signals(self, mock_signal_engine, sample_session_data, sample_market_data):
@@ -231,12 +221,12 @@ class TestSignalEngineProtocol:
                     momentum=0.1,
                     trend_strength=0.6,
                     market_regime=MarketRegime.TRENDING,
-                    session_intensity=SessionIntensity.HIGH
+                    session_intensity=SessionIntensity.HIGH,
                 ),
                 confidence=0.85,
                 timestamp=Timestamp.now(),
                 metadata={"volatility": 0.02},
-                predicted_impact={"price_change": 0.015}
+                predicted_impact={"price_change": 0.015},
             )
         ]
         mock_signal_engine.generate_session_signals.return_value = expected_signals
@@ -256,7 +246,7 @@ class TestSignalEngineProtocol:
             momentum=0.1,
             trend_strength=0.6,
             market_regime=MarketRegime.TRENDING,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
         mock_signal_engine.analyze_market_conditions.return_value = expected_conditions
 
@@ -278,12 +268,12 @@ class TestSignalEngineProtocol:
                 momentum=0.1,
                 trend_strength=0.6,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH
+                session_intensity=SessionIntensity.HIGH,
             ),
             confidence=0.85,
             timestamp=Timestamp.now(),
             metadata={},
-            predicted_impact={}
+            predicted_impact={},
         )
         mock_signal_engine.validate_signal.return_value = True
 
@@ -311,7 +301,7 @@ class TestMarketMakerSignalProtocol:
         return {
             "bids": [[50000.0, 1.0], [49999.0, 2.0]],
             "asks": [[50001.0, 1.5], [50002.0, 2.5]],
-            "timestamp": "2024-01-01T00:00:00Z"
+            "timestamp": "2024-01-01T00:00:00Z",
         }
 
     @pytest.fixture
@@ -320,16 +310,16 @@ class TestMarketMakerSignalProtocol:
         return {
             "trades": [
                 {"price": 50000.0, "amount": 0.1, "side": "buy"},
-                {"price": 50001.0, "amount": 0.2, "side": "sell"}
+                {"price": 50001.0, "amount": 0.2, "side": "sell"},
             ],
-            "timestamp": "2024-01-01T00:00:00Z"
+            "timestamp": "2024-01-01T00:00:00Z",
         }
 
     def test_protocol_definition(self):
         """Тест определения протокола."""
-        assert hasattr(MarketMakerSignalProtocol, 'detect_market_maker_patterns')
-        assert hasattr(MarketMakerSignalProtocol, 'analyze_order_flow')
-        assert hasattr(MarketMakerSignalProtocol, 'predict_market_movement')
+        assert hasattr(MarketMakerSignalProtocol, "detect_market_maker_patterns")
+        assert hasattr(MarketMakerSignalProtocol, "analyze_order_flow")
+        assert hasattr(MarketMakerSignalProtocol, "predict_market_movement")
 
     @pytest.mark.asyncio
     async def test_detect_market_maker_patterns(self, mock_mm_signal_engine, sample_orderbook_data, sample_trade_data):
@@ -342,7 +332,7 @@ class TestMarketMakerSignalProtocol:
                 confidence=0.9,
                 timestamp=Timestamp.now(),
                 pattern_data={"volume": 1000.0},
-                market_context={"volatility": 0.025}
+                market_context={"volatility": 0.025},
             )
         ]
         mock_mm_signal_engine.detect_market_maker_patterns.return_value = expected_signals
@@ -350,16 +340,13 @@ class TestMarketMakerSignalProtocol:
         result = await mock_mm_signal_engine.detect_market_maker_patterns(sample_orderbook_data, sample_trade_data)
 
         assert result == expected_signals
-        mock_mm_signal_engine.detect_market_maker_patterns.assert_called_once_with(sample_orderbook_data, sample_trade_data)
+        mock_mm_signal_engine.detect_market_maker_patterns.assert_called_once_with(
+            sample_orderbook_data, sample_trade_data
+        )
 
     def test_analyze_order_flow(self, mock_mm_signal_engine, sample_orderbook_data):
         """Тест анализа потока ордеров."""
-        expected_flow = {
-            "buy_pressure": 0.6,
-            "sell_pressure": 0.4,
-            "imbalance": 0.2,
-            "flow_direction": 0.1
-        }
+        expected_flow = {"buy_pressure": 0.6, "sell_pressure": 0.4, "imbalance": 0.2, "flow_direction": 0.1}
         mock_mm_signal_engine.analyze_order_flow.return_value = expected_flow
 
         result = mock_mm_signal_engine.analyze_order_flow(sample_orderbook_data)
@@ -377,15 +364,10 @@ class TestMarketMakerSignalProtocol:
                 confidence=0.9,
                 timestamp=Timestamp.now(),
                 pattern_data={},
-                market_context={}
+                market_context={},
             )
         ]
-        expected_prediction = {
-            "direction": "bullish",
-            "strength": 0.8,
-            "confidence": 0.9,
-            "timeframe": "short"
-        }
+        expected_prediction = {"direction": "bullish", "strength": 0.8, "confidence": 0.9, "timeframe": "short"}
         mock_mm_signal_engine.predict_market_movement.return_value = expected_prediction
 
         result = mock_mm_signal_engine.predict_market_movement(signals)
@@ -425,7 +407,7 @@ class TestBaseSignalEngine:
     def test_analyze_market_conditions(self, base_signal_engine, sample_market_data):
         """Тест анализа рыночных условий."""
         result = base_signal_engine.analyze_market_conditions(sample_market_data)
-        
+
         assert isinstance(result, MarketConditions)
         assert result.volatility == 0.0
         assert result.volume == 0.0
@@ -444,14 +426,14 @@ class TestBaseSignalEngine:
                 momentum=0.1,
                 trend_strength=0.6,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH
+                session_intensity=SessionIntensity.HIGH,
             ),
             confidence=0.85,
             timestamp=Timestamp.now(),
             metadata={},
-            predicted_impact={}
+            predicted_impact={},
         )
-        
+
         result = base_signal_engine.validate_signal(signal)
         assert result is True
 
@@ -468,14 +450,14 @@ class TestBaseSignalEngine:
                 momentum=0.1,
                 trend_strength=0.6,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH
+                session_intensity=SessionIntensity.HIGH,
             ),
             confidence=0.85,
             timestamp=Timestamp.now(),
             metadata={},
-            predicted_impact={}
+            predicted_impact={},
         )
-        
+
         result = base_signal_engine.validate_signal(signal)
         assert result is False
 
@@ -492,14 +474,14 @@ class TestBaseSignalEngine:
                 momentum=0.1,
                 trend_strength=0.6,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH
+                session_intensity=SessionIntensity.HIGH,
             ),
             confidence=1.5,  # Невалидное значение
             timestamp=Timestamp.now(),
             metadata={},
-            predicted_impact={}
+            predicted_impact={},
         )
-        
+
         result = base_signal_engine.validate_signal(signal)
         assert result is False
 
@@ -517,12 +499,12 @@ class TestBaseSignalEngine:
                 momentum=0.1,
                 trend_strength=0.6,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH
+                session_intensity=SessionIntensity.HIGH,
             ),
             confidence=0.85,
             timestamp=Timestamp.now(),
             metadata={},
-            predicted_impact={}
+            predicted_impact={},
         )
         signal2 = SessionInfluenceSignal(
             session_type=SessionType.EUROPEAN,
@@ -535,22 +517,22 @@ class TestBaseSignalEngine:
                 momentum=0.05,
                 trend_strength=0.4,
                 market_regime=MarketRegime.RANGING,
-                session_intensity=SessionIntensity.NORMAL
+                session_intensity=SessionIntensity.NORMAL,
             ),
             confidence=0.7,
             timestamp=Timestamp.now(),
             metadata={},
-            predicted_impact={}
+            predicted_impact={},
         )
-        
+
         base_signal_engine._signal_history = [signal1, signal2]
-        
+
         # Тест получения всей истории
         history = base_signal_engine.get_signal_history()
         assert len(history) == 2
         assert history[0] == signal1
         assert history[1] == signal2
-        
+
         # Тест ограничения истории
         limited_history = base_signal_engine.get_signal_history(limit=1)
         assert len(limited_history) == 1
@@ -566,7 +548,7 @@ class TestBaseSignalEngine:
             momentum=0.1,
             trend_strength=0.6,
             market_regime=MarketRegime.TRENDING,
-            session_intensity=SessionIntensity.HIGH
+            session_intensity=SessionIntensity.HIGH,
         )
         conditions2 = MarketConditions(
             volatility=0.015,
@@ -576,17 +558,17 @@ class TestBaseSignalEngine:
             momentum=0.05,
             trend_strength=0.4,
             market_regime=MarketRegime.RANGING,
-            session_intensity=SessionIntensity.NORMAL
+            session_intensity=SessionIntensity.NORMAL,
         )
-        
+
         base_signal_engine._market_conditions_history = [conditions1, conditions2]
-        
+
         # Тест получения всей истории
         history = base_signal_engine.get_market_conditions_history()
         assert len(history) == 2
         assert history[0] == conditions1
         assert history[1] == conditions2
-        
+
         # Тест ограничения истории
         limited_history = base_signal_engine.get_market_conditions_history(limit=1)
         assert len(limited_history) == 1
@@ -610,10 +592,7 @@ class TestBaseMarketMakerSignalEngine:
     @pytest.fixture
     def sample_orderbook_data(self) -> Dict[str, Any]:
         """Тестовые данные ордербука."""
-        return {
-            "bids": [[50000.0, 1.0], [49999.0, 2.0]],
-            "asks": [[50001.0, 1.5], [50002.0, 2.5]]
-        }
+        return {"bids": [[50000.0, 1.0], [49999.0, 2.0]], "asks": [[50001.0, 1.5], [50002.0, 2.5]]}
 
     @pytest.fixture
     def sample_trade_data(self) -> Dict[str, Any]:
@@ -621,7 +600,7 @@ class TestBaseMarketMakerSignalEngine:
         return {
             "trades": [
                 {"price": 50000.0, "amount": 0.1, "side": "buy"},
-                {"price": 50001.0, "amount": 0.2, "side": "sell"}
+                {"price": 50001.0, "amount": 0.2, "side": "sell"},
             ]
         }
 
@@ -638,7 +617,7 @@ class TestBaseMarketMakerSignalEngine:
     def test_analyze_order_flow(self, base_mm_signal_engine, sample_orderbook_data):
         """Тест анализа потока ордеров."""
         result = base_mm_signal_engine.analyze_order_flow(sample_orderbook_data)
-        
+
         assert isinstance(result, dict)
         assert "buy_pressure" in result
         assert "sell_pressure" in result
@@ -656,12 +635,12 @@ class TestBaseMarketMakerSignalEngine:
                 confidence=0.9,
                 timestamp=Timestamp.now(),
                 pattern_data={},
-                market_context={}
+                market_context={},
             )
         ]
-        
+
         result = base_mm_signal_engine.predict_market_movement(signals)
-        
+
         assert isinstance(result, dict)
         assert "direction" in result
         assert "strength" in result
@@ -680,7 +659,7 @@ class TestBaseMarketMakerSignalEngine:
             confidence=0.9,
             timestamp=Timestamp.now(),
             pattern_data={"volume": 1000.0},
-            market_context={"volatility": 0.025}
+            market_context={"volatility": 0.025},
         )
         pattern2 = MarketMakerSignal(
             signal_type="stop_hunt",
@@ -689,17 +668,17 @@ class TestBaseMarketMakerSignalEngine:
             confidence=0.7,
             timestamp=Timestamp.now(),
             pattern_data={"volume": 800.0},
-            market_context={"volatility": 0.02}
+            market_context={"volatility": 0.02},
         )
-        
+
         base_mm_signal_engine._pattern_history = [pattern1, pattern2]
-        
+
         # Тест получения всей истории
         history = base_mm_signal_engine.get_pattern_history()
         assert len(history) == 2
         assert history[0] == pattern1
         assert history[1] == pattern2
-        
+
         # Тест ограничения истории
         limited_history = base_mm_signal_engine.get_pattern_history(limit=1)
         assert len(limited_history) == 1
@@ -707,34 +686,26 @@ class TestBaseMarketMakerSignalEngine:
 
     def test_get_flow_history(self, base_mm_signal_engine):
         """Тест получения истории потока."""
-        flow1 = {
-            "buy_pressure": 0.6,
-            "sell_pressure": 0.4,
-            "imbalance": 0.2,
-            "flow_direction": 0.1
-        }
-        flow2 = {
-            "buy_pressure": 0.4,
-            "sell_pressure": 0.6,
-            "imbalance": -0.2,
-            "flow_direction": -0.1
-        }
-        
+        flow1 = {"buy_pressure": 0.6, "sell_pressure": 0.4, "imbalance": 0.2, "flow_direction": 0.1}
+        flow2 = {"buy_pressure": 0.4, "sell_pressure": 0.6, "imbalance": -0.2, "flow_direction": -0.1}
+
         base_mm_signal_engine._flow_history = [flow1, flow2]
-        
+
         # Тест получения всей истории
         history = base_mm_signal_engine.get_flow_history()
         assert len(history) == 2
         assert history[0] == flow1
         assert history[1] == flow2
-        
+
         # Тест ограничения истории
         limited_history = base_mm_signal_engine.get_flow_history(limit=1)
         assert len(limited_history) == 1
         assert limited_history[0] == flow2  # Последний поток
 
     @pytest.mark.asyncio
-    async def test_detect_market_maker_patterns_abstract(self, base_mm_signal_engine, sample_orderbook_data, sample_trade_data):
+    async def test_detect_market_maker_patterns_abstract(
+        self, base_mm_signal_engine, sample_orderbook_data, sample_trade_data
+    ):
         """Тест что detect_market_maker_patterns является абстрактным методом."""
         with pytest.raises(TypeError):
-            await base_mm_signal_engine.detect_market_maker_patterns(sample_orderbook_data, sample_trade_data) 
+            await base_mm_signal_engine.detect_market_maker_patterns(sample_orderbook_data, sample_trade_data)

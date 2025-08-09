@@ -1,6 +1,7 @@
 """
 Юнит-тесты для компонентов модуля sessions.
 """
+
 import pandas as pd
 from shared.numpy_utils import np
 from unittest.mock import Mock, AsyncMock, patch
@@ -8,9 +9,17 @@ from datetime import datetime, timezone, time
 from typing import Dict, Any
 
 from domain.type_definitions.session_types import (
-    SessionType, SessionPhase, SessionProfile, SessionBehavior, SessionTimeWindow,
-    MarketConditions, MarketRegime, SessionIntensity, SessionAnalysisResult,
-    SessionMetrics, ConfidenceScore
+    SessionType,
+    SessionPhase,
+    SessionProfile,
+    SessionBehavior,
+    SessionTimeWindow,
+    MarketConditions,
+    MarketRegime,
+    SessionIntensity,
+    SessionAnalysisResult,
+    SessionMetrics,
+    ConfidenceScore,
 )
 from domain.value_objects.timestamp import Timestamp
 from domain.sessions.session_profile import SessionProfileRegistry
@@ -23,11 +32,14 @@ from domain.sessions.session_predictor import SessionPredictor
 from domain.sessions.session_analyzer_factory import SessionAnalyzerFactory
 from domain.sessions.repositories import SessionDataRepository, SessionConfigurationRepository
 
+
 class TestSessionProfileRegistry:
     """Тесты для SessionProfileRegistry."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
+
     def test_get_profile_all_types(self: "TestSessionProfileRegistry") -> None:
         """Тест получения профилей всех типов сессий."""
         for session_type in SessionType:
@@ -36,6 +48,7 @@ class TestSessionProfileRegistry:
             assert profile.session_type == session_type
             assert isinstance(profile.description, str)
             assert len(profile.description) > 0
+
     def test_get_all_profiles_completeness(self: "TestSessionProfileRegistry") -> None:
         """Тест полноты всех профилей."""
         profiles = self.registry.get_all_profiles()
@@ -44,6 +57,7 @@ class TestSessionProfileRegistry:
             assert session_type in profiles
             profile = profiles[session_type]
             assert isinstance(profile, SessionProfile)
+
     def test_get_session_overlap_matrix(self: "TestSessionProfileRegistry") -> None:
         """Тест матрицы перекрытий сессий."""
         session_types = list(SessionType)
@@ -55,6 +69,7 @@ class TestSessionProfileRegistry:
                 # Перекрытие с самим собой должно быть 1.0
                 if i == j:
                     assert overlap == 1.0
+
     def test_get_session_recommendations_all_types(self: "TestSessionProfileRegistry") -> None:
         """Тест рекомендаций для всех типов сессий."""
         for session_type in SessionType:
@@ -64,6 +79,7 @@ class TestSessionProfileRegistry:
             for rec in recommendations:
                 assert isinstance(rec, str)
                 assert len(rec) > 0
+
     def test_get_session_statistics_all_types(self: "TestSessionProfileRegistry") -> None:
         """Тест статистики для всех типов сессий."""
         for session_type in SessionType:
@@ -71,43 +87,50 @@ class TestSessionProfileRegistry:
             assert isinstance(statistics, dict)
             assert "session_type" in statistics
             assert statistics["session_type"] == session_type.value
+
     def test_profile_validation(self: "TestSessionProfileRegistry") -> None:
         """Тест валидации профилей."""
         for session_type in SessionType:
             profile = self.registry.get_profile(session_type)
             # Проверяем обязательные поля
-            assert hasattr(profile, 'session_type')
-            assert hasattr(profile, 'time_window')
-            assert hasattr(profile, 'behavior')
-            assert hasattr(profile, 'description')
+            assert hasattr(profile, "session_type")
+            assert hasattr(profile, "time_window")
+            assert hasattr(profile, "behavior")
+            assert hasattr(profile, "description")
             # Проверяем типы данных
             assert isinstance(profile.session_type, SessionType)
             assert isinstance(profile.time_window, SessionTimeWindow)
             assert isinstance(profile.behavior, SessionBehavior)
             assert isinstance(profile.description, str)
+
+
 class TestSessionMarker:
     """Тесты для SessionMarker."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
         self.marker = SessionMarker(self.registry)
+
     def test_get_session_context_structure(self: "TestSessionMarker") -> None:
         """Тест структуры контекста сессии."""
         context = self.marker.get_session_context()
         assert isinstance(context, MarketSessionContext)
-        assert hasattr(context, 'timestamp')
-        assert hasattr(context, 'active_sessions')
-        assert hasattr(context, 'primary_session')
-        assert hasattr(context, 'session_transitions')
-        assert hasattr(context, 'market_conditions')
+        assert hasattr(context, "timestamp")
+        assert hasattr(context, "active_sessions")
+        assert hasattr(context, "primary_session")
+        assert hasattr(context, "session_transitions")
+        assert hasattr(context, "market_conditions")
         assert isinstance(context.timestamp, Timestamp)
         assert isinstance(context.active_sessions, list)
         assert isinstance(context.primary_session, SessionState)
+
     def test_is_session_active_all_types(self: "TestSessionMarker") -> None:
         """Тест активности всех типов сессий."""
         for session_type in SessionType:
             is_active = self.marker.is_session_active(session_type)
             assert isinstance(is_active, bool)
+
     def test_get_session_overlap_consistency(self: "TestSessionMarker") -> None:
         """Тест консистентности перекрытий сессий."""
         session_types = list(SessionType)
@@ -117,6 +140,7 @@ class TestSessionMarker:
                 overlap2 = self.marker.get_session_overlap(session2, session1)
                 # Перекрытие должно быть симметричным
                 assert abs(overlap1 - overlap2) < 1e-6
+
     def test_get_next_session_change(self: "TestSessionMarker") -> None:
         """Тест получения следующего изменения сессии."""
         change_info = self.marker.get_next_session_change()
@@ -124,11 +148,13 @@ class TestSessionMarker:
         assert "time_ahead_hours" in change_info
         assert isinstance(change_info["time_ahead_hours"], float)
         assert change_info["time_ahead_hours"] >= 0.0
+
     def test_get_session_phase(self: "TestSessionMarker") -> None:
         """Тест получения фазы сессии."""
         for session_type in SessionType:
             phase = self.marker.get_session_phase(session_type)
             assert isinstance(phase, SessionPhase)
+
     def test_market_session_context_validation(self: "TestSessionMarker") -> None:
         """Тест валидации контекста рыночной сессии."""
         context = self.marker.get_session_context()
@@ -141,20 +167,21 @@ class TestSessionMarker:
             assert isinstance(session, SessionState)
             assert session.session_type in SessionType
             assert session.phase in SessionPhase
+
+
 class TestSessionInfluenceAnalyzer:
     """Тесты для SessionInfluenceAnalyzer."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.analyzer = SessionInfluenceAnalyzer()
         self.session_profile = self._create_test_session_profile()
+
     def _create_test_session_profile(self) -> SessionProfile:
         """Создает тестовый профиль сессии."""
         return SessionProfile(
             session_type=SessionType.ASIAN,
-            time_window=SessionTimeWindow(
-                start_time=time(0, 0),
-                end_time=time(8, 0)
-            ),
+            time_window=SessionTimeWindow(start_time=time(0, 0), end_time=time(8, 0)),
             behavior=SessionBehavior(
                 typical_volatility_spike_minutes=45,
                 volume_peak_hours=[2, 4, 6],
@@ -165,7 +192,7 @@ class TestSessionInfluenceAnalyzer:
                 common_patterns=["asian_range", "breakout_failure"],
                 false_breakout_probability=0.4,
                 reversal_probability=0.25,
-                overlap_impact={"london": 1.2, "new_york": 0.9}
+                overlap_impact={"london": 1.2, "new_york": 0.9},
             ),
             description="Test Asian Session",
             typical_volume_multiplier=0.8,
@@ -182,14 +209,13 @@ class TestSessionInfluenceAnalyzer:
             reversal_probability=0.25,
             continuation_probability=0.55,
             manipulation_susceptibility=0.35,
-            false_breakout_probability=0.4
+            false_breakout_probability=0.4,
         )
+
     def test_analyze_session_influence_structure(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест структуры анализа влияния сессии."""
         market_data = self._create_test_market_data()
-        result = self.analyzer.analyze_session_influence(
-            "BTCUSDT", market_data, self.session_profile
-        )
+        result = self.analyzer.analyze_session_influence("BTCUSDT", market_data, self.session_profile)
         assert isinstance(result, SessionAnalysisResult)
         assert result.session_type == SessionType.ASIAN
         assert result.session_phase in SessionPhase
@@ -199,12 +225,11 @@ class TestSessionInfluenceAnalyzer:
         assert isinstance(result.market_conditions, MarketConditions)
         assert isinstance(result.predictions, dict)
         assert isinstance(result.risk_factors, list)
+
     def test_analyze_session_influence_metrics_validation(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации метрик анализа."""
         market_data = self._create_test_market_data()
-        result = self.analyzer.analyze_session_influence(
-            "BTCUSDT", market_data, self.session_profile
-        )
+        result = self.analyzer.analyze_session_influence("BTCUSDT", market_data, self.session_profile)
         # Проверяем метрики
         metrics = result.metrics
         assert isinstance(metrics, SessionMetrics)
@@ -220,12 +245,11 @@ class TestSessionInfluenceAnalyzer:
         assert isinstance(metrics.spread_impact, float)
         assert isinstance(metrics.liquidity_impact, float)
         assert isinstance(metrics.correlation_with_other_sessions, float)
+
     def test_analyze_session_influence_market_conditions(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации рыночных условий."""
         market_data = self._create_test_market_data()
-        result = self.analyzer.analyze_session_influence(
-            "BTCUSDT", market_data, self.session_profile
-        )
+        result = self.analyzer.analyze_session_influence("BTCUSDT", market_data, self.session_profile)
         # Проверяем рыночные условия
         conditions = result.market_conditions
         assert isinstance(conditions, MarketConditions)
@@ -237,12 +261,11 @@ class TestSessionInfluenceAnalyzer:
         assert isinstance(conditions.trend_strength, float)
         assert isinstance(conditions.market_regime, MarketRegime)
         assert isinstance(conditions.session_intensity, SessionIntensity)
+
     def test_analyze_session_influence_predictions(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации прогнозов."""
         market_data = self._create_test_market_data()
-        result = self.analyzer.analyze_session_influence(
-            "BTCUSDT", market_data, self.session_profile
-        )
+        result = self.analyzer.analyze_session_influence("BTCUSDT", market_data, self.session_profile)
         # Проверяем прогнозы
         predictions = result.predictions
         assert isinstance(predictions, dict)
@@ -250,12 +273,11 @@ class TestSessionInfluenceAnalyzer:
         assert "volume_prediction" in predictions
         assert "direction_prediction" in predictions
         assert "momentum_prediction" in predictions
+
     def test_analyze_session_influence_risk_factors(self: "TestSessionInfluenceAnalyzer") -> None:
         """Тест валидации факторов риска."""
         market_data = self._create_test_market_data()
-        result = self.analyzer.analyze_session_influence(
-            "BTCUSDT", market_data, self.session_profile
-        )
+        result = self.analyzer.analyze_session_influence("BTCUSDT", market_data, self.session_profile)
         # Проверяем факторы риска
         risk_factors = result.risk_factors
         assert isinstance(risk_factors, list)
@@ -264,37 +286,38 @@ class TestSessionInfluenceAnalyzer:
             assert "type" in risk_factor
             assert "severity" in risk_factor
             assert "description" in risk_factor
+
     def _create_test_market_data(self) -> pd.DataFrame:
         """Создает тестовые рыночные данные."""
         data = {
-            'timestamp': pd.DatetimeIndex(pd.date_range(start='2024-01-01', periods=100, freq='1H')),
-            'open': np.random.uniform(45000, 55000, 100),
-            'high': np.random.uniform(45000, 55000, 100),
-            'low': np.random.uniform(45000, 55000, 100),
-            'close': np.random.uniform(45000, 55000, 100),
-            'volume': np.random.uniform(1000, 5000, 100),
-            'volatility': np.random.uniform(0.01, 0.05, 100),
-            'spread': np.random.uniform(0.1, 1.0, 100),
-            'liquidity': np.random.uniform(0.5, 1.0, 100),
-            'momentum': np.random.uniform(-0.1, 0.1, 100),
-            'trend_strength': np.random.uniform(0.0, 1.0, 100),
+            "timestamp": pd.DatetimeIndex(pd.date_range(start="2024-01-01", periods=100, freq="1H")),
+            "open": np.random.uniform(45000, 55000, 100),
+            "high": np.random.uniform(45000, 55000, 100),
+            "low": np.random.uniform(45000, 55000, 100),
+            "close": np.random.uniform(45000, 55000, 100),
+            "volume": np.random.uniform(1000, 5000, 100),
+            "volatility": np.random.uniform(0.01, 0.05, 100),
+            "spread": np.random.uniform(0.1, 1.0, 100),
+            "liquidity": np.random.uniform(0.5, 1.0, 100),
+            "momentum": np.random.uniform(-0.1, 0.1, 100),
+            "trend_strength": np.random.uniform(0.0, 1.0, 100),
         }
         return pd.DataFrame(data)
 
+
 class TestSessionAnalyzer:
     """Тесты для SessionAnalyzer."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.analyzer = SessionAnalyzer()
         self.session_profile = self._create_test_session_profile()
+
     def _create_test_session_profile(self) -> SessionProfile:
         """Создает тестовый профиль сессии."""
         return SessionProfile(
             session_type=SessionType.ASIAN,
-            time_window=SessionTimeWindow(
-                start_time=time(0, 0),
-                end_time=time(8, 0)
-            ),
+            time_window=SessionTimeWindow(start_time=time(0, 0), end_time=time(8, 0)),
             behavior=SessionBehavior(
                 typical_volatility_spike_minutes=45,
                 volume_peak_hours=[2, 4, 6],
@@ -305,7 +328,7 @@ class TestSessionAnalyzer:
                 common_patterns=["asian_range", "breakout_failure"],
                 false_breakout_probability=0.4,
                 reversal_probability=0.25,
-                overlap_impact={"london": 1.2, "new_york": 0.9}
+                overlap_impact={"london": 1.2, "new_york": 0.9},
             ),
             description="Test Asian Session",
             typical_volume_multiplier=0.8,
@@ -322,8 +345,9 @@ class TestSessionAnalyzer:
             reversal_probability=0.25,
             continuation_probability=0.55,
             manipulation_susceptibility=0.35,
-            false_breakout_probability=0.4
+            false_breakout_probability=0.4,
         )
+
     def test_analyze_session_metrics(self: "TestSessionAnalyzer") -> None:
         """Тест анализа метрик сессии."""
         market_data = self._create_test_market_data()
@@ -349,6 +373,7 @@ class TestSessionAnalyzer:
         assert isinstance(conditions.get("trend_strength"), (int, float))
         assert isinstance(conditions.get("market_regime"), str)
         assert isinstance(conditions.get("session_intensity"), str)
+
     def test_generate_predictions(self: "TestSessionAnalyzer") -> None:
         """Тест генерации прогнозов."""
         market_data = self._create_test_market_data()
@@ -357,6 +382,7 @@ class TestSessionAnalyzer:
         assert "volatility_prediction" in predictions
         assert "volume_prediction" in predictions
         assert "direction_prediction" in predictions
+
     def test_identify_risk_factors(self: "TestSessionAnalyzer") -> None:
         """Тест идентификации факторов риска."""
         market_data = self._create_test_market_data()
@@ -366,76 +392,88 @@ class TestSessionAnalyzer:
             assert isinstance(risk_factor, dict)
             assert "type" in risk_factor
             assert "severity" in risk_factor
+
     def _create_test_market_data(self) -> pd.DataFrame:
         """Создает тестовые рыночные данные."""
         data = {
-            'timestamp': pd.date_range(start='2024-01-01', periods=100, freq='1H'),
-            'open': np.random.uniform(45000, 55000, 100),
-            'high': np.random.uniform(45000, 55000, 100),
-            'low': np.random.uniform(45000, 55000, 100),
-            'close': np.random.uniform(45000, 55000, 100),
-            'volume': np.random.uniform(1000, 5000, 100),
-            'volatility': np.random.uniform(0.01, 0.05, 100),
-            'spread': np.random.uniform(0.1, 1.0, 100),
-            'liquidity': np.random.uniform(0.5, 1.0, 100),
-            'momentum': np.random.uniform(-0.1, 0.1, 100),
-            'trend_strength': np.random.uniform(0.0, 1.0, 100),
+            "timestamp": pd.date_range(start="2024-01-01", periods=100, freq="1H"),
+            "open": np.random.uniform(45000, 55000, 100),
+            "high": np.random.uniform(45000, 55000, 100),
+            "low": np.random.uniform(45000, 55000, 100),
+            "close": np.random.uniform(45000, 55000, 100),
+            "volume": np.random.uniform(1000, 5000, 100),
+            "volatility": np.random.uniform(0.01, 0.05, 100),
+            "spread": np.random.uniform(0.1, 1.0, 100),
+            "liquidity": np.random.uniform(0.5, 1.0, 100),
+            "momentum": np.random.uniform(-0.1, 0.1, 100),
+            "trend_strength": np.random.uniform(0.0, 1.0, 100),
         }
         return pd.DataFrame(data)
 
+
 class TestSessionManager:
     """Тесты для SessionManager."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.manager = SessionManager()
+
     def test_register_session_analyzer(self: "TestSessionManager") -> None:
         """Тест регистрации анализатора сессии."""
         analyzer = Mock()
         self.manager.register_session_analyzer(SessionType.ASIAN, analyzer)
         registered_analyzer = self.manager.get_session_analyzer(SessionType.ASIAN)
         assert registered_analyzer == analyzer
+
     def test_get_session_analyzer(self: "TestSessionManager") -> None:
         """Тест получения анализатора сессии."""
         analyzer = Mock()
         self.manager.register_session_analyzer(SessionType.ASIAN, analyzer)
         result = self.manager.get_session_analyzer(SessionType.ASIAN)
         assert result == analyzer
+
     def test_get_session_analyzer_default(self: "TestSessionManager") -> None:
         """Тест получения анализатора по умолчанию."""
         result = self.manager.get_session_analyzer(SessionType.ASIAN)
         assert result is not None
+
     def test_analyze_session(self: "TestSessionManager") -> None:
         """Тест анализа сессии."""
         market_data = self._create_test_market_data()
         result = self.manager.analyze_session(SessionType.ASIAN, market_data)
         assert isinstance(result, SessionAnalysisResult)
+
     def test_get_session_statistics(self: "TestSessionManager") -> None:
         """Тест получения статистики сессии."""
         statistics = self.manager.get_session_statistics(SessionType.ASIAN)
         assert isinstance(statistics, dict)
         assert "session_type" in statistics
+
     def _create_test_market_data(self) -> pd.DataFrame:
         """Создает тестовые рыночные данные."""
         data = {
-            'timestamp': pd.date_range(start='2024-01-01', periods=100, freq='1H'),
-            'open': np.random.uniform(45000, 55000, 100),
-            'high': np.random.uniform(45000, 55000, 100),
-            'low': np.random.uniform(45000, 55000, 100),
-            'close': np.random.uniform(45000, 55000, 100),
-            'volume': np.random.uniform(1000, 5000, 100),
-            'volatility': np.random.uniform(0.01, 0.05, 100),
-            'spread': np.random.uniform(0.1, 1.0, 100),
-            'liquidity': np.random.uniform(0.5, 1.0, 100),
-            'momentum': np.random.uniform(-0.1, 0.1, 100),
-            'trend_strength': np.random.uniform(0.0, 1.0, 100),
+            "timestamp": pd.date_range(start="2024-01-01", periods=100, freq="1H"),
+            "open": np.random.uniform(45000, 55000, 100),
+            "high": np.random.uniform(45000, 55000, 100),
+            "low": np.random.uniform(45000, 55000, 100),
+            "close": np.random.uniform(45000, 55000, 100),
+            "volume": np.random.uniform(1000, 5000, 100),
+            "volatility": np.random.uniform(0.01, 0.05, 100),
+            "spread": np.random.uniform(0.1, 1.0, 100),
+            "liquidity": np.random.uniform(0.5, 1.0, 100),
+            "momentum": np.random.uniform(-0.1, 0.1, 100),
+            "trend_strength": np.random.uniform(0.0, 1.0, 100),
         }
         return pd.DataFrame(data)
 
+
 class TestSessionOptimizer:
     """Тесты для SessionOptimizer."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.optimizer = SessionOptimizer()
+
     def test_optimize_session_parameters(self: "TestSessionOptimizer") -> None:
         """Тест оптимизации параметров сессии."""
         profile = self._create_test_session_profile()
@@ -443,6 +481,7 @@ class TestSessionOptimizer:
         optimized_profile = self.optimizer.optimize_session_parameters(profile, market_conditions)
         assert isinstance(optimized_profile, SessionProfile)
         assert optimized_profile.session_type == profile.session_type
+
     def test_optimize_trading_strategy(self: "TestSessionOptimizer") -> None:
         """Тест оптимизации торговой стратегии."""
         profile = self._create_test_session_profile()
@@ -452,6 +491,7 @@ class TestSessionOptimizer:
         assert "entry_rules" in strategy
         assert "exit_rules" in strategy
         assert "risk_management" in strategy
+
     def test_optimize_risk_management(self: "TestSessionOptimizer") -> None:
         """Тест оптимизации управления рисками."""
         profile = self._create_test_session_profile()
@@ -461,14 +501,12 @@ class TestSessionOptimizer:
         assert "position_size" in risk_config
         assert "stop_loss" in risk_config
         assert "take_profit" in risk_config
+
     def _create_test_session_profile(self) -> SessionProfile:
         """Создает тестовый профиль сессии."""
         return SessionProfile(
             session_type=SessionType.ASIAN,
-            time_window=SessionTimeWindow(
-                start_time=time(0, 0),
-                end_time=time(8, 0)
-            ),
+            time_window=SessionTimeWindow(start_time=time(0, 0), end_time=time(8, 0)),
             behavior=SessionBehavior(
                 typical_volatility_spike_minutes=45,
                 volume_peak_hours=[2, 4, 6],
@@ -479,7 +517,7 @@ class TestSessionOptimizer:
                 common_patterns=["asian_range", "breakout_failure"],
                 false_breakout_probability=0.4,
                 reversal_probability=0.25,
-                overlap_impact={"london": 1.2, "new_york": 0.9}
+                overlap_impact={"london": 1.2, "new_york": 0.9},
             ),
             description="Test Asian Session",
             typical_volume_multiplier=0.8,
@@ -496,8 +534,9 @@ class TestSessionOptimizer:
             reversal_probability=0.25,
             continuation_probability=0.55,
             manipulation_susceptibility=0.35,
-            false_breakout_probability=0.4
+            false_breakout_probability=0.4,
         )
+
     def _create_test_market_conditions(self) -> MarketConditions:
         """Создает тестовые рыночные условия."""
         return MarketConditions(
@@ -508,30 +547,34 @@ class TestSessionOptimizer:
             momentum=0.05,
             trend_strength=0.7,
             market_regime=MarketRegime.TRENDING,
-            session_intensity=SessionIntensity.HIGH  # Используем существующий атрибут
+            session_intensity=SessionIntensity.HIGH,  # Используем существующий атрибут
         )
+
     def _create_test_market_data(self) -> pd.DataFrame:
         """Создает тестовые рыночные данные."""
         data = {
-            'timestamp': pd.date_range(start='2024-01-01', periods=100, freq='1H'),
-            'open': np.random.uniform(45000, 55000, 100),
-            'high': np.random.uniform(45000, 55000, 100),
-            'low': np.random.uniform(45000, 55000, 100),
-            'close': np.random.uniform(45000, 55000, 100),
-            'volume': np.random.uniform(1000, 5000, 100),
-            'volatility': np.random.uniform(0.01, 0.05, 100),
-            'spread': np.random.uniform(0.1, 1.0, 100),
-            'liquidity': np.random.uniform(0.5, 1.0, 100),
-            'momentum': np.random.uniform(-0.1, 0.1, 100),
-            'trend_strength': np.random.uniform(0.0, 1.0, 100),
+            "timestamp": pd.date_range(start="2024-01-01", periods=100, freq="1H"),
+            "open": np.random.uniform(45000, 55000, 100),
+            "high": np.random.uniform(45000, 55000, 100),
+            "low": np.random.uniform(45000, 55000, 100),
+            "close": np.random.uniform(45000, 55000, 100),
+            "volume": np.random.uniform(1000, 5000, 100),
+            "volatility": np.random.uniform(0.01, 0.05, 100),
+            "spread": np.random.uniform(0.1, 1.0, 100),
+            "liquidity": np.random.uniform(0.5, 1.0, 100),
+            "momentum": np.random.uniform(-0.1, 0.1, 100),
+            "trend_strength": np.random.uniform(0.0, 1.0, 100),
         }
         return pd.DataFrame(data)
 
+
 class TestSessionPredictor:
     """Тесты для SessionPredictor."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.predictor = SessionPredictor()
+
     def test_predict_session_behavior(self: "TestSessionPredictor") -> None:
         """Тест прогнозирования поведения сессии."""
         profile = self._create_test_session_profile()
@@ -548,6 +591,7 @@ class TestSessionPredictor:
         assert "manipulation_risk" in prediction
         assert "whale_activity_probability" in prediction
         assert "mm_activity_probability" in prediction
+
     def test_predict_session_transitions(self: "TestSessionPredictor") -> None:
         """Тест прогнозирования переходов сессий."""
         profile = self._create_test_session_profile()
@@ -560,6 +604,7 @@ class TestSessionPredictor:
             assert "to_session" in transition
             assert "probability" in transition
             assert "expected_time" in transition
+
     def test_predict_market_regime_changes(self: "TestSessionPredictor") -> None:
         """Тест прогнозирования изменений рыночного режима."""
         profile = self._create_test_session_profile()
@@ -572,14 +617,12 @@ class TestSessionPredictor:
             assert "to_regime" in change
             assert "probability" in change
             assert "expected_time" in change
+
     def _create_test_session_profile(self) -> SessionProfile:
         """Создает тестовый профиль сессии."""
         return SessionProfile(
             session_type=SessionType.ASIAN,
-            time_window=SessionTimeWindow(
-                start_time=time(0, 0),
-                end_time=time(8, 0)
-            ),
+            time_window=SessionTimeWindow(start_time=time(0, 0), end_time=time(8, 0)),
             behavior=SessionBehavior(
                 typical_volatility_spike_minutes=45,
                 volume_peak_hours=[2, 4, 6],
@@ -590,7 +633,7 @@ class TestSessionPredictor:
                 common_patterns=["asian_range", "breakout_failure"],
                 false_breakout_probability=0.4,
                 reversal_probability=0.25,
-                overlap_impact={"london": 1.2, "new_york": 0.9}
+                overlap_impact={"london": 1.2, "new_york": 0.9},
             ),
             description="Test Asian Session",
             typical_volume_multiplier=0.8,
@@ -607,8 +650,9 @@ class TestSessionPredictor:
             reversal_probability=0.25,
             continuation_probability=0.55,
             manipulation_susceptibility=0.35,
-            false_breakout_probability=0.4
+            false_breakout_probability=0.4,
         )
+
     def _create_test_market_conditions(self) -> MarketConditions:
         """Создает тестовые рыночные условия."""
         return MarketConditions(
@@ -619,25 +663,30 @@ class TestSessionPredictor:
             momentum=0.05,
             trend_strength=0.7,
             market_regime=MarketRegime.TRENDING,
-            session_intensity=SessionIntensity.HIGH  # Используем существующий атрибут
+            session_intensity=SessionIntensity.HIGH,  # Используем существующий атрибут
         )
+
 
 class TestSessionAnalyzerFactory:
     """Тесты для SessionAnalyzerFactory."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.factory = SessionAnalyzerFactory()
+
     def test_create_analyzer_for_session_type(self: "TestSessionAnalyzerFactory") -> None:
         """Тест создания анализатора для типа сессии."""
         analyzer = self.factory.create_analyzer_for_session_type(SessionType.ASIAN)
         assert analyzer is not None
-        assert hasattr(analyzer, 'analyze_session')
+        assert hasattr(analyzer, "analyze_session")
+
     def test_create_analyzer_with_custom_config(self: "TestSessionAnalyzerFactory") -> None:
         """Тест создания анализатора с пользовательской конфигурацией."""
         config = {"custom_param": "value"}
         analyzer = self.factory.create_analyzer_with_custom_config(SessionType.ASIAN, config)
         assert analyzer is not None
-        assert hasattr(analyzer, 'analyze_session')
+        assert hasattr(analyzer, "analyze_session")
+
     def test_get_available_analyzers(self: "TestSessionAnalyzerFactory") -> None:
         """Тест получения доступных анализаторов."""
         analyzers = self.factory.get_available_analyzers()
@@ -648,12 +697,15 @@ class TestSessionAnalyzerFactory:
             assert "session_type" in analyzer_info
             assert "description" in analyzer_info
 
+
 class TestSessionRepositories:
     """Тесты для репозиториев сессий."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.session_repo = SessionDataRepository()
         self.config_repo = SessionConfigurationRepository()
+
     def test_session_repository_save_and_get(self: "TestSessionRepositories") -> None:
         """Тест сохранения и получения профиля сессии."""
         profile = self._create_test_session_profile()
@@ -661,6 +713,7 @@ class TestSessionRepositories:
         retrieved_profile = self.session_repo.get_session_profile(profile.session_type)
         assert retrieved_profile is not None
         assert retrieved_profile.session_type == profile.session_type
+
     def test_session_repository_get_all(self: "TestSessionRepositories") -> None:
         """Тест получения всех профилей сессий."""
         profiles = self.session_repo.get_all_session_profiles()
@@ -669,17 +722,17 @@ class TestSessionRepositories:
         for session_type, profile in profiles.items():
             assert isinstance(session_type, SessionType)
             assert isinstance(profile, SessionProfile)
+
     def test_analysis_repository_save_and_get(self: "TestSessionRepositories") -> None:
         """Тест сохранения и получения результата анализа."""
         analysis_result = self._create_test_analysis_result()
         self.config_repo.save_session_analysis(analysis_result)
         retrieved_analysis = self.config_repo.get_session_analysis(
-            analysis_result.session_type,
-            analysis_result.timestamp,
-            analysis_result.timestamp
+            analysis_result.session_type, analysis_result.timestamp, analysis_result.timestamp
         )
         assert isinstance(retrieved_analysis, list)
         assert len(retrieved_analysis) > 0
+
     def test_analysis_repository_get_statistics(self: "TestSessionRepositories") -> None:
         """Тест получения статистики анализа."""
         statistics = self.config_repo.get_session_statistics(SessionType.ASIAN)
@@ -688,14 +741,12 @@ class TestSessionRepositories:
         assert "total_analyses" in statistics
         assert "avg_confidence" in statistics
         assert "success_rate" in statistics
+
     def _create_test_session_profile(self) -> SessionProfile:
         """Создает тестовый профиль сессии."""
         return SessionProfile(
             session_type=SessionType.ASIAN,
-            time_window=SessionTimeWindow(
-                start_time=time(0, 0),
-                end_time=time(8, 0)
-            ),
+            time_window=SessionTimeWindow(start_time=time(0, 0), end_time=time(8, 0)),
             behavior=SessionBehavior(
                 typical_volatility_spike_minutes=45,
                 volume_peak_hours=[2, 4, 6],
@@ -706,7 +757,7 @@ class TestSessionRepositories:
                 common_patterns=["asian_range", "breakout_failure"],
                 false_breakout_probability=0.4,
                 reversal_probability=0.25,
-                overlap_impact={"london": 1.2, "new_york": 0.9}
+                overlap_impact={"london": 1.2, "new_york": 0.9},
             ),
             description="Test Asian Session",
             typical_volume_multiplier=0.8,
@@ -723,8 +774,9 @@ class TestSessionRepositories:
             reversal_probability=0.25,
             continuation_probability=0.55,
             manipulation_susceptibility=0.35,
-            false_breakout_probability=0.4
+            false_breakout_probability=0.4,
         )
+
     def _create_test_analysis_result(self) -> SessionAnalysisResult:
         """Создает тестовый результат анализа."""
         return SessionAnalysisResult(
@@ -754,8 +806,8 @@ class TestSessionRepositories:
                 momentum=0.05,
                 trend_strength=0.7,
                 market_regime=MarketRegime.TRENDING,
-                session_intensity=SessionIntensity.HIGH  # Используем существующий атрибут
+                session_intensity=SessionIntensity.HIGH,  # Используем существующий атрибут
             ),
             predictions={},
             risk_factors=[],
-        ) 
+        )

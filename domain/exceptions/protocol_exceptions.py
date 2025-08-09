@@ -7,6 +7,31 @@ from datetime import datetime
 from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
+
+def _format_protocol_message(protocol: str, message: str, context: Optional[Dict[str, Any]] = None) -> str:
+    """Форматирование сообщения протокола."""
+    formatted = f"[{protocol}] {message}"
+    if context:
+        context_str = ", ".join([f"{k}={v}" for k, v in context.items()])
+        formatted += f" (Context: {context_str})"
+    return formatted
+
+
+def _get_retry_after_time(retry_after: Optional[int]) -> Optional[int]:
+    """Получение времени ожидания для повторной попытки."""
+    if retry_after is None:
+        return None
+    
+    # Минимальное время ожидания 1 секунда
+    if retry_after < 1:
+        return 1
+    
+    # Максимальное время ожидания 3600 секунд (1 час)
+    if retry_after > 3600:
+        return 3600
+    
+    return retry_after
+
 from domain.type_definitions import (
     ModelId,
     OrderId,
@@ -34,6 +59,23 @@ class ProtocolError(Exception):
         self.error_code = error_code
         self.context = context or {}
         self.timestamp = datetime.now()
+
+
+class ProtocolViolationError(ProtocolError):
+    """Ошибка нарушения протокола."""
+
+    def __init__(
+        self,
+        protocol_name: str,
+        violation_type: str,
+        details: str,
+        context: Optional[Dict[str, Any]] = None,
+    ):
+        message = f"Protocol violation in {protocol_name}: {violation_type} - {details}"
+        super().__init__(message, error_code="PROTOCOL_VIOLATION", context=context)
+        self.protocol_name = protocol_name
+        self.violation_type = violation_type
+        self.details = details
 
 
 # ============================================================================
@@ -81,6 +123,22 @@ class ExchangeRateLimitError(ProtocolError):
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, error_code, context)
+
+
+class RateLimitError(ProtocolError):
+    """Ошибка превышения лимитов запросов."""
+
+    def __init__(
+        self,
+        message: str,
+        service_name: str,
+        retry_after: Optional[int] = None,
+        error_code: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(message, error_code, context)
+        self.service_name = service_name
+        self.retry_after = retry_after
         self.exchange_name = exchange_name
         self.retry_after = retry_after
 
@@ -459,6 +517,22 @@ class TransactionError(ProtocolError):
 # ============================================================================
 
 
+class DataIntegrityError(ProtocolError):
+    """Ошибка целостности данных."""
+    
+    def __init__(
+        self,
+        message: str,
+        data_type: str,
+        data_id: Optional[str] = None,
+        error_code: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(message, error_code, context)
+        self.data_type = data_type
+        self.data_id = data_id
+
+
 class TimeoutError(ProtocolError):
     """Ошибка таймаута."""
 
@@ -662,6 +736,20 @@ class ProtocolAuthorizationError(ProtocolError):
         super().__init__(f"{message}: {protocol} {auth_issue}")
 
 
+class AuthenticationError(ProtocolError):
+    """Ошибка аутентификации."""
+
+    def __init__(
+        self,
+        message: str,
+        auth_method: Optional[str] = None,
+        error_code: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(message, error_code or "AUTHENTICATION_ERROR", context)
+        self.auth_method = auth_method
+
+
 class ProtocolIntegrityError(ProtocolError):
     """Ошибка целостности протокола."""
 
@@ -713,6 +801,7 @@ __all__ = [
     "DatabaseConnectionError",
     "TransactionError",
     # General exceptions
+    "DataIntegrityError",
     "TimeoutError",
     "RetryExhaustedError",
     "ConfigurationError",

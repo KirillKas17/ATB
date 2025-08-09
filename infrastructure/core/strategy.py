@@ -53,7 +53,7 @@ class Signal:
 class CoreStrategy:
     """Базовый класс для торговых стратегий."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """
         Инициализация стратегии.
         Args:
@@ -348,7 +348,7 @@ class CoreStrategy:
 class MovingAverageCrossover(CoreStrategy):
     """Стратегия на основе пересечения скользящих средних."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """
         Инициализация стратегии.
         Args:
@@ -424,7 +424,7 @@ class MovingAverageCrossover(CoreStrategy):
 class RSIStrategy(CoreStrategy):
     """Стратегия на основе индикатора RSI."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """
         Инициализация стратегии.
         Args:
@@ -511,7 +511,7 @@ class RSIStrategy(CoreStrategy):
 class MACDStrategy(CoreStrategy):
     """Стратегия на основе индикатора MACD."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any]) -> None:
         """
         Инициализация стратегии.
         Args:

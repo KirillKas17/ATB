@@ -39,6 +39,45 @@ from domain.type_definitions.external_service_types import (
     TimeFrame,
     MarketDataRequest,
 )
+from dataclasses import dataclass
+
+
+@dataclass
+class BybitConfig:
+    """Конфигурация Bybit клиента."""
+    
+    api_key: str
+    api_secret: str
+    testnet: bool = False
+    recv_window: int = 5000
+    request_timeout: int = 30
+    max_retries: int = 3
+    retry_delay: float = 1.0
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "api_key": self.api_key,
+            "api_secret": self.api_secret,
+            "testnet": self.testnet,
+            "recv_window": self.recv_window,
+            "request_timeout": self.request_timeout,
+            "max_retries": self.max_retries,
+            "retry_delay": self.retry_delay
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "BybitConfig":
+        """Создание из словаря."""
+        return cls(
+            api_key=data["api_key"],
+            api_secret=data["api_secret"],
+            testnet=data.get("testnet", False),
+            recv_window=data.get("recv_window", 5000),
+            request_timeout=data.get("request_timeout", 30),
+            max_retries=data.get("max_retries", 3),
+            retry_delay=data.get("retry_delay", 1.0)
+        )
 
 
 class BybitClient(ExchangeProtocol):

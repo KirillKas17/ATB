@@ -6,13 +6,15 @@ import pytest
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from application.analysis.entanglement_monitor import EntanglementMonitor
-from domain.intelligence.entanglement_detector import (EntanglementDetector,
-                                                       OrderBookUpdate)
+from domain.intelligence.entanglement_detector import EntanglementDetector, OrderBookUpdate
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume
+
+
 class TestEntanglementIntegration:
     """Интеграционные тесты для системы обнаружения запутанности."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.detector = EntanglementDetector(
@@ -27,6 +29,7 @@ class TestEntanglementIntegration:
             max_lag_ms=3.0,
             correlation_threshold=0.95,
         )
+
     def test_full_pipeline_simulation(self: "TestEntanglementIntegration") -> None:
         """Тест полного пайплайна с симуляцией данных."""
         # Создаем симулированные данные с высокой корреляцией
@@ -72,8 +75,9 @@ class TestEntanglementIntegration:
         assert binance_coinbase_result.symbol == "BTCUSDT"
         assert binance_coinbase_result.correlation_score > 0.8  # Высокая корреляция
         assert abs(binance_coinbase_result.lag_ms) <= 5.0  # Разумный lag
+
     @pytest.mark.asyncio
-    def test_monitor_with_simulated_data(self: "TestEntanglementIntegration") -> None:
+    async def test_monitor_with_simulated_data(self: "TestEntanglementIntegration") -> None:
         """Тест монитора с симулированными данными."""
         # Запускаем мониторинг в фоновом режиме
         monitor_task = asyncio.create_task(self.monitor.start_monitoring())
@@ -95,6 +99,7 @@ class TestEntanglementIntegration:
             # Останавливаем мониторинг
             self.monitor.stop_monitoring()
             await monitor_task
+
     def test_multiple_exchange_pairs(self: "TestEntanglementIntegration") -> None:
         """Тест работы с несколькими парами бирж."""
         # Добавляем несколько пар
@@ -105,6 +110,7 @@ class TestEntanglementIntegration:
         # Проверяем, что новые пары активны
         active_pairs = [p for p in self.monitor.exchange_pairs if p.is_active]
         assert len(active_pairs) >= 3
+
     def test_buffer_management(self: "TestEntanglementIntegration") -> None:
         """Тест управления буферами данных."""
         # Добавляем много обновлений
@@ -120,6 +126,7 @@ class TestEntanglementIntegration:
         # Проверяем, что буфер не превышает максимальный размер
         buffer_size = len(self.monitor.order_book_buffers.get("binance", []))
         assert buffer_size <= self.monitor.buffer_max_size
+
     def test_correlation_calculation_accuracy(self: "TestEntanglementIntegration") -> None:
         """Тест точности расчета корреляции."""
         # Создаем идеально коррелированные данные
@@ -152,6 +159,7 @@ class TestEntanglementIntegration:
         if results:
             result = results[0]
             assert result.correlation_score > 0.9  # Очень высокая корреляция
+
     def test_lag_detection_accuracy(self: "TestEntanglementIntegration") -> None:
         """Тест точности обнаружения lag."""
         # Создаем данные с известной задержкой
@@ -187,6 +195,7 @@ class TestEntanglementIntegration:
             detected_lag = abs(result.lag_ms)
             # Lag должен быть близок к известному значению (с учетом погрешности)
             assert abs(detected_lag - known_lag) <= 2
+
     def test_confidence_calculation(self: "TestEntanglementIntegration") -> None:
         """Тест расчета уверенности в результатах."""
         # Создаем данные с разной качественностью
@@ -220,9 +229,7 @@ class TestEntanglementIntegration:
                 exchange="binance",
                 symbol="BTCUSDT",
                 bids=[(Price(base_prices[i] + np.random.normal(0, 100)), Volume(1.0))],
-                asks=[
-                    (Price(base_prices[i] + np.random.normal(0, 100) + 10), Volume(1.0))
-                ],
+                asks=[(Price(base_prices[i] + np.random.normal(0, 100) + 10), Volume(1.0))],
                 timestamp=Timestamp(time.time() + i * 0.001),
             )
             updates_low_quality.append(update1)
@@ -230,9 +237,7 @@ class TestEntanglementIntegration:
                 exchange="coinbase",
                 symbol="BTCUSDT",
                 bids=[(Price(base_prices[i] + np.random.normal(0, 100)), Volume(1.0))],
-                asks=[
-                    (Price(base_prices[i] + np.random.normal(0, 100) + 10), Volume(1.0))
-                ],
+                asks=[(Price(base_prices[i] + np.random.normal(0, 100) + 10), Volume(1.0))],
                 timestamp=Timestamp(time.time() + i * 0.001),
             )
             updates_low_quality.append(update2)
@@ -243,6 +248,7 @@ class TestEntanglementIntegration:
             confidence_high = results_high[0].confidence
             confidence_low = results_low[0].confidence
             assert confidence_high > confidence_low
+
     def test_error_handling(self: "TestEntanglementIntegration") -> None:
         """Тест обработки ошибок."""
         # Тестируем обработку некорректных данных
@@ -269,6 +275,7 @@ class TestEntanglementIntegration:
             assert isinstance(results, list)
         except Exception as e:
             pytest.fail(f"Error handling failed: {e}")
+
     def test_performance_under_load(self: "TestEntanglementIntegration") -> None:
         """Тест производительности под нагрузкой."""
         # Создаем большое количество обновлений
@@ -291,5 +298,7 @@ class TestEntanglementIntegration:
         assert processing_time < 1.0  # Менее 1 секунды для 1000 обновлений
         # Проверяем, что результаты получены
         assert isinstance(results, list)
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

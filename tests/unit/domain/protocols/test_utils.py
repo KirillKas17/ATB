@@ -95,7 +95,7 @@ class TestRetryOnErrorDecorator:
     async def test_custom_exceptions(self: "TestRetryOnErrorDecorator") -> None:
         """Тест с пользовательскими исключениями."""
         @retry_on_error(max_retries=2, delay=0.1, exceptions=(ValueError,))
-    async def test_custom_error():
+        async def test_custom_error():
             raise ValueError("Custom error")
 
         with pytest.raises(ValueError):
@@ -408,7 +408,7 @@ class TestWithTimeout:
 
     async def test_successful_operation(self: "TestWithTimeout") -> None:
         """Тест успешной операции."""
-    async def test_coro():
+        async def test_coro():
             await asyncio.sleep(0.1)
             return "success"
         
@@ -567,7 +567,7 @@ class TestUtilsIntegration:
         """Тест комбинации retry и timeout."""
         @retry_on_error(max_retries=2, delay=0.1)
         @timeout(0.5)
-    async def test_function():
+        async def test_function():
             await asyncio.sleep(0.1)
             return "success"
         
@@ -616,7 +616,7 @@ class TestUtilsErrorHandling:
     async def test_retry_with_custom_exception(self: "TestUtilsErrorHandling") -> None:
         """Тест retry с пользовательским исключением."""
         @retry_on_error(max_retries=2, delay=0.1, exceptions=(ValueError,))
-    async def test_function():
+        async def test_function():
             raise ValueError("Custom error")
         
         with pytest.raises(ValueError):
@@ -625,7 +625,7 @@ class TestUtilsErrorHandling:
     async def test_timeout_with_fast_operation(self: "TestUtilsErrorHandling") -> None:
         """Тест таймаута с быстрой операцией."""
         @timeout(1.0)
-    async def test_function():
+        async def test_function():
             await asyncio.sleep(0.1)
             return "success"
         

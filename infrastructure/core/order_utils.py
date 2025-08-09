@@ -80,7 +80,7 @@ class OrderUtils:
     с учетом рыночных условий и рисков.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Инициализация утилит ордеров."""
         self.config = config or {}
         self.min_order_size = self.config.get("min_order_size", 0.001)

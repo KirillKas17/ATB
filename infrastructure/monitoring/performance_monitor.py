@@ -288,3 +288,55 @@ def record_timer(
 ) -> None:
     """Запись таймера."""
     get_monitor().record_timer(name, duration, labels)
+
+
+def get_tracer() -> "TraceProtocol":
+    """Получить трейсер."""
+    from infrastructure.monitoring.trace_monitor import get_trace_monitor
+    return get_trace_monitor()
+
+
+def get_dashboard() -> Dict[str, Any]:
+    """Получение данных для дашборда мониторинга."""
+    monitor = get_monitor()
+    
+    # Системные метрики
+    system_metrics = monitor.get_system_metrics()
+    
+    # Метрики приложения
+    app_metrics = monitor.get_app_metrics()
+    
+    # Собранные метрики
+    collected_metrics = monitor.collect_metrics()
+    
+    # Статистика алертов
+    alert_manager = get_alert_manager()
+    alert_stats = {
+        "total_alerts": len(alert_manager.get_alerts()),
+        "critical_alerts": len([a for a in alert_manager.get_alerts() if a.severity == AlertSeverity.CRITICAL]),
+        "warning_alerts": len([a for a in alert_manager.get_alerts() if a.severity == AlertSeverity.WARNING]),
+        "info_alerts": len([a for a in alert_manager.get_alerts() if a.severity == AlertSeverity.INFO])
+    }
+    
+    return {
+        "system_metrics": system_metrics,
+        "app_metrics": app_metrics,
+        "collected_metrics": collected_metrics,
+        "alert_stats": alert_stats,
+        "monitoring_status": {
+            "is_running": monitor.is_running,
+            "timestamp": datetime.now().isoformat()
+        }
+    }
+
+
+def create_alert(
+    title: str,
+    message: str,
+    severity: AlertSeverity = AlertSeverity.INFO,
+    source: str = "performance_monitor",
+    metadata: Optional[Dict[str, Any]] = None,
+) -> Alert:
+    """Создать алерт."""
+    alert_manager = get_alert_manager()
+    return alert_manager.create_alert(title, message, severity, source, metadata or {})

@@ -321,67 +321,17 @@ class SessionServiceFactory:
         self, storage_path: Optional[str] = None
     ) -> Any:
         """Создание репозитория сессий."""
-        from infrastructure.repositories.base_repository import BaseRepository, MemoryBackend
+        from domain.repositories.base_repository_impl import SessionRepositoryImpl
         
-        class SessionRepository(BaseRepository[Any]):
-            def __init__(self, storage_path: Optional[str] = None) -> None:
-                backend = MemoryBackend()
-                super().__init__(backend)
-                self._storage_path = storage_path
-                self._sessions: Dict[str, Any] = {}
-            
-            async def save(self, entity: Any) -> Any:
-                async with self.transaction():
-                    session_id = getattr(entity, 'id', str(uuid.uuid4()))
-                    self._sessions[session_id] = entity
-                    return entity
-            
-            async def find_by_id(self, entity_id: str) -> Optional[Any]:
-                return self._sessions.get(entity_id)
-            
-            async def find_all(self) -> List[Any]:
-                return list(self._sessions.values())
-            
-            async def delete(self, entity_id: str) -> bool:
-                if entity_id in self._sessions:
-                    del self._sessions[entity_id]
-                    return True
-                return False
-        
-        return SessionRepository(storage_path)
+        return SessionRepositoryImpl()
 
     def create_session_config_repository(
         self, storage_path: Optional[str] = None
     ) -> Any:
         """Создание репозитория конфигураций сессий."""
-        from infrastructure.repositories.base_repository import BaseRepository, MemoryBackend
+        from domain.repositories.base_repository_impl import SessionConfigRepositoryImpl
         
-        class SessionConfigRepository(BaseRepository[Any]):
-            def __init__(self, storage_path: Optional[str] = None) -> None:
-                backend = MemoryBackend()
-                super().__init__(backend)
-                self._storage_path = storage_path
-                self._configs: Dict[str, Any] = {}
-            
-            async def save(self, entity: Any) -> Any:
-                async with self.transaction():
-                    config_id = getattr(entity, 'id', str(uuid.uuid4()))
-                    self._configs[config_id] = entity
-                    return entity
-            
-            async def find_by_id(self, entity_id: str) -> Optional[Any]:
-                return self._configs.get(entity_id)
-            
-            async def find_all(self) -> List[Any]:
-                return list(self._configs.values())
-            
-            async def delete(self, entity_id: str) -> bool:
-                if entity_id in self._configs:
-                    del self._configs[entity_id]
-                    return True
-                return False
-        
-        return SessionConfigRepository(storage_path)
+        return SessionConfigRepositoryImpl()
 
 
 # Глобальные функции для удобства

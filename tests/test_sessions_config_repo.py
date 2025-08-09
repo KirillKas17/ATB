@@ -11,7 +11,7 @@ from datetime import time
 
 test_storage = "test_config_sessions"
 
-    @pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def cleanup() -> Any:
     if os.path.exists(test_storage):
         shutil.rmtree(test_storage)
@@ -57,7 +57,8 @@ def make_profile() -> SessionProfile:
         false_breakout_probability=0.4
     )
 
-    def test_save_and_get_profile() -> None:
+
+def test_save_and_get_profile() -> None:
     repo = SessionConfigurationRepository(storage_path=test_storage)
     profile = make_profile()
     repo.save_session_profile(profile)
@@ -66,7 +67,8 @@ def make_profile() -> SessionProfile:
     assert loaded.session_type == SessionType.ASIAN
     assert loaded.description == "Test Asian Session"
 
-    def test_update_profile() -> None:
+
+def test_update_profile() -> None:
     repo = SessionConfigurationRepository(storage_path=test_storage)
     profile = make_profile()
     repo.save_session_profile(profile)
@@ -75,14 +77,16 @@ def make_profile() -> SessionProfile:
     assert loaded is not None
     assert loaded.description == "Updated"
 
-    def test_delete_profile() -> None:
+
+def test_delete_profile() -> None:
     repo = SessionConfigurationRepository(storage_path=test_storage)
     profile = make_profile()
     repo.save_session_profile(profile)
     assert repo.delete_session_profile(SessionType.ASIAN)
     assert repo.get_session_profile(SessionType.ASIAN) is None
 
-    def test_get_all_profiles() -> None:
+
+def test_get_all_profiles() -> None:
     repo = SessionConfigurationRepository(storage_path=test_storage)
     profile = make_profile()
     repo.save_session_profile(profile)

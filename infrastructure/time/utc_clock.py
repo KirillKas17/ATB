@@ -38,7 +38,7 @@ class TimeSyncInfo:
 class UTCClock:
     """Точные часы UTC с синхронизацией по NTP."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {
             "ntp_servers": ["pool.ntp.org", "time.nist.gov", "time.google.com"],
             "sync_interval_seconds": 3600,  # 1 час

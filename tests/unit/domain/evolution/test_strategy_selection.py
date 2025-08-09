@@ -115,9 +115,7 @@ class TestStrategySelector:
         """Тест с невалидным методом отбора."""
         selector = StrategySelector(evolution_context)
         with pytest.raises(ValueError, match="Неизвестный метод отбора"):
-            selector.select_top_strategies(
-                strategy_candidates, strategy_evaluations, n=3, selection_method="invalid"
-            )
+            selector.select_top_strategies(strategy_candidates, strategy_evaluations, n=3, selection_method="invalid")
 
     def test_select_top_strategies_mismatched_lengths(self, evolution_context, strategy_candidates):
         """Тест с несовпадающими длинами списков."""
@@ -378,7 +376,9 @@ class TestStrategySelector:
         criteria = {"nonexistent_field": 0.8}
         assert selector._meets_custom_criteria(evaluation, criteria) is False
 
-    def test_select_diverse_strategies_strategy_type(self, evolution_context, strategy_candidates, strategy_evaluations):
+    def test_select_diverse_strategies_strategy_type(
+        self, evolution_context, strategy_candidates, strategy_evaluations
+    ):
         """Тест выбора разнообразных стратегий по типу стратегии."""
         selector = StrategySelector(evolution_context)
         selected = selector.select_diverse_strategies(
@@ -389,21 +389,25 @@ class TestStrategySelector:
         strategy_types = [c.strategy_type for c in selected]
         assert len(set(strategy_types)) > 1
 
-    @patch('sklearn.cluster.KMeans')
-    def test_select_diverse_strategies_performance_cluster(self, mock_kmeans, evolution_context, strategy_candidates, strategy_evaluations):
+    @patch("sklearn.cluster.KMeans")
+    def test_select_diverse_strategies_performance_cluster(
+        self, mock_kmeans, evolution_context, strategy_candidates, strategy_evaluations
+    ):
         """Тест выбора разнообразных стратегий по кластеризации производительности."""
         # Мокаем KMeans
         mock_kmeans_instance = Mock()
         mock_kmeans_instance.fit_predict.return_value = np.array([0, 1, 0, 1, 0])
         mock_kmeans.return_value = mock_kmeans_instance
-        
+
         selector = StrategySelector(evolution_context)
         selected = selector.select_diverse_strategies(
             strategy_candidates, strategy_evaluations, n=3, diversity_metric="performance_cluster"
         )
         assert len(selected) <= 3
 
-    def test_select_diverse_strategies_invalid_metric(self, evolution_context, strategy_candidates, strategy_evaluations):
+    def test_select_diverse_strategies_invalid_metric(
+        self, evolution_context, strategy_candidates, strategy_evaluations
+    ):
         """Тест выбора разнообразных стратегий с невалидной метрикой."""
         selector = StrategySelector(evolution_context)
         with pytest.raises(ValueError, match="Неизвестная метрика разнообразия"):
@@ -422,7 +426,7 @@ class TestStrategySelector:
         """Тест получения статистики отбора."""
         selector = StrategySelector(evolution_context)
         stats = selector.get_selection_statistics(strategy_candidates, strategy_evaluations)
-        
+
         assert "total_candidates" in stats
         assert "approved_count" in stats
         assert "approval_rate" in stats
@@ -430,7 +434,7 @@ class TestStrategySelector:
         assert "strategy_type_distribution" in stats
         assert "criteria_statistics" in stats
         assert "selection_history" in stats
-        
+
         assert stats["total_candidates"] == 5
         assert isinstance(stats["approval_rate"], float)
         assert "mean" in stats["fitness_stats"]
@@ -446,11 +450,11 @@ class TestStrategySelector:
     def test_selection_history_recording(self, evolution_context, strategy_candidates, strategy_evaluations):
         """Тест записи в историю отбора."""
         selector = StrategySelector(evolution_context)
-        
+
         # Выполнить несколько отборов
         selector.select_top_strategies(strategy_candidates, strategy_evaluations, n=3, selection_method="fitness")
         selector.select_top_strategies(strategy_candidates, strategy_evaluations, n=2, selection_method="tournament")
-        
+
         assert len(selector.selection_history) == 2
         assert selector.selection_history[0]["method"] == "fitness"
         assert selector.selection_history[1]["method"] == "tournament"
@@ -501,7 +505,7 @@ class TestStrategySelector:
     def test_composite_score_edge_cases(self, evolution_context):
         """Тест комплексного score с граничными случаями."""
         selector = StrategySelector(evolution_context)
-        
+
         # Тест с нулевыми значениями
         evaluation = StrategyEvaluationResult(
             accuracy=Decimal("0.0"),
@@ -512,7 +516,7 @@ class TestStrategySelector:
         )
         score = selector._calculate_composite_score(evaluation)
         assert score >= 0.0
-        
+
         # Тест с максимальными значениями
         evaluation = StrategyEvaluationResult(
             accuracy=Decimal("1.0"),
@@ -522,4 +526,4 @@ class TestStrategySelector:
             total_trades=15,
         )
         score = selector._calculate_composite_score(evaluation)
-        assert score <= 1.0 
+        assert score <= 1.0

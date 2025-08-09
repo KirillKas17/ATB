@@ -5,7 +5,7 @@ from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.core.signal_processor import (MarketContext, ProcessedSignal, Signal,
                                    SignalProcessor)
-    @pytest.fixture
+@pytest.fixture
 def market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     data = pd.DataFrame(
@@ -19,7 +19,9 @@ def market_data() -> Any:
         }
     )
     return data
-    @pytest.fixture
+
+
+@pytest.fixture
 def market_context() -> Any:
     """Фикстура для MarketContext"""
     return MarketContext(
@@ -38,7 +40,9 @@ def market_context() -> Any:
         market_impact=0.001,
         volume_profile={100.0: 1000.0, 101.0: 800.0},
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def signal_processor() -> Any:
     """Фикстура для SignalProcessor"""
     config = {
@@ -56,7 +60,9 @@ def signal_processor() -> Any:
         },
     }
     return SignalProcessor(config)
-    @pytest.fixture
+
+
+@pytest.fixture
 def buy_signal() -> Any:
     """Фикстура для сигнала на покупку"""
     return Signal(
@@ -75,7 +81,9 @@ def buy_signal() -> Any:
         priority=1,
         metadata={"strategy": "test"},
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def sell_signal() -> Any:
     """Фикстура для сигнала на продажу"""
     return Signal(
@@ -94,8 +102,10 @@ def sell_signal() -> Any:
         priority=1,
         metadata={"strategy": "test"},
     )
-    @pytest.fixture
-    def test_signals() -> None:
+
+
+@pytest.fixture
+def test_signals() -> None:
     """Фикстура с тестовыми сигналами"""
     return [
         {
@@ -240,118 +250,125 @@ class TestSignalProcessor:
         assert new_result.confidence == result.confidence
         assert new_result.position_size == result.position_size
         assert new_result.execution_priority == result.execution_priority
-    def test_process_signals(signal_processor, market_context, buy_signal) -> None:
-    """Тест обработки сигналов"""
-    # Обработка сигналов
-    processed_signals = signal_processor.process_signals(
-        signals=[buy_signal], market_context=market_context
-    )
-    # Проверки
-    assert len(processed_signals) == 1
-    assert processed_signals[0].symbol == buy_signal.symbol
-    assert processed_signals[0].direction == buy_signal.direction
-    assert processed_signals[0].confidence > buy_signal.confidence
-    assert processed_signals[0].metadata is not None
-    assert "whale_activity" in processed_signals[0].metadata
-    assert "cvd" in processed_signals[0].metadata
-    assert "delta_volume" in processed_signals[0].metadata
-    assert "orderbook_delta" in processed_signals[0].metadata
-    def test_adjust_confidence_whale_activity(signal_processor, buy_signal, market_context) -> None:
-    """Тест корректировки confidence при активности китов"""
-    # Корректировка confidence
-    adjusted_confidence = signal_processor.adjust_confidence(
-        signal=buy_signal, market_context=market_context
-    )
-    # Проверки
-    assert adjusted_confidence > buy_signal.confidence
-    assert adjusted_confidence <= signal_processor.config["max_confidence"]
+
+    def test_process_signals(self, signal_processor, market_context, buy_signal) -> None:
+        """Тест обработки сигналов"""
+        # Обработка сигналов
+        processed_signals = signal_processor.process_signals(
+            signals=[buy_signal], market_context=market_context
+        )
+        # Проверки
+        assert len(processed_signals) == 1
+        assert processed_signals[0].symbol == buy_signal.symbol
+        assert processed_signals[0].direction == buy_signal.direction
+        assert processed_signals[0].confidence > buy_signal.confidence
+        assert processed_signals[0].metadata is not None
+        assert "whale_activity" in processed_signals[0].metadata
+        assert "cvd" in processed_signals[0].metadata
+        assert "delta_volume" in processed_signals[0].metadata
+        assert "orderbook_delta" in processed_signals[0].metadata
+
+    def test_adjust_confidence_whale_activity(self, signal_processor, buy_signal, market_context) -> None:
+        """Тест корректировки confidence при активности китов"""
+        # Корректировка confidence
+        adjusted_confidence = signal_processor.adjust_confidence(
+            signal=buy_signal, market_context=market_context
+        )
+        # Проверки
+        assert adjusted_confidence > buy_signal.confidence
+        assert adjusted_confidence <= signal_processor.config["max_confidence"]
+
     def test_adjust_confidence_cvd_trend(signal_processor, buy_signal) -> None:
-    """Тест корректировки confidence при совпадении тренда CVD"""
-    # Создание контекста с положительным CVD
-    context = MarketContext(
-        whale_activity=False,
-        cvd=100.0,
-        delta_volume=0.0,
-        orderbook_delta=0.0,
-        timestamp=datetime.now(),
-    )
-    # Корректировка confidence
-    adjusted_confidence = signal_processor.adjust_confidence(
-        signal=buy_signal, market_context=context
-    )
-    # Проверки
-    assert adjusted_confidence > buy_signal.confidence
-    assert adjusted_confidence <= signal_processor.config["max_confidence"]
+        """Тест корректировки confidence при совпадении тренда CVD"""
+        # Создание контекста с положительным CVD
+        context = MarketContext(
+            whale_activity=False,
+            cvd=100.0,
+            delta_volume=0.0,
+            orderbook_delta=0.0,
+            timestamp=datetime.now(),
+        )
+        # Корректировка confidence
+        adjusted_confidence = signal_processor.adjust_confidence(
+            signal=buy_signal, market_context=context
+        )
+        # Проверки
+        assert adjusted_confidence > buy_signal.confidence
+        assert adjusted_confidence <= signal_processor.config["max_confidence"]
+
     def test_adjust_confidence_volume(signal_processor, buy_signal) -> None:
-    """Тест корректировки confidence при большом объеме"""
-    # Создание контекста с большим объемом
-    context = MarketContext(
-        whale_activity=False,
-        cvd=0.0,
-        delta_volume=200.0,  # > threshold
-        orderbook_delta=0.0,
-        timestamp=datetime.now(),
-    )
-    # Корректировка confidence
-    adjusted_confidence = signal_processor.adjust_confidence(
-        signal=buy_signal, market_context=context
-    )
-    # Проверки
-    assert adjusted_confidence > buy_signal.confidence
-    assert adjusted_confidence <= signal_processor.config["max_confidence"]
+        """Тест корректировки confidence при большом объеме"""
+        # Создание контекста с большим объемом
+        context = MarketContext(
+            whale_activity=False,
+            cvd=0.0,
+            delta_volume=200.0,  # > threshold
+            orderbook_delta=0.0,
+            timestamp=datetime.now(),
+        )
+        # Корректировка confidence
+        adjusted_confidence = signal_processor.adjust_confidence(
+            signal=buy_signal, market_context=context
+        )
+        # Проверки
+        assert adjusted_confidence > buy_signal.confidence
+        assert adjusted_confidence <= signal_processor.config["max_confidence"]
+
     def test_adjust_confidence_limits(signal_processor, buy_signal, market_context) -> None:
-    """Тест ограничений confidence"""
-    # Создание сигнала с очень высоким confidence
-    high_confidence_signal = Signal(
-        symbol="BTCUSDT",
-        direction="buy",
-        confidence=0.99,
-        timestamp=datetime.now(),
-        source="test",
-    )
-    # Корректировка confidence
-    adjusted_confidence = signal_processor.adjust_confidence(
-        signal=high_confidence_signal, market_context=market_context
-    )
-    # Проверки
-    assert adjusted_confidence <= signal_processor.config["max_confidence"]
-    # Создание сигнала с очень низким confidence
-    low_confidence_signal = Signal(
-        symbol="BTCUSDT",
-        direction="buy",
-        confidence=0.1,
-        timestamp=datetime.now(),
-        source="test",
-    )
-    # Корректировка confidence
-    adjusted_confidence = signal_processor.adjust_confidence(
-        signal=low_confidence_signal, market_context=market_context
-    )
-    # Проверки
-    assert adjusted_confidence >= signal_processor.config["min_confidence"]
+        """Тест ограничений confidence"""
+        # Создание сигнала с очень высоким confidence
+        high_confidence_signal = Signal(
+            symbol="BTCUSDT",
+            direction="buy",
+            confidence=0.99,
+            timestamp=datetime.now(),
+            source="test",
+        )
+        # Корректировка confidence
+        adjusted_confidence = signal_processor.adjust_confidence(
+            signal=high_confidence_signal, market_context=market_context
+        )
+        # Проверки
+        assert adjusted_confidence <= signal_processor.config["max_confidence"]
+        # Создание сигнала с очень низким confidence
+        low_confidence_signal = Signal(
+            symbol="BTCUSDT",
+            direction="buy",
+            confidence=0.1,
+            timestamp=datetime.now(),
+            source="test",
+        )
+        # Корректировка confidence
+        adjusted_confidence = signal_processor.adjust_confidence(
+            signal=low_confidence_signal, market_context=market_context
+        )
+        # Проверки
+        assert adjusted_confidence >= signal_processor.config["min_confidence"]
+
     def test_signal_history(signal_processor, buy_signal, market_context) -> None:
-    """Тест истории сигналов"""
-    # Обработка сигналов
-    signal_processor.process_signals(
-        signals=[buy_signal], market_context=market_context
-    )
-    # Получение истории
-    history = signal_processor.get_signal_history(buy_signal.symbol)
-    # Проверки
-    assert len(history) == 1
-    assert history[0].symbol == buy_signal.symbol
-    assert history[0].direction == buy_signal.direction
-    # Очистка истории
-    signal_processor.clear_history(buy_signal.symbol)
-    assert len(signal_processor.get_signal_history(buy_signal.symbol)) == 0
+        """Тест истории сигналов"""
+        # Обработка сигналов
+        signal_processor.process_signals(
+            signals=[buy_signal], market_context=market_context
+        )
+        # Получение истории
+        history = signal_processor.get_signal_history(buy_signal.symbol)
+        # Проверки
+        assert len(history) == 1
+        assert history[0].symbol == buy_signal.symbol
+        assert history[0].direction == buy_signal.direction
+        # Очистка истории
+        signal_processor.clear_history(buy_signal.symbol)
+        assert len(signal_processor.get_signal_history(buy_signal.symbol)) == 0
+
     def test_clear_all_history(signal_processor, buy_signal, sell_signal, market_context) -> None:
-    """Тест очистки всей истории"""
-    # Обработка сигналов
-    signal_processor.process_signals(
-        signals=[buy_signal, sell_signal], market_context=market_context
-    )
-    # Очистка всей истории
-    signal_processor.clear_history()
-    # Проверки
-    assert len(signal_processor.get_signal_history(buy_signal.symbol)) == 0
-    assert len(signal_processor.get_signal_history(sell_signal.symbol)) == 0
+        """Тест очистки всей истории"""
+        # Обработка сигналов
+        signal_processor.process_signals(
+            signals=[buy_signal, sell_signal], market_context=market_context
+        )
+        # Очистка всей истории
+        signal_processor.clear_history()
+        # Проверки
+        assert len(signal_processor.get_signal_history(buy_signal.symbol)) == 0
+        assert len(signal_processor.get_signal_history(sell_signal.symbol)) == 0

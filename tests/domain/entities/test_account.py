@@ -112,7 +112,7 @@ class TestAccount:
         """Тест создания из словаря."""
         data = account.to_dict()
         restored_account = Account.from_dict(data)
-        
+
         assert restored_account.account_id == account.account_id
         assert restored_account.exchange_name == account.exchange_name
         assert len(restored_account.balances) == len(account.balances)
@@ -128,7 +128,7 @@ class TestAccount:
             "updated_at": "2024-01-01T12:00:00",
         }
         account = Account.from_dict(data)
-        
+
         assert account.account_id == "test_account_002"
         assert account.exchange_name == "test_exchange"
         assert account.balances == []
@@ -138,21 +138,21 @@ class TestAccount:
     def test_account_protocol_compliance(self, account: Account) -> None:
         """Тест соответствия протоколу AccountProtocol."""
         assert isinstance(account, AccountProtocol)
-        
+
         # Проверяем наличие всех атрибутов
-        assert hasattr(account, 'account_id')
-        assert hasattr(account, 'exchange_name')
-        assert hasattr(account, 'balances')
-        assert hasattr(account, 'is_active')
-        assert hasattr(account, 'created_at')
-        assert hasattr(account, 'updated_at')
-        assert hasattr(account, 'metadata')
-        
+        assert hasattr(account, "account_id")
+        assert hasattr(account, "exchange_name")
+        assert hasattr(account, "balances")
+        assert hasattr(account, "is_active")
+        assert hasattr(account, "created_at")
+        assert hasattr(account, "updated_at")
+        assert hasattr(account, "metadata")
+
         # Проверяем наличие всех методов
-        assert hasattr(account, 'get_balance')
-        assert hasattr(account, 'has_sufficient_balance')
-        assert hasattr(account, 'to_dict')
-        assert hasattr(account, 'from_dict')
+        assert hasattr(account, "get_balance")
+        assert hasattr(account, "has_sufficient_balance")
+        assert hasattr(account, "to_dict")
+        assert hasattr(account, "from_dict")
 
 
 class TestBalance:
@@ -210,7 +210,7 @@ class TestBalance:
         """Тест создания из словаря."""
         data = balance.to_dict()
         restored_balance = Balance.from_dict(data)
-        
+
         assert restored_balance.currency == balance.currency
         assert restored_balance.available == balance.available
         assert restored_balance.locked == balance.locked
@@ -223,7 +223,7 @@ class TestBalance:
             "locked": "2.0",
         }
         balance = Balance.from_dict(data)
-        
+
         assert balance.currency == "ETH"
         assert balance.available == Decimal("10.5")
         assert balance.locked == Decimal("2.0")
@@ -231,23 +231,23 @@ class TestBalance:
     def test_balance_protocol_compliance(self, balance: Balance) -> None:
         """Тест соответствия протоколу BalanceProtocol."""
         assert isinstance(balance, BalanceProtocol)
-        
+
         # Проверяем наличие всех атрибутов
-        assert hasattr(balance, 'currency')
-        assert hasattr(balance, 'available')
-        assert hasattr(balance, 'locked')
-        
+        assert hasattr(balance, "currency")
+        assert hasattr(balance, "available")
+        assert hasattr(balance, "locked")
+
         # Проверяем наличие всех методов и свойств
-        assert hasattr(balance, 'total')
-        assert hasattr(balance, 'to_dict')
-        assert hasattr(balance, 'from_dict')
+        assert hasattr(balance, "total")
+        assert hasattr(balance, "to_dict")
+        assert hasattr(balance, "from_dict")
 
     def test_balance_equality(self: "TestBalance") -> None:
         """Тест равенства балансов."""
         balance1 = Balance(currency="BTC", available=Decimal("1.0"), locked=Decimal("0.1"))
         balance2 = Balance(currency="BTC", available=Decimal("1.0"), locked=Decimal("0.1"))
         balance3 = Balance(currency="ETH", available=Decimal("1.0"), locked=Decimal("0.1"))
-        
+
         assert balance1 == balance2
         assert balance1 != balance3
 
@@ -276,13 +276,13 @@ class TestAccountBalanceIntegration:
             Balance(currency="ETH", available=Decimal("10.0"), locked=Decimal("2.0")),
             Balance(currency="USDT", available=Decimal("1000.0"), locked=Decimal("100.0")),
         ]
-        
+
         account = Account(
             account_id="test_account",
             exchange_name="test_exchange",
             balances=balances,
         )
-        
+
         assert len(account.balances) == 3
         assert account.get_balance("BTC").available == Decimal("1.0")
         assert account.get_balance("ETH").available == Decimal("10.0")
@@ -297,12 +297,12 @@ class TestAccountBalanceIntegration:
                 Balance(currency="BTC", available=Decimal("2.0"), locked=Decimal("0.5")),
             ],
         )
-        
+
         # Проверяем достаточность баланса
         assert account.has_sufficient_balance("BTC", Decimal("1.0")) is True
         assert account.has_sufficient_balance("BTC", Decimal("2.0")) is True
         assert account.has_sufficient_balance("BTC", Decimal("2.5")) is False
-        
+
         # Проверяем общий баланс
         btc_balance = account.get_balance("BTC")
         assert btc_balance.total == Decimal("2.5")  # 2.0 + 0.5
@@ -318,20 +318,20 @@ class TestAccountBalanceIntegration:
             ],
             metadata={"user_id": "user_123"},
         )
-        
+
         data = account.to_dict()
         restored_account = Account.from_dict(data)
-        
+
         assert restored_account.account_id == account.account_id
         assert restored_account.exchange_name == account.exchange_name
         assert len(restored_account.balances) == len(account.balances)
         assert restored_account.metadata == account.metadata
-        
+
         # Проверяем, что балансы восстановлены корректно
         btc_balance = restored_account.get_balance("BTC")
         assert btc_balance.available == Decimal("1.0")
         assert btc_balance.locked == Decimal("0.1")
-        
+
         eth_balance = restored_account.get_balance("ETH")
         assert eth_balance.available == Decimal("10.0")
-        assert eth_balance.locked == Decimal("2.0") 
+        assert eth_balance.locked == Decimal("2.0")

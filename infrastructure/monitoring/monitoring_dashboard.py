@@ -261,3 +261,122 @@ def get_performance_summary(
 def get_alert_summary(alerts_data: List[Alert]) -> Dict[str, Any]:
     """Получение сводки алертов."""
     return get_dashboard().get_alert_summary(alerts_data)
+
+
+# Глобальные экземпляры компонентов мониторинга
+_global_monitor: Optional[Any] = None
+_global_alert_manager: Optional[Any] = None
+_global_tracer: Optional[Any] = None
+_monitoring_active: bool = False
+
+
+def get_monitor() -> Any:
+    """Получение глобального монитора."""
+    global _global_monitor
+    if _global_monitor is None:
+        # Создаем простой монитор для тестов
+        class SimpleMonitor:
+            def __init__(self) -> None:
+                self.metrics: List[Dict[str, Any]] = []
+            
+            def get_metrics(self) -> List[Dict[str, Any]]:
+                return self.metrics
+            
+            def record_metric(self, name: str, value: float, tags: Dict[str, Any]) -> None:
+                self.metrics.append({
+                    "name": name,
+                    "value": value,
+                    "tags": tags,
+                    "timestamp": datetime.now().isoformat()
+                })
+        
+        _global_monitor = SimpleMonitor()
+    return _global_monitor
+
+
+def get_alert_manager() -> Any:
+    """Получение глобального менеджера алертов."""
+    global _global_alert_manager
+    if _global_alert_manager is None:
+        # Создаем простой менеджер алертов для тестов
+        class SimpleAlertManager:
+            def __init__(self) -> None:
+                self.alerts: List[Dict[str, Any]] = []
+            
+            def get_alerts(self) -> List[Dict[str, Any]]:
+                return self.alerts
+            
+            def create_alert(self, message: str, severity: str, source: str) -> None:
+                self.alerts.append({
+                    "message": message,
+                    "severity": severity,
+                    "source": source,
+                    "timestamp": datetime.now().isoformat()
+                })
+        
+        _global_alert_manager = SimpleAlertManager()
+    return _global_alert_manager
+
+
+def get_tracer() -> Any:
+    """Получение глобального трейсера."""
+    global _global_tracer
+    if _global_tracer is None:
+        # Создаем простой трейсер для тестов
+        class SimpleTracer:
+            def __init__(self) -> None:
+                self.active_traces: List[Dict[str, Any]] = []
+                self.completed_traces: List[Dict[str, Any]] = []
+            
+            def get_active_traces(self) -> List[Dict[str, Any]]:
+                return self.active_traces
+            
+            def start_trace(self, trace_id: str, operation: str) -> Any:
+                span = {
+                    "trace_id": trace_id,
+                    "operation": operation,
+                    "start_time": datetime.now(),
+                    "metrics": {}
+                }
+                self.active_traces.append(span)
+                return span
+            
+            def end_trace(self, trace_id: str, status: str) -> None:
+                for i, trace in enumerate(self.active_traces):
+                    if trace["trace_id"] == trace_id:
+                        trace["end_time"] = datetime.now()
+                        trace["status"] = status
+                        self.completed_traces.append(trace)
+                        del self.active_traces[i]
+                        break
+        
+        _global_tracer = SimpleTracer()
+    return _global_tracer
+
+
+def record_metric(name: str, value: float, tags: Dict[str, Any]) -> None:
+    """Запись метрики."""
+    monitor = get_monitor()
+    if hasattr(monitor, 'record_metric'):
+        monitor.record_metric(name, value, tags)
+
+
+def create_alert(message: str, severity: str, source: str) -> None:
+    """Создание алерта."""
+    alert_manager = get_alert_manager()
+    if hasattr(alert_manager, 'create_alert'):
+        alert_manager.create_alert(message, severity, source)
+
+
+def start_monitoring() -> None:
+    """Запуск мониторинга."""
+    global _monitoring_active
+    _monitoring_active = True
+    logger.info("Monitoring started")
+
+
+def stop_monitoring() -> None:
+    """Остановка мониторинга."""
+    global _monitoring_active
+    _monitoring_active = False
+    logger.info("Monitoring stopped")

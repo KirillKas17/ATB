@@ -8,4 +8,4 @@ Contains tests for infrastructure monitoring components.
 - Integration тесты для взаимодействия компонентов
 - Performance тесты для производительности
 - E2E тесты для полного цикла мониторинга
-""" 
+"""

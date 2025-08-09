@@ -1,13 +1,18 @@
 import unittest
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+from typing import Any
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 from infrastructure.strategies.backtest import Backtest
 from infrastructure.strategies.base_strategy import BaseStrategy
 from infrastructure.strategies.optimizer import StrategyOptimizer
 from infrastructure.strategies.visualization import Visualizer
+
+
 class TestStrategy(unittest.TestCase):
     """Тесты для торговых стратегий"""
+
     def setUp(self) -> Any:
         """Подготовка тестовых данных"""
         # Создаем тестовые данные
@@ -35,15 +40,18 @@ class TestStrategy(unittest.TestCase):
         self.backtest = Backtest()
         # Создаем визуализатор
         self.visualizer = Visualizer()
+
     def test_strategy_initialization(self) -> None:
         """Тест инициализации стратегии"""
         self.assertIsNotNone(self.strategy)
         self.assertIsNotNone(self.strategy.config)
+
     def test_generate_signal(self) -> None:
         """Тест генерации сигналов"""
         signal = self.strategy.generate_signal(self.data)
         self.assertIsNotNone(signal)
         self.assertIn(signal.direction, ["long", "short", "close", None])
+
     def test_optimizer(self) -> None:
         """Тест оптимизатора"""
         # Создаем сетку параметров
@@ -52,6 +60,7 @@ class TestStrategy(unittest.TestCase):
         best_params = self.optimizer.optimize(self.strategy, self.data, param_grid)
         self.assertIsNotNone(best_params)
         self.assertIsInstance(best_params, dict)
+
     def test_backtest(self) -> None:
         """Тест бэктеста"""
         # Запускаем бэктест
@@ -61,6 +70,7 @@ class TestStrategy(unittest.TestCase):
         self.assertIn("n_trades", results)
         self.assertIn("total_profit", results)
         self.assertIn("win_rate", results)
+
     def test_visualizer(self) -> None:
         """Тест визуализатора"""
         # Запускаем бэктест
@@ -78,6 +88,7 @@ class TestStrategy(unittest.TestCase):
             results,
             "test_report",
         )
+
     def test_strategy_parameters(self) -> None:
         """Тест параметров стратегии"""
         # Проверяем параметры по умолчанию
@@ -88,6 +99,7 @@ class TestStrategy(unittest.TestCase):
         self.strategy.config.threshold = 0.02
         self.assertEqual(self.strategy.config.window, 20)
         self.assertEqual(self.strategy.config.threshold, 0.02)
+
     def test_data_validation(self) -> None:
         """Тест валидации данных"""
         # Проверяем наличие необходимых колонок
@@ -96,6 +108,7 @@ class TestStrategy(unittest.TestCase):
             self.assertIn(column, self.data.columns)
         # Проверяем отсутствие пропусков
         self.assertFalse(self.data.isnull().any().any())
+
     def test_signal_validation(self) -> None:
         """Тест валидации сигналов"""
         # Генерируем сигналы
@@ -110,6 +123,7 @@ class TestStrategy(unittest.TestCase):
             self.assertIsNotNone(signal.entry_price)
             self.assertIsNotNone(signal.stop_loss)
             self.assertIsNotNone(signal.take_profit)
+
     def test_optimization_validation(self) -> None:
         """Тест валидации оптимизации"""
         # Создаем сетку параметров
@@ -121,6 +135,7 @@ class TestStrategy(unittest.TestCase):
         self.assertIn("threshold", best_params)
         self.assertIn(best_params["window"], param_grid["window"])
         self.assertIn(best_params["threshold"], param_grid["threshold"])
+
     def test_backtest_validation(self) -> None:
         """Тест валидации бэктеста"""
         # Запускаем бэктест
@@ -134,6 +149,7 @@ class TestStrategy(unittest.TestCase):
         self.assertGreaterEqual(results["sortino_ratio"], 0)
         self.assertGreaterEqual(results["max_drawdown"], 0)
         self.assertLessEqual(results["max_drawdown"], 1)
+
     def test_visualization_validation(self) -> None:
         """Тест валидации визуализации"""
         # Запускаем бэктест
@@ -153,8 +169,10 @@ class TestStrategy(unittest.TestCase):
         )
         # Проверяем наличие файлов
         import os
+
         self.assertTrue(os.path.exists("plots"))
         self.assertTrue(os.path.exists("logs"))
+
     def test_error_handling(self) -> None:
         """Тест обработки ошибок"""
         # Тест с пустыми данными
@@ -173,9 +191,11 @@ class TestStrategy(unittest.TestCase):
         invalid_param_grid = {"window": ["invalid"], "threshold": ["invalid"]}
         with self.assertRaises(Exception):
             self.optimizer.optimize(self.strategy, self.data, invalid_param_grid)
+
     def test_performance(self) -> None:
         """Тест производительности"""
         import time
+
         # Тест производительности генерации сигналов
         start_time = time.time()
         for i in range(len(self.data)):
@@ -194,10 +214,12 @@ class TestStrategy(unittest.TestCase):
         self.assertLess(signal_time, 10)  # Менее 10 секунд
         self.assertLess(optimization_time, 60)  # Менее 60 секунд
         self.assertLess(backtest_time, 30)  # Менее 30 секунд
+
     def test_memory_usage(self) -> None:
         """Тест использования памяти"""
         import os
         import psutil
+
         # Измеряем использование памяти до тестов
         process = psutil.Process(os.getpid())
         memory_before = process.memory_info().rss
@@ -212,5 +234,7 @@ class TestStrategy(unittest.TestCase):
         memory_used = memory_after - memory_before
         # Проверяем, что использование памяти в разумных пределах
         self.assertLess(memory_used, 100 * 1024 * 1024)  # Менее 100 МБ
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -42,7 +42,7 @@ class TestIPatternAnalyzer:
             pattern_type="liquidity_grab",
             confidence=0.85,
             timestamp=datetime.now(),
-            metadata={"volume": 1000.0, "price_change": 0.02}
+            metadata={"volume": 1000.0, "price_change": 0.02},
         )
 
     @pytest.fixture
@@ -54,7 +54,7 @@ class TestIPatternAnalyzer:
             pattern_type="liquidity_grab",
             confidence=0.75,
             timestamp=datetime.now(),
-            metadata={"volume": 1200.0, "price_change": 0.03}
+            metadata={"volume": 1200.0, "price_change": 0.03},
         )
 
     @pytest.fixture
@@ -68,7 +68,7 @@ class TestIPatternAnalyzer:
                 success_rate=0.8,
                 avg_profit=0.015,
                 occurrences=10,
-                last_seen=datetime.now()
+                last_seen=datetime.now(),
             ),
             PatternMemory(
                 pattern_id="hist_2",
@@ -77,18 +77,18 @@ class TestIPatternAnalyzer:
                 success_rate=0.7,
                 avg_profit=0.012,
                 occurrences=15,
-                last_seen=datetime.now()
-            )
+                last_seen=datetime.now(),
+            ),
         ]
 
     def test_interface_definition(self):
         """Тест определения интерфейса."""
-        assert hasattr(IPatternAnalyzer, 'analyze_pattern_similarity')
-        assert hasattr(IPatternAnalyzer, 'calculate_pattern_confidence')
-        assert hasattr(IPatternAnalyzer, 'predict_pattern_outcome')
-        assert hasattr(IPatternAnalyzer, 'analyze_market_context')
-        assert hasattr(IPatternAnalyzer, 'calculate_pattern_effectiveness')
-        assert hasattr(IPatternAnalyzer, 'get_pattern_recommendations')
+        assert hasattr(IPatternAnalyzer, "analyze_pattern_similarity")
+        assert hasattr(IPatternAnalyzer, "calculate_pattern_confidence")
+        assert hasattr(IPatternAnalyzer, "predict_pattern_outcome")
+        assert hasattr(IPatternAnalyzer, "analyze_market_context")
+        assert hasattr(IPatternAnalyzer, "calculate_pattern_effectiveness")
+        assert hasattr(IPatternAnalyzer, "get_pattern_recommendations")
 
     @pytest.mark.asyncio
     async def test_analyze_pattern_similarity(self, mock_pattern_analyzer, sample_pattern, sample_pattern2):
@@ -102,7 +102,9 @@ class TestIPatternAnalyzer:
         mock_pattern_analyzer.analyze_pattern_similarity.assert_called_once_with(sample_pattern, sample_pattern2)
 
     @pytest.mark.asyncio
-    async def test_calculate_pattern_confidence(self, mock_pattern_analyzer, sample_pattern, sample_historical_patterns):
+    async def test_calculate_pattern_confidence(
+        self, mock_pattern_analyzer, sample_pattern, sample_historical_patterns
+    ):
         """Тест расчета уверенности в паттерне."""
         expected_confidence = Confidence(value=0.82, factors={"historical_success": 0.8, "market_conditions": 0.85})
         mock_pattern_analyzer.calculate_pattern_confidence.return_value = expected_confidence
@@ -110,7 +112,9 @@ class TestIPatternAnalyzer:
         result = await mock_pattern_analyzer.calculate_pattern_confidence(sample_pattern, sample_historical_patterns)
 
         assert result == expected_confidence
-        mock_pattern_analyzer.calculate_pattern_confidence.assert_called_once_with(sample_pattern, sample_historical_patterns)
+        mock_pattern_analyzer.calculate_pattern_confidence.assert_called_once_with(
+            sample_pattern, sample_historical_patterns
+        )
 
     @pytest.mark.asyncio
     async def test_predict_pattern_outcome(self, mock_pattern_analyzer, sample_pattern, sample_historical_patterns):
@@ -120,26 +124,23 @@ class TestIPatternAnalyzer:
             predicted_outcome="bullish",
             confidence=0.85,
             expected_profit=0.02,
-            risk_level="medium"
+            risk_level="medium",
         )
         mock_pattern_analyzer.predict_pattern_outcome.return_value = expected_result
 
         result = await mock_pattern_analyzer.predict_pattern_outcome(sample_pattern, sample_historical_patterns)
 
         assert result == expected_result
-        mock_pattern_analyzer.predict_pattern_outcome.assert_called_once_with(sample_pattern, sample_historical_patterns)
+        mock_pattern_analyzer.predict_pattern_outcome.assert_called_once_with(
+            sample_pattern, sample_historical_patterns
+        )
 
     @pytest.mark.asyncio
     async def test_analyze_market_context(self, mock_pattern_analyzer):
         """Тест анализа рыночного контекста."""
         symbol = "BTC/USD"
         timestamp = datetime.now()
-        expected_context = {
-            "volatility": 0.025,
-            "liquidity": "high",
-            "market_regime": "trending",
-            "correlation": 0.75
-        }
+        expected_context = {"volatility": 0.025, "liquidity": "high", "market_regime": "trending", "correlation": 0.75}
         mock_pattern_analyzer.analyze_market_context.return_value = expected_context
 
         result = await mock_pattern_analyzer.analyze_market_context(symbol, timestamp)
@@ -148,7 +149,9 @@ class TestIPatternAnalyzer:
         mock_pattern_analyzer.analyze_market_context.assert_called_once_with(symbol, timestamp)
 
     @pytest.mark.asyncio
-    async def test_calculate_pattern_effectiveness(self, mock_pattern_analyzer, sample_pattern, sample_historical_patterns):
+    async def test_calculate_pattern_effectiveness(
+        self, mock_pattern_analyzer, sample_pattern, sample_historical_patterns
+    ):
         """Тест расчета эффективности паттерна."""
         expected_effectiveness = 0.78
         mock_pattern_analyzer.calculate_pattern_effectiveness.return_value = expected_effectiveness
@@ -156,7 +159,9 @@ class TestIPatternAnalyzer:
         result = await mock_pattern_analyzer.calculate_pattern_effectiveness(sample_pattern, sample_historical_patterns)
 
         assert result == expected_effectiveness
-        mock_pattern_analyzer.calculate_pattern_effectiveness.assert_called_once_with(sample_pattern, sample_historical_patterns)
+        mock_pattern_analyzer.calculate_pattern_effectiveness.assert_called_once_with(
+            sample_pattern, sample_historical_patterns
+        )
 
     @pytest.mark.asyncio
     async def test_get_pattern_recommendations(self, mock_pattern_analyzer, sample_pattern):
@@ -167,14 +172,9 @@ class TestIPatternAnalyzer:
                 "action": "buy",
                 "confidence": 0.85,
                 "reason": "Strong liquidity grab pattern detected",
-                "risk_level": "medium"
+                "risk_level": "medium",
             },
-            {
-                "action": "hold",
-                "confidence": 0.6,
-                "reason": "Wait for confirmation",
-                "risk_level": "low"
-            }
+            {"action": "hold", "confidence": 0.6, "reason": "Wait for confirmation", "risk_level": "low"},
         ]
         mock_pattern_analyzer.get_pattern_recommendations.return_value = expected_recommendations
 
@@ -185,7 +185,7 @@ class TestIPatternAnalyzer:
 
     def test_runtime_checkable_protocol(self):
         """Тест что интерфейс является runtime_checkable."""
-        assert hasattr(IPatternAnalyzer, '__runtime_checkable__')
+        assert hasattr(IPatternAnalyzer, "__runtime_checkable__")
         assert IPatternAnalyzer.__runtime_checkable__ is True
 
     @pytest.mark.asyncio
@@ -234,7 +234,9 @@ class TestIPatternAnalyzer:
     @pytest.mark.asyncio
     async def test_error_handling_in_calculate_pattern_effectiveness(self, mock_pattern_analyzer):
         """Тест обработки ошибок в calculate_pattern_effectiveness."""
-        mock_pattern_analyzer.calculate_pattern_effectiveness.side_effect = ValueError("Invalid effectiveness calculation")
+        mock_pattern_analyzer.calculate_pattern_effectiveness.side_effect = ValueError(
+            "Invalid effectiveness calculation"
+        )
 
         with pytest.raises(ValueError, match="Invalid effectiveness calculation"):
             await mock_pattern_analyzer.calculate_pattern_effectiveness(Mock(), [])
@@ -259,4 +261,4 @@ class TestIPatternAnalyzer:
         assert IPatternAnalyzer.predict_pattern_outcome.__doc__ is not None
         assert IPatternAnalyzer.analyze_market_context.__doc__ is not None
         assert IPatternAnalyzer.calculate_pattern_effectiveness.__doc__ is not None
-        assert IPatternAnalyzer.get_pattern_recommendations.__doc__ is not None 
+        assert IPatternAnalyzer.get_pattern_recommendations.__doc__ is not None

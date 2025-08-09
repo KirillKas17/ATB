@@ -1,22 +1,18 @@
-from unittest.mock import AsyncMock, patch
 import pytest
-from unittest.mock import Mock, patch
+import pytest_asyncio
+from unittest.mock import AsyncMock, Mock, patch
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-import pytest
-from unittest.mock import Mock, patch
-import pandas as pd
-from shared.numpy_utils import np
-from typing import Any, Dict, List, Optional, Union, AsyncGenerator_asyncio
+
 from infrastructure.core.exchange import Exchange
 from domain.entities.order import Order
-from exchange.account_manager import AccountManager
-from exchange.bybit_client import BybitClient, BybitConfig
-from exchange.market_data import MarketData
-from exchange.order_manager import OrderManager
+from infrastructure.external_services.account_manager import AccountManager
+from infrastructure.external_services.bybit_client import BybitClient, BybitConfig
+from infrastructure.external_services.market_data import MarketData
+from infrastructure.external_services.order_manager import OrderManager
 # Фикстуры
-    @pytest.fixture
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
@@ -31,7 +27,8 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-    @pytest.fixture
+
+@pytest.fixture
 def bybit_config() -> Any:
     """Фикстура с конфигурацией Bybit"""
     return BybitConfig(api_key="test_key", api_secret="test_secret", testnet=True)
@@ -162,28 +159,34 @@ class TestMarketData:
             )
             assert isinstance(data, list)
             assert len(data) > 0
-    @pytest.mark.asyncio
-    async def test_get_orderbook(self, market_data) -> None:
-        """Тест получения стакана"""
-        with patch.object(
-            market_data.client,
-            "get_orderbook",
-            AsyncMock(
-                return_value={
-                    "bids": [[35000, 1.5], [34900, 2.0]],
-                    "asks": [[35100, 1.0], [35200, 2.5]],
-                }
-            ),
-        ):
-            orderbook = await market_data.get_orderbook(symbol="BTC/USDT", depth=20)
-            assert isinstance(orderbook, dict)
-            assert "bids" in orderbook
-            assert "asks" in orderbook
-    def test_exchange_initialization() -> None:
+
+
+@pytest.mark.asyncio
+async def test_get_orderbook(self, market_data) -> None:
+    """Тест получения стакана"""
+    with patch.object(
+        market_data.client,
+        "get_orderbook",
+        AsyncMock(
+            return_value={
+                "bids": [[35000, 1.5], [34900, 2.0]],
+                "asks": [[35100, 1.0], [35200, 2.5]],
+            }
+        ),
+    ):
+        orderbook = await market_data.get_orderbook(symbol="BTC/USDT", depth=20)
+        assert isinstance(orderbook, dict)
+        assert "bids" in orderbook
+        assert "asks" in orderbook
+
+
+def test_exchange_initialization() -> None:
     """Тест инициализации базового класса Exchange"""
     with pytest.raises(TypeError):
         Exchange()
-    def test_error_handling(bybit_client) -> None:
+
+
+def test_error_handling(bybit_client) -> None:
     """Тест обработки ошибок"""
     # Тест ошибки при получении рыночных данных
     with patch("ccxt.bybit") as mock_exchange:
@@ -208,7 +211,9 @@ class TestMarketData:
         mock_exchange.cancel_order = AsyncMock(side_effect=Exception("API Error"))
         with pytest.raises(Exception):
             bybit_client.cancel_order("12345", "BTC/USDT")
-    def test_data_validation(bybit_client) -> None:
+
+
+def test_data_validation(bybit_client) -> None:
     """Тест валидации данных"""
     # Тест с некорректной парой
     with pytest.raises(ValueError):
@@ -246,7 +251,9 @@ class TestMarketData:
                 "price": 50000,
             }
         )
-    def test_rate_limiting(bybit_client) -> None:
+
+
+def test_rate_limiting(bybit_client) -> None:
     """Тест ограничения частоты запросов"""
     # Имитация превышения лимита запросов
     with patch("ccxt.bybit") as mock_exchange:

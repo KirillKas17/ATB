@@ -14,6 +14,7 @@ from uuid import uuid4
 import pytest
 from unittest.mock import Mock, patch
 import pandas as pd
+
 # Импорты доменных сущностей - отложенные импорты для избежания циклических зависимостей
 # from domain.value_objects.currency import Currency
 # from domain.value_objects.money import Money
@@ -28,6 +29,7 @@ from domain.entities.portfolio import Portfolio
 from domain.entities.strategy import Strategy, StrategyType
 from domain.entities.signal import Signal, SignalType, SignalStrength
 from domain.entities.trading_pair import TradingPair
+
 # Импорты протоколов
 from domain.protocols.exchange_protocol import ExchangeProtocol
 from domain.protocols.ml_protocol import MLProtocol
@@ -41,14 +43,29 @@ from infrastructure.market_profiles.analysis.success_rate_analyzer import Succes
 from infrastructure.market_profiles.models.storage_config import StorageConfig
 from infrastructure.market_profiles.models.analysis_config import AnalysisConfig
 from domain.market_maker.mm_pattern import (
-    MarketMakerPattern, PatternFeatures, MarketMakerPatternType,
-    PatternResult, PatternOutcome, PatternMemory
+    MarketMakerPattern,
+    PatternFeatures,
+    MarketMakerPatternType,
+    PatternResult,
+    PatternOutcome,
+    PatternMemory,
 )
 from domain.type_definitions.market_maker_types import (
-    BookPressure, VolumeDelta, PriceReaction, SpreadChange,
-    OrderImbalance, LiquidityDepth, TimeDuration, VolumeConcentration,
-    PriceVolatility, MarketMicrostructure, Confidence, Accuracy,
-    AverageReturn, SuccessCount, TotalCount
+    BookPressure,
+    VolumeDelta,
+    PriceReaction,
+    SpreadChange,
+    OrderImbalance,
+    LiquidityDepth,
+    TimeDuration,
+    VolumeConcentration,
+    PriceVolatility,
+    MarketMicrostructure,
+    Confidence,
+    Accuracy,
+    AverageReturn,
+    SuccessCount,
+    TotalCount,
 )
 
 
@@ -161,6 +178,7 @@ def sample_order() -> Order:
     from domain.value_objects.currency import Currency
     from domain.value_objects.price import Price
     from domain.type_definitions import OrderId, VolumeValue, TradingPair, Symbol
+
     return Order(
         id=OrderId(uuid4()),
         trading_pair=TradingPair(Symbol("BTC/USDT")),
@@ -179,11 +197,8 @@ def sample_position() -> Position:
     from domain.value_objects.price import Price
     from domain.value_objects.volume import Volume
     from domain.type_definitions import PositionId, PortfolioId, Symbol
-    pair = TradingPair(
-        symbol=Symbol("BTC/USDT"),
-        base_currency=Currency.BTC,
-        quote_currency=Currency.USDT
-    )
+
+    pair = TradingPair(symbol=Symbol("BTC/USDT"), base_currency=Currency.BTC, quote_currency=Currency.USDT)
     return Position(
         id=PositionId(uuid4()),
         portfolio_id=PortfolioId(uuid4()),
@@ -201,6 +216,7 @@ def sample_portfolio() -> Portfolio:
     # Импорты внутри функции для избежания циклических зависимостей
     from domain.value_objects.currency import Currency
     from domain.value_objects.money import Money
+
     return Portfolio(
         total_equity=Money(Decimal("10000"), Currency.USD),
         free_margin=Money(Decimal("10000"), Currency.USD),
@@ -223,6 +239,7 @@ def sample_signal() -> Signal:
     """Фикстура с тестовым сигналом."""
     from domain.value_objects.currency import Currency
     from domain.value_objects.money import Money
+
     return Signal(
         strategy_id=uuid4(),
         trading_pair="BTCUSDT",
@@ -280,7 +297,6 @@ def temp_file_path() -> Generator[Path, None, None]:
         temp_path.unlink()
 
 
-
 @pytest.fixture
 def temp_dir_path() -> Generator[Path, None, None]:
     """Фикстура для временной директории."""
@@ -288,6 +304,7 @@ def temp_dir_path() -> Generator[Path, None, None]:
     yield temp_dir
     # Очистка после теста
     import shutil
+
     if temp_dir.exists():
         shutil.rmtree(temp_dir)
 
@@ -585,6 +602,7 @@ def temp_dir() -> Any:
     temp_dir = tempfile.mkdtemp()
     yield Path(temp_dir)
     import shutil
+
     shutil.rmtree(temp_dir)
 
 
@@ -599,7 +617,7 @@ def storage_config(temp_dir) -> Any:
         backup_enabled=True,
         backup_interval_hours=1,
         cleanup_enabled=True,
-        cleanup_interval_days=1
+        cleanup_interval_days=1,
     )
 
 
@@ -614,7 +632,7 @@ def analysis_config() -> Any:
         spread_threshold=0.001,
         time_window_seconds=300,
         min_trades_count=10,
-        max_history_size=1000
+        max_history_size=1000,
     )
 
 
@@ -633,7 +651,7 @@ def market_profiles_components(storage_config, analysis_config) -> Any:
         "behavior_repo": behavior_repo,
         "analyzer": analyzer,
         "similarity_calc": similarity_calc,
-        "success_analyzer": success_analyzer
+        "success_analyzer": success_analyzer,
     }
 
 
@@ -650,10 +668,7 @@ def sample_pattern() -> Any:
         time_duration=TimeDuration(300),
         volume_concentration=VolumeConcentration(0.75),
         price_volatility=PriceVolatility(0.03),
-        market_microstructure=MarketMicrostructure({
-            "depth_imbalance": 0.4,
-            "flow_imbalance": 0.6
-        })
+        market_microstructure=MarketMicrostructure({"depth_imbalance": 0.4, "flow_imbalance": 0.6}),
     )
     return MarketMakerPattern(
         pattern_type=MarketMakerPatternType.ACCUMULATION,
@@ -661,7 +676,7 @@ def sample_pattern() -> Any:
         timestamp=datetime.now(),
         features=features,
         confidence=Confidence(0.85),
-        context={"market_regime": "trending", "session": "asian"}
+        context={"market_regime": "trending", "session": "asian"},
     )
 
 
@@ -674,7 +689,7 @@ def sample_patterns() -> Any:
         (MarketMakerPatternType.EXIT, 0.75, "trending"),
         (MarketMakerPatternType.ABSORPTION, 0.65, "sideways"),
         (MarketMakerPatternType.DISTRIBUTION, 0.70, "trending"),
-        (MarketMakerPatternType.MARKUP, 0.80, "trending")
+        (MarketMakerPatternType.MARKUP, 0.80, "trending"),
     ]
     for i, (pattern_type, confidence, market_regime) in enumerate(pattern_types):
         features = PatternFeatures(
@@ -687,17 +702,19 @@ def sample_patterns() -> Any:
             time_duration=TimeDuration(200 + i * 50),
             volume_concentration=VolumeConcentration(0.6 + i * 0.05),
             price_volatility=PriceVolatility(0.02 + i * 0.005),
-            market_microstructure=MarketMicrostructure({
-                "depth_imbalance": 0.3 + i * 0.1,
-                "flow_imbalance": 0.5 + i * 0.1,
-                "order_flow": 0.4 + i * 0.1,
-                "liquidity_imbalance": 0.2 + i * 0.1
-            })
+            market_microstructure=MarketMicrostructure(
+                {
+                    "depth_imbalance": 0.3 + i * 0.1,
+                    "flow_imbalance": 0.5 + i * 0.1,
+                    "order_flow": 0.4 + i * 0.1,
+                    "liquidity_imbalance": 0.2 + i * 0.1,
+                }
+            ),
         )
         pattern = MarketMakerPattern(
             pattern_type=pattern_type,
             symbol="BTCUSDT",
-            timestamp=datetime.now() + timedelta(minutes=i*10),
+            timestamp=datetime.now() + timedelta(minutes=i * 10),
             features=features,
             confidence=Confidence(confidence),
             context={
@@ -705,8 +722,8 @@ def sample_patterns() -> Any:
                 "session": "asian" if i % 2 == 0 else "european",
                 "volatility": "medium",
                 "volume_profile": "normal",
-                "price_action": "trending" if market_regime == "trending" else "sideways"
-            }
+                "price_action": "trending" if market_regime == "trending" else "sideways",
+            },
         )
         patterns.append(pattern)
     return patterns
@@ -725,7 +742,7 @@ def sample_pattern_memories(sample_patterns) -> Any:
                 price_change_1h=0.05 + i * 0.01,
                 volume_change=0.1 + i * 0.02,
                 execution_time=300 + i * 30,
-                confidence=Confidence(0.8 + i * 0.02)
+                confidence=Confidence(0.8 + i * 0.02),
             )
         elif i == 3:  # Частично успешный
             result = PatternResult(
@@ -734,7 +751,7 @@ def sample_pattern_memories(sample_patterns) -> Any:
                 price_change_1h=0.01,
                 volume_change=0.02,
                 execution_time=300,
-                confidence=Confidence(0.7)
+                confidence=Confidence(0.7),
             )
         else:  # Неуспешный
             result = PatternResult(
@@ -743,7 +760,7 @@ def sample_pattern_memories(sample_patterns) -> Any:
                 price_change_1h=-0.02,
                 volume_change=-0.05,
                 execution_time=300,
-                confidence=Confidence(0.6)
+                confidence=Confidence(0.6),
             )
         memory = PatternMemory(
             pattern=pattern,
@@ -752,7 +769,7 @@ def sample_pattern_memories(sample_patterns) -> Any:
             avg_return=AverageReturn(0.01 + i * 0.005),
             success_count=SuccessCount(8 if i < 3 else 2),
             total_count=TotalCount(10),
-            last_seen=datetime.now()
+            last_seen=datetime.now(),
         )
         memories.append(memory)
     return memories
@@ -783,7 +800,7 @@ def mock_analyzer() -> Any:
         "success_probability": 0.75,
         "market_context": {},
         "risk_assessment": {},
-        "recommendations": []
+        "recommendations": [],
     }
     mock.analyze_market_context.return_value = {
         "market_phase": "trending",
@@ -791,7 +808,7 @@ def mock_analyzer() -> Any:
         "liquidity_regime": "high",
         "volume_profile": "normal",
         "price_action": "trending",
-        "order_flow": "positive"
+        "order_flow": "positive",
     }
     return mock
 
@@ -813,25 +830,25 @@ def mock_success_analyzer() -> Any:
         "trend_direction": "up",
         "trend_strength": 0.7,
         "confidence": 0.8,
-        "periods": 5
+        "periods": 5,
     }
     mock.calculate_accuracy_metrics.return_value = {
         "avg_accuracy": 0.8,
         "accuracy_std": 0.1,
         "min_accuracy": 0.6,
         "max_accuracy": 0.9,
-        "accuracy_trend": "stable"
+        "accuracy_trend": "stable",
     }
     mock.calculate_return_metrics.return_value = {
         "avg_return": 0.02,
         "return_std": 0.01,
         "min_return": 0.01,
         "max_return": 0.03,
-        "return_trend": "positive"
+        "return_trend": "positive",
     }
     mock.generate_recommendations.return_value = [
         "Увеличить уверенность для паттернов накопления",
-        "Снизить риск для паттернов выхода"
+        "Снизить риск для паттернов выхода",
     ]
     return mock
 
@@ -847,7 +864,7 @@ def mock_behavior_repository() -> Any:
         "avg_volume": 0.0,
         "avg_spread": 0.0,
         "avg_imbalance": 0.0,
-        "avg_pressure": 0.0
+        "avg_pressure": 0.0,
     }
     return mock
 
@@ -870,24 +887,20 @@ def mock_pattern_repository() -> Any:
         "avg_read_time_ms": 0.0,
         "avg_write_time_ms": 0.0,
         "error_count": 0,
-        "warning_count": 0
+        "warning_count": 0,
     }
     return mock
+
+
 # Хуки для настройки тестов
 def pytest_configure(config) -> Any:
     """Конфигурация pytest."""
-    config.addinivalue_line(
-        "markers", "unit: mark test as unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: mark test as integration test"
-    )
-    config.addinivalue_line(
-        "markers", "e2e: mark test as end-to-end test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
+    config.addinivalue_line("markers", "unit: mark test as unit test")
+    config.addinivalue_line("markers", "integration: mark test as integration test")
+    config.addinivalue_line("markers", "e2e: mark test as end-to-end test")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
+
+
 def pytest_collection_modifyitems(config, items) -> Any:
     """Модификация коллекции тестов."""
     for item in items:
@@ -901,13 +914,17 @@ def pytest_collection_modifyitems(config, items) -> Any:
         # Маркируем медленные тесты
         if "test_high_load" in item.nodeid or "test_performance" in item.nodeid:
             item.add_marker(pytest.mark.slow)
+
+
 # Утилиты для тестов
 class TestUtils:
     """Утилиты для тестов."""
+
     @staticmethod
     def create_test_pattern(pattern_type: MarketMakerPatternType, confidence: float = 0.8) -> Any:
         """Создает тестовый паттерн."""
         from domain.type_definitions.market_maker_types import Symbol
+
         features = PatternFeatures(
             book_pressure=BookPressure(0.6),
             volume_delta=VolumeDelta(0.1),
@@ -918,7 +935,7 @@ class TestUtils:
             time_duration=TimeDuration(200),
             volume_concentration=VolumeConcentration(0.6),
             price_volatility=PriceVolatility(0.02),
-            market_microstructure=MarketMicrostructure({})
+            market_microstructure=MarketMicrostructure({}),
         )
         return MarketMakerPattern(
             pattern_type=pattern_type,
@@ -926,8 +943,9 @@ class TestUtils:
             timestamp=datetime.now(),
             features=features,
             confidence=Confidence(confidence),
-            context={}
+            context={},
         )
+
     @staticmethod
     def create_test_result(outcome: PatternOutcome, confidence: float = 0.8) -> Any:
         """Создает тестовый результат."""
@@ -937,8 +955,9 @@ class TestUtils:
             price_change_15min=0.02 if outcome == PatternOutcome.SUCCESS else -0.01,
             price_change_30min=0.03 if outcome == PatternOutcome.SUCCESS else -0.015,
             volume_change=0.1 if outcome == PatternOutcome.SUCCESS else -0.05,
-            volatility_change=0.02 if outcome == PatternOutcome.SUCCESS else -0.01
+            volatility_change=0.02 if outcome == PatternOutcome.SUCCESS else -0.01,
         )
+
     @staticmethod
     def create_test_behavior_data(symbol: str = "BTCUSDT", pattern_type: str = "accumulation") -> Any:
         """Создает тестовые данные поведения."""
@@ -953,12 +972,14 @@ class TestUtils:
             "confidence": 0.8,
             "market_phase": "trending",
             "volatility_regime": "medium",
-            "liquidity_regime": "high"
+            "liquidity_regime": "high",
         }
+
+
 # Экспортируем утилиты
 
 
 @pytest.fixture
 def test_utils() -> None:
     """Утилиты для тестов."""
-    return TestUtils 
+    return TestUtils

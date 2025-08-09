@@ -10,7 +10,7 @@ from shared.math_utils import calculate_drawdown, calculate_sharpe_ratio
 from shared.visualization import (plot_equity_curve, plot_indicators,
                                   plot_trades)
 # Фикстуры
-    @pytest.fixture
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
@@ -25,11 +25,15 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-    @pytest.fixture
+
+
+@pytest.fixture
 def technical_analysis_service() -> Any:
     """Фикстура с сервисом технического анализа"""
     return DefaultTechnicalAnalysisService()
-    @pytest.fixture
+
+
+@pytest.fixture
 def mock_trades() -> Any:
     """Фикстура с тестовыми сделками"""
     return [

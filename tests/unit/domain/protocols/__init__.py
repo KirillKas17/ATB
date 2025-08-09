@@ -10,7 +10,7 @@ Unit тесты для domain protocols.
 
 __all__ = [
     "test_strategy_protocol",
-    "test_repository_protocol", 
+    "test_repository_protocol",
     "test_ml_protocol",
     "test_exchange_protocol",
     "test_performance_protocol",
@@ -19,5 +19,5 @@ __all__ = [
     "test_integration_protocol",
     "test_utils_protocol",
     "test_decorators_protocol",
-    "test_examples_protocol"
-] 
+    "test_examples_protocol",
+]

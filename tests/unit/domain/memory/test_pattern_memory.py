@@ -27,13 +27,13 @@ from domain.memory.pattern_memory import (
     PatternMemory,
     _calculate_cosine_similarity,
     _calculate_euclidean_similarity,
-    _calculate_similarity_score
+    _calculate_similarity_score,
 )
 from domain.market_maker.mm_pattern import (
     MarketMakerPattern,
     PatternFeatures,
     PatternResult,
-    PatternMemory as MMPatternMemory
+    PatternMemory as MMPatternMemory,
 )
 from domain.type_definitions.market_maker_types import (
     MarketMakerPatternType,
@@ -53,7 +53,7 @@ from domain.type_definitions.market_maker_types import (
     SuccessCount,
     TotalCount,
     SimilarityScore,
-    SignalStrength
+    SignalStrength,
 )
 
 
@@ -80,11 +80,11 @@ class TestPatternMatcher:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.8),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.85),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
 
     @pytest.fixture
@@ -97,26 +97,23 @@ class TestPatternMatcher:
             accuracy=Accuracy(0.7),
             average_return=AverageReturn(0.05),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20),
         )
 
     def test_pattern_matcher_creation(self, pattern_matcher):
         """Тест создания PatternMatcher."""
         assert pattern_matcher is not None
-        assert hasattr(pattern_matcher, 'find_similar_patterns')
+        assert hasattr(pattern_matcher, "find_similar_patterns")
 
     def test_find_similar_patterns_empty(self, pattern_matcher, sample_pattern):
         """Тест поиска похожих паттернов в пустом списке."""
         patterns = []
         memory_map = {}
-        
+
         result = pattern_matcher.find_similar_patterns(
-            target_pattern=sample_pattern,
-            patterns=patterns,
-            memory_map=memory_map,
-            similarity_threshold=0.8
+            target_pattern=sample_pattern, patterns=patterns, memory_map=memory_map, similarity_threshold=0.8
         )
-        
+
         assert result == []
 
     def test_find_similar_patterns_exact_match(self, pattern_matcher, sample_pattern):
@@ -130,17 +127,14 @@ class TestPatternMatcher:
                 accuracy=Accuracy(0.8),
                 average_return=AverageReturn(0.03),
                 last_seen=datetime.now(),
-                behavior_history=deque([PatternOutcome.SUCCESS] * 4 + [PatternOutcome.FAILURE], maxlen=20)
+                behavior_history=deque([PatternOutcome.SUCCESS] * 4 + [PatternOutcome.FAILURE], maxlen=20),
             )
         }
-        
+
         result = pattern_matcher.find_similar_patterns(
-            target_pattern=sample_pattern,
-            patterns=patterns,
-            memory_map=memory_map,
-            similarity_threshold=0.5
+            target_pattern=sample_pattern, patterns=patterns, memory_map=memory_map, similarity_threshold=0.5
         )
-        
+
         assert len(result) == 1
         assert result[0].pattern.id == sample_pattern.id
         assert result[0].similarity_score > 0.99  # Почти точное совпадение
@@ -160,13 +154,13 @@ class TestPatternMatcher:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.8),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.85),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         pattern2 = MarketMakerPattern(
             id="pattern_2",
             pattern_type=MarketMakerPatternType.LIQUIDITY_GRAB,
@@ -179,13 +173,13 @@ class TestPatternMatcher:
                 liquidity_depth=LiquidityDepth(0.9),
                 time_duration=TimeDuration(100),
                 volume_concentration=VolumeConcentration(0.1),
-                price_volatility=PriceVolatility(0.9)
+                price_volatility=PriceVolatility(0.9),
             ),
             confidence=Confidence(0.75),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         patterns = [pattern1, pattern2]
         memory_map = {
             pattern1.id: MMPatternMemory(
@@ -195,7 +189,7 @@ class TestPatternMatcher:
                 accuracy=Accuracy(0.8),
                 average_return=AverageReturn(0.03),
                 last_seen=datetime.now(),
-                behavior_history=deque([PatternOutcome.SUCCESS] * 4 + [PatternOutcome.FAILURE], maxlen=20)
+                behavior_history=deque([PatternOutcome.SUCCESS] * 4 + [PatternOutcome.FAILURE], maxlen=20),
             ),
             pattern2.id: MMPatternMemory(
                 pattern_id=pattern2.id,
@@ -204,18 +198,15 @@ class TestPatternMatcher:
                 accuracy=Accuracy(0.33),
                 average_return=AverageReturn(-0.02),
                 last_seen=datetime.now(),
-                behavior_history=deque([PatternOutcome.SUCCESS] + [PatternOutcome.FAILURE] * 2, maxlen=20)
-            )
+                behavior_history=deque([PatternOutcome.SUCCESS] + [PatternOutcome.FAILURE] * 2, maxlen=20),
+            ),
         }
-        
+
         # Ищем паттерны похожие на pattern1
         result = pattern_matcher.find_similar_patterns(
-            target_pattern=pattern1,
-            patterns=patterns,
-            memory_map=memory_map,
-            similarity_threshold=0.7
+            target_pattern=pattern1, patterns=patterns, memory_map=memory_map, similarity_threshold=0.7
         )
-        
+
         # Должен найти только pattern1 (точное совпадение)
         assert len(result) == 1
         assert result[0].pattern.id == pattern1.id
@@ -231,20 +222,17 @@ class TestPatternMatcher:
                 accuracy=Accuracy(0.8),
                 average_return=AverageReturn(0.05),
                 last_seen=datetime.now(),
-                behavior_history=deque([PatternOutcome.SUCCESS] * 8 + [PatternOutcome.FAILURE] * 2, maxlen=20)
+                behavior_history=deque([PatternOutcome.SUCCESS] * 8 + [PatternOutcome.FAILURE] * 2, maxlen=20),
             )
         }
-        
+
         result = pattern_matcher.find_similar_patterns(
-            target_pattern=sample_pattern,
-            patterns=patterns,
-            memory_map=memory_map,
-            similarity_threshold=0.5
+            target_pattern=sample_pattern, patterns=patterns, memory_map=memory_map, similarity_threshold=0.5
         )
-        
+
         assert len(result) == 1
         matched_pattern = result[0]
-        
+
         # Проверяем, что комбинированная уверенность учитывает схожесть и историю
         assert matched_pattern.combined_confidence > 0
         assert matched_pattern.combined_confidence <= 1.0
@@ -260,24 +248,21 @@ class TestPatternMatcher:
                 accuracy=Accuracy(0.8),
                 average_return=AverageReturn(0.06),
                 last_seen=datetime.now(),
-                behavior_history=deque([PatternOutcome.SUCCESS] * 12 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+                behavior_history=deque([PatternOutcome.SUCCESS] * 12 + [PatternOutcome.FAILURE] * 3, maxlen=20),
             )
         }
-        
+
         result = pattern_matcher.find_similar_patterns(
-            target_pattern=sample_pattern,
-            patterns=patterns,
-            memory_map=memory_map,
-            similarity_threshold=0.5
+            target_pattern=sample_pattern, patterns=patterns, memory_map=memory_map, similarity_threshold=0.5
         )
-        
+
         assert len(result) == 1
         matched_pattern = result[0]
-        
+
         # Проверяем торговый сигнал
         assert matched_pattern.trading_signal is not None
         assert matched_pattern.trading_signal.signal_strength > 0
-        assert matched_pattern.trading_signal.confidence > 0 
+        assert matched_pattern.trading_signal.confidence > 0
 
 
 class TestPatternPredictor:
@@ -293,7 +278,7 @@ class TestPatternPredictor:
         """Создает тестовые совпадения паттернов."""
         from domain.market_maker.mm_pattern import MatchedPattern
         from domain.market_maker.mm_pattern_memory import MatchedPattern as MM_MatchedPattern
-        
+
         pattern1 = MarketMakerPattern(
             id="pattern_1",
             pattern_type=MarketMakerPatternType.LIQUIDITY_GRAB,
@@ -306,13 +291,13 @@ class TestPatternPredictor:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.8),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.85),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         pattern2 = MarketMakerPattern(
             id="pattern_2",
             pattern_type=MarketMakerPatternType.STOP_HUNT,
@@ -325,45 +310,45 @@ class TestPatternPredictor:
                 liquidity_depth=LiquidityDepth(0.3),
                 time_duration=TimeDuration(250),
                 volume_concentration=VolumeConcentration(0.7),
-                price_volatility=PriceVolatility(0.2)
+                price_volatility=PriceVolatility(0.2),
             ),
             confidence=Confidence(0.75),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         return [
             MatchedPattern(
                 pattern=pattern1,
                 similarity_score=SimilarityScore(0.95),
                 combined_confidence=Confidence(0.82),
-                trading_signal=Mock(signal_strength=SignalStrength(0.8), confidence=Confidence(0.82))
+                trading_signal=Mock(signal_strength=SignalStrength(0.8), confidence=Confidence(0.82)),
             ),
             MatchedPattern(
                 pattern=pattern2,
                 similarity_score=SimilarityScore(0.85),
                 combined_confidence=Confidence(0.78),
-                trading_signal=Mock(signal_strength=SignalStrength(0.7), confidence=Confidence(0.78))
-            )
+                trading_signal=Mock(signal_strength=SignalStrength(0.7), confidence=Confidence(0.78)),
+            ),
         ]
 
     def test_pattern_predictor_creation(self, pattern_predictor):
         """Тест создания PatternPredictor."""
         assert pattern_predictor is not None
-        assert hasattr(pattern_predictor, 'generate_prediction')
+        assert hasattr(pattern_predictor, "generate_prediction")
 
     def test_generate_prediction_empty_list(self, pattern_predictor):
         """Тест генерации предсказания для пустого списка."""
         result = pattern_predictor.generate_prediction([])
-        
+
         assert result is None
 
     def test_generate_prediction_single_pattern(self, pattern_predictor, sample_matched_patterns):
         """Тест генерации предсказания для одного паттерна."""
         single_pattern = [sample_matched_patterns[0]]
-        
+
         result = pattern_predictor.generate_prediction(single_pattern)
-        
+
         assert result is not None
         assert result.predicted_outcome in [PatternOutcome.SUCCESS, PatternOutcome.FAILURE]
         assert result.confidence > 0
@@ -374,7 +359,7 @@ class TestPatternPredictor:
     def test_generate_prediction_multiple_patterns(self, pattern_predictor, sample_matched_patterns):
         """Тест генерации предсказания для нескольких паттернов."""
         result = pattern_predictor.generate_prediction(sample_matched_patterns)
-        
+
         assert result is not None
         assert result.predicted_outcome in [PatternOutcome.SUCCESS, PatternOutcome.FAILURE]
         assert result.confidence > 0
@@ -397,13 +382,13 @@ class TestPatternPredictor:
                 liquidity_depth=LiquidityDepth(0.5),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.9),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.95),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         low_confidence_pattern = MarketMakerPattern(
             id="low_conf",
             pattern_type=MarketMakerPatternType.STOP_HUNT,
@@ -416,30 +401,30 @@ class TestPatternPredictor:
                 liquidity_depth=LiquidityDepth(0.8),
                 time_duration=TimeDuration(150),
                 volume_concentration=VolumeConcentration(0.3),
-                price_volatility=PriceVolatility(0.8)
+                price_volatility=PriceVolatility(0.8),
             ),
             confidence=Confidence(0.45),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         patterns = [
             MatchedPattern(
                 pattern=high_confidence_pattern,
                 similarity_score=SimilarityScore(0.9),
                 combined_confidence=Confidence(0.9),
-                trading_signal=Mock(signal_strength=SignalStrength(0.9), confidence=Confidence(0.9))
+                trading_signal=Mock(signal_strength=SignalStrength(0.9), confidence=Confidence(0.9)),
             ),
             MatchedPattern(
                 pattern=low_confidence_pattern,
                 similarity_score=SimilarityScore(0.6),
                 combined_confidence=Confidence(0.4),
-                trading_signal=Mock(signal_strength=SignalStrength(0.4), confidence=Confidence(0.4))
-            )
+                trading_signal=Mock(signal_strength=SignalStrength(0.4), confidence=Confidence(0.4)),
+            ),
         ]
-        
+
         result = pattern_predictor.generate_prediction(patterns)
-        
+
         # Высокоуверенный паттерн должен иметь большее влияние
         assert result is not None
         assert result.confidence > 0.6  # Должен быть ближе к высокой уверенности
@@ -447,7 +432,7 @@ class TestPatternPredictor:
     def test_generate_prediction_signal_strength_calculation(self, pattern_predictor, sample_matched_patterns):
         """Тест расчета силы сигнала."""
         result = pattern_predictor.generate_prediction(sample_matched_patterns)
-        
+
         assert result is not None
         # Сила сигнала должна быть средневзвешенной от всех паттернов
         assert result.signal_strength > 0
@@ -468,28 +453,28 @@ class TestPatternPredictor:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.9),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.9),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         patterns = [
             MatchedPattern(
                 pattern=success_pattern,
                 similarity_score=SimilarityScore(0.95),
                 combined_confidence=Confidence(0.9),
-                trading_signal=Mock(signal_strength=SignalStrength(0.9), confidence=Confidence(0.9))
+                trading_signal=Mock(signal_strength=SignalStrength(0.9), confidence=Confidence(0.9)),
             )
         ]
-        
+
         result = pattern_predictor.generate_prediction(patterns)
-        
+
         assert result is not None
         # При высокой уверенности и сильном сигнале должен быть SUCCESS
         if result.confidence > 0.8 and result.signal_strength > 0.8:
-            assert result.predicted_outcome == PatternOutcome.SUCCESS 
+            assert result.predicted_outcome == PatternOutcome.SUCCESS
 
 
 class TestSQLitePatternMemoryRepository:
@@ -498,7 +483,7 @@ class TestSQLitePatternMemoryRepository:
     @pytest.fixture
     def temp_db_path(self):
         """Создает временный путь для базы данных."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             return tmp.name
 
     @pytest.fixture
@@ -529,11 +514,11 @@ class TestSQLitePatternMemoryRepository:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.8),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.85),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
 
     @pytest.fixture
@@ -546,7 +531,7 @@ class TestSQLitePatternMemoryRepository:
             accuracy=Accuracy(0.7),
             average_return=AverageReturn(0.05),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20),
         )
 
     @pytest.mark.asyncio
@@ -564,7 +549,7 @@ class TestSQLitePatternMemoryRepository:
             cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = await cursor.fetchall()
             table_names = [table[0] for table in tables]
-            
+
             assert "patterns" in table_names
             assert "pattern_memory" in table_names
 
@@ -572,7 +557,7 @@ class TestSQLitePatternMemoryRepository:
     async def test_save_pattern(self, repository, sample_pattern):
         """Тест сохранения паттерна."""
         await repository.save_pattern(sample_pattern)
-        
+
         # Проверяем, что паттерн сохранен
         saved_pattern = await repository.get_pattern(sample_pattern.id)
         assert saved_pattern is not None
@@ -590,7 +575,7 @@ class TestSQLitePatternMemoryRepository:
     async def test_save_pattern_memory(self, repository, sample_pattern_memory):
         """Тест сохранения памяти паттерна."""
         await repository.save_pattern_memory(sample_pattern_memory)
-        
+
         # Проверяем, что память сохранена
         saved_memory = await repository.get_pattern_memory(sample_pattern_memory.pattern_id)
         assert saved_memory is not None
@@ -608,7 +593,7 @@ class TestSQLitePatternMemoryRepository:
     async def test_get_all_patterns(self, repository, sample_pattern):
         """Тест получения всех паттернов."""
         await repository.save_pattern(sample_pattern)
-        
+
         patterns = await repository.get_all_patterns()
         assert len(patterns) == 1
         assert patterns[0].id == sample_pattern.id
@@ -617,7 +602,7 @@ class TestSQLitePatternMemoryRepository:
     async def test_get_all_pattern_memory(self, repository, sample_pattern_memory):
         """Тест получения всей памяти паттернов."""
         await repository.save_pattern_memory(sample_pattern_memory)
-        
+
         memory_list = await repository.get_all_pattern_memory()
         assert len(memory_list) == 1
         assert memory_list[0].pattern_id == sample_pattern_memory.pattern_id
@@ -627,7 +612,7 @@ class TestSQLitePatternMemoryRepository:
         """Тест обновления памяти паттерна."""
         # Сохраняем исходную память
         await repository.save_pattern_memory(sample_pattern_memory)
-        
+
         # Обновляем память
         updated_memory = MMPatternMemory(
             pattern_id=sample_pattern_memory.pattern_id,
@@ -636,11 +621,11 @@ class TestSQLitePatternMemoryRepository:
             accuracy=Accuracy(0.8),
             average_return=AverageReturn(0.06),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 12 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 12 + [PatternOutcome.FAILURE] * 3, maxlen=20),
         )
-        
+
         await repository.save_pattern_memory(updated_memory)
-        
+
         # Проверяем обновление
         saved_memory = await repository.get_pattern_memory(sample_pattern_memory.pattern_id)
         assert saved_memory.total_count == updated_memory.total_count
@@ -651,14 +636,14 @@ class TestSQLitePatternMemoryRepository:
     async def test_delete_pattern(self, repository, sample_pattern):
         """Тест удаления паттерна."""
         await repository.save_pattern(sample_pattern)
-        
+
         # Проверяем, что паттерн сохранен
         saved_pattern = await repository.get_pattern(sample_pattern.id)
         assert saved_pattern is not None
-        
+
         # Удаляем паттерн
         await repository.delete_pattern(sample_pattern.id)
-        
+
         # Проверяем, что паттерн удален
         deleted_pattern = await repository.get_pattern(sample_pattern.id)
         assert deleted_pattern is None
@@ -667,14 +652,14 @@ class TestSQLitePatternMemoryRepository:
     async def test_delete_pattern_memory(self, repository, sample_pattern_memory):
         """Тест удаления памяти паттерна."""
         await repository.save_pattern_memory(sample_pattern_memory)
-        
+
         # Проверяем, что память сохранена
         saved_memory = await repository.get_pattern_memory(sample_pattern_memory.pattern_id)
         assert saved_memory is not None
-        
+
         # Удаляем память
         await repository.delete_pattern_memory(sample_pattern_memory.pattern_id)
-        
+
         # Проверяем, что память удалена
         deleted_memory = await repository.get_pattern_memory(sample_pattern_memory.pattern_id)
         assert deleted_memory is None
@@ -694,13 +679,13 @@ class TestSQLitePatternMemoryRepository:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.8),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.85),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         pattern2 = MarketMakerPattern(
             id="eth_pattern_1",
             pattern_type=MarketMakerPatternType.STOP_HUNT,
@@ -713,21 +698,21 @@ class TestSQLitePatternMemoryRepository:
                 liquidity_depth=LiquidityDepth(0.3),
                 time_duration=TimeDuration(250),
                 volume_concentration=VolumeConcentration(0.7),
-                price_volatility=PriceVolatility(0.2)
+                price_volatility=PriceVolatility(0.2),
             ),
             confidence=Confidence(0.75),
             timestamp=datetime.now(),
-            symbol="ETH/USDT"
+            symbol="ETH/USDT",
         )
-        
+
         await repository.save_pattern(pattern1)
         await repository.save_pattern(pattern2)
-        
+
         # Получаем паттерны BTC
         btc_patterns = await repository.get_patterns_by_symbol("BTC/USDT")
         assert len(btc_patterns) == 1
         assert btc_patterns[0].symbol == "BTC/USDT"
-        
+
         # Получаем паттерны ETH
         eth_patterns = await repository.get_patterns_by_symbol("ETH/USDT")
         assert len(eth_patterns) == 1
@@ -744,9 +729,9 @@ class TestSQLitePatternMemoryRepository:
             accuracy=Accuracy(0.9),
             average_return=AverageReturn(0.08),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 9 + [PatternOutcome.FAILURE], maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 9 + [PatternOutcome.FAILURE], maxlen=20),
         )
-        
+
         unsuccessful_memory = MMPatternMemory(
             pattern_id="unsuccessful_pattern",
             total_count=TotalCount(10),
@@ -754,12 +739,12 @@ class TestSQLitePatternMemoryRepository:
             accuracy=Accuracy(0.3),
             average_return=AverageReturn(-0.02),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 3 + [PatternOutcome.FAILURE] * 7, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 3 + [PatternOutcome.FAILURE] * 7, maxlen=20),
         )
-        
+
         await repository.save_pattern_memory(successful_memory)
         await repository.save_pattern_memory(unsuccessful_memory)
-        
+
         # Получаем успешные паттерны (accuracy > 0.7)
         successful_patterns = await repository.get_successful_patterns(min_accuracy=0.7)
         assert len(successful_patterns) == 1
@@ -770,7 +755,7 @@ class TestSQLitePatternMemoryRepository:
         """Тест закрытия соединения."""
         await repository.close()
         # Проверяем, что соединение закрыто
-        assert repository._connection_pool is None 
+        assert repository._connection_pool is None
 
 
 class TestPatternMemory:
@@ -779,7 +764,7 @@ class TestPatternMemory:
     @pytest.fixture
     def temp_db_path(self):
         """Создает временный путь для базы данных."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             return tmp.name
 
     @pytest.fixture
@@ -810,11 +795,11 @@ class TestPatternMemory:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.8),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.85),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
 
     @pytest.mark.asyncio
@@ -836,7 +821,7 @@ class TestPatternMemory:
     async def test_save_pattern(self, pattern_memory, sample_pattern):
         """Тест сохранения паттерна."""
         await pattern_memory.save_pattern(sample_pattern)
-        
+
         # Проверяем, что паттерн сохранен
         saved_pattern = await pattern_memory.repository.get_pattern(sample_pattern.id)
         assert saved_pattern is not None
@@ -847,7 +832,7 @@ class TestPatternMemory:
         """Тест поиска похожих паттернов."""
         # Сохраняем паттерн
         await pattern_memory.save_pattern(sample_pattern)
-        
+
         # Создаем память паттерна
         pattern_memory_data = MMPatternMemory(
             pattern_id=sample_pattern.id,
@@ -856,16 +841,15 @@ class TestPatternMemory:
             accuracy=Accuracy(0.7),
             average_return=AverageReturn(0.05),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20),
         )
         await pattern_memory.repository.save_pattern_memory(pattern_memory_data)
-        
+
         # Ищем похожие паттерны
         similar_patterns = await pattern_memory.find_similar_patterns(
-            target_pattern=sample_pattern,
-            similarity_threshold=0.5
+            target_pattern=sample_pattern, similarity_threshold=0.5
         )
-        
+
         assert len(similar_patterns) == 1
         assert similar_patterns[0].pattern.id == sample_pattern.id
 
@@ -881,16 +865,13 @@ class TestPatternMemory:
             accuracy=Accuracy(0.8),
             average_return=AverageReturn(0.06),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 12 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 12 + [PatternOutcome.FAILURE] * 3, maxlen=20),
         )
         await pattern_memory.repository.save_pattern_memory(pattern_memory_data)
-        
+
         # Генерируем предсказание
-        prediction = await pattern_memory.generate_prediction(
-            target_pattern=sample_pattern,
-            similarity_threshold=0.5
-        )
-        
+        prediction = await pattern_memory.generate_prediction(target_pattern=sample_pattern, similarity_threshold=0.5)
+
         assert prediction is not None
         assert prediction.predicted_outcome in [PatternOutcome.SUCCESS, PatternOutcome.FAILURE]
         assert prediction.confidence > 0
@@ -908,20 +889,17 @@ class TestPatternMemory:
             accuracy=Accuracy(0.7),
             average_return=AverageReturn(0.05),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 7 + [PatternOutcome.FAILURE] * 3, maxlen=20),
         )
         await pattern_memory.repository.save_pattern_memory(pattern_memory_data)
-        
+
         # Обновляем результат
         result = PatternResult(
-            outcome=PatternOutcome.SUCCESS,
-            return_value=0.03,
-            duration=timedelta(minutes=5),
-            confidence_boost=0.1
+            outcome=PatternOutcome.SUCCESS, return_value=0.03, duration=timedelta(minutes=5), confidence_boost=0.1
         )
-        
+
         await pattern_memory.update_pattern_result(sample_pattern.id, result)
-        
+
         # Проверяем обновление
         updated_memory = await pattern_memory.repository.get_pattern_memory(sample_pattern.id)
         assert updated_memory.total_count == TotalCount(11)
@@ -939,13 +917,13 @@ class TestPatternMemory:
             accuracy=Accuracy(0.8),
             average_return=AverageReturn(0.06),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 16 + [PatternOutcome.FAILURE] * 4, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 16 + [PatternOutcome.FAILURE] * 4, maxlen=20),
         )
         await pattern_memory.repository.save_pattern_memory(pattern_memory_data)
-        
+
         # Получаем статистику
         stats = await pattern_memory.get_pattern_statistics(sample_pattern.id)
-        
+
         assert stats is not None
         assert stats.total_count == 20
         assert stats.success_count == 16
@@ -968,13 +946,13 @@ class TestPatternMemory:
                 liquidity_depth=LiquidityDepth(0.4),
                 time_duration=TimeDuration(300),
                 volume_concentration=VolumeConcentration(0.9),
-                price_volatility=PriceVolatility(0.1)
+                price_volatility=PriceVolatility(0.1),
             ),
             confidence=Confidence(0.9),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         pattern2 = MarketMakerPattern(
             id="unsuccessful_pattern",
             pattern_type=MarketMakerPatternType.STOP_HUNT,
@@ -987,16 +965,16 @@ class TestPatternMemory:
                 liquidity_depth=LiquidityDepth(0.8),
                 time_duration=TimeDuration(150),
                 volume_concentration=VolumeConcentration(0.3),
-                price_volatility=PriceVolatility(0.8)
+                price_volatility=PriceVolatility(0.8),
             ),
             confidence=Confidence(0.4),
             timestamp=datetime.now(),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         await pattern_memory.save_pattern(pattern1)
         await pattern_memory.save_pattern(pattern2)
-        
+
         # Создаем память для паттернов
         memory1 = MMPatternMemory(
             pattern_id=pattern1.id,
@@ -1005,9 +983,9 @@ class TestPatternMemory:
             accuracy=Accuracy(0.87),
             average_return=AverageReturn(0.08),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 13 + [PatternOutcome.FAILURE] * 2, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 13 + [PatternOutcome.FAILURE] * 2, maxlen=20),
         )
-        
+
         memory2 = MMPatternMemory(
             pattern_id=pattern2.id,
             total_count=TotalCount(10),
@@ -1015,12 +993,12 @@ class TestPatternMemory:
             accuracy=Accuracy(0.3),
             average_return=AverageReturn(-0.02),
             last_seen=datetime.now(),
-            behavior_history=deque([PatternOutcome.SUCCESS] * 3 + [PatternOutcome.FAILURE] * 7, maxlen=20)
+            behavior_history=deque([PatternOutcome.SUCCESS] * 3 + [PatternOutcome.FAILURE] * 7, maxlen=20),
         )
-        
+
         await pattern_memory.repository.save_pattern_memory(memory1)
         await pattern_memory.repository.save_pattern_memory(memory2)
-        
+
         # Получаем успешные паттерны
         successful_patterns = await pattern_memory.get_successful_patterns(min_accuracy=0.7)
         assert len(successful_patterns) == 1
@@ -1048,9 +1026,9 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.4),
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.8),
-            price_volatility=PriceVolatility(0.1)
+            price_volatility=PriceVolatility(0.1),
         )
-        
+
         features2 = PatternFeatures(
             book_pressure=BookPressure(0.7),
             volume_delta=VolumeDelta(0.5),
@@ -1060,13 +1038,13 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.4),
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.8),
-            price_volatility=PriceVolatility(0.1)
+            price_volatility=PriceVolatility(0.1),
         )
-        
+
         # Идентичные признаки должны иметь сходство 1.0
         similarity = _calculate_cosine_similarity(features1, features2)
         assert abs(similarity - 1.0) < 0.001
-        
+
         # Разные признаки должны иметь меньшее сходство
         features3 = PatternFeatures(
             book_pressure=BookPressure(0.1),
@@ -1077,9 +1055,9 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.9),
             time_duration=TimeDuration(100),
             volume_concentration=VolumeConcentration(0.1),
-            price_volatility=PriceVolatility(0.9)
+            price_volatility=PriceVolatility(0.9),
         )
-        
+
         similarity = _calculate_cosine_similarity(features1, features3)
         assert similarity < 0.5
 
@@ -1094,9 +1072,9 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.4),
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.8),
-            price_volatility=PriceVolatility(0.1)
+            price_volatility=PriceVolatility(0.1),
         )
-        
+
         features2 = PatternFeatures(
             book_pressure=BookPressure(0.7),
             volume_delta=VolumeDelta(0.5),
@@ -1106,9 +1084,9 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.4),
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.8),
-            price_volatility=PriceVolatility(0.1)
+            price_volatility=PriceVolatility(0.1),
         )
-        
+
         # Идентичные признаки должны иметь сходство 1.0
         similarity = _calculate_euclidean_similarity(features1, features2)
         assert abs(similarity - 1.0) < 0.001
@@ -1124,9 +1102,9 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.4),
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.8),
-            price_volatility=PriceVolatility(0.1)
+            price_volatility=PriceVolatility(0.1),
         )
-        
+
         features2 = PatternFeatures(
             book_pressure=BookPressure(0.7),
             volume_delta=VolumeDelta(0.5),
@@ -1136,10 +1114,10 @@ class TestHelperFunctions:
             liquidity_depth=LiquidityDepth(0.4),
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.8),
-            price_volatility=PriceVolatility(0.1)
+            price_volatility=PriceVolatility(0.1),
         )
-        
+
         # Идентичные признаки должны иметь высокое сходство
         similarity = _calculate_similarity_score(features1, features2)
         assert similarity > 0.9
-        assert similarity <= 1.0 
+        assert similarity <= 1.0

@@ -36,7 +36,7 @@ class MarketRegimeML(nn.Module):
             nn.Linear(hidden_dim // 2, num_regimes),  # 4 режима: trending, ranging, volatile, stable
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return torch.softmax(self.net(x), dim=1)
 
 
@@ -281,7 +281,7 @@ class EvolvableMarketRegimeAgent(EvolvableComponent):
 
     def _update_metrics(
         self, loss: float, predictions: np.ndarray, target_regime: int
-    ):
+    ) -> None:
         """Обновление метрик производительности"""
         try:
             predicted_regime = np.argmax(predictions)
@@ -297,7 +297,7 @@ class EvolvableMarketRegimeAgent(EvolvableComponent):
         except Exception as e:
             logger.error(f"Error updating metrics: {e}")
 
-    async def _evolve_model_architecture(self):
+    async def _evolve_model_architecture(self) -> None:
         """Эволюция архитектуры модели"""
         try:
             # Простая эволюция - изменение размеров слоев
@@ -322,7 +322,7 @@ class EvolvableMarketRegimeAgent(EvolvableComponent):
         except Exception as e:
             logger.error(f"Error evolving model architecture: {e}")
 
-    async def _evolve_configuration(self):
+    async def _evolve_configuration(self) -> None:
         """Эволюция конфигурации"""
         try:
             # Эволюция параметров конфигурации
@@ -337,7 +337,7 @@ class EvolvableMarketRegimeAgent(EvolvableComponent):
         except Exception as e:
             logger.error(f"Error evolving configuration: {e}")
 
-    async def _retrain_on_history(self):
+    async def _retrain_on_history(self) -> None:
         """Переобучение на всей истории"""
         try:
             if len(self.training_data) < 10:
@@ -421,7 +421,7 @@ class EvolvableMarketRegimeAgent(EvolvableComponent):
         """Получение текущей конфигурации"""
         return self.config.copy()
 
-    async def update_regime_config(self, config: Dict[str, Any]):
+    async def update_regime_config(self, config: Dict[str, Any]) -> None:
         """Обновление конфигурации"""
         try:
             self.config.update(config)

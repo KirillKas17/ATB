@@ -3,22 +3,26 @@ Unit тесты для MLPipeline.
 Тестирует машинное обучение, включая предобработку данных,
 обучение моделей, валидацию и предсказания.
 """
+
 import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict, List, Any
-from infrastructure.ml_services.ml_pipeline import MLPipeline
+from domain.entities.ml import MLPipeline
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 
+
 class TestMLPipeline:
     """Тесты для MLPipeline."""
+
     @pytest.fixture
     def ml_pipeline(self) -> MLPipeline:
         """Фикстура для MLPipeline."""
         return MLPipeline()
+
     @pytest.fixture
     def sample_training_data(self) -> tuple:
         """Фикстура с тестовыми данными для обучения."""
@@ -29,56 +33,56 @@ class TestMLPipeline:
         # Создание целевой переменной (линейная комбинация признаков + шум)
         y = np.dot(X, np.random.randn(10)) + np.random.normal(0, 0.1, n_samples)
         return X, y
+
     @pytest.fixture
     def sample_dataframe_data(self) -> pd.DataFrame:
         """Фикстура с данными в формате DataFrame."""
         np.random.seed(42)
         n_samples = 1000
-        data = pd.DataFrame({
-            'feature_1': np.random.randn(n_samples),
-            'feature_2': np.random.randn(n_samples),
-            'feature_3': np.random.randn(n_samples),
-            'feature_4': np.random.randn(n_samples),
-            'feature_5': np.random.randn(n_samples),
-            'target': np.random.randn(n_samples)
-        })
+        data = pd.DataFrame(
+            {
+                "feature_1": np.random.randn(n_samples),
+                "feature_2": np.random.randn(n_samples),
+                "feature_3": np.random.randn(n_samples),
+                "feature_4": np.random.randn(n_samples),
+                "feature_5": np.random.randn(n_samples),
+                "target": np.random.randn(n_samples),
+            }
+        )
         return data
+
     def test_initialization(self, ml_pipeline: MLPipeline) -> None:
         """Тест инициализации ML пайплайна."""
         assert ml_pipeline is not None
-        assert hasattr(ml_pipeline, 'models')
-        assert hasattr(ml_pipeline, 'preprocessors')
-        assert hasattr(ml_pipeline, 'evaluators')
-        assert hasattr(ml_pipeline, 'feature_importance')
+        assert hasattr(ml_pipeline, "models")
+        assert hasattr(ml_pipeline, "preprocessors")
+        assert hasattr(ml_pipeline, "evaluators")
+        assert hasattr(ml_pipeline, "feature_importance")
+
     def test_create_model(self, ml_pipeline: MLPipeline) -> None:
         """Тест создания модели."""
         # Создание модели
-        model = ml_pipeline.create_model('random_forest', {
-            'n_estimators': 100,
-            'max_depth': 10,
-            'random_state': 42
-        })
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 100, "max_depth": 10, "random_state": 42})
         # Проверки
         assert model is not None
         assert isinstance(model, RandomForestRegressor)
         assert model.n_estimators == 100
         assert model.max_depth == 10
+
     def test_create_linear_model(self, ml_pipeline: MLPipeline) -> None:
         """Тест создания линейной модели."""
         # Создание линейной модели
-        model = ml_pipeline.create_model('linear_regression', {
-            'fit_intercept': True,
-            'normalize': False
-        })
+        model = ml_pipeline.create_model("linear_regression", {"fit_intercept": True, "normalize": False})
         # Проверки
         assert model is not None
         assert isinstance(model, LinearRegression)
         assert model.fit_intercept is True
+
     def test_preprocess_data(self, ml_pipeline: MLPipeline, sample_dataframe_data: pd.DataFrame) -> None:
         """Тест предобработки данных."""
         # Разделение на признаки и целевую переменную
-        X = sample_dataframe_data.drop(columns=['target'])
-        y = sample_dataframe_data['target']
+        X = sample_dataframe_data.drop(columns=["target"])
+        y = sample_dataframe_data["target"]
         # Предобработка данных
         X_processed, y_processed = ml_pipeline.preprocess_data(X, y)
         # Проверки
@@ -88,11 +92,12 @@ class TestMLPipeline:
         assert isinstance(y_processed, np.ndarray)
         assert len(X_processed) == len(y_processed)
         assert X_processed.shape[1] == X.shape[1]
+
     def test_train_model(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест обучения модели."""
         X, y = sample_training_data
         # Создание и обучение модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         training_result = ml_pipeline.train_model(model, X, y)
         # Проверки
         assert training_result is not None
@@ -107,11 +112,12 @@ class TestMLPipeline:
         assert isinstance(training_result["feature_importance"], dict)
         # Проверка диапазона training_score
         assert 0.0 <= training_result["training_score"] <= 1.0
+
     def test_predict(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест предсказания."""
         X, y = sample_training_data
         # Обучение модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         ml_pipeline.train_model(model, X, y)
         # Предсказание
         predictions = ml_pipeline.predict(model, X[:100])
@@ -120,6 +126,7 @@ class TestMLPipeline:
         assert isinstance(predictions, np.ndarray)
         assert len(predictions) == 100
         assert not np.isnan(predictions).any()
+
     def test_evaluate_model(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест оценки модели."""
         X, y = sample_training_data
@@ -128,7 +135,7 @@ class TestMLPipeline:
         X_train, X_test = X[:split_idx], X[split_idx:]
         y_train, y_test = y[:split_idx], y[split_idx:]
         # Обучение модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         ml_pipeline.train_model(model, X_train, y_train)
         # Оценка модели
         evaluation_result = ml_pipeline.evaluate_model(model, X_test, y_test)
@@ -150,11 +157,12 @@ class TestMLPipeline:
         assert evaluation_result["rmse"] >= 0
         assert evaluation_result["mae"] >= 0
         assert -1.0 <= evaluation_result["r2_score"] <= 1.0
+
     def test_cross_validate(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест кросс-валидации."""
         X, y = sample_training_data
         # Создание модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         # Кросс-валидация
         cv_result = ml_pipeline.cross_validate(model, X, y, cv=5)
         # Проверки
@@ -171,13 +179,14 @@ class TestMLPipeline:
         # Проверка логики
         assert len(cv_result["scores"]) == 5
         assert cv_result["std_score"] >= 0
+
     def test_feature_selection(self, ml_pipeline: MLPipeline, sample_dataframe_data: pd.DataFrame) -> None:
         """Тест выбора признаков."""
         # Разделение на признаки и целевую переменную
-        X = sample_dataframe_data.drop(columns=['target'])
-        y = sample_dataframe_data['target']
+        X = sample_dataframe_data.drop(columns=["target"])
+        y = sample_dataframe_data["target"]
         # Выбор признаков
-        feature_selection_result = ml_pipeline.feature_selection(X, y, method='correlation', threshold=0.8)
+        feature_selection_result = ml_pipeline.feature_selection(X, y, method="correlation", threshold=0.8)
         # Проверки
         assert feature_selection_result is not None
         assert "selected_features" in feature_selection_result
@@ -190,19 +199,14 @@ class TestMLPipeline:
         # Проверка логики
         assert len(feature_selection_result["selected_features"]) <= len(X.columns)
         assert 0.0 <= feature_selection_result["selection_score"] <= 1.0
+
     def test_hyperparameter_tuning(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест настройки гиперпараметров."""
         X, y = sample_training_data
         # Параметры для настройки
-        param_grid = {
-            'n_estimators': [50, 100],
-            'max_depth': [5, 10],
-            'min_samples_split': [2, 5]
-        }
+        param_grid = {"n_estimators": [50, 100], "max_depth": [5, 10], "min_samples_split": [2, 5]}
         # Настройка гиперпараметров
-        tuning_result = ml_pipeline.hyperparameter_tuning(
-            X, y, 'random_forest', param_grid, cv=3
-        )
+        tuning_result = ml_pipeline.hyperparameter_tuning(X, y, "random_forest", param_grid, cv=3)
         # Проверки
         assert tuning_result is not None
         assert "best_params" in tuning_result
@@ -216,14 +220,13 @@ class TestMLPipeline:
         assert isinstance(tuning_result["tuning_time"], float)
         # Проверка логики
         assert 0.0 <= tuning_result["best_score"] <= 1.0
+
     def test_ensemble_models(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест ансамблевых моделей."""
         X, y = sample_training_data
         # Создание ансамбля
         ensemble_result = ml_pipeline.ensemble_models(
-            X, y,
-            models=['random_forest', 'linear_regression'],
-            method='voting'
+            X, y, models=["random_forest", "linear_regression"], method="voting"
         )
         # Проверки
         assert ensemble_result is not None
@@ -236,21 +239,22 @@ class TestMLPipeline:
         assert isinstance(ensemble_result["individual_scores"], dict)
         # Проверка диапазона
         assert 0.0 <= ensemble_result["ensemble_score"] <= 1.0
+
     def test_model_persistence(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест сохранения и загрузки модели."""
         X, y = sample_training_data
         # Обучение модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         ml_pipeline.train_model(model, X, y)
         # Сохранение модели
-        save_result = ml_pipeline.save_model(model, 'test_model.pkl')
+        save_result = ml_pipeline.save_model(model, "test_model.pkl")
         # Проверки сохранения
         assert save_result is not None
         assert "save_path" in save_result
         assert "save_time" in save_result
-        assert save_result["save_path"] == 'test_model.pkl'
+        assert save_result["save_path"] == "test_model.pkl"
         # Загрузка модели
-        loaded_model = ml_pipeline.load_model('test_model.pkl')
+        loaded_model = ml_pipeline.load_model("test_model.pkl")
         # Проверки загрузки
         assert loaded_model is not None
         assert isinstance(loaded_model, RandomForestRegressor)
@@ -258,6 +262,7 @@ class TestMLPipeline:
         predictions_original = ml_pipeline.predict(model, X[:10])
         predictions_loaded = ml_pipeline.predict(loaded_model, X[:10])
         np.testing.assert_array_almost_equal(predictions_original, predictions_loaded)
+
     def test_model_comparison(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест сравнения моделей."""
         X, y = sample_training_data
@@ -267,13 +272,11 @@ class TestMLPipeline:
         y_train, y_test = y[:split_idx], y[split_idx:]
         # Создание моделей для сравнения
         models = {
-            'random_forest': ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42}),
-            'linear_regression': ml_pipeline.create_model('linear_regression', {})
+            "random_forest": ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42}),
+            "linear_regression": ml_pipeline.create_model("linear_regression", {}),
         }
         # Сравнение моделей
-        comparison_result = ml_pipeline.compare_models(
-            models, X_train, y_train, X_test, y_test
-        )
+        comparison_result = ml_pipeline.compare_models(models, X_train, y_train, X_test, y_test)
         # Проверки
         assert comparison_result is not None
         assert "model_scores" in comparison_result
@@ -286,13 +289,14 @@ class TestMLPipeline:
         # Проверка логики
         assert len(comparison_result["model_scores"]) == 2
         assert comparison_result["best_model"] in models.keys()
+
     def test_feature_importance_analysis(self, ml_pipeline: MLPipeline, sample_dataframe_data: pd.DataFrame) -> None:
         """Тест анализа важности признаков."""
         # Разделение на признаки и целевую переменную
-        X = sample_dataframe_data.drop(columns=['target'])
-        y = sample_dataframe_data['target']
+        X = sample_dataframe_data.drop(columns=["target"])
+        y = sample_dataframe_data["target"]
         # Обучение модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         ml_pipeline.train_model(model, X, y)
         # Анализ важности признаков
         importance_analysis = ml_pipeline.analyze_feature_importance(model, X.columns)
@@ -308,11 +312,12 @@ class TestMLPipeline:
         # Проверка логики
         assert len(importance_analysis["feature_importance"]) == len(X.columns)
         assert len(importance_analysis["top_features"]) <= len(X.columns)
+
     def test_model_interpretation(self, ml_pipeline: MLPipeline, sample_training_data: tuple) -> None:
         """Тест интерпретации модели."""
         X, y = sample_training_data
         # Обучение модели
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 50, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 50, "random_state": 42})
         ml_pipeline.train_model(model, X, y)
         # Интерпретация модели
         interpretation = ml_pipeline.interpret_model(model, X[:100])
@@ -325,22 +330,25 @@ class TestMLPipeline:
         assert isinstance(interpretation["model_complexity"], dict)
         assert isinstance(interpretation["prediction_explanation"], dict)
         assert isinstance(interpretation["feature_contributions"], dict)
+
     def test_error_handling(self, ml_pipeline: MLPipeline) -> None:
         """Тест обработки ошибок."""
         # Тест с некорректными данными
         with pytest.raises(ValueError):
-            ml_pipeline.create_model('invalid_model', {})
+            ml_pipeline.create_model("invalid_model", {})
         with pytest.raises(ValueError):
             ml_pipeline.train_model(None, np.array([]), np.array([]))
+
     def test_edge_cases(self, ml_pipeline: MLPipeline) -> None:
         """Тест граничных случаев."""
         # Тест с очень маленьким набором данных
         X_small = np.random.randn(5, 3)
         y_small = np.random.randn(5)
-        model = ml_pipeline.create_model('random_forest', {'n_estimators': 10, 'random_state': 42})
+        model = ml_pipeline.create_model("random_forest", {"n_estimators": 10, "random_state": 42})
         training_result = ml_pipeline.train_model(model, X_small, y_small)
         assert training_result is not None
         assert training_result["model"] is not None
+
     def test_cleanup(self, ml_pipeline: MLPipeline) -> None:
         """Тест очистки ресурсов."""
         # Проверка корректной очистки
@@ -349,4 +357,4 @@ class TestMLPipeline:
         assert ml_pipeline.models == {}
         assert ml_pipeline.preprocessors == {}
         assert ml_pipeline.evaluators == {}
-        assert ml_pipeline.feature_importance == {} 
+        assert ml_pipeline.feature_importance == {}

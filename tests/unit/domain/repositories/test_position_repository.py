@@ -48,121 +48,121 @@ class TestPositionRepository:
             current_price=51000.0,
             is_open=True,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
     def test_save_method_exists(self, mock_position_repository, sample_position):
         """Тест наличия метода save."""
         mock_position_repository.save = AsyncMock(return_value=True)
-        assert hasattr(mock_position_repository, 'save')
+        assert hasattr(mock_position_repository, "save")
         assert callable(mock_position_repository.save)
 
     def test_get_by_id_method_exists(self, mock_position_repository):
         """Тест наличия метода get_by_id."""
         mock_position_repository.get_by_id = AsyncMock(return_value=None)
-        assert hasattr(mock_position_repository, 'get_by_id')
+        assert hasattr(mock_position_repository, "get_by_id")
         assert callable(mock_position_repository.get_by_id)
 
     def test_get_by_trading_pair_method_exists(self, mock_position_repository, sample_trading_pair):
         """Тест наличия метода get_by_trading_pair."""
         mock_position_repository.get_by_trading_pair = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_by_trading_pair')
+        assert hasattr(mock_position_repository, "get_by_trading_pair")
         assert callable(mock_position_repository.get_by_trading_pair)
 
     def test_get_open_positions_method_exists(self, mock_position_repository):
         """Тест наличия метода get_open_positions."""
         mock_position_repository.get_open_positions = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_open_positions')
+        assert hasattr(mock_position_repository, "get_open_positions")
         assert callable(mock_position_repository.get_open_positions)
 
     def test_get_closed_positions_method_exists(self, mock_position_repository):
         """Тест наличия метода get_closed_positions."""
         mock_position_repository.get_closed_positions = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_closed_positions')
+        assert hasattr(mock_position_repository, "get_closed_positions")
         assert callable(mock_position_repository.get_closed_positions)
 
     def test_get_positions_by_side_method_exists(self, mock_position_repository):
         """Тест наличия метода get_positions_by_side."""
         mock_position_repository.get_positions_by_side = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_positions_by_side')
+        assert hasattr(mock_position_repository, "get_positions_by_side")
         assert callable(mock_position_repository.get_positions_by_side)
 
     def test_get_positions_by_date_range_method_exists(self, mock_position_repository):
         """Тест наличия метода get_positions_by_date_range."""
         mock_position_repository.get_positions_by_date_range = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_positions_by_date_range')
+        assert hasattr(mock_position_repository, "get_positions_by_date_range")
         assert callable(mock_position_repository.get_positions_by_date_range)
 
     def test_update_method_exists(self, mock_position_repository, sample_position):
         """Тест наличия метода update."""
         mock_position_repository.update = AsyncMock(return_value=sample_position)
-        assert hasattr(mock_position_repository, 'update')
+        assert hasattr(mock_position_repository, "update")
         assert callable(mock_position_repository.update)
 
     def test_delete_method_exists(self, mock_position_repository):
         """Тест наличия метода delete."""
         mock_position_repository.delete = AsyncMock(return_value=True)
-        assert hasattr(mock_position_repository, 'delete')
+        assert hasattr(mock_position_repository, "delete")
         assert callable(mock_position_repository.delete)
 
     def test_exists_method_exists(self, mock_position_repository):
         """Тест наличия метода exists."""
         mock_position_repository.exists = AsyncMock(return_value=True)
-        assert hasattr(mock_position_repository, 'exists')
+        assert hasattr(mock_position_repository, "exists")
         assert callable(mock_position_repository.exists)
 
     def test_count_method_exists(self, mock_position_repository):
         """Тест наличия метода count."""
         mock_position_repository.count = AsyncMock(return_value=0)
-        assert hasattr(mock_position_repository, 'count')
+        assert hasattr(mock_position_repository, "count")
         assert callable(mock_position_repository.count)
 
     def test_get_profitable_positions_method_exists(self, mock_position_repository):
         """Тест наличия метода get_profitable_positions."""
         mock_position_repository.get_profitable_positions = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_profitable_positions')
+        assert hasattr(mock_position_repository, "get_profitable_positions")
         assert callable(mock_position_repository.get_profitable_positions)
 
     def test_get_losing_positions_method_exists(self, mock_position_repository):
         """Тест наличия метода get_losing_positions."""
         mock_position_repository.get_losing_positions = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_losing_positions')
+        assert hasattr(mock_position_repository, "get_losing_positions")
         assert callable(mock_position_repository.get_losing_positions)
 
     def test_get_positions_with_stop_loss_method_exists(self, mock_position_repository):
         """Тест наличия метода get_positions_with_stop_loss."""
         mock_position_repository.get_positions_with_stop_loss = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_positions_with_stop_loss')
+        assert hasattr(mock_position_repository, "get_positions_with_stop_loss")
         assert callable(mock_position_repository.get_positions_with_stop_loss)
 
     def test_get_positions_with_take_profit_method_exists(self, mock_position_repository):
         """Тест наличия метода get_positions_with_take_profit."""
         mock_position_repository.get_positions_with_take_profit = AsyncMock(return_value=[])
-        assert hasattr(mock_position_repository, 'get_positions_with_take_profit')
+        assert hasattr(mock_position_repository, "get_positions_with_take_profit")
         assert callable(mock_position_repository.get_positions_with_take_profit)
 
     def test_get_statistics_method_exists(self, mock_position_repository):
         """Тест наличия метода get_statistics."""
         mock_position_repository.get_statistics = AsyncMock(return_value={})
-        assert hasattr(mock_position_repository, 'get_statistics')
+        assert hasattr(mock_position_repository, "get_statistics")
         assert callable(mock_position_repository.get_statistics)
 
     def test_get_total_exposure_method_exists(self, mock_position_repository):
         """Тест наличия метода get_total_exposure."""
         mock_position_repository.get_total_exposure = AsyncMock(return_value={})
-        assert hasattr(mock_position_repository, 'get_total_exposure')
+        assert hasattr(mock_position_repository, "get_total_exposure")
         assert callable(mock_position_repository.get_total_exposure)
 
     def test_cleanup_old_positions_method_exists(self, mock_position_repository):
         """Тест наличия метода cleanup_old_positions."""
         mock_position_repository.cleanup_old_positions = AsyncMock(return_value=0)
-        assert hasattr(mock_position_repository, 'cleanup_old_positions')
+        assert hasattr(mock_position_repository, "cleanup_old_positions")
         assert callable(mock_position_repository.cleanup_old_positions)
 
     def test_get_by_symbol_method_exists(self, mock_position_repository):
         """Тест наличия метода get_by_symbol."""
         mock_position_repository.get_by_symbol = AsyncMock(return_value=None)
-        assert hasattr(mock_position_repository, 'get_by_symbol')
+        assert hasattr(mock_position_repository, "get_by_symbol")
         assert callable(mock_position_repository.get_by_symbol)
 
 
@@ -196,7 +196,7 @@ class TestInMemoryPositionRepository:
             current_price=51000.0,
             is_open=True,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
     @pytest.fixture
@@ -213,7 +213,7 @@ class TestInMemoryPositionRepository:
                 current_price=51000.0,
                 is_open=True,
                 created_at=now - timedelta(hours=1),
-                updated_at=now
+                updated_at=now,
             ),
             Position(
                 id=uuid4(),
@@ -224,7 +224,7 @@ class TestInMemoryPositionRepository:
                 current_price=51500.0,
                 is_open=True,
                 created_at=now - timedelta(hours=2),
-                updated_at=now
+                updated_at=now,
             ),
             Position(
                 id=uuid4(),
@@ -236,7 +236,7 @@ class TestInMemoryPositionRepository:
                 is_open=False,
                 closed_at=now - timedelta(hours=3),
                 created_at=now - timedelta(days=1),
-                updated_at=now - timedelta(hours=3)
+                updated_at=now - timedelta(hours=3),
             ),
             Position(
                 id=uuid4(),
@@ -248,8 +248,8 @@ class TestInMemoryPositionRepository:
                 is_open=False,
                 closed_at=now - timedelta(hours=4),
                 created_at=now - timedelta(days=2),
-                updated_at=now - timedelta(hours=4)
-            )
+                updated_at=now - timedelta(hours=4),
+            ),
         ]
 
     @pytest.mark.asyncio
@@ -329,9 +329,7 @@ class TestInMemoryPositionRepository:
         repository.get_closed_positions = AsyncMock(return_value=closed_positions)
         result = await repository.get_closed_positions()
         assert result == closed_positions
-        repository.get_closed_positions.assert_called_once_with(
-            trading_pair=None, start_date=None, end_date=None
-        )
+        repository.get_closed_positions.assert_called_once_with(trading_pair=None, start_date=None, end_date=None)
 
     @pytest.mark.asyncio
     async def test_get_closed_positions_with_date_range(self, repository, sample_positions):
@@ -340,9 +338,7 @@ class TestInMemoryPositionRepository:
         end_date = datetime.now() - timedelta(hours=1)
         closed_positions = [p for p in sample_positions if not p.is_open]
         repository.get_closed_positions = AsyncMock(return_value=closed_positions)
-        result = await repository.get_closed_positions(
-            start_date=start_date, end_date=end_date
-        )
+        result = await repository.get_closed_positions(start_date=start_date, end_date=end_date)
         assert result == closed_positions
         repository.get_closed_positions.assert_called_once_with(
             trading_pair=None, start_date=start_date, end_date=end_date
@@ -355,18 +351,16 @@ class TestInMemoryPositionRepository:
         repository.get_positions_by_side = AsyncMock(return_value=long_positions)
         result = await repository.get_positions_by_side(PositionSide.LONG)
         assert result == long_positions
-        repository.get_positions_by_side.assert_called_once_with(
-            PositionSide.LONG, trading_pair=None, open_only=True
-        )
+        repository.get_positions_by_side.assert_called_once_with(PositionSide.LONG, trading_pair=None, open_only=True)
 
     @pytest.mark.asyncio
     async def test_get_positions_by_side_with_trading_pair(self, repository, sample_positions, sample_trading_pair):
         """Тест получения позиций по стороне и торговой паре."""
-        long_btc_positions = [p for p in sample_positions if p.side == PositionSide.LONG and p.trading_pair == sample_trading_pair]
+        long_btc_positions = [
+            p for p in sample_positions if p.side == PositionSide.LONG and p.trading_pair == sample_trading_pair
+        ]
         repository.get_positions_by_side = AsyncMock(return_value=long_btc_positions)
-        result = await repository.get_positions_by_side(
-            PositionSide.LONG, trading_pair=sample_trading_pair
-        )
+        result = await repository.get_positions_by_side(PositionSide.LONG, trading_pair=sample_trading_pair)
         assert result == long_btc_positions
         repository.get_positions_by_side.assert_called_once_with(
             PositionSide.LONG, trading_pair=sample_trading_pair, open_only=True
@@ -380,20 +374,18 @@ class TestInMemoryPositionRepository:
         repository.get_positions_by_date_range = AsyncMock(return_value=sample_positions)
         result = await repository.get_positions_by_date_range(start_date, end_date)
         assert result == sample_positions
-        repository.get_positions_by_date_range.assert_called_once_with(
-            start_date, end_date, trading_pair=None
-        )
+        repository.get_positions_by_date_range.assert_called_once_with(start_date, end_date, trading_pair=None)
 
     @pytest.mark.asyncio
-    async def test_get_positions_by_date_range_with_trading_pair(self, repository, sample_positions, sample_trading_pair):
+    async def test_get_positions_by_date_range_with_trading_pair(
+        self, repository, sample_positions, sample_trading_pair
+    ):
         """Тест получения позиций по диапазону дат и торговой паре."""
         start_date = datetime.now() - timedelta(days=1)
         end_date = datetime.now()
         btc_positions = [p for p in sample_positions if p.trading_pair == sample_trading_pair]
         repository.get_positions_by_date_range = AsyncMock(return_value=btc_positions)
-        result = await repository.get_positions_by_date_range(
-            start_date, end_date, trading_pair=sample_trading_pair
-        )
+        result = await repository.get_positions_by_date_range(start_date, end_date, trading_pair=sample_trading_pair)
         assert result == btc_positions
         repository.get_positions_by_date_range.assert_called_once_with(
             start_date, end_date, trading_pair=sample_trading_pair
@@ -411,7 +403,7 @@ class TestInMemoryPositionRepository:
             current_price=52000.0,  # Обновленная цена
             is_open=sample_position.is_open,
             created_at=sample_position.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         repository.update = AsyncMock(return_value=updated_position)
         result = await repository.update(sample_position)
@@ -503,15 +495,14 @@ class TestInMemoryPositionRepository:
         repository.get_profitable_positions = AsyncMock(return_value=profitable_positions)
         result = await repository.get_profitable_positions()
         assert result == profitable_positions
-        repository.get_profitable_positions.assert_called_once_with(
-            trading_pair=None, start_date=None, end_date=None
-        )
+        repository.get_profitable_positions.assert_called_once_with(trading_pair=None, start_date=None, end_date=None)
 
     @pytest.mark.asyncio
     async def test_get_profitable_positions_with_trading_pair(self, repository, sample_positions, sample_trading_pair):
         """Тест получения прибыльных позиций по торговой паре."""
         profitable_btc_positions = [
-            p for p in sample_positions 
+            p
+            for p in sample_positions
             if p.trading_pair == sample_trading_pair and p.is_open and p.current_price > p.entry_price
         ]
         repository.get_profitable_positions = AsyncMock(return_value=profitable_btc_positions)
@@ -528,15 +519,14 @@ class TestInMemoryPositionRepository:
         repository.get_losing_positions = AsyncMock(return_value=losing_positions)
         result = await repository.get_losing_positions()
         assert result == losing_positions
-        repository.get_losing_positions.assert_called_once_with(
-            trading_pair=None, start_date=None, end_date=None
-        )
+        repository.get_losing_positions.assert_called_once_with(trading_pair=None, start_date=None, end_date=None)
 
     @pytest.mark.asyncio
     async def test_get_losing_positions_with_trading_pair(self, repository, sample_positions, sample_trading_pair):
         """Тест получения убыточных позиций по торговой паре."""
         losing_btc_positions = [
-            p for p in sample_positions 
+            p
+            for p in sample_positions
             if p.trading_pair == sample_trading_pair and p.is_open and p.current_price < p.entry_price
         ]
         repository.get_losing_positions = AsyncMock(return_value=losing_btc_positions)
@@ -549,7 +539,7 @@ class TestInMemoryPositionRepository:
     @pytest.mark.asyncio
     async def test_get_positions_with_stop_loss(self, repository, sample_positions):
         """Тест получения позиций со стоп-лоссом."""
-        positions_with_sl = [p for p in sample_positions if hasattr(p, 'stop_loss') and p.stop_loss is not None]
+        positions_with_sl = [p for p in sample_positions if hasattr(p, "stop_loss") and p.stop_loss is not None]
         repository.get_positions_with_stop_loss = AsyncMock(return_value=positions_with_sl)
         result = await repository.get_positions_with_stop_loss()
         assert result == positions_with_sl
@@ -558,7 +548,7 @@ class TestInMemoryPositionRepository:
     @pytest.mark.asyncio
     async def test_get_positions_with_take_profit(self, repository, sample_positions):
         """Тест получения позиций с тейк-профитом."""
-        positions_with_tp = [p for p in sample_positions if hasattr(p, 'take_profit') and p.take_profit is not None]
+        positions_with_tp = [p for p in sample_positions if hasattr(p, "take_profit") and p.take_profit is not None]
         repository.get_positions_with_take_profit = AsyncMock(return_value=positions_with_tp)
         result = await repository.get_positions_with_take_profit()
         assert result == positions_with_tp
@@ -568,27 +558,25 @@ class TestInMemoryPositionRepository:
     async def test_get_statistics(self, repository, sample_positions):
         """Тест получения статистики по позициям."""
         expected_stats = {
-            'total_positions': len(sample_positions),
-            'open_positions': len([p for p in sample_positions if p.is_open]),
-            'closed_positions': len([p for p in sample_positions if not p.is_open]),
-            'total_pnl': 1000.0,
-            'win_rate': 0.75
+            "total_positions": len(sample_positions),
+            "open_positions": len([p for p in sample_positions if p.is_open]),
+            "closed_positions": len([p for p in sample_positions if not p.is_open]),
+            "total_pnl": 1000.0,
+            "win_rate": 0.75,
         }
         repository.get_statistics = AsyncMock(return_value=expected_stats)
         result = await repository.get_statistics()
         assert result == expected_stats
-        repository.get_statistics.assert_called_once_with(
-            trading_pair=None, start_date=None, end_date=None
-        )
+        repository.get_statistics.assert_called_once_with(trading_pair=None, start_date=None, end_date=None)
 
     @pytest.mark.asyncio
     async def test_get_total_exposure(self, repository, sample_positions):
         """Тест получения общего риска по позициям."""
         expected_exposure = {
-            'total_exposure': 50000.0,
-            'long_exposure': 30000.0,
-            'short_exposure': 20000.0,
-            'net_exposure': 10000.0
+            "total_exposure": 50000.0,
+            "long_exposure": 30000.0,
+            "short_exposure": 20000.0,
+            "net_exposure": 10000.0,
         }
         repository.get_total_exposure = AsyncMock(return_value=expected_exposure)
         result = await repository.get_total_exposure()
@@ -638,11 +626,11 @@ class TestInMemoryPositionRepository:
             current_price=51000.0,
             is_open=True,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         repository.save = AsyncMock(return_value=True)
         repository.get_by_id = AsyncMock(return_value=long_position)
-        
+
         await repository.save(long_position)
         retrieved = await repository.get_by_id(long_position.id)
         assert retrieved.side == PositionSide.LONG
@@ -657,11 +645,11 @@ class TestInMemoryPositionRepository:
             current_price=51000.0,
             is_open=True,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         repository.save = AsyncMock(return_value=True)
         repository.get_by_id = AsyncMock(return_value=short_position)
-        
+
         await repository.save(short_position)
         retrieved = await repository.get_by_id(short_position.id)
         assert retrieved.side == PositionSide.SHORT
@@ -679,14 +667,14 @@ class TestInMemoryPositionRepository:
             current_price=52000.0,  # Обновленная цена
             is_open=sample_position.is_open,
             created_at=sample_position.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         repository.update = AsyncMock(return_value=updated_position)
         repository.get_by_id = AsyncMock(return_value=updated_position)
-        
+
         result = await repository.update(sample_position)
         assert result.current_price == 52000.0
-        
+
         retrieved = await repository.get_by_id(sample_position.id)
         assert retrieved.current_price == 52000.0
 
@@ -703,14 +691,14 @@ class TestInMemoryPositionRepository:
             current_price=sample_position.current_price,
             is_open=sample_position.is_open,
             created_at=sample_position.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         repository.update = AsyncMock(return_value=updated_position)
         repository.get_by_id = AsyncMock(return_value=updated_position)
-        
+
         result = await repository.update(sample_position)
         assert result.quantity == 2.0
-        
+
         retrieved = await repository.get_by_id(sample_position.id)
         assert retrieved.quantity == 2.0
 
@@ -729,10 +717,10 @@ class TestInMemoryPositionRepository:
                 current_price=51000.0 + i * 1000,
                 is_open=True,
                 created_at=datetime.now() - timedelta(hours=i),
-                updated_at=datetime.now()
+                updated_at=datetime.now(),
             )
             positions.append(position)
-        
+
         repository.get_by_trading_pair = AsyncMock(return_value=positions)
         result = await repository.get_by_trading_pair(sample_trading_pair)
         assert len(result) == 3
@@ -744,7 +732,7 @@ class TestInMemoryPositionRepository:
         # Создание двух независимых репозиториев
         repo1 = Mock(spec=PositionRepository)
         repo2 = Mock(spec=PositionRepository)
-        
+
         # Данные в первом репозитории
         position1 = Position(
             id=uuid4(),
@@ -755,9 +743,9 @@ class TestInMemoryPositionRepository:
             current_price=51000.0,
             is_open=True,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
-        
+
         # Данные во втором репозитории
         position2 = Position(
             id=uuid4(),
@@ -768,17 +756,17 @@ class TestInMemoryPositionRepository:
             current_price=3100.0,
             is_open=True,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
-        
+
         # Настройка моков
         repo1.get_by_id = AsyncMock(return_value=position1)
         repo2.get_by_id = AsyncMock(return_value=position2)
-        
+
         # Проверка изоляции
         result1 = await repo1.get_by_id(position1.id)
         result2 = await repo2.get_by_id(position2.id)
-        
+
         assert result1 == position1
         assert result2 == position2
         assert result1 != result2
@@ -788,7 +776,7 @@ class TestInMemoryPositionRepository:
     async def test_error_handling_save(self, repository, sample_position):
         """Тест обработки ошибок при сохранении."""
         repository.save = AsyncMock(side_effect=Exception("Database error"))
-        
+
         with pytest.raises(Exception, match="Database error"):
             await repository.save(sample_position)
 
@@ -797,7 +785,7 @@ class TestInMemoryPositionRepository:
         """Тест обработки ошибок при получении по ID."""
         position_id = uuid4()
         repository.get_by_id = AsyncMock(side_effect=Exception("Connection error"))
-        
+
         with pytest.raises(Exception, match="Connection error"):
             await repository.get_by_id(position_id)
 
@@ -805,7 +793,7 @@ class TestInMemoryPositionRepository:
     async def test_error_handling_update(self, repository, sample_position):
         """Тест обработки ошибок при обновлении."""
         repository.update = AsyncMock(side_effect=Exception("Update failed"))
-        
+
         with pytest.raises(Exception, match="Update failed"):
             await repository.update(sample_position)
 
@@ -814,6 +802,6 @@ class TestInMemoryPositionRepository:
         """Тест обработки ошибок при удалении."""
         position_id = uuid4()
         repository.delete = AsyncMock(side_effect=Exception("Delete failed"))
-        
+
         with pytest.raises(Exception, match="Delete failed"):
-            await repository.delete(position_id) 
+            await repository.delete(position_id)

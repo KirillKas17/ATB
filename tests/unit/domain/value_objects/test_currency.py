@@ -122,7 +122,7 @@ class TestCurrencyInfo:
     def test_currency_info_to_dict(self, sample_currency_info):
         """Тест сериализации в словарь."""
         result = sample_currency_info.to_dict()
-        
+
         assert result["code"] == "TEST"
         assert result["name"] == "Test Currency"
         assert result["symbol"] == "T"
@@ -347,10 +347,10 @@ class TestCurrencyIntegration:
         """Тест поддержки сетей криптовалют."""
         # BTC поддерживает Bitcoin сеть
         assert CurrencyNetwork.BITCOIN in Currency.BTC.networks
-        
+
         # ETH поддерживает Ethereum сеть
         assert CurrencyNetwork.ETHEREUM in Currency.ETH.networks
-        
+
         # USDT поддерживает несколько сетей
         assert CurrencyNetwork.ETHEREUM in Currency.USDT.networks
         assert CurrencyNetwork.BINANCE_SMART_CHAIN in Currency.USDT.networks
@@ -358,7 +358,7 @@ class TestCurrencyIntegration:
     def test_stablecoin_characteristics(self):
         """Тест характеристик стейблкоинов."""
         stablecoins = [Currency.USDT, Currency.USDC, Currency.BUSD, Currency.DAI, Currency.TUSD]
-        
+
         for stablecoin in stablecoins:
             assert stablecoin.is_stablecoin is True
             assert stablecoin.is_crypto is False
@@ -367,8 +367,16 @@ class TestCurrencyIntegration:
 
     def test_fiat_characteristics(self):
         """Тест характеристик фиатных валют."""
-        fiat_currencies = [Currency.USD, Currency.EUR, Currency.GBP, Currency.JPY, Currency.CNY, Currency.KRW, Currency.RUB]
-        
+        fiat_currencies = [
+            Currency.USD,
+            Currency.EUR,
+            Currency.GBP,
+            Currency.JPY,
+            Currency.CNY,
+            Currency.KRW,
+            Currency.RUB,
+        ]
+
         for fiat in fiat_currencies:
             assert fiat.is_fiat is True
             assert fiat.is_crypto is False
@@ -382,14 +390,14 @@ class TestCurrencyIntegration:
         assert Currency.BTC.trading_priority == 1
         assert Currency.ETH.trading_priority == 2
         assert Currency.USDT.trading_priority == 3
-        
+
         # Фиатные валюты должны иметь низкий приоритет
         assert Currency.USD.trading_priority > 25
 
     def test_currency_comparison_operations(self):
         """Тест операций сравнения валют."""
         currencies = [Currency.BTC, Currency.ETH, Currency.USDT, Currency.USD]
-        
+
         # Все валюты должны быть уникальными
         for i, curr1 in enumerate(currencies):
             for j, curr2 in enumerate(currencies):
@@ -402,10 +410,10 @@ class TestCurrencyIntegration:
         """Тест консистентности хеширования."""
         btc1 = Currency.BTC
         btc2 = Currency.BTC
-        
+
         # Одинаковые валюты должны иметь одинаковые хеши
         assert hash(btc1) == hash(btc2)
-        
+
         # Хеш должен быть стабильным
         assert hash(btc1) == hash(Currency.BTC)
 
@@ -413,15 +421,24 @@ class TestCurrencyIntegration:
         """Тест сериализации и десериализации."""
         btc = Currency.BTC
         btc_dict = btc.to_dict()
-        
+
         # Проверяем, что все ключи присутствуют
         expected_keys = {
-            "code", "name", "symbol", "type", "networks", 
-            "decimals", "is_active", "market_cap_rank", 
-            "volume_24h", "price_usd", "last_updated", "trading_priority"
+            "code",
+            "name",
+            "symbol",
+            "type",
+            "networks",
+            "decimals",
+            "is_active",
+            "market_cap_rank",
+            "volume_24h",
+            "price_usd",
+            "last_updated",
+            "trading_priority",
         }
         assert set(btc_dict.keys()) == expected_keys
-        
+
         # Проверяем типы значений
         assert isinstance(btc_dict["code"], str)
         assert isinstance(btc_dict["name"], str)
@@ -440,7 +457,7 @@ class TestCurrencyEdgeCases:
         """Тест валют без сетей."""
         # XRP не имеет определенных сетей
         assert Currency.XRP.networks == set()
-        
+
         # Фиатные валюты не имеют сетей
         assert Currency.USD.networks == set()
         assert Currency.EUR.networks == set()
@@ -467,7 +484,7 @@ class TestCurrencyEdgeCases:
         # Проверяем, что активные валюты могут торговаться друг с другом
         assert Currency.BTC.can_trade_with(Currency.ETH) is True
         assert Currency.ETH.can_trade_with(Currency.BTC) is True
-        
+
         # Валюты не могут торговаться сами с собой
         assert Currency.BTC.can_trade_with(Currency.BTC) is False
         assert Currency.ETH.can_trade_with(Currency.ETH) is False
@@ -482,7 +499,7 @@ class TestCurrencyEdgeCases:
         """Тест устойчивости к коллизиям хешей."""
         currencies = list(Currency)
         hashes = [currency.hash for currency in currencies]
-        
+
         # Все хеши должны быть уникальными
         assert len(hashes) == len(set(hashes))
 
@@ -496,12 +513,12 @@ class TestCurrencyEdgeCases:
     def test_currency_performance(self):
         """Тест производительности операций с валютами."""
         import time
-        
+
         # Тест скорости создания из строки
         start_time = time.time()
         for _ in range(1000):
             Currency.from_string("BTC")
         end_time = time.time()
-        
+
         # Операция должна выполняться быстро
-        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций 
+        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.core.market_state import MarketState, MarketStateManager
 
 
-    @pytest.fixture
+@pytest.fixture
 def sample_market_state() -> Any:
     """Фикстура для MarketState"""
     return MarketState(
@@ -28,7 +28,7 @@ def sample_market_state() -> Any:
     )
 
 
-    @pytest.fixture
+@pytest.fixture
 def market_state_manager() -> Any:
     """Фикстура для MarketStateManager"""
     config = {

@@ -133,7 +133,7 @@ class TestPerformanceProfiler:
     @pytest.mark.asyncio
     async def test_profile_function(self, profiler: PerformanceProfiler) -> None:
         """Тест профилирования функции."""
-    def test_func() -> None:
+        def test_func() -> None:
             time.sleep(0.01)
             return "test"
         with profiler.profile_function("test_func"):
@@ -142,6 +142,7 @@ class TestPerformanceProfiler:
         # Проверяем, что профиль создался
         profile = await profiler.get_function_profile("test_func")
         assert profile is not None
+
     @pytest.mark.asyncio
     async def test_profile_async_function(self, profiler: PerformanceProfiler) -> None:
         """Тест профилирования асинхронной функции."""

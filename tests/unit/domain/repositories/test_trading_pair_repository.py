@@ -45,61 +45,61 @@ class TestTradingPairRepository:
     def test_save_method_exists(self, mock_trading_pair_repository, sample_trading_pair):
         """Тест наличия метода save."""
         mock_trading_pair_repository.save = AsyncMock(return_value=sample_trading_pair)
-        assert hasattr(mock_trading_pair_repository, 'save')
+        assert hasattr(mock_trading_pair_repository, "save")
         assert callable(mock_trading_pair_repository.save)
 
     def test_get_by_symbol_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода get_by_symbol."""
         mock_trading_pair_repository.get_by_symbol = AsyncMock(return_value=None)
-        assert hasattr(mock_trading_pair_repository, 'get_by_symbol')
+        assert hasattr(mock_trading_pair_repository, "get_by_symbol")
         assert callable(mock_trading_pair_repository.get_by_symbol)
 
     def test_get_all_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода get_all."""
         mock_trading_pair_repository.get_all = AsyncMock(return_value=[])
-        assert hasattr(mock_trading_pair_repository, 'get_all')
+        assert hasattr(mock_trading_pair_repository, "get_all")
         assert callable(mock_trading_pair_repository.get_all)
 
     def test_get_by_currencies_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода get_by_currencies."""
         mock_trading_pair_repository.get_by_currencies = AsyncMock(return_value=[])
-        assert hasattr(mock_trading_pair_repository, 'get_by_currencies')
+        assert hasattr(mock_trading_pair_repository, "get_by_currencies")
         assert callable(mock_trading_pair_repository.get_by_currencies)
 
     def test_update_method_exists(self, mock_trading_pair_repository, sample_trading_pair):
         """Тест наличия метода update."""
         mock_trading_pair_repository.update = AsyncMock(return_value=sample_trading_pair)
-        assert hasattr(mock_trading_pair_repository, 'update')
+        assert hasattr(mock_trading_pair_repository, "update")
         assert callable(mock_trading_pair_repository.update)
 
     def test_delete_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода delete."""
         mock_trading_pair_repository.delete = AsyncMock(return_value=True)
-        assert hasattr(mock_trading_pair_repository, 'delete')
+        assert hasattr(mock_trading_pair_repository, "delete")
         assert callable(mock_trading_pair_repository.delete)
 
     def test_exists_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода exists."""
         mock_trading_pair_repository.exists = AsyncMock(return_value=True)
-        assert hasattr(mock_trading_pair_repository, 'exists')
+        assert hasattr(mock_trading_pair_repository, "exists")
         assert callable(mock_trading_pair_repository.exists)
 
     def test_count_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода count."""
         mock_trading_pair_repository.count = AsyncMock(return_value=0)
-        assert hasattr(mock_trading_pair_repository, 'count')
+        assert hasattr(mock_trading_pair_repository, "count")
         assert callable(mock_trading_pair_repository.count)
 
     def test_search_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода search."""
         mock_trading_pair_repository.search = AsyncMock(return_value=[])
-        assert hasattr(mock_trading_pair_repository, 'search')
+        assert hasattr(mock_trading_pair_repository, "search")
         assert callable(mock_trading_pair_repository.search)
 
     def test_get_statistics_method_exists(self, mock_trading_pair_repository):
         """Тест наличия метода get_statistics."""
         mock_trading_pair_repository.get_statistics = AsyncMock(return_value={})
-        assert hasattr(mock_trading_pair_repository, 'get_statistics')
+        assert hasattr(mock_trading_pair_repository, "get_statistics")
         assert callable(mock_trading_pair_repository.get_statistics)
 
 
@@ -127,7 +127,9 @@ class TestInMemoryTradingPairRepository:
         return TradingPair(base="ADA", quote="USDT")
 
     @pytest.fixture
-    def sample_trading_pairs(self, sample_trading_pair, sample_trading_pair_eth, sample_trading_pair_ada) -> List[TradingPair]:
+    def sample_trading_pairs(
+        self, sample_trading_pair, sample_trading_pair_eth, sample_trading_pair_ada
+    ) -> List[TradingPair]:
         """Тестовые торговые пары."""
         return [
             sample_trading_pair,
@@ -139,7 +141,7 @@ class TestInMemoryTradingPairRepository:
             TradingPair(base="LINK", quote="USDT"),
             TradingPair(base="MATIC", quote="USDT"),
             TradingPair(base="AVAX", quote="USDT"),
-            TradingPair(base="UNI", quote="USDT")
+            TradingPair(base="UNI", quote="USDT"),
         ]
 
     @pytest.mark.asyncio
@@ -329,12 +331,12 @@ class TestInMemoryTradingPairRepository:
     async def test_get_statistics(self, repository, sample_trading_pairs):
         """Тест получения статистики по торговым парам."""
         expected_stats = {
-            'total_pairs': len(sample_trading_pairs),
-            'active_pairs': len(sample_trading_pairs),
-            'base_currencies': 10,
-            'quote_currencies': 1,
-            'most_common_quote': 'USDT',
-            'pairs_by_quote': {'USDT': len(sample_trading_pairs)}
+            "total_pairs": len(sample_trading_pairs),
+            "active_pairs": len(sample_trading_pairs),
+            "base_currencies": 10,
+            "quote_currencies": 1,
+            "most_common_quote": "USDT",
+            "pairs_by_quote": {"USDT": len(sample_trading_pairs)},
         }
         repository.get_statistics = AsyncMock(return_value=expected_stats)
         result = await repository.get_statistics()
@@ -360,7 +362,7 @@ class TestInMemoryTradingPairRepository:
         """Тест полного цикла обновления торговой пары."""
         # Исходная пара
         original_pair = TradingPair(base="BTC", quote="USDT")
-        
+
         # Обновление
         updated_pair = TradingPair(base="BTC", quote="USDT")
         repository.update = AsyncMock(return_value=updated_pair)
@@ -376,7 +378,7 @@ class TestInMemoryTradingPairRepository:
     async def test_trading_pair_deletion_flow(self, repository):
         """Тест полного цикла удаления торговой пары."""
         symbol = "BTCUSDT"
-        
+
         # Проверка существования до удаления
         repository.exists = AsyncMock(return_value=True)
         exists_before = await repository.exists(symbol)
@@ -397,12 +399,9 @@ class TestInMemoryTradingPairRepository:
         """Тест множественных торговых пар с одинаковой базовой валютой."""
         base_currency = "BTC"
         quote_currencies = ["USDT", "USD", "EUR"]
-        
-        btc_pairs = [
-            TradingPair(base=base_currency, quote=quote)
-            for quote in quote_currencies
-        ]
-        
+
+        btc_pairs = [TradingPair(base=base_currency, quote=quote) for quote in quote_currencies]
+
         repository.get_by_currencies = AsyncMock(return_value=btc_pairs)
         result = await repository.get_by_currencies(base_currency, "USDT")
         assert len(result) == 1
@@ -414,12 +413,9 @@ class TestInMemoryTradingPairRepository:
         """Тест множественных торговых пар с одинаковой котируемой валютой."""
         quote_currency = "USDT"
         base_currencies = ["BTC", "ETH", "ADA", "BNB", "SOL"]
-        
-        usdt_pairs = [
-            TradingPair(base=base, quote=quote_currency)
-            for base in base_currencies
-        ]
-        
+
+        usdt_pairs = [TradingPair(base=base, quote=quote_currency) for base in base_currencies]
+
         repository.get_by_currencies = AsyncMock(return_value=usdt_pairs)
         result = await repository.get_by_currencies("BTC", quote_currency)
         assert len(result) == 1
@@ -452,21 +448,21 @@ class TestInMemoryTradingPairRepository:
         # Создание двух независимых репозиториев
         repo1 = Mock(spec=TradingPairRepository)
         repo2 = Mock(spec=TradingPairRepository)
-        
+
         # Данные в первом репозитории
         trading_pair1 = TradingPair(base="BTC", quote="USDT")
-        
+
         # Данные во втором репозитории
         trading_pair2 = TradingPair(base="ETH", quote="USDT")
-        
+
         # Настройка моков
         repo1.get_by_symbol = AsyncMock(return_value=trading_pair1)
         repo2.get_by_symbol = AsyncMock(return_value=trading_pair2)
-        
+
         # Проверка изоляции
         result1 = await repo1.get_by_symbol("BTCUSDT")
         result2 = await repo2.get_by_symbol("ETHUSDT")
-        
+
         assert result1 == trading_pair1
         assert result2 == trading_pair2
         assert result1 != result2
@@ -476,7 +472,7 @@ class TestInMemoryTradingPairRepository:
     async def test_error_handling_save(self, repository, sample_trading_pair):
         """Тест обработки ошибок при сохранении."""
         repository.save = AsyncMock(side_effect=Exception("Database error"))
-        
+
         with pytest.raises(Exception, match="Database error"):
             await repository.save(sample_trading_pair)
 
@@ -485,7 +481,7 @@ class TestInMemoryTradingPairRepository:
         """Тест обработки ошибок при получении по символу."""
         symbol = "BTCUSDT"
         repository.get_by_symbol = AsyncMock(side_effect=Exception("Connection error"))
-        
+
         with pytest.raises(Exception, match="Connection error"):
             await repository.get_by_symbol(symbol)
 
@@ -493,7 +489,7 @@ class TestInMemoryTradingPairRepository:
     async def test_error_handling_update(self, repository, sample_trading_pair):
         """Тест обработки ошибок при обновлении."""
         repository.update = AsyncMock(side_effect=Exception("Update failed"))
-        
+
         with pytest.raises(Exception, match="Update failed"):
             await repository.update(sample_trading_pair)
 
@@ -502,7 +498,7 @@ class TestInMemoryTradingPairRepository:
         """Тест обработки ошибок при удалении."""
         symbol = "BTCUSDT"
         repository.delete = AsyncMock(side_effect=Exception("Delete failed"))
-        
+
         with pytest.raises(Exception, match="Delete failed"):
             await repository.delete(symbol)
 
@@ -511,7 +507,7 @@ class TestInMemoryTradingPairRepository:
         """Тест обработки ошибок при поиске."""
         query = "BTC"
         repository.search = AsyncMock(side_effect=Exception("Search failed"))
-        
+
         with pytest.raises(Exception, match="Search failed"):
             await repository.search(query)
 
@@ -519,7 +515,7 @@ class TestInMemoryTradingPairRepository:
     async def test_error_handling_get_statistics(self, repository):
         """Тест обработки ошибок при получении статистики."""
         repository.get_statistics = AsyncMock(side_effect=Exception("Statistics failed"))
-        
+
         with pytest.raises(Exception, match="Statistics failed"):
             await repository.get_statistics()
 
@@ -536,7 +532,7 @@ class TestInMemoryTradingPairRepository:
         # Тест с пустыми валютами
         invalid_pair = TradingPair(base="", quote="")
         repository.save = AsyncMock(side_effect=ValidationError("Invalid trading pair"))
-        
+
         with pytest.raises(ValidationError, match="Invalid trading pair"):
             await repository.save(invalid_pair)
 
@@ -546,11 +542,11 @@ class TestInMemoryTradingPairRepository:
         # Проверка символа BTC/USDT
         btc_pair = TradingPair(base="BTC", quote="USDT")
         assert str(btc_pair) == "BTCUSDT"
-        
+
         # Проверка символа ETH/USDT
         eth_pair = TradingPair(base="ETH", quote="USDT")
         assert str(eth_pair) == "ETHUSDT"
-        
+
         # Проверка символа ADA/BTC
         ada_pair = TradingPair(base="ADA", quote="BTC")
         assert str(ada_pair) == "ADABTC"
@@ -561,7 +557,7 @@ class TestInMemoryTradingPairRepository:
         pair1 = TradingPair(base="BTC", quote="USDT")
         pair2 = TradingPair(base="BTC", quote="USDT")
         pair3 = TradingPair(base="ETH", quote="USDT")
-        
+
         assert pair1 == pair2
         assert pair1 != pair3
         assert hash(pair1) == hash(pair2)
@@ -572,9 +568,9 @@ class TestInMemoryTradingPairRepository:
         """Тест сериализации торговых пар."""
         # Проверка to_dict
         pair_dict = sample_trading_pair.to_dict()
-        assert pair_dict['base'] == "BTC"
-        assert pair_dict['quote'] == "USDT"
-        
+        assert pair_dict["base"] == "BTC"
+        assert pair_dict["quote"] == "USDT"
+
         # Проверка from_dict
         reconstructed_pair = TradingPair.from_dict(pair_dict)
         assert reconstructed_pair == sample_trading_pair
@@ -598,4 +594,4 @@ class TestInMemoryTradingPairRepository:
             symbol = str(pair)
             repository.delete = AsyncMock(return_value=True)
             result = await repository.delete(symbol)
-            assert result is True 
+            assert result is True

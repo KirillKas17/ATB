@@ -768,7 +768,7 @@ class TestSecurityDecorators:
         )
         
         @require_authentication("/api/data", Permission.READ)
-    async def test_function(security_context: SecurityContext):
+        async def test_function(security_context: SecurityContext):
             return "success"
         
         result = await test_function(context)
@@ -777,7 +777,7 @@ class TestSecurityDecorators:
     async def test_encrypt_sensitive_fields_decorator(self: "TestSecurityDecorators") -> None:
         """Тест декоратора шифрования чувствительных полей."""
         @encrypt_sensitive_fields(["password", "email"])
-    async def test_function(data: Dict[str, Any]):
+        async def test_function(data: Dict[str, Any]):
             return data
         
         original_data = {
@@ -794,7 +794,7 @@ class TestSecurityDecorators:
     async def test_audit_security_events_decorator(self: "TestSecurityDecorators") -> None:
         """Тест декоратора аудита событий безопасности."""
         @audit_security_events(AuditEvent.DATA_ACCESS, "/api/data", "GET")
-    async def test_function():
+        async def test_function():
             return "success"
         
         result = await test_function()

@@ -8,4 +8,4 @@ Contains end-to-end tests for complete workflows including:
 - Strategies e2e
 - Sessions e2e
 - Complete trading session
-""" 
+"""

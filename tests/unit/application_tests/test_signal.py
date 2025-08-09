@@ -12,7 +12,7 @@ from application.signal.session_signal_engine import SessionSignalEngine, Sessio
 from domain.sessions.session_influence_analyzer import SessionInfluenceResult
 from domain.sessions.session_marker import MarketSessionContext
 from domain.value_objects.timestamp import Timestamp
-from domain.value_objects.session_type import SessionType
+from domain.type_definitions.session_types import SessionType
 from domain.value_objects.session_phase import SessionPhase
 
 
@@ -39,12 +39,11 @@ class TestSessionSignalEngine:
     @pytest.fixture
     def engine(self, mock_session_analyzer: Mock, mock_session_marker: Mock) -> SessionSignalEngine:
         """Создает экземпляр движка сигналов."""
-        with patch('application.signal.session_signal_engine.SessionInfluenceAnalyzer', return_value=mock_session_analyzer):
-            with patch('application.signal.session_signal_engine.SessionMarker', return_value=mock_session_marker):
-                return SessionSignalEngine(
-                    session_analyzer=mock_session_analyzer,
-                    session_marker=mock_session_marker
-                )
+        with patch(
+            "application.signal.session_signal_engine.SessionInfluenceAnalyzer", return_value=mock_session_analyzer
+        ):
+            with patch("application.signal.session_signal_engine.SessionMarker", return_value=mock_session_marker):
+                return SessionSignalEngine(session_analyzer=mock_session_analyzer, session_marker=mock_session_marker)
 
     @pytest.fixture
     def sample_market_data(self) -> Dict[str, Any]:
@@ -55,7 +54,7 @@ class TestSessionSignalEngine:
             "volume": 1000.0,
             "high": 51000.0,
             "low": 49000.0,
-            "open": 49500.0
+            "open": 49500.0,
         }
 
     @pytest.fixture
@@ -72,20 +71,25 @@ class TestSessionSignalEngine:
             predicted_direction="bullish",
             confidence=0.8,
             market_context={},
-            historical_patterns={}
+            historical_patterns={},
         )
 
     @pytest.mark.asyncio
-    async def test_generate_signal(self, engine: SessionSignalEngine, sample_market_data: Dict[str, Any], sample_influence_result: SessionInfluenceResult) -> None:
+    async def test_generate_signal(
+        self,
+        engine: SessionSignalEngine,
+        sample_market_data: Dict[str, Any],
+        sample_influence_result: SessionInfluenceResult,
+    ) -> None:
         """Тест генерации сигнала."""
         symbol = "BTC/USD"
         timestamp = Timestamp.now()
-        
+
         # Настраиваем mock
         engine.session_analyzer.analyze_session_influence.return_value = sample_influence_result
-        
+
         result = await engine.generate_signal(symbol, sample_market_data, timestamp)
-        
+
         assert result is not None
         assert isinstance(result, SessionInfluenceSignal)
         assert result.symbol == symbol
@@ -98,9 +102,9 @@ class TestSessionSignalEngine:
     async def test_generate_signal_no_market_data(self, engine: SessionSignalEngine) -> None:
         """Тест генерации сигнала без рыночных данных."""
         symbol = "BTC/USD"
-        
+
         result = await engine.generate_signal(symbol)
-        
+
         # Должен вернуть None или базовый сигнал
         assert result is None or isinstance(result, SessionInfluenceSignal)
 
@@ -108,7 +112,7 @@ class TestSessionSignalEngine:
     async def test_get_current_signals(self, engine: SessionSignalEngine) -> None:
         """Тест получения текущих сигналов."""
         symbol = "BTC/USD"
-        
+
         # Создаем тестовый сигнал
         test_signal = SessionInfluenceSignal(
             symbol=symbol,
@@ -117,14 +121,14 @@ class TestSessionSignalEngine:
             confidence=0.8,
             session_type="LONDON",
             session_phase="ACTIVE",
-            timestamp=Timestamp.now()
+            timestamp=Timestamp.now(),
         )
-        
+
         # Добавляем сигнал в хранилище
         engine.signals[symbol] = [test_signal]
-        
+
         signals = await engine.get_current_signals(symbol)
-        
+
         assert isinstance(signals, list)
         assert len(signals) == 1
         assert signals[0] == test_signal
@@ -133,7 +137,7 @@ class TestSessionSignalEngine:
     async def test_get_aggregated_signal(self, engine: SessionSignalEngine) -> None:
         """Тест получения агрегированного сигнала."""
         symbol = "BTC/USD"
-        
+
         # Создаем тестовые сигналы
         signal1 = SessionInfluenceSignal(
             symbol=symbol,
@@ -142,7 +146,7 @@ class TestSessionSignalEngine:
             confidence=0.8,
             session_type="LONDON",
             session_phase="ACTIVE",
-            timestamp=Timestamp.now()
+            timestamp=Timestamp.now(),
         )
         signal2 = SessionInfluenceSignal(
             symbol=symbol,
@@ -151,14 +155,14 @@ class TestSessionSignalEngine:
             confidence=0.6,
             session_type="LONDON",
             session_phase="ACTIVE",
-            timestamp=Timestamp.now()
+            timestamp=Timestamp.now(),
         )
-        
+
         # Добавляем сигналы в хранилище
         engine.signals[symbol] = [signal1, signal2]
-        
+
         aggregated = await engine.get_aggregated_signal(symbol)
-        
+
         assert aggregated is not None
         assert isinstance(aggregated, SessionInfluenceSignal)
         assert aggregated.symbol == symbol
@@ -167,19 +171,21 @@ class TestSessionSignalEngine:
     async def test_get_session_analysis(self, engine: SessionSignalEngine) -> None:
         """Тест получения анализа сессии."""
         symbol = "BTC/USD"
-        
+
         analysis = engine.get_session_analysis(symbol)
-        
+
         assert isinstance(analysis, dict)
         assert "current_session" in analysis
         assert "session_signals" in analysis
         assert "aggregated_signal" in analysis
         assert "statistics" in analysis
 
-    def test_create_signal_from_influence_result(self, engine: SessionSignalEngine, sample_influence_result: SessionInfluenceResult) -> None:
+    def test_create_signal_from_influence_result(
+        self, engine: SessionSignalEngine, sample_influence_result: SessionInfluenceResult
+    ) -> None:
         """Тест создания сигнала из результата анализа."""
         signal = engine._create_signal_from_influence_result(sample_influence_result)
-        
+
         assert isinstance(signal, SessionInfluenceSignal)
         assert signal.symbol == sample_influence_result.symbol
         assert signal.session_type == sample_influence_result.session_type
@@ -193,9 +199,9 @@ class TestSessionSignalEngine:
             primary_session=None,
         )
         timestamp = Timestamp.now()
-        
+
         result = engine._generate_basic_influence_result(symbol, context, timestamp)
-        
+
         assert isinstance(result, SessionInfluenceResult)
         assert result.symbol == symbol
         assert result.session_type == "LONDON"
@@ -211,11 +217,11 @@ class TestSessionSignalEngine:
             confidence=0.8,
             session_type="LONDON",
             session_phase="ACTIVE",
-            timestamp=Timestamp.now()
+            timestamp=Timestamp.now(),
         )
-        
+
         engine._store_signal(symbol, signal)
-        
+
         assert symbol in engine.signals
         assert signal in engine.signals[symbol]
         assert symbol in engine.signal_history
@@ -229,23 +235,23 @@ class TestSessionSignalEngine:
             confidence=0.8,
             session_type="LONDON",
             session_phase="ACTIVE",
-            timestamp=Timestamp.now()
+            timestamp=Timestamp.now(),
         )
-        
+
         initial_total = engine.stats["total_signals_generated"]
         initial_bullish = engine.stats["bullish_signals"]
-        
+
         engine._update_stats(signal)
-        
+
         assert engine.stats["total_signals_generated"] == initial_total + 1
         assert engine.stats["bullish_signals"] == initial_bullish + 1
 
     def test_get_signal_statistics(self, engine: SessionSignalEngine) -> None:
         """Тест получения статистики сигналов."""
         symbol = "BTC/USD"
-        
+
         stats = engine._get_signal_statistics(symbol)
-        
+
         assert isinstance(stats, dict)
         assert "total_signals" in stats
         assert "active_signals" in stats
@@ -255,7 +261,7 @@ class TestSessionSignalEngine:
     def test_get_statistics(self, engine: SessionSignalEngine) -> None:
         """Тест получения общей статистики."""
         stats = engine.get_statistics()
-        
+
         assert isinstance(stats, dict)
         assert "total_signals_generated" in stats
         assert "high_confidence_signals" in stats
@@ -269,7 +275,7 @@ class TestSessionSignalEngine:
         # Тест запуска
         await engine.start()
         assert engine._running is True
-        
+
         # Тест остановки
         await engine.stop()
         assert engine._running is False
@@ -289,11 +295,11 @@ class TestSessionSignalEngine:
             momentum_impact=0.4,
             reversal_probability=0.1,
             false_breakout_probability=0.05,
-            metadata={"trend": "bullish"}
+            metadata={"trend": "bullish"},
         )
-        
+
         signal_dict = signal.to_dict()
-        
+
         assert isinstance(signal_dict, dict)
         assert signal_dict["symbol"] == "BTC/USD"
         assert signal_dict["tendency"] == "bullish"
@@ -306,4 +312,4 @@ class TestSessionSignalEngine:
         assert signal_dict["momentum_impact"] == 0.4
         assert signal_dict["reversal_probability"] == 0.1
         assert signal_dict["false_breakout_probability"] == 0.05
-        assert signal_dict["metadata"]["trend"] == "bullish" 
+        assert signal_dict["metadata"]["trend"] == "bullish"

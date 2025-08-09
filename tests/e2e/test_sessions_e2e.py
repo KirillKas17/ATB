@@ -1,15 +1,24 @@
 """
 E2E тесты для модуля sessions.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from shared.numpy_utils import np
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from domain.type_definitions.session_types import (
-    SessionType, SessionPhase, SessionProfile, SessionBehavior, SessionTimeWindow,
-    MarketConditions, MarketRegime, SessionIntensity, SessionAnalysisResult,
-    SessionMetrics, ConfidenceScore
+    SessionType,
+    SessionPhase,
+    SessionProfile,
+    SessionBehavior,
+    SessionTimeWindow,
+    MarketConditions,
+    MarketRegime,
+    SessionIntensity,
+    SessionAnalysisResult,
+    SessionMetrics,
+    ConfidenceScore,
 )
 from domain.value_objects.timestamp import Timestamp
 from domain.sessions.session_profile import SessionProfileRegistry
@@ -22,8 +31,11 @@ from domain.sessions.session_predictor import SessionPredictor
 from domain.sessions.session_analyzer_factory import SessionAnalyzerFactory
 from domain.sessions.factories import get_session_service
 from domain.sessions.repositories import SessionDataRepository, SessionConfigurationRepository
+
+
 class TestSessionsE2E:
     """E2E тесты для модуля sessions."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.registry = SessionProfileRegistry()
@@ -37,6 +49,7 @@ class TestSessionsE2E:
         self.service = get_session_service()
         self.data_repo = SessionDataRepository()
         self.config_repo = SessionConfigurationRepository()
+
     @pytest.mark.e2e
     def test_complete_session_analysis_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест полного рабочего процесса анализа сессии."""
@@ -63,9 +76,7 @@ class TestSessionsE2E:
         # Шаг 5: Сохранение результатов анализа
         self.data_repo.save_session_analysis(analysis)
         # Шаг 6: Получение статистики
-        statistics = self.data_repo.get_session_statistics(
-            analysis.session_type, lookback_days=1
-        )
+        statistics = self.data_repo.get_session_statistics(analysis.session_type, lookback_days=1)
         assert isinstance(statistics, dict)
         assert "total_analyses" in statistics
         assert statistics["total_analyses"] > 0
@@ -77,10 +88,11 @@ class TestSessionsE2E:
         retrieved_analyses = self.data_repo.get_session_analysis(
             analysis.session_type,
             Timestamp(analysis.timestamp.to_datetime() - timedelta(hours=1)),
-            Timestamp(analysis.timestamp.to_datetime() + timedelta(hours=1))
+            Timestamp(analysis.timestamp.to_datetime() + timedelta(hours=1)),
         )
         assert len(retrieved_analyses) > 0
         assert any(a.timestamp == analysis.timestamp for a in retrieved_analyses)
+
     @pytest.mark.e2e
     def test_multi_session_analysis_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест анализа множественных сессий."""
@@ -89,9 +101,7 @@ class TestSessionsE2E:
         session_results = {}
         for session_type in SessionType:
             session_profile = self.registry.get_profile(session_type)
-            result = self.influence_analyzer.analyze_session_influence(
-                "BTCUSDT", market_data, session_profile
-            )
+            result = self.influence_analyzer.analyze_session_influence("BTCUSDT", market_data, session_profile)
             session_results[session_type] = result
             # Сохраняем результат
             self.data_repo.save_session_analysis(result)
@@ -113,6 +123,7 @@ class TestSessionsE2E:
             assert isinstance(summary, dict)
             assert "session_type" in summary
             assert summary["session_type"] == session_type.value
+
     @pytest.mark.e2e
     def test_session_optimization_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест оптимизации сессий."""
@@ -123,21 +134,15 @@ class TestSessionsE2E:
         market_data = self._create_realistic_market_data()
         market_conditions = self._create_realistic_market_conditions()
         # Шаг 3: Оптимизация параметров сессии
-        optimized_profile = self.optimizer.optimize_session_parameters(
-            session_profile, market_data
-        )
+        optimized_profile = self.optimizer.optimize_session_parameters(session_profile, market_data)
         assert isinstance(optimized_profile, SessionProfile)
         assert optimized_profile.session_type == session_profile.session_type
         # Шаг 4: Оптимизация торговой стратегии
-        strategy_params = self.optimizer.optimize_trading_strategy(
-            session_profile, market_conditions
-        )
+        strategy_params = self.optimizer.optimize_trading_strategy(session_profile, market_conditions)
         assert isinstance(strategy_params, dict)
         assert len(strategy_params) > 0
         # Шаг 5: Оптимизация управления рисками
-        risk_params = self.optimizer.optimize_risk_management(
-            session_profile, market_conditions
-        )
+        risk_params = self.optimizer.optimize_risk_management(session_profile, market_conditions)
         assert isinstance(risk_params, dict)
         assert len(risk_params) > 0
         # Шаг 6: Сохранение оптимизированного профиля
@@ -146,6 +151,7 @@ class TestSessionsE2E:
         retrieved_profile = self.config_repo.get_session_profile(SessionType.LONDON)
         assert retrieved_profile is not None
         assert retrieved_profile.session_type == optimized_profile.session_type
+
     @pytest.mark.e2e
     def test_session_prediction_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест предсказания сессий."""
@@ -156,15 +162,11 @@ class TestSessionsE2E:
         market_conditions = self._create_realistic_market_conditions()
         session_profile = self.registry.get_profile(SessionType.ASIAN)
         # Шаг 3: Предсказание поведения сессии
-        behavior_prediction = self.predictor.predict_session_behavior(
-            session_profile, market_conditions
-        )
+        behavior_prediction = self.predictor.predict_session_behavior(session_profile, market_conditions)
         assert isinstance(behavior_prediction, dict)
         assert len(behavior_prediction) > 0
         # Шаг 4: Предсказание переходов сессий
-        transitions = self.predictor.predict_session_transitions(
-            current_session, market_conditions
-        )
+        transitions = self.predictor.predict_session_transitions(current_session, market_conditions)
         assert isinstance(transitions, list)
         for transition in transitions:
             assert "from_session" in transition
@@ -173,9 +175,7 @@ class TestSessionsE2E:
             assert "time_ahead_hours" in transition
         # Шаг 5: Предсказание изменений рыночного режима
         current_regime = MarketRegime.RANGING
-        regime_changes = self.predictor.predict_market_regime_changes(
-            current_regime, session_profile
-        )
+        regime_changes = self.predictor.predict_market_regime_changes(current_regime, session_profile)
         assert isinstance(regime_changes, list)
         for change in regime_changes:
             assert "from_regime" in change
@@ -193,6 +193,7 @@ class TestSessionsE2E:
                     "BTCUSDT", market_data, future_profile
                 )
                 assert isinstance(future_analysis, SessionAnalysisResult)
+
     @pytest.mark.e2e
     def test_session_manager_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест управления сессиями."""
@@ -204,7 +205,7 @@ class TestSessionsE2E:
         for session_type in SessionType:
             analyzer = self.manager.get_session_analyzer(session_type)
             assert analyzer is not None
-            assert hasattr(analyzer, 'analyze_session_influence')
+            assert hasattr(analyzer, "analyze_session_influence")
         # Шаг 3: Анализ сессий через менеджер
         market_data = self._create_realistic_market_data()
         for session_type in SessionType:
@@ -217,6 +218,7 @@ class TestSessionsE2E:
             assert isinstance(statistics, dict)
             assert "session_type" in statistics
             assert statistics["session_type"] == session_type.value
+
     @pytest.mark.e2e
     def test_session_service_complete_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест полного рабочего процесса SessionService."""
@@ -260,6 +262,7 @@ class TestSessionsE2E:
         assert isinstance(health_check, dict)
         assert "status" in health_check
         assert health_check["status"] in ["healthy", "warning", "error"]
+
     @pytest.mark.e2e
     def test_session_data_persistence_workflow(self: "TestSessionsE2E") -> None:
         """E2E тест персистентности данных сессий."""
@@ -282,9 +285,7 @@ class TestSessionsE2E:
         # Шаг 6: Проверка сохранения анализа
         start_time = Timestamp(analysis_result.timestamp.to_datetime() - timedelta(hours=1))
         end_time = Timestamp(analysis_result.timestamp.to_datetime() + timedelta(hours=1))
-        retrieved_analyses = self.data_repo.get_session_analysis(
-            SessionType.ASIAN, start_time, end_time
-        )
+        retrieved_analyses = self.data_repo.get_session_analysis(SessionType.ASIAN, start_time, end_time)
         assert len(retrieved_analyses) > 0
         # Шаг 7: Получение статистики
         statistics = self.data_repo.get_session_statistics(SessionType.ASIAN, lookback_days=1)
@@ -297,48 +298,47 @@ class TestSessionsE2E:
         assert "session_type" in summary
         assert summary["session_type"] == SessionType.ASIAN.value
         # Шаг 9: Удаление данных
-        deleted_count = self.data_repo.delete_session_analysis(
-            SessionType.ASIAN, start_time, end_time
-        )
+        deleted_count = self.data_repo.delete_session_analysis(SessionType.ASIAN, start_time, end_time)
         assert deleted_count > 0
         # Шаг 10: Проверка удаления
-        remaining_analyses = self.data_repo.get_session_analysis(
-            SessionType.ASIAN, start_time, end_time
-        )
+        remaining_analyses = self.data_repo.get_session_analysis(SessionType.ASIAN, start_time, end_time)
         assert len(remaining_analyses) == 0
+
     def _create_realistic_market_data(self) -> pd.DataFrame:
         """Создает реалистичные рыночные данные."""
         # Создаем временной ряд с реалистичными паттернами
         # Исправляем использование pd.date_range на pd.DatetimeIndex
-        timestamps = pd.DatetimeIndex(pd.date_range('2024-01-01', periods=1000, freq='1min'))
-        
+        timestamps = pd.DatetimeIndex(pd.date_range("2024-01-01", periods=1000, freq="1min"))
+
         # Базовые цены
         base_price = 50000
         price_changes = np.random.normal(0, 100, 1000)  # Нормальное распределение изменений
         prices = base_price + np.cumsum(price_changes)
-        
+
         # Объемы с паттернами
         base_volume = 1000
         volume_multiplier = 1 + 0.5 * np.sin(np.arange(1000) * 2 * np.pi / 1440)  # Дневные паттерны
         volumes = base_volume * volume_multiplier * np.random.uniform(0.5, 1.5, 1000)
-        
-        return pd.DataFrame({
-            'timestamp': timestamps,
-            'open': prices,
-            'high': prices * np.random.uniform(1.0, 1.02, 1000),
-            'low': prices * np.random.uniform(0.98, 1.0, 1000),
-            'close': prices,
-            'volume': volumes,
-            'bid': prices * np.random.uniform(0.999, 1.0, 1000),
-            'ask': prices * np.random.uniform(1.0, 1.001, 1000)
-        })
+
+        return pd.DataFrame(
+            {
+                "timestamp": timestamps,
+                "open": prices,
+                "high": prices * np.random.uniform(1.0, 1.02, 1000),
+                "low": prices * np.random.uniform(0.98, 1.0, 1000),
+                "close": prices,
+                "volume": volumes,
+                "bid": prices * np.random.uniform(0.999, 1.0, 1000),
+                "ask": prices * np.random.uniform(1.0, 1.001, 1000),
+            }
+        )
 
     def _create_realistic_market_conditions(self) -> MarketConditions:
         """Создает реалистичные рыночные условия."""
         # Исправляем передачу enum значений в np.random.choice
         market_regimes = [regime.value for regime in MarketRegime]
         session_intensities = [intensity.value for intensity in SessionIntensity]
-        
+
         return MarketConditions(
             volatility=np.random.uniform(0.8, 2.0),
             volume=np.random.uniform(0.5, 2.0),
@@ -347,8 +347,9 @@ class TestSessionsE2E:
             momentum=np.random.uniform(0.0, 1.0),
             trend_strength=np.random.uniform(0.0, 1.0),
             market_regime=MarketRegime(np.random.choice(market_regimes)),
-            session_intensity=SessionIntensity(np.random.choice(session_intensities))
+            session_intensity=SessionIntensity(np.random.choice(session_intensities)),
         )
+
     def _create_test_analysis_result(self) -> SessionAnalysisResult:
         """Создает тестовый результат анализа."""
         return SessionAnalysisResult(
@@ -368,7 +369,7 @@ class TestSessionsE2E:
                 peak_influence_time_minutes=30,
                 spread_impact=1.0,
                 liquidity_impact=1.0,
-                correlation_with_other_sessions=0.8
+                correlation_with_other_sessions=0.8,
             ),
             market_conditions=MarketConditions(
                 volatility=1.1,
@@ -378,8 +379,8 @@ class TestSessionsE2E:
                 momentum=0.5,
                 trend_strength=0.3,
                 market_regime=MarketRegime.RANGING,
-                session_intensity=SessionIntensity.NORMAL
+                session_intensity=SessionIntensity.NORMAL,
             ),
             predictions={"volatility": 1.1, "volume": 1.2},
-            risk_factors=["manipulation", "gap"]
-        ) 
+            risk_factors=["manipulation", "gap"],
+        )

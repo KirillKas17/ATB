@@ -59,7 +59,7 @@ class TestExceptionHandler:
     def test_handle_exceptions_context_manager_success(self: "TestExceptionHandler") -> None:
         """Тест контекстного менеджера при успешном выполнении."""
         # Создаем простой контекстный менеджер для тестов
-class TestContextManager:
+        class TestContextManager:
             def __init__(self, handler, component, operation) -> Any:
                 self.handler = handler
                 self.component = component
@@ -89,10 +89,10 @@ class TestContextManager:
             result = 42
         assert result == 42
 
-    def test_handle_exceptions_context_manager_exception(self: "TestContextManager") -> None:
+    def test_handle_exceptions_context_manager_exception(self: "TestExceptionHandler") -> None:
         """Тест контекстного менеджера при исключении."""
         # Создаем простой контекстный менеджер для тестов
-class TestContextManager:
+        class TestContextManager:
             def __init__(self, handler, component, operation) -> Any:
                 self.handler = handler
                 self.component = component
@@ -129,10 +129,10 @@ class TestContextManager:
         assert context.severity == ExceptionSeverity.MEDIUM
         assert context.category == ExceptionCategory.UNKNOWN
 
-    def test_handle_exceptions_with_custom_severity_and_category(self: "TestContextManager") -> None:
+    def test_handle_exceptions_with_custom_severity_and_category(self: "TestExceptionHandler") -> None:
         """Тест обработки исключений с пользовательскими параметрами."""
         # Создаем простой контекстный менеджер для тестов
-class TestContextManager:
+        class TestContextManager:
             def __init__(self, handler, component, operation, severity, category) -> Any:
                 self.handler = handler
                 self.component = component
@@ -172,7 +172,7 @@ class TestContextManager:
         assert context.category == ExceptionCategory.NETWORK
 
     @pytest.mark.asyncio
-    def test_handle_async_exceptions_success(self: "TestContextManager") -> None:
+    async def test_handle_async_exceptions_success(self: "TestContextManager") -> None:
         """Тест асинхронной обработки исключений при успехе."""
         async def async_operation() -> Any:
             return "success"
@@ -186,7 +186,7 @@ class TestContextManager:
         assert result == "success"
 
     @pytest.mark.asyncio
-    def test_handle_async_exceptions_exception(self: "TestContextManager") -> None:
+    async def test_handle_async_exceptions_exception(self: "TestContextManager") -> None:
         """Тест асинхронной обработки исключений при ошибке."""
         async def async_operation() -> Any:
             raise ValueError("Async error")
@@ -354,7 +354,7 @@ class TestExceptionDecorators:
         handler._exception_history = []
         
         @handle_exceptions("test", "decorated_operation")
-    def test_function() -> None:
+        def test_function() -> None:
             return "success"
         
         result = test_function()
@@ -366,7 +366,7 @@ class TestExceptionDecorators:
         handler._exception_history = []
         
         @handle_exceptions("test", "decorated_operation")
-    def test_function() -> None:
+        def test_function() -> None:
             raise ValueError("Decorated error")
         
         with pytest.raises(ValueError):
@@ -383,7 +383,7 @@ class TestExceptionDecorators:
             category=ExceptionCategory.SECURITY,
             custom_param="test_value"
         )
-    def test_function() -> None:
+        def test_function() -> None:
             raise RuntimeError("Critical error")
         
         with pytest.raises(RuntimeError):

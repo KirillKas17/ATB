@@ -8,6 +8,7 @@ Unit тесты для domain.value_objects.money
 - Сериализация/десериализация
 - Округление и форматирование
 """
+
 import pytest
 from decimal import Decimal
 from domain.value_objects.money import Money
@@ -104,7 +105,7 @@ class TestMoney:
         money1 = Money(amount=Decimal("100.50"), currency=Currency.USD)
         money2 = Money(amount=Decimal("100.50"), currency=Currency.USD)
         money3 = Money(amount=Decimal("200.00"), currency=Currency.USD)
-        
+
         assert money1 == money2
         assert money1 != money3
         assert money1 < money3
@@ -157,7 +158,7 @@ class TestMoney:
         """Тест проверки на ноль"""
         zero_money = Money.zero(Currency.USD)
         non_zero_money = Money(amount=Decimal("100.50"), currency=Currency.USD)
-        
+
         assert zero_money.is_zero() is True
         assert non_zero_money.is_zero() is False
 
@@ -173,7 +174,7 @@ class TestMoney:
         money1 = Money(amount=Decimal("100.50"), currency=Currency.USD)
         money2 = Money(amount=Decimal("100.50"), currency=Currency.USD)
         money3 = Money(amount=Decimal("200.00"), currency=Currency.USD)
-        
+
         assert hash(money1) == hash(money2)
         assert hash(money1) != hash(money3)
 
@@ -224,7 +225,7 @@ class TestMoney:
         """Тест проверки положительного значения"""
         positive_money = Money(amount=Decimal("100.50"), currency=Currency.USD)
         zero_money = Money.zero(Currency.USD)
-        
+
         assert positive_money.is_positive() is True
         assert zero_money.is_positive() is False
 
@@ -232,6 +233,7 @@ class TestMoney:
         """Тест проверки отрицательного значения"""
         # Создаем Money с отрицательной суммой через конфигурацию
         from domain.value_objects.money_config import MoneyConfig
+
         config = MoneyConfig(allow_negative=True)
         negative_money = Money(amount=Decimal("-100.50"), currency=Currency.USD, config=config)
         assert negative_money.is_negative() is True
@@ -262,4 +264,4 @@ class TestMoney:
         money1 = Money(amount=Decimal("50.00"), currency=Currency.USD)
         money2 = Money(amount=Decimal("100.00"), currency=Currency.USD)
         percentage = money1.percentage_of(money2)
-        assert percentage == Decimal("50.0")  # 50% 
+        assert percentage == Decimal("50.0")  # 50%

@@ -21,6 +21,18 @@ import pandas as pd
 StrategyId = NewType("StrategyId", UUID)
 
 
+class MarketCondition(str, Enum):
+    """Рыночные условия"""
+
+    TRENDING = "trending"
+    BULL_MARKET = "bull_market"
+    BEAR_MARKET = "bear_market"
+    SIDEWAYS = "sideways"
+    RANGING = "ranging"
+    BREAKOUT = "breakout"
+    VOLATILE = "volatile"
+
+
 class StrategyDirection(str, Enum):
     """Направления торговых сигналов"""
 
@@ -363,3 +375,153 @@ class RiskAssessment:
     risk_decomposition: Dict[str, float]
     stress_test_results: Dict[str, float]
     recommendations: List[str]
+
+
+@dataclass
+class TrendFollowingParams:
+    """Параметры стратегии следования за трендом"""
+    short_period: int = 10
+    long_period: int = 20
+    rsi_period: int = 14
+    rsi_oversold: int = 30
+    rsi_overbought: int = 70
+    macd_fast: int = 12
+    macd_slow: int = 26
+    macd_signal: int = 9
+    trend_strength_threshold: float = 0.7
+    trend_confirmation_period: int = 3
+    volume_confirmation: bool = True
+    volume_threshold: float = 1.5
+
+@dataclass
+class MeanReversionParams:
+    """Параметры стратегии возврата к среднему"""
+    lookback_period: int = 20
+    std_dev_multiplier: float = 2.0
+    rsi_period: int = 14
+    rsi_oversold: int = 30
+    rsi_overbought: int = 70
+    deviation_threshold: float = 2.0
+    bb_period: int = 20
+    bb_std_dev: float = 2.0
+    min_reversion_probability: float = 0.6
+    max_holding_period: int = 24
+
+@dataclass
+class BreakoutParams:
+    """Параметры стратегии пробоя"""
+    breakout_period: int = 20
+    volume_multiplier: float = 1.5
+    atr_period: int = 14
+    atr_multiplier: float = 2.0
+    breakout_threshold: float = 1.5
+    volume_confirmation_period: int = 3
+    support_resistance_period: int = 20
+    level_tolerance: float = 0.001
+    confirmation_period: int = 2
+    false_breakout_filter: bool = True
+    min_volatility: float = 0.01
+    max_volatility: float = 0.1
+
+@dataclass
+class ScalpingParams:
+    """Параметры скальпинг стратегии"""
+    entry_threshold: float = 0.001
+    exit_threshold: float = 0.002
+    max_holding_time: int = 300
+    volume_threshold: float = 1000.0
+    profit_threshold: float = 0.001
+    stop_loss: float = 0.0005
+    max_hold_time: int = 300
+    min_hold_time: int = 10
+    min_volatility: float = 0.0001
+    max_volatility: float = 0.01
+    min_volume: float = 1000.0
+    volume_spike_threshold: float = 2.0
+    execution_timeout: int = 5
+    max_slippage: float = 0.0001
+
+@dataclass
+class ArbitrageParams:
+    """Параметры арбитражной стратегии"""
+    min_spread: float = 0.001
+    max_execution_time: int = 60
+    correlation_threshold: float = 0.8
+    max_slippage: float = 0.0005
+    max_hold_time: int = 60
+    min_liquidity: float = 10000.0
+    max_order_size: float = 1000.0
+    max_total_fees: float = 0.002
+    include_fees_in_calculation: bool = True
+    exchange_monitoring_interval: int = 1
+    price_update_frequency: int = 1
+
+@dataclass
+class StrategyParameters:
+    """Базовые параметры стратегии"""
+    risk_per_trade: float = 0.02
+    max_position_size: float = 0.1
+    confidence_threshold: float = 0.7
+    use_stop_loss: bool = True
+    use_take_profit: bool = True
+    trailing_stop: bool = False
+    trailing_stop_activation: float = 0.02
+    trailing_stop_distance: float = 0.01
+
+class StrategyCategory(str, Enum):
+    """Категории стратегий"""
+    TREND_FOLLOWING = "trend_following"
+    MEAN_REVERSION = "mean_reversion"
+    BREAKOUT = "breakout"
+    SCALPING = "scalping"
+    ARBITRAGE = "arbitrage"
+    PAIRS_TRADING = "pairs_trading"
+    STATISTICAL_ARBITRAGE = "statistical_arbitrage"
+    MOMENTUM = "momentum"
+    VOLATILITY = "volatility"
+    GRID = "grid"
+    MARTINGALE = "martingale"
+    HEDGING = "hedging"
+    MANIPULATION = "manipulation"
+    REVERSAL = "reversal"
+    SIDEWAYS = "sideways"
+    ADAPTIVE = "adaptive"
+    EVOLVABLE = "evolvable"
+    DEEP_LEARNING = "deep_learning"
+    RANDOM_FOREST = "random_forest"
+    REGIME_ADAPTIVE = "regime_adaptive"
+
+class Timeframe(str, Enum):
+    """Временные интервалы"""
+    TICK = "tick"
+    SECOND_1 = "1s"
+    SECOND_5 = "5s"
+    SECOND_15 = "15s"
+    SECOND_30 = "30s"
+    MINUTE_1 = "1m"
+    MINUTE_5 = "5m"
+    MINUTE_15 = "15m"
+    MINUTE_30 = "30m"
+    HOUR_1 = "1h"
+    HOUR_4 = "4h"
+    HOUR_6 = "6h"
+    HOUR_12 = "12h"
+    DAY_1 = "1d"
+    DAY_3 = "3d"
+    WEEK_1 = "1w"
+    MONTH_1 = "1M"
+
+class TimeHorizon(str, Enum):
+    """Временной горизонт"""
+    ULTRA_SHORT = "ultra_short"
+    SHORT = "short"
+    MEDIUM = "medium"
+    LONG = "long"
+    ULTRA_LONG = "ultra_long"
+
+
+class RiskProfile(str, Enum):
+    """Профиль риска"""
+    CONSERVATIVE = "conservative"
+    MODERATE = "moderate"
+    AGGRESSIVE = "aggressive"

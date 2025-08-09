@@ -1,30 +1,39 @@
 """
 Тесты для доменного сервиса рыночных метрик.
 """
+
 import pytest
 import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from domain.services.market_metrics import MarketMetrics, IMarketMetrics
+
+
 class TestMarketMetrics:
     """Тесты для сервиса рыночных метрик."""
+
     @pytest.fixture
     def market_metrics(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура сервиса рыночных метрик."""
         return MarketMetrics()
+
     @pytest.fixture
     def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерными рыночными данными."""
-        dates = pd.date_range('2024-01-01', periods=100, freq='1h')
+        dates = pd.date_range("2024-01-01", periods=100, freq="1h")
         np.random.seed(42)
-        return pd.DataFrame({
-            'open': np.random.uniform(50000, 51000, 100),
-            'high': np.random.uniform(51000, 52000, 100),
-            'low': np.random.uniform(49000, 50000, 100),
-            'close': np.random.uniform(50000, 51000, 100),
-            'volume': np.random.uniform(1000, 5000, 100),
-            'vwap': np.random.uniform(50000, 51000, 100)
-        }, index=dates)
+        return pd.DataFrame(
+            {
+                "open": np.random.uniform(50000, 51000, 100),
+                "high": np.random.uniform(51000, 52000, 100),
+                "low": np.random.uniform(49000, 50000, 100),
+                "close": np.random.uniform(50000, 51000, 100),
+                "volume": np.random.uniform(1000, 5000, 100),
+                "vwap": np.random.uniform(50000, 51000, 100),
+            },
+            index=dates,
+        )
+
     @pytest.fixture
     def sample_order_book(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура с примерным ордербуком."""
@@ -39,14 +48,16 @@ class TestMarketMetrics:
                 {"price": "50002.0", "quantity": "2.5"},
                 {"price": "50003.0", "quantity": "1.5"},
             ],
-            "timestamp": "2024-01-01T12:00:00Z"
+            "timestamp": "2024-01-01T12:00:00Z",
         }
+
     def test_market_metrics_initialization(self, market_metrics) -> None:
         """Тест инициализации сервиса."""
         assert market_metrics is not None
         assert isinstance(market_metrics, IMarketMetrics)
-        assert hasattr(market_metrics, 'config')
+        assert hasattr(market_metrics, "config")
         assert isinstance(market_metrics.config, dict)
+
     def test_market_metrics_config_defaults(self, market_metrics) -> None:
         """Тест конфигурации по умолчанию."""
         config = market_metrics.config
@@ -56,6 +67,7 @@ class TestMarketMetrics:
         assert "correlation_window" in config
         assert isinstance(config["volatility_window"], int)
         assert isinstance(config["trend_window"], int)
+
     def test_calculate_volatility_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик волатильности."""
         volatility = market_metrics.calculate_volatility_metrics(sample_market_data)
@@ -72,6 +84,7 @@ class TestMarketMetrics:
         assert volatility["historical_volatility"] >= 0.0
         assert volatility["volatility_percentile"] >= 0.0 and volatility["volatility_percentile"] <= 1.0
         assert volatility["volatility_trend"] in ["increasing", "decreasing", "stable"]
+
     def test_calculate_volatility_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик волатильности с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -81,6 +94,7 @@ class TestMarketMetrics:
         assert volatility["historical_volatility"] == 0.0
         assert volatility["volatility_percentile"] == 0.0
         assert volatility["volatility_trend"] == "stable"
+
     def test_calculate_trend_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик тренда."""
         trend = market_metrics.calculate_trend_metrics(sample_market_data)
@@ -96,6 +110,7 @@ class TestMarketMetrics:
         assert trend["trend_direction"] in ["uptrend", "downtrend", "sideways"]
         assert trend["trend_strength"] >= 0.0 and trend["trend_strength"] <= 1.0
         assert trend["trend_duration"] >= 0
+
     def test_calculate_trend_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик тренда с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -104,6 +119,7 @@ class TestMarketMetrics:
         assert trend["trend_direction"] == "sideways"
         assert trend["trend_strength"] == 0.0
         assert trend["trend_duration"] == 0
+
     def test_calculate_volume_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик объема."""
         volume_metrics = market_metrics.calculate_volume_metrics(sample_market_data)
@@ -119,6 +135,7 @@ class TestMarketMetrics:
         assert volume_metrics["volume_ma"] >= 0.0
         assert volume_metrics["volume_ratio"] >= 0.0
         assert volume_metrics["volume_trend"] in ["increasing", "decreasing", "stable"]
+
     def test_calculate_volume_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик объема с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -127,13 +144,14 @@ class TestMarketMetrics:
         assert volume_metrics["volume_ma"] == 0.0
         assert volume_metrics["volume_ratio"] == 0.0
         assert volume_metrics["volume_trend"] == "stable"
+
     def test_calculate_correlation_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик корреляции."""
         # Создаем данные для двух активов
         asset1_data = sample_market_data.copy()
-        asset1_data['close'] = np.random.uniform(50000, 51000, 100)
+        asset1_data["close"] = np.random.uniform(50000, 51000, 100)
         asset2_data = sample_market_data.copy()
-        asset2_data['close'] = np.random.uniform(50000, 51000, 100)
+        asset2_data["close"] = np.random.uniform(50000, 51000, 100)
         correlation = market_metrics.calculate_correlation_metrics(asset1_data, asset2_data)
         assert isinstance(correlation, dict)
         assert "correlation_coefficient" in correlation
@@ -145,6 +163,7 @@ class TestMarketMetrics:
         assert correlation["correlation_coefficient"] >= -1.0 and correlation["correlation_coefficient"] <= 1.0
         assert correlation["correlation_strength"] in ["strong", "moderate", "weak"]
         assert correlation["correlation_trend"] in ["increasing", "decreasing", "stable"]
+
     def test_calculate_correlation_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик корреляции с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -153,6 +172,7 @@ class TestMarketMetrics:
         assert correlation["correlation_coefficient"] == 0.0
         assert correlation["correlation_strength"] == "weak"
         assert correlation["correlation_trend"] == "stable"
+
     def test_calculate_market_efficiency_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик эффективности рынка."""
         efficiency = market_metrics.calculate_market_efficiency_metrics(sample_market_data)
@@ -166,6 +186,7 @@ class TestMarketMetrics:
         assert efficiency["efficiency_ratio"] >= 0.0 and efficiency["efficiency_ratio"] <= 1.0
         assert efficiency["hurst_exponent"] >= 0.0
         assert efficiency["market_regime"] in ["efficient", "inefficient", "trending", "mean_reverting"]
+
     def test_calculate_market_efficiency_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик эффективности рынка с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -174,6 +195,7 @@ class TestMarketMetrics:
         assert efficiency["efficiency_ratio"] == 0.0
         assert efficiency["hurst_exponent"] == 0.0
         assert efficiency["market_regime"] == "efficient"
+
     def test_calculate_liquidity_metrics(self, market_metrics, sample_market_data, sample_order_book) -> None:
         """Тест расчета метрик ликвидности."""
         liquidity = market_metrics.calculate_liquidity_metrics(sample_market_data, sample_order_book)
@@ -190,6 +212,7 @@ class TestMarketMetrics:
         assert liquidity["order_book_depth"] >= 0.0
         assert liquidity["volume_liquidity"] >= 0.0
         assert liquidity["liquidity_score"] >= 0.0 and liquidity["liquidity_score"] <= 1.0
+
     def test_calculate_liquidity_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик ликвидности с пустыми данными."""
         empty_market_data = pd.DataFrame()
@@ -200,6 +223,7 @@ class TestMarketMetrics:
         assert liquidity["order_book_depth"] == 0.0
         assert liquidity["volume_liquidity"] == 0.0
         assert liquidity["liquidity_score"] == 0.0
+
     def test_calculate_momentum_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик моментума."""
         momentum = market_metrics.calculate_momentum_metrics(sample_market_data)
@@ -213,6 +237,7 @@ class TestMarketMetrics:
         assert isinstance(momentum["momentum_strength"], float)
         assert isinstance(momentum["momentum_divergence"], bool)
         assert momentum["momentum_strength"] >= 0.0 and momentum["momentum_strength"] <= 1.0
+
     def test_calculate_momentum_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик моментума с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -222,6 +247,7 @@ class TestMarketMetrics:
         assert momentum["volume_momentum"] == 0.0
         assert momentum["momentum_strength"] == 0.0
         assert momentum["momentum_divergence"] == False
+
     def test_calculate_market_stress_metrics(self, market_metrics, sample_market_data) -> None:
         """Тест расчета метрик рыночного стресса."""
         stress = market_metrics.calculate_market_stress_metrics(sample_market_data)
@@ -234,6 +260,7 @@ class TestMarketMetrics:
         assert isinstance(stress["stress_trend"], str)
         assert stress["stress_level"] >= 0.0 and stress["stress_level"] <= 1.0
         assert stress["stress_trend"] in ["increasing", "decreasing", "stable"]
+
     def test_calculate_market_stress_metrics_empty_data(self, market_metrics) -> None:
         """Тест расчета метрик рыночного стресса с пустыми данными."""
         empty_data = pd.DataFrame()
@@ -242,6 +269,7 @@ class TestMarketMetrics:
         assert stress["stress_level"] == 0.0
         assert len(stress["stress_indicators"]) == 0
         assert stress["stress_trend"] == "stable"
+
     def test_get_comprehensive_metrics(self, market_metrics, sample_market_data, sample_order_book) -> None:
         """Тест получения комплексных метрик."""
         metrics = market_metrics.get_comprehensive_metrics(sample_market_data, sample_order_book)
@@ -259,6 +287,7 @@ class TestMarketMetrics:
         assert isinstance(metrics["liquidity"], dict)
         assert isinstance(metrics["momentum"], dict)
         assert isinstance(metrics["stress"], dict)
+
     def test_get_comprehensive_metrics_empty_data(self, market_metrics) -> None:
         """Тест получения комплексных метрик с пустыми данными."""
         empty_market_data = pd.DataFrame()
@@ -271,6 +300,7 @@ class TestMarketMetrics:
         assert "liquidity" in metrics
         assert "momentum" in metrics
         assert "stress" in metrics
+
     def test_market_metrics_error_handling(self, market_metrics) -> None:
         """Тест обработки ошибок в сервисе."""
         # Тест с None данными - сервис должен корректно обработать
@@ -285,26 +315,32 @@ class TestMarketMetrics:
         liquidity = market_metrics.calculate_liquidity_metrics(pd.DataFrame(), "invalid_order_book")
         assert isinstance(liquidity, dict)
         assert liquidity["bid_ask_spread"] == 0.0
+
     def test_market_metrics_performance(self, market_metrics, sample_market_data, sample_order_book) -> None:
         """Тест производительности сервиса."""
         import time
+
         start_time = time.time()
         for _ in range(10):
             market_metrics.get_comprehensive_metrics(sample_market_data, sample_order_book)
         end_time = time.time()
         # Проверяем, что 10 операций выполняются менее чем за 2 секунды
         assert (end_time - start_time) < 2.0
+
     def test_market_metrics_thread_safety(self, market_metrics, sample_market_data, sample_order_book) -> None:
         """Тест потокобезопасности сервиса."""
         import threading
         import queue
+
         results = queue.Queue()
+
         def calculate_metrics() -> Any:
             try:
                 result = market_metrics.get_comprehensive_metrics(sample_market_data, sample_order_book)
                 results.put(result)
             except Exception as e:
                 results.put(e)
+
         # Запускаем несколько потоков одновременно
         threads = []
         for _ in range(5):
@@ -319,30 +355,25 @@ class TestMarketMetrics:
             result = results.get()
             assert isinstance(result, dict)
             assert "volatility" in result
+
     def test_market_metrics_config_customization(self: "TestMarketMetrics") -> None:
         """Тест кастомизации конфигурации сервиса."""
-        custom_config = {
-            "volatility_window": 30,
-            "trend_window": 50,
-            "volume_window": 20,
-            "correlation_window": 60
-        }
+        custom_config = {"volatility_window": 30, "trend_window": 50, "volume_window": 20, "correlation_window": 60}
         service = MarketMetrics(custom_config)
         assert service.config["volatility_window"] == 30
         assert service.config["trend_window"] == 50
         assert service.config["volume_window"] == 20
         assert service.config["correlation_window"] == 60
+
     def test_market_metrics_integration_with_different_data_types(self, market_metrics) -> None:
         """Тест интеграции с различными типами данных."""
         # Тест с данными разных временных интервалов
-        hourly_data = pd.DataFrame({
-            'close': np.random.uniform(50000, 51000, 100),
-            'volume': np.random.uniform(1000, 5000, 100)
-        })
-        daily_data = pd.DataFrame({
-            'close': np.random.uniform(50000, 51000, 30),
-            'volume': np.random.uniform(1000, 5000, 30)
-        })
+        hourly_data = pd.DataFrame(
+            {"close": np.random.uniform(50000, 51000, 100), "volume": np.random.uniform(1000, 5000, 100)}
+        )
+        daily_data = pd.DataFrame(
+            {"close": np.random.uniform(50000, 51000, 30), "volume": np.random.uniform(1000, 5000, 30)}
+        )
         # Проверяем, что сервис работает с разными типами данных
         hourly_metrics = market_metrics.calculate_volatility_metrics(hourly_data)
         daily_metrics = market_metrics.calculate_volatility_metrics(daily_data)
@@ -351,6 +382,7 @@ class TestMarketMetrics:
         # Проверяем, что метрики рассчитываются корректно
         assert hourly_metrics["current_volatility"] >= 0.0
         assert daily_metrics["current_volatility"] >= 0.0
+
     def test_market_metrics_consistency(self, market_metrics, sample_market_data) -> None:
         """Тест согласованности метрик."""
         # Проверяем, что метрики согласованы между собой
@@ -364,4 +396,4 @@ class TestMarketMetrics:
         # Проверяем, что значения находятся в ожидаемых диапазонах
         assert 0.0 <= volatility["current_volatility"] <= 1.0
         assert 0.0 <= trend["trend_strength"] <= 1.0
-        assert 0.0 <= momentum["momentum_strength"] <= 1.0 
+        assert 0.0 <= momentum["momentum_strength"] <= 1.0

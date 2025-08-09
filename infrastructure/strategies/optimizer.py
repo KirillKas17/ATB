@@ -22,10 +22,26 @@ class OptimizationResult:
     timestamp: datetime
 
 
+class Optimizer:
+    """Базовый класс оптимизатора."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        self.config = config or {}
+        self.logger = logger
+    
+    def optimize(self, *args, **kwargs) -> OptimizationResult:
+        """Базовый метод оптимизации."""
+        raise NotImplementedError("Subclasses must implement optimize method")
+    
+    def validate_result(self, result: OptimizationResult) -> bool:
+        """Валидация результата оптимизации."""
+        return True
+
+
 class StrategyOptimizer:
     """Оптимизатор параметров торговых стратегий."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
         self.logger = logger
     

@@ -70,7 +70,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
         backtest_results: Dict[str, Dict],
         base_strategies: List[Callable],
         config: Optional[Union[Dict[str, Any], AdaptationConfig]] = None,
-    ):
+    ) -> None:
         # Преобразуем конфигурацию в объект AdaptationConfig
         if isinstance(config, AdaptationConfig):
             config_obj = config

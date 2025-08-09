@@ -8,4 +8,4 @@ Contains performance and benchmark tests including:
 - Sessions performance
 - Strategies performance
 - Benchmarks
-""" 
+"""

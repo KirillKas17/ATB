@@ -27,14 +27,14 @@ from domain.prediction.reversal_signal import (
     CandlestickPattern,
     MomentumAnalysis,
     MeanReversionBand,
-    ReversalSignal
+    ReversalSignal,
 )
 from domain.type_definitions.prediction_types import (
     ReversalDirection,
     DivergenceType,
     ConfidenceScore,
     SignalStrengthScore,
-    SignalStrength
+    SignalStrength,
 )
 from domain.value_objects.currency import Currency
 from domain.value_objects.price import Price
@@ -48,15 +48,9 @@ class TestPivotPoint:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
-        pivot = PivotPoint(
-            price=price,
-            timestamp=timestamp,
-            volume=1000.0,
-            pivot_type="high",
-            strength=0.8
-        )
-        
+
+        pivot = PivotPoint(price=price, timestamp=timestamp, volume=1000.0, pivot_type="high", strength=0.8)
+
         assert pivot.price == price
         assert pivot.timestamp == timestamp
         assert pivot.volume == 1000.0
@@ -70,7 +64,7 @@ class TestPivotPoint:
         """Тест создания с опциональными полями."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         pivot = PivotPoint(
             price=price,
             timestamp=timestamp,
@@ -79,9 +73,9 @@ class TestPivotPoint:
             strength=0.6,
             confirmation_levels=[0.5, 0.7],
             volume_cluster=500.0,
-            fibonacci_levels=[0.382, 0.618]
+            fibonacci_levels=[0.382, 0.618],
         )
-        
+
         assert pivot.confirmation_levels == [0.5, 0.7]
         assert pivot.volume_cluster == 500.0
         assert pivot.fibonacci_levels == [0.382, 0.618]
@@ -90,43 +84,25 @@ class TestPivotPoint:
         """Тест валидации - сила слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Pivot strength must be between 0.0 and 1.0"):
-            PivotPoint(
-                price=price,
-                timestamp=timestamp,
-                volume=1000.0,
-                pivot_type="high",
-                strength=1.5
-            )
+            PivotPoint(price=price, timestamp=timestamp, volume=1000.0, pivot_type="high", strength=1.5)
 
     def test_validation_strength_too_low(self: "TestPivotPoint") -> None:
         """Тест валидации - сила слишком низкая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Pivot strength must be between 0.0 and 1.0"):
-            PivotPoint(
-                price=price,
-                timestamp=timestamp,
-                volume=1000.0,
-                pivot_type="high",
-                strength=-0.1
-            )
+            PivotPoint(price=price, timestamp=timestamp, volume=1000.0, pivot_type="high", strength=-0.1)
 
     def test_validation_negative_volume(self: "TestPivotPoint") -> None:
         """Тест валидации - отрицательный объем."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Volume cannot be negative"):
-            PivotPoint(
-                price=price,
-                timestamp=timestamp,
-                volume=-100.0,
-                pivot_type="high",
-                strength=0.8
-            )
+            PivotPoint(price=price, timestamp=timestamp, volume=-100.0, pivot_type="high", strength=0.8)
 
 
 class TestFibonacciLevel:
@@ -135,13 +111,9 @@ class TestFibonacciLevel:
     def test_creation_valid(self: "TestFibonacciLevel") -> None:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
-        
-        fib_level = FibonacciLevel(
-            level=38.2,
-            price=price,
-            strength=0.7
-        )
-        
+
+        fib_level = FibonacciLevel(level=38.2, price=price, strength=0.7)
+
         assert fib_level.level == 38.2
         assert fib_level.price == price
         assert fib_level.strength == 0.7
@@ -151,63 +123,40 @@ class TestFibonacciLevel:
     def test_creation_with_optional_fields(self: "TestFibonacciLevel") -> None:
         """Тест создания с опциональными полями."""
         price = Price(Decimal("50000"), Currency("USD"))
-        
-        fib_level = FibonacciLevel(
-            level=61.8,
-            price=price,
-            strength=0.8,
-            volume_cluster=500.0,
-            confluence_count=3
-        )
-        
+
+        fib_level = FibonacciLevel(level=61.8, price=price, strength=0.8, volume_cluster=500.0, confluence_count=3)
+
         assert fib_level.volume_cluster == 500.0
         assert fib_level.confluence_count == 3
 
     def test_validation_invalid_level(self: "TestFibonacciLevel") -> None:
         """Тест валидации - неверный уровень."""
         price = Price(Decimal("50000"), Currency("USD"))
-        
+
         with pytest.raises(ValueError, match="Invalid Fibonacci level"):
-            FibonacciLevel(
-                level=25.0,  # Неверный уровень
-                price=price,
-                strength=0.7
-            )
+            FibonacciLevel(level=25.0, price=price, strength=0.7)  # Неверный уровень
 
     def test_validation_strength_too_high(self: "TestFibonacciLevel") -> None:
         """Тест валидации - сила слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
-        
+
         with pytest.raises(ValueError, match="Fibonacci strength must be between 0.0 and 1.0"):
-            FibonacciLevel(
-                level=38.2,
-                price=price,
-                strength=1.5
-            )
+            FibonacciLevel(level=38.2, price=price, strength=1.5)
 
     def test_validation_negative_confluence(self: "TestFibonacciLevel") -> None:
         """Тест валидации - отрицательное количество совпадений."""
         price = Price(Decimal("50000"), Currency("USD"))
-        
+
         with pytest.raises(ValueError, match="Confluence count cannot be negative"):
-            FibonacciLevel(
-                level=38.2,
-                price=price,
-                strength=0.7,
-                confluence_count=-1
-            )
+            FibonacciLevel(level=38.2, price=price, strength=0.7, confluence_count=-1)
 
     def test_all_valid_levels(self: "TestFibonacciLevel") -> None:
         """Тест всех валидных уровней Фибоначчи."""
         price = Price(Decimal("50000"), Currency("USD"))
         valid_levels = [23.6, 38.2, 50.0, 61.8, 78.6]
-        
+
         for level in valid_levels:
-            fib_level = FibonacciLevel(
-                level=level,
-                price=price,
-                strength=0.7
-            )
+            fib_level = FibonacciLevel(level=level, price=price, strength=0.7)
             assert fib_level.level == level
 
 
@@ -221,16 +170,16 @@ class TestVolumeProfile:
         vah = Price(Decimal("50200"), Currency("USD"))
         val = Price(Decimal("49900"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         profile = VolumeProfile(
             price_level=price,
             volume_density=0.8,
             poc_price=poc_price,
             value_area_high=vah,
             value_area_low=val,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         assert profile.price_level == price
         assert profile.volume_density == 0.8
         assert profile.poc_price == poc_price
@@ -247,9 +196,9 @@ class TestVolumeProfile:
         vah = Price(Decimal("50200"), Currency("USD"))
         val = Price(Decimal("49900"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         volume_nodes = [{"price": 50000.0, "volume": 1000.0}]
-        
+
         profile = VolumeProfile(
             price_level=price,
             volume_density=0.8,
@@ -258,9 +207,9 @@ class TestVolumeProfile:
             value_area_low=val,
             timestamp=timestamp,
             volume_nodes=volume_nodes,
-            imbalance_ratio=0.3
+            imbalance_ratio=0.3,
         )
-        
+
         assert profile.volume_nodes == volume_nodes
         assert profile.imbalance_ratio == 0.3
 
@@ -271,7 +220,7 @@ class TestVolumeProfile:
         vah = Price(Decimal("50200"), Currency("USD"))
         val = Price(Decimal("49900"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Volume density cannot be negative"):
             VolumeProfile(
                 price_level=price,
@@ -279,7 +228,7 @@ class TestVolumeProfile:
                 poc_price=poc_price,
                 value_area_high=vah,
                 value_area_low=val,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_imbalance_ratio_too_high(self: "TestVolumeProfile") -> None:
@@ -289,7 +238,7 @@ class TestVolumeProfile:
         vah = Price(Decimal("50200"), Currency("USD"))
         val = Price(Decimal("49900"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Imbalance ratio must be between -1.0 and 1.0"):
             VolumeProfile(
                 price_level=price,
@@ -298,7 +247,7 @@ class TestVolumeProfile:
                 value_area_high=vah,
                 value_area_low=val,
                 timestamp=timestamp,
-                imbalance_ratio=1.5
+                imbalance_ratio=1.5,
             )
 
     def test_validation_imbalance_ratio_too_low(self: "TestVolumeProfile") -> None:
@@ -308,7 +257,7 @@ class TestVolumeProfile:
         vah = Price(Decimal("50200"), Currency("USD"))
         val = Price(Decimal("49900"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Imbalance ratio must be between -1.0 and 1.0"):
             VolumeProfile(
                 price_level=price,
@@ -317,7 +266,7 @@ class TestVolumeProfile:
                 value_area_high=vah,
                 value_area_low=val,
                 timestamp=timestamp,
-                imbalance_ratio=-1.5
+                imbalance_ratio=-1.5,
             )
 
 
@@ -328,16 +277,11 @@ class TestLiquidityCluster:
         """Тест создания с валидными данными."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         cluster = LiquidityCluster(
-            price=price,
-            volume=1000.0,
-            side="bid",
-            cluster_size=5,
-            strength=0.8,
-            timestamp=timestamp
+            price=price, volume=1000.0, side="bid", cluster_size=5, strength=0.8, timestamp=timestamp
         )
-        
+
         assert cluster.price == price
         assert cluster.volume == 1000.0
         assert cluster.side == "bid"
@@ -349,46 +293,25 @@ class TestLiquidityCluster:
         """Тест валидации - отрицательный объем."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Volume cannot be negative"):
-            LiquidityCluster(
-                price=price,
-                volume=-100.0,
-                side="bid",
-                cluster_size=5,
-                strength=0.8,
-                timestamp=timestamp
-            )
+            LiquidityCluster(price=price, volume=-100.0, side="bid", cluster_size=5, strength=0.8, timestamp=timestamp)
 
     def test_validation_zero_cluster_size(self: "TestLiquidityCluster") -> None:
         """Тест валидации - нулевой размер кластера."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Cluster size must be positive"):
-            LiquidityCluster(
-                price=price,
-                volume=1000.0,
-                side="bid",
-                cluster_size=0,
-                strength=0.8,
-                timestamp=timestamp
-            )
+            LiquidityCluster(price=price, volume=1000.0, side="bid", cluster_size=0, strength=0.8, timestamp=timestamp)
 
     def test_validation_strength_too_high(self: "TestLiquidityCluster") -> None:
         """Тест валидации - сила слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Strength must be between 0.0 and 1.0"):
-            LiquidityCluster(
-                price=price,
-                volume=1000.0,
-                side="ask",
-                cluster_size=5,
-                strength=1.5,
-                timestamp=timestamp
-            )
+            LiquidityCluster(price=price, volume=1000.0, side="ask", cluster_size=5, strength=1.5, timestamp=timestamp)
 
 
 class TestDivergenceSignal:
@@ -397,7 +320,7 @@ class TestDivergenceSignal:
     def test_creation_valid(self: "TestDivergenceSignal") -> None:
         """Тест создания с валидными данными."""
         timestamp = Timestamp(datetime.now())
-        
+
         signal = DivergenceSignal(
             type=DivergenceType.BEARISH_REGULAR,
             indicator="RSI",
@@ -407,9 +330,9 @@ class TestDivergenceSignal:
             indicator_lows=[],
             strength=0.8,
             confidence=0.7,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         assert signal.type == DivergenceType.BEARISH_REGULAR
         assert signal.indicator == "RSI"
         assert signal.price_highs == [100.0, 110.0]
@@ -423,7 +346,7 @@ class TestDivergenceSignal:
     def test_validation_strength_too_high(self: "TestDivergenceSignal") -> None:
         """Тест валидации - сила слишком высокая."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Strength must be between 0.0 and 1.0"):
             DivergenceSignal(
                 type=DivergenceType.BEARISH_REGULAR,
@@ -434,13 +357,13 @@ class TestDivergenceSignal:
                 indicator_lows=[],
                 strength=1.5,
                 confidence=0.7,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_confidence_too_low(self: "TestDivergenceSignal") -> None:
         """Тест валидации - уверенность слишком низкая."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             DivergenceSignal(
                 type=DivergenceType.BEARISH_REGULAR,
@@ -451,13 +374,13 @@ class TestDivergenceSignal:
                 indicator_lows=[],
                 strength=0.8,
                 confidence=-0.1,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_empty_indicator(self: "TestDivergenceSignal") -> None:
         """Тест валидации - пустой индикатор."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Indicator cannot be empty"):
             DivergenceSignal(
                 type=DivergenceType.BEARISH_REGULAR,
@@ -468,7 +391,7 @@ class TestDivergenceSignal:
                 indicator_lows=[],
                 strength=0.8,
                 confidence=0.7,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
 
@@ -478,16 +401,16 @@ class TestCandlestickPattern:
     def test_creation_valid(self: "TestCandlestickPattern") -> None:
         """Тест создания с валидными данными."""
         timestamp = Timestamp(datetime.now())
-        
+
         pattern = CandlestickPattern(
             name="hammer",
             direction=ReversalDirection.BULLISH,
             strength=0.7,
             confirmation_level=0.6,
             volume_confirmation=True,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         assert pattern.name == "hammer"
         assert pattern.direction == ReversalDirection.BULLISH
         assert pattern.strength == 0.7
@@ -500,7 +423,7 @@ class TestCandlestickPattern:
         """Тест создания с метаданными."""
         timestamp = Timestamp(datetime.now())
         metadata = {"body_ratio": 0.3, "shadow_ratio": 0.7}
-        
+
         pattern = CandlestickPattern(
             name="doji",
             direction=ReversalDirection.NEUTRAL,
@@ -508,15 +431,15 @@ class TestCandlestickPattern:
             confirmation_level=0.4,
             volume_confirmation=False,
             timestamp=timestamp,
-            metadata=metadata
+            metadata=metadata,
         )
-        
+
         assert pattern.metadata == metadata
 
     def test_validation_empty_name(self: "TestCandlestickPattern") -> None:
         """Тест валидации - пустое имя."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Pattern name cannot be empty"):
             CandlestickPattern(
                 name="",
@@ -524,13 +447,13 @@ class TestCandlestickPattern:
                 strength=0.7,
                 confirmation_level=0.6,
                 volume_confirmation=True,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_strength_too_high(self: "TestCandlestickPattern") -> None:
         """Тест валидации - сила слишком высокая."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Strength must be between 0.0 and 1.0"):
             CandlestickPattern(
                 name="hammer",
@@ -538,13 +461,13 @@ class TestCandlestickPattern:
                 strength=1.5,
                 confirmation_level=0.6,
                 volume_confirmation=True,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_confirmation_level_too_low(self: "TestCandlestickPattern") -> None:
         """Тест валидации - уровень подтверждения слишком низкий."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Confirmation level must be between 0.0 and 1.0"):
             CandlestickPattern(
                 name="hammer",
@@ -552,7 +475,7 @@ class TestCandlestickPattern:
                 strength=0.7,
                 confirmation_level=-0.1,
                 volume_confirmation=True,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
 
@@ -562,16 +485,16 @@ class TestMomentumAnalysis:
     def test_creation_valid(self: "TestMomentumAnalysis") -> None:
         """Тест создания с валидными данными."""
         timestamp = Timestamp(datetime.now())
-        
+
         analysis = MomentumAnalysis(
             timestamp=timestamp,
             momentum_loss=0.2,
             velocity_change=0.1,
             acceleration=0.05,
             volume_momentum=0.3,
-            price_momentum=0.15
+            price_momentum=0.15,
         )
-        
+
         assert analysis.timestamp == timestamp
         assert analysis.momentum_loss == 0.2
         assert analysis.velocity_change == 0.1
@@ -583,7 +506,7 @@ class TestMomentumAnalysis:
     def test_creation_with_divergence(self: "TestMomentumAnalysis") -> None:
         """Тест создания с дивергенцией."""
         timestamp = Timestamp(datetime.now())
-        
+
         analysis = MomentumAnalysis(
             timestamp=timestamp,
             momentum_loss=0.2,
@@ -591,15 +514,15 @@ class TestMomentumAnalysis:
             acceleration=0.05,
             volume_momentum=0.3,
             price_momentum=0.15,
-            momentum_divergence=0.4
+            momentum_divergence=0.4,
         )
-        
+
         assert analysis.momentum_divergence == 0.4
 
     def test_validation_non_numeric_momentum_loss(self: "TestMomentumAnalysis") -> None:
         """Тест валидации - нечисловое значение потери импульса."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Momentum loss must be numeric"):
             MomentumAnalysis(
                 timestamp=timestamp,
@@ -607,13 +530,13 @@ class TestMomentumAnalysis:
                 velocity_change=0.1,
                 acceleration=0.05,
                 volume_momentum=0.3,
-                price_momentum=0.15
+                price_momentum=0.15,
             )
 
     def test_validation_non_numeric_velocity_change(self: "TestMomentumAnalysis") -> None:
         """Тест валидации - нечисловое изменение скорости."""
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Velocity change must be numeric"):
             MomentumAnalysis(
                 timestamp=timestamp,
@@ -621,7 +544,7 @@ class TestMomentumAnalysis:
                 velocity_change="invalid",
                 acceleration=0.05,
                 volume_momentum=0.3,
-                price_momentum=0.15
+                price_momentum=0.15,
             )
 
 
@@ -634,7 +557,7 @@ class TestMeanReversionBand:
         lower_band = Price(Decimal("49000"), Currency("USD"))
         middle_line = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         band = MeanReversionBand(
             upper_band=upper_band,
             lower_band=lower_band,
@@ -642,9 +565,9 @@ class TestMeanReversionBand:
             deviation=0.02,
             band_width=2000.0,
             current_position=0.5,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         assert band.upper_band == upper_band
         assert band.lower_band == lower_band
         assert band.middle_line == middle_line
@@ -659,7 +582,7 @@ class TestMeanReversionBand:
         lower_band = Price(Decimal("49000"), Currency("USD"))
         middle_line = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Deviation cannot be negative"):
             MeanReversionBand(
                 upper_band=upper_band,
@@ -668,7 +591,7 @@ class TestMeanReversionBand:
                 deviation=-0.01,
                 band_width=2000.0,
                 current_position=0.5,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_negative_band_width(self: "TestMeanReversionBand") -> None:
@@ -677,7 +600,7 @@ class TestMeanReversionBand:
         lower_band = Price(Decimal("49000"), Currency("USD"))
         middle_line = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Band width cannot be negative"):
             MeanReversionBand(
                 upper_band=upper_band,
@@ -686,7 +609,7 @@ class TestMeanReversionBand:
                 deviation=0.02,
                 band_width=-100.0,
                 current_position=0.5,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_current_position_too_high(self: "TestMeanReversionBand") -> None:
@@ -695,7 +618,7 @@ class TestMeanReversionBand:
         lower_band = Price(Decimal("49000"), Currency("USD"))
         middle_line = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Current position must be between 0.0 and 1.0"):
             MeanReversionBand(
                 upper_band=upper_band,
@@ -704,7 +627,7 @@ class TestMeanReversionBand:
                 deviation=0.02,
                 band_width=2000.0,
                 current_position=1.5,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
 
@@ -716,7 +639,7 @@ class TestReversalSignal:
         """Тестовый сигнал разворота."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         return ReversalSignal(
             symbol="BTC/USDT",
             direction=ReversalDirection.BULLISH,
@@ -724,7 +647,7 @@ class TestReversalSignal:
             confidence=ConfidenceScore(0.8),
             horizon=timedelta(hours=4),
             signal_strength=SignalStrengthScore(0.7),
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
     def test_creation_valid(self, sample_signal: ReversalSignal) -> None:
@@ -750,7 +673,7 @@ class TestReversalSignal:
         """Тест валидации - пустой символ."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Symbol cannot be empty"):
             ReversalSignal(
                 symbol="",
@@ -759,14 +682,14 @@ class TestReversalSignal:
                 confidence=ConfidenceScore(0.8),
                 horizon=timedelta(hours=4),
                 signal_strength=SignalStrengthScore(0.7),
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_confidence_too_high(self: "TestReversalSignal") -> None:
         """Тест валидации - уверенность слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             ReversalSignal(
                 symbol="BTC/USDT",
@@ -775,14 +698,14 @@ class TestReversalSignal:
                 confidence=ConfidenceScore(1.5),
                 horizon=timedelta(hours=4),
                 signal_strength=SignalStrengthScore(0.7),
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_signal_strength_too_low(self: "TestReversalSignal") -> None:
         """Тест валидации - сила сигнала слишком низкая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Signal strength must be between 0.0 and 1.0"):
             ReversalSignal(
                 symbol="BTC/USDT",
@@ -791,14 +714,14 @@ class TestReversalSignal:
                 confidence=ConfidenceScore(0.8),
                 horizon=timedelta(hours=4),
                 signal_strength=SignalStrengthScore(-0.1),
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_validation_agreement_score_too_high(self: "TestReversalSignal") -> None:
         """Тест валидации - оценка согласованности слишком высокая."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Agreement score must be between 0.0 and 1.0"):
             ReversalSignal(
                 symbol="BTC/USDT",
@@ -808,14 +731,14 @@ class TestReversalSignal:
                 horizon=timedelta(hours=4),
                 signal_strength=SignalStrengthScore(0.7),
                 timestamp=timestamp,
-                agreement_score=1.5
+                agreement_score=1.5,
             )
 
     def test_validation_zero_horizon(self: "TestReversalSignal") -> None:
         """Тест валидации - нулевой горизонт."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         with pytest.raises(ValueError, match="Horizon must be positive"):
             ReversalSignal(
                 symbol="BTC/USDT",
@@ -824,7 +747,7 @@ class TestReversalSignal:
                 confidence=ConfidenceScore(0.8),
                 horizon=timedelta(0),
                 signal_strength=SignalStrengthScore(0.7),
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
     def test_strength_category_weak(self, sample_signal: ReversalSignal) -> None:
@@ -855,7 +778,7 @@ class TestReversalSignal:
         """Тест истечения срока - истек."""
         price = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now() - timedelta(hours=5))  # 5 часов назад
-        
+
         signal = ReversalSignal(
             symbol="BTC/USDT",
             direction=ReversalDirection.BULLISH,
@@ -863,9 +786,9 @@ class TestReversalSignal:
             confidence=ConfidenceScore(0.8),
             horizon=timedelta(hours=4),  # Горизонт 4 часа
             signal_strength=SignalStrengthScore(0.7),
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         assert signal.is_expired is True
 
     def test_time_to_expiry(self, sample_signal: ReversalSignal) -> None:
@@ -900,7 +823,7 @@ class TestReversalSignal:
         """Тест усиления уверенности."""
         original_confidence = float(sample_signal.confidence)
         sample_signal.enhance_confidence(0.2)
-        
+
         assert float(sample_signal.confidence) > original_confidence
         assert float(sample_signal.confidence) <= 1.0
 
@@ -913,7 +836,7 @@ class TestReversalSignal:
         """Тест снижения уверенности."""
         original_confidence = float(sample_signal.confidence)
         sample_signal.reduce_confidence(0.2)
-        
+
         assert float(sample_signal.confidence) < original_confidence
         assert float(sample_signal.confidence) >= 0.0
 
@@ -925,7 +848,7 @@ class TestReversalSignal:
     def test_mark_controversial(self, sample_signal: ReversalSignal) -> None:
         """Тест пометки как спорного."""
         sample_signal.mark_controversial("Conflicting indicators", {"rsi": 30, "macd": 0.5})
-        
+
         assert sample_signal.is_controversial is True
         assert len(sample_signal.controversy_reasons) == 1
         assert sample_signal.controversy_reasons[0]["reason"] == "Conflicting indicators"
@@ -939,7 +862,7 @@ class TestReversalSignal:
     def test_update_agreement_score(self, sample_signal: ReversalSignal) -> None:
         """Тест обновления оценки согласованности."""
         sample_signal.update_agreement_score(0.8)
-        
+
         assert sample_signal.agreement_score == 0.8
 
     def test_update_agreement_score_invalid(self, sample_signal: ReversalSignal) -> None:
@@ -959,11 +882,11 @@ class TestReversalSignal:
             indicator_lows=[],
             strength=0.8,
             confidence=0.7,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         sample_signal.add_divergence_signal(divergence)
-        
+
         assert len(sample_signal.divergence_signals) == 1
         assert sample_signal.divergence_signals[0] == divergence
 
@@ -981,11 +904,11 @@ class TestReversalSignal:
             strength=0.7,
             confirmation_level=0.6,
             volume_confirmation=True,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         sample_signal.add_candlestick_pattern(pattern)
-        
+
         assert len(sample_signal.candlestick_patterns) == 1
         assert sample_signal.candlestick_patterns[0] == pattern
 
@@ -1003,11 +926,11 @@ class TestReversalSignal:
             velocity_change=0.1,
             acceleration=0.05,
             volume_momentum=0.3,
-            price_momentum=0.15
+            price_momentum=0.15,
         )
-        
+
         sample_signal.update_momentum_analysis(momentum)
-        
+
         assert sample_signal.momentum_analysis == momentum
 
     def test_update_momentum_analysis_invalid_type(self, sample_signal: ReversalSignal) -> None:
@@ -1021,7 +944,7 @@ class TestReversalSignal:
         lower_band = Price(Decimal("49000"), Currency("USD"))
         middle_line = Price(Decimal("50000"), Currency("USD"))
         timestamp = Timestamp(datetime.now())
-        
+
         band = MeanReversionBand(
             upper_band=upper_band,
             lower_band=lower_band,
@@ -1029,11 +952,11 @@ class TestReversalSignal:
             deviation=0.02,
             band_width=2000.0,
             current_position=0.5,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
-        
+
         sample_signal.update_mean_reversion_band(band)
-        
+
         assert sample_signal.mean_reversion_band == band
 
     def test_update_mean_reversion_band_invalid_type(self, sample_signal: ReversalSignal) -> None:
@@ -1044,7 +967,7 @@ class TestReversalSignal:
     def test_to_dict(self, sample_signal: ReversalSignal) -> None:
         """Тест преобразования в словарь."""
         result = sample_signal.to_dict()
-        
+
         assert isinstance(result, dict)
         assert result["symbol"] == "BTC/USDT"
         assert result["direction"] == ReversalDirection.BULLISH.value
@@ -1062,7 +985,7 @@ class TestReversalSignal:
     def test_str_representation(self, sample_signal: ReversalSignal) -> None:
         """Тест строкового представления."""
         result = str(sample_signal)
-        
+
         assert "ReversalSignal" in result
         assert "BTC/USDT" in result
         assert "BULLISH" in result
@@ -1071,5 +994,5 @@ class TestReversalSignal:
     def test_repr_representation(self, sample_signal: ReversalSignal) -> None:
         """Тест представления для отладки."""
         result = repr(sample_signal)
-        
-        assert result == str(sample_signal) 
+
+        assert result == str(sample_signal)

@@ -21,7 +21,7 @@ from domain.market.liquidity_gravity import (
     LiquidityGravityResult,
     OrderBookSnapshot,
     LiquidityGravityModel,
-    compute_liquidity_gravity
+    compute_liquidity_gravity,
 )
 from domain.market.market_types import MarketMetadataDict
 
@@ -46,19 +46,19 @@ class TestOrderBookProtocol:
 
     def test_protocol_definition(self):
         """Тест определения протокола."""
-        assert hasattr(OrderBookProtocol, 'bids')
-        assert hasattr(OrderBookProtocol, 'asks')
-        assert hasattr(OrderBookProtocol, 'timestamp')
-        assert hasattr(OrderBookProtocol, 'symbol')
-        assert hasattr(OrderBookProtocol, 'get_bid_volume')
-        assert hasattr(OrderBookProtocol, 'get_ask_volume')
-        assert hasattr(OrderBookProtocol, 'get_mid_price')
-        assert hasattr(OrderBookProtocol, 'get_spread')
-        assert hasattr(OrderBookProtocol, 'get_spread_percentage')
+        assert hasattr(OrderBookProtocol, "bids")
+        assert hasattr(OrderBookProtocol, "asks")
+        assert hasattr(OrderBookProtocol, "timestamp")
+        assert hasattr(OrderBookProtocol, "symbol")
+        assert hasattr(OrderBookProtocol, "get_bid_volume")
+        assert hasattr(OrderBookProtocol, "get_ask_volume")
+        assert hasattr(OrderBookProtocol, "get_mid_price")
+        assert hasattr(OrderBookProtocol, "get_spread")
+        assert hasattr(OrderBookProtocol, "get_spread_percentage")
 
     def test_runtime_checkable(self):
         """Тест что протокол является runtime_checkable."""
-        assert hasattr(OrderBookProtocol, '__runtime_checkable__')
+        assert hasattr(OrderBookProtocol, "__runtime_checkable__")
         assert OrderBookProtocol.__runtime_checkable__ is True
 
 
@@ -78,15 +78,15 @@ class TestLiquidityGravityProtocol:
 
     def test_protocol_definition(self):
         """Тест определения протокола."""
-        assert hasattr(LiquidityGravityProtocol, 'compute_liquidity_gravity')
-        assert hasattr(LiquidityGravityProtocol, 'analyze_liquidity_gravity')
-        assert hasattr(LiquidityGravityProtocol, 'compute_gravity_gradient')
-        assert hasattr(LiquidityGravityProtocol, 'get_model_statistics')
-        assert hasattr(LiquidityGravityProtocol, 'update_config')
+        assert hasattr(LiquidityGravityProtocol, "compute_liquidity_gravity")
+        assert hasattr(LiquidityGravityProtocol, "analyze_liquidity_gravity")
+        assert hasattr(LiquidityGravityProtocol, "compute_gravity_gradient")
+        assert hasattr(LiquidityGravityProtocol, "get_model_statistics")
+        assert hasattr(LiquidityGravityProtocol, "update_config")
 
     def test_runtime_checkable(self):
         """Тест что протокол является runtime_checkable."""
-        assert hasattr(LiquidityGravityProtocol, '__runtime_checkable__')
+        assert hasattr(LiquidityGravityProtocol, "__runtime_checkable__")
         assert LiquidityGravityProtocol.__runtime_checkable__ is True
 
 
@@ -96,7 +96,7 @@ class TestLiquidityGravityConfig:
     def test_default_config(self):
         """Тест конфигурации по умолчанию."""
         config = LiquidityGravityConfig()
-        
+
         assert config.gravitational_constant == 1e-6
         assert config.min_volume_threshold == 0.001
         assert config.max_price_distance == 0.1
@@ -123,9 +123,9 @@ class TestLiquidityGravityConfig:
             volume_imbalance_threshold=0.6,
             spread_threshold=1.5,
             momentum_weight=0.4,
-            volatility_weight=0.3
+            volatility_weight=0.3,
         )
-        
+
         assert config.gravitational_constant == 2e-6
         assert config.min_volume_threshold == 0.002
         assert config.max_price_distance == 0.2
@@ -142,7 +142,7 @@ class TestLiquidityGravityConfig:
     def test_risk_thresholds_default(self):
         """Тест рисковых порогов по умолчанию."""
         config = LiquidityGravityConfig()
-        
+
         expected_thresholds = {"low": 0.1, "medium": 0.5, "high": 1.0, "extreme": 2.0}
         assert config.risk_thresholds == expected_thresholds
 
@@ -164,7 +164,7 @@ class TestLiquidityGravityResult:
             price_momentum=0.1,
             volatility_score=0.3,
             liquidity_score=0.8,
-            market_efficiency=0.7
+            market_efficiency=0.7,
         )
 
     def test_gravity_result_creation(self, sample_gravity_result):
@@ -182,7 +182,7 @@ class TestLiquidityGravityResult:
     def test_to_dict_conversion(self, sample_gravity_result):
         """Тест преобразования в словарь."""
         result_dict = sample_gravity_result.to_dict()
-        
+
         assert result_dict["total_gravity"] == 0.75
         assert result_dict["bid_ask_forces"] == [(1.0, 1.5, 0.3), (2.0, 2.5, 0.4)]
         assert result_dict["gravity_distribution"]["bid"] == 0.4
@@ -206,7 +206,7 @@ class TestOrderBookSnapshot:
             bids=[(50000.0, 1.0), (49999.0, 2.0)],
             asks=[(50001.0, 1.5), (50002.0, 2.5)],
             timestamp=datetime.now(),
-            symbol="BTC/USD"
+            symbol="BTC/USD",
         )
 
     def test_orderbook_creation(self, sample_orderbook):
@@ -261,17 +261,14 @@ class TestOrderBookSnapshot:
 
     def test_get_spread_percentage_zero_mid_price(self):
         """Тест получения спреда в процентах при нулевой средней цене."""
-        orderbook = OrderBookSnapshot(
-            bids=[(0.0, 1.0)],
-            asks=[(0.0, 1.0)]
-        )
+        orderbook = OrderBookSnapshot(bids=[(0.0, 1.0)], asks=[(0.0, 1.0)])
         spread_percentage = orderbook.get_spread_percentage()
         assert spread_percentage == 0.0
 
     def test_empty_orderbook_defaults(self):
         """Тест значений по умолчанию для пустого ордербука."""
         empty_orderbook = OrderBookSnapshot()
-        
+
         assert empty_orderbook.bids == []
         assert empty_orderbook.asks == []
         assert empty_orderbook.symbol == ""
@@ -289,11 +286,7 @@ class TestLiquidityGravityModel:
     @pytest.fixture
     def custom_gravity_model(self) -> LiquidityGravityModel:
         """Экземпляр модели с пользовательской конфигурацией."""
-        config = LiquidityGravityConfig(
-            gravitational_constant=2e-6,
-            min_volume_threshold=0.002,
-            max_price_distance=0.2
-        )
+        config = LiquidityGravityConfig(gravitational_constant=2e-6, min_volume_threshold=0.002, max_price_distance=0.2)
         return LiquidityGravityModel(config)
 
     @pytest.fixture
@@ -303,31 +296,31 @@ class TestLiquidityGravityModel:
             bids=[(50000.0, 1.0), (49999.0, 2.0)],
             asks=[(50001.0, 1.5), (50002.0, 2.5)],
             timestamp=datetime.now(),
-            symbol="BTC/USD"
+            symbol="BTC/USD",
         )
 
     def test_model_initialization(self):
         """Тест инициализации модели."""
         model = LiquidityGravityModel()
-        
+
         assert model.config is not None
         assert model.config.gravitational_constant == 1e-6
         assert model._total_calculations == 0
         assert model._total_gravity == 0.0
-        assert model._min_gravity == float('inf')
-        assert model._max_gravity == float('-inf')
+        assert model._min_gravity == float("inf")
+        assert model._max_gravity == float("-inf")
 
     def test_model_initialization_with_config(self):
         """Тест инициализации модели с конфигурацией."""
         config = LiquidityGravityConfig(gravitational_constant=2e-6)
         model = LiquidityGravityModel(config)
-        
+
         assert model.config.gravitational_constant == 2e-6
 
     def test_compute_liquidity_gravity(self, gravity_model, sample_orderbook):
         """Тест вычисления гравитации ликвидности."""
         gravity = gravity_model.compute_liquidity_gravity(sample_orderbook)
-        
+
         assert isinstance(gravity, float)
         assert gravity >= 0.0
         assert gravity_model._total_calculations == 1
@@ -336,34 +329,34 @@ class TestLiquidityGravityModel:
         """Тест вычисления гравитации для пустого ордербука."""
         empty_orderbook = OrderBookSnapshot()
         gravity = gravity_model.compute_liquidity_gravity(empty_orderbook)
-        
+
         assert gravity == 0.0
 
     def test_compute_liquidity_gravity_custom_config(self, custom_gravity_model, sample_orderbook):
         """Тест вычисления гравитации с пользовательской конфигурацией."""
         gravity = custom_gravity_model.compute_liquidity_gravity(sample_orderbook)
-        
+
         assert isinstance(gravity, float)
         assert gravity >= 0.0
 
     def test_compute_gravitational_force(self, gravity_model):
         """Тест вычисления гравитационной силы."""
         force = gravity_model._compute_gravitational_force(1.0, 2.0, 0.01)
-        
+
         assert isinstance(force, float)
         assert force >= 0.0
 
     def test_compute_gravitational_force_zero_distance(self, gravity_model):
         """Тест вычисления гравитационной силы при нулевом расстоянии."""
         force = gravity_model._compute_gravitational_force(1.0, 2.0, 0.0)
-        
+
         # При нулевом расстоянии сила должна быть максимальной
         assert force > 0.0
 
     def test_analyze_liquidity_gravity(self, gravity_model, sample_orderbook):
         """Тест анализа гравитации ликвидности."""
         result = gravity_model.analyze_liquidity_gravity(sample_orderbook)
-        
+
         assert isinstance(result, LiquidityGravityResult)
         assert result.total_gravity >= 0.0
         assert isinstance(result.bid_ask_forces, list)
@@ -382,15 +375,15 @@ class TestLiquidityGravityModel:
         # Тест для низкого риска
         low_risk = gravity_model._determine_risk_level(0.05, sample_orderbook)
         assert low_risk == "low"
-        
+
         # Тест для среднего риска
         medium_risk = gravity_model._determine_risk_level(0.3, sample_orderbook)
         assert medium_risk == "medium"
-        
+
         # Тест для высокого риска
         high_risk = gravity_model._determine_risk_level(0.8, sample_orderbook)
         assert high_risk == "high"
-        
+
         # Тест для экстремального риска
         extreme_risk = gravity_model._determine_risk_level(1.5, sample_orderbook)
         assert extreme_risk == "extreme"
@@ -398,7 +391,7 @@ class TestLiquidityGravityModel:
     def test_compute_gravity_gradient(self, gravity_model, sample_orderbook):
         """Тест вычисления градиента гравитации."""
         gradient = gravity_model.compute_gravity_gradient(sample_orderbook)
-        
+
         assert isinstance(gradient, dict)
         assert "bid_gradient" in gradient
         assert "ask_gradient" in gradient
@@ -408,34 +401,34 @@ class TestLiquidityGravityModel:
     def test_calculate_volume_imbalance(self, gravity_model, sample_orderbook):
         """Тест расчета дисбаланса объема."""
         imbalance = gravity_model._calculate_volume_imbalance(sample_orderbook)
-        
+
         assert isinstance(imbalance, float)
         assert -1.0 <= imbalance <= 1.0
 
     def test_calculate_price_momentum(self, gravity_model, sample_orderbook):
         """Тест расчета ценового импульса."""
         momentum = gravity_model._calculate_price_momentum(sample_orderbook)
-        
+
         assert isinstance(momentum, float)
 
     def test_calculate_volatility_score(self, gravity_model, sample_orderbook):
         """Тест расчета показателя волатильности."""
         volatility = gravity_model._calculate_volatility_score(sample_orderbook)
-        
+
         assert isinstance(volatility, float)
         assert 0.0 <= volatility <= 1.0
 
     def test_calculate_liquidity_score(self, gravity_model, sample_orderbook):
         """Тест расчета показателя ликвидности."""
         liquidity = gravity_model._calculate_liquidity_score(sample_orderbook)
-        
+
         assert isinstance(liquidity, float)
         assert 0.0 <= liquidity <= 1.0
 
     def test_calculate_market_efficiency(self, gravity_model, sample_orderbook):
         """Тест расчета эффективности рынка."""
         efficiency = gravity_model._calculate_market_efficiency(sample_orderbook)
-        
+
         assert isinstance(efficiency, float)
         assert 0.0 <= efficiency <= 1.0
 
@@ -443,9 +436,9 @@ class TestLiquidityGravityModel:
         """Тест обновления статистики."""
         initial_calculations = gravity_model._total_calculations
         initial_gravity = gravity_model._total_gravity
-        
+
         gravity_model._update_statistics(0.5)
-        
+
         assert gravity_model._total_calculations == initial_calculations + 1
         assert gravity_model._total_gravity == initial_gravity + 0.5
         assert gravity_model._min_gravity <= 0.5
@@ -456,9 +449,9 @@ class TestLiquidityGravityModel:
         # Выполняем несколько вычислений
         gravity_model.compute_liquidity_gravity(sample_orderbook)
         gravity_model.compute_liquidity_gravity(sample_orderbook)
-        
+
         stats = gravity_model.get_model_statistics()
-        
+
         assert isinstance(stats, dict)
         assert "total_calculations" in stats
         assert "total_gravity" in stats
@@ -471,9 +464,9 @@ class TestLiquidityGravityModel:
         """Тест обновления конфигурации."""
         old_constant = gravity_model.config.gravitational_constant
         new_config = LiquidityGravityConfig(gravitational_constant=2e-6)
-        
+
         gravity_model.update_config(new_config)
-        
+
         assert gravity_model.config.gravitational_constant == 2e-6
         assert gravity_model.config.gravitational_constant != old_constant
 
@@ -492,13 +485,13 @@ class TestComputeLiquidityGravityFunction:
             bids=[(50000.0, 1.0), (49999.0, 2.0)],
             asks=[(50001.0, 1.5), (50002.0, 2.5)],
             timestamp=datetime.now(),
-            symbol="BTC/USD"
+            symbol="BTC/USD",
         )
 
     def test_compute_liquidity_gravity_function(self, sample_orderbook):
         """Тест функции compute_liquidity_gravity."""
         gravity = compute_liquidity_gravity(sample_orderbook)
-        
+
         assert isinstance(gravity, float)
         assert gravity >= 0.0
 
@@ -506,7 +499,7 @@ class TestComputeLiquidityGravityFunction:
         """Тест функции для пустого ордербука."""
         empty_orderbook = OrderBookSnapshot()
         gravity = compute_liquidity_gravity(empty_orderbook)
-        
+
         assert gravity == 0.0
 
     def test_compute_liquidity_gravity_with_mock_orderbook(self):
@@ -519,9 +512,9 @@ class TestComputeLiquidityGravityFunction:
         mock_orderbook.get_mid_price = Mock(return_value=50000.5)
         mock_orderbook.get_spread = Mock(return_value=1.0)
         mock_orderbook.get_spread_percentage = Mock(return_value=0.002)
-        
+
         gravity = compute_liquidity_gravity(mock_orderbook)
-        
+
         assert isinstance(gravity, float)
         assert gravity >= 0.0
 
@@ -541,12 +534,12 @@ class TestLiquidityGravityIntegration:
             bids=[(50000.0, 1.0), (49999.0, 2.0), (49998.0, 3.0)],
             asks=[(50001.0, 1.5), (50002.0, 2.5), (50003.0, 3.5)],
             timestamp=datetime.now(),
-            symbol="BTC/USD"
+            symbol="BTC/USD",
         )
-        
+
         # Выполняем полный анализ
         result = gravity_model.analyze_liquidity_gravity(orderbook)
-        
+
         # Проверяем результат
         assert isinstance(result, LiquidityGravityResult)
         assert result.total_gravity > 0.0
@@ -554,7 +547,7 @@ class TestLiquidityGravityIntegration:
         assert "bid" in result.gravity_distribution
         assert "ask" in result.gravity_distribution
         assert result.risk_level in ["low", "medium", "high", "extreme"]
-        
+
         # Проверяем статистику модели
         stats = gravity_model.get_model_statistics()
         assert stats["total_calculations"] > 0
@@ -563,16 +556,13 @@ class TestLiquidityGravityIntegration:
     def test_multiple_calculations_consistency(self, gravity_model):
         """Тест консистентности множественных вычислений."""
         orderbook = OrderBookSnapshot(
-            bids=[(50000.0, 1.0)],
-            asks=[(50001.0, 1.5)],
-            timestamp=datetime.now(),
-            symbol="BTC/USD"
+            bids=[(50000.0, 1.0)], asks=[(50001.0, 1.5)], timestamp=datetime.now(), symbol="BTC/USD"
         )
-        
+
         # Выполняем несколько вычислений
         gravity1 = gravity_model.compute_liquidity_gravity(orderbook)
         gravity2 = gravity_model.compute_liquidity_gravity(orderbook)
-        
+
         # Результаты должны быть одинаковыми для одинаковых данных
         assert abs(gravity1 - gravity2) < 1e-6
 
@@ -581,20 +571,17 @@ class TestLiquidityGravityIntegration:
         # Базовая конфигурация
         base_config = LiquidityGravityConfig()
         base_model = LiquidityGravityModel(base_config)
-        
+
         # Конфигурация с увеличенной гравитационной постоянной
         high_gravity_config = LiquidityGravityConfig(gravitational_constant=2e-6)
         high_gravity_model = LiquidityGravityModel(high_gravity_config)
-        
+
         orderbook = OrderBookSnapshot(
-            bids=[(50000.0, 1.0)],
-            asks=[(50001.0, 1.5)],
-            timestamp=datetime.now(),
-            symbol="BTC/USD"
+            bids=[(50000.0, 1.0)], asks=[(50001.0, 1.5)], timestamp=datetime.now(), symbol="BTC/USD"
         )
-        
+
         base_gravity = base_model.compute_liquidity_gravity(orderbook)
         high_gravity = high_gravity_model.compute_liquidity_gravity(orderbook)
-        
+
         # Результаты должны отличаться
-        assert base_gravity != high_gravity 
+        assert base_gravity != high_gravity

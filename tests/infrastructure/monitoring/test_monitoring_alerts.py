@@ -6,6 +6,7 @@ Unit тесты для модуля monitoring_alerts.
 - Обработчики алертов
 - Правила алертов
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import asyncio
@@ -22,15 +23,23 @@ from infrastructure.monitoring.monitoring_alerts import (
     AlertRule,
     AlertHandler,
     Alert,
-    AlertSeverity
+    AlertSeverity,
 )
+
 try:
     from infrastructure.monitoring.monitoring_alerts import AlertRule, AlertHandler
 except ImportError:
-    class MockAlertRule: pass
-    class MockAlertHandler: pass
+
+    class MockAlertRule:
+        pass
+
+    class MockAlertHandler:
+        pass
+
+
 class TestAlertManager:
     """Тесты для AlertManager."""
+
     def test_init_default(self: "TestAlertManager") -> None:
         """Тест инициализации с параметрами по умолчанию."""
         manager = AlertManager()
@@ -40,14 +49,13 @@ class TestAlertManager:
         assert manager.handlers == {}
         assert manager.is_running is False
         assert manager.evaluation_interval == 30.0
+
     def test_init_custom(self: "TestAlertManager") -> None:
         """Тест инициализации с пользовательскими параметрами."""
-        manager = AlertManager(
-            name="custom_alerts",
-            evaluation_interval=60.0
-        )
+        manager = AlertManager(name="custom_alerts", evaluation_interval=60.0)
         assert manager.name == "custom_alerts"
         assert manager.evaluation_interval == 60.0
+
     def test_create_alert(self: "TestAlertManager") -> None:
         """Тест создания алерта."""
         manager = AlertManager()
@@ -55,7 +63,7 @@ class TestAlertManager:
             message="Test alert message",
             severity=AlertSeverity.WARNING,
             source="test_source",
-            metadata={"test_key": "test_value"}
+            metadata={"test_key": "test_value"},
         )
         assert alert.message == "Test alert message"
         assert alert.severity == AlertSeverity.WARNING
@@ -65,18 +73,17 @@ class TestAlertManager:
         assert alert.alert_id is not None
         assert alert.acknowledged is False
         assert alert.resolved is False
+
     def test_create_alert_with_exception(self: "TestAlertManager") -> None:
         """Тест создания алерта с исключением."""
         manager = AlertManager()
         exception = ValueError("Test error")
         alert = manager.create_alert(
-            message="Test error alert",
-            severity=AlertSeverity.ERROR,
-            source="test_source",
-            exception=exception
+            message="Test error alert", severity=AlertSeverity.ERROR, source="test_source", exception=exception
         )
         assert alert.exception == exception
         assert alert.severity == AlertSeverity.ERROR
+
     def test_add_alert_rule(self: "TestAlertManager") -> None:
         """Тест добавления правила алерта."""
         manager = AlertManager()
@@ -86,6 +93,7 @@ class TestAlertManager:
         rule.evaluate = Mock(return_value=True)
         manager.add_alert_rule(rule)
         assert rule in manager.rules
+
     def test_add_alert_handler(self: "TestAlertManager") -> None:
         """Тест добавления обработчика алертов."""
         manager = AlertManager()
@@ -96,6 +104,7 @@ class TestAlertManager:
         manager.add_alert_handler(AlertSeverity.WARNING, handler)
         assert AlertSeverity.WARNING in manager.handlers
         assert handler in manager.handlers[AlertSeverity.WARNING]
+
     def test_get_alerts(self: "TestAlertManager") -> None:
         """Тест получения алертов."""
         manager = AlertManager()
@@ -116,6 +125,7 @@ class TestAlertManager:
         # Получаем алерты с лимитом
         limited_alerts = manager.get_alerts(limit=2)
         assert len(limited_alerts) == 2
+
     def test_acknowledge_alert(self: "TestAlertManager") -> None:
         """Тест подтверждения алерта."""
         manager = AlertManager()
@@ -127,6 +137,7 @@ class TestAlertManager:
         updated_alert = manager.get_alerts(alert_id=alert.alert_id)[0]
         assert updated_alert.acknowledged is True
         assert updated_alert.acknowledged_at is not None
+
     def test_resolve_alert(self: "TestAlertManager") -> None:
         """Тест разрешения алерта."""
         manager = AlertManager()
@@ -138,37 +149,42 @@ class TestAlertManager:
         updated_alert = manager.get_alerts(alert_id=alert.alert_id)[0]
         assert updated_alert.resolved is True
         assert updated_alert.resolved_at is not None
+
     def test_acknowledge_nonexistent_alert(self: "TestAlertManager") -> None:
         """Тест подтверждения несуществующего алерта."""
         manager = AlertManager()
         result = manager.acknowledge_alert("nonexistent-id")
         assert result is False
+
     def test_resolve_nonexistent_alert(self: "TestAlertManager") -> None:
         """Тест разрешения несуществующего алерта."""
         manager = AlertManager()
         result = manager.resolve_alert("nonexistent-id")
         assert result is False
-    def test_start_evaluation(self: "TestAlertManager") -> None:
+
+    async def test_start_evaluation(self: "TestAlertManager") -> None:
         """Тест запуска оценки алертов."""
         manager = AlertManager()
         await manager.start_evaluation()
         assert manager.is_running is True
-    def test_stop_evaluation(self: "TestAlertManager") -> None:
+
+    async def test_stop_evaluation(self: "TestAlertManager") -> None:
         """Тест остановки оценки алертов."""
         manager = AlertManager()
         await manager.start_evaluation()
         await manager.stop_evaluation()
         assert manager.is_running is False
-    def test_evaluation_loop(self: "TestAlertManager") -> None:
+
+    async def test_evaluation_loop(self: "TestAlertManager") -> None:
         """Тест цикла оценки алертов."""
         manager = AlertManager(evaluation_interval=0.1)  # Быстрый интервал для тестов
         # Mock rule that creates an alert
         rule = Mock()
         rule.name = "test_rule"
         rule.evaluate = Mock(return_value=True)
-        rule.create_alert = Mock(return_value=manager.create_alert(
-            "Rule triggered alert", AlertSeverity.WARNING, "test_rule"
-        ))
+        rule.create_alert = Mock(
+            return_value=manager.create_alert("Rule triggered alert", AlertSeverity.WARNING, "test_rule")
+        )
         manager.add_alert_rule(rule)
         # Запускаем оценку
         await manager.start_evaluation()
@@ -178,7 +194,8 @@ class TestAlertManager:
         await manager.stop_evaluation()
         # Проверяем, что правило было оценено
         assert rule.evaluate.called
-    def test_handler_notification(self: "TestAlertManager") -> None:
+
+    async def test_handler_notification(self: "TestAlertManager") -> None:
         """Тест уведомления обработчиков."""
         manager = AlertManager()
         # Mock handler
@@ -192,6 +209,7 @@ class TestAlertManager:
         await manager._notify_handlers(alert)
         # Проверяем, что обработчик был вызван
         handler.handle.assert_called_once_with(alert)
+
     def test_alert_statistics(self: "TestAlertManager") -> None:
         """Тест статистики алертов."""
         manager = AlertManager()
@@ -215,6 +233,7 @@ class TestAlertManager:
         assert stats["alerts_by_severity"]["WARNING"] == 1
         assert stats["alerts_by_severity"]["ERROR"] == 1
         assert stats["alerts_by_severity"]["CRITICAL"] == 1
+
     def test_cleanup_old_alerts(self: "TestAlertManager") -> None:
         """Тест очистки старых алертов."""
         manager = AlertManager()
@@ -229,6 +248,7 @@ class TestAlertManager:
         remaining_alerts = manager.get_alerts()
         assert len(remaining_alerts) == 1
         assert remaining_alerts[0].alert_id == new_alert.alert_id
+
     def test_alert_deduplication(self: "TestAlertManager") -> None:
         """Тест дедупликации алертов."""
         manager = AlertManager()
@@ -243,6 +263,7 @@ class TestAlertManager:
         alert3 = manager.create_alert("Duplicate alert", AlertSeverity.WARNING, "source1")
         # Проверяем, что третий алерт не создался
         assert len(manager.get_alerts()) == 2
+
     def test_alert_escalation(self: "TestAlertManager") -> None:
         """Тест эскалации алертов."""
         manager = AlertManager()
@@ -256,6 +277,7 @@ class TestAlertManager:
         escalated_alerts = manager.get_escalated_alerts()
         assert len(escalated_alerts) == 1
         assert escalated_alerts[0].alert_id == alert.alert_id
+
     def test_alert_grouping(self: "TestAlertManager") -> None:
         """Тест группировки алертов."""
         manager = AlertManager()
@@ -269,6 +291,7 @@ class TestAlertManager:
         assert "source2" in grouped_alerts
         assert len(grouped_alerts["source1"]) == 2
         assert len(grouped_alerts["source2"]) == 1
+
     def test_alert_search(self: "TestAlertManager") -> None:
         """Тест поиска алертов."""
         manager = AlertManager()
@@ -284,6 +307,7 @@ class TestAlertManager:
         api_alerts = manager.search_alerts("api", search_in="source")
         assert len(api_alerts) == 1
         assert api_alerts[0].source == "api"
+
     def test_alert_export(self: "TestAlertManager") -> None:
         """Тест экспорта алертов."""
         manager = AlertManager()
@@ -300,10 +324,12 @@ class TestAlertManager:
         assert isinstance(csv_data, str)
         assert "Test alert 1" in csv_data
         assert "Test alert 2" in csv_data
+
     def test_performance_with_many_alerts(self: "TestAlertManager") -> None:
         """Тест производительности с большим количеством алертов."""
         manager = AlertManager()
         import time
+
         start_time = time.time()
         # Создаем много алертов
         for i in range(1000):
@@ -313,27 +339,29 @@ class TestAlertManager:
         # Создание 1000 алертов должно занимать менее 1 секунды
         assert duration < 1.0
         assert len(manager.get_alerts()) == 1000
+
     def test_memory_usage_with_alerts(self: "TestAlertManager") -> None:
         """Тест использования памяти с алертами."""
         import psutil
         import os
+
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
         manager = AlertManager()
         # Создаем много алертов с метаданными
         for i in range(10000):
             manager.create_alert(
-                f"Alert {i}",
-                AlertSeverity.INFO,
-                f"source{i}",
-                metadata={"index": i, "data": "test" * 100}
+                f"Alert {i}", AlertSeverity.INFO, f"source{i}", metadata={"index": i, "data": "test" * 100}
             )
         final_memory = process.memory_info().rss
         memory_increase = final_memory - initial_memory
         # Увеличение памяти должно быть разумным (менее 100MB)
         assert memory_increase < 100 * 1024 * 1024
+
+
 class TestAlertRule:
     """Тесты для AlertRule."""
+
     def test_alert_rule_init(self: "TestAlertRule") -> None:
         """Тест инициализации AlertRule."""
         rule = AlertRule(
@@ -341,12 +369,13 @@ class TestAlertRule:
             condition=lambda: True,
             severity=AlertSeverity.WARNING,
             message="Test rule message",
-            source="test_source"
+            source="test_source",
         )
         assert rule.name == "test_rule"
         assert rule.severity == AlertSeverity.WARNING
         assert rule.message == "Test rule message"
         assert rule.source == "test_source"
+
     def test_alert_rule_evaluate_true(self: "TestAlertRule") -> None:
         """Тест оценки правила, возвращающего True."""
         rule = AlertRule(
@@ -354,10 +383,11 @@ class TestAlertRule:
             condition=lambda: True,
             severity=AlertSeverity.WARNING,
             message="Test rule message",
-            source="test_source"
+            source="test_source",
         )
         result = rule.evaluate()
         assert result is True
+
     def test_alert_rule_evaluate_false(self: "TestAlertRule") -> None:
         """Тест оценки правила, возвращающего False."""
         rule = AlertRule(
@@ -365,26 +395,30 @@ class TestAlertRule:
             condition=lambda: False,
             severity=AlertSeverity.WARNING,
             message="Test rule message",
-            source="test_source"
+            source="test_source",
         )
         result = rule.evaluate()
         assert result is False
+
     def test_alert_rule_with_parameters(self: "TestAlertRule") -> None:
         """Тест правила с параметрами."""
+
         def condition_with_params(param1: int, param2: str) -> bool:
             return param1 > 10 and param2 == "test"
+
         rule = AlertRule(
             name="test_rule",
             condition=condition_with_params,
             severity=AlertSeverity.WARNING,
             message="Test rule message",
-            source="test_source"
+            source="test_source",
         )
         # Оцениваем с параметрами
         result = rule.evaluate(15, "test")
         assert result is True
         result = rule.evaluate(5, "test")
         assert result is False
+
     def test_alert_rule_get_metadata(self: "TestAlertRule") -> None:
         """Тест получения метаданных правила."""
         rule = AlertRule(
@@ -392,68 +426,71 @@ class TestAlertRule:
             condition=lambda: True,
             severity=AlertSeverity.WARNING,
             message="Test rule message",
-            source="test_source"
+            source="test_source",
         )
         metadata = rule.get_metadata()
         assert metadata["name"] == "test_rule"
         assert metadata["severity"] == "WARNING"
         assert metadata["message"] == "Test rule message"
         assert metadata["source"] == "test_source"
+
+
 class TestAlertHandler:
     """Тесты для AlertHandler."""
+
     def test_alert_handler_init(self: "TestAlertHandler") -> None:
         """Тест инициализации AlertHandler."""
-        handler = AlertHandler(
-            name="test_handler",
-            handle_func=lambda alert: None
-        )
+        handler = AlertHandler(name="test_handler", handle_func=lambda alert: None)
         assert handler.name == "test_handler"
         assert handler.handle_func is not None
-    def test_alert_handler_handle(self: "TestAlertHandler") -> None:
+
+    async def test_alert_handler_handle(self: "TestAlertHandler") -> None:
         """Тест обработки алерта."""
         handled_alerts = []
+
         def handle_func(alert) -> Any:
             handled_alerts.append(alert)
-        handler = AlertHandler(
-            name="test_handler",
-            handle_func=handle_func
-        )
+
+        handler = AlertHandler(name="test_handler", handle_func=handle_func)
         # Создаем тестовый алерт
         test_alert = Alert(
             alert_id="test-id",
             message="Test alert",
             severity=AlertSeverity.WARNING,
             source="test_source",
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         # Обрабатываем алерт
         await handler.handle(test_alert)
         assert len(handled_alerts) == 1
         assert handled_alerts[0] == test_alert
-    def test_alert_handler_async_handle(self: "TestAlertHandler") -> None:
+
+    async def test_alert_handler_async_handle(self: "TestAlertHandler") -> None:
         """Тест асинхронной обработки алерта."""
         handled_alerts = []
+
         async def async_handle_func(alert) -> Any:
             handled_alerts.append(alert)
             await asyncio.sleep(0.01)  # Имитируем асинхронную работу
-        handler = AlertHandler(
-            name="test_handler",
-            handle_func=async_handle_func
-        )
+
+        handler = AlertHandler(name="test_handler", handle_func=async_handle_func)
         # Создаем тестовый алерт
         test_alert = Alert(
             alert_id="test-id",
             message="Test alert",
             severity=AlertSeverity.WARNING,
             source="test_source",
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         # Обрабатываем алерт
         await handler.handle(test_alert)
         assert len(handled_alerts) == 1
         assert handled_alerts[0] == test_alert
+
+
 class TestAlert:
     """Тесты для Alert."""
+
     def test_alert_init(self: "TestAlert") -> None:
         """Тест инициализации Alert."""
         alert = Alert(
@@ -461,7 +498,7 @@ class TestAlert:
             message="Test alert message",
             severity=AlertSeverity.WARNING,
             source="test_source",
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         assert alert.alert_id == "test-id"
         assert alert.message == "Test alert message"
@@ -470,6 +507,7 @@ class TestAlert:
         assert alert.timestamp is not None
         assert alert.acknowledged is False
         assert alert.resolved is False
+
     def test_alert_with_metadata(self: "TestAlert") -> None:
         """Тест Alert с метаданными."""
         metadata = {"test_key": "test_value", "number": 42}
@@ -479,10 +517,11 @@ class TestAlert:
             severity=AlertSeverity.WARNING,
             source="test_source",
             timestamp=datetime.now(),
-            metadata=metadata
+            metadata=metadata,
         )
         assert alert.metadata["test_key"] == "test_value"
         assert alert.metadata["number"] == 42
+
     def test_alert_with_exception(self: "TestAlert") -> None:
         """Тест Alert с исключением."""
         exception = ValueError("Test error")
@@ -492,9 +531,10 @@ class TestAlert:
             severity=AlertSeverity.ERROR,
             source="test_source",
             timestamp=datetime.now(),
-            exception=exception
+            exception=exception,
         )
         assert alert.exception == exception
+
     def test_alert_acknowledge(self: "TestAlert") -> None:
         """Тест подтверждения Alert."""
         alert = Alert(
@@ -502,11 +542,12 @@ class TestAlert:
             message="Test alert message",
             severity=AlertSeverity.WARNING,
             source="test_source",
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         alert.acknowledge()
         assert alert.acknowledged is True
         assert alert.acknowledged_at is not None
+
     def test_alert_resolve(self: "TestAlert") -> None:
         """Тест разрешения Alert."""
         alert = Alert(
@@ -514,11 +555,12 @@ class TestAlert:
             message="Test alert message",
             severity=AlertSeverity.WARNING,
             source="test_source",
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         alert.resolve()
         assert alert.resolved is True
         assert alert.resolved_at is not None
+
     def test_alert_to_dict(self: "TestAlert") -> None:
         """Тест преобразования Alert в словарь."""
         alert = Alert(
@@ -527,7 +569,7 @@ class TestAlert:
             severity=AlertSeverity.WARNING,
             source="test_source",
             timestamp=datetime.now(),
-            metadata={"test": "data"}
+            metadata={"test": "data"},
         )
         alert_dict = alert.to_dict()
         assert alert_dict["alert_id"] == "test-id"
@@ -535,72 +577,82 @@ class TestAlert:
         assert alert_dict["severity"] == "WARNING"
         assert alert_dict["source"] == "test_source"
         assert "test" in alert_dict["metadata"]
+
+
 class TestAlertSeverity:
     """Тесты для AlertSeverity."""
+
     def test_alert_severity_values(self: "TestAlertSeverity") -> None:
         """Тест значений AlertSeverity."""
         assert AlertSeverity.INFO.value == "INFO"
         assert AlertSeverity.WARNING.value == "WARNING"
         assert AlertSeverity.ERROR.value == "ERROR"
         assert AlertSeverity.CRITICAL.value == "CRITICAL"
+
     def test_alert_severity_comparison(self: "TestAlertSeverity") -> None:
         """Тест сравнения AlertSeverity."""
         assert AlertSeverity.INFO < AlertSeverity.WARNING
         assert AlertSeverity.WARNING < AlertSeverity.ERROR
         assert AlertSeverity.ERROR < AlertSeverity.CRITICAL
+
     def test_alert_severity_from_string(self: "TestAlertSeverity") -> None:
         """Тест создания AlertSeverity из строки."""
         assert AlertSeverity.from_string("INFO") == AlertSeverity.INFO
         assert AlertSeverity.from_string("WARNING") == AlertSeverity.WARNING
         assert AlertSeverity.from_string("ERROR") == AlertSeverity.ERROR
         assert AlertSeverity.from_string("CRITICAL") == AlertSeverity.CRITICAL
+
     def test_alert_severity_invalid_string(self: "TestAlertSeverity") -> None:
         """Тест обработки неверной строки для AlertSeverity."""
         with pytest.raises(ValueError):
             AlertSeverity.from_string("INVALID")
+
+
 class TestGetAlertManager:
     """Тесты для функции get_alert_manager."""
+
     def test_get_alert_manager_default(self: "TestGetAlertManager") -> None:
         """Тест получения менеджера алертов по умолчанию."""
         manager = get_alert_manager()
         assert isinstance(manager, AlertManager)
         assert manager.name == "default"
+
     def test_get_alert_manager_custom_name(self: "TestGetAlertManager") -> None:
         """Тест получения менеджера алертов с пользовательским именем."""
         manager = get_alert_manager("custom_alerts")
         assert isinstance(manager, AlertManager)
         assert manager.name == "custom_alerts"
+
     def test_get_alert_manager_singleton(self: "TestGetAlertManager") -> None:
         """Тест, что get_alert_manager возвращает тот же экземпляр для одного имени."""
         manager1 = get_alert_manager("singleton_test")
         manager2 = get_alert_manager("singleton_test")
         assert manager1 is manager2
+
     def test_get_alert_manager_different_names(self: "TestGetAlertManager") -> None:
         """Тест, что разные имена возвращают разные экземпляры."""
         manager1 = get_alert_manager("manager1")
         manager2 = get_alert_manager("manager2")
         assert manager1 is not manager2
+
+
 class TestAlertFunctions:
     """Тесты для функций работы с алертами."""
-    @patch('infrastructure.monitoring.monitoring_alerts.get_alert_manager')
+
+    @patch("infrastructure.monitoring.monitoring_alerts.get_alert_manager")
     def test_create_alert(self, mock_get_manager) -> None:
         """Тест функции create_alert."""
         mock_manager = Mock()
         mock_get_manager.return_value = mock_manager
         mock_alert = Mock()
         mock_manager.create_alert.return_value = mock_alert
-        alert = create_alert(
-            message="Test alert",
-            severity="WARNING",
-            source="test_source"
-        )
+        alert = create_alert(message="Test alert", severity="WARNING", source="test_source")
         mock_manager.create_alert.assert_called_once_with(
-            message="Test alert",
-            severity=AlertSeverity.WARNING,
-            source="test_source"
+            message="Test alert", severity=AlertSeverity.WARNING, source="test_source"
         )
         assert alert == mock_alert
-    @patch('infrastructure.monitoring.monitoring_alerts.get_alert_manager')
+
+    @patch("infrastructure.monitoring.monitoring_alerts.get_alert_manager")
     def test_add_alert_handler(self, mock_get_manager) -> None:
         """Тест функции add_alert_handler."""
         mock_manager = Mock()
@@ -608,14 +660,16 @@ class TestAlertFunctions:
         handler = Mock()
         add_alert_handler("WARNING", handler)
         mock_manager.add_alert_handler.assert_called_once_with(AlertSeverity.WARNING, handler)
-    @patch('infrastructure.monitoring.monitoring_alerts.get_alert_manager')
+
+    @patch("infrastructure.monitoring.monitoring_alerts.get_alert_manager")
     def test_resolve_alert(self, mock_get_manager) -> None:
         """Тест функции resolve_alert."""
         mock_manager = Mock()
         mock_get_manager.return_value = mock_manager
         resolve_alert("test-alert-id")
         mock_manager.resolve_alert.assert_called_once_with("test-alert-id")
-    @patch('infrastructure.monitoring.monitoring_alerts.get_alert_manager')
+
+    @patch("infrastructure.monitoring.monitoring_alerts.get_alert_manager")
     def test_get_alerts(self, mock_get_manager) -> None:
         """Тест функции get_alerts."""
         mock_manager = Mock()
@@ -625,19 +679,24 @@ class TestAlertFunctions:
         alerts = get_alerts(severity="WARNING", limit=10)
         mock_manager.get_alerts.assert_called_once_with(severity=AlertSeverity.WARNING, limit=10)
         assert alerts == mock_alerts
+
+
 class TestAlertHandlerProtocol:
     """Тесты для протокола AlertHandlerProtocol."""
+
     def test_alert_manager_implements_protocol(self: "TestAlertHandlerProtocol") -> None:
         """Тест, что AlertManager реализует AlertHandlerProtocol."""
         manager = AlertManager()
         # Проверяем наличие всех методов протокола
-        assert hasattr(manager, 'create_alert')
-        assert hasattr(manager, 'add_alert_rule')
-        assert hasattr(manager, 'add_alert_handler')
-        assert hasattr(manager, 'get_alerts')
-        assert hasattr(manager, 'acknowledge_alert')
-        assert hasattr(manager, 'resolve_alert')
-        assert hasattr(manager, 'start_evaluation')
-        assert hasattr(manager, 'stop_evaluation')
+        assert hasattr(manager, "create_alert")
+        assert hasattr(manager, "add_alert_rule")
+        assert hasattr(manager, "add_alert_handler")
+        assert hasattr(manager, "get_alerts")
+        assert hasattr(manager, "acknowledge_alert")
+        assert hasattr(manager, "resolve_alert")
+        assert hasattr(manager, "start_evaluation")
+        assert hasattr(manager, "stop_evaluation")
+
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

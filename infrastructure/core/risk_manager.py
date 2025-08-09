@@ -23,7 +23,7 @@ class RiskManager:
     - Приоритизацию сигналов
     """
 
-    def __init__(self, event_bus: EventBus, config: Dict[str, Any]):
+    def __init__(self, event_bus: EventBus, config: Dict[str, Any]) -> None:
         """Инициализация менеджера рисков.
         Args:
             event_bus: Шина событий для уведомлений

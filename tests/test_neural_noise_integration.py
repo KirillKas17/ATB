@@ -5,11 +5,13 @@ import time
 import pytest
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from application.filters.orderbook_filter import (FilterConfig,
-                                                  OrderBookPreFilter)
+from application.filters.orderbook_filter import FilterConfig, OrderBookPreFilter
 from domain.intelligence.noise_analyzer import NoiseAnalyzer
+
+
 class TestNeuralNoiseIntegration:
     """Интеграционные тесты для системы анализа нейронного шума."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.config = FilterConfig(
@@ -30,6 +32,7 @@ class TestNeuralNoiseIntegration:
             min_data_points=20,
             window_size=50,
         )
+
     def test_end_to_end_synthetic_noise_detection(self: "TestNeuralNoiseIntegration") -> None:
         """Тест полного цикла обнаружения синтетического шума."""
         # Создаем синтетические данные с регулярными паттернами
@@ -64,6 +67,7 @@ class TestNeuralNoiseIntegration:
         assert "entropy" in noise_analysis
         assert "is_synthetic_noise" in noise_analysis
         assert "confidence" in noise_analysis
+
     def test_end_to_end_natural_noise_processing(self: "TestNeuralNoiseIntegration") -> None:
         """Тест полного цикла обработки естественного шума."""
         # Создаем естественные данные со случайным шумом
@@ -96,6 +100,7 @@ class TestNeuralNoiseIntegration:
         assert isinstance(noise_analysis["fractal_dimension"], float)
         assert isinstance(noise_analysis["entropy"], float)
         assert isinstance(noise_analysis["is_synthetic_noise"], bool)
+
     def test_multiple_order_book_processing(self: "TestNeuralNoiseIntegration") -> None:
         """Тест обработки нескольких ордербуков."""
         # Обрабатываем несколько ордербуков
@@ -118,6 +123,7 @@ class TestNeuralNoiseIntegration:
         assert stats["total_processed"] == 10
         assert stats["filter_rate"] >= 0.0
         assert stats["filter_rate"] <= 1.0
+
     def test_configuration_updates(self: "TestNeuralNoiseIntegration") -> None:
         """Тест обновления конфигурации во время работы."""
         # Обрабатываем ордербук с начальной конфигурацией
@@ -152,6 +158,7 @@ class TestNeuralNoiseIntegration:
         # Проверяем, что оба ордербука обработаны
         stats = self.filter_obj.get_filter_statistics()
         assert stats["total_processed"] == 2
+
     def test_error_handling_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест обработки ошибок в интеграции."""
         # Тест с некорректными данными
@@ -175,9 +182,11 @@ class TestNeuralNoiseIntegration:
         )
         # Проверяем, что ордербук обработан
         assert filtered_ob.meta.get("error") is not None
+
     def test_performance_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест производительности интеграции."""
         import time
+
         # Измеряем время обработки
         start_time = time.time()
         for i in range(100):
@@ -198,9 +207,11 @@ class TestNeuralNoiseIntegration:
         # Проверяем статистику
         stats = self.filter_obj.get_filter_statistics()
         assert stats["total_processed"] == 100
+
     @pytest.mark.asyncio
-    def test_async_integration(self: "TestNeuralNoiseIntegration") -> None:
+    async def test_async_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест асинхронной интеграции."""
+
         # Создаем поток данных
         async def order_book_stream() -> Any:
             for i in range(5):
@@ -213,15 +224,15 @@ class TestNeuralNoiseIntegration:
                     "sequence_id": i,
                 }
                 await asyncio.sleep(0.01)  # Небольшая задержка
+
         # Обрабатываем поток
         processed_count = 0
-        async for filtered_ob in self.filter_obj.filter_order_book_stream(
-            order_book_stream()
-        ):
+        async for filtered_ob in self.filter_obj.filter_order_book_stream(order_book_stream()):
             processed_count += 1
             assert filtered_ob.meta.get("synthetic_noise") is not None
             assert filtered_ob.meta.get("noise_analysis") is not None
         assert processed_count == 5
+
     def test_memory_management_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест управления памятью в интеграции."""
         # Обрабатываем много ордербуков для проверки управления памятью
@@ -240,6 +251,7 @@ class TestNeuralNoiseIntegration:
         assert analyzer_stats["price_history_length"] <= self.config.window_size
         assert analyzer_stats["volume_history_length"] <= self.config.window_size
         assert analyzer_stats["spread_history_length"] <= self.config.window_size
+
     def test_statistics_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест интеграции статистики."""
         # Обрабатываем ордербуки
@@ -275,6 +287,7 @@ class TestNeuralNoiseIntegration:
             self.config.fractal_dimension_lower,
             self.config.fractal_dimension_upper,
         ]
+
     def test_reset_functionality_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест функциональности сброса в интеграции."""
         # Обрабатываем ордербуки
@@ -302,6 +315,7 @@ class TestNeuralNoiseIntegration:
         assert stats_after["synthetic_noise_detected"] == 0
         analyzer_stats_after = self.filter_obj.noise_analyzer.get_analysis_statistics()
         assert analyzer_stats_after["price_history_length"] == 0
+
     def test_edge_cases_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест граничных случаев в интеграции."""
         # Тест с пустыми данными
@@ -332,12 +346,15 @@ class TestNeuralNoiseIntegration:
         )
         assert filtered_ob.meta.get("synthetic_noise") is not None
         assert filtered_ob.meta.get("noise_analysis") is not None
+
     def test_concurrent_access_integration(self: "TestNeuralNoiseIntegration") -> None:
         """Тест конкурентного доступа в интеграции."""
         import queue
         import threading
+
         # Создаем очередь для результатов
         results = queue.Queue()
+
         def process_order_book(thread_id) -> Any:
             """Функция для обработки ордербука в отдельном потоке."""
             try:
@@ -354,6 +371,7 @@ class TestNeuralNoiseIntegration:
                 results.put((thread_id, filtered_ob.meta.get("synthetic_noise")))
             except Exception as e:
                 results.put((thread_id, f"Error: {e}"))
+
         # Запускаем несколько потоков
         threads = []
         for i in range(5):
@@ -374,5 +392,7 @@ class TestNeuralNoiseIntegration:
         # Проверяем статистику
         stats = self.filter_obj.get_filter_statistics()
         assert stats["total_processed"] == 5
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

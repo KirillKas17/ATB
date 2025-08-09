@@ -5,6 +5,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
+from decimal import Decimal
 
 import pandas as pd
 from loguru import logger
@@ -59,7 +60,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
     - Управление рисками в реальном времени
     """
 
-    def __init__(self, config: AdaptationConfig):
+    def __init__(self, config: AdaptationConfig) -> None:
         super().__init__()
         self.adaptation_config = config
         self.regime_detector = MarketRegimeDetector()
@@ -492,7 +493,7 @@ class AdaptiveStrategyGenerator(BaseStrategy):
                 signal = Signal(
                     direction=signal_direction,
                     entry_price=current_price,
-                    confidence=min(abs(signal_strength), 1.0),
+                    confidence=Decimal(str(min(abs(signal_strength), 1.0))),
                     timestamp=datetime.now(),
                     metadata={
                         "regime": analysis.get("regime", "unknown"),

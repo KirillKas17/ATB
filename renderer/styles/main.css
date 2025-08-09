@@ -198,19 +198,21 @@ body {
 
 .system-metrics-mini {
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 
 .metric-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 12px;
+    gap: 4px;
+    font-size: 11px;
     color: var(--text-secondary);
     background: var(--bg-widget);
-    padding: 4px 8px;
+    padding: 3px 6px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
+    min-width: 50px;
+    justify-content: center;
 }
 
 .metric-item i {
@@ -457,6 +459,12 @@ body {
     transform: translateY(-2px);
 }
 
+/* Отключаем hover эффекты для виджетов на странице "Обзор" */
+#overview .widget:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+}
+
 .widget-header {
     padding: 15px 20px;
     background: linear-gradient(90deg, var(--bg-tertiary), var(--accent-color));
@@ -477,6 +485,398 @@ body {
 
 .widget-content {
     padding: 20px;
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: visible;
+}
+
+/* Улучшенные стили для контейнеров с данными */
+.data-container {
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: visible;
+}
+
+.table-container {
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: visible;
+}
+
+.strategies-list {
+    max-height: none;
+    overflow-y: visible;
+}
+
+.strategy-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+}
+
+.strategy-item:last-child {
+    border-bottom: none;
+}
+
+.strategy-icon {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+}
+
+.strategy-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.strategy-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.strategy-status {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+}
+
+.strategy-status.active {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+}
+
+.strategy-status.paused {
+    background: rgba(254, 202, 87, 0.2);
+    color: var(--warning-color);
+}
+
+/* Компактные стили для метрик */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.metric-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.metric-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Компактные стили для P&L */
+.pnl-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pnl-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+}
+
+.pnl-label {
+    color: var(--text-secondary);
+}
+
+.pnl-value {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.pnl-value.positive {
+    color: var(--success-color);
+}
+
+.pnl-value.negative {
+    color: var(--danger-color);
+}
+
+/* Компактные стили для таблиц */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.data-table th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    color: var(--text-primary);
+}
+
+.data-table td.positive {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+.data-table td.negative {
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+/* Компактные стили для позиций */
+.position-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12px;
+}
+
+.position-item:last-child {
+    border-bottom: none;
+}
+
+.position-pair {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.position-size {
+    color: var(--text-secondary);
+}
+
+.position-entry {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.position-pnl {
+    font-weight: 500;
+}
+
+.position-pnl.positive {
+    color: var(--success-color);
+}
+
+.position-pnl.negative {
+    color: var(--danger-color);
+}
+
+/* Стили для лог контейнера */
+.log-container {
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.log-entry {
+    display: flex;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-time {
+    color: var(--text-muted);
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.log-level {
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    padding: 1px 4px;
+    font-size: 10px;
+}
+
+.log-level.info {
+    background: rgba(69, 183, 209, 0.2);
+    color: var(--info-color);
+}
+
+.log-level.warning {
+    background: rgba(254, 202, 87, 0.2);
+    color: var(--warning-color);
+}
+
+.log-level.error {
+    background: rgba(255, 107, 107, 0.2);
+    color: var(--danger-color);
+}
+
+.log-level.success {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+}
+
+.log-message {
+    color: var(--text-primary);
+    flex: 1;
+    word-break: break-word;
+}
+
+/* Стили для новых вкладок */
+.full-width {
+    width: 100%;
+}
+
+.full-height {
+    height: 100%;
+}
+
+/* Стили для P&L графика */
+.pnl-chart-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.pnl-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Стили для событий */
+.events-layout {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chart-select {
+    background: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    font-size: 13px;
+    transition: all var(--transition-normal);
+}
+
+.chart-select:hover {
+    border-color: var(--primary-color);
+}
+
+.chart-btn {
+    background: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chart-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.widget-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 /* ============================================================================
@@ -656,6 +1056,12 @@ body {
     
     .system-metrics-mini .metric-item span {
         display: none;
+    }
+    
+    .system-metrics-mini .metric-item {
+        min-width: 35px;
+        padding: 2px 4px;
+        font-size: 10px;
     }
     
     .toolbar-left .toolbar-group {

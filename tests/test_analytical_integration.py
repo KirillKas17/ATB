@@ -8,14 +8,15 @@ from application.risk.liquidity_gravity_monitor import RiskAssessmentResult
 from domain.intelligence.entanglement_detector import EntanglementResult
 from domain.intelligence.mirror_detector import MirrorSignal
 from domain.intelligence.noise_analyzer import NoiseAnalysisResult
-from domain.market.liquidity_gravity import (LiquidityGravityResult,
-                                             OrderBookSnapshot)
-from infrastructure.agents.agent_context_refactored import (AgentContext, MarketContext,
-                                                 StrategyModifiers)
+from domain.market.liquidity_gravity import LiquidityGravityResult, OrderBookSnapshot
+from infrastructure.agents.agent_context_refactored import AgentContext, StrategyModifier
 from infrastructure.agents.market_maker.agent import MarketMakerModelAgent
+
+
 # Исправление: убираем несуществующие импорты
 class TestAnalyticalIntegration:
     """Тесты интеграции аналитических модулей."""
+
     @pytest.fixture
     def integration_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация интеграции для тестов."""
@@ -28,11 +29,13 @@ class TestAnalyticalIntegration:
             "enable_detailed_logging": False,
             "log_analysis_results": False,
         }
+
     @pytest.fixture
     def analytical_integration(self, integration_config) -> Any:
         """Экземпляр интеграции для тестов."""
         # Исправление: создаем мок вместо несуществующего класса
         from unittest.mock import Mock
+
         integration = Mock()
         integration.config = integration_config
         integration.is_running = False
@@ -43,10 +46,12 @@ class TestAnalyticalIntegration:
         integration.gravity_model = Mock()
         integration.risk_assessor = Mock()
         return integration
+
     @pytest.fixture
     def test_symbol(self: "TestAnalyticalIntegration") -> None:
         """Тестовый символ."""
         return "BTCUSDT"
+
     @pytest.fixture
     def test_market_data(self: "TestAnalyticalIntegration") -> None:
         """Тестовые рыночные данные."""
@@ -59,6 +64,7 @@ class TestAnalyticalIntegration:
             "volume": [1000000 + i * 1000 for i in range(50)],
         }
         return pd.DataFrame(data, index=dates)
+
     @pytest.fixture
     def test_order_book(self: "TestAnalyticalIntegration") -> None:
         """Тестовый ордербук."""
@@ -69,6 +75,7 @@ class TestAnalyticalIntegration:
             timestamp=time.time(),
             symbol="BTCUSDT",
         )
+
     def test_initialization(self, integration_config) -> None:
         """Тест инициализации интеграции."""
         integration = AnalyticalIntegration(config=integration_config)
@@ -80,6 +87,7 @@ class TestAnalyticalIntegration:
         assert integration.mirror_detector is not None
         assert integration.gravity_model is not None
         assert integration.risk_assessor is not None
+
     def test_get_context(self, analytical_integration, test_symbol) -> None:
         """Тест получения контекста."""
         context = analytical_integration.get_context(test_symbol)
@@ -87,6 +95,7 @@ class TestAnalyticalIntegration:
         assert context.symbol == test_symbol
         assert isinstance(context.market_context, MarketContext)
         assert isinstance(context.strategy_modifiers, StrategyModifiers)
+
     def test_context_flags(self, analytical_integration, test_symbol) -> None:
         """Тест работы с флагами контекста."""
         context = analytical_integration.get_context(test_symbol)
@@ -98,6 +107,7 @@ class TestAnalyticalIntegration:
         context.remove("test_flag")
         assert context.has("test_flag") is False
         assert context.get("test_flag", "default") == "default"
+
     def test_is_market_clean(self, analytical_integration, test_symbol) -> None:
         """Тест проверки чистоты рынка."""
         context = analytical_integration.get_context(test_symbol)
@@ -110,6 +120,7 @@ class TestAnalyticalIntegration:
         context.market_context.external_sync = False
         context.market_context.unreliable_depth = True
         assert context.is_market_clean() is False
+
     def test_get_modifier(self, analytical_integration, test_symbol) -> None:
         """Тест получения модификаторов."""
         context = analytical_integration.get_context(test_symbol)
@@ -121,6 +132,7 @@ class TestAnalyticalIntegration:
         assert context.get_modifier("position_size") == 1.2
         assert context.get_modifier("confidence") == 0.9
         assert context.get_modifier("unknown") == 1.0
+
     def test_apply_entanglement_modifier(self, analytical_integration, test_symbol) -> None:
         """Тест применения модификатора запутанности."""
         context = analytical_integration.get_context(test_symbol)
@@ -141,6 +153,7 @@ class TestAnalyticalIntegration:
         assert context.strategy_modifiers.order_aggressiveness < 1.0
         assert context.strategy_modifiers.confidence_multiplier < 1.0
         assert context.entanglement_result == entanglement_result
+
     def test_apply_noise_modifier(self, analytical_integration, test_symbol) -> None:
         """Тест применения модификатора шума."""
         context = analytical_integration.get_context(test_symbol)
@@ -162,6 +175,7 @@ class TestAnalyticalIntegration:
         assert context.strategy_modifiers.price_offset_percent > 0.0
         assert context.strategy_modifiers.confidence_multiplier < 1.0
         assert context.noise_result == noise_result
+
     def test_apply_mirror_modifier(self, analytical_integration, test_symbol) -> None:
         """Тест применения модификатора зеркальных сигналов."""
         context = analytical_integration.get_context(test_symbol)
@@ -183,6 +197,7 @@ class TestAnalyticalIntegration:
         assert context.strategy_modifiers.confidence_multiplier > 1.0
         assert context.strategy_modifiers.position_size_multiplier > 1.0
         assert context.mirror_signal == mirror_signal
+
     def test_apply_gravity_modifier(self, analytical_integration, test_symbol) -> None:
         """Тест применения модификатора гравитации."""
         context = analytical_integration.get_context(test_symbol)
@@ -201,6 +216,7 @@ class TestAnalyticalIntegration:
         assert context.strategy_modifiers.order_aggressiveness < 1.0
         assert context.strategy_modifiers.risk_multiplier > 1.0
         assert context.gravity_result == gravity_result
+
     def test_apply_risk_modifier(self, analytical_integration, test_symbol) -> None:
         """Тест применения модификатора риска."""
         context = analytical_integration.get_context(test_symbol)
@@ -219,70 +235,62 @@ class TestAnalyticalIntegration:
         assert context.strategy_modifiers.risk_multiplier > 1.0
         assert context.strategy_modifiers.position_size_multiplier == 0.6
         assert context.risk_assessment == risk_assessment
+
     def test_get_adjusted_aggressiveness(self, analytical_integration, test_symbol) -> None:
         """Тест получения скорректированной агрессивности."""
         context = analytical_integration.get_context(test_symbol)
         context.strategy_modifiers.order_aggressiveness = 0.8
         adjusted = analytical_integration.get_adjusted_aggressiveness(test_symbol, 1.0)
         assert adjusted == 0.8
+
     def test_get_adjusted_position_size(self, analytical_integration, test_symbol) -> None:
         """Тест получения скорректированного размера позиции."""
         context = analytical_integration.get_context(test_symbol)
         context.strategy_modifiers.position_size_multiplier = 1.2
         adjusted = analytical_integration.get_adjusted_position_size(test_symbol, 1.0)
         assert adjusted == 1.2
+
     def test_get_adjusted_confidence(self, analytical_integration, test_symbol) -> None:
         """Тест получения скорректированной уверенности."""
         context = analytical_integration.get_context(test_symbol)
         context.strategy_modifiers.confidence_multiplier = 0.9
         adjusted = analytical_integration.get_adjusted_confidence(test_symbol, 0.8)
         assert adjusted == 0.72  # 0.8 * 0.9
+
     def test_get_price_offset(self, analytical_integration, test_symbol) -> None:
         """Тест получения смещения цены."""
         context = analytical_integration.get_context(test_symbol)
         context.strategy_modifiers.price_offset_percent = 0.2
         base_price = 50000.0
         # Тест для покупки
-        buy_price = analytical_integration.get_price_offset(
-            test_symbol, base_price, "buy"
-        )
+        buy_price = analytical_integration.get_price_offset(test_symbol, base_price, "buy")
         assert buy_price == base_price * 1.002  # +0.2%
         # Тест для продажи
-        sell_price = analytical_integration.get_price_offset(
-            test_symbol, base_price, "sell"
-        )
+        sell_price = analytical_integration.get_price_offset(test_symbol, base_price, "sell")
         assert sell_price == base_price * 0.998  # -0.2%
         # Тест для неизвестной стороны
-        neutral_price = analytical_integration.get_price_offset(
-            test_symbol, base_price, "unknown"
-        )
+        neutral_price = analytical_integration.get_price_offset(test_symbol, base_price, "unknown")
         assert neutral_price == base_price
+
     def test_should_proceed_with_trade(self, analytical_integration, test_symbol) -> None:
         """Тест проверки возможности торговли."""
         # Нормальная торговля
-        should_trade = analytical_integration.should_proceed_with_trade(
-            test_symbol, 0.8
-        )
+        should_trade = analytical_integration.should_proceed_with_trade(test_symbol, 0.8)
         assert should_trade is True
         # Блокировка при внешней синхронизации
         context = analytical_integration.get_context(test_symbol)
         context.market_context.external_sync = True
-        should_trade = analytical_integration.should_proceed_with_trade(
-            test_symbol, 0.9
-        )
+        should_trade = analytical_integration.should_proceed_with_trade(test_symbol, 0.9)
         assert should_trade is False
         # Блокировка при низкой агрессивности
         context.market_context.external_sync = False
         context.strategy_modifiers.order_aggressiveness = 0.05
-        should_trade = analytical_integration.should_proceed_with_trade(
-            test_symbol, 0.8
-        )
+        should_trade = analytical_integration.should_proceed_with_trade(test_symbol, 0.8)
         assert should_trade is False
+
     def test_get_trading_recommendations(self, analytical_integration, test_symbol) -> None:
         """Тест получения торговых рекомендаций."""
-        recommendations = analytical_integration.get_trading_recommendations(
-            test_symbol
-        )
+        recommendations = analytical_integration.get_trading_recommendations(test_symbol)
         assert isinstance(recommendations, dict)
         assert "should_trade" in recommendations
         assert "aggressiveness" in recommendations
@@ -290,6 +298,7 @@ class TestAnalyticalIntegration:
         assert "confidence_multiplier" in recommendations
         assert "enabled_strategies" in recommendations
         assert "market_conditions" in recommendations
+
     def test_context_to_dict(self, analytical_integration, test_symbol) -> None:
         """Тест преобразования контекста в словарь."""
         context = analytical_integration.get_context(test_symbol)
@@ -304,8 +313,11 @@ class TestAnalyticalIntegration:
         assert context_dict["market_context"]["external_sync"] is True
         assert context_dict["strategy_modifiers"]["order_aggressiveness"] == 0.8
         assert "recommendations" in context_dict
+
+
 class TestMarketMakerAnalyticalIntegration:
     """Тесты интеграции с MarketMakerModelAgent."""
+
     @pytest.fixture
     def agent_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация агента для тестов."""
@@ -322,14 +334,17 @@ class TestMarketMakerAnalyticalIntegration:
             "mirror_enabled": True,
             "gravity_enabled": True,
         }
+
     @pytest.fixture
     def market_maker_agent(self, agent_config) -> Any:
         """Экземпляр агента для тестов."""
         return MarketMakerModelAgent(config=agent_config)
+
     @pytest.fixture
     def test_symbol(self: "TestMarketMakerAnalyticalIntegration") -> None:
         """Тестовый символ."""
         return "BTCUSDT"
+
     @pytest.fixture
     def test_market_data(self: "TestMarketMakerAnalyticalIntegration") -> None:
         """Тестовые рыночные данные."""
@@ -342,23 +357,22 @@ class TestMarketMakerAnalyticalIntegration:
             "volume": [1000000 + i * 1000 for i in range(50)],
         }
         return pd.DataFrame(data, index=dates)
+
     @pytest.fixture
     def test_order_book(self: "TestMarketMakerAnalyticalIntegration") -> None:
         """Тестовый ордербук."""
         return {
-            "bids": [
-                {"price": 49999 - i * 0.1, "size": 1.0 + i * 0.1} for i in range(20)
-            ],
-            "asks": [
-                {"price": 50001 + i * 0.1, "size": 1.0 + i * 0.1} for i in range(20)
-            ],
+            "bids": [{"price": 49999 - i * 0.1, "size": 1.0 + i * 0.1} for i in range(20)],
+            "asks": [{"price": 50001 + i * 0.1, "size": 1.0 + i * 0.1} for i in range(20)],
             "symbol": "BTCUSDT",
             "timestamp": time.time(),
         }
+
     def test_agent_initialization(self, market_maker_agent) -> None:
         """Тест инициализации агента с аналитикой."""
         assert market_maker_agent.config["analytics_enabled"] is True
         assert hasattr(market_maker_agent, "analytical_integration")
+
     @pytest.mark.asyncio
     async def test_start_stop_analytics(self, market_maker_agent) -> None:
         """Тест запуска и остановки аналитики."""
@@ -366,37 +380,38 @@ class TestMarketMakerAnalyticalIntegration:
         await market_maker_agent.start_analytics()
         # Остановка
         await market_maker_agent.stop_analytics()
+
     def test_get_analytical_context(self, market_maker_agent, test_symbol) -> None:
         """Тест получения аналитического контекста."""
         context = market_maker_agent.get_analytical_context(test_symbol)
         assert isinstance(context, dict)
+
     def test_get_trading_recommendations(self, market_maker_agent, test_symbol) -> None:
         """Тест получения торговых рекомендаций."""
         recommendations = market_maker_agent.get_trading_recommendations(test_symbol)
         assert isinstance(recommendations, dict)
         assert "should_trade" in recommendations
+
     def test_should_proceed_with_trade(self, market_maker_agent, test_symbol) -> None:
         """Тест проверки возможности торговли."""
         should_trade = market_maker_agent.should_proceed_with_trade(test_symbol, 0.8)
         assert isinstance(should_trade, bool)
+
     def test_get_adjusted_parameters(self, market_maker_agent, test_symbol) -> None:
         """Тест получения скорректированных параметров."""
         # Агрессивность
-        adjusted_aggression = market_maker_agent.get_adjusted_aggressiveness(
-            test_symbol, 1.0
-        )
+        adjusted_aggression = market_maker_agent.get_adjusted_aggressiveness(test_symbol, 1.0)
         assert isinstance(adjusted_aggression, float)
         # Размер позиции
         adjusted_size = market_maker_agent.get_adjusted_position_size(test_symbol, 1.0)
         assert isinstance(adjusted_size, float)
         # Уверенность
-        adjusted_confidence = market_maker_agent.get_adjusted_confidence(
-            test_symbol, 0.8
-        )
+        adjusted_confidence = market_maker_agent.get_adjusted_confidence(test_symbol, 0.8)
         assert isinstance(adjusted_confidence, float)
         # Смещение цены
         price_offset = market_maker_agent.get_price_offset(test_symbol, 50000.0, "buy")
         assert isinstance(price_offset, float)
+
     @pytest.mark.asyncio
     async def test_calculate_with_analytics(
         self, market_maker_agent, test_symbol, test_market_data, test_order_book
@@ -415,12 +430,16 @@ class TestMarketMakerAnalyticalIntegration:
         assert "symbol" in result
         assert "analytical_context" in result
         assert "trading_recommendations" in result
+
     def test_get_analytics_statistics(self, market_maker_agent) -> None:
         """Тест получения статистики аналитики."""
         stats = market_maker_agent.get_analytics_statistics()
         assert isinstance(stats, dict)
+
+
 class TestIntegrationScenarios:
     """Тесты различных сценариев интеграции."""
+
     @pytest.fixture
     def integration(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Экземпляр интеграции для тестов."""
@@ -431,6 +450,7 @@ class TestIntegrationScenarios:
             gravity_enabled=True,
         )
         return AnalyticalIntegration(config=config)
+
     def test_clean_market_scenario(self, integration) -> None:
         """Тест сценария чистого рынка."""
         symbol = "BTCUSDT"
@@ -441,6 +461,7 @@ class TestIntegrationScenarios:
         recommendations = integration.get_trading_recommendations(symbol)
         assert recommendations["should_trade"] is True
         assert recommendations["market_conditions"]["is_clean"] is True
+
     def test_entangled_market_scenario(self, integration) -> None:
         """Тест сценария запутанного рынка."""
         symbol = "BTCUSDT"
@@ -461,6 +482,7 @@ class TestIntegrationScenarios:
         # Проверяем снижение агрессивности
         adjusted_aggression = integration.get_adjusted_aggressiveness(symbol, 1.0)
         assert adjusted_aggression < 1.0
+
     def test_noisy_market_scenario(self, integration) -> None:
         """Тест сценария шумного рынка."""
         symbol = "BTCUSDT"
@@ -480,6 +502,7 @@ class TestIntegrationScenarios:
         assert buy_price > base_price
         sell_price = integration.get_price_offset(symbol, base_price, "sell")
         assert sell_price < base_price
+
     def test_mirror_signals_scenario(self, integration) -> None:
         """Тест сценария зеркальных сигналов."""
         symbol = "BTCUSDT"
@@ -501,6 +524,7 @@ class TestIntegrationScenarios:
         # Проверяем увеличение размера позиции
         adjusted_size = integration.get_adjusted_position_size(symbol, 1.0)
         assert adjusted_size > 1.0
+
     def test_gravity_effects_scenario(self, integration) -> None:
         """Тест сценария влияния гравитации."""
         symbol = "BTCUSDT"
@@ -527,5 +551,7 @@ class TestIntegrationScenarios:
         # Проверяем снижение размера позиции
         adjusted_size = integration.get_adjusted_position_size(symbol, 1.0)
         assert adjusted_size < 1.0
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -101,7 +101,7 @@ class TestVolatilityMetrics:
             current_volatility=0.25,
             historical_volatility=0.20,
             volatility_percentile=0.75,
-            volatility_trend=VolatilityTrend.INCREASING
+            volatility_trend=VolatilityTrend.INCREASING,
         )
 
     def test_creation(self, sample_volatility_metrics):
@@ -115,7 +115,7 @@ class TestVolatilityMetrics:
         """Тест сравнения волатильности."""
         # Текущая волатильность выше исторической
         assert sample_volatility_metrics.current_volatility > sample_volatility_metrics.historical_volatility
-        
+
         # Процентный ранг выше 50%
         assert sample_volatility_metrics.volatility_percentile > 0.5
 
@@ -125,9 +125,9 @@ class TestVolatilityMetrics:
             current_volatility=0.15,
             historical_volatility=0.20,
             volatility_percentile=0.25,
-            volatility_trend=VolatilityTrend.DECREASING
+            volatility_trend=VolatilityTrend.DECREASING,
         )
-        
+
         assert metrics.volatility_trend == VolatilityTrend.DECREASING
         assert metrics.current_volatility < metrics.historical_volatility
 
@@ -143,7 +143,7 @@ class TestTrendMetrics:
             trend_strength=0.85,
             trend_confidence=0.9,
             support_level=45000.0,
-            resistance_level=52000.0
+            resistance_level=52000.0,
         )
 
     def test_creation(self, sample_trend_metrics):
@@ -156,11 +156,8 @@ class TestTrendMetrics:
 
     def test_default_values(self):
         """Тест значений по умолчанию."""
-        metrics = TrendMetrics(
-            trend_direction=TrendDirection.SIDEWAYS,
-            trend_strength=0.5
-        )
-        
+        metrics = TrendMetrics(trend_direction=TrendDirection.SIDEWAYS, trend_strength=0.5)
+
         assert metrics.trend_confidence == 0.0
         assert metrics.support_level is None
         assert metrics.resistance_level is None
@@ -168,17 +165,11 @@ class TestTrendMetrics:
     def test_trend_strength_validation(self):
         """Тест валидации силы тренда."""
         # Сильный тренд
-        strong_trend = TrendMetrics(
-            trend_direction=TrendDirection.UP,
-            trend_strength=0.9
-        )
+        strong_trend = TrendMetrics(trend_direction=TrendDirection.UP, trend_strength=0.9)
         assert strong_trend.trend_strength > 0.8
-        
+
         # Слабый тренд
-        weak_trend = TrendMetrics(
-            trend_direction=TrendDirection.DOWN,
-            trend_strength=0.3
-        )
+        weak_trend = TrendMetrics(trend_direction=TrendDirection.DOWN, trend_strength=0.3)
         assert weak_trend.trend_strength < 0.5
 
     def test_support_resistance_validation(self, sample_trend_metrics):
@@ -198,7 +189,7 @@ class TestVolumeMetrics:
             average_volume=1000000.0,
             volume_trend=VolumeTrend.INCREASING,
             volume_ratio=1.5,
-            unusual_volume=True
+            unusual_volume=True,
         )
 
     def test_creation(self, sample_volume_metrics):
@@ -211,12 +202,8 @@ class TestVolumeMetrics:
 
     def test_default_values(self):
         """Тест значений по умолчанию."""
-        metrics = VolumeMetrics(
-            current_volume=1000000.0,
-            average_volume=1000000.0,
-            volume_trend=VolumeTrend.STABLE
-        )
-        
+        metrics = VolumeMetrics(current_volume=1000000.0, average_volume=1000000.0, volume_trend=VolumeTrend.STABLE)
+
         assert metrics.volume_ratio == 0.0
         assert metrics.unusual_volume is False
 
@@ -224,20 +211,14 @@ class TestVolumeMetrics:
         """Тест расчета соотношения объема."""
         # Объем выше среднего
         high_volume = VolumeMetrics(
-            current_volume=2000000.0,
-            average_volume=1000000.0,
-            volume_trend=VolumeTrend.INCREASING,
-            volume_ratio=2.0
+            current_volume=2000000.0, average_volume=1000000.0, volume_trend=VolumeTrend.INCREASING, volume_ratio=2.0
         )
         assert high_volume.volume_ratio == 2.0
         assert high_volume.current_volume > high_volume.average_volume
-        
+
         # Объем ниже среднего
         low_volume = VolumeMetrics(
-            current_volume=500000.0,
-            average_volume=1000000.0,
-            volume_trend=VolumeTrend.DECREASING,
-            volume_ratio=0.5
+            current_volume=500000.0, average_volume=1000000.0, volume_trend=VolumeTrend.DECREASING, volume_ratio=0.5
         )
         assert low_volume.volume_ratio == 0.5
         assert low_volume.current_volume < low_volume.average_volume
@@ -250,7 +231,7 @@ class TestVolumeMetrics:
             average_volume=1000000.0,
             volume_trend=VolumeTrend.INCREASING,
             volume_ratio=3.0,
-            unusual_volume=True
+            unusual_volume=True,
         )
         assert unusual_high.unusual_volume is True
         assert unusual_high.volume_ratio > 2.0
@@ -262,13 +243,7 @@ class TestMomentumMetrics:
     @pytest.fixture
     def sample_momentum_metrics(self) -> MomentumMetrics:
         """Тестовые метрики моментума."""
-        return MomentumMetrics(
-            rsi=65.0,
-            macd=0.5,
-            macd_signal=0.3,
-            macd_histogram=0.2,
-            momentum_score=0.75
-        )
+        return MomentumMetrics(rsi=65.0, macd=0.5, macd_signal=0.3, macd_histogram=0.2, momentum_score=0.75)
 
     def test_creation(self, sample_momentum_metrics):
         """Тест создания метрик моментума."""
@@ -280,40 +255,25 @@ class TestMomentumMetrics:
 
     def test_default_values(self):
         """Тест значений по умолчанию."""
-        metrics = MomentumMetrics(
-            rsi=50.0,
-            macd=0.0,
-            macd_signal=0.0,
-            macd_histogram=0.0
-        )
-        
+        metrics = MomentumMetrics(rsi=50.0, macd=0.0, macd_signal=0.0, macd_histogram=0.0)
+
         assert metrics.momentum_score == 0.0
 
     def test_rsi_validation(self):
         """Тест валидации RSI."""
         # Перекупленность
-        overbought = MomentumMetrics(
-            rsi=80.0,
-            macd=0.0,
-            macd_signal=0.0,
-            macd_histogram=0.0
-        )
+        overbought = MomentumMetrics(rsi=80.0, macd=0.0, macd_signal=0.0, macd_histogram=0.0)
         assert overbought.rsi > 70
-        
+
         # Перепроданность
-        oversold = MomentumMetrics(
-            rsi=25.0,
-            macd=0.0,
-            macd_signal=0.0,
-            macd_histogram=0.0
-        )
+        oversold = MomentumMetrics(rsi=25.0, macd=0.0, macd_signal=0.0, macd_histogram=0.0)
         assert oversold.rsi < 30
 
     def test_macd_validation(self, sample_momentum_metrics):
         """Тест валидации MACD."""
         # MACD выше сигнальной линии
         assert sample_momentum_metrics.macd > sample_momentum_metrics.macd_signal
-        
+
         # Гистограмма положительная
         assert sample_momentum_metrics.macd_histogram > 0
 
@@ -325,10 +285,7 @@ class TestLiquidityMetrics:
     def sample_liquidity_metrics(self) -> LiquidityMetrics:
         """Тестовые метрики ликвидности."""
         return LiquidityMetrics(
-            bid_ask_spread=0.001,
-            market_depth=1000000.0,
-            order_book_imbalance=0.1,
-            liquidity_score=0.85
+            bid_ask_spread=0.001, market_depth=1000000.0, order_book_imbalance=0.1, liquidity_score=0.85
         )
 
     def test_creation(self, sample_liquidity_metrics):
@@ -340,48 +297,28 @@ class TestLiquidityMetrics:
 
     def test_default_values(self):
         """Тест значений по умолчанию."""
-        metrics = LiquidityMetrics(
-            bid_ask_spread=0.01,
-            market_depth=500000.0,
-            order_book_imbalance=0.0
-        )
-        
+        metrics = LiquidityMetrics(bid_ask_spread=0.01, market_depth=500000.0, order_book_imbalance=0.0)
+
         assert metrics.liquidity_score == 0.0
 
     def test_spread_validation(self):
         """Тест валидации спреда."""
         # Узкий спред - высокая ликвидность
-        tight_spread = LiquidityMetrics(
-            bid_ask_spread=0.0005,
-            market_depth=2000000.0,
-            order_book_imbalance=0.05
-        )
+        tight_spread = LiquidityMetrics(bid_ask_spread=0.0005, market_depth=2000000.0, order_book_imbalance=0.05)
         assert tight_spread.bid_ask_spread < 0.001
-        
+
         # Широкий спред - низкая ликвидность
-        wide_spread = LiquidityMetrics(
-            bid_ask_spread=0.01,
-            market_depth=100000.0,
-            order_book_imbalance=0.3
-        )
+        wide_spread = LiquidityMetrics(bid_ask_spread=0.01, market_depth=100000.0, order_book_imbalance=0.3)
         assert wide_spread.bid_ask_spread > 0.005
 
     def test_market_depth_validation(self):
         """Тест валидации глубины рынка."""
         # Высокая глубина рынка
-        high_depth = LiquidityMetrics(
-            bid_ask_spread=0.001,
-            market_depth=5000000.0,
-            order_book_imbalance=0.05
-        )
+        high_depth = LiquidityMetrics(bid_ask_spread=0.001, market_depth=5000000.0, order_book_imbalance=0.05)
         assert high_depth.market_depth > 1000000.0
-        
+
         # Низкая глубина рынка
-        low_depth = LiquidityMetrics(
-            bid_ask_spread=0.005,
-            market_depth=50000.0,
-            order_book_imbalance=0.2
-        )
+        low_depth = LiquidityMetrics(bid_ask_spread=0.005, market_depth=50000.0, order_book_imbalance=0.2)
         assert low_depth.market_depth < 100000.0
 
 
@@ -391,12 +328,7 @@ class TestMarketStressMetrics:
     @pytest.fixture
     def sample_stress_metrics(self) -> MarketStressMetrics:
         """Тестовые метрики стресса."""
-        return MarketStressMetrics(
-            stress_index=0.3,
-            fear_greed_index=45.0,
-            market_regime="normal",
-            stress_level="low"
-        )
+        return MarketStressMetrics(stress_index=0.3, fear_greed_index=45.0, market_regime="normal", stress_level="low")
 
     def test_creation(self, sample_stress_metrics):
         """Тест создания метрик стресса."""
@@ -407,48 +339,29 @@ class TestMarketStressMetrics:
 
     def test_default_values(self):
         """Тест значений по умолчанию."""
-        metrics = MarketStressMetrics(
-            stress_index=0.5,
-            fear_greed_index=50.0
-        )
-        
+        metrics = MarketStressMetrics(stress_index=0.5, fear_greed_index=50.0)
+
         assert metrics.market_regime == "normal"
         assert metrics.stress_level == "low"
 
     def test_stress_index_validation(self):
         """Тест валидации индекса стресса."""
         # Низкий стресс
-        low_stress = MarketStressMetrics(
-            stress_index=0.2,
-            fear_greed_index=60.0,
-            stress_level="low"
-        )
+        low_stress = MarketStressMetrics(stress_index=0.2, fear_greed_index=60.0, stress_level="low")
         assert low_stress.stress_index < 0.3
-        
+
         # Высокий стресс
-        high_stress = MarketStressMetrics(
-            stress_index=0.8,
-            fear_greed_index=20.0,
-            stress_level="high"
-        )
+        high_stress = MarketStressMetrics(stress_index=0.8, fear_greed_index=20.0, stress_level="high")
         assert high_stress.stress_index > 0.7
 
     def test_fear_greed_index_validation(self):
         """Тест валидации индекса страха и жадности."""
         # Страх
-        fear = MarketStressMetrics(
-            stress_index=0.7,
-            fear_greed_index=25.0,
-            stress_level="high"
-        )
+        fear = MarketStressMetrics(stress_index=0.7, fear_greed_index=25.0, stress_level="high")
         assert fear.fear_greed_index < 30
-        
+
         # Жадность
-        greed = MarketStressMetrics(
-            stress_index=0.2,
-            fear_greed_index=75.0,
-            stress_level="low"
-        )
+        greed = MarketStressMetrics(stress_index=0.2, fear_greed_index=75.0, stress_level="low")
         assert greed.fear_greed_index > 70
 
 
@@ -462,47 +375,35 @@ class TestMarketMetricsResult:
             current_volatility=0.25,
             historical_volatility=0.20,
             volatility_percentile=0.75,
-            volatility_trend=VolatilityTrend.INCREASING
+            volatility_trend=VolatilityTrend.INCREASING,
         )
-        
+
         trend = TrendMetrics(
             trend_direction=TrendDirection.UP,
             trend_strength=0.85,
             trend_confidence=0.9,
             support_level=45000.0,
-            resistance_level=52000.0
+            resistance_level=52000.0,
         )
-        
+
         volume = VolumeMetrics(
             current_volume=1500000.0,
             average_volume=1000000.0,
             volume_trend=VolumeTrend.INCREASING,
             volume_ratio=1.5,
-            unusual_volume=True
+            unusual_volume=True,
         )
-        
-        momentum = MomentumMetrics(
-            rsi=65.0,
-            macd=0.5,
-            macd_signal=0.3,
-            macd_histogram=0.2,
-            momentum_score=0.75
-        )
-        
+
+        momentum = MomentumMetrics(rsi=65.0, macd=0.5, macd_signal=0.3, macd_histogram=0.2, momentum_score=0.75)
+
         liquidity = LiquidityMetrics(
-            bid_ask_spread=0.001,
-            market_depth=1000000.0,
-            order_book_imbalance=0.1,
-            liquidity_score=0.85
+            bid_ask_spread=0.001, market_depth=1000000.0, order_book_imbalance=0.1, liquidity_score=0.85
         )
-        
+
         stress = MarketStressMetrics(
-            stress_index=0.3,
-            fear_greed_index=45.0,
-            market_regime="normal",
-            stress_level="low"
+            stress_index=0.3, fear_greed_index=45.0, market_regime="normal", stress_level="low"
         )
-        
+
         return MarketMetricsResult(
             volatility=volatility,
             trend=trend,
@@ -511,7 +412,7 @@ class TestMarketMetricsResult:
             liquidity=liquidity,
             stress=stress,
             timestamp="2024-01-01T12:00:00Z",
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
 
     def test_creation(self, sample_metrics_result):
@@ -531,76 +432,54 @@ class TestMarketMetricsResult:
             current_volatility=0.2,
             historical_volatility=0.2,
             volatility_percentile=0.5,
-            volatility_trend=VolatilityTrend.STABLE
+            volatility_trend=VolatilityTrend.STABLE,
         )
-        
-        trend = TrendMetrics(
-            trend_direction=TrendDirection.SIDEWAYS,
-            trend_strength=0.5
-        )
-        
-        volume = VolumeMetrics(
-            current_volume=1000000.0,
-            average_volume=1000000.0,
-            volume_trend=VolumeTrend.STABLE
-        )
-        
-        momentum = MomentumMetrics(
-            rsi=50.0,
-            macd=0.0,
-            macd_signal=0.0,
-            macd_histogram=0.0
-        )
-        
-        liquidity = LiquidityMetrics(
-            bid_ask_spread=0.01,
-            market_depth=500000.0,
-            order_book_imbalance=0.0
-        )
-        
-        stress = MarketStressMetrics(
-            stress_index=0.5,
-            fear_greed_index=50.0
-        )
-        
+
+        trend = TrendMetrics(trend_direction=TrendDirection.SIDEWAYS, trend_strength=0.5)
+
+        volume = VolumeMetrics(current_volume=1000000.0, average_volume=1000000.0, volume_trend=VolumeTrend.STABLE)
+
+        momentum = MomentumMetrics(rsi=50.0, macd=0.0, macd_signal=0.0, macd_histogram=0.0)
+
+        liquidity = LiquidityMetrics(bid_ask_spread=0.01, market_depth=500000.0, order_book_imbalance=0.0)
+
+        stress = MarketStressMetrics(stress_index=0.5, fear_greed_index=50.0)
+
         result = MarketMetricsResult(
-            volatility=volatility,
-            trend=trend,
-            volume=volume,
-            momentum=momentum,
-            liquidity=liquidity,
-            stress=stress
+            volatility=volatility, trend=trend, volume=volume, momentum=momentum, liquidity=liquidity, stress=stress
         )
-        
+
         assert result.timestamp is None
         assert result.symbol is None
 
     def test_comprehensive_analysis(self, sample_metrics_result):
         """Тест комплексного анализа."""
         # Проверка волатильности
-        assert sample_metrics_result.volatility.current_volatility > sample_metrics_result.volatility.historical_volatility
+        assert (
+            sample_metrics_result.volatility.current_volatility > sample_metrics_result.volatility.historical_volatility
+        )
         assert sample_metrics_result.volatility.volatility_trend == VolatilityTrend.INCREASING
-        
+
         # Проверка тренда
         assert sample_metrics_result.trend.trend_direction == TrendDirection.UP
         assert sample_metrics_result.trend.trend_strength > 0.8
         assert sample_metrics_result.trend.resistance_level > sample_metrics_result.trend.support_level
-        
+
         # Проверка объема
         assert sample_metrics_result.volume.current_volume > sample_metrics_result.volume.average_volume
         assert sample_metrics_result.volume.volume_ratio > 1.0
         assert sample_metrics_result.volume.unusual_volume is True
-        
+
         # Проверка моментума
         assert sample_metrics_result.momentum.rsi > 50
         assert sample_metrics_result.momentum.macd > sample_metrics_result.momentum.macd_signal
         assert sample_metrics_result.momentum.momentum_score > 0.5
-        
+
         # Проверка ликвидности
         assert sample_metrics_result.liquidity.bid_ask_spread < 0.005
         assert sample_metrics_result.liquidity.market_depth > 500000.0
         assert sample_metrics_result.liquidity.liquidity_score > 0.5
-        
+
         # Проверка стресса
         assert sample_metrics_result.stress.stress_index < 0.5
         assert sample_metrics_result.stress.fear_greed_index > 30
@@ -617,47 +496,35 @@ class TestIntegration:
             current_volatility=0.3,
             historical_volatility=0.25,
             volatility_percentile=0.8,
-            volatility_trend=VolatilityTrend.INCREASING
+            volatility_trend=VolatilityTrend.INCREASING,
         )
-        
+
         trend = TrendMetrics(
             trend_direction=TrendDirection.UP,
             trend_strength=0.9,
             trend_confidence=0.95,
             support_level=48000.0,
-            resistance_level=55000.0
+            resistance_level=55000.0,
         )
-        
+
         volume = VolumeMetrics(
             current_volume=2000000.0,
             average_volume=1200000.0,
             volume_trend=VolumeTrend.INCREASING,
             volume_ratio=1.67,
-            unusual_volume=True
+            unusual_volume=True,
         )
-        
-        momentum = MomentumMetrics(
-            rsi=70.0,
-            macd=0.8,
-            macd_signal=0.4,
-            macd_histogram=0.4,
-            momentum_score=0.85
-        )
-        
+
+        momentum = MomentumMetrics(rsi=70.0, macd=0.8, macd_signal=0.4, macd_histogram=0.4, momentum_score=0.85)
+
         liquidity = LiquidityMetrics(
-            bid_ask_spread=0.0008,
-            market_depth=2000000.0,
-            order_book_imbalance=0.05,
-            liquidity_score=0.9
+            bid_ask_spread=0.0008, market_depth=2000000.0, order_book_imbalance=0.05, liquidity_score=0.9
         )
-        
+
         stress = MarketStressMetrics(
-            stress_index=0.2,
-            fear_greed_index=65.0,
-            market_regime="bullish",
-            stress_level="low"
+            stress_index=0.2, fear_greed_index=65.0, market_regime="bullish", stress_level="low"
         )
-        
+
         # Создание комплексного результата
         result = MarketMetricsResult(
             volatility=volatility,
@@ -667,9 +534,9 @@ class TestIntegration:
             liquidity=liquidity,
             stress=stress,
             timestamp="2024-01-01T12:00:00Z",
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         # Проверка комплексного анализа
         assert result.volatility.volatility_trend == VolatilityTrend.INCREASING
         assert result.trend.trend_direction == TrendDirection.UP
@@ -677,7 +544,7 @@ class TestIntegration:
         assert result.momentum.rsi > 70  # Перекупленность
         assert result.liquidity.liquidity_score > 0.8  # Высокая ликвидность
         assert result.stress.stress_level == "low"  # Низкий стресс
-        
+
         # Проверка согласованности данных
         assert result.trend.trend_strength > 0.8  # Сильный тренд
         assert result.momentum.momentum_score > 0.8  # Высокий моментум
@@ -693,13 +560,13 @@ class TestIntegration:
             momentum=MomentumMetrics(70.0, 0.5, 0.3, 0.2, 0.8),
             liquidity=LiquidityMetrics(0.001, 1000000.0, 0.1, 0.85),
             stress=MarketStressMetrics(0.2, 65.0, "bullish", "low"),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         assert bullish_metrics.trend.trend_direction == TrendDirection.UP
         assert bullish_metrics.trend.trend_strength > 0.8
         assert bullish_metrics.stress.market_regime == "bullish"
-        
+
         # Медвежий рынок
         bearish_metrics = MarketMetricsResult(
             volatility=VolatilityMetrics(0.4, 0.3, 0.9, VolatilityTrend.INCREASING),
@@ -708,10 +575,10 @@ class TestIntegration:
             momentum=MomentumMetrics(25.0, -0.5, -0.2, -0.3, 0.2),
             liquidity=LiquidityMetrics(0.005, 500000.0, 0.3, 0.4),
             stress=MarketStressMetrics(0.8, 25.0, "bearish", "high"),
-            symbol="BTC/USDT"
+            symbol="BTC/USDT",
         )
-        
+
         assert bearish_metrics.trend.trend_direction == TrendDirection.DOWN
         assert bearish_metrics.momentum.rsi < 30  # Перепроданность
         assert bearish_metrics.stress.market_regime == "bearish"
-        assert bearish_metrics.stress.stress_level == "high" 
+        assert bearish_metrics.stress.stress_level == "high"

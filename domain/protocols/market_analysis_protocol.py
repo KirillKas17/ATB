@@ -65,6 +65,64 @@ class StrategyState(Enum):
 
 
 @dataclass
+class StrategyConfig:
+    """Конфигурация торговой стратегии."""
+    
+    name: str
+    strategy_type: StrategyType
+    parameters: Dict[str, Any] = field(default_factory=dict)
+    risk_limits: Dict[str, float] = field(default_factory=dict)
+    enabled: bool = True
+    auto_optimize: bool = False
+    backtest_enabled: bool = True
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "name": self.name,
+            "strategy_type": self.strategy_type.value,
+            "parameters": self.parameters,
+            "risk_limits": self.risk_limits,
+            "enabled": self.enabled,
+            "auto_optimize": self.auto_optimize,
+            "backtest_enabled": self.backtest_enabled,
+            "metadata": self.metadata
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "StrategyConfig":
+        """Создание из словаря."""
+        return cls(
+            name=data["name"],
+            strategy_type=StrategyType(data["strategy_type"]),
+            parameters=data.get("parameters", {}),
+            risk_limits=data.get("risk_limits", {}),
+            enabled=data.get("enabled", True),
+            auto_optimize=data.get("auto_optimize", False),
+            backtest_enabled=data.get("backtest_enabled", True),
+            metadata=data.get("metadata", {})
+        )
+
+
+
+
+
+@runtime_checkable
+class StrategyProtocol(Protocol):
+    """Протокол торговой стратегии."""
+    
+    async def initialize(self) -> None: ...
+    async def start(self) -> None: ...
+    async def stop(self) -> None: ...
+    async def pause(self) -> None: ...
+    async def resume(self) -> None: ...
+    async def execute(self, market_data: pd.DataFrame) -> Dict[str, Any]: ...
+    async def get_state(self) -> StrategyState: ...
+    async def get_performance(self) -> Dict[str, float]: ...
+
+
+@dataclass
 class TechnicalIndicator:
     """Расширенный технический индикатор с метаданными."""
 

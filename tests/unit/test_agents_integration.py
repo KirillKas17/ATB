@@ -1,6 +1,7 @@
 """
 Тесты интеграции агентов с BaseAgent
 """
+
 import pytest
 import pandas as pd
 from shared.numpy_utils import np
@@ -8,35 +9,36 @@ from typing import Dict, Any
 from infrastructure.agents.agent_risk import RiskAgent
 from infrastructure.agents.agent_news import NewsAgent
 from infrastructure.agents.social_media_agent import SocialMediaAgent
-from infrastructure.agents.agent_market_regime import MarketRegimeAgent
-from infrastructure.agents.agent_order_executor import OrderExecutorAgent
-from infrastructure.agents.agent_portfolio import PortfolioAgent
-from infrastructure.agents.agent_whales import WhalesAgent
+# from infrastructure.agents.agent_market_regime import MarketRegimeAgent  # Временно отключен
+# from infrastructure.agents.agent_order_executor import OrderExecutorAgent  # Временно отключен
+# from infrastructure.agents.agent_portfolio import PortfolioAgent  # Временно отключен
+# from infrastructure.agents.agent_whales import WhalesAgent  # Временно отключен
 from infrastructure.agents.agent_meta_controller import MetaControllerAgent
-from infrastructure.agents.agent_market_maker_model import MarketMakerModelAgent
+# from infrastructure.agents.agent_market_maker_model import MarketMakerModelAgent  # Временно отключен
 from domain.type_definitions.agent_types import AgentStatus
+
+
 class TestBaseAgentIntegration:
     """Тесты базовой интеграции агентов с BaseAgent"""
+
     @pytest.fixture
     def sample_config(self) -> Dict[str, Any]:
         """Образец конфигурации для тестов"""
-        return {
-            "test_param": 1.0,
-            "cache_size": 100,
-            "update_interval": 60
-        }
+        return {"test_param": 1.0, "cache_size": 100, "update_interval": 60}
+
     @pytest.fixture
     def sample_market_data(self) -> pd.DataFrame:
         """Образец рыночных данных для тестов"""
-        dates = pd.date_range(start='2024-01-01', periods=100, freq='1H')
+        dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
         data = {
-            'open': np.random.uniform(50000, 51000, 100),
-            'high': np.random.uniform(51000, 52000, 100),
-            'low': np.random.uniform(49000, 50000, 100),
-            'close': np.random.uniform(50000, 51000, 100),
-            'volume': np.random.uniform(100, 1000, 100)
+            "open": np.random.uniform(50000, 51000, 100),
+            "high": np.random.uniform(51000, 52000, 100),
+            "low": np.random.uniform(49000, 50000, 100),
+            "close": np.random.uniform(50000, 51000, 100),
+            "volume": np.random.uniform(100, 1000, 100),
         }
         return pd.DataFrame(data, index=dates)
+
     @pytest.mark.asyncio
     async def test_risk_agent_integration(self, sample_config) -> None:
         """Тест интеграции RiskAgent с BaseAgent"""
@@ -54,7 +56,7 @@ class TestBaseAgentIntegration:
         test_data = {
             "market_data": {"BTC/USDT": pd.DataFrame()},
             "strategy_confidence": {"BTC/USDT": 0.8},
-            "current_positions": {"BTC/USDT": 0.1}
+            "current_positions": {"BTC/USDT": 0.1},
         }
         result = await agent.process(test_data)
         assert "allocations" in result
@@ -63,6 +65,7 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.risk_metrics) == 0
+
     @pytest.mark.asyncio
     async def test_news_agent_integration(self, sample_config) -> None:
         """Тест интеграции NewsAgent с BaseAgent"""
@@ -82,6 +85,7 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.news_history) == 0
+
     @pytest.mark.asyncio
     async def test_social_media_agent_integration(self, sample_config) -> None:
         """Тест интеграции SocialMediaAgent с BaseAgent"""
@@ -101,6 +105,7 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.sentiment_cache) == 0
+
     @pytest.mark.asyncio
     async def test_market_regime_agent_integration(self, sample_config, sample_market_data) -> None:
         """Тест интеграции MarketRegimeAgent с BaseAgent"""
@@ -113,10 +118,7 @@ class TestBaseAgentIntegration:
         assert success is True
         assert agent.state.status == AgentStatus.HEALTHY
         # Тест обработки данных
-        test_data = {
-            "market_data": sample_market_data,
-            "symbol": "BTC/USDT"
-        }
+        test_data = {"market_data": sample_market_data, "symbol": "BTC/USDT"}
         result = await agent.process(test_data)
         assert "regime" in result
         assert "confidence" in result
@@ -124,6 +126,7 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.regime_history) == 0
+
     @pytest.mark.asyncio
     async def test_order_executor_agent_integration(self, sample_config) -> None:
         """Тест интеграции OrderExecutorAgent с BaseAgent"""
@@ -138,18 +141,14 @@ class TestBaseAgentIntegration:
         # Тест обработки данных
         test_data = {
             "action": "place_order",
-            "order_params": {
-                "symbol": "BTC/USDT",
-                "direction": "buy",
-                "amount": 0.1,
-                "entry_price": 50000
-            }
+            "order_params": {"symbol": "BTC/USDT", "direction": "buy", "amount": 0.1, "entry_price": 50000},
         }
         result = await agent.process(test_data)
         assert "success" in result
         # Тест очистки
         await agent.cleanup()
         assert len(agent.active_orders) == 0
+
     @pytest.mark.asyncio
     async def test_portfolio_agent_integration(self, sample_config, sample_market_data) -> None:
         """Тест интеграции PortfolioAgent с BaseAgent"""
@@ -165,7 +164,7 @@ class TestBaseAgentIntegration:
         test_data = {
             "market_data": {"BTC/USDT": sample_market_data},
             "risk_data": {"BTC/USDT": {"var": 0.02}},
-            "backtest_results": {"BTC/USDT": {"sharpe": 1.5}}
+            "backtest_results": {"BTC/USDT": {"sharpe": 1.5}},
         }
         result = await agent.process(test_data)
         assert "weights" in result
@@ -174,6 +173,7 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.cache.metrics) == 0
+
     @pytest.mark.asyncio
     async def test_whales_agent_integration(self, sample_config) -> None:
         """Тест интеграции WhalesAgent с BaseAgent"""
@@ -186,11 +186,7 @@ class TestBaseAgentIntegration:
         assert success is True
         assert agent.state.status == AgentStatus.HEALTHY
         # Тест обработки данных
-        test_data = {
-            "pair": "BTC/USDT",
-            "market_data": pd.DataFrame(),
-            "order_book": {"bids": [], "asks": []}
-        }
+        test_data = {"pair": "BTC/USDT", "market_data": pd.DataFrame(), "order_book": {"bids": [], "asks": []}}
         result = await agent.process(test_data)
         assert "whale_activities" in result
         assert "whale_patterns" in result
@@ -198,6 +194,7 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.activity_cache.activities) == 0
+
     @pytest.mark.asyncio
     async def test_meta_controller_agent_integration(self, sample_config) -> None:
         """Тест интеграции MetaControllerAgent с BaseAgent"""
@@ -210,15 +207,13 @@ class TestBaseAgentIntegration:
         assert success is True
         assert agent.state.status == AgentStatus.HEALTHY
         # Тест обработки данных
-        test_data = {
-            "action": "evaluate_strategies",
-            "symbol": "BTC/USDT"
-        }
+        test_data = {"action": "evaluate_strategies", "symbol": "BTC/USDT"}
         result = await agent.process(test_data)
         assert result is not None
         # Тест очистки
         await agent.cleanup()
         assert len(agent.strategies) == 0
+
     @pytest.mark.asyncio
     async def test_market_maker_model_agent_integration(self, sample_config) -> None:
         """Тест интеграции MarketMakerModelAgent с BaseAgent"""
@@ -235,7 +230,7 @@ class TestBaseAgentIntegration:
             "symbol": "BTC/USDT",
             "market_data": pd.DataFrame(),
             "order_book": {"bids": [], "asks": []},
-            "trades": []
+            "trades": [],
         }
         result = await agent.process(test_data)
         assert "spread_analysis" in result
@@ -244,18 +239,22 @@ class TestBaseAgentIntegration:
         # Тест очистки
         await agent.cleanup()
         assert len(agent.cache_service._cache) == 0
+
+
 class TestAgentErrorHandling:
     """Тесты обработки ошибок в агентах"""
+
     @pytest.mark.asyncio
-    def test_invalid_config_handling(self: "TestAgentErrorHandling") -> None:
+    async def test_invalid_config_handling(self: "TestAgentErrorHandling") -> None:
         """Тест обработки неверной конфигурации"""
         invalid_config = {"invalid_param": -1}
         agent = RiskAgent(invalid_config)
         success = await agent.initialize()
         assert success is False
         assert agent.state.status == AgentStatus.ERROR
+
     @pytest.mark.asyncio
-    def test_invalid_data_handling(self: "TestAgentErrorHandling") -> None:
+    async def test_invalid_data_handling(self: "TestAgentErrorHandling") -> None:
         """Тест обработки неверных данных"""
         agent = RiskAgent()
         await agent.initialize()
@@ -265,8 +264,9 @@ class TestAgentErrorHandling:
         # Тест с пустыми данными
         result = await agent.process({})
         assert "error" in result
+
     @pytest.mark.asyncio
-    def test_agent_recovery(self: "TestAgentErrorHandling") -> None:
+    async def test_agent_recovery(self: "TestAgentErrorHandling") -> None:
         """Тест восстановления агента после ошибки"""
         agent = RiskAgent()
         # Сначала вызываем ошибку
@@ -276,14 +276,17 @@ class TestAgentErrorHandling:
         test_data = {
             "market_data": {"BTC/USDT": pd.DataFrame()},
             "strategy_confidence": {"BTC/USDT": 0.8},
-            "current_positions": {"BTC/USDT": 0.1}
+            "current_positions": {"BTC/USDT": 0.1},
         }
         result = await agent.process(test_data)
         assert "error" not in result
+
+
 class TestAgentMetrics:
     """Тесты метрик агентов"""
+
     @pytest.mark.asyncio
-    def test_agent_performance_metrics(self: "TestAgentMetrics") -> None:
+    async def test_agent_performance_metrics(self: "TestAgentMetrics") -> None:
         """Тест метрик производительности агентов"""
         agent = RiskAgent()
         await agent.initialize()
@@ -292,15 +295,16 @@ class TestAgentMetrics:
             test_data = {
                 "market_data": {"BTC/USDT": pd.DataFrame()},
                 "strategy_confidence": {"BTC/USDT": 0.8},
-                "current_positions": {"BTC/USDT": 0.1}
+                "current_positions": {"BTC/USDT": 0.1},
             }
             await agent.process(test_data)
         # Проверяем метрики
         assert agent.state.total_operations > 0
         assert agent.state.successful_operations > 0
         assert agent.state.average_processing_time > 0
+
     @pytest.mark.asyncio
-    def test_agent_confidence_tracking(self: "TestAgentMetrics") -> None:
+    async def test_agent_confidence_tracking(self: "TestAgentMetrics") -> None:
         """Тест отслеживания уверенности агентов"""
         agent = RiskAgent()
         await agent.initialize()
@@ -310,15 +314,18 @@ class TestAgentMetrics:
         test_data = {
             "market_data": {"BTC/USDT": pd.DataFrame()},
             "strategy_confidence": {"BTC/USDT": 0.8},
-            "current_positions": {"BTC/USDT": 0.1}
+            "current_positions": {"BTC/USDT": 0.1},
         }
         await agent.process(test_data)
         # Уверенность должна измениться
         assert agent.state.confidence != initial_confidence
+
+
 class TestAgentIntegration:
     """Тесты интеграции между агентами"""
+
     @pytest.mark.asyncio
-    def test_agent_dependency_injection(self: "TestAgentIntegration") -> None:
+    async def test_agent_dependency_injection(self: "TestAgentIntegration") -> None:
         """Тест внедрения зависимостей между агентами"""
         # Создаем агенты
         risk_agent = RiskAgent()
@@ -334,8 +341,9 @@ class TestAgentIntegration:
         # Проверяем, что зависимости установлены
         assert order_executor.risk_agent is risk_agent
         assert order_executor.market_regime_agent is market_regime_agent
+
     @pytest.mark.asyncio
-    def test_agent_data_flow(self: "TestAgentIntegration") -> None:
+    async def test_agent_data_flow(self: "TestAgentIntegration") -> None:
         """Тест потока данных между агентами"""
         # Создаем цепочку агентов
         market_regime_agent = MarketRegimeAgent()
@@ -345,20 +353,24 @@ class TestAgentIntegration:
         # Устанавливаем зависимости
         portfolio_agent.set_market_regime_agent(market_regime_agent)
         # Тестируем поток данных
-        sample_data = pd.DataFrame({
-            'open': [50000, 50100, 50200],
-            'high': [50100, 50200, 50300],
-            'low': [49900, 50000, 50100],
-            'close': [50050, 50150, 50250],
-            'volume': [100, 150, 200]
-        })
+        sample_data = pd.DataFrame(
+            {
+                "open": [50000, 50100, 50200],
+                "high": [50100, 50200, 50300],
+                "low": [49900, 50000, 50100],
+                "close": [50050, 50150, 50250],
+                "volume": [100, 150, 200],
+            }
+        )
         test_data = {
             "market_data": {"BTC/USDT": sample_data},
             "risk_data": {"BTC/USDT": {"var": 0.02}},
-            "backtest_results": {"BTC/USDT": {"sharpe": 1.5}}
+            "backtest_results": {"BTC/USDT": {"sharpe": 1.5}},
         }
         result = await portfolio_agent.process(test_data)
         assert "weights" in result
         assert "portfolio_state" in result
+
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

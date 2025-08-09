@@ -41,16 +41,12 @@ class TestTradingPair:
             min_order_size=Volume(value=Decimal("0.001"), currency=btc_currency),
             max_order_size=Volume(value=Decimal("100"), currency=btc_currency),
             price_precision=2,
-            volume_precision=6
+            volume_precision=6,
         )
 
     def test_trading_pair_creation(self, btc_currency, usdt_currency) -> None:
         """Тест создания торговой пары"""
-        pair = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
+        pair = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
 
         assert pair.symbol == "BTC/USDT"
         assert pair.base_currency == btc_currency
@@ -65,7 +61,7 @@ class TestTradingPair:
         """Тест создания торговой пары с опциональными параметрами"""
         min_volume = Volume(value=Decimal("0.001"), currency=btc_currency)
         max_volume = Volume(value=Decimal("100"), currency=btc_currency)
-        
+
         pair = TradingPair(
             symbol="BTC/USDT",
             base_currency=btc_currency,
@@ -73,7 +69,7 @@ class TestTradingPair:
             min_order_size=min_volume,
             max_order_size=max_volume,
             price_precision=2,
-            volume_precision=6
+            volume_precision=6,
         )
 
         assert pair.min_order_size == min_volume
@@ -84,43 +80,27 @@ class TestTradingPair:
     def test_empty_symbol_validation(self, btc_currency, usdt_currency) -> None:
         """Тест валидации пустого символа"""
         with pytest.raises(ValueError, match="Symbol cannot be empty"):
-            TradingPair(
-                symbol="",
-                base_currency=btc_currency,
-                quote_currency=usdt_currency
-            )
+            TradingPair(symbol="", base_currency=btc_currency, quote_currency=usdt_currency)
 
     def test_same_currencies_validation(self, btc_currency) -> None:
         """Тест валидации одинаковых валют"""
         with pytest.raises(ValueError, match="Base and quote currencies cannot be the same"):
-            TradingPair(
-                symbol="BTC/BTC",
-                base_currency=btc_currency,
-                quote_currency=btc_currency
-            )
+            TradingPair(symbol="BTC/BTC", base_currency=btc_currency, quote_currency=btc_currency)
 
     def test_negative_precision_validation(self, btc_currency, usdt_currency) -> None:
         """Тест валидации отрицательной точности"""
         with pytest.raises(ValueError, match="Precision cannot be negative"):
-            TradingPair(
-                symbol="BTC/USDT",
-                base_currency=btc_currency,
-                quote_currency=usdt_currency,
-                price_precision=-1
-            )
+            TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency, price_precision=-1)
 
         with pytest.raises(ValueError, match="Precision cannot be negative"):
             TradingPair(
-                symbol="BTC/USDT",
-                base_currency=btc_currency,
-                quote_currency=usdt_currency,
-                volume_precision=-1
+                symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency, volume_precision=-1
             )
 
     def test_status_property(self, btc_usdt_pair) -> None:
         """Тест свойства status"""
         assert btc_usdt_pair.status == PairStatus.ACTIVE
-        
+
         btc_usdt_pair.is_active = False
         assert btc_usdt_pair.status == PairStatus.INACTIVE
 
@@ -128,7 +108,7 @@ class TestTradingPair:
         """Тест установки статуса"""
         btc_usdt_pair.status = PairStatus.INACTIVE
         assert btc_usdt_pair.is_active is False
-        
+
         btc_usdt_pair.status = PairStatus.ACTIVE
         assert btc_usdt_pair.is_active is True
 
@@ -179,12 +159,8 @@ class TestTradingPair:
 
     def test_validate_volume_no_limits(self, btc_currency, usdt_currency) -> None:
         """Тест валидации объема без ограничений"""
-        pair = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
-        
+        pair = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
+
         volume = Volume(value=Decimal("1000"), currency=btc_currency)
         assert pair.validate_volume(volume) is True
 
@@ -192,9 +168,9 @@ class TestTradingPair:
         """Тест расчета номинальной стоимости"""
         price = Price(value=Decimal("50000"), currency=usdt_currency)
         volume = Volume(value=Decimal("2.0"), currency=btc_currency)
-        
+
         notional = btc_usdt_pair.calculate_notional_value(price, volume)
-        
+
         assert notional.value == Decimal("100000")
         assert notional.currency == usdt_currency
 
@@ -202,7 +178,7 @@ class TestTradingPair:
         """Тест расчета номинальной стоимости с неверной ценой"""
         price = Price(value=Decimal("0"), currency=btc_currency)  # Неверная валюта
         volume = Volume(value=Decimal("2.0"), currency=btc_currency)
-        
+
         with pytest.raises(ValueError, match="Invalid price or volume for this trading pair"):
             btc_usdt_pair.calculate_notional_value(price, volume)
 
@@ -210,30 +186,30 @@ class TestTradingPair:
         """Тест расчета номинальной стоимости с неверным объемом"""
         price = Price(value=Decimal("50000"), currency=usdt_currency)
         volume = Volume(value=Decimal("0.0001"), currency=btc_currency)  # Ниже минимума
-        
+
         with pytest.raises(ValueError, match="Invalid price or volume for this trading pair"):
             btc_usdt_pair.calculate_notional_value(price, volume)
 
     def test_deactivate(self, btc_usdt_pair) -> None:
         """Тест деактивации торговой пары"""
         btc_usdt_pair.deactivate()
-        
+
         assert btc_usdt_pair.is_active is False
         assert btc_usdt_pair.updated_at is not None
 
     def test_activate(self, btc_usdt_pair) -> None:
         """Тест активации торговой пары"""
         btc_usdt_pair.is_active = False
-        
+
         btc_usdt_pair.activate()
-        
+
         assert btc_usdt_pair.is_active is True
         assert btc_usdt_pair.updated_at is not None
 
     def test_update_precision(self, btc_usdt_pair) -> None:
         """Тест обновления точности"""
         btc_usdt_pair.update_precision(price_precision=4, volume_precision=8)
-        
+
         assert btc_usdt_pair.price_precision == 4
         assert btc_usdt_pair.volume_precision == 8
         assert btc_usdt_pair.updated_at is not None
@@ -242,14 +218,14 @@ class TestTradingPair:
         """Тест обновления точности с отрицательными значениями"""
         with pytest.raises(ValueError, match="Precision cannot be negative"):
             btc_usdt_pair.update_precision(price_precision=-1, volume_precision=8)
-        
+
         with pytest.raises(ValueError, match="Precision cannot be negative"):
             btc_usdt_pair.update_precision(price_precision=4, volume_precision=-1)
 
     def test_to_dict(self, btc_usdt_pair) -> None:
         """Тест преобразования в словарь"""
         result = btc_usdt_pair.to_dict()
-        
+
         expected = {
             "symbol": "BTC/USDT",
             "base_currency": "BTC",
@@ -262,62 +238,38 @@ class TestTradingPair:
             "created_at": btc_usdt_pair.created_at.isoformat(),
             "updated_at": btc_usdt_pair.updated_at.isoformat(),
         }
-        
+
         assert result == expected
 
     def test_to_dict_without_limits(self, btc_currency, usdt_currency) -> None:
         """Тест преобразования в словарь без ограничений"""
-        pair = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
-        
+        pair = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
+
         result = pair.to_dict()
-        
+
         assert result["min_order_size"] is None
         assert result["max_order_size"] is None
 
     def test_equality(self, btc_currency, usdt_currency) -> None:
         """Тест равенства торговых пар"""
-        pair1 = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
-        
-        pair2 = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
-        
-        pair3 = TradingPair(
-            symbol="ETH/USDT",
-            base_currency=usdt_currency,
-            quote_currency=btc_currency
-        )
-        
+        pair1 = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
+
+        pair2 = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
+
+        pair3 = TradingPair(symbol="ETH/USDT", base_currency=usdt_currency, quote_currency=btc_currency)
+
         assert pair1 == pair2
         assert pair1 != pair3
         assert pair1 != "not a pair"
 
     def test_hash(self, btc_currency, usdt_currency) -> None:
         """Тест хеширования"""
-        pair1 = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
-        
-        pair2 = TradingPair(
-            symbol="BTC/USDT",
-            base_currency=btc_currency,
-            quote_currency=usdt_currency
-        )
-        
+        pair1 = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
+
+        pair2 = TradingPair(symbol="BTC/USDT", base_currency=btc_currency, quote_currency=usdt_currency)
+
         assert hash(pair1) == hash(pair2)
-        
+
         # Проверяем, что можно использовать в множествах
         pairs_set = {pair1, pair2}
         assert len(pairs_set) == 1
@@ -340,4 +292,4 @@ class TestPairStatus:
     def test_pair_status_comparison(self: "TestPairStatus") -> None:
         """Тест сравнения статусов"""
         assert PairStatus.ACTIVE != PairStatus.INACTIVE
-        assert PairStatus.ACTIVE == PairStatus.ACTIVE 
+        assert PairStatus.ACTIVE == PairStatus.ACTIVE

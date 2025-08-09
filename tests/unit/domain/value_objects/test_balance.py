@@ -29,7 +29,7 @@ class TestBalance:
         return Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.00"), currency=Currency.USD),
         )
 
     @pytest.fixture
@@ -38,7 +38,7 @@ class TestBalance:
         return Balance(
             currency=Currency.BTC,
             free=Money(amount=Decimal("1.5"), currency=Currency.BTC),
-            used=Money(amount=Decimal("0.5"), currency=Currency.BTC)
+            used=Money(amount=Decimal("0.5"), currency=Currency.BTC),
         )
 
     def test_balance_creation(self, sample_balance):
@@ -67,7 +67,7 @@ class TestBalance:
             Balance(
                 currency=Currency.USD,
                 free=Money(amount=Decimal("1000.00"), currency=Currency.EUR),
-                used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+                used=Money(amount=Decimal("200.00"), currency=Currency.USD),
             )
 
     def test_balance_validation_currency_mismatch_used(self):
@@ -76,7 +76,7 @@ class TestBalance:
             Balance(
                 currency=Currency.USD,
                 free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-                used=Money(amount=Decimal("200.00"), currency=Currency.EUR)
+                used=Money(amount=Decimal("200.00"), currency=Currency.EUR),
             )
 
     def test_balance_validation_negative_free(self):
@@ -85,7 +85,7 @@ class TestBalance:
             Balance(
                 currency=Currency.USD,
                 free=Money(amount=Decimal("-100.00"), currency=Currency.USD),
-                used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+                used=Money(amount=Decimal("200.00"), currency=Currency.USD),
             )
 
     def test_balance_validation_negative_used(self):
@@ -94,7 +94,7 @@ class TestBalance:
             Balance(
                 currency=Currency.USD,
                 free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-                used=Money(amount=Decimal("-200.00"), currency=Currency.USD)
+                used=Money(amount=Decimal("-200.00"), currency=Currency.USD),
             )
 
     def test_balance_can_afford_sufficient_funds(self, sample_balance):
@@ -121,7 +121,7 @@ class TestBalance:
         """Тест успешного резервирования средств."""
         amount = Money(amount=Decimal("300.00"), currency=Currency.USD)
         new_balance = sample_balance.reserve(amount)
-        
+
         assert new_balance.free.amount == Decimal("700.00")
         assert new_balance.used.amount == Decimal("500.00")
         assert new_balance.total.amount == Decimal("1200.00")
@@ -143,7 +143,7 @@ class TestBalance:
         """Тест успешного освобождения средств."""
         amount = Money(amount=Decimal("100.00"), currency=Currency.USD)
         new_balance = sample_balance.release(amount)
-        
+
         assert new_balance.free.amount == Decimal("1100.00")
         assert new_balance.used.amount == Decimal("100.00")
         assert new_balance.total.amount == Decimal("1200.00")
@@ -165,7 +165,7 @@ class TestBalance:
         """Тест успешного добавления средств."""
         amount = Money(amount=Decimal("500.00"), currency=Currency.USD)
         new_balance = sample_balance.add(amount)
-        
+
         assert new_balance.free.amount == Decimal("1500.00")
         assert new_balance.used.amount == Decimal("200.00")
         assert new_balance.total.amount == Decimal("1700.00")
@@ -181,7 +181,7 @@ class TestBalance:
         """Тест успешного вычитания средств."""
         amount = Money(amount=Decimal("300.00"), currency=Currency.USD)
         new_balance = sample_balance.subtract(amount)
-        
+
         assert new_balance.free.amount == Decimal("700.00")
         assert new_balance.used.amount == Decimal("200.00")
         assert new_balance.total.amount == Decimal("900.00")
@@ -203,7 +203,7 @@ class TestBalance:
         """Тест вычитания точной суммы."""
         amount = Money(amount=Decimal("1000.00"), currency=Currency.USD)
         new_balance = sample_balance.subtract(amount)
-        
+
         assert new_balance.free.amount == Decimal("0.00")
         assert new_balance.used.amount == Decimal("200.00")
         assert new_balance.total.amount == Decimal("200.00")
@@ -211,7 +211,7 @@ class TestBalance:
     def test_balance_to_dict(self, sample_balance):
         """Тест сериализации в словарь."""
         result = sample_balance.to_dict()
-        
+
         assert result["currency"] == "USD"
         assert result["free"]["amount"] == "1000.00"
         assert result["free"]["currency"] == "USD"
@@ -225,11 +225,11 @@ class TestBalance:
         data = {
             "currency": "USD",
             "free": {"amount": "1000.00", "currency": "USD"},
-            "used": {"amount": "200.00", "currency": "USD"}
+            "used": {"amount": "200.00", "currency": "USD"},
         }
-        
+
         balance = Balance.from_dict(data)
-        
+
         assert balance.currency == Currency.USD
         assert balance.free.amount == Decimal("1000.00")
         assert balance.used.amount == Decimal("200.00")
@@ -256,9 +256,9 @@ class TestBalanceOperations:
         balance = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("0.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("0.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("0.00"), currency=Currency.USD),
         )
-        
+
         assert balance.total.amount == Decimal("0.00")
         assert balance.can_afford(Money(amount=Decimal("0.01"), currency=Currency.USD)) is False
         assert balance.can_afford(Money(amount=Decimal("0.00"), currency=Currency.USD)) is True
@@ -268,9 +268,9 @@ class TestBalanceOperations:
         balance = Balance(
             currency=Currency.BTC,
             free=Money(amount=Decimal("1000000.12345678"), currency=Currency.BTC),
-            used=Money(amount=Decimal("500000.87654321"), currency=Currency.BTC)
+            used=Money(amount=Decimal("500000.87654321"), currency=Currency.BTC),
         )
-        
+
         assert balance.total.amount == Decimal("1500001.00000000")
         assert balance.can_afford(Money(amount=Decimal("1000000.12345678"), currency=Currency.BTC)) is True
         assert balance.can_afford(Money(amount=Decimal("1000000.12345679"), currency=Currency.BTC)) is False
@@ -280,11 +280,11 @@ class TestBalanceOperations:
         balance = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("100.123456"), currency=Currency.USD),
-            used=Money(amount=Decimal("50.654321"), currency=Currency.USD)
+            used=Money(amount=Decimal("50.654321"), currency=Currency.USD),
         )
-        
+
         assert balance.total.amount == Decimal("150.777777")
-        
+
         # Добавление с высокой точностью
         new_balance = balance.add(Money(amount=Decimal("0.000001"), currency=Currency.USD))
         assert new_balance.free.amount == Decimal("100.123457")
@@ -294,9 +294,9 @@ class TestBalanceOperations:
         balance = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.00"), currency=Currency.USD),
         )
-        
+
         # Попытка изменения должна вызвать ошибку
         with pytest.raises(dataclasses.FrozenInstanceError):
             balance.currency = Currency.EUR
@@ -306,21 +306,21 @@ class TestBalanceOperations:
         balance1 = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.00"), currency=Currency.USD),
         )
-        
+
         balance2 = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.00"), currency=Currency.USD),
         )
-        
+
         balance3 = Balance(
             currency=Currency.EUR,
             free=Money(amount=Decimal("1000.00"), currency=Currency.EUR),
-            used=Money(amount=Decimal("200.00"), currency=Currency.EUR)
+            used=Money(amount=Decimal("200.00"), currency=Currency.EUR),
         )
-        
+
         assert balance1 == balance2
         assert balance1 != balance3
         assert balance1 != "not a balance"
@@ -330,15 +330,15 @@ class TestBalanceOperations:
         balance1 = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.00"), currency=Currency.USD),
         )
-        
+
         balance2 = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.00"), currency=Currency.USD),
         )
-        
+
         assert hash(balance1) == hash(balance2)
 
 
@@ -351,9 +351,9 @@ class TestBalanceEdgeCases:
         balance = Balance(
             currency=Currency.USD,
             free=Money(amount=max_amount, currency=Currency.USD),
-            used=Money(amount=Decimal("0.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("0.00"), currency=Currency.USD),
         )
-        
+
         assert balance.total.amount == max_amount
         assert balance.can_afford(Money(amount=max_amount, currency=Currency.USD)) is True
 
@@ -363,9 +363,9 @@ class TestBalanceEdgeCases:
         balance = Balance(
             currency=Currency.USD,
             free=Money(amount=min_amount, currency=Currency.USD),
-            used=Money(amount=Decimal("0.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("0.00"), currency=Currency.USD),
         )
-        
+
         assert balance.total.amount == min_amount
         assert balance.can_afford(Money(amount=min_amount, currency=Currency.USD)) is True
         assert balance.can_afford(Money(amount=Decimal("0.00000002"), currency=Currency.USD)) is False
@@ -376,16 +376,16 @@ class TestBalanceEdgeCases:
         btc_balance = Balance(
             currency=Currency.BTC,
             free=Money(amount=Decimal("1.12345678"), currency=Currency.BTC),
-            used=Money(amount=Decimal("0.87654321"), currency=Currency.BTC)
+            used=Money(amount=Decimal("0.87654321"), currency=Currency.BTC),
         )
-        
+
         # USD с 2 знаками после запятой
         usd_balance = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("1000.12"), currency=Currency.USD),
-            used=Money(amount=Decimal("200.34"), currency=Currency.USD)
+            used=Money(amount=Decimal("200.34"), currency=Currency.USD),
         )
-        
+
         assert btc_balance.total.amount == Decimal("2.00000000")
         assert usd_balance.total.amount == Decimal("1200.46")
 
@@ -394,15 +394,15 @@ class TestBalanceEdgeCases:
         original_balance = Balance(
             currency=Currency.BTC,
             free=Money(amount=Decimal("1.5"), currency=Currency.BTC),
-            used=Money(amount=Decimal("0.5"), currency=Currency.BTC)
+            used=Money(amount=Decimal("0.5"), currency=Currency.BTC),
         )
-        
+
         # Сериализация
         data = original_balance.to_dict()
-        
+
         # Десериализация
         restored_balance = Balance.from_dict(data)
-        
+
         # Проверка равенства
         assert restored_balance == original_balance
         assert restored_balance.currency == original_balance.currency
@@ -413,18 +413,18 @@ class TestBalanceEdgeCases:
     def test_balance_performance(self):
         """Тест производительности операций с балансом."""
         import time
-        
+
         balance = Balance(
             currency=Currency.USD,
             free=Money(amount=Decimal("10000.00"), currency=Currency.USD),
-            used=Money(amount=Decimal("2000.00"), currency=Currency.USD)
+            used=Money(amount=Decimal("2000.00"), currency=Currency.USD),
         )
-        
+
         # Тест скорости операций
         start_time = time.time()
         for _ in range(1000):
             balance.can_afford(Money(amount=Decimal("5000.00"), currency=Currency.USD))
         end_time = time.time()
-        
+
         # Операция должна выполняться быстро
-        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций 
+        assert end_time - start_time < 1.0  # Менее 1 секунды для 1000 операций

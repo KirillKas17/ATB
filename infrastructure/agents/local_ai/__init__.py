@@ -1,12 +1,9 @@
 """
-Модуль локального AI контроллера с модульной архитектурой.
+Модуль локального ИИ.
 """
 
+from .controller import LocalAIController
+
 __all__ = [
-    "AITaskType",
-    "AIStatus",
-    "AITask",
-    "AIResult",
-    "AIConfig",
     "LocalAIController",
 ]

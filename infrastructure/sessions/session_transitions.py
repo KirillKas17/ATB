@@ -23,7 +23,7 @@ class SessionTransitionManager(BaseSessionTransitionManager):
     - Полная реализация BaseSessionTransitionManager
     """
 
-    def __init__(self, registry: SessionRegistry):
+    def __init__(self, registry: SessionRegistry) -> None:
         super().__init__(registry)
 
     def get_active_transitions(self, timestamp: Timestamp) -> List[SessionTransition]:

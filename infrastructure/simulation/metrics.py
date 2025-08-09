@@ -1,6 +1,6 @@
 import pandas as pd
 from decimal import Decimal
-from typing import List
+from typing import List, Any
 
 from .types import (
     BacktestConfig,
@@ -110,7 +110,7 @@ class MarketMetricsCalculator:
             }
 
         # Утилита для безопасного преобразования PnL в Decimal
-        def safe_pnl_decimal(pnl) -> Decimal:
+        def safe_pnl_decimal(pnl: Any) -> Decimal:
             """Безопасное преобразование PnL в Decimal."""
             try:
                 return Decimal(str(pnl))

@@ -70,78 +70,190 @@ class ATBBackendServer {
             });
         });
 
-        // Системные метрики (заглушка - в реальности будет подключен SystemMonitor)
+        // Системные метрики - реальные данные от SystemMonitor
         this.app.get('/api/system/metrics', async (req, res) => {
             try {
-                // В реальности здесь будет вызов SystemMonitor
-                const metrics = {
-                    cpu: {
-                        percent: Math.round(Math.random() * 100),
-                        cores: 8,
-                        frequency: 3200
-                    },
-                    memory: {
-                        percent: Math.round(Math.random() * 100),
-                        total: 16000000000,
-                        used: 7200000000,
-                        free: 8800000000
-                    },
-                    disk: {
-                        percent: 65,
-                        total: 500000000000,
-                        used: 325000000000,
-                        free: 175000000000
-                    },
-                    network: {
-                        bytes_sent: Math.round(Math.random() * 1000000),
-                        bytes_recv: Math.round(Math.random() * 2000000)
-                    },
-                    timestamp: new Date().toISOString()
-                };
-
+                const { SystemMonitor } = require('./system-monitor');
+                const systemMonitor = new SystemMonitor();
+                const metrics = await systemMonitor.getMetrics();
                 res.json(metrics);
             } catch (error) {
+                console.error('Error getting system metrics:', error);
                 res.status(500).json({ error: error.message });
             }
         });
 
-        // Эволюция стратегий (заглушка)
-        this.app.get('/api/evolution/status', (req, res) => {
-            res.json({
-                enabled: true,
-                running: Math.random() > 0.5,
-                strategies: [
-                    {
-                        name: 'Trend Strategy',
-                        performance: Math.random() * 100,
-                        evolution_count: Math.floor(Math.random() * 50),
-                        last_evolution: new Date().toISOString()
-                    },
-                    {
-                        name: 'Scalping Strategy',
-                        performance: Math.random() * 100,
-                        evolution_count: Math.floor(Math.random() * 30),
-                        last_evolution: new Date().toISOString()
-                    }
-                ],
-                timestamp: new Date().toISOString()
-            });
+        // Процессы системы
+        this.app.get('/api/system/processes', async (req, res) => {
+            try {
+                const { SystemMonitor } = require('./system-monitor');
+                const systemMonitor = new SystemMonitor();
+                const processes = await systemMonitor.getProcesses();
+                res.json(processes);
+            } catch (error) {
+                console.error('Error getting processes:', error);
+                res.status(500).json({ error: error.message });
+            }
         });
 
-        this.app.post('/api/evolution/start', (req, res) => {
-            res.json({
-                success: true,
-                message: 'Evolution started',
-                timestamp: new Date().toISOString()
-            });
+        // Температура CPU
+        this.app.get('/api/system/temperature', async (req, res) => {
+            try {
+                const { SystemMonitor } = require('./system-monitor');
+                const systemMonitor = new SystemMonitor();
+                const temperature = await systemMonitor.getCPUTemperature();
+                res.json(temperature);
+            } catch (error) {
+                console.error('Error getting temperature:', error);
+                res.status(500).json({ error: error.message });
+            }
         });
 
-        this.app.post('/api/evolution/stop', (req, res) => {
-            res.json({
-                success: true,
-                message: 'Evolution stopped',
-                timestamp: new Date().toISOString()
-            });
+        // Эволюция стратегий - реальные данные от EvolutionManager
+        this.app.get('/api/evolution/status', async (req, res) => {
+            try {
+                const { EvolutionManager } = require('./evolution-manager');
+                const evolutionManager = new EvolutionManager();
+                const status = await evolutionManager.getStatus();
+                res.json(status);
+            } catch (error) {
+                console.error('Error getting evolution status:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.post('/api/evolution/start', async (req, res) => {
+            try {
+                const { EvolutionManager } = require('./evolution-manager');
+                const evolutionManager = new EvolutionManager();
+                const result = await evolutionManager.start();
+                res.json(result);
+            } catch (error) {
+                console.error('Error starting evolution:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.post('/api/evolution/stop', async (req, res) => {
+            try {
+                const { EvolutionManager } = require('./evolution-manager');
+                const evolutionManager = new EvolutionManager();
+                const result = await evolutionManager.stop();
+                res.json(result);
+            } catch (error) {
+                console.error('Error stopping evolution:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        // Торговые данные - реальные данные от TradingManager
+        this.app.get('/api/trading/status', async (req, res) => {
+            try {
+                const { TradingManager } = require('./trading-manager');
+                const tradingManager = new TradingManager();
+                const status = await tradingManager.getStatus();
+                res.json(status);
+            } catch (error) {
+                console.error('Error getting trading status:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.get('/api/trading/portfolio', async (req, res) => {
+            try {
+                const { TradingManager } = require('./trading-manager');
+                const tradingManager = new TradingManager();
+                const portfolio = await tradingManager.getPortfolio();
+                res.json(portfolio);
+            } catch (error) {
+                console.error('Error getting portfolio:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.get('/api/trading/market-data', async (req, res) => {
+            try {
+                const { TradingManager } = require('./trading-manager');
+                const tradingManager = new TradingManager();
+                const marketData = await tradingManager.getMarketData();
+                res.json(marketData);
+            } catch (error) {
+                console.error('Error getting market data:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.post('/api/trading/start', async (req, res) => {
+            try {
+                const { TradingManager } = require('./trading-manager');
+                const tradingManager = new TradingManager();
+                const result = await tradingManager.startTrading();
+                res.json(result);
+            } catch (error) {
+                console.error('Error starting trading:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.post('/api/trading/stop', async (req, res) => {
+            try {
+                const { TradingManager } = require('./trading-manager');
+                const tradingManager = new TradingManager();
+                const result = await tradingManager.stopTrading();
+                res.json(result);
+            } catch (error) {
+                console.error('Error stopping trading:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        // ML данные - реальные данные от MLManager
+        this.app.get('/api/ml/status', async (req, res) => {
+            try {
+                const { MLManager } = require('./ml-manager');
+                const mlManager = new MLManager();
+                const status = await mlManager.getStatus();
+                res.json(status);
+            } catch (error) {
+                console.error('Error getting ML status:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.get('/api/ml/models', async (req, res) => {
+            try {
+                const { MLManager } = require('./ml-manager');
+                const mlManager = new MLManager();
+                const models = await mlManager.getModels();
+                res.json(models);
+            } catch (error) {
+                console.error('Error getting ML models:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.post('/api/ml/training/start', async (req, res) => {
+            try {
+                const { MLManager } = require('./ml-manager');
+                const mlManager = new MLManager();
+                const result = await mlManager.startTraining();
+                res.json(result);
+            } catch (error) {
+                console.error('Error starting ML training:', error);
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        this.app.post('/api/ml/training/stop', async (req, res) => {
+            try {
+                const { MLManager } = require('./ml-manager');
+                const mlManager = new MLManager();
+                const result = await mlManager.stopTraining();
+                res.json(result);
+            } catch (error) {
+                console.error('Error stopping ML training:', error);
+                res.status(500).json({ error: error.message });
+            }
         });
 
         // ENV конфигурация (заглушка - в реальности будет подключен EnvironmentManager)
@@ -464,3 +576,15 @@ async function startBackendServer() {
 }
 
 module.exports = { ATBBackendServer, startBackendServer };
+
+// Запуск сервера если файл запущен напрямую
+if (require.main === module) {
+    startBackendServer()
+        .then(server => {
+            console.log('🚀 ATB Backend Server запущен на порту', server.port);
+        })
+        .catch(error => {
+            console.error('❌ Ошибка запуска сервера:', error);
+            process.exit(1);
+        });
+}

@@ -1,6 +1,7 @@
 """
 Unit тесты для интеграции SessionMarker в систему Syntra.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from unittest.mock import Mock, AsyncMock, MagicMock
@@ -11,12 +12,16 @@ from domain.value_objects.money import Money
 from domain.value_objects.volume import Volume
 from domain.value_objects.currency import Currency
 from domain.value_objects.percentage import Percentage
-from infrastructure.agents.agent_context_refactored import AgentContext, StrategyModifiers
+from infrastructure.agents.agent_context_refactored import AgentContext, StrategyModifier
+
 # Временно закомментировано из-за отсутствия класса
 # from application.use_cases.trading_orchestrator import DefaultTradingOrchestratorUseCase
 from application.di_container import Container
+
+
 class TestSessionMarkerIntegration:
     """Тесты интеграции SessionMarker в систему Syntra."""
+
     @pytest.fixture
     def mock_session_marker(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для SessionMarker."""
@@ -33,12 +38,14 @@ class TestSessionMarkerIntegration:
         mock_context.active_sessions = [mock_session]
         mock.get_session_context.return_value = mock_context
         return mock
+
     @pytest.fixture
     def mock_agent_context(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок для AgentContext."""
         context = AgentContext(symbol="BTC/USDT")
         context.session_marker_result = None
         return context
+
     @pytest.fixture
     def mock_trading_orchestrator(self, mock_session_marker) -> Any:
         """Мок для TradingOrchestrator с SessionMarker."""
@@ -48,6 +55,7 @@ class TestSessionMarkerIntegration:
         orchestrator._session_marker_cache = {}
         orchestrator._last_session_marker_update = None
         return orchestrator
+
     @pytest.fixture
     def sample_signal(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец торгового сигнала."""
@@ -59,8 +67,9 @@ class TestSessionMarkerIntegration:
             confidence=Percentage(Decimal("0.8")),
             strength=Percentage(Decimal("0.7")),
             timestamp=1234567890,
-            metadata={}
+            metadata={},
         )
+
     def test_di_container_integration(self: "TestSessionMarkerIntegration") -> None:
         """Тест интеграции SessionMarker в DI контейнер."""
         # Создаем контейнер
@@ -69,11 +78,13 @@ class TestSessionMarkerIntegration:
         session_marker = container.session_marker()
         assert session_marker is not None
         assert isinstance(session_marker, MarketSessionContext)
+
     def test_agent_context_session_marker_field(self, mock_agent_context) -> None:
         """Тест поля session_marker_result в AgentContext."""
         # Проверяем, что поле существует
-        assert hasattr(mock_agent_context, 'session_marker_result')
+        assert hasattr(mock_agent_context, "session_marker_result")
         assert mock_agent_context.session_marker_result is None
+
     def test_agent_context_apply_session_marker_modifier(self, mock_agent_context, sample_signal) -> None:
         """Тест метода apply_session_marker_modifier в AgentContext."""
         # Создаем мок результат маркера сессий
@@ -93,6 +104,7 @@ class TestSessionMarkerIntegration:
         assert modified_signal.confidence > sample_signal.confidence  # Увеличена уверенность
         assert modified_signal.strength > sample_signal.strength  # Увеличен размер позиции
         assert "session_marker" in modified_signal.metadata
+
     def test_trading_orchestrator_session_marker_constructor(self, mock_session_marker) -> None:
         """Тест конструктора TradingOrchestrator с SessionMarker."""
         # Создаем моки для зависимостей
@@ -109,8 +121,9 @@ class TestSessionMarkerIntegration:
         orchestrator._last_session_marker_update = None
         # Проверяем, что SessionMarker был добавлен
         assert orchestrator.session_marker == mock_session_marker
-        assert hasattr(orchestrator, '_session_marker_cache')
-        assert hasattr(orchestrator, '_last_session_marker_update')
+        assert hasattr(orchestrator, "_session_marker_cache")
+        assert hasattr(orchestrator, "_last_session_marker_update")
+
     @pytest.mark.asyncio
     async def test_update_session_marker(self, mock_trading_orchestrator) -> None:
         """Тест метода _update_session_marker."""
@@ -122,6 +135,7 @@ class TestSessionMarkerIntegration:
         # Проверяем, что кэш был обновлен
         assert len(mock_trading_orchestrator._session_marker_cache) > 0
         assert mock_trading_orchestrator._last_session_marker_update is not None
+
     @pytest.mark.asyncio
     async def test_apply_session_marker_analysis(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест метода _apply_session_marker_analysis."""
@@ -135,10 +149,7 @@ class TestSessionMarkerIntegration:
         mock_context = Mock(spec=MarketSessionContext)
         mock_context.primary_session = mock_session
         mock_context.active_sessions = [mock_session]
-        mock_trading_orchestrator._session_marker_cache[symbol] = {
-            "context": mock_context,
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._session_marker_cache[symbol] = {"context": mock_context, "timestamp": 1234567890}
         # Применяем анализ
         modified_signal = await mock_trading_orchestrator._apply_session_marker_analysis(symbol, sample_signal)
         # Проверяем результат
@@ -146,6 +157,7 @@ class TestSessionMarkerIntegration:
         assert modified_signal.confidence > sample_signal.confidence
         assert modified_signal.strength > sample_signal.strength
         assert "session_marker" in modified_signal.metadata
+
     @pytest.mark.asyncio
     async def test_session_marker_in_execute_strategy(self, mock_trading_orchestrator) -> None:
         """Тест интеграции SessionMarker в execute_strategy."""
@@ -160,6 +172,7 @@ class TestSessionMarkerIntegration:
         await mock_trading_orchestrator._update_session_marker([mock_request.symbol])
         # Проверяем, что SessionMarker был обновлен
         mock_trading_orchestrator._update_session_marker.assert_called_once_with([mock_request.symbol])
+
     @pytest.mark.asyncio
     async def test_session_marker_in_process_signal(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест интеграции SessionMarker в process_signal."""
@@ -180,13 +193,15 @@ class TestSessionMarkerIntegration:
             mock_request.signal.trading_pair, mock_request.signal
         )
         assert modified_signal is not None
+
     def test_session_marker_strategy_modifiers(self: "TestSessionMarkerIntegration") -> None:
         """Тест модификаторов стратегий для SessionMarker."""
         modifiers = StrategyModifiers()
         # Проверяем, что модификаторы для SessionMarker существуют
-        assert hasattr(modifiers, 'session_marker_confidence_multiplier')
-        assert hasattr(modifiers, 'session_marker_strength_multiplier')
-        assert hasattr(modifiers, 'session_marker_execution_delay_ms')
+        assert hasattr(modifiers, "session_marker_confidence_multiplier")
+        assert hasattr(modifiers, "session_marker_strength_multiplier")
+        assert hasattr(modifiers, "session_marker_execution_delay_ms")
+
     @pytest.mark.asyncio
     async def test_session_marker_error_handling(self, mock_trading_orchestrator, sample_signal) -> None:
         """Тест обработки ошибок в SessionMarker."""
@@ -200,19 +215,18 @@ class TestSessionMarkerIntegration:
             assert modified_signal == sample_signal
         except Exception:
             pytest.fail("Session marker error should be handled gracefully")
+
     def test_session_marker_cache_management(self, mock_trading_orchestrator) -> None:
         """Тест управления кэшем SessionMarker."""
         symbol = "BTC/USD"
         # Проверяем, что кэш пустой изначально
         assert symbol not in mock_trading_orchestrator._session_marker_cache
         # Добавляем данные в кэш
-        mock_trading_orchestrator._session_marker_cache[symbol] = {
-            "context": Mock(),
-            "timestamp": 1234567890
-        }
+        mock_trading_orchestrator._session_marker_cache[symbol] = {"context": Mock(), "timestamp": 1234567890}
         # Проверяем, что данные добавлены
         assert symbol in mock_trading_orchestrator._session_marker_cache
         assert mock_trading_orchestrator._session_marker_cache[symbol]["timestamp"] == 1234567890
+
     def test_session_marker_metadata_structure(self, mock_agent_context, sample_signal) -> None:
         """Тест структуры метаданных SessionMarker."""
         # Создаем мок результат
@@ -238,5 +252,7 @@ class TestSessionMarkerIntegration:
         assert session_metadata["phase"] == "HIGH_VOLATILITY"
         assert session_metadata["active_sessions_count"] == 1
         assert session_metadata["overlap_count"] == 0
+
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

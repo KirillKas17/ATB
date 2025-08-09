@@ -1,6 +1,7 @@
 """
 Unit тесты для ModelManager
 """
+
 import asyncio
 import pickle
 from datetime import datetime, timedelta
@@ -14,8 +15,11 @@ from domain.type_definitions import ModelId
 from domain.type_definitions.external_service_types import MLModelConfig, MLModelType, PredictionType
 from infrastructure.external_services.ml.config import MLServiceConfig
 from infrastructure.external_services.ml.model_manager import ModelManager
+
+
 class TestModelManager:
     """Тесты для ModelManager."""
+
     @pytest.fixture
     def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
@@ -24,10 +28,12 @@ class TestModelManager:
             cache_dir="/tmp/test_cache",
             max_models=10,
         )
+
     @pytest.fixture
     def model_manager(self, config) -> Any:
         """Экземпляр ModelManager."""
         return ModelManager(config)
+
     @pytest.fixture
     def sample_model_config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример конфигурации модели."""
@@ -39,8 +45,9 @@ class TestModelManager:
             hyperparameters={"n_estimators": 100},
             features=["price", "volume"],
             target="direction",
-            description="Test model"
+            description="Test model",
         )
+
     @pytest.fixture
     def sample_model(self, sample_model_config) -> Any:
         """Пример модели."""
@@ -56,8 +63,9 @@ class TestModelManager:
             description=sample_model_config["description"],
             status=ModelStatusType.CREATED,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
+
     @pytest.mark.asyncio
     async def test_init_creates_directories(self, config, tmp_path) -> None:
         """Тест создания директорий при инициализации."""
@@ -66,6 +74,7 @@ class TestModelManager:
         manager = ModelManager(config)
         assert Path(config.models_dir).exists()
         assert Path(config.cache_dir).exists()
+
     @pytest.mark.asyncio
     async def test_create_model_success(self, model_manager, sample_model_config) -> None:
         """Тест успешного создания модели."""
@@ -78,6 +87,7 @@ class TestModelManager:
         assert model.model_type == sample_model_config["model_type"].value
         assert model.trading_pair == str(sample_model_config["trading_pair"])
         assert model.status == ModelStatusType.CREATED
+
     @pytest.mark.asyncio
     async def test_create_model_increments_id(self, model_manager, sample_model_config) -> None:
         """Тест инкремента ID при создании моделей."""
@@ -86,6 +96,7 @@ class TestModelManager:
         model_id2 = await model_manager.create_model(sample_model_config)
         assert str(model_id1) == "1"
         assert str(model_id2) == "2"
+
     @pytest.mark.asyncio
     async def test_get_model_exists(self, model_manager, sample_model_config) -> None:
         """Тест получения существующей модели."""
@@ -93,11 +104,13 @@ class TestModelManager:
         model = await model_manager.get_model(model_id)
         assert model is not None
         assert model.id == model_id
+
     @pytest.mark.asyncio
     async def test_get_model_not_exists(self, model_manager) -> None:
         """Тест получения несуществующей модели."""
         model = await model_manager.get_model(ModelId("999"))
         assert model is None
+
     @pytest.mark.asyncio
     async def test_update_model_success(self, model_manager, sample_model_config) -> None:
         """Тест успешного обновления модели."""
@@ -109,12 +122,14 @@ class TestModelManager:
         assert model.name == "updated_name"
         assert model.description == "updated_description"
         assert model.updated_at > model.created_at
+
     @pytest.mark.asyncio
     async def test_update_model_not_exists(self, model_manager) -> None:
         """Тест обновления несуществующей модели."""
         updates = {"name": "updated_name"}
         result = await model_manager.update_model(ModelId("999"), updates)
         assert result is False
+
     @pytest.mark.asyncio
     async def test_update_model_invalid_field(self, model_manager, sample_model_config) -> None:
         """Тест обновления с невалидным полем."""
@@ -122,6 +137,7 @@ class TestModelManager:
         updates = {"invalid_field": "value"}
         result = await model_manager.update_model(model_id, updates)
         assert result is True  # Невалидные поля игнорируются
+
     @pytest.mark.asyncio
     async def test_delete_model_success(self, model_manager, sample_model_config) -> None:
         """Тест успешного удаления модели."""
@@ -130,11 +146,13 @@ class TestModelManager:
         assert result is True
         model = await model_manager.get_model(model_id)
         assert model is None
+
     @pytest.mark.asyncio
     async def test_delete_model_not_exists(self, model_manager) -> None:
         """Тест удаления несуществующей модели."""
         result = await model_manager.delete_model(ModelId("999"))
         assert result is False
+
     @pytest.mark.asyncio
     async def test_delete_model_removes_files(self, model_manager, sample_model_config, tmp_path) -> None:
         """Тест удаления файлов модели."""
@@ -147,11 +165,13 @@ class TestModelManager:
         result = await model_manager.delete_model(model_id)
         assert result is True
         assert not model_path.exists()
+
     @pytest.mark.asyncio
     async def test_list_models_empty(self, model_manager) -> None:
         """Тест списка моделей (пустой)."""
         models = await model_manager.list_models()
         assert models == []
+
     @pytest.mark.asyncio
     async def test_list_models_with_models(self, model_manager, sample_model_config) -> None:
         """Тест списка моделей с моделями."""
@@ -161,6 +181,7 @@ class TestModelManager:
         models = await model_manager.list_models()
         assert len(models) == 2
         assert all(isinstance(model, Model) for model in models)
+
     @pytest.mark.asyncio
     async def test_get_model_by_name_exists(self, model_manager, sample_model_config) -> None:
         """Тест получения модели по имени (существует)."""
@@ -168,11 +189,13 @@ class TestModelManager:
         model = await model_manager.get_model_by_name("test_model")
         assert model is not None
         assert model.name == "test_model"
+
     @pytest.mark.asyncio
     async def test_get_model_by_name_not_exists(self, model_manager) -> None:
         """Тест получения модели по имени (не существует)."""
         model = await model_manager.get_model_by_name("nonexistent")
         assert model is None
+
     @pytest.mark.asyncio
     async def test_get_models_by_status(self, model_manager, sample_model_config) -> None:
         """Тест получения моделей по статусу."""
@@ -188,6 +211,7 @@ class TestModelManager:
         assert len(trained_models) == 1
         assert created_models[0].status == ModelStatusType.CREATED
         assert trained_models[0].status == ModelStatus.TRAINED
+
     @pytest.mark.asyncio
     async def test_get_models_by_trading_pair(self, model_manager, sample_model_config) -> None:
         """Тест получения моделей по торговой паре."""
@@ -201,6 +225,7 @@ class TestModelManager:
         assert len(eth_models) == 1
         assert btc_models[0].trading_pair == "BTC/USD"
         assert eth_models[0].trading_pair == "ETH/USD"
+
     @pytest.mark.asyncio
     async def test_get_model_metrics_exists(self, model_manager, sample_model_config) -> None:
         """Тест получения метрик модели (существует)."""
@@ -215,11 +240,13 @@ class TestModelManager:
         assert metrics["prediction_type"] == PredictionType.PRICE.value
         assert "created_at" in metrics
         assert "updated_at" in metrics
+
     @pytest.mark.asyncio
     async def test_get_model_metrics_not_exists(self, model_manager) -> None:
         """Тест получения метрик модели (не существует)."""
         metrics = await model_manager.get_model_metrics(ModelId("999"))
         assert metrics == {}
+
     @pytest.mark.asyncio
     async def test_backup_model_success(self, model_manager, sample_model_config, tmp_path) -> None:
         """Тест успешного резервного копирования."""
@@ -234,19 +261,21 @@ class TestModelManager:
         backup_file = Path(backup_path) / f"{model_id}_backup.pkl"
         assert backup_file.exists()
         # Проверяем содержимое backup
-        with open(backup_file, 'rb') as f:
+        with open(backup_file, "rb") as f:
             backup_data = pickle.load(f)
         assert "model" in backup_data
         assert "scaler" in backup_data
         assert "feature_names" in backup_data
         assert "model_info" in backup_data
         assert "backup_timestamp" in backup_data
+
     @pytest.mark.asyncio
     async def test_backup_model_not_exists(self, model_manager, tmp_path) -> None:
         """Тест резервного копирования несуществующей модели."""
         backup_path = str(tmp_path / "backup")
         result = await model_manager.backup_model(ModelId("999"), backup_path)
         assert result is False
+
     @pytest.mark.asyncio
     async def test_backup_model_no_model_object(self, model_manager, sample_model_config, tmp_path) -> None:
         """Тест резервного копирования без объекта модели."""
@@ -254,6 +283,7 @@ class TestModelManager:
         backup_path = str(tmp_path / "backup")
         result = await model_manager.backup_model(model_id, backup_path)
         assert result is False
+
     @pytest.mark.asyncio
     async def test_restore_model_success(self, model_manager, sample_model, tmp_path) -> None:
         """Тест успешного восстановления модели."""
@@ -263,10 +293,10 @@ class TestModelManager:
             "scaler": StandardScaler(),
             "feature_names": ["feature1", "feature2"],
             "model_info": sample_model,
-            "backup_timestamp": datetime.now().isoformat()
+            "backup_timestamp": datetime.now().isoformat(),
         }
         backup_file = tmp_path / "test_backup.pkl"
-        with open(backup_file, 'wb') as f:
+        with open(backup_file, "wb") as f:
             pickle.dump(backup_data, f)
         model_id = await model_manager.restore_model(str(backup_file))
         assert model_id is not None
@@ -274,11 +304,13 @@ class TestModelManager:
         model = await model_manager.get_model(model_id)
         assert model is not None
         assert model.name == sample_model.name
+
     @pytest.mark.asyncio
     async def test_restore_model_file_not_exists(self, model_manager) -> None:
         """Тест восстановления из несуществующего файла."""
         model_id = await model_manager.restore_model("/nonexistent/path")
         assert model_id is None
+
     @pytest.mark.asyncio
     async def test_restore_model_invalid_file(self, model_manager, tmp_path) -> None:
         """Тест восстановления из невалидного файла."""
@@ -286,6 +318,7 @@ class TestModelManager:
         backup_file.write_text("invalid data")
         model_id = await model_manager.restore_model(str(backup_file))
         assert model_id is None
+
     @pytest.mark.asyncio
     async def test_get_model_size_exists(self, model_manager, sample_model_config, tmp_path) -> None:
         """Тест получения размера модели (файл существует)."""
@@ -297,11 +330,13 @@ class TestModelManager:
         model_path.write_text("test content")
         size = await model_manager.get_model_size(model_id)
         assert size > 0
+
     @pytest.mark.asyncio
     async def test_get_model_size_not_exists(self, model_manager) -> None:
         """Тест получения размера модели (файл не существует)."""
         size = await model_manager.get_model_size(ModelId("999"))
         assert size == 0
+
     @pytest.mark.asyncio
     async def test_cleanup_old_models(self, model_manager, sample_model_config) -> None:
         """Тест очистки старых моделей."""
@@ -328,6 +363,7 @@ class TestModelManager:
         assert await model_manager.get_model(model_id2) is not None
         # Проверяем, что обученная старая модель осталась
         assert await model_manager.get_model(model_id3) is not None
+
     @pytest.mark.asyncio
     async def test_concurrent_operations(self, model_manager, sample_model_config) -> None:
         """Тест конкурентных операций."""
@@ -342,7 +378,7 @@ class TestModelManager:
                 hyperparameters={"n_estimators": 100},
                 features=["price", "volume"],
                 target="direction",
-                description=f"Test model {i}"
+                description=f"Test model {i}",
             )
             tasks.append(model_manager.create_model(config))
         model_ids = await asyncio.gather(*tasks)
@@ -351,24 +387,24 @@ class TestModelManager:
         # Проверяем, что все модели созданы
         models = await model_manager.list_models()
         assert len(models) == 5
+
     @pytest.mark.asyncio
     async def test_model_manager_thread_safety(self, model_manager, sample_model_config) -> None:
         """Тест потокобезопасности."""
         # Создаем модель
         model_id = await model_manager.create_model(sample_model_config)
+
         # Выполняем конкурентные операции
         async def update_model() -> Any:
             return await model_manager.update_model(model_id, {"name": "updated"})
+
         async def get_model() -> Any:
             return await model_manager.get_model(model_id)
+
         async def delete_model() -> Any:
             return await model_manager.delete_model(model_id)
+
         # Запускаем операции одновременно
-        results = await asyncio.gather(
-            update_model(),
-            get_model(),
-            delete_model(),
-            return_exceptions=True
-        )
+        results = await asyncio.gather(update_model(), get_model(), delete_model(), return_exceptions=True)
         # Проверяем, что операции завершились без исключений
-        assert all(not isinstance(result, Exception) for result in results) 
+        assert all(not isinstance(result, Exception) for result in results)

@@ -11,8 +11,15 @@ import pandas as pd
 from decimal import Decimal
 from loguru import logger
 
-from application.evolution import EvolutionOrchestrator
 from domain.evolution import EvolutionContext, EvolutionConfig
+from domain.protocols.evolution_protocol import (
+    IEvolutionOrchestrator,
+    IEvolutionStrategyRepository,
+    IMarketDataProvider,
+    IEvolutionStorage,
+    IEvolutionCache,
+    IEvolutionMigration,
+)
 from infrastructure.agents.evolvable_market_maker import EvolvableMarketMakerAgent
 from infrastructure.agents.evolvable_risk_agent import EvolvableRiskAgent
 from infrastructure.agents.evolvable_portfolio_agent import DefaultEvolvablePortfolioAgent
@@ -39,20 +46,37 @@ class EvolutionIntegration:
     и координацию их работы с эволюционным менеджером.
     """
 
-    def __init__(self, config: Optional[EvolutionConfig] = None):
+    def __init__(
+        self, 
+        config: Optional[EvolutionConfig] = None,
+        evolution_orchestrator: Optional[IEvolutionOrchestrator] = None,
+        strategy_repository: Optional[IEvolutionStrategyRepository] = None,
+        market_data_provider: Optional[IMarketDataProvider] = None,
+        evolution_storage: Optional[IEvolutionStorage] = None,
+        evolution_cache: Optional[IEvolutionCache] = None,
+        evolution_migration: Optional[IEvolutionMigration] = None,
+    ) -> None:
         """
         Инициализация интеграции эволюционной системы.
         Args:
             config: Конфигурация эволюционной системы
+            evolution_orchestrator: Оркестратор эволюции
+            strategy_repository: Репозиторий стратегий
+            market_data_provider: Провайдер рыночных данных
+            evolution_storage: Хранилище эволюционных данных
+            evolution_cache: Кэш эволюции
+            evolution_migration: Миграция эволюционных данных
         """
         self.config = config or EvolutionConfig()
         self.agents: Dict[str, Any] = {}
         self.evolution_task: Optional[asyncio.Task] = None
-        # Инициализация компонентов evolution
-        self.strategy_storage = StrategyStorage()
-        self.evolution_cache = EvolutionCache()
-        self.evolution_backup = EvolutionBackup()
-        self.evolution_migration = EvolutionMigration(storage=self.strategy_storage)
+        
+        # Инициализация компонентов evolution с dependency injection
+        self.strategy_storage = evolution_storage or StrategyStorage()
+        self.evolution_cache = evolution_cache or EvolutionCache()
+        self.evolution_backup = evolution_storage or EvolutionBackup()
+        self.evolution_migration = evolution_migration or EvolutionMigration(storage=self.strategy_storage)
+        
         # Создание контекста эволюции
         self.evolution_context = EvolutionContext(
             population_size=100,
@@ -65,16 +89,11 @@ class EvolutionIntegration:
             max_drawdown=Decimal("0.2"),
             min_sharpe=Decimal("1.0"),
         )
-        # Создание оркестратора эволюции
-        self.evolution_orchestrator = EvolutionOrchestrator(
-            context=self.evolution_context,
-            strategy_repository=self._get_strategy_repository(),
-            market_data_provider=self._get_market_data_provider(),
-            strategy_storage=self.strategy_storage,
-            evolution_cache=self.evolution_cache,
-            evolution_backup=self.evolution_backup,
-            evolution_migration=self.evolution_migration,
-        )
+        
+        # Использование внедренного оркестратора или создание заглушки
+        self.evolution_orchestrator = evolution_orchestrator
+        self.strategy_repository = strategy_repository
+        self.market_data_provider = market_data_provider
 
     async def initialize_agents(self) -> None:
         """
@@ -112,10 +131,13 @@ class EvolutionIntegration:
             logger.info("Starting evolution system...")
             # Инициализация агентов
             await self.initialize_agents()
-            # Запуск эволюционного цикла
-            self.evolution_task = asyncio.create_task(
-                self.evolution_orchestrator.start_evolution()
-            )
+            # Запуск эволюционного цикла если оркестратор доступен
+            if self.evolution_orchestrator:
+                self.evolution_task = asyncio.create_task(
+                    self.evolution_orchestrator.start_evolution(self.evolution_context)
+                )
+            else:
+                logger.warning("Evolution orchestrator not available, running in limited mode")
             logger.info("Evolution system started successfully")
         except Exception as e:
             logger.error(f"Error starting evolution system: {e}")
@@ -129,8 +151,9 @@ class EvolutionIntegration:
         """
         try:
             logger.info("Stopping evolution system...")
-            # Остановка эволюционного оркестратора
-            await self.evolution_orchestrator.stop_evolution()
+            # Остановка эволюционного оркестратора если доступен
+            if self.evolution_orchestrator:
+                await self.evolution_orchestrator.stop_evolution()
             # Отмена задачи эволюции
             if self.evolution_task:
                 self.evolution_task.cancel()
@@ -198,7 +221,10 @@ class EvolutionIntegration:
         """
         try:
             status = {
-                "evolution_orchestrator": self.evolution_orchestrator.get_current_status(),
+                "evolution_orchestrator": (
+                    self.evolution_orchestrator.get_evolution_status() 
+                    if self.evolution_orchestrator else {"status": "not_available"}
+                ),
                 "agents": {},
             }
             for name, agent in self.agents.items():
@@ -297,7 +323,10 @@ class EvolutionIntegration:
         """Запуск эволюции стратегий."""
         try:
             logger.info("Starting strategy evolution...")
-            await self.evolution_orchestrator.start_evolution()
+            if self.evolution_orchestrator:
+                await self.evolution_orchestrator.start_evolution(self.evolution_context)
+            else:
+                logger.warning("Evolution orchestrator not available")
             logger.info("Strategy evolution started successfully")
         except Exception as e:
             logger.error(f"Error starting strategy evolution: {e}")
@@ -306,7 +335,10 @@ class EvolutionIntegration:
     async def get_evolution_metrics(self) -> Dict[str, Any]:
         """Получить метрики эволюции."""
         try:
-            return await self.evolution_orchestrator.get_evolution_metrics()
+            if self.evolution_orchestrator:
+                return await self.evolution_orchestrator.get_evolution_metrics()
+            else:
+                return {"status": "orchestrator_not_available"}
         except Exception as e:
             logger.error(f"Error getting evolution metrics: {e}")
             return {}
@@ -314,7 +346,11 @@ class EvolutionIntegration:
     async def create_evolution_backup(self) -> bool:
         """Создать резервную копию эволюции."""
         try:
-            return await self.evolution_orchestrator.create_evolution_backup()
+            if self.evolution_orchestrator:
+                return await self.evolution_orchestrator.create_evolution_backup()
+            else:
+                logger.warning("Evolution orchestrator not available for backup")
+                return False
         except Exception as e:
             logger.error(f"Error creating evolution backup: {e}")
             return False
@@ -322,16 +358,28 @@ class EvolutionIntegration:
     async def restore_evolution_backup(self, backup_id: str) -> bool:
         """Восстановить эволюцию из резервной копии."""
         try:
-            return await self.evolution_orchestrator.restore_evolution_from_backup(
-                backup_id
-            )
+            if self.evolution_orchestrator:
+                return await self.evolution_orchestrator.restore_evolution_from_backup(
+                    backup_id
+                )
+            else:
+                logger.warning("Evolution orchestrator not available for restore")
+                return False
         except Exception as e:
             logger.error(f"Error restoring evolution backup: {e}")
             return False
 
 
-# Глобальный экземпляр интеграции
-evolution_integration = EvolutionIntegration()
+# Глобальный экземпляр интеграции (создается с заглушками)
+evolution_integration = EvolutionIntegration(
+    config=None,
+    evolution_orchestrator=None,  # Будет внедрен через DI контейнер
+    strategy_repository=None,
+    market_data_provider=None,
+    evolution_storage=None,
+    evolution_cache=None,
+    evolution_migration=None,
+)
 
 
 async def start_evolution() -> None:
@@ -362,7 +410,7 @@ def get_evolution_status() -> Dict[str, Any]:
 # Пример использования
 if __name__ == "__main__":
 
-    async def main():
+    async def main() -> None:
         """
         Основная функция для демонстрации работы эволюционной системы.
         Запускает систему, работает некоторое время, получает статус

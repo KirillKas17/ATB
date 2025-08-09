@@ -7,7 +7,9 @@ from infrastructure.core.position_manager import (Position, PositionManager, Pos
                                    PositionStatus)
 from shared.logging import setup_logger
 logger = setup_logger(__name__)
-    @pytest.fixture
+
+
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
@@ -22,7 +24,9 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-    @pytest.fixture
+
+
+@pytest.fixture
 def position_manager() -> Any:
     """Фикстура с менеджером позиций"""
     return PositionManager(
@@ -36,7 +40,9 @@ def position_manager() -> Any:
             "position_timeout": 24,
         }
     )
-    @pytest.fixture
+
+
+@pytest.fixture
 def mock_position() -> Any:
     """Фикстура с тестовой позицией"""
     return Position(
@@ -49,6 +55,8 @@ def mock_position() -> Any:
         entry_time=datetime.now(),
         status="open",
     )
+
+
 class TestPosition:
     def test_position_initialization(self, mock_position) -> None:
         """Тест инициализации позиции"""

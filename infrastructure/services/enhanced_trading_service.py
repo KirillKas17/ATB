@@ -104,7 +104,7 @@ class EnhancedTradingService(Protocol):
         quantity: Decimal,
         order_type: Optional[OrderType] = None,
         price: Optional[Decimal] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]: ...
     def create_advanced_order(
         self,
@@ -113,7 +113,7 @@ class EnhancedTradingService(Protocol):
         quantity: Decimal,
         order_type: str,
         market_data: pd.DataFrame,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]: ...
     def execute_strategy(
         self,
@@ -150,7 +150,7 @@ class EnhancedTradingServiceImpl(EnhancedTradingService):
         quantity: Decimal,
         order_type: Optional[OrderType] = None,
         price: Optional[Decimal] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Создание торгового ордера."""
         try:
@@ -198,7 +198,7 @@ class EnhancedTradingServiceImpl(EnhancedTradingService):
         quantity: Decimal,
         order_type: str,
         market_data: pd.DataFrame,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Создание продвинутого ордера."""
         try:

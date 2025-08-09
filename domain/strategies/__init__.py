@@ -51,10 +51,9 @@ from .exceptions import (
 )
 
 # Основные интерфейсы и типы
-from .strategy_types import (
+from domain.type_definitions.strategy_types import (
     ArbitrageParams,
     BreakoutParams,
-    MarketCondition,
     MarketRegime,
     MeanReversionParams,
     RiskProfile,

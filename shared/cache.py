@@ -16,6 +16,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 @dataclass
+class CacheConfig:
+    """Конфигурация кэша."""
+    max_size: int = 1000
+    default_ttl: Optional[int] = None
+    cleanup_interval: float = 60.0
+    eviction_policy: str = "lru"
+    enable_stats: bool = True
+    enable_persistence: bool = False
+    cache_file: Optional[str] = None
+
+@dataclass
 class CacheStats:
     """Статистика кэша."""
     hits: int = 0
@@ -324,10 +335,10 @@ def get_cache_manager() -> CacheManager:
     return cache_manager
 
 # Декоратор для кэширования результатов функций
-def cached(ttl: Optional[int] = None, cache_name: Optional[str] = None) -> None:
+def cached(ttl: Optional[int] = None, cache_name: Optional[str] = None):
     """Декоратор для кэширования результатов функций."""
-    def decorator(func) -> None:
-        async def wrapper(*args, **kwargs) -> None:
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
             # Создание ключа кэша
             cache_key = f"{func.__module__}.{func.__name__}:{hash((args, tuple(sorted(kwargs.items()))))}"
             

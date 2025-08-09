@@ -19,6 +19,7 @@ from domain.entities.portfolio import Portfolio
 from domain.entities.trading_pair import TradingPair
 from domain.entities.order import Order, OrderSide, OrderType
 from infrastructure.agents.agent_context_refactored import AgentContext
+
 # Временно закомментировано из-за отсутствия класса
 # from application.use_cases.trading_orchestrator import TradingOrchestratorUseCase
 from application.di_container import DIContainer, ContainerConfig
@@ -51,13 +52,7 @@ class TestNoiseAnalyzerIntegration:
         asks = [(Price(Decimal("50010"), Currency.USDT), Volume(Decimal("1.0")))]
         timestamp = Timestamp(datetime.now())
 
-        orderbook = OrderBookSnapshot(
-            exchange="binance",
-            symbol="BTCUSDT",
-            bids=bids,
-            asks=asks,
-            timestamp=timestamp
-        )
+        orderbook = OrderBookSnapshot(exchange="binance", symbol="BTCUSDT", bids=bids, asks=asks, timestamp=timestamp)
 
         assert orderbook.exchange == "binance"
         assert orderbook.symbol == "BTCUSDT"
@@ -68,14 +63,14 @@ class TestNoiseAnalyzerIntegration:
     def test_noise_analysis_result_creation(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест создания NoiseAnalysisResult."""
         timestamp = Timestamp(datetime.now())
-        
+
         result = NoiseAnalysisResult(
             fractal_dimension=1.3,
             entropy=0.6,
             is_synthetic_noise=True,
             confidence=0.85,
             metadata={"test": "data"},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert result.fractal_dimension == 1.3
@@ -88,18 +83,18 @@ class TestNoiseAnalyzerIntegration:
     def test_noise_analysis_result_to_dict(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест преобразования NoiseAnalysisResult в словарь."""
         timestamp = Timestamp(datetime.now())
-        
+
         result = NoiseAnalysisResult(
             fractal_dimension=1.3,
             entropy=0.6,
             is_synthetic_noise=True,
             confidence=0.85,
             metadata={"test": "data"},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         result_dict = result.to_dict()
-        
+
         assert result_dict["fractal_dimension"] == 1.3
         assert result_dict["entropy"] == 0.6
         assert result_dict["is_synthetic_noise"] is True
@@ -110,7 +105,7 @@ class TestNoiseAnalyzerIntegration:
     def test_agent_context_noise_result_integration(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест интеграции noise_result в AgentContext."""
         context = AgentContext(symbol="BTCUSDT")
-        
+
         # Проверяем, что поле noise_result существует и изначально None
         assert context.noise_result is None
 
@@ -122,12 +117,12 @@ class TestNoiseAnalyzerIntegration:
             is_synthetic_noise=True,
             confidence=0.85,
             metadata={"test": "data"},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         # Устанавливаем результат в контекст
         context.noise_result = noise_result
-        
+
         assert context.noise_result == noise_result
         assert context.noise_result.is_synthetic_noise is True
         assert context.noise_result.fractal_dimension == 1.3
@@ -135,7 +130,7 @@ class TestNoiseAnalyzerIntegration:
     def test_agent_context_noise_modifier_application(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест применения модификатора шума в AgentContext."""
         context = AgentContext(symbol="BTCUSDT")
-        
+
         # Устанавливаем начальные значения модификаторов
         context.strategy_modifiers.order_aggressiveness = 1.0
         context.strategy_modifiers.position_size_multiplier = 1.0
@@ -150,7 +145,7 @@ class TestNoiseAnalyzerIntegration:
             is_synthetic_noise=True,
             confidence=0.85,
             metadata={"test": "data"},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         context.noise_result = noise_result
@@ -167,7 +162,7 @@ class TestNoiseAnalyzerIntegration:
     def test_agent_context_noise_analyzer_modifier_application(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест применения модификатора анализатора шума в AgentContext."""
         context = AgentContext(symbol="BTCUSDT")
-        
+
         # Устанавливаем начальные значения модификаторов
         context.strategy_modifiers.order_aggressiveness = 1.0
         context.strategy_modifiers.position_size_multiplier = 1.0
@@ -183,7 +178,7 @@ class TestNoiseAnalyzerIntegration:
             is_synthetic_noise=True,
             confidence=0.5,  # Низкая уверенность
             metadata={"test": "data"},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         context.noise_result = noise_result
@@ -201,7 +196,7 @@ class TestNoiseAnalyzerIntegration:
     def test_agent_context_noise_analysis_status(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест получения статуса анализа шума из AgentContext."""
         context = AgentContext(symbol="BTCUSDT")
-        
+
         # Проверяем статус без результата анализа
         status = context.get_noise_analysis_status()
         assert status["is_synthetic_noise"] is False
@@ -215,7 +210,7 @@ class TestNoiseAnalyzerIntegration:
             is_synthetic_noise=True,
             confidence=0.85,
             metadata={"test": "data"},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         context.noise_result = noise_result
@@ -232,10 +227,10 @@ class TestNoiseAnalyzerIntegration:
         """Тест регистрации NoiseAnalyzer в DI контейнере."""
         config = ContainerConfig(noise_analysis_enabled=True)
         container = DIContainer(config)
-        
+
         # Получаем NoiseAnalyzer из контейнера
         noise_analyzer = container.get("noise_analyzer")
-        
+
         assert noise_analyzer is not None
         assert isinstance(noise_analyzer, NoiseAnalyzer)
         assert noise_analyzer.fractal_dimension_lower == 1.2
@@ -246,13 +241,13 @@ class TestNoiseAnalyzerIntegration:
         """Тест отключения NoiseAnalyzer в DI контейнере."""
         config = ContainerConfig(noise_analysis_enabled=False)
         container = DIContainer(config)
-        
+
         # Проверяем, что NoiseAnalyzer не зарегистрирован
         with pytest.raises(KeyError):
             container.get("noise_analyzer")
 
     @pytest.mark.asyncio
-    def test_trading_orchestrator_noise_analyzer_integration(self: "TestNoiseAnalyzerIntegration") -> None:
+    async def test_trading_orchestrator_noise_analyzer_integration(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест интеграции NoiseAnalyzer в TradingOrchestrator."""
         # Создаем моки для зависимостей
         mock_order_repository = AsyncMock()
@@ -268,7 +263,7 @@ class TestNoiseAnalyzerIntegration:
             name="Test Strategy",
             description="Test strategy for noise analysis",
             parameters={},
-            is_active=True
+            is_active=True,
         )
         mock_strategy_repository.get_by_id.return_value = strategy
 
@@ -277,7 +272,7 @@ class TestNoiseAnalyzerIntegration:
             name="Test Portfolio",
             description="Test portfolio",
             initial_balance=Decimal("10000"),
-            current_balance=Decimal("10000")
+            current_balance=Decimal("10000"),
         )
         mock_portfolio_repository.get_by_id.return_value = portfolio
 
@@ -298,7 +293,7 @@ class TestNoiseAnalyzerIntegration:
             strength=0.8,
             confidence=0.9,
             timestamp=datetime.now(),
-            metadata={}
+            metadata={},
         )
         orchestrator._generate_signals_with_sentiment = AsyncMock(return_value=[test_signal])
 
@@ -312,15 +307,12 @@ class TestNoiseAnalyzerIntegration:
             volume=Volume(Decimal("0.1")),
             price=Price(Decimal("50000"), Currency.USDT),
             status="pending",
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
         orchestrator._create_enhanced_order_from_signal = AsyncMock(return_value=test_order)
 
         # Мокаем получение данных ордербука
-        mock_orderbook_data = {
-            "bids": [[50000, 1.0]],
-            "asks": [[50010, 1.0]]
-        }
+        mock_orderbook_data = {"bids": [[50000, 1.0]], "asks": [[50010, 1.0]]}
         mock_enhanced_trading_service.get_orderbook.return_value = mock_orderbook_data
 
         # Создаем запрос на выполнение стратегии
@@ -330,7 +322,7 @@ class TestNoiseAnalyzerIntegration:
             symbol="BTCUSDT",
             amount=Decimal("1000"),
             risk_level="medium",
-            use_sentiment_analysis=False
+            use_sentiment_analysis=False,
         )
 
         # Выполняем стратегию
@@ -345,7 +337,7 @@ class TestNoiseAnalyzerIntegration:
         mock_enhanced_trading_service.get_orderbook.assert_called_with("BTCUSDT")
 
     @pytest.mark.asyncio
-    def test_trading_orchestrator_noise_analysis_application(self: "TestNoiseAnalyzerIntegration") -> None:
+    async def test_trading_orchestrator_noise_analysis_application(self: "TestNoiseAnalyzerIntegration") -> None:
         """Тест применения анализа шума к сигналам в TradingOrchestrator."""
         # Создаем моки для зависимостей
         mock_order_repository = AsyncMock()
@@ -369,14 +361,11 @@ class TestNoiseAnalyzerIntegration:
             strength=0.8,
             confidence=0.9,
             timestamp=datetime.now(),
-            metadata={}
+            metadata={},
         )
 
         # Мокаем данные ордербука для анализа шума
-        mock_orderbook_data = {
-            "bids": [[50000, 1.0]],
-            "asks": [[50010, 1.0]]
-        }
+        mock_orderbook_data = {"bids": [[50000, 1.0]], "asks": [[50010, 1.0]]}
         mock_enhanced_trading_service.get_orderbook.return_value = mock_orderbook_data
 
         # Применяем анализ шума к сигналу
@@ -456,4 +445,4 @@ class TestNoiseAnalyzerIntegration:
 
         # Тестируем с граничными параметрами
         confidence = self.noise_analyzer.compute_confidence(fd=1.2, entropy=0.7)
-        assert 0.0 <= confidence <= 1.0 
+        assert 0.0 <= confidence <= 1.0

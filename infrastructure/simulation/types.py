@@ -192,6 +192,7 @@ class SimulationTimestamp:
 
 
 @dataclass(frozen=True)
+@dataclass
 class SimulationPrice:
     """Цена в симуляции."""
 

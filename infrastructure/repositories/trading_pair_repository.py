@@ -44,7 +44,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
     In-memory реализация репозитория торговых пар.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self._trading_pairs: Dict[str, TradingPair] = {}
@@ -133,7 +133,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
     @asynccontextmanager
     async def transaction(self) -> AsyncIterator[TransactionProtocol]:
         """Транзакция."""
-        async def _transaction():
+        async def _transaction() -> AsyncIterator[TransactionProtocol]:
             # Для in-memory репозитория транзакции не нужны
             class MockTransaction(TransactionProtocol):
                 async def __aenter__(self) -> "MockTransaction":
@@ -151,7 +151,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         async with _transaction() as transaction:
             yield transaction
 
-    async def execute_in_transaction(self, operation: Callable, *args, **kwargs) -> Any:
+    async def execute_in_transaction(self, operation: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
         """Выполнить операцию в транзакции."""
         return await operation(*args, **kwargs)
 
@@ -407,7 +407,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         return filtered_pairs
 
     def _apply_sort(
-        self, pairs: List[TradingPair], sort_orders: List[Any]
+        self, pairs: List[TradingPair], sort_orders: List[QuerySortOrder]
     ) -> List[TradingPair]:
         """Применить сортировку к торговым парам."""
         for sort_order in sort_orders:
@@ -420,7 +420,7 @@ class InMemoryTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         return pairs
 
     def _apply_pagination(
-        self, pairs: List[TradingPair], pagination: Any
+        self, pairs: List[TradingPair], pagination: PaginationOptions
     ) -> List[TradingPair]:
         """Применить пагинацию к торговым парам."""
         if pagination.offset is not None and pagination.limit is not None:
@@ -621,7 +621,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
                 return 0
             
             query = "SELECT COUNT(*) FROM trading_pairs"
-            params = []
+            params: List[Any] = []
             
             if filters:
                 where_conditions = []
@@ -675,13 +675,13 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
         async with pool.acquire() as conn:
             async with conn.transaction() as transaction:
                 class PostgresTransaction(TransactionProtocol):
-                    def __init__(self, transaction):
+                    def __init__(self, transaction) -> None:
                         self.transaction = transaction
                     
                     async def __aenter__(self) -> "PostgresTransaction":
                         return self
                     
-                    async def __aexit__(self, exc_type, exc_val, exc_tb):
+                    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
                         pass
                     
                     async def commit(self) -> None:
@@ -695,7 +695,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
                 
                 yield PostgresTransaction(transaction)
 
-    async def execute_in_transaction(self, operation: Callable, *args, **kwargs) -> Any:
+    async def execute_in_transaction(self, operation: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
         """Выполнить операцию в транзакции."""
         async with self.transaction() as transaction:
             return await operation(*args, **kwargs)
@@ -1023,7 +1023,7 @@ class PostgresTradingPairRepository(BaseRepository[TradingPair], TradingPairRepo
                 return []
             
             query = "SELECT * FROM trading_pairs"
-            params = []
+            params: List[Any] = []
             
             if filters:
                 where_conditions = []

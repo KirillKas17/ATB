@@ -93,12 +93,7 @@ class TestRetryConfig:
 
     def test_custom_values(self):
         """Тест пользовательских значений."""
-        config = RetryConfig(
-            max_attempts=5,
-            max_delay=30.0,
-            strategy=RetryStrategy.LINEAR,
-            backoff_factor=1.5
-        )
+        config = RetryConfig(max_attempts=5, max_delay=30.0, strategy=RetryStrategy.LINEAR, backoff_factor=1.5)
         assert config.max_attempts == 5
         assert config.max_delay == 30.0
         assert config.strategy == RetryStrategy.LINEAR
@@ -117,11 +112,7 @@ class TestTimeoutConfig:
 
     def test_custom_values(self):
         """Тест пользовательских значений."""
-        config = TimeoutConfig(
-            timeout=10.0,
-            default_result="default",
-            raise_on_timeout=False
-        )
+        config = TimeoutConfig(timeout=10.0, default_result="default", raise_on_timeout=False)
         assert config.timeout == 10.0
         assert config.default_result == "default"
         assert config.raise_on_timeout is False
@@ -140,15 +131,11 @@ class TestCacheConfig:
 
     def test_custom_values(self):
         """Тест пользовательских значений."""
+
         def custom_key_generator(*args, **kwargs):
             return "custom_key"
-        
-        config = CacheConfig(
-            ttl=600,
-            max_size=500,
-            key_generator=custom_key_generator,
-            invalidate_on_exception=False
-        )
+
+        config = CacheConfig(ttl=600, max_size=500, key_generator=custom_key_generator, invalidate_on_exception=False)
         assert config.ttl == 600
         assert config.max_size == 500
         assert config.key_generator == custom_key_generator
@@ -171,11 +158,7 @@ class TestMetricsConfig:
         """Тест пользовательских значений."""
         custom_metrics = {"custom": lambda: 42}
         config = MetricsConfig(
-            enabled=False,
-            track_time=False,
-            track_memory=True,
-            track_exceptions=False,
-            custom_metrics=custom_metrics
+            enabled=False, track_time=False, track_memory=True, track_exceptions=False, custom_metrics=custom_metrics
         )
         assert config.enabled is False
         assert config.track_time is False
@@ -198,10 +181,7 @@ class TestCircuitBreakerConfig:
     def test_custom_values(self):
         """Тест пользовательских значений."""
         config = CircuitBreakerConfig(
-            failure_threshold=3,
-            recovery_timeout=30.0,
-            expected_exception=ValueError,
-            monitor_interval=5.0
+            failure_threshold=3, recovery_timeout=30.0, expected_exception=ValueError, monitor_interval=5.0
         )
         assert config.failure_threshold == 3
         assert config.recovery_timeout == 30.0
@@ -222,12 +202,7 @@ class TestRateLimitConfig:
 
     def test_custom_values(self):
         """Тест пользовательских значений."""
-        config = RateLimitConfig(
-            max_calls=50,
-            time_window=30.0,
-            burst_size=5,
-            strategy="leaky_bucket"
-        )
+        config = RateLimitConfig(max_calls=50, time_window=30.0, burst_size=5, strategy="leaky_bucket")
         assert config.max_calls == 50
         assert config.time_window == 30.0
         assert config.burst_size == 5
@@ -250,7 +225,7 @@ class TestMetricsCollector:
         """Тест увеличения счетчика."""
         metrics_collector.increment_counter("test_counter", 5)
         metrics_collector.increment_counter("test_counter", 3)
-        
+
         metrics = metrics_collector.get_metrics("test_counter")
         assert metrics["count"] == 8
 
@@ -258,7 +233,7 @@ class TestMetricsCollector:
         """Тест записи таймера."""
         metrics_collector.record_timer("test_timer", 0.1)
         metrics_collector.record_timer("test_timer", 0.2)
-        
+
         metrics = metrics_collector.get_metrics("test_timer")
         assert metrics["count"] == 2
         assert metrics["total_time"] == 0.3
@@ -268,9 +243,9 @@ class TestMetricsCollector:
         """Тест записи ошибки."""
         error = ValueError("Test error")
         context = {"operation": "test"}
-        
+
         metrics_collector.record_error("test_error", error, context)
-        
+
         metrics = metrics_collector.get_metrics("test_error")
         assert metrics["error_count"] == 1
         assert "ValueError" in metrics["error_types"]
@@ -289,10 +264,7 @@ class TestCircuitBreaker:
     @pytest.fixture
     def circuit_breaker(self):
         """Фикстура circuit breaker."""
-        config = CircuitBreakerConfig(
-            failure_threshold=2,
-            recovery_timeout=1.0
-        )
+        config = CircuitBreakerConfig(failure_threshold=2, recovery_timeout=1.0)
         return CircuitBreaker(config)
 
     def test_initialization(self, circuit_breaker):
@@ -302,9 +274,10 @@ class TestCircuitBreaker:
 
     async def test_successful_call(self, circuit_breaker):
         """Тест успешного вызова."""
+
         async def success_func():
             return "success"
-        
+
         result = await circuit_breaker.call(success_func)
         assert result == "success"
         assert circuit_breaker.state == CircuitState.CLOSED
@@ -312,35 +285,37 @@ class TestCircuitBreaker:
 
     async def test_failure_threshold_reached(self, circuit_breaker):
         """Тест достижения порога ошибок."""
+
         async def failing_func():
             raise ValueError("Test error")
-        
+
         # Первая ошибка
         with pytest.raises(ValueError):
             await circuit_breaker.call(failing_func)
-        
+
         # Вторая ошибка - circuit breaker открывается
         with pytest.raises(ProtocolCircuitBreakerError):
             await circuit_breaker.call(failing_func)
-        
+
         assert circuit_breaker.state == CircuitState.OPEN
 
     async def test_recovery_timeout(self, circuit_breaker):
         """Тест таймаута восстановления."""
+
         async def failing_func():
             raise ValueError("Test error")
-        
+
         # Достигаем порога ошибок
         with pytest.raises(ValueError):
             await circuit_breaker.call(failing_func)
         with pytest.raises(ProtocolCircuitBreakerError):
             await circuit_breaker.call(failing_func)
-        
+
         assert circuit_breaker.state == CircuitState.OPEN
-        
+
         # Ждем восстановления
         await asyncio.sleep(1.1)
-        
+
         # Теперь должно быть в состоянии HALF_OPEN
         assert circuit_breaker.state == CircuitState.HALF_OPEN
 
@@ -351,11 +326,7 @@ class TestRateLimiter:
     @pytest.fixture
     def rate_limiter(self):
         """Фикстура rate limiter."""
-        config = RateLimitConfig(
-            max_calls=5,
-            time_window=1.0,
-            burst_size=2
-        )
+        config = RateLimitConfig(max_calls=5, time_window=1.0, burst_size=2)
         return RateLimiter(config)
 
     def test_initialization(self, rate_limiter):
@@ -374,7 +345,7 @@ class TestRateLimiter:
         # Используем все разрешения
         for i in range(5):
             await rate_limiter.acquire()
-        
+
         # Следующее должно быть отклонено
         result = await rate_limiter.acquire()
         assert result is False
@@ -384,10 +355,10 @@ class TestRateLimiter:
         # Используем все разрешения
         for i in range(5):
             await rate_limiter.acquire()
-        
+
         # Ждем истечения временного окна
         await asyncio.sleep(1.1)
-        
+
         # Теперь должно снова работать
         result = await rate_limiter.acquire()
         assert result is True
@@ -396,23 +367,23 @@ class TestRateLimiter:
 class TestRetryDecorator:
     """Тесты для декоратора retry."""
 
-    @retry(RetryConfig(max_attempts=3, delay=0.1))
+    @retry(RetryConfig(max_attempts=3))
     async def test_function_success(self) -> str:
         """Тестовая функция, которая завершается успешно."""
         return "success"
 
-    @retry(RetryConfig(max_attempts=2, delay=0.1))
+    @retry(RetryConfig(max_attempts=2))
     async def test_function_failure(self) -> str:
         """Тестовая функция, которая всегда падает."""
         raise ValueError("Test error")
 
-    @retry(RetryConfig(max_attempts=3, delay=0.1))
+    @retry(RetryConfig(max_attempts=3))
     async def test_function_success_after_retry(self) -> str:
         """Тестовая функция, которая успешна после нескольких попыток."""
-        if not hasattr(self, '_attempts'):
+        if not hasattr(self, "_attempts"):
             self._attempts = 0
         self._attempts += 1
-        
+
         if self._attempts < 3:
             raise ValueError(f"Attempt {self._attempts}")
         return "success"
@@ -473,7 +444,7 @@ class TestTimeoutDecorator:
 class TestValidateInputDecorator:
     """Тесты для декоратора validate_input."""
 
-class TestSchema(BaseModel):
+    class TestSchema(BaseModel):
         name: str
         age: int
 
@@ -528,7 +499,7 @@ class TestMetricsDecorator:
         """Тест записи метрик."""
         result = await self.test_function()
         assert result == "success"
-        
+
         # Проверяем, что метрики записаны
         metrics_data = get_metrics("test_function")
         assert metrics_data["count"] > 0
@@ -560,7 +531,7 @@ class TestCircuitBreakerDecorator:
             await self.test_function_failure()
         with pytest.raises(ValueError):
             await self.test_function_failure()
-        
+
         # Третий вызов должен вызвать ошибку circuit breaker
         with pytest.raises(ProtocolCircuitBreakerError):
             await self.test_function_failure()
@@ -580,7 +551,7 @@ class TestRateLimitDecorator:
         for i in range(3):
             result = await self.test_function()
             assert result == "success"
-        
+
         # Четвертый вызов должен быть отклонен
         with pytest.raises(ProtocolRateLimitError):
             await self.test_function()
@@ -596,7 +567,7 @@ class TestLogOperationDecorator:
 
     async def test_logging(self: "TestLogOperationDecorator") -> None:
         """Тест логирования."""
-        with patch('domain.protocols.decorators.logger') as mock_logger:
+        with patch("domain.protocols.decorators.logger") as mock_logger:
             result = await self.test_function()
             assert result == "success"
             mock_logger.info.assert_called()
@@ -619,9 +590,10 @@ class TestUtilityFunctions:
 
     def test_generate_cache_key(self):
         """Тест генерации ключа кэша."""
-    def test_func(a, b):
+
+        def test_func(a, b):
             pass
-        
+
         config = CacheConfig()
         key = _generate_cache_key(test_func, (1, 2), {"c": 3}, config)
         assert isinstance(key, str)
@@ -663,7 +635,7 @@ class TestUtilityFunctions:
 class TestDecoratorsIntegration:
     """Интеграционные тесты декораторов."""
 
-    @retry(RetryConfig(max_attempts=2, delay=0.1))
+    @retry(RetryConfig(max_attempts=2))
     @timeout(TimeoutConfig(timeout=0.5))
     @cache(CacheConfig(ttl=300))
     @metrics(MetricsConfig(enabled=True))
@@ -677,7 +649,7 @@ class TestDecoratorsIntegration:
         """Тест множественных декораторов."""
         result = await self.test_function_integration("test")
         assert result == "result for test"
-        
+
         # Проверяем кэширование
         result2 = await self.test_function_integration("test")
         assert result2 == result
@@ -686,7 +658,7 @@ class TestDecoratorsIntegration:
 class TestDecoratorsErrorHandling:
     """Тесты обработки ошибок декораторов."""
 
-    @retry(RetryConfig(max_attempts=1, delay=0.1))
+    @retry(RetryConfig(max_attempts=1))
     async def test_retry_with_custom_exception(self: "TestDecoratorsErrorHandling") -> None:
         """Тест retry с пользовательским исключением."""
         raise ProtocolError("Custom error")
@@ -716,6 +688,6 @@ class TestDecoratorsErrorHandling:
         """Тест circuit breaker с ошибкой."""
         with pytest.raises(ValueError):
             await self.test_circuit_breaker_with_error()
-        
+
         with pytest.raises(ProtocolCircuitBreakerError):
-            await self.test_circuit_breaker_with_error() 
+            await self.test_circuit_breaker_with_error()

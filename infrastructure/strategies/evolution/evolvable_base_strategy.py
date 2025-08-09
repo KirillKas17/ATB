@@ -57,7 +57,7 @@ class EvolutionConfig:
 class StrategyMLModel(nn.Module):
     """ML модель для оптимизации стратегии"""
 
-    def __init__(self, input_dim: int = 20, hidden_dim: int = 64):
+    def __init__(self, input_dim: int = 20, hidden_dim: int = 64) -> None:
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -75,7 +75,7 @@ class StrategyMLModel(nn.Module):
 class EvolvableBaseStrategy(BaseStrategy):
     """Эволюционная базовая стратегия с ML-оптимизацией"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], EvolutionConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], EvolutionConfig]] = None) -> None:
         # Подготовка конфигурации для базового класса
         if isinstance(config, EvolutionConfig):
             config_dict = {

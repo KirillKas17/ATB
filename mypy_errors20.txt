@@ -1,6 +1,0 @@
-
-
-
-
-
-Found 445 errors in 88 files (errors prevented further checking)

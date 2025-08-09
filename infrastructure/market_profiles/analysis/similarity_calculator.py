@@ -52,7 +52,7 @@ class SimilarityCalculator:
     - Оптимизация производительности
     """
 
-    def __init__(self, config: AnalysisConfig):
+    def __init__(self, config: AnalysisConfig) -> None:
         """
         Инициализация калькулятора.
         Args:

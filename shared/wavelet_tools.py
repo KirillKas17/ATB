@@ -5,7 +5,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from shared.numpy_utils import np
 import pandas as pd
-import pywt
+try:
+    import pywt
+except ImportError:
+    pywt = None
 from scipy import signal
 
 logger = logging.getLogger(__name__)

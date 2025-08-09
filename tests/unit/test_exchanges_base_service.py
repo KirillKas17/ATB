@@ -1,25 +1,32 @@
 """
 Unit тесты для BaseExchangeService
 """
+
 import asyncio
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from unittest.mock import Mock, patch
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-from domain.exceptions import (
-    ExchangeError, ConnectionError, AuthenticationError, 
-    InvalidOrderError, NetworkError
-)
+from domain.exceptions import ExchangeError, ConnectionError, AuthenticationError, InvalidOrderError, NetworkError
 from domain.type_definitions.external_service_types import (
-    ConnectionStatus, TimeFrame, ExchangeName, ExchangeCredentials, 
-    MarketDataRequest, OrderRequest, OrderType, OrderSide
+    ConnectionStatus,
+    TimeFrame,
+    ExchangeName,
+    ExchangeCredentials,
+    MarketDataRequest,
+    OrderRequest,
+    OrderType,
+    OrderSide,
 )
 from domain.type_definitions import OrderId, Symbol
 from infrastructure.external_services.exchanges.config import ExchangeServiceConfig
 from infrastructure.external_services.exchanges.base_exchange_service import BaseExchangeService
+
+
 class TestBaseExchangeService:
     """Тесты для BaseExchangeService."""
+
     @pytest.fixture
     def config(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Конфигурация для тестов."""
@@ -30,22 +37,21 @@ class TestBaseExchangeService:
                 api_secret="test_secret",
                 api_passphrase="test_passphrase",
                 testnet=True,
-                sandbox=True
+                sandbox=True,
             ),
-            connection_config=MagicMock(
-                rate_limit=100,
-                rate_limit_window=60
-            ),
+            connection_config=MagicMock(rate_limit=100, rate_limit_window=60),
             max_cache_size=1000,
             cache_ttl=300,
             timeout=30.0,
-            enable_rate_limiting=True
+            enable_rate_limiting=True,
         )
+
     @pytest.fixture
     def service(self, config) -> Any:
         """Экземпляр BaseExchangeService."""
-        with patch('ccxt.binance'):
+        with patch("ccxt.binance"):
             return BaseExchangeService(config)
+
     @pytest.fixture
     def mock_ccxt_client(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Мок CCXT клиента."""
@@ -59,15 +65,14 @@ class TestBaseExchangeService:
         client.fetch_positions = AsyncMock()
         client.close = AsyncMock()
         return client
+
     @pytest.fixture
     def sample_market_data_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример запроса рыночных данных."""
         return MarketDataRequest(
-            symbol=Symbol("BTC/USDT"),
-            timeframe=TimeFrame.HOUR_1,
-            limit=100,
-            since=datetime.now() - timedelta(days=1)
+            symbol=Symbol("BTC/USDT"), timeframe=TimeFrame.HOUR_1, limit=100, since=datetime.now() - timedelta(days=1)
         )
+
     @pytest.fixture
     def sample_order_request(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Пример запроса на размещение ордера."""
@@ -79,11 +84,12 @@ class TestBaseExchangeService:
             price=50000.0,
             time_in_force="GTC",
             post_only=False,
-            reduce_only=False
+            reduce_only=False,
         )
+
     def test_init(self, config) -> None:
         """Тест инициализации."""
-        with patch('ccxt.binance'):
+        with patch("ccxt.binance"):
             service = BaseExchangeService(config)
             assert service.exchange_name == ExchangeName.BINANCE
             assert service.connection_status == ConnectionStatus.DISCONNECTED
@@ -92,24 +98,22 @@ class TestBaseExchangeService:
             assert service.ccxt_client is not None
             assert service.cache is not None
             assert service.rate_limiter is not None
+
     def test_init_ccxt_client(self, config) -> None:
         """Тест инициализации CCXT клиента."""
-        with patch('ccxt.binance') as mock_binance:
+        with patch("ccxt.binance") as mock_binance:
             mock_exchange = MagicMock()
             mock_binance.return_value = mock_exchange
             service = BaseExchangeService(config)
             mock_binance.assert_called_once()
             assert service.ccxt_client == mock_exchange
+
     @pytest.mark.asyncio
     async def test_connect_success(self, service, mock_ccxt_client) -> None:
         """Тест успешного подключения."""
         service.ccxt_client = mock_ccxt_client
         credentials = ExchangeCredentials(
-            api_key="new_key",
-            api_secret="new_secret",
-            api_passphrase="new_passphrase",
-            testnet=True,
-            sandbox=True
+            api_key="new_key", api_secret="new_secret", api_passphrase="new_passphrase", testnet=True, sandbox=True
         )
         result = await service.connect(credentials)
         assert result is True
@@ -117,23 +121,21 @@ class TestBaseExchangeService:
         assert service.is_running is True
         assert service.metrics["uptime"] > 0
         mock_ccxt_client.load_markets.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_connect_failure(self, service, mock_ccxt_client) -> None:
         """Тест неудачного подключения."""
         service.ccxt_client = mock_ccxt_client
         mock_ccxt_client.load_markets.side_effect = Exception("Connection failed")
         credentials = ExchangeCredentials(
-            api_key="test_key",
-            api_secret="test_secret",
-            api_passphrase="test_passphrase",
-            testnet=True,
-            sandbox=True
+            api_key="test_key", api_secret="test_secret", api_passphrase="test_passphrase", testnet=True, sandbox=True
         )
         with pytest.raises(ConnectionError):
             await service.connect(credentials)
         assert service.connection_status == ConnectionStatus.ERROR
         assert service.metrics["total_errors"] == 1
         assert service.metrics["last_error"] == "Connection failed"
+
     @pytest.mark.asyncio
     async def test_disconnect_success(self, service, mock_ccxt_client) -> None:
         """Тест успешного отключения."""
@@ -145,6 +147,7 @@ class TestBaseExchangeService:
         assert service.is_running is False
         assert service.is_websocket_connected is False
         mock_ccxt_client.close.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_disconnect_with_error(self, service, mock_ccxt_client) -> None:
         """Тест отключения с ошибкой."""
@@ -154,21 +157,25 @@ class TestBaseExchangeService:
             await service.disconnect()
         assert service.metrics["total_errors"] == 1
         assert service.metrics["last_error"] == "Close failed"
+
     def test_get_websocket_url_not_implemented(self, service) -> None:
         """Тест нереализованного метода _get_websocket_url."""
         with pytest.raises(NotImplementedError):
             service._get_websocket_url()
+
     @pytest.mark.asyncio
     async def test_subscribe_websocket_channels_not_implemented(self, service) -> None:
         """Тест нереализованного метода _subscribe_websocket_channels."""
         with pytest.raises(NotImplementedError):
             await service._subscribe_websocket_channels()
+
     @pytest.mark.asyncio
     async def test_process_websocket_message(self, service) -> None:
         """Тест обработки WebSocket сообщения."""
         data = {"test": "data"}
         # Метод должен выполняться без ошибок
         await service._process_websocket_message(data)
+
     @pytest.mark.asyncio
     async def test_get_market_data_success(self, service, mock_ccxt_client, sample_market_data_request) -> None:
         """Тест успешного получения рыночных данных."""
@@ -189,17 +196,26 @@ class TestBaseExchangeService:
         assert result[0]["volume"] == 1000.0
         assert service.metrics["successful_requests"] == 1
         mock_ccxt_client.fetch_ohlcv.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_get_market_data_from_cache(self, service, sample_market_data_request) -> None:
         """Тест получения рыночных данных из кэша."""
         cached_data = [
-            {"timestamp": 1640995200000, "open": 50000.0, "high": 50100.0, "low": 49900.0, "close": 50050.0, "volume": 1000.0}
+            {
+                "timestamp": 1640995200000,
+                "open": 50000.0,
+                "high": 50100.0,
+                "low": 49900.0,
+                "close": 50050.0,
+                "volume": 1000.0,
+            }
         ]
         # Мокаем кэш
         service.cache.get = AsyncMock(return_value=cached_data)
         result = await service.get_market_data(sample_market_data_request)
         assert result == cached_data
         service.cache.get.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_get_market_data_error(self, service, mock_ccxt_client, sample_market_data_request) -> None:
         """Тест ошибки получения рыночных данных."""
@@ -209,6 +225,7 @@ class TestBaseExchangeService:
             await service.get_market_data(sample_market_data_request)
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["last_error"] == "API error"
+
     def test_convert_timeframe(self, service) -> None:
         """Тест конвертации временных интервалов."""
         assert service._convert_timeframe(TimeFrame.MINUTE_1) == "1m"
@@ -219,6 +236,7 @@ class TestBaseExchangeService:
         assert service._convert_timeframe(TimeFrame.HOUR_4) == "4h"
         assert service._convert_timeframe(TimeFrame.DAY_1) == "1d"
         assert service._convert_timeframe(TimeFrame.MINUTE_1) == "1m"  # default
+
     @pytest.mark.asyncio
     async def test_place_order_success(self, service, mock_ccxt_client, sample_order_request) -> None:
         """Тест успешного размещения ордера."""
@@ -247,6 +265,7 @@ class TestBaseExchangeService:
         assert result["status"] == "open"
         assert service.metrics["successful_requests"] == 1
         mock_ccxt_client.create_order.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_place_order_validation_error(self, service, sample_order_request) -> None:
         """Тест ошибки валидации ордера."""
@@ -255,18 +274,21 @@ class TestBaseExchangeService:
         with pytest.raises(InvalidOrderError):
             await service.place_order(sample_order_request)
         assert service.metrics["failed_requests"] == 1
+
     @pytest.mark.asyncio
     async def test_place_order_missing_symbol(self, service, sample_order_request) -> None:
         """Тест размещения ордера без символа."""
         sample_order_request.symbol = None
         with pytest.raises(InvalidOrderError):
             await service.place_order(sample_order_request)
+
     @pytest.mark.asyncio
     async def test_place_order_limit_without_price(self, service, sample_order_request) -> None:
         """Тест лимитного ордера без цены."""
         sample_order_request.price = None
         with pytest.raises(InvalidOrderError):
             await service.place_order(sample_order_request)
+
     @pytest.mark.asyncio
     async def test_place_order_error(self, service, mock_ccxt_client, sample_order_request) -> None:
         """Тест ошибки размещения ордера."""
@@ -276,6 +298,7 @@ class TestBaseExchangeService:
             await service.place_order(sample_order_request)
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["last_error"] == "Order failed"
+
     @pytest.mark.asyncio
     async def test_cancel_order_success(self, service, mock_ccxt_client) -> None:
         """Тест успешной отмены ордера."""
@@ -286,6 +309,7 @@ class TestBaseExchangeService:
         assert result is True
         assert service.metrics["successful_requests"] == 1
         mock_ccxt_client.cancel_order.assert_called_once_with("12345")
+
     @pytest.mark.asyncio
     async def test_cancel_order_not_canceled(self, service, mock_ccxt_client) -> None:
         """Тест отмены ордера, который не был отменен."""
@@ -294,6 +318,7 @@ class TestBaseExchangeService:
         mock_ccxt_client.cancel_order.return_value = mock_result
         result = await service.cancel_order(OrderId("12345"))
         assert result is False
+
     @pytest.mark.asyncio
     async def test_cancel_order_error(self, service, mock_ccxt_client) -> None:
         """Тест ошибки отмены ордера."""
@@ -303,6 +328,7 @@ class TestBaseExchangeService:
             await service.cancel_order(OrderId("12345"))
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["last_error"] == "Cancel failed"
+
     @pytest.mark.asyncio
     async def test_get_order_status_success(self, service, mock_ccxt_client) -> None:
         """Тест успешного получения статуса ордера."""
@@ -329,6 +355,7 @@ class TestBaseExchangeService:
         assert result["cost"] == 5000.0
         assert service.metrics["successful_requests"] == 1
         mock_ccxt_client.fetch_order.assert_called_once_with("12345")
+
     @pytest.mark.asyncio
     async def test_get_order_status_error(self, service, mock_ccxt_client) -> None:
         """Тест ошибки получения статуса ордера."""
@@ -338,6 +365,7 @@ class TestBaseExchangeService:
             await service.get_order_status(OrderId("12345"))
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["last_error"] == "Fetch failed"
+
     @pytest.mark.asyncio
     async def test_get_balance_success(self, service, mock_ccxt_client) -> None:
         """Тест успешного получения баланса."""
@@ -357,6 +385,7 @@ class TestBaseExchangeService:
         assert result["BTC"]["used"] == 0.5
         assert service.metrics["successful_requests"] == 1
         mock_ccxt_client.fetch_balance.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_get_balance_from_cache(self, service) -> None:
         """Тест получения баланса из кэша."""
@@ -366,6 +395,7 @@ class TestBaseExchangeService:
         result = await service.get_balance()
         assert result == cached_balance
         service.cache.get.assert_called_once_with("balance")
+
     @pytest.mark.asyncio
     async def test_get_balance_error(self, service, mock_ccxt_client) -> None:
         """Тест ошибки получения баланса."""
@@ -375,6 +405,7 @@ class TestBaseExchangeService:
             await service.get_balance()
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["last_error"] == "Balance failed"
+
     @pytest.mark.asyncio
     async def test_get_positions_success(self, service, mock_ccxt_client) -> None:
         """Тест успешного получения позиций."""
@@ -401,7 +432,7 @@ class TestBaseExchangeService:
                 "entryPrice": 3000.0,
                 "markPrice": 3000.0,
                 "liquidationPrice": 3500.0,
-            }
+            },
         ]
         mock_ccxt_client.fetch_positions.return_value = mock_positions
         result = await service.get_positions()
@@ -417,17 +448,17 @@ class TestBaseExchangeService:
         assert result[0]["liquidation_price"] == 45000.0
         assert service.metrics["successful_requests"] == 1
         mock_ccxt_client.fetch_positions.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_get_positions_from_cache(self, service) -> None:
         """Тест получения позиций из кэша."""
-        cached_positions = [
-            {"symbol": "BTC/USDT", "side": "long", "contracts": 0.1}
-        ]
+        cached_positions = [{"symbol": "BTC/USDT", "side": "long", "contracts": 0.1}]
         # Мокаем кэш
         service.cache.get = AsyncMock(return_value=cached_positions)
         result = await service.get_positions()
         assert result == cached_positions
         service.cache.get.assert_called_once_with("positions")
+
     @pytest.mark.asyncio
     async def test_get_positions_error(self, service, mock_ccxt_client) -> None:
         """Тест ошибки получения позиций."""
@@ -437,6 +468,7 @@ class TestBaseExchangeService:
             await service.get_positions()
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["last_error"] == "Positions failed"
+
     @pytest.mark.asyncio
     async def test_rate_limiting_enabled(self, service, mock_ccxt_client, sample_market_data_request) -> None:
         """Тест работы rate limiting."""
@@ -448,6 +480,7 @@ class TestBaseExchangeService:
         service.rate_limiter.acquire = AsyncMock()
         await service.get_market_data(sample_market_data_request)
         service.rate_limiter.acquire.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_rate_limiting_disabled(self, service, mock_ccxt_client, sample_market_data_request) -> None:
         """Тест отключенного rate limiting."""
@@ -459,6 +492,7 @@ class TestBaseExchangeService:
         service.rate_limiter.acquire = AsyncMock()
         await service.get_market_data(sample_market_data_request)
         service.rate_limiter.acquire.assert_not_called()
+
     @pytest.mark.asyncio
     async def test_metrics_tracking(self, service, mock_ccxt_client, sample_market_data_request) -> None:
         """Тест отслеживания метрик."""
@@ -479,6 +513,7 @@ class TestBaseExchangeService:
         assert service.metrics["failed_requests"] == 1
         assert service.metrics["total_errors"] == 1
         assert service.metrics["last_error"] == "Error"
+
     @pytest.mark.asyncio
     async def test_concurrent_requests(self, service, mock_ccxt_client, sample_market_data_request) -> None:
         """Тест конкурентных запросов."""
@@ -486,11 +521,8 @@ class TestBaseExchangeService:
         mock_ohlcv = [[1640995200000, 50000.0, 50100.0, 49900.0, 50050.0, 1000.0]]
         mock_ccxt_client.fetch_ohlcv.return_value = mock_ohlcv
         # Выполняем несколько запросов одновременно
-        tasks = [
-            service.get_market_data(sample_market_data_request)
-            for _ in range(5)
-        ]
+        tasks = [service.get_market_data(sample_market_data_request) for _ in range(5)]
         results = await asyncio.gather(*tasks)
         assert len(results) == 5
         assert all(len(result) == 1 for result in results)
-        assert service.metrics["successful_requests"] == 5 
+        assert service.metrics["successful_requests"] == 5

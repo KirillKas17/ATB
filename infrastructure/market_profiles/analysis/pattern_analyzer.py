@@ -49,7 +49,7 @@ class PatternAnalysisResult:
 class PatternAnalyzer(IPatternAnalyzer):
     """Анализатор паттернов маркет-мейкинга."""
 
-    def __init__(self, config: Optional[AnalysisConfig] = None):
+    def __init__(self, config: Optional[AnalysisConfig] = None) -> None:
         self.config = config or AnalysisConfig()
         self.logger = logging.getLogger(__name__)
         self._setup_analysis_components()

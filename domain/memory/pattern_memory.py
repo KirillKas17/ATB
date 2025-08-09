@@ -70,6 +70,75 @@ class PatternMatcher(IPatternMatcher):
             logger.error(f"Error calculating similarity: {e}")
             return 0.0
 
+    def _calculate_cosine_similarity(self, vector1: np.ndarray, vector2: np.ndarray) -> float:
+        """Вычисление косинусного сходства между векторами."""
+        try:
+            # Нормализация векторов
+            norm1 = np.linalg.norm(vector1)
+            norm2 = np.linalg.norm(vector2)
+            
+            if norm1 == 0 or norm2 == 0:
+                return 0.0
+            
+            # Косинусное сходство
+            cosine_sim = np.dot(vector1, vector2) / (norm1 * norm2)
+            return float(max(0.0, min(1.0, cosine_sim)))
+        except Exception as e:
+            logger.error(f"Error calculating cosine similarity: {e}")
+            return 0.0
+
+
+def _calculate_cosine_similarity(vector1: np.ndarray, vector2: np.ndarray) -> float:
+    """Глобальная функция для вычисления косинусного сходства."""
+    try:
+        # Нормализация векторов
+        norm1 = np.linalg.norm(vector1)
+        norm2 = np.linalg.norm(vector2)
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        
+        # Косинусное сходство
+        cosine_sim = np.dot(vector1, vector2) / (norm1 * norm2)
+        return float(max(0.0, min(1.0, cosine_sim)))
+    except Exception as e:
+        logger.error(f"Error calculating cosine similarity: {e}")
+        return 0.0
+
+
+def _calculate_euclidean_similarity(vector1: np.ndarray, vector2: np.ndarray) -> float:
+    """Глобальная функция для вычисления евклидова сходства."""
+    try:
+        # Евклидово расстояние
+        euclidean_dist = np.linalg.norm(vector1 - vector2)
+        
+        # Нормализация расстояния
+        max_dist = np.linalg.norm(vector1) + np.linalg.norm(vector2)
+        if max_dist == 0:
+            return 1.0  # Если оба вектора нулевые, считаем их идентичными
+        
+        # Преобразование расстояния в сходство (1 - нормализованное расстояние)
+        similarity = 1 - (euclidean_dist / max_dist)
+        return float(max(0.0, min(1.0, similarity)))
+    except Exception as e:
+        logger.error(f"Error calculating euclidean similarity: {e}")
+        return 0.0
+
+
+def _calculate_similarity_score(vector1: np.ndarray, vector2: np.ndarray) -> float:
+    """Глобальная функция для вычисления общего сходства."""
+    try:
+        # Комбинируем косинусное и евклидово сходство
+        cosine_sim = _calculate_cosine_similarity(vector1, vector2)
+        euclidean_sim = _calculate_euclidean_similarity(vector1, vector2)
+        
+        # Среднее значение
+        combined_sim = (cosine_sim + euclidean_sim) / 2
+        return float(max(0.0, min(1.0, combined_sim)))
+    except Exception as e:
+        logger.error(f"Error calculating similarity score: {e}")
+        return 0.0
+
     def find_similar_patterns(
         self,
         current_features: MarketFeatures,

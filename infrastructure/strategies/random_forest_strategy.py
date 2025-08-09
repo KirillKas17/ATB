@@ -69,7 +69,7 @@ class RandomForestConfig:
 class RandomForestStrategy(BaseStrategy):
     """Стратегия торговли на основе случайного леса (расширенная)"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], RandomForestConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], RandomForestConfig]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

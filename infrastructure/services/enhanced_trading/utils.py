@@ -336,7 +336,7 @@ def calculate_max_drawdown(returns: pd.Series) -> float:
     """Расчёт максимальной просадки."""
     if returns.empty:
         return 0.0
-    cumulative_returns = (1 + returns).cumprod()
+    cumulative_returns: pd.Series = (1 + returns).cumprod()
     rolling_max = cumulative_returns.expanding().max()
     drawdown = (cumulative_returns - rolling_max) / rolling_max
     return float(drawdown.min())

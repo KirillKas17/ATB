@@ -7,6 +7,7 @@ Unit тесты для domain.entities.order
 - Расчеты и валидации
 - Сериализация/десериализация
 """
+
 import pytest
 from datetime import datetime
 from decimal import Decimal
@@ -30,7 +31,7 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
         assert order.order_id == "test_order_1"
         assert order.symbol == "BTC/USDT"
@@ -47,7 +48,7 @@ class TestOrder:
             order_type=OrderType.MARKET,
             quantity=Volume(amount=Decimal("0.5"), currency=Currency.BTC),
             price=None,
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
         assert order.order_type == OrderType.MARKET
         assert order.price is None
@@ -62,7 +63,7 @@ class TestOrder:
                 order_type=OrderType.LIMIT,
                 quantity=Volume(amount=Decimal("0"), currency=Currency.BTC),
                 price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-                timestamp=Timestamp(datetime.now())
+                timestamp=Timestamp(datetime.now()),
             )
 
     def test_order_creation_invalid_price_for_limit(self):
@@ -75,7 +76,7 @@ class TestOrder:
                 order_type=OrderType.LIMIT,
                 quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
                 price=None,
-                timestamp=Timestamp(datetime.now())
+                timestamp=Timestamp(datetime.now()),
             )
 
     def test_order_status_transitions(self):
@@ -87,19 +88,19 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         # PENDING -> OPEN
         order.open()
         assert order.status == OrderStatus.OPEN
         assert order.opened_at is not None
-        
+
         # OPEN -> PARTIALLY_FILLED
         order.partially_fill(Volume(amount=Decimal("0.5"), currency=Currency.BTC))
         assert order.status == OrderStatus.PARTIALLY_FILLED
         assert order.filled_quantity.amount == Decimal("0.5")
-        
+
         # PARTIALLY_FILLED -> FILLED
         order.fill(Volume(amount=Decimal("0.5"), currency=Currency.BTC))
         assert order.status == OrderStatus.FILLED
@@ -115,9 +116,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         order.open()
         order.cancel("User cancelled")
         assert order.status == OrderStatus.CANCELLED
@@ -133,9 +134,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         order.reject("Insufficient funds")
         assert order.status == OrderStatus.REJECTED
         assert order.rejected_at is not None
@@ -150,9 +151,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("2.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         total_value = order.total_value
         assert total_value.amount == Decimal("100000.00")
         assert total_value.currency == Currency.USD
@@ -166,16 +167,16 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         # До заполнения
         assert order.remaining_quantity.amount == Decimal("1.0")
-        
+
         # После частичного заполнения
         order.partially_fill(Volume(amount=Decimal("0.3"), currency=Currency.BTC))
         assert order.remaining_quantity.amount == Decimal("0.7")
-        
+
         # После полного заполнения
         order.fill(Volume(amount=Decimal("0.7"), currency=Currency.BTC))
         assert order.remaining_quantity.amount == Decimal("0")
@@ -189,9 +190,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         # Попытка заполнить больше, чем заказано
         with pytest.raises(ValueError):
             order.fill(Volume(amount=Decimal("1.5"), currency=Currency.BTC))
@@ -205,9 +206,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         data = order.to_dict()
         assert data["order_id"] == "test_order_11"
         assert data["symbol"] == "BTC/USDT"
@@ -225,9 +226,9 @@ class TestOrder:
             "quantity": {"amount": "1.0", "currency": "BTC"},
             "price": {"amount": "50000.00", "currency": "USD"},
             "timestamp": datetime.now().isoformat(),
-            "status": OrderStatus.PENDING.value
+            "status": OrderStatus.PENDING.value,
         }
-        
+
         order = Order.from_dict(data)
         assert order.order_id == "test_order_12"
         assert order.symbol == "BTC/USDT"
@@ -243,9 +244,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         order2 = Order(
             order_id="test_order_13",
             symbol="BTC/USDT",
@@ -253,9 +254,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         assert order1 == order2
         assert hash(order1) == hash(order2)
 
@@ -268,9 +269,9 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         repr_str = repr(order)
         assert "Order" in repr_str
         assert "test_order_14" in repr_str
@@ -285,10 +286,10 @@ class TestOrder:
             order_type=OrderType.LIMIT,
             quantity=Volume(amount=Decimal("1.0"), currency=Currency.BTC),
             price=Price(amount=Decimal("50000.00"), currency=Currency.USD),
-            timestamp=Timestamp(datetime.now())
+            timestamp=Timestamp(datetime.now()),
         )
-        
+
         str_repr = str(order)
         assert "test_order_15" in str_repr
         assert "BTC/USDT" in str_repr
-        assert "BUY" in str_repr 
+        assert "BUY" in str_repr

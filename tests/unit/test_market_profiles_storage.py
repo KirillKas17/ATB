@@ -1,6 +1,7 @@
 """
 Юнит-тесты для модулей хранения market_profiles.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import asyncio
@@ -12,38 +13,58 @@ from infrastructure.market_profiles.storage.market_maker_storage import MarketMa
 from infrastructure.market_profiles.storage.behavior_history_repository import BehaviorHistoryRepository
 from infrastructure.market_profiles.models.storage_config import StorageConfig
 from infrastructure.market_profiles.models.storage_models import (
-    StorageStatistics, PatternMetadata, BehaviorRecord, SuccessMapEntry
+    StorageStatistics,
+    PatternMetadata,
+    BehaviorRecord,
+    SuccessMapEntry,
 )
 from domain.market_maker.mm_pattern import (
-    MarketMakerPattern, PatternFeatures, MarketMakerPatternType,
-    PatternResult, PatternOutcome, PatternMemory
+    MarketMakerPattern,
+    PatternFeatures,
+    MarketMakerPatternType,
+    PatternResult,
+    PatternOutcome,
+    PatternMemory,
 )
 from domain.type_definitions.market_maker_types import (
-    BookPressure, VolumeDelta, PriceReaction, SpreadChange,
-    OrderImbalance, LiquidityDepth, TimeDuration, VolumeConcentration,
-    PriceVolatility, MarketMicrostructure, Confidence, Accuracy,
-    AverageReturn, SuccessCount, TotalCount
+    BookPressure,
+    VolumeDelta,
+    PriceReaction,
+    SpreadChange,
+    OrderImbalance,
+    LiquidityDepth,
+    TimeDuration,
+    VolumeConcentration,
+    PriceVolatility,
+    MarketMicrostructure,
+    Confidence,
+    Accuracy,
+    AverageReturn,
+    SuccessCount,
+    TotalCount,
 )
+
+
 class TestMarketMakerStorage:
     """Тесты для MarketMakerStorage."""
+
     @pytest.fixture
     def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
         shutil.rmtree(temp_dir)
+
     @pytest.fixture
     def storage_config(self, temp_dir) -> Any:
         """Конфигурация хранилища для тестов."""
-        return StorageConfig(
-            base_path=temp_dir,
-            compression_enabled=True,
-            max_workers=2
-        )
+        return StorageConfig(base_path=temp_dir, compression_enabled=True, max_workers=2)
+
     @pytest.fixture
     def storage(self, storage_config) -> Any:
         """Экземпляр хранилища для тестов."""
         return MarketMakerStorage(storage_config)
+
     @pytest.fixture
     def sample_pattern(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец паттерна для тестов."""
@@ -57,10 +78,7 @@ class TestMarketMakerStorage:
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.75),
             price_volatility=PriceVolatility(0.03),
-            market_microstructure=MarketMicrostructure({
-                "depth_imbalance": 0.4,
-                "flow_imbalance": 0.6
-            })
+            market_microstructure=MarketMicrostructure({"depth_imbalance": 0.4, "flow_imbalance": 0.6}),
         )
         return MarketMakerPattern(
             pattern_type=MarketMakerPatternType.ACCUMULATION,
@@ -68,8 +86,9 @@ class TestMarketMakerStorage:
             timestamp=datetime.now(),
             features=features,
             confidence=Confidence(0.85),
-            context={"market_regime": "trending", "session": "asian"}
+            context={"market_regime": "trending", "session": "asian"},
         )
+
     def test_storage_initialization(self, storage_config) -> None:
         """Тест инициализации хранилища."""
         storage = MarketMakerStorage(storage_config)
@@ -79,16 +98,14 @@ class TestMarketMakerStorage:
         assert storage.config.metadata_directory.exists()
         assert storage.config.behavior_directory.exists()
         assert storage.config.backup_directory.exists()
+
     def test_storage_config_validation(self: "TestMarketMakerStorage") -> None:
         """Тест валидации конфигурации."""
-        config = StorageConfig(
-            base_path=Path("/tmp/test"),
-            compression_enabled=True,
-            max_workers=4
-        )
+        config = StorageConfig(base_path=Path("/tmp/test"), compression_enabled=True, max_workers=4)
         assert config.compression_enabled is True
         assert config.max_workers == 4
         assert config.compression_level == 6
+
     @pytest.mark.asyncio
     async def test_save_pattern_success(self, storage, sample_pattern) -> None:
         """Тест успешного сохранения паттерна."""
@@ -100,16 +117,19 @@ class TestMarketMakerStorage:
         assert len(patterns) == 1
         assert patterns[0].pattern.symbol == "BTCUSDT"
         assert patterns[0].pattern.pattern_type == sample_pattern.pattern_type
+
     @pytest.mark.asyncio
     async def test_save_pattern_invalid_data(self, storage) -> None:
         """Тест сохранения некорректных данных."""
         result = await storage.save_pattern("", None)
         assert result is False
+
     @pytest.mark.asyncio
     async def test_get_patterns_by_symbol_empty(self, storage) -> None:
         """Тест получения паттернов для несуществующего символа."""
         patterns = await storage.get_patterns_by_symbol("NONEXISTENT")
         assert len(patterns) == 0
+
     @pytest.mark.asyncio
     async def test_get_patterns_by_symbol_with_data(self, storage, sample_pattern) -> None:
         """Тест получения паттернов по символу с данными."""
@@ -122,6 +142,7 @@ class TestMarketMakerStorage:
         assert len(patterns) == 1
         assert patterns[0].pattern.symbol == "BTCUSDT"
         assert patterns[0].pattern.pattern_type == sample_pattern.pattern_type
+
     @pytest.mark.asyncio
     async def test_update_pattern_result(self, storage, sample_pattern) -> None:
         """Тест обновления результата паттерна."""
@@ -132,27 +153,28 @@ class TestMarketMakerStorage:
             price_change_15min=0.02,
             price_change_30min=0.03,
             volume_change=0.1,
-            volatility_change=0.02
+            volatility_change=0.02,
         )
         pattern_id = f"BTCUSDT_{sample_pattern.pattern_type.value}_{sample_pattern.timestamp.strftime('%Y%m%d_%H%M%S')}"
         success = await storage.update_pattern_result("BTCUSDT", pattern_id, result)
         assert success is True
+
     @pytest.mark.asyncio
     async def test_get_successful_patterns(self, storage, sample_pattern) -> None:
         """Тест получения успешных паттернов."""
         await storage.save_pattern("BTCUSDT", sample_pattern)
         successful_patterns = await storage.get_successful_patterns("BTCUSDT", min_accuracy=0.7)
         assert isinstance(successful_patterns, list)
+
     @pytest.mark.asyncio
     async def test_find_similar_patterns(self, storage, sample_pattern) -> None:
         """Тест поиска похожих паттернов."""
         await storage.save_pattern("BTCUSDT", sample_pattern)
         similar_patterns = await storage.find_similar_patterns(
-            "BTCUSDT",
-            sample_pattern.features.to_dict(),
-            similarity_threshold=0.8
+            "BTCUSDT", sample_pattern.features.to_dict(), similarity_threshold=0.8
         )
         assert isinstance(similar_patterns, list)
+
     @pytest.mark.asyncio
     async def test_get_storage_statistics(self, storage, sample_pattern) -> None:
         """Тест получения статистики хранилища."""
@@ -162,48 +184,58 @@ class TestMarketMakerStorage:
         assert stats.total_patterns > 0
         assert stats.total_symbols > 0
         assert stats.total_storage_size_bytes > 0
+
     @pytest.mark.asyncio
     async def test_cleanup_old_data(self, storage, sample_pattern) -> None:
         """Тест очистки старых данных."""
         await storage.save_pattern("BTCUSDT", sample_pattern)
         cleaned_count = await storage.cleanup_old_data("BTCUSDT", days=0)
         assert cleaned_count >= 0
+
     @pytest.mark.asyncio
     async def test_backup_data(self, storage, sample_pattern) -> None:
         """Тест создания резервной копии."""
         await storage.save_pattern("BTCUSDT", sample_pattern)
         backup_success = await storage.backup_data("BTCUSDT")
         assert backup_success is True
+
     @pytest.mark.asyncio
     async def test_validate_data_integrity(self, storage, sample_pattern) -> None:
         """Тест проверки целостности данных."""
         await storage.save_pattern("BTCUSDT", sample_pattern)
         integrity = await storage.validate_data_integrity("BTCUSDT")
         assert integrity is True
+
     @pytest.mark.asyncio
     async def test_get_pattern_metadata(self, storage, sample_pattern) -> None:
         """Тест получения метаданных паттернов."""
         await storage.save_pattern("BTCUSDT", sample_pattern)
         metadata = await storage.get_pattern_metadata("BTCUSDT")
         assert isinstance(metadata, list)
+
     @pytest.mark.asyncio
     async def test_storage_close(self, storage) -> None:
         """Тест закрытия хранилища."""
         await storage.close()
         # Проверяем, что executor закрыт
         assert storage.executor._shutdown is True
+
     def test_storage_destructor(self, storage_config) -> None:
         """Тест деструктора хранилища."""
         storage = MarketMakerStorage(storage_config)
         del storage
         # Должно корректно освободить ресурсы
+
     @pytest.mark.asyncio
     async def test_concurrent_access(self, storage, sample_pattern) -> None:
         """Тест конкурентного доступа."""
+
         async def save_pattern(symbol: str, pattern: MarketMakerPattern) -> Any:
             return await storage.save_pattern(symbol, pattern)
+
         async def get_patterns(symbol: str) -> Any:
             return await storage.get_patterns_by_symbol(symbol)
+
         # Создаем несколько задач
         tasks = []
         for i in range(5):
@@ -213,7 +245,7 @@ class TestMarketMakerStorage:
                 timestamp=datetime.now(),
                 features=sample_pattern.features,
                 confidence=Confidence(0.8),
-                context={"test": True}
+                context={"test": True},
             )
             tasks.append(save_pattern(f"BTCUSDT_{i}", pattern))
             tasks.append(get_patterns(f"BTCUSDT_{i}"))
@@ -222,6 +254,7 @@ class TestMarketMakerStorage:
         # Проверяем, что все операции завершились успешно
         for result in results:
             assert not isinstance(result, Exception)
+
     @pytest.mark.asyncio
     async def test_cache_functionality(self, storage, sample_pattern) -> None:
         """Тест функциональности кэша."""
@@ -232,6 +265,7 @@ class TestMarketMakerStorage:
         patterns2 = await storage.get_patterns_by_symbol("BTCUSDT")
         assert len(patterns1) == len(patterns2)
         assert storage.metrics["cache_hits"] > 0
+
     @pytest.mark.asyncio
     async def test_compression_functionality(self, storage, sample_pattern) -> None:
         """Тест функциональности сжатия."""
@@ -239,6 +273,7 @@ class TestMarketMakerStorage:
         # Проверяем, что сжатие работает
         assert storage.metrics["compression_ratio"] > 0
         assert storage.metrics["compression_ratio"] <= 1
+
     @pytest.mark.asyncio
     async def test_error_handling(self, storage) -> None:
         """Тест обработки ошибок."""
@@ -248,6 +283,7 @@ class TestMarketMakerStorage:
         # Тест с несуществующим символом
         patterns = await storage.get_patterns_by_symbol("NONEXISTENT")
         assert len(patterns) == 0
+
     @pytest.mark.asyncio
     async def test_metrics_tracking(self, storage, sample_pattern) -> None:
         """Тест отслеживания метрик."""
@@ -257,6 +293,7 @@ class TestMarketMakerStorage:
         await storage.get_patterns_by_symbol("BTCUSDT")
         assert storage.metrics["write_operations"] > initial_writes
         assert storage.metrics["read_operations"] > initial_reads
+
     @pytest.mark.asyncio
     async def test_debug_save_and_read(self, storage, sample_pattern) -> None:
         """Диагностический тест сохранения и чтения."""
@@ -273,19 +310,24 @@ class TestMarketMakerStorage:
         # Базовые проверки
         assert save_result is True
         assert isinstance(patterns, list)
+
+
 class TestPatternMemoryRepository:
     """Тесты для PatternMemoryRepository."""
+
     @pytest.fixture
     def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
         shutil.rmtree(temp_dir)
+
     @pytest.fixture
     def repository(self, temp_dir) -> Any:
         """Экземпляр репозитория для тестов."""
         config = StorageConfig(base_path=temp_dir)
         return PatternMemoryRepository(config)
+
     @pytest.fixture
     def sample_pattern(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Образец паттерна для тестов."""
@@ -299,10 +341,7 @@ class TestPatternMemoryRepository:
             time_duration=TimeDuration(300),
             volume_concentration=VolumeConcentration(0.75),
             price_volatility=PriceVolatility(0.03),
-            market_microstructure=MarketMicrostructure({
-                "depth_imbalance": 0.4,
-                "flow_imbalance": 0.6
-            })
+            market_microstructure=MarketMicrostructure({"depth_imbalance": 0.4, "flow_imbalance": 0.6}),
         )
         return MarketMakerPattern(
             pattern_type=MarketMakerPatternType.ACCUMULATION,
@@ -310,13 +349,15 @@ class TestPatternMemoryRepository:
             timestamp=datetime.now(),
             features=features,
             confidence=Confidence(0.85),
-            context={"market_regime": "trending", "session": "asian"}
+            context={"market_regime": "trending", "session": "asian"},
         )
+
     @pytest.mark.asyncio
     async def test_save_pattern(self, repository, sample_pattern) -> None:
         """Тест сохранения паттерна."""
         success = await repository.save_pattern("BTCUSDT", sample_pattern)
         assert success is True
+
     @pytest.mark.asyncio
     async def test_get_patterns_by_symbol(self, repository, sample_pattern) -> None:
         """Тест получения паттернов по символу."""
@@ -324,8 +365,10 @@ class TestPatternMemoryRepository:
         patterns = await repository.get_patterns_by_symbol("BTCUSDT")
         if len(patterns) == 0:
             import warnings
+
             warnings.warn("PatternMemoryRepository вернул пустой список. Проверьте реализацию.")
         assert isinstance(patterns, list)
+
     @pytest.mark.asyncio
     async def test_update_pattern_result(self, repository, sample_pattern) -> None:
         """Тест обновления результата паттерна."""
@@ -336,11 +379,12 @@ class TestPatternMemoryRepository:
             price_change_15min=0.02,
             price_change_30min=0.03,
             volume_change=0.1,
-            volatility_change=0.02
+            volatility_change=0.02,
         )
         pattern_id = f"BTCUSDT_{sample_pattern.pattern_type.value}_{sample_pattern.timestamp.strftime('%Y%m%d_%H%M%S')}"
         success = await repository.update_pattern_result("BTCUSDT", pattern_id, result)
         assert success is True
+
     @pytest.mark.asyncio
     async def test_get_storage_statistics(self, repository, sample_pattern) -> None:
         """Тест получения статистики хранилища."""
@@ -348,19 +392,24 @@ class TestPatternMemoryRepository:
         stats = await repository.get_storage_statistics()
         assert isinstance(stats, dict)
         assert "total_patterns" in stats
+
+
 class TestBehaviorHistoryRepository:
     """Тесты для BehaviorHistoryRepository."""
+
     @pytest.fixture
     def temp_dir(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Временная директория для тестов."""
         temp_dir = tempfile.mkdtemp()
         yield Path(temp_dir)
         shutil.rmtree(temp_dir)
+
     @pytest.fixture
     def repository(self, temp_dir) -> Any:
         """Экземпляр репозитория для тестов."""
         config = StorageConfig(base_path=temp_dir)
         return BehaviorHistoryRepository(config)
+
     @pytest.mark.asyncio
     async def test_save_behavior_record(self, repository) -> None:
         """Тест сохранения записи поведения."""
@@ -380,10 +429,11 @@ class TestBehaviorHistoryRepository:
             reaction_time=0.5,
             persistence=0.8,
             effectiveness=0.7,
-            risk_level="medium"
+            risk_level="medium",
         )
         success = await repository.save_behavior_record(record)
         assert success is True
+
     @pytest.mark.asyncio
     async def test_get_behavior_history(self, repository) -> None:
         """Тест получения истории поведения."""
@@ -403,11 +453,12 @@ class TestBehaviorHistoryRepository:
             reaction_time=0.5,
             persistence=0.8,
             effectiveness=0.7,
-            risk_level="medium"
+            risk_level="medium",
         )
         await repository.save_behavior_record(record)
         history = await repository.get_behavior_history("BTCUSDT")
         assert isinstance(history, list)
+
     @pytest.mark.asyncio
     async def test_get_behavior_statistics(self, repository) -> None:
         """Тест получения статистики поведения."""
@@ -427,11 +478,13 @@ class TestBehaviorHistoryRepository:
             reaction_time=0.5,
             persistence=0.8,
             effectiveness=0.7,
-            risk_level="medium"
+            risk_level="medium",
         )
         await repository.save_behavior_record(record)
         stats = await repository.get_behavior_statistics("BTCUSDT")
         assert isinstance(stats, dict)
         assert "total_records" in stats
+
+
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"]) 
+    pytest.main([__file__, "-v"])

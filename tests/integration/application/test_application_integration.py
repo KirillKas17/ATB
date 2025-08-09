@@ -1,6 +1,7 @@
 """
 Интеграционные тесты для application слоя.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from unittest.mock import Mock, AsyncMock
@@ -21,8 +22,10 @@ from domain.entities.trade import Trade
 from domain.entities.trading_session import TradingSession
 from domain.entities.trading_pair import TradingPair as DomainTradingPair
 
+
 class TestApplicationIntegration:
     """Интеграционные тесты для application слоя."""
+
     @pytest.fixture
     def mock_repositories(self) -> tuple[Mock, Mock, Mock, Mock, Mock]:
         """Создает mock репозитории для интеграционных тестов."""
@@ -53,8 +56,11 @@ class TestApplicationIntegration:
         market_repo.get_volume_profile = AsyncMock()
         market_repo.get_market_regime_analysis = AsyncMock()
         return order_repo, position_repo, portfolio_repo, session_repo, market_repo
+
     @pytest.fixture
-    def use_cases_and_services(self, mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService]:
+    def use_cases_and_services(
+        self, mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]
+    ) -> tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService]:
         """Создает экземпляры use cases и сервисов."""
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
         order_management = DefaultOrderManagementUseCase(order_repo, portfolio_repo, position_repo)
@@ -62,8 +68,13 @@ class TestApplicationIntegration:
         # Убираем лишний параметр session_repo из DefaultTradingService
         trading_service = DefaultTradingService(order_repo, position_repo, portfolio_repo)
         return order_management, market_data_service, trading_service
+
     @pytest.mark.asyncio
-    async def test_complete_order_workflow(self, use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService], mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> None:
+    async def test_complete_order_workflow(
+        self,
+        use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService],
+        mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock],
+    ) -> None:
         """Тест полного workflow создания и управления ордером."""
         order_management, market_data_service, trading_service = use_cases_and_services
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
@@ -86,7 +97,7 @@ class TestApplicationIntegration:
             order_type=OrderType.LIMIT,
             side=OrderSide.BUY,
             volume=Volume(Decimal("0.1"), Currency.BTC),
-            price=Price(Decimal("50000"), Currency.USD, Currency.BTC)
+            price=Price(Decimal("50000"), Currency.USD, Currency.BTC),
         )
         create_result = await order_management.create_order(create_request)
         assert create_result.success is True
@@ -94,15 +105,10 @@ class TestApplicationIntegration:
         # 2. Получение рыночных данных через сервис
         market_data = [
             {"timestamp": "2024-01-01T00:00:00", "close": "50000", "volume": "1000"},
-            {"timestamp": "2024-01-01T01:00:00", "close": "51000", "volume": "1200"}
+            {"timestamp": "2024-01-01T01:00:00", "close": "51000", "volume": "1200"},
         ]
         market_repo.get_market_data.return_value = market_data
-        market_summary = {
-            "symbol": "BTC/USD",
-            "last_price": "50000",
-            "price_change": "1000",
-            "volume": "10000"
-        }
+        market_summary = {"symbol": "BTC/USD", "last_price": "50000", "price_change": "1000", "volume": "10000"}
         market_repo.get_market_state.return_value = market_summary
         market_data_result = await market_data_service.get_market_data("BTC/USD", "1h", limit=100)
         assert market_data_result == market_data
@@ -112,15 +118,12 @@ class TestApplicationIntegration:
         execute_result = await trading_service.execute_order(
             order_id=order_id,
             execution_price=Price(Decimal("50000"), Currency.USD, Currency.BTC),
-            execution_quantity=Volume(Decimal("0.1"), Currency.BTC)
+            execution_quantity=Volume(Decimal("0.1"), Currency.BTC),
         )
         assert isinstance(execute_result, Trade)
         assert execute_result.order_id == order_id
         # 4. Отмена ордера через use case
-        cancel_request = CancelOrderRequest(
-            order_id=order_id,
-            portfolio_id=portfolio_id
-        )
+        cancel_request = CancelOrderRequest(order_id=order_id, portfolio_id=portfolio_id)
         cancel_result = await order_management.cancel_order(cancel_request)
         assert cancel_result.cancelled is True
         # Проверяем вызовы репозиториев
@@ -129,15 +132,16 @@ class TestApplicationIntegration:
         order_repo.get_by_id.assert_called_with(order_id)
         order_repo.update.assert_called()
         market_repo.get_market_data.assert_called_with(
-            symbol="BTC/USD", 
-            timeframe="1h", 
-            start_time=None,
-            end_time=None,
-            limit=100
+            symbol="BTC/USD", timeframe="1h", start_time=None, end_time=None, limit=100
         )
         market_repo.get_market_state.assert_called_with("BTC/USD")
+
     @pytest.mark.asyncio
-    async def test_market_data_integration(self, use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService], mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> None:
+    async def test_market_data_integration(
+        self,
+        use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService],
+        mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock],
+    ) -> None:
         """Тест интеграции рыночных данных."""
         order_management, market_data_service, trading_service = use_cases_and_services
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
@@ -147,7 +151,7 @@ class TestApplicationIntegration:
         market_data = [
             {"timestamp": "2024-01-01T00:00:00", "close": "50000", "volume": "1000"},
             {"timestamp": "2024-01-01T01:00:00", "close": "51000", "volume": "1200"},
-            {"timestamp": "2024-01-01T02:00:00", "close": "52000", "volume": "1100"}
+            {"timestamp": "2024-01-01T02:00:00", "close": "52000", "volume": "1100"},
         ]
         market_summary = {
             "symbol": symbol,
@@ -155,20 +159,15 @@ class TestApplicationIntegration:
             "price_change": "2000",
             "volume": "10000",
             "high": "52000",
-            "low": "50000"
+            "low": "50000",
         }
         volume_profile = {
             "symbol": symbol,
             "poc_price": "51000",
             "total_volume": "10000",
-            "volume_profile": {"51000": "5000"}
+            "volume_profile": {"51000": "5000"},
         }
-        market_regime = {
-            "symbol": symbol,
-            "regime": "trending",
-            "volatility": "20.5",
-            "trend_strength": "75.0"
-        }
+        market_regime = {"symbol": symbol, "regime": "trending", "volatility": "20.5", "trend_strength": "75.0"}
         market_repo.get_market_data.return_value = market_data
         market_repo.get_market_state.return_value = market_summary
         market_repo.get_volume_profile.return_value = volume_profile
@@ -179,7 +178,11 @@ class TestApplicationIntegration:
         assert len(data_result) == 3
         summary_result = await market_data_service.get_market_state(symbol)
         assert summary_result == market_summary
-        assert summary_result is not None and hasattr(summary_result, "last_price") and summary_result.last_price == "52000"
+        assert (
+            summary_result is not None
+            and hasattr(summary_result, "last_price")
+            and summary_result.last_price == "52000"
+        )
         profile_result = await market_data_service.get_volume_profile(symbol, timeframe)
         assert profile_result == volume_profile
         assert profile_result is not None and profile_result["poc_price"] == "51000"
@@ -191,8 +194,13 @@ class TestApplicationIntegration:
         assert market_repo.get_market_state.call_count == 1
         assert market_repo.get_volume_profile.call_count == 1
         assert market_repo.get_market_regime_analysis.call_count == 1
+
     @pytest.mark.asyncio
-    async def test_trading_session_integration(self, use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService], mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> None:
+    async def test_trading_session_integration(
+        self,
+        use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService],
+        mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock],
+    ) -> None:
         """Тест интеграции торговых сессий."""
         order_management, market_data_service, trading_service = use_cases_and_services
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
@@ -210,7 +218,7 @@ class TestApplicationIntegration:
         session_repo.get_by_id.return_value = mock_session
         mock_orders = [
             Mock(symbol="BTC/USD", status=OrderStatus.FILLED),
-            Mock(symbol="ETH/USD", status=OrderStatus.PENDING)
+            Mock(symbol="ETH/USD", status=OrderStatus.PENDING),
         ]
         order_repo.get_by_portfolio_id.return_value = mock_orders
         # 1. Создание торговой сессии
@@ -228,8 +236,13 @@ class TestApplicationIntegration:
         session_repo.get_by_id.assert_called_with(session_id)
         session_repo.update.assert_called()
         order_repo.get_by_portfolio_id.assert_called_with(portfolio_id)
+
     @pytest.mark.asyncio
-    async def test_error_handling_integration(self, use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService], mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> None:
+    async def test_error_handling_integration(
+        self,
+        use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService],
+        mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock],
+    ) -> None:
         """Тест обработки ошибок в интеграции."""
         order_management, market_data_service, trading_service = use_cases_and_services
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
@@ -241,7 +254,7 @@ class TestApplicationIntegration:
             order_type=OrderType.LIMIT,
             side=OrderSide.BUY,
             volume=Volume(Decimal("0.1"), Currency.BTC),
-            price=Price(Decimal("50000"), Currency.USD, Currency.BTC)
+            price=Price(Decimal("50000"), Currency.USD, Currency.BTC),
         )
         create_result = await order_management.create_order(create_request)
         assert create_result.success is False
@@ -255,15 +268,17 @@ class TestApplicationIntegration:
         assert "Insufficient funds" in create_result.message
         # Тест с несуществующим ордером
         order_repo.get_by_id.return_value = None
-        cancel_request = CancelOrderRequest(
-            order_id=OrderId(uuid4()),
-            portfolio_id=PortfolioId(uuid4())
-        )
+        cancel_request = CancelOrderRequest(order_id=OrderId(uuid4()), portfolio_id=PortfolioId(uuid4()))
         cancel_result = await order_management.cancel_order(cancel_request)
         assert cancel_result.cancelled is False
         assert "Order not found" in cancel_result.message
+
     @pytest.mark.asyncio
-    async def test_data_consistency_integration(self, use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService], mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> None:
+    async def test_data_consistency_integration(
+        self,
+        use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService],
+        mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock],
+    ) -> None:
         """Тест согласованности данных в интеграции."""
         order_management, market_data_service, trading_service = use_cases_and_services
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
@@ -282,11 +297,7 @@ class TestApplicationIntegration:
         mock_order.update_status = Mock()
         order_repo.create.return_value = mock_order
         order_repo.get_by_id.return_value = mock_order
-        market_summary = {
-            "symbol": symbol,
-            "last_price": "50000",
-            "volume": "10000"
-        }
+        market_summary = {"symbol": symbol, "last_price": "50000", "volume": "10000"}
         market_repo.get_market_state.return_value = market_summary
         # Создание ордера
         create_request = CreateOrderRequest(
@@ -295,7 +306,7 @@ class TestApplicationIntegration:
             order_type=OrderType.LIMIT,
             side=OrderSide.BUY,
             volume=Volume(Decimal("0.1"), Currency.BTC),
-            price=Price(Decimal("50000"), Currency.USD, Currency.BTC)
+            price=Price(Decimal("50000"), Currency.USD, Currency.BTC),
         )
         create_result = await order_management.create_order(create_request)
         assert create_result.success is True
@@ -303,7 +314,7 @@ class TestApplicationIntegration:
         get_request = GetOrdersRequest(
             portfolio_id=portfolio_id,
             trading_pair=DomainTradingPair("BTC", "USD"),  # type: ignore[call-arg, arg-type]
-            status=OrderStatus.PENDING
+            status=OrderStatus.PENDING,
         )
         get_result = await order_management.get_orders(get_request)
         assert get_result.success is True
@@ -311,10 +322,23 @@ class TestApplicationIntegration:
         assert get_result.orders[0].symbol == symbol
         # Получение рыночных данных для того же символа
         market_data_result = await market_data_service.get_market_state(symbol)
-        assert market_data_result is not None and hasattr(market_data_result, "symbol") and market_data_result.symbol == symbol
-        assert market_data_result is not None and hasattr(market_data_result, "last_price") and market_data_result.last_price == "50000"
+        assert (
+            market_data_result is not None
+            and hasattr(market_data_result, "symbol")
+            and market_data_result.symbol == symbol
+        )
+        assert (
+            market_data_result is not None
+            and hasattr(market_data_result, "last_price")
+            and market_data_result.last_price == "50000"
+        )
+
     @pytest.mark.asyncio
-    async def test_performance_integration(self, use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService], mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock]) -> None:
+    async def test_performance_integration(
+        self,
+        use_cases_and_services: tuple[DefaultOrderManagementUseCase, MarketDataService, DefaultTradingService],
+        mock_repositories: tuple[Mock, Mock, Mock, Mock, Mock],
+    ) -> None:
         """Тест производительности в интеграции."""
         order_management, market_data_service, trading_service = use_cases_and_services
         order_repo, position_repo, portfolio_repo, session_repo, market_repo = mock_repositories
@@ -326,7 +350,7 @@ class TestApplicationIntegration:
         mock_orders = [
             Mock(symbol="BTC/USD", status=OrderStatus.FILLED, realized_pnl=Decimal("100")),
             Mock(symbol="ETH/USD", status=OrderStatus.FILLED, realized_pnl=Decimal("200")),
-            Mock(symbol="ADA/USD", status=OrderStatus.FILLED, realized_pnl=Decimal("-50"))
+            Mock(symbol="ADA/USD", status=OrderStatus.FILLED, realized_pnl=Decimal("-50")),
         ]
         order_repo.get_by_portfolio_id.return_value = mock_orders
         # Расчет торговой статистики
@@ -345,4 +369,4 @@ class TestApplicationIntegration:
         assert isinstance(risk_result["sharpe_ratio"], (int, float))
         assert isinstance(risk_result["max_drawdown"], (int, float))
         assert isinstance(risk_result["profit_factor"], (int, float))
-        assert isinstance(risk_result["var_95"], (int, float)) 
+        assert isinstance(risk_result["var_95"], (int, float))

@@ -44,7 +44,7 @@ from domain.type_definitions.base_types import (
     MAX_VOLUME,
     MIN_VOLUME,
     MAX_PERCENTAGE,
-    MIN_PERCENTAGE
+    MIN_PERCENTAGE,
 )
 
 
@@ -84,7 +84,7 @@ class TestNumericTypes:
         int_value: NumericType = 100
         float_value: NumericType = 100.5
         decimal_value: NumericType = Decimal("100.5")
-        
+
         assert isinstance(int_value, int)
         assert isinstance(float_value, float)
         assert isinstance(decimal_value, Decimal)
@@ -242,7 +242,7 @@ class TestTypeValidation:
         # Валидные значения
         PositiveNumeric(Decimal("0.1"))
         PositiveNumeric(Decimal("100"))
-        
+
         # Невалидные значения должны вызывать ошибки при использовании
         with pytest.raises(ValueError):
             # Попытка создать отрицательное значение
@@ -254,7 +254,7 @@ class TestTypeValidation:
         # Валидные значения
         NonNegativeNumeric(Decimal("0"))
         NonNegativeNumeric(Decimal("100"))
-        
+
         # Невалидные значения должны вызывать ошибки при использовании
         with pytest.raises(ValueError):
             # Попытка создать отрицательное значение
@@ -266,7 +266,7 @@ class TestTypeValidation:
         # Валидные значения
         StrictPositiveNumeric(Decimal("0.1"))
         StrictPositiveNumeric(Decimal("100"))
-        
+
         # Невалидные значения должны вызывать ошибки при использовании
         with pytest.raises(ValueError):
             # Попытка создать нулевое или отрицательное значение
@@ -279,7 +279,7 @@ class TestTypeValidation:
         CurrencyCode("USD")
         CurrencyCode("BTC")
         CurrencyCode("USDT")
-        
+
         # Проверяем, что это строка
         currency = CurrencyCode("EUR")
         assert isinstance(currency, str)
@@ -290,7 +290,7 @@ class TestTypeValidation:
         CurrencyPair("BTCUSDT")
         CurrencyPair("ETHUSD")
         CurrencyPair("ADAUSDT")
-        
+
         # Проверяем, что это строка
         pair = CurrencyPair("BTCUSDT")
         assert isinstance(pair, str)
@@ -301,7 +301,7 @@ class TestTypeValidation:
         SignalId("signal_123")
         SignalId("buy_signal_456")
         SignalId("sell_signal_789")
-        
+
         # Проверяем, что это строка
         signal_id = SignalId("test_signal")
         assert isinstance(signal_id, str)
@@ -312,7 +312,7 @@ class TestTypeValidation:
         SignalScore(Decimal("0.5"))
         SignalScore(Decimal("1.0"))
         SignalScore(Decimal("-0.5"))
-        
+
         # Проверяем, что это Decimal
         score = SignalScore(Decimal("0.75"))
         assert isinstance(score, Decimal)
@@ -325,15 +325,15 @@ class TestTypeOperations:
         """Тест операций с AmountType."""
         amount1 = AmountType(Decimal("100.50"))
         amount2 = AmountType(Decimal("50.25"))
-        
+
         # Сложение
         result = amount1 + amount2
         assert result == Decimal("150.75")
-        
+
         # Вычитание
         result = amount1 - amount2
         assert result == Decimal("50.25")
-        
+
         # Умножение
         result = amount1 * Decimal("2")
         assert result == Decimal("201.00")
@@ -342,11 +342,11 @@ class TestTypeOperations:
         """Тест операций с MoneyAmount."""
         money1 = MoneyAmount(Decimal("1000.00"))
         money2 = MoneyAmount(Decimal("500.50"))
-        
+
         # Сложение
         result = money1 + money2
         assert result == Decimal("1500.50")
-        
+
         # Вычитание
         result = money1 - money2
         assert result == Decimal("499.50")
@@ -355,11 +355,11 @@ class TestTypeOperations:
         """Тест операций с VolumeAmount."""
         volume1 = VolumeAmount(Decimal("10.5"))
         volume2 = VolumeAmount(Decimal("5.25"))
-        
+
         # Сложение
         result = volume1 + volume2
         assert result == Decimal("15.75")
-        
+
         # Вычитание
         result = volume1 - volume2
         assert result == Decimal("5.25")
@@ -368,11 +368,11 @@ class TestTypeOperations:
         """Тест операций с PercentageValue."""
         percentage1 = PercentageValue(Decimal("25.5"))
         percentage2 = PercentageValue(Decimal("10.0"))
-        
+
         # Сложение
         result = percentage1 + percentage2
         assert result == Decimal("35.5")
-        
+
         # Вычитание
         result = percentage1 - percentage2
         assert result == Decimal("15.5")
@@ -386,11 +386,11 @@ class TestTypeConversion:
         # Из int
         amount = AmountType(Decimal(100))
         assert amount == Decimal("100")
-        
+
         # Из float
         amount = AmountType(Decimal("100.5"))
         assert amount == Decimal("100.5")
-        
+
         # Из строки
         amount = AmountType(Decimal("100.50"))
         assert amount == Decimal("100.50")
@@ -399,10 +399,10 @@ class TestTypeConversion:
         """Тест конвертации в строку."""
         currency = CurrencyCode("USD")
         assert str(currency) == "USD"
-        
+
         pair = CurrencyPair("BTCUSDT")
         assert str(pair) == "BTCUSDT"
-        
+
         signal_id = SignalId("signal_123")
         assert str(signal_id) == "signal_123"
 
@@ -411,7 +411,7 @@ class TestTypeConversion:
         order_uuid = uuid4()
         order_id = OrderId(order_uuid)
         assert str(order_id) == str(order_uuid)
-        
+
         position_uuid = uuid4()
         position_id = PositionId(position_uuid)
         assert str(position_id) == str(position_uuid)
@@ -425,7 +425,7 @@ class TestTypeComparison:
         amount1 = AmountType(Decimal("100.50"))
         amount2 = AmountType(Decimal("100.50"))
         amount3 = AmountType(Decimal("200.00"))
-        
+
         assert amount1 == amount2
         assert amount1 != amount3
         assert amount1 < amount3
@@ -436,7 +436,7 @@ class TestTypeComparison:
         money1 = MoneyAmount(Decimal("1000.00"))
         money2 = MoneyAmount(Decimal("1000.00"))
         money3 = MoneyAmount(Decimal("2000.00"))
-        
+
         assert money1 == money2
         assert money1 != money3
         assert money1 < money3
@@ -447,7 +447,7 @@ class TestTypeComparison:
         volume1 = VolumeAmount(Decimal("10.5"))
         volume2 = VolumeAmount(Decimal("10.5"))
         volume3 = VolumeAmount(Decimal("20.0"))
-        
+
         assert volume1 == volume2
         assert volume1 != volume3
         assert volume1 < volume3
@@ -463,28 +463,28 @@ class TestTypePrecision:
         money = MoneyAmount(Decimal("100.123456789"))
         # Округляем до 8 знаков после запятой
         rounded_money = money.quantize(Decimal(f"0.{'0' * MONEY_PRECISION}"))
-        assert len(str(rounded_money).split('.')[-1]) <= MONEY_PRECISION
+        assert len(str(rounded_money).split(".")[-1]) <= MONEY_PRECISION
 
     def test_price_precision_handling(self):
         """Тест обработки точности для цен."""
         price = PriceLevel(Decimal("50000.123456789"))
         # Округляем до 8 знаков после запятой
         rounded_price = price.quantize(Decimal(f"0.{'0' * PRICE_PRECISION}"))
-        assert len(str(rounded_price).split('.')[-1]) <= PRICE_PRECISION
+        assert len(str(rounded_price).split(".")[-1]) <= PRICE_PRECISION
 
     def test_volume_precision_handling(self):
         """Тест обработки точности для объемов."""
         volume = VolumeAmount(Decimal("1.123456789"))
         # Округляем до 8 знаков после запятой
         rounded_volume = volume.quantize(Decimal(f"0.{'0' * VOLUME_PRECISION}"))
-        assert len(str(rounded_volume).split('.')[-1]) <= VOLUME_PRECISION
+        assert len(str(rounded_volume).split(".")[-1]) <= VOLUME_PRECISION
 
     def test_percentage_precision_handling(self):
         """Тест обработки точности для процентов."""
         percentage = PercentageValue(Decimal("15.123456"))
         # Округляем до 6 знаков после запятой
         rounded_percentage = percentage.quantize(Decimal(f"0.{'0' * PERCENTAGE_PRECISION}"))
-        assert len(str(rounded_percentage).split('.')[-1]) <= PERCENTAGE_PRECISION
+        assert len(str(rounded_percentage).split(".")[-1]) <= PERCENTAGE_PRECISION
 
 
 class TestTypeLimits:
@@ -496,7 +496,7 @@ class TestTypeLimits:
         MoneyAmount(MAX_MONEY_AMOUNT)
         MoneyAmount(MIN_MONEY_AMOUNT)
         MoneyAmount(Decimal("0"))
-        
+
         # Проверяем границы
         assert MAX_MONEY_AMOUNT > MIN_MONEY_AMOUNT
 
@@ -506,7 +506,7 @@ class TestTypeLimits:
         PriceLevel(MAX_PRICE)
         PriceLevel(MIN_PRICE)
         PriceLevel(Decimal("100.50"))
-        
+
         # Проверяем границы
         assert MAX_PRICE > MIN_PRICE
         assert MIN_PRICE > 0
@@ -517,7 +517,7 @@ class TestTypeLimits:
         VolumeAmount(MAX_VOLUME)
         VolumeAmount(MIN_VOLUME)
         VolumeAmount(Decimal("1.5"))
-        
+
         # Проверяем границы
         assert MAX_VOLUME > MIN_VOLUME
         assert MIN_VOLUME > 0
@@ -529,7 +529,7 @@ class TestTypeLimits:
         PercentageValue(MIN_PERCENTAGE)
         PercentageValue(Decimal("0"))
         PercentageValue(Decimal("50"))
-        
+
         # Проверяем границы
         assert MAX_PERCENTAGE > MIN_PERCENTAGE
 
@@ -544,18 +544,18 @@ class TestTypeIntegration:
         position_id = PositionId(uuid4())
         signal_id = SignalId("buy_signal_123")
         signal_score = SignalScore(Decimal("0.85"))
-        
+
         # Создаем валютные данные
         currency_pair = CurrencyPair("BTCUSDT")
         price = PriceLevel(Decimal("50000.00"))
         volume = VolumeAmount(Decimal("1.5"))
         money = MoneyAmount(Decimal("75000.00"))
         exchange_rate = ExchangeRate(Decimal("1.0"))
-        
+
         # Создаем временные данные
         timestamp = TimestampValue(datetime.now())
         percentage = PercentageValue(Decimal("15.5"))
-        
+
         # Проверяем типы
         assert isinstance(order_id, type(uuid4()))
         assert isinstance(position_id, type(uuid4()))
@@ -568,7 +568,7 @@ class TestTypeIntegration:
         assert isinstance(exchange_rate, Decimal)
         assert isinstance(timestamp, datetime)
         assert isinstance(percentage, Decimal)
-        
+
         # Проверяем значения
         assert currency_pair == "BTCUSDT"
         assert price == Decimal("50000.00")
@@ -589,34 +589,27 @@ class TestTypeIntegration:
             PriceLevel,
             VolumeAmount,
             MoneyAmount,
-            SignalScore
+            SignalScore,
         ]
-        
+
         for numeric_type in numeric_types:
             # Создаем экземпляр типа
             instance = numeric_type(Decimal("100.50"))
             assert isinstance(instance, Decimal)
-        
+
         # Проверяем, что все строковые типы основаны на str
-        string_types = [
-            CurrencyCode,
-            CurrencyPair,
-            SignalId
-        ]
-        
+        string_types = [CurrencyCode, CurrencyPair, SignalId]
+
         for string_type in string_types:
             # Создаем экземпляр типа
             instance = string_type("test")
             assert isinstance(instance, str)
-        
+
         # Проверяем, что все UUID типы основаны на UUID
-        uuid_types = [
-            OrderId,
-            PositionId
-        ]
-        
+        uuid_types = [OrderId, PositionId]
+
         for uuid_type in uuid_types:
             # Создаем экземпляр типа
             test_uuid = uuid4()
             instance = uuid_type(test_uuid)
-            assert isinstance(instance, type(test_uuid)) 
+            assert isinstance(instance, type(test_uuid))

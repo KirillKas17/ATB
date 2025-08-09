@@ -624,7 +624,7 @@ def plot_indicators(data: DataFrame, indicators: Dict[str, Series]) -> go.Figure
 class Visualizer:
     """Главный класс визуализации для удобного доступа ко всем функциям."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.theme = "plotly_dark"
         self.default_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
     

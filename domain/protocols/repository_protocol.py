@@ -73,6 +73,19 @@ from domain.type_definitions.repository_types import (
 )
 
 
+@dataclass(frozen=True)
+class TransactionId:
+    """Идентификатор транзакции."""
+    
+    value: str
+    
+    def __str__(self) -> str:
+        return self.value
+    
+    def __repr__(self) -> str:
+        return f"TransactionId('{self.value}')"
+
+
 class RepositoryState(Enum):
     """Состояния репозитория."""
 
@@ -80,6 +93,15 @@ class RepositoryState(Enum):
     DISCONNECTED = "disconnected"
     ERROR = "error"
     MAINTENANCE = "maintenance"
+
+
+class TransactionStatus(Enum):
+    """Статусы транзакций."""
+
+    PENDING = "pending"
+    COMMITTED = "committed"
+    ROLLED_BACK = "rolled_back"
+    FAILED = "failed"
 
 
 
@@ -123,6 +145,16 @@ class TransactionProtocol(Protocol):
     async def commit(self) -> None: ...
     async def rollback(self) -> None: ...
     async def is_active(self) -> bool: ...
+
+
+@runtime_checkable
+class TransactionalProtocol(Protocol):
+    """Протокол для транзакционных операций."""
+    
+    async def begin_transaction(self) -> TransactionProtocol: ...
+    async def execute_in_transaction(self, operation: Callable[..., Any], *args: Any, **kwargs: Any) -> Any: ...
+    async def commit_transaction(self) -> None: ...
+    async def rollback_transaction(self) -> None: ...
 @runtime_checkable
 class ConnectionProtocol(Protocol):
     """Протокол соединения с БД."""

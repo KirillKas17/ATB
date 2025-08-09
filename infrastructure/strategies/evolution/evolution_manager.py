@@ -32,7 +32,7 @@ class ActiveEvolution(TypedDict, total=False):
 class EvolutionManager:
     """Менеджер эволюции стратегий"""
 
-    def __init__(self, config: Optional[EvolutionConfig] = None):
+    def __init__(self, config: Optional[EvolutionConfig] = None) -> None:
         self.config = config or EvolutionConfig()
         self.evolution_history: List[EvolutionRecord] = []
         self.active_evolutions: Dict[str, ActiveEvolution] = {}

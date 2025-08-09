@@ -973,7 +973,7 @@ class TestStrategyCandidate:
         candidate.add_filter(FilterConfig(name="Volume", parameters={"min_volume": 1000}))
         candidate.add_entry_rule(EntryRule())
         candidate.add_exit_rule(ExitRule())
-        
+
         complexity = candidate.get_complexity_score()
         assert complexity > 0
         assert isinstance(complexity, float)
@@ -1308,4 +1308,4 @@ class TestEvolutionContext:
         assert context.max_indicators == 15
         assert context.max_filters == 8
         assert context.max_entry_rules == 5
-        assert context.max_exit_rules == 5 
+        assert context.max_exit_rules == 5

@@ -11,4 +11,4 @@ Contains integration tests for component interactions including:
 - Trading cycle integration
 - Strategies integration
 - Sessions integration
-""" 
+"""

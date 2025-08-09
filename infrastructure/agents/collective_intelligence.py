@@ -146,7 +146,7 @@ class BaseAgent(ABC):
         """Выполняет действие"""
         pass
     
-    async def communicate(self, message: Message, swarm: 'Swarm'):
+    async def communicate(self, message: Message, swarm: 'Swarm') -> None:
         """Отправляет сообщение другим агентам"""
         try:
             if message.protocol == CommunicationProtocol.BROADCAST:
@@ -175,13 +175,13 @@ class BaseAgent(ABC):
         except Exception as e:
             logger.error(f"Communication error for agent {self.id}: {e}")
     
-    async def receive_message(self, message: Message):
+    async def receive_message(self, message: Message) -> None:
         """Получает сообщение от другого агента"""
         if not message.is_expired() and message.sender_id not in self.blacklist:
             self.message_queue.append(message)
             await self._process_message(message)
     
-    async def _process_message(self, message: Message):
+    async def _process_message(self, message: Message) -> None:
         """Обрабатывает полученное сообщение"""
         try:
             if message.message_type == "market_signal":
@@ -196,7 +196,7 @@ class BaseAgent(ABC):
         except Exception as e:
             logger.error(f"Message processing error for agent {self.id}: {e}")
     
-    async def _handle_market_signal(self, message: Message):
+    async def _handle_market_signal(self, message: Message) -> None:
         """Обрабатывает рыночный сигнал"""
         signal_data = message.content.get('signal', {})
         confidence = signal_data.get('confidence', 0.0)
@@ -208,7 +208,7 @@ class BaseAgent(ABC):
         if confidence > 0.8:
             self._update_peer_reputation(message.sender_id, 5)
     
-    async def _handle_collaboration_request(self, message: Message):
+    async def _handle_collaboration_request(self, message: Message) -> None:
         """Обрабатывает запрос на сотрудничество"""
         request_type = message.content.get('type', '')
         
@@ -224,12 +224,12 @@ class BaseAgent(ABC):
                 )
                 # Отправляем ответ через swarm (потребуется передать ссылку)
     
-    async def _handle_reputation_update(self, message: Message):
+    async def _handle_reputation_update(self, message: Message) -> None:
         """Обрабатывает обновление репутации"""
         reputation_change = message.content.get('change', 0)
         self.state.reputation = max(0, min(100, self.state.reputation + reputation_change))
     
-    async def _handle_knowledge_share(self, message: Message):
+    async def _handle_knowledge_share(self, message: Message) -> None:
         """Обрабатывает обмен знаниями"""
         knowledge = message.content.get('knowledge', {})
         
@@ -241,7 +241,7 @@ class BaseAgent(ABC):
         # Благодарим за полезную информацию
         self._update_peer_reputation(message.sender_id, 2)
     
-    def _update_peer_reputation(self, peer_id: str, change: int):
+    def _update_peer_reputation(self, peer_id: str, change: int) -> None:
         """Обновляет репутацию другого агента"""
         if 'peer_reputations' not in self.memory:
             self.memory['peer_reputations'] = {}
@@ -271,7 +271,7 @@ class BaseAgent(ABC):
             "specializations": getattr(self, 'specializations', [])
         }
     
-    def update_fitness(self, fitness: float):
+    def update_fitness(self, fitness: float) -> None:
         """Обновляет фитнес агента"""
         if fitness > self.local_best_fitness:
             self.local_best_fitness = fitness
@@ -279,7 +279,7 @@ class BaseAgent(ABC):
             self.state.experience += 1
             self.state.confidence = min(1.0, self.state.confidence + 0.01)
     
-    async def evolve(self, global_best_position: np.ndarray, config: SwarmConfig):
+    async def evolve(self, global_best_position: np.ndarray, config: SwarmConfig) -> None:
         """Эволюционирует агента (PSO + GA)"""
         # Particle Swarm Optimization
         await self._update_velocity(global_best_position, config)
@@ -295,7 +295,7 @@ class BaseAgent(ABC):
         # Stress management
         self._manage_stress()
     
-    async def _update_velocity(self, global_best_position: np.ndarray, config: SwarmConfig):
+    async def _update_velocity(self, global_best_position: np.ndarray, config: SwarmConfig) -> None:
         """Обновляет скорость агента (PSO)"""
         r1, r2 = random.random(), random.random()
         
@@ -312,14 +312,14 @@ class BaseAgent(ABC):
         if velocity_magnitude > config.max_velocity:
             self.velocity = (self.velocity / velocity_magnitude) * config.max_velocity
     
-    def _update_position(self, config: SwarmConfig):
+    def _update_position(self, config: SwarmConfig) -> None:
         """Обновляет позицию агента"""
         self.position += self.velocity
         
         # Ограничиваем позицию границами пространства
         self.position = np.clip(self.position, -10, 10)
     
-    def _mutate(self):
+    def _mutate(self) -> None:
         """Мутирует агента"""
         mutation_strength = 0.1
         mutation_vector = np.random.normal(0, mutation_strength, self.position.shape)
@@ -330,7 +330,7 @@ class BaseAgent(ABC):
             self.state.learning_rate *= random.uniform(0.9, 1.1)
             self.state.learning_rate = max(0.001, min(0.1, self.state.learning_rate))
     
-    def _manage_stress(self):
+    def _manage_stress(self) -> None:
         """Управляет стрессом агента"""
         # Стресс влияет на производительность
         if self.state.stress_level > 0.7:
@@ -685,7 +685,7 @@ class HunterAgent(BaseAgent):
         
         return random.random() < success_probability
     
-    async def _send_execution_report(self, signal: Dict[str, Any], plan: Dict[str, Any], success: bool):
+    async def _send_execution_report(self, signal: Dict[str, Any], plan: Dict[str, Any], success: bool) -> None:
         """Отправляет отчет о выполнении сделки"""
         report = Message(
             sender_id=self.id,
@@ -930,7 +930,7 @@ class GuardianAgent(BaseAgent):
         
         return recommendations
     
-    def _blacklist_underperforming_agent(self, agent_id: str):
+    def _blacklist_underperforming_agent(self, agent_id: str) -> None:
         """Добавляет агента в черный список"""
         self.blacklist.add(agent_id)
         logger.warning(f"Guardian {self.id} blacklisted agent {agent_id}")
@@ -956,13 +956,13 @@ class Swarm:
         
         logger.info(f"Swarm initialized with config: {config}")
     
-    def add_agent(self, agent: BaseAgent):
+    def add_agent(self, agent: BaseAgent) -> None:
         """Добавляет агента в рой"""
         self.agents[agent.id] = agent
         agent.neighbors = self._calculate_neighbors(agent)
         logger.info(f"Added agent {agent.id} with role {agent.role.value} to swarm")
     
-    def remove_agent(self, agent_id: str):
+    def remove_agent(self, agent_id: str) -> None:
         """Удаляет агента из роя"""
         if agent_id in self.agents:
             del self.agents[agent_id]
@@ -1029,7 +1029,7 @@ class Swarm:
         
         return step_results
     
-    async def deliver_message(self, message: Message, receiver_id: str):
+    async def deliver_message(self, message: Message, receiver_id: str) -> None:
         """Доставляет сообщение агенту"""
         await self.message_router.route_message(message, receiver_id, self.agents)
     
@@ -1049,7 +1049,7 @@ class Swarm:
         
         return neighbors
     
-    async def _evolve_swarm(self):
+    async def _evolve_swarm(self) -> None:
         """Эволюционирует рой"""
         # Обновляем global best
         for agent in self.agents.values():
@@ -1065,7 +1065,7 @@ class Swarm:
         for agent in self.agents.values():
             agent.neighbors = self._calculate_neighbors(agent)
     
-    async def _update_collective_knowledge(self):
+    async def _update_collective_knowledge(self) -> None:
         """Обновляет коллективную базу знаний"""
         # Собираем знания от всех агентов
         collective_insights = {}
@@ -1121,12 +1121,12 @@ class Swarm:
 class MessageRouter:
     """Маршрутизатор сообщений для агентов"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.pending_messages: List[Tuple[Message, str]] = []
         self.message_history: List[Message] = []
         self.delivery_stats = {'delivered': 0, 'failed': 0}
     
-    async def route_message(self, message: Message, receiver_id: str, agents: Dict[str, BaseAgent]):
+    async def route_message(self, message: Message, receiver_id: str, agents: Dict[str, BaseAgent]) -> None:
         """Маршрутизирует сообщение к получателю"""
         self.pending_messages.append((message, receiver_id))
     
@@ -1151,7 +1151,7 @@ class MessageRouter:
 class ConsensusManager:
     """Менеджер консенсуса для коллективного принятия решений"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.consensus_history = []
         self.voting_threshold = 0.6
     
@@ -1241,7 +1241,7 @@ class ConsensusManager:
 class CollectiveKnowledgeBase:
     """База коллективных знаний роя"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.knowledge: Dict[str, Any] = {}
         self.knowledge_history: List[Dict[str, Any]] = []
         self.update_count = 0

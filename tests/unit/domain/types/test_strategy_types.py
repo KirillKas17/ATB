@@ -73,13 +73,28 @@ class TestStrategyType:
     def test_enum_values(self):
         """Тест значений перечисления."""
         expected_types = [
-            "trend", "mean_reversion", "breakout", "scalping", "arbitrage",
-            "pairs_trading", "statistical_arbitrage", "momentum", "volatility",
-            "grid", "martingale", "hedging", "manipulation", "reversal",
-            "sideways", "adaptive", "evolvable", "deep_learning",
-            "random_forest", "regime_adaptive"
+            "trend",
+            "mean_reversion",
+            "breakout",
+            "scalping",
+            "arbitrage",
+            "pairs_trading",
+            "statistical_arbitrage",
+            "momentum",
+            "volatility",
+            "grid",
+            "martingale",
+            "hedging",
+            "manipulation",
+            "reversal",
+            "sideways",
+            "adaptive",
+            "evolvable",
+            "deep_learning",
+            "random_forest",
+            "regime_adaptive",
         ]
-        
+
         for strategy_type in expected_types:
             assert hasattr(StrategyType, strategy_type.upper().replace("_", ""))
 
@@ -100,10 +115,16 @@ class TestMarketRegime:
     def test_enum_values(self):
         """Тест значений перечисления."""
         expected_regimes = [
-            "trending_up", "trending_down", "sideways", "volatile",
-            "low_volatility", "breakout", "reversal", "manipulation"
+            "trending_up",
+            "trending_down",
+            "sideways",
+            "volatile",
+            "low_volatility",
+            "breakout",
+            "reversal",
+            "manipulation",
         ]
-        
+
         for regime in expected_regimes:
             assert hasattr(MarketRegime, regime.upper().replace("_", ""))
 
@@ -162,7 +183,7 @@ class TestStrategyMetrics:
             information_ratio=0.8,
             kappa_ratio=1.2,
             gain_loss_ratio=2.5,
-            additional={"custom_metric": 0.95}
+            additional={"custom_metric": 0.95},
         )
 
     def test_creation(self, sample_metrics):
@@ -207,7 +228,7 @@ class TestSignal:
             risk_score=0.3,
             expected_return=0.04,
             holding_period=24,
-            position_size=0.05
+            position_size=0.05,
         )
 
     def test_creation(self, sample_signal):
@@ -230,11 +251,7 @@ class TestSignal:
     def test_optional_fields(self):
         """Тест опциональных полей."""
         signal = Signal(
-            direction=StrategyDirection.HOLD,
-            entry_price=100.0,
-            stop_loss=None,
-            take_profit=None,
-            volume=None
+            direction=StrategyDirection.HOLD, entry_price=100.0, stop_loss=None, take_profit=None, volume=None
         )
         assert signal.stop_loss is None
         assert signal.take_profit is None
@@ -251,11 +268,7 @@ class TestStrategyConfig:
             strategy_type=StrategyType.TREND,
             name="Moving Average Crossover",
             description="Стратегия на основе пересечения скользящих средних",
-            parameters={
-                "fast_period": 10,
-                "slow_period": 20,
-                "signal_period": 9
-            },
+            parameters={"fast_period": 10, "slow_period": 20, "signal_period": 9},
             risk_per_trade=0.02,
             max_position_size=0.1,
             confidence_threshold=0.7,
@@ -270,7 +283,7 @@ class TestStrategyConfig:
             enabled=True,
             version="1.0.0",
             created_at=datetime(2024, 1, 1),
-            updated_at=datetime(2024, 1, 1)
+            updated_at=datetime(2024, 1, 1),
         )
 
     def test_creation(self, sample_config):
@@ -285,10 +298,7 @@ class TestStrategyConfig:
     def test_default_values(self):
         """Тест значений по умолчанию."""
         config = StrategyConfig(
-            strategy_type=StrategyType.SCALPING,
-            name="Test Strategy",
-            description="Test Description",
-            parameters={}
+            strategy_type=StrategyType.SCALPING, name="Test Strategy", description="Test Description", parameters={}
         )
         assert config.risk_per_trade == 0.02
         assert config.max_position_size == 0.1
@@ -307,30 +317,14 @@ class TestStrategyAnalysis:
     @pytest.fixture
     def sample_analysis(self) -> StrategyAnalysis:
         """Тестовый анализ."""
-        market_data = pd.DataFrame({
-            'close': [100, 101, 102, 103, 104],
-            'volume': [1000, 1100, 1200, 1300, 1400]
-        })
-        
-        indicators = {
-            'sma_20': pd.Series([99, 99.5, 100, 100.5, 101]),
-            'rsi': pd.Series([50, 55, 60, 65, 70])
-        }
-        
-        signals = [
-            Signal(
-                direction=StrategyDirection.LONG,
-                entry_price=102.0,
-                confidence=0.8
-            )
-        ]
-        
-        metrics = StrategyMetrics(
-            total_signals=10,
-            successful_signals=7,
-            win_rate=0.7
-        )
-        
+        market_data = pd.DataFrame({"close": [100, 101, 102, 103, 104], "volume": [1000, 1100, 1200, 1300, 1400]})
+
+        indicators = {"sma_20": pd.Series([99, 99.5, 100, 100.5, 101]), "rsi": pd.Series([50, 55, 60, 65, 70])}
+
+        signals = [Signal(direction=StrategyDirection.LONG, entry_price=102.0, confidence=0.8)]
+
+        metrics = StrategyMetrics(total_signals=10, successful_signals=7, win_rate=0.7)
+
         return StrategyAnalysis(
             strategy_id="test_strategy_001",
             timestamp=datetime(2024, 1, 1, 12, 0, 0),
@@ -340,16 +334,9 @@ class TestStrategyAnalysis:
             metrics=metrics,
             market_regime=MarketRegime.TRENDING_UP,
             confidence=0.75,
-            risk_assessment={
-                "var_95": 0.05,
-                "max_drawdown": 0.1,
-                "volatility": 0.2
-            },
-            recommendations=[
-                "Увеличить размер позиции",
-                "Добавить дополнительные фильтры"
-            ],
-            metadata={"analysis_version": "1.0"}
+            risk_assessment={"var_95": 0.05, "max_drawdown": 0.1, "volatility": 0.2},
+            recommendations=["Увеличить размер позиции", "Добавить дополнительные фильтры"],
+            metadata={"analysis_version": "1.0"},
         )
 
     def test_creation(self, sample_analysis):
@@ -365,14 +352,14 @@ class TestStrategyAnalysis:
     def test_market_data_shape(self, sample_analysis):
         """Тест формы рыночных данных."""
         assert sample_analysis.market_data.shape == (5, 2)
-        assert 'close' in sample_analysis.market_data.columns
-        assert 'volume' in sample_analysis.market_data.columns
+        assert "close" in sample_analysis.market_data.columns
+        assert "volume" in sample_analysis.market_data.columns
 
     def test_indicators_structure(self, sample_analysis):
         """Тест структуры индикаторов."""
-        assert 'sma_20' in sample_analysis.indicators
-        assert 'rsi' in sample_analysis.indicators
-        assert isinstance(sample_analysis.indicators['sma_20'], pd.Series)
+        assert "sma_20" in sample_analysis.indicators
+        assert "rsi" in sample_analysis.indicators
+        assert isinstance(sample_analysis.indicators["sma_20"], pd.Series)
 
 
 class TestTypedDicts:
@@ -385,9 +372,9 @@ class TestTypedDicts:
             "warnings": ["Low confidence threshold"],
             "is_valid": False,
             "validation_score": 0.6,
-            "recommendations": ["Increase fast_period", "Adjust confidence threshold"]
+            "recommendations": ["Increase fast_period", "Adjust confidence threshold"],
         }
-        
+
         assert result["is_valid"] is False
         assert result["validation_score"] == 0.6
         assert len(result["errors"]) == 1
@@ -402,9 +389,9 @@ class TestTypedDicts:
             "optimization_method": "genetic_algorithm",
             "performance_improvement": 0.15,
             "risk_adjustment": 0.05,
-            "confidence_interval": (0.10, 0.20)
+            "confidence_interval": (0.10, 0.20),
         }
-        
+
         assert result["improvement_expected"] is True
         assert result["performance_improvement"] == 0.15
         assert result["confidence_interval"] == (0.10, 0.20)
@@ -416,9 +403,9 @@ class TestTypedDicts:
             "metrics": StrategyMetrics(total_signals=100, win_rate=0.65),
             "backtest_results": {"sharpe_ratio": 1.2, "max_drawdown": 0.1},
             "risk_metrics": {"var_95": 0.05, "volatility": 0.2},
-            "comparison_benchmark": {"benchmark_return": 0.01, "alpha": 0.01}
+            "comparison_benchmark": {"benchmark_return": 0.01, "alpha": 0.01},
         }
-        
+
         assert result["analysis"]["total_trades"] == 100
         assert result["metrics"].win_rate == 0.65
         assert result["risk_metrics"]["var_95"] == 0.05
@@ -429,25 +416,28 @@ class TestProtocols:
 
     def test_strategy_service_protocol_implementation(self):
         """Тест реализации StrategyServiceProtocol."""
+
         class MockStrategyService:
             async def create_strategy(self, config: StrategyConfig) -> Any:
                 return Mock()
-            
+
             async def validate_strategy(self, strategy: Any) -> StrategyValidationResult:
                 return {"is_valid": True, "errors": [], "warnings": []}
-            
-            async def optimize_strategy(self, strategy: Any, historical_data: pd.DataFrame) -> StrategyOptimizationResult:
+
+            async def optimize_strategy(
+                self, strategy: Any, historical_data: pd.DataFrame
+            ) -> StrategyOptimizationResult:
                 return {"improvement_expected": True, "performance_improvement": 0.1}
-            
+
             async def analyze_performance(self, strategy: Any, period: Any) -> StrategyPerformanceResult:
                 return {"analysis": {}, "metrics": StrategyMetrics()}
-            
+
             async def backtest_strategy(self, strategy: Any, data: pd.DataFrame) -> Dict[str, Any]:
                 return {"total_return": 0.15}
-            
+
             async def get_strategy_metrics(self, strategy_id: str) -> StrategyMetrics:
                 return StrategyMetrics()
-            
+
             async def update_strategy_config(self, strategy_id: str, config: StrategyConfig) -> bool:
                 return True
 
@@ -456,6 +446,7 @@ class TestProtocols:
 
     def test_strategy_protocol_implementation(self):
         """Тест реализации StrategyProtocol."""
+
         class MockStrategy:
             def analyze(self, data: pd.DataFrame) -> StrategyAnalysis:
                 return StrategyAnalysis(
@@ -468,30 +459,30 @@ class TestProtocols:
                     market_regime=MarketRegime.SIDEWAYS,
                     confidence=0.5,
                     risk_assessment={},
-                    recommendations=[]
+                    recommendations=[],
                 )
-            
+
             def generate_signal(self, data: pd.DataFrame) -> Optional[Signal]:
                 return Signal(direction=StrategyDirection.LONG, entry_price=100.0)
-            
+
             def validate_data(self, data: pd.DataFrame) -> tuple[bool, Optional[str]]:
                 return True, None
-            
+
             def calculate_position_size(self, signal: Signal, account_balance: float) -> float:
                 return 0.1
-            
+
             def calculate_risk_metrics(self, data: pd.DataFrame) -> Dict[str, float]:
                 return {"volatility": 0.2}
-            
+
             def update_metrics(self, signal: Signal, result: Dict[str, Any]) -> None:
                 pass
-            
+
             def get_metrics(self) -> Dict[str, Any]:
                 return {"total_signals": 10}
-            
+
             def save_state(self) -> None:
                 pass
-            
+
             def load_state(self) -> None:
                 pass
 
@@ -500,13 +491,14 @@ class TestProtocols:
 
     def test_strategy_factory_protocol_implementation(self):
         """Тест реализации StrategyFactoryProtocol."""
+
         class MockStrategyFactory:
             def create_strategy(self, strategy_type: StrategyType, config: StrategyConfig) -> StrategyProtocol:
                 return Mock()
-            
+
             def get_available_strategies(self) -> List[StrategyType]:
                 return [StrategyType.TREND, StrategyType.SCALPING]
-            
+
             def validate_strategy_config(self, config: StrategyConfig) -> StrategyValidationResult:
                 return {"is_valid": True, "errors": [], "warnings": []}
 
@@ -527,21 +519,17 @@ class TestEvolutionTypes:
             crossover_rate=0.8,
             population_size=50,
             generations=100,
-            elite_size=5
+            elite_size=5,
         )
-        
+
         assert config.learning_rate == 1e-3
         assert config.population_size == 50
         assert config.generations == 100
 
     def test_evolution_metrics(self):
         """Тест EvolutionMetrics."""
-        metrics = EvolutionMetrics(
-            generation=10,
-            best_fitness=0.85,
-            avg_fitness=0.75
-        )
-        
+        metrics = EvolutionMetrics(generation=10, best_fitness=0.85, avg_fitness=0.75)
+
         assert metrics.generation == 10
         assert metrics.best_fitness == 0.85
         assert metrics.adaptation_success == 0.9
@@ -557,20 +545,17 @@ class TestAdaptationTypes:
             learning_rate=0.01,
             memory_size=1000,
             adaptation_frequency=100,
-            regime_detection_sensitivity=0.8
+            regime_detection_sensitivity=0.8,
         )
-        
+
         assert config.adaptation_threshold == 0.7
         assert config.memory_size == 1000
         assert config.regime_detection_sensitivity == 0.8
 
     def test_market_context(self):
         """Тест MarketContext."""
-        correlation_matrix = pd.DataFrame({
-            'BTC': [1.0, 0.5],
-            'ETH': [0.5, 1.0]
-        }, index=['BTC', 'ETH'])
-        
+        correlation_matrix = pd.DataFrame({"BTC": [1.0, 0.5], "ETH": [0.5, 1.0]}, index=["BTC", "ETH"])
+
         context = MarketContext(
             regime=MarketRegime.TRENDING_UP,
             volatility=0.25,
@@ -579,9 +564,9 @@ class TestAdaptationTypes:
             liquidity_conditions={"BTC": 0.9, "ETH": 0.7},
             market_sentiment=0.75,
             correlation_matrix=correlation_matrix,
-            timestamp=datetime(2024, 1, 1, 12, 0, 0)
+            timestamp=datetime(2024, 1, 1, 12, 0, 0),
         )
-        
+
         assert context.regime == MarketRegime.TRENDING_UP
         assert context.volatility == 0.25
         assert context.trend_strength == 0.8
@@ -601,9 +586,9 @@ class TestMLTypes:
             hyperparameters={"n_estimators": 100, "max_depth": 10},
             training_config={"test_size": 0.2, "random_state": 42},
             validation_config={"cv_folds": 5},
-            model_path="/models/rf_model.pkl"
+            model_path="/models/rf_model.pkl",
         )
-        
+
         assert config.model_type == "random_forest"
         assert len(config.input_features) == 3
         assert config.hyperparameters["n_estimators"] == 100
@@ -619,9 +604,9 @@ class TestMLTypes:
             confidence=0.85,
             uncertainty=0.15,
             model_version="1.0.0",
-            metadata={"feature_importance": {"price": 0.4, "volume": 0.3, "rsi": 0.3}}
+            metadata={"feature_importance": {"price": 0.4, "volume": 0.3, "rsi": 0.3}},
         )
-        
+
         assert prediction.model_id == "rf_model_001"
         assert prediction.confidence == 0.85
         assert prediction.uncertainty == 0.15
@@ -636,7 +621,7 @@ class TestRiskTypes:
         config = RiskConfig(
             stress_test_scenarios=[
                 {"name": "market_crash", "price_shock": -0.3},
-                {"name": "liquidity_crisis", "volume_reduction": 0.5}
+                {"name": "liquidity_crisis", "volume_reduction": 0.5},
             ],
             risk_budget={"BTC": 0.4, "ETH": 0.3, "cash": 0.3},
             max_drawdown=0.2,
@@ -644,9 +629,9 @@ class TestRiskTypes:
             max_correlation=0.7,
             var_confidence=0.95,
             stop_loss_multiplier=2.0,
-            take_profit_multiplier=3.0
+            take_profit_multiplier=3.0,
         )
-        
+
         assert config.max_drawdown == 0.2
         assert config.max_position_size == 0.1
         assert len(config.stress_test_scenarios) == 2
@@ -662,21 +647,11 @@ class TestRiskTypes:
             concentration_risk=0.25,
             model_risk=0.1,
             total_risk_score=0.75,
-            risk_decomposition={
-                "market_risk": 0.4,
-                "credit_risk": 0.2,
-                "operational_risk": 0.15
-            },
-            stress_test_results={
-                "market_crash": 0.12,
-                "liquidity_crisis": 0.08
-            },
-            recommendations=[
-                "Уменьшить концентрацию в BTC",
-                "Добавить хеджирование"
-            ]
+            risk_decomposition={"market_risk": 0.4, "credit_risk": 0.2, "operational_risk": 0.15},
+            stress_test_results={"market_crash": 0.12, "liquidity_crisis": 0.08},
+            recommendations=["Уменьшить концентрацию в BTC", "Добавить хеджирование"],
         )
-        
+
         assert assessment.portfolio_var == 0.05
         assert assessment.total_risk_score == 0.75
         assert len(assessment.recommendations) == 2
@@ -693,25 +668,17 @@ class TestIntegration:
             strategy_type=StrategyType.TREND,
             name="Test Strategy",
             description="Test Description",
-            parameters={"period": 20}
+            parameters={"period": 20},
         )
-        
+
         # Создание сигнала
-        signal = Signal(
-            direction=StrategyDirection.LONG,
-            entry_price=100.0,
-            confidence=0.8
-        )
-        
+        signal = Signal(direction=StrategyDirection.LONG, entry_price=100.0, confidence=0.8)
+
         # Создание метрик
-        metrics = StrategyMetrics(
-            total_signals=1,
-            successful_signals=1,
-            win_rate=1.0
-        )
-        
+        metrics = StrategyMetrics(total_signals=1, successful_signals=1, win_rate=1.0)
+
         # Создание анализа
-        market_data = pd.DataFrame({'close': [100, 101, 102]})
+        market_data = pd.DataFrame({"close": [100, 101, 102]})
         analysis = StrategyAnalysis(
             strategy_id="test",
             timestamp=datetime.now(),
@@ -722,9 +689,9 @@ class TestIntegration:
             market_regime=MarketRegime.TRENDING_UP,
             confidence=0.8,
             risk_assessment={},
-            recommendations=[]
+            recommendations=[],
         )
-        
+
         assert analysis.strategy_id == "test"
         assert len(analysis.signals) == 1
         assert analysis.signals[0].direction == StrategyDirection.LONG
@@ -733,24 +700,14 @@ class TestIntegration:
     def test_evolution_workflow(self):
         """Тест workflow эволюции."""
         # Конфигурация эволюции
-        evolution_config = EvolutionConfig(
-            population_size=50,
-            generations=100
-        )
-        
+        evolution_config = EvolutionConfig(population_size=50, generations=100)
+
         # Метрики эволюции
-        evolution_metrics = EvolutionMetrics(
-            generation=10,
-            best_fitness=0.85,
-            avg_fitness=0.75
-        )
-        
+        evolution_metrics = EvolutionMetrics(generation=10, best_fitness=0.85, avg_fitness=0.75)
+
         # Конфигурация адаптации
-        adaptation_config = AdaptationConfig(
-            adaptation_threshold=0.7,
-            learning_rate=0.01
-        )
-        
+        adaptation_config = AdaptationConfig(adaptation_threshold=0.7, learning_rate=0.01)
+
         # Контекст рынка
         market_context = MarketContext(
             regime=MarketRegime.TRENDING_UP,
@@ -759,10 +716,10 @@ class TestIntegration:
             volume_profile={},
             liquidity_conditions={},
             market_sentiment=0.75,
-            correlation_matrix=pd.DataFrame()
+            correlation_matrix=pd.DataFrame(),
         )
-        
+
         assert evolution_config.population_size == 50
         assert evolution_metrics.best_fitness == 0.85
         assert adaptation_config.adaptation_threshold == 0.7
-        assert market_context.regime == MarketRegime.TRENDING_UP 
+        assert market_context.regime == MarketRegime.TRENDING_UP

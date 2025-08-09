@@ -129,7 +129,6 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
     
     # Если уже нужный тип
     if isinstance(value, target_type):
-<<<<<<< HEAD
         if target_type == Decimal:
             return cast(Decimal, value)
         elif target_type == int:
@@ -138,9 +137,6 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
             return cast(float, value)
         else:
             return None
-=======
-        return value  # type: ignore[return-value]
->>>>>>> e90116ec91962c532322996f100c96a0340b15b3
     
     try:
         if target_type == Decimal:
@@ -160,27 +156,16 @@ def safe_numeric_convert(value: Any, target_type: type = Decimal) -> Union[Decim
         elif target_type == float:
             return float(value)
         else:
-<<<<<<< HEAD
             # Для других типов возвращаем None
             logger.warning(f"Unsupported target type: {target_type}")
             return None
-=======
-            return target_type(value)  # type: ignore[no-any-return]
->>>>>>> e90116ec91962c532322996f100c96a0340b15b3
             
     except (ValueError, TypeError, OverflowError) as e:
         logger.warning(f"Failed to convert {value} to {target_type}: {e}")
         return None
-    
-    # Резервный возврат если ни одна ветка не сработала
-    return None
 
 
-<<<<<<< HEAD
 def validate_dict_structure(data: Dict[str, Any], required_keys: Optional[List[str]] = None, allowed_keys: Optional[List[str]] = None) -> bool:
-=======
-def validate_dict_structure(data: Any, required_keys: list = None, allowed_keys: list = None) -> bool:
->>>>>>> e90116ec91962c532322996f100c96a0340b15b3
     """
     Валидация структуры словаря.
     

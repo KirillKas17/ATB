@@ -12,4 +12,4 @@ This package contains all test modules organized by type:
 - domain: Domain-specific tests
 - infrastructure: Infrastructure component tests
 - reports: Test reports and coverage
-""" 
+"""

@@ -19,16 +19,8 @@ from typing import Dict, List, Any, Optional
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
-from domain.evolution.strategy_fitness import (
-    TradeResult,
-    StrategyEvaluationResult,
-    StrategyFitnessEvaluator
-)
-from domain.evolution.strategy_model import (
-    EvolutionContext,
-    EvolutionStatus,
-    StrategyCandidate
-)
+from domain.evolution.strategy_fitness import TradeResult, StrategyEvaluationResult, StrategyFitnessEvaluator
+from domain.evolution.strategy_model import EvolutionContext, EvolutionStatus, StrategyCandidate
 from domain.type_definitions.evolution_types import (
     AccuracyScore,
     ConsistencyScore,
@@ -39,7 +31,7 @@ from domain.type_definitions.evolution_types import (
     ProfitabilityScore,
     RiskScore,
     StrategyPerformance,
-    TradePosition
+    TradePosition,
 )
 from domain.exceptions.base_exceptions import ValidationError
 
@@ -58,7 +50,7 @@ class TestTradeResult:
             quantity=Decimal("1.0"),
             signal_type="buy",
             holding_time=3600,
-            commission=Decimal("10")
+            commission=Decimal("10"),
         )
 
     def test_creation_valid(self, sample_trade: TradeResult) -> None:
@@ -73,7 +65,7 @@ class TestTradeResult:
     def test_calculate_pnl_buy_profit(self, sample_trade: TradeResult) -> None:
         """Тест расчета P&L для прибыльной покупки."""
         sample_trade.calculate_pnl()
-        
+
         expected_pnl = (Decimal("51000") - Decimal("50000")) * Decimal("1.0") - Decimal("10")
         assert sample_trade.pnl == expected_pnl
         assert sample_trade.success is True
@@ -85,10 +77,10 @@ class TestTradeResult:
             exit_price=Decimal("49000"),
             quantity=Decimal("1.0"),
             signal_type="buy",
-            commission=Decimal("10")
+            commission=Decimal("10"),
         )
         trade.calculate_pnl()
-        
+
         expected_pnl = (Decimal("49000") - Decimal("50000")) * Decimal("1.0") - Decimal("10")
         assert trade.pnl == expected_pnl
         assert trade.success is False
@@ -100,10 +92,10 @@ class TestTradeResult:
             exit_price=Decimal("49000"),
             quantity=Decimal("1.0"),
             signal_type="sell",
-            commission=Decimal("10")
+            commission=Decimal("10"),
         )
         trade.calculate_pnl()
-        
+
         expected_pnl = (Decimal("50000") - Decimal("49000")) * Decimal("1.0") - Decimal("10")
         assert trade.pnl == expected_pnl
         assert trade.success is True
@@ -112,7 +104,7 @@ class TestTradeResult:
         """Тест получения ROI."""
         sample_trade.calculate_pnl()
         roi = sample_trade.get_roi()
-        
+
         expected_roi = (Decimal("1000") - Decimal("10")) / (Decimal("50000") * Decimal("1.0"))
         assert roi == expected_roi
 
@@ -120,7 +112,7 @@ class TestTradeResult:
         """Тест получения метрик риска."""
         sample_trade.calculate_pnl()
         metrics = sample_trade.get_risk_metrics()
-        
+
         assert isinstance(metrics, dict)
         assert "pnl" in metrics
         assert "pnl_pct" in metrics
@@ -133,7 +125,7 @@ class TestTradeResult:
     def test_to_dict(self, sample_trade: TradeResult) -> None:
         """Тест преобразования в словарь."""
         result = sample_trade.to_dict()
-        
+
         assert isinstance(result, dict)
         assert result["entry_price"] == "50000"
         assert result["exit_price"] == "51000"
@@ -156,11 +148,11 @@ class TestTradeResult:
             "signal_type": "buy",
             "holding_time": 3600,
             "success": True,
-            "metadata": {}
+            "metadata": {},
         }
-        
+
         trade = TradeResult.from_dict(data)
-        
+
         assert trade.entry_price == Decimal("50000")
         assert trade.exit_price == Decimal("51000")
         assert trade.quantity == Decimal("1.0")
@@ -183,7 +175,7 @@ class TestStrategyEvaluationResult:
             total_pnl=Decimal("1000"),
             net_pnl=Decimal("990"),
             profitability=Decimal("0.099"),
-            max_drawdown_pct=Decimal("0.05")
+            max_drawdown_pct=Decimal("0.05"),
         )
 
     @pytest.fixture
@@ -199,7 +191,7 @@ class TestStrategyEvaluationResult:
                 quantity=Decimal("1.0"),
                 signal_type="buy",
                 holding_time=1800,
-                commission=Decimal("10")
+                commission=Decimal("10"),
             )
             trade.calculate_pnl()
             trades.append(trade)
@@ -218,28 +210,32 @@ class TestStrategyEvaluationResult:
         """Тест добавления сделки."""
         initial_trades = len(sample_evaluation.trades)
         sample_evaluation.add_trade(sample_trades[0])
-        
+
         assert len(sample_evaluation.trades) == initial_trades + 1
         assert sample_evaluation.total_trades == 1
 
-    def test_recalculate_metrics(self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]) -> None:
+    def test_recalculate_metrics(
+        self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]
+    ) -> None:
         """Тест пересчета метрик."""
         for trade in sample_trades:
             sample_evaluation.add_trade(trade)
-        
+
         assert sample_evaluation.total_trades == 10
         assert sample_evaluation.winning_trades == 7
         assert sample_evaluation.losing_trades == 3
         assert sample_evaluation.win_rate == Decimal("0.7")
         assert sample_evaluation.profit_factor > Decimal("0")
 
-    def test_calculate_risk_metrics(self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]) -> None:
+    def test_calculate_risk_metrics(
+        self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]
+    ) -> None:
         """Тест расчета риск-метрик."""
         for trade in sample_trades:
             sample_evaluation.add_trade(trade)
-        
+
         risk_metrics = sample_evaluation.get_risk_metrics()
-        
+
         assert isinstance(risk_metrics, dict)
         assert "max_drawdown" in risk_metrics
         assert "sharpe_ratio" in risk_metrics
@@ -254,62 +250,67 @@ class TestStrategyEvaluationResult:
             min_accuracy=Decimal("0.6"),
             min_profitability=Decimal("0.05"),
             max_drawdown=Decimal("0.1"),
-            min_sharpe=Decimal("1.0")
+            min_sharpe=Decimal("1.0"),
         )
-        
+
         result = sample_evaluation.check_approval_criteria(context)
-        
+
         assert isinstance(result, bool)
         assert isinstance(sample_evaluation.is_approved, bool)
         assert isinstance(sample_evaluation.approval_reason, str)
 
-    def test_get_fitness_score(self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]) -> None:
+    def test_get_fitness_score(
+        self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]
+    ) -> None:
         """Тест получения fitness score."""
         for trade in sample_trades:
             sample_evaluation.add_trade(trade)
-        
+
         fitness_score = sample_evaluation.get_fitness_score()
-        
+
         assert isinstance(fitness_score, FitnessScore)
         assert fitness_score.value > Decimal("0")
 
-    def test_get_fitness_score_custom_weights(self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]) -> None:
+    def test_get_fitness_score_custom_weights(
+        self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]
+    ) -> None:
         """Тест получения fitness score с кастомными весами."""
         for trade in sample_trades:
             sample_evaluation.add_trade(trade)
-        
+
         weights = FitnessWeights(
-            accuracy=Decimal("0.4"),
-            profitability=Decimal("0.3"),
-            risk=Decimal("0.2"),
-            consistency=Decimal("0.1")
+            accuracy=Decimal("0.4"), profitability=Decimal("0.3"), risk=Decimal("0.2"), consistency=Decimal("0.1")
         )
-        
+
         fitness_score = sample_evaluation.get_fitness_score(weights)
-        
+
         assert isinstance(fitness_score, FitnessScore)
         assert fitness_score.value > Decimal("0")
 
-    def test_get_performance_summary(self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]) -> None:
+    def test_get_performance_summary(
+        self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]
+    ) -> None:
         """Тест получения сводки производительности."""
         for trade in sample_trades:
             sample_evaluation.add_trade(trade)
-        
+
         summary = sample_evaluation.get_performance_summary()
-        
+
         assert isinstance(summary, StrategyPerformance)
         assert summary.total_trades == 10
         assert summary.winning_trades == 7
         assert summary.losing_trades == 3
         assert summary.win_rate == 0.7
 
-    def test_get_trade_analysis(self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]) -> None:
+    def test_get_trade_analysis(
+        self, sample_evaluation: StrategyEvaluationResult, sample_trades: List[TradeResult]
+    ) -> None:
         """Тест получения анализа сделок."""
         for trade in sample_trades:
             sample_evaluation.add_trade(trade)
-        
+
         analysis = sample_evaluation.get_trade_analysis()
-        
+
         assert isinstance(analysis, dict)
         assert "signal_analysis" in analysis
         assert "holding_time_analysis" in analysis
@@ -318,7 +319,7 @@ class TestStrategyEvaluationResult:
     def test_to_dict(self, sample_evaluation: StrategyEvaluationResult) -> None:
         """Тест преобразования в словарь."""
         result = sample_evaluation.to_dict()
-        
+
         assert isinstance(result, dict)
         assert result["total_trades"] == 10
         assert result["winning_trades"] == 7
@@ -361,11 +362,11 @@ class TestStrategyEvaluationResult:
             "evaluation_time": "2024-01-01T16:00:00",
             "metadata": {},
             "trades": [],
-            "equity_curve": []
+            "equity_curve": [],
         }
-        
+
         evaluation = StrategyEvaluationResult.from_dict(data)
-        
+
         assert evaluation.total_trades == 10
         assert evaluation.winning_trades == 7
         assert evaluation.losing_trades == 3
@@ -380,10 +381,7 @@ class TestStrategyFitnessEvaluator:
     def sample_weights(self) -> FitnessWeights:
         """Тестовые веса."""
         return FitnessWeights(
-            accuracy=Decimal("0.3"),
-            profitability=Decimal("0.3"),
-            risk=Decimal("0.2"),
-            consistency=Decimal("0.2")
+            accuracy=Decimal("0.3"), profitability=Decimal("0.3"), risk=Decimal("0.2"), consistency=Decimal("0.2")
         )
 
     @pytest.fixture
@@ -398,164 +396,136 @@ class TestStrategyFitnessEvaluator:
             id=uuid4(),
             name="Test Strategy",
             description="Test strategy for evaluation",
-            entry_conditions=[
-                EntryCondition(
-                    indicator="sma",
-                    operator="crossover",
-                    value=50.0,
-                    timeframe="1h"
-                )
-            ],
+            entry_conditions=[EntryCondition(indicator="sma", operator="crossover", value=50.0, timeframe="1h")],
             exit_conditions=[
-                ExitCondition(
-                    indicator="profit_target",
-                    operator="greater_than",
-                    value=0.02,
-                    timeframe="1h"
-                )
+                ExitCondition(indicator="profit_target", operator="greater_than", value=0.02, timeframe="1h")
             ],
-            parameters={
-                "position_size": 0.1,
-                "stop_loss": 0.01,
-                "take_profit": 0.02
-            }
+            parameters={"position_size": 0.1, "stop_loss": 0.01, "take_profit": 0.02},
         )
 
     @pytest.fixture
     def sample_historical_data(self) -> pd.DataFrame:
         """Тестовые исторические данные."""
-        dates = pd.date_range(start='2024-01-01', periods=100, freq='1h')
+        dates = pd.date_range(start="2024-01-01", periods=100, freq="1h")
         data = {
-            'open': np.random.randn(100).cumsum() + 50000,
-            'high': np.random.randn(100).cumsum() + 50100,
-            'low': np.random.randn(100).cumsum() + 49900,
-            'close': np.random.randn(100).cumsum() + 50000,
-            'volume': np.random.randint(1000, 10000, 100),
-            'sma_20': np.random.randn(100).cumsum() + 50000,
-            'sma_50': np.random.randn(100).cumsum() + 49950
+            "open": np.random.randn(100).cumsum() + 50000,
+            "high": np.random.randn(100).cumsum() + 50100,
+            "low": np.random.randn(100).cumsum() + 49900,
+            "close": np.random.randn(100).cumsum() + 50000,
+            "volume": np.random.randint(1000, 10000, 100),
+            "sma_20": np.random.randn(100).cumsum() + 50000,
+            "sma_50": np.random.randn(100).cumsum() + 49950,
         }
         return pd.DataFrame(data, index=dates)
 
     def test_initialization_default_weights(self: "TestStrategyFitnessEvaluator") -> None:
         """Тест инициализации с дефолтными весами."""
         evaluator = StrategyFitnessEvaluator()
-        
+
         assert evaluator.weights is not None
         assert isinstance(evaluator.weights, FitnessWeights)
 
     def test_initialization_custom_weights(self, sample_weights: FitnessWeights) -> None:
         """Тест инициализации с кастомными весами."""
         evaluator = StrategyFitnessEvaluator(weights=sample_weights)
-        
+
         assert evaluator.weights == sample_weights
 
-    def test_evaluate_strategy(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate, sample_historical_data: pd.DataFrame) -> None:
+    def test_evaluate_strategy(
+        self,
+        evaluator: StrategyFitnessEvaluator,
+        sample_candidate: StrategyCandidate,
+        sample_historical_data: pd.DataFrame,
+    ) -> None:
         """Тест оценки стратегии."""
-        result = evaluator.evaluate_strategy(
-            sample_candidate,
-            sample_historical_data,
-            initial_capital=Decimal("10000")
-        )
-        
+        result = evaluator.evaluate_strategy(sample_candidate, sample_historical_data, initial_capital=Decimal("10000"))
+
         assert isinstance(result, StrategyEvaluationResult)
         assert result.strategy_id == sample_candidate.id
         assert isinstance(result.total_trades, int)
         assert isinstance(result.win_rate, Decimal)
         assert isinstance(result.profitability, Decimal)
 
-    def test_simulate_trading(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate, sample_historical_data: pd.DataFrame) -> None:
+    def test_simulate_trading(
+        self,
+        evaluator: StrategyFitnessEvaluator,
+        sample_candidate: StrategyCandidate,
+        sample_historical_data: pd.DataFrame,
+    ) -> None:
         """Тест симуляции торговли."""
-        trades = evaluator._simulate_trading(
-            sample_candidate,
-            sample_historical_data,
-            initial_capital=Decimal("10000")
-        )
-        
+        trades = evaluator._simulate_trading(sample_candidate, sample_historical_data, initial_capital=Decimal("10000"))
+
         assert isinstance(trades, list)
         for trade in trades:
             assert isinstance(trade, TradeResult)
 
-    def test_check_entry_signals(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate, sample_historical_data: pd.DataFrame) -> None:
+    def test_check_entry_signals(
+        self,
+        evaluator: StrategyFitnessEvaluator,
+        sample_candidate: StrategyCandidate,
+        sample_historical_data: pd.DataFrame,
+    ) -> None:
         """Тест проверки сигналов входа."""
         signal = evaluator._check_entry_signals(
-            sample_candidate,
-            sample_historical_data.iloc[50:60],
-            50,
-            sample_historical_data
+            sample_candidate, sample_historical_data.iloc[50:60], 50, sample_historical_data
         )
-        
+
         # Сигнал может быть None или строкой
         assert signal is None or isinstance(signal, str)
 
-    def test_check_exit_signals(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate, sample_historical_data: pd.DataFrame) -> None:
+    def test_check_exit_signals(
+        self,
+        evaluator: StrategyFitnessEvaluator,
+        sample_candidate: StrategyCandidate,
+        sample_historical_data: pd.DataFrame,
+    ) -> None:
         """Тест проверки сигналов выхода."""
         position = TradePosition(
-            entry_time=datetime.now(),
-            entry_price=Decimal("50000"),
-            quantity=Decimal("1.0"),
-            signal_type="buy"
+            entry_time=datetime.now(), entry_price=Decimal("50000"), quantity=Decimal("1.0"), signal_type="buy"
         )
-        
+
         signal = evaluator._check_exit_signals(
-            sample_candidate,
-            sample_historical_data.iloc[50:60],
-            position,
-            50,
-            sample_historical_data
+            sample_candidate, sample_historical_data.iloc[50:60], position, 50, sample_historical_data
         )
-        
+
         # Сигнал может быть None или строкой
         assert signal is None or isinstance(signal, str)
 
     def test_evaluate_conditions(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест оценки условий."""
-        conditions = [
-            EntryCondition(
-                indicator="sma",
-                operator="crossover",
-                value=50.0,
-                timeframe="1h"
-            )
-        ]
-        
+        conditions = [EntryCondition(indicator="sma", operator="crossover", value=50.0, timeframe="1h")]
+
         result = evaluator._evaluate_conditions(conditions)
-        
+
         assert isinstance(result, bool)
 
     def test_evaluate_single_condition(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест оценки одного условия."""
-        condition = EntryCondition(
-            indicator="sma",
-            operator="crossover",
-            value=50.0,
-            timeframe="1h"
-        )
-        
+        condition = EntryCondition(indicator="sma", operator="crossover", value=50.0, timeframe="1h")
+
         result = evaluator._evaluate_single_condition(condition)
-        
+
         assert isinstance(result, bool)
 
     def test_evaluate_dict_condition(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест оценки условия в виде словаря."""
-        condition = {
-            "indicator": "price",
-            "operator": "greater_than",
-            "value": 50000
-        }
-        
+        condition = {"indicator": "price", "operator": "greater_than", "value": 50000}
+
         result = evaluator._evaluate_dict_condition(condition)
-        
+
         assert isinstance(result, bool)
 
-    def test_open_position(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate, sample_historical_data: pd.DataFrame) -> None:
+    def test_open_position(
+        self,
+        evaluator: StrategyFitnessEvaluator,
+        sample_candidate: StrategyCandidate,
+        sample_historical_data: pd.DataFrame,
+    ) -> None:
         """Тест открытия позиции."""
         position = evaluator._open_position(
-            sample_candidate,
-            sample_historical_data.iloc[50:51],
-            "buy",
-            Decimal("10000")
+            sample_candidate, sample_historical_data.iloc[50:51], "buy", Decimal("10000")
         )
-        
+
         assert isinstance(position, TradePosition)
         assert position.signal_type == "buy"
         assert position.quantity > Decimal("0")
@@ -563,49 +533,47 @@ class TestStrategyFitnessEvaluator:
     def test_close_position(self, evaluator: StrategyFitnessEvaluator, sample_historical_data: pd.DataFrame) -> None:
         """Тест закрытия позиции."""
         position = TradePosition(
-            entry_time=datetime.now(),
-            entry_price=Decimal("50000"),
-            quantity=Decimal("1.0"),
-            signal_type="buy"
+            entry_time=datetime.now(), entry_price=Decimal("50000"), quantity=Decimal("1.0"), signal_type="buy"
         )
-        
-        trade = evaluator._close_position(
-            position,
-            sample_historical_data.iloc[50:51],
-            "profit_target"
-        )
-        
+
+        trade = evaluator._close_position(position, sample_historical_data.iloc[50:51], "profit_target")
+
         assert isinstance(trade, TradeResult)
         assert trade.entry_price == Decimal("50000")
         assert trade.quantity == Decimal("1.0")
 
-    def test_get_evaluation_result(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate, sample_historical_data: pd.DataFrame) -> None:
+    def test_get_evaluation_result(
+        self,
+        evaluator: StrategyFitnessEvaluator,
+        sample_candidate: StrategyCandidate,
+        sample_historical_data: pd.DataFrame,
+    ) -> None:
         """Тест получения результата оценки."""
         # Сначала выполняем оценку
         evaluator.evaluate_strategy(sample_candidate, sample_historical_data)
-        
+
         result = evaluator.get_evaluation_result(sample_candidate.id)
-        
+
         assert result is None or isinstance(result, StrategyEvaluationResult)
 
     def test_get_all_results(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест получения всех результатов."""
         results = evaluator.get_all_results()
-        
+
         assert isinstance(results, list)
         assert all(isinstance(r, StrategyEvaluationResult) for r in results)
 
     def test_get_approved_strategies(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест получения одобренных стратегий."""
         strategies = evaluator.get_approved_strategies()
-        
+
         assert isinstance(strategies, list)
         assert all(isinstance(s, StrategyEvaluationResult) for s in strategies)
 
     def test_get_top_strategies(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест получения топ стратегий."""
         strategies = evaluator.get_top_strategies(n=5)
-        
+
         assert isinstance(strategies, list)
         assert len(strategies) <= 5
         assert all(isinstance(s, StrategyEvaluationResult) for s in strategies)
@@ -613,53 +581,61 @@ class TestStrategyFitnessEvaluator:
     def test_clear_results(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест очистки результатов."""
         evaluator.clear_results()
-        
+
         results = evaluator.get_all_results()
         assert len(results) == 0
 
     def test_get_evaluation_statistics(self, evaluator: StrategyFitnessEvaluator) -> None:
         """Тест получения статистики оценки."""
         stats = evaluator.get_evaluation_statistics()
-        
+
         assert isinstance(stats, dict)
         assert "total_evaluations" in stats
         assert "approved_strategies" in stats
         assert "average_fitness_score" in stats
 
-    def test_error_handling_invalid_data(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate) -> None:
+    def test_error_handling_invalid_data(
+        self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate
+    ) -> None:
         """Тест обработки ошибок с невалидными данными."""
-        invalid_data = pd.DataFrame({
-            'open': [np.nan, np.nan, np.nan],
-            'high': [np.nan, np.nan, np.nan],
-            'low': [np.nan, np.nan, np.nan],
-            'close': [np.nan, np.nan, np.nan],
-            'volume': [np.nan, np.nan, np.nan]
-        })
-        
+        invalid_data = pd.DataFrame(
+            {
+                "open": [np.nan, np.nan, np.nan],
+                "high": [np.nan, np.nan, np.nan],
+                "low": [np.nan, np.nan, np.nan],
+                "close": [np.nan, np.nan, np.nan],
+                "volume": [np.nan, np.nan, np.nan],
+            }
+        )
+
         result = evaluator.evaluate_strategy(sample_candidate, invalid_data)
-        
+
         assert isinstance(result, StrategyEvaluationResult)
         assert result.total_trades == 0
 
-    def test_performance_with_large_data(self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate) -> None:
+    def test_performance_with_large_data(
+        self, evaluator: StrategyFitnessEvaluator, sample_candidate: StrategyCandidate
+    ) -> None:
         """Тест производительности с большими данными."""
         # Создаем большие исторические данные
-        large_data = pd.DataFrame({
-            'open': np.random.randn(1000).cumsum() + 50000,
-            'high': np.random.randn(1000).cumsum() + 50100,
-            'low': np.random.randn(1000).cumsum() + 49900,
-            'close': np.random.randn(1000).cumsum() + 50000,
-            'volume': np.random.randint(1000, 10000, 1000),
-            'sma_20': np.random.randn(1000).cumsum() + 50000,
-            'sma_50': np.random.randn(1000).cumsum() + 49950
-        })
-        
+        large_data = pd.DataFrame(
+            {
+                "open": np.random.randn(1000).cumsum() + 50000,
+                "high": np.random.randn(1000).cumsum() + 50100,
+                "low": np.random.randn(1000).cumsum() + 49900,
+                "close": np.random.randn(1000).cumsum() + 50000,
+                "volume": np.random.randint(1000, 10000, 1000),
+                "sma_20": np.random.randn(1000).cumsum() + 50000,
+                "sma_50": np.random.randn(1000).cumsum() + 49950,
+            }
+        )
+
         start_time = datetime.now()
         result = evaluator.evaluate_strategy(sample_candidate, large_data)
         end_time = datetime.now()
-        
+
         processing_time = (end_time - start_time).total_seconds()
-        
+
         # Обработка должна быть быстрой (менее 5 секунд)
         assert processing_time < 5.0
-        assert isinstance(result, StrategyEvaluationResult) 
+        assert isinstance(result, StrategyEvaluationResult)

@@ -42,7 +42,7 @@ class MonitorConfig:
 class Monitor:
     """Мониторинг стратегий."""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], MonitorConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], MonitorConfig]] = None) -> None:
         """
         Инициализация монитора.
         Args:

@@ -4,7 +4,8 @@ import pandas as pd
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from infrastructure.core.correlation_chain import CorrelationChain, CorrelationMetrics
-    @pytest.fixture
+
+@pytest.fixture
 def correlation_chain() -> Any:
     """Фикстура для CorrelationChain"""
     config = {
@@ -15,7 +16,8 @@ def correlation_chain() -> Any:
         "stability_window": 50,
     }
     return CorrelationChain(config)
-    @pytest.fixture
+
+@pytest.fixture
 def sample_series() -> Any:
     """Фикстура для тестовых временных рядов"""
     # Создаем два коррелированных ряда
@@ -32,7 +34,8 @@ def sample_series() -> Any:
     series2 = series2.shift(2)  # Добавляем лаг
     series2 = series2.bfill()
     return {"BTC/USD": series1, "ETH/USD": series2}
-    @pytest.fixture
+
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2023-01-01", periods=100, freq="h")
@@ -59,8 +62,10 @@ def mock_market_data() -> Any:
         ),
     }
     return data
+
 class TestCorrelationChain:
     """Тесты для CorrelationChain"""
+
     def test_initialization(self, correlation_chain) -> None:
         """Тест инициализации"""
         assert correlation_chain.max_lag == 5
@@ -68,6 +73,7 @@ class TestCorrelationChain:
         assert correlation_chain.significance_level == 0.05
         assert correlation_chain.regime_window == 20
         assert correlation_chain.stability_window == 50
+
     def test_calculate_correlation(self, correlation_chain, sample_series) -> None:
         """Тест расчета корреляции"""
         metrics = correlation_chain.calculate_correlation(
@@ -82,6 +88,7 @@ class TestCorrelationChain:
         assert metrics.regime_dependency is not None
         assert metrics.stability_score is not None
         assert metrics.breakpoints is not None
+
     def test_add_metrics(self, correlation_chain, sample_series) -> None:
         """Тест добавления метрик"""
         metrics = correlation_chain.calculate_correlation(
@@ -89,6 +96,7 @@ class TestCorrelationChain:
         )
         correlation_chain.add_metrics("BTC/USD", "ETH/USD", metrics)
         assert ("BTC/USD", "ETH/USD") in correlation_chain.metrics
+
     def test_get_metrics(self, correlation_chain, sample_series) -> None:
         """Тест получения метрик"""
         metrics = correlation_chain.calculate_correlation(

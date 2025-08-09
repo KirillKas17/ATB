@@ -1,6 +1,7 @@
 """
 Comprehensive tests for cache services.
 """
+
 import pytest
 from unittest.mock import Mock, patch
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
@@ -17,23 +18,23 @@ from domain.entities.order import Order, OrderSide, OrderType, OrderStatus
 from domain.value_objects.money import Money
 from domain.value_objects.currency import Currency
 from domain.entities.trading_pair import TradingPair
+
+
 class TestRedisCache:
     """Tests for RedisCache."""
+
     @pytest.fixture
     async def cache(self) -> Any:
         """Create Redis cache instance."""
         cache = RedisCache("redis://localhost:6379")
         cache._redis = AsyncMock()
         return cache
+
     @pytest.fixture
     def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
-        return {
-            "key": "value",
-            "number": 42,
-            "list": [1, 2, 3],
-            "dict": {"nested": "data"}
-        }
+        return {"key": "value", "number": 42, "list": [1, 2, 3], "dict": {"nested": "data"}}
+
     async def test_set_get_success(self, cache, sample_data) -> None:
         """Test successful set and get operations."""
         # Arrange
@@ -47,6 +48,7 @@ class TestRedisCache:
         assert result == sample_data
         cache._redis.set.assert_called_once()
         cache._redis.get.assert_called_once_with(key)
+
     async def test_get_not_found(self, cache) -> None:
         """Test get operation when key not found."""
         # Arrange
@@ -56,6 +58,7 @@ class TestRedisCache:
         result = await cache.get(key)
         # Assert
         assert result is None
+
     async def test_delete_success(self, cache) -> None:
         """Test successful delete operation."""
         # Arrange
@@ -66,6 +69,7 @@ class TestRedisCache:
         # Assert
         assert result is True
         cache._redis.delete.assert_called_once_with(key)
+
     async def test_delete_not_found(self, cache) -> None:
         """Test delete operation when key not found."""
         # Arrange
@@ -75,6 +79,7 @@ class TestRedisCache:
         result = await cache.delete(key)
         # Assert
         assert result is False
+
     async def test_exists_success(self, cache) -> None:
         """Test exists operation."""
         # Arrange
@@ -85,6 +90,7 @@ class TestRedisCache:
         # Assert
         assert result is True
         cache._redis.exists.assert_called_once_with(key)
+
     async def test_exists_not_found(self, cache) -> None:
         """Test exists operation when key not found."""
         # Arrange
@@ -94,6 +100,7 @@ class TestRedisCache:
         result = await cache.exists(key)
         # Assert
         assert result is False
+
     async def test_clear_success(self, cache) -> None:
         """Test clear operation."""
         # Arrange
@@ -103,6 +110,7 @@ class TestRedisCache:
         # Assert
         assert result is True
         cache._redis.flushdb.assert_called_once()
+
     async def test_set_with_ttl(self, cache, sample_data) -> None:
         """Test set operation with TTL."""
         # Arrange
@@ -113,9 +121,8 @@ class TestRedisCache:
         result = await cache.set(key, sample_data, ttl=ttl)
         # Assert
         assert result is True
-        cache._redis.setex.assert_called_once_with(
-            key, ttl, json.dumps(sample_data)
-        )
+        cache._redis.setex.assert_called_once_with(key, ttl, json.dumps(sample_data))
+
     async def test_connection_error_handling(self, cache, sample_data) -> None:
         """Test connection error handling."""
         # Arrange
@@ -124,6 +131,7 @@ class TestRedisCache:
         # Act & Assert
         with pytest.raises(Exception):
             await cache.set(key, sample_data)
+
     async def test_health_check_success(self, cache) -> None:
         """Test health check when Redis is available."""
         # Arrange
@@ -133,6 +141,7 @@ class TestRedisCache:
         # Assert
         assert result["status"] == "healthy"
         assert "response_time" in result
+
     async def test_health_check_failure(self, cache) -> None:
         """Test health check when Redis is unavailable."""
         # Arrange
@@ -142,22 +151,22 @@ class TestRedisCache:
         # Assert
         assert result["status"] == "unhealthy"
         assert "error" in result
+
+
 class TestDiskCache:
     """Tests for DiskCache."""
+
     @pytest.fixture
     async def cache(self) -> Any:
         """Create disk cache instance."""
         cache = DiskCache("/tmp/test_cache")
         return cache
+
     @pytest.fixture
     def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
-        return {
-            "key": "value",
-            "number": 42,
-            "list": [1, 2, 3],
-            "dict": {"nested": "data"}
-        }
+        return {"key": "value", "number": 42, "list": [1, 2, 3], "dict": {"nested": "data"}}
+
     async def test_set_get_success(self, cache, sample_data) -> None:
         """Test successful set and get operations."""
         # Arrange
@@ -167,6 +176,7 @@ class TestDiskCache:
         result = await cache.get(key)
         # Assert
         assert result == sample_data
+
     async def test_get_not_found(self, cache) -> None:
         """Test get operation when key not found."""
         # Arrange
@@ -175,6 +185,7 @@ class TestDiskCache:
         result = await cache.get(key)
         # Assert
         assert result is None
+
     async def test_delete_success(self, cache, sample_data) -> None:
         """Test successful delete operation."""
         # Arrange
@@ -185,6 +196,7 @@ class TestDiskCache:
         # Assert
         assert result is True
         assert await cache.get(key) is None
+
     async def test_delete_not_found(self, cache) -> None:
         """Test delete operation when key not found."""
         # Arrange
@@ -193,6 +205,7 @@ class TestDiskCache:
         result = await cache.delete(key)
         # Assert
         assert result is False
+
     async def test_exists_success(self, cache, sample_data) -> None:
         """Test exists operation."""
         # Arrange
@@ -202,6 +215,7 @@ class TestDiskCache:
         result = await cache.exists(key)
         # Assert
         assert result is True
+
     async def test_exists_not_found(self, cache) -> None:
         """Test exists operation when key not found."""
         # Arrange
@@ -210,6 +224,7 @@ class TestDiskCache:
         result = await cache.exists(key)
         # Assert
         assert result is False
+
     async def test_clear_success(self, cache, sample_data) -> None:
         """Test clear operation."""
         # Arrange
@@ -221,6 +236,7 @@ class TestDiskCache:
         assert result is True
         assert await cache.get("key1") is None
         assert await cache.get("key2") is None
+
     async def test_ttl_expiration(self, cache, sample_data) -> None:
         """Test TTL expiration."""
         # Arrange
@@ -232,6 +248,7 @@ class TestDiskCache:
         result = await cache.get(key)
         # Assert
         assert result is None
+
     async def test_health_check_success(self, cache) -> None:
         """Test health check."""
         # Act
@@ -239,8 +256,11 @@ class TestDiskCache:
         # Assert
         assert result["status"] == "healthy"
         assert "disk_usage" in result
+
+
 class TestHybridCache:
     """Tests for HybridCache."""
+
     @pytest.fixture
     async def cache(self) -> Any:
         """Create hybrid cache instance."""
@@ -249,15 +269,12 @@ class TestHybridCache:
         secondary_cache = DiskCache("/tmp/test_cache")
         cache = HybridCache(primary_cache, secondary_cache)
         return cache
+
     @pytest.fixture
     def sample_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Create sample data for testing."""
-        return {
-            "key": "value",
-            "number": 42,
-            "list": [1, 2, 3],
-            "dict": {"nested": "data"}
-        }
+        return {"key": "value", "number": 42, "list": [1, 2, 3], "dict": {"nested": "data"}}
+
     async def test_set_get_primary_success(self, cache, sample_data) -> None:
         """Test successful set and get operations with primary cache."""
         # Arrange
@@ -271,6 +288,7 @@ class TestHybridCache:
         assert result == sample_data
         cache._primary_cache._redis.set.assert_called_once()
         cache._primary_cache._redis.get.assert_called_once_with(key)
+
     async def test_get_fallback_to_secondary(self, cache, sample_data) -> None:
         """Test fallback to secondary cache when primary fails."""
         # Arrange
@@ -281,6 +299,7 @@ class TestHybridCache:
         result = await cache.get(key)
         # Assert
         assert result == sample_data
+
     async def test_delete_both_caches(self, cache, sample_data) -> None:
         """Test delete operation on both caches."""
         # Arrange
@@ -293,6 +312,7 @@ class TestHybridCache:
         assert result is True
         cache._primary_cache._redis.delete.assert_called_once_with(key)
         assert await cache._secondary_cache.get(key) is None
+
     async def test_exists_primary_success(self, cache) -> None:
         """Test exists operation with primary cache."""
         # Arrange
@@ -303,6 +323,7 @@ class TestHybridCache:
         # Assert
         assert result is True
         cache._primary_cache._redis.exists.assert_called_once_with(key)
+
     async def test_exists_fallback_to_secondary(self, cache, sample_data) -> None:
         """Test exists operation with fallback to secondary cache."""
         # Arrange
@@ -313,6 +334,7 @@ class TestHybridCache:
         result = await cache.exists(key)
         # Assert
         assert result is True
+
     async def test_clear_both_caches(self, cache) -> None:
         """Test clear operation on both caches."""
         # Arrange
@@ -323,6 +345,7 @@ class TestHybridCache:
         assert result is True
         cache._primary_cache._redis.flushdb.assert_called_once()
         # Secondary cache clear is also called
+
     async def test_health_check_primary_healthy(self, cache) -> None:
         """Test health check when primary cache is healthy."""
         # Arrange
@@ -333,6 +356,7 @@ class TestHybridCache:
         assert result["status"] == "healthy"
         assert result["primary"]["status"] == "healthy"
         assert result["secondary"]["status"] == "healthy"
+
     async def test_health_check_primary_unhealthy(self, cache) -> None:
         """Test health check when primary cache is unhealthy."""
         # Arrange
@@ -343,11 +367,13 @@ class TestHybridCache:
         assert result["status"] == "degraded"
         assert result["primary"]["status"] == "unhealthy"
         assert result["secondary"]["status"] == "healthy"
+
+
 class TestCacheIntegration:
     """Integration tests for cache services."""
-    
+
     @pytest.mark.integration
-    def test_cache_with_complex_objects(self: "TestCacheIntegration") -> None:
+    async def test_cache_with_complex_objects(self: "TestCacheIntegration") -> None:
         """Test cache with complex domain objects."""
         # Arrange
         order = Order(
@@ -359,7 +385,7 @@ class TestCacheIntegration:
             price=Money(Decimal("50000"), Currency.USD),
             status=OrderStatus.PENDING,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         cache = DiskCache("/tmp/test_cache")
         # Act
@@ -369,11 +395,13 @@ class TestCacheIntegration:
         assert result is not None
         assert result.id == order.id
         assert result.trading_pair == order.trading_pair
+
     @pytest.mark.integration
     def test_cache_eviction_policy(self: "TestCacheIntegration") -> None:
         """Test cache eviction policy."""
         # This would test LRU or other eviction policies
         pass
+
     @pytest.mark.integration
     def test_cache_compression(self: "TestCacheIntegration") -> None:
         """Test cache compression for large objects."""
@@ -383,19 +411,19 @@ class TestCacheIntegration:
 
 class TestCachePerformance:
     """Performance tests for cache services."""
-    
+
     @pytest.mark.performance
     def test_cache_throughput(self: "TestCachePerformance") -> None:
         """Test cache throughput."""
         # This would measure operations per second
         pass
-    
+
     @pytest.mark.performance
     def test_cache_latency(self: "TestCachePerformance") -> None:
         """Test cache latency."""
         # This would measure response times
         pass
-    
+
     @pytest.mark.performance
     def test_cache_memory_usage(self: "TestCachePerformance") -> None:
         """Test cache memory usage."""
@@ -405,23 +433,23 @@ class TestCachePerformance:
 
 class TestCacheEdgeCases:
     """Edge cases and error handling tests."""
-    
+
     def test_cache_with_large_objects(self: "TestCacheEdgeCases") -> None:
         """Test cache with very large objects."""
         # This would test handling of large data
         pass
-    
+
     def test_cache_with_special_characters(self: "TestCacheEdgeCases") -> None:
         """Test cache with special characters in keys."""
         # This would test key encoding/decoding
         pass
-    
+
     def test_cache_concurrent_access(self: "TestCacheEdgeCases") -> None:
         """Test cache with concurrent access."""
         # This would test thread safety
         pass
-    
+
     def test_cache_network_partition(self: "TestCacheEdgeCases") -> None:
         """Test cache behavior during network partition."""
         # This would test network failure scenarios
-        pass 
+        pass

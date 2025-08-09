@@ -20,6 +20,52 @@ from domain.type_definitions.external_service_types import (
     ExchangeName,
 )
 from domain.value_objects import Currency, Money
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class AccountMetrics:
+    """Метрики аккаунта."""
+    
+    total_balance: Money
+    total_pnl: Money
+    daily_pnl: Money
+    win_rate: float
+    total_trades: int
+    active_positions: int
+    margin_used: Money
+    free_margin: Money
+    timestamp: datetime
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "total_balance": {
+                "amount": str(self.total_balance.amount),
+                "currency": self.total_balance.currency
+            },
+            "total_pnl": {
+                "amount": str(self.total_pnl.amount),
+                "currency": self.total_pnl.currency
+            },
+            "daily_pnl": {
+                "amount": str(self.daily_pnl.amount),
+                "currency": self.daily_pnl.currency
+            },
+            "win_rate": self.win_rate,
+            "total_trades": self.total_trades,
+            "active_positions": self.active_positions,
+            "margin_used": {
+                "amount": str(self.margin_used.amount),
+                "currency": self.margin_used.currency
+            },
+            "free_margin": {
+                "amount": str(self.free_margin.amount),
+                "currency": self.free_margin.currency
+            },
+            "timestamp": self.timestamp.isoformat()
+        }
 
 
 class AccountManager(ExchangeProtocol):

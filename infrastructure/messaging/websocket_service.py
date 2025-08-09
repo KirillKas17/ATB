@@ -41,7 +41,7 @@ class WebSocketConnection:
     - Обработку ошибок
     """
 
-    def __init__(self, connection_id: ConnectionID, websocket: Any):
+    def __init__(self, connection_id: ConnectionID, websocket: Any) -> None:
         """
         Инициализация WebSocket соединения.
         Args:
@@ -153,7 +153,7 @@ class WebSocketService(WebSocketServiceProtocol):
     - Потокобезопасность
     """
 
-    def __init__(self, config: Optional[WebSocketServiceConfig] = None):
+    def __init__(self, config: Optional[WebSocketServiceConfig] = None) -> None:
         """
         Инициализация WebSocket сервиса.
         Args:

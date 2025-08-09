@@ -10,7 +10,7 @@ Unit тесты для domain entities.
 
 __all__ = [
     "test_account",
-    "test_order", 
+    "test_order",
     "test_position",
     "test_trade",
     "test_market",
@@ -18,5 +18,5 @@ __all__ = [
     "test_strategy",
     "test_ml",
     "test_risk",
-    "test_trading_session"
-] 
+    "test_trading_session",
+]

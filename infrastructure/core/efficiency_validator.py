@@ -68,7 +68,7 @@ class EfficiencyValidator:
     эволюционных изменений в компонентах системы.
     """
 
-    def __init__(self, config: Optional[EfficiencyConfig] = None):
+    def __init__(self, config: Optional[EfficiencyConfig] = None) -> None:
         """
         Инициализация валидатора эффективности.
         Args:

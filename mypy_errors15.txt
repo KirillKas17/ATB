@@ -1,7 +1,0 @@
-
-
-
-
-
-
-Found 1616 errors in 202 files (checked 1097 source files)

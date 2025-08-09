@@ -16,7 +16,7 @@ except ImportError:
     PANDAS_AVAILABLE = False
     # Создаем заглушку DataFrame
     class DataFrameFallback:
-        def __init__(self, data=None, **kwargs):
+        def __init__(self, data=None, **kwargs) -> None:
             self.data = data if data is not None else {}
             self._shape = (0, 0)
         
@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 class DataPipeline:
     """Pipeline для обработки рыночных данных."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.trade_history: Optional[Union[DataFrame, Dict]] = None
         self.processed_data: Dict[str, Any] = {}
     

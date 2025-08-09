@@ -128,7 +128,7 @@ class Signal:
 class BaseStrategy(ABC):
     """Базовый класс для всех торговых стратегий"""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

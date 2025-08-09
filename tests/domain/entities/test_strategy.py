@@ -1,6 +1,7 @@
 """
 Заглушка test_strategy.py. Оригинальный код утерян. Для корректной работы mypy и импорта.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import datetime
@@ -41,8 +42,20 @@ def test_strategy_add_signal() -> None:
 def test_strategy_get_latest_signal() -> None:
     strategy = Strategy(trading_pairs=["BTC/USDT"])
     now = datetime.now()
-    s1 = Signal(strategy_id=strategy.id, trading_pair="BTC/USDT", signal_type=SignalType.BUY, confidence=Decimal("0.7"), timestamp=now)
-    s2 = Signal(strategy_id=strategy.id, trading_pair="BTC/USDT", signal_type=SignalType.SELL, confidence=Decimal("0.6"), timestamp=now.replace(second=now.second+1))
+    s1 = Signal(
+        strategy_id=strategy.id,
+        trading_pair="BTC/USDT",
+        signal_type=SignalType.BUY,
+        confidence=Decimal("0.7"),
+        timestamp=now,
+    )
+    s2 = Signal(
+        strategy_id=strategy.id,
+        trading_pair="BTC/USDT",
+        signal_type=SignalType.SELL,
+        confidence=Decimal("0.6"),
+        timestamp=now.replace(second=now.second + 1),
+    )
     strategy.add_signal(s1)
     strategy.add_signal(s2)
     latest = strategy.get_latest_signal("BTC/USDT")
@@ -76,7 +89,13 @@ def test_strategy_save_and_load_state(tmp_path) -> None:
 
 def test_strategy_should_execute_signal() -> None:
     strategy = Strategy(trading_pairs=["BTC/USDT"])
-    signal = Signal(strategy_id=strategy.id, trading_pair="BTC/USDT", signal_type=SignalType.BUY, confidence=Decimal("0.8"), timestamp=datetime.now())
+    signal = Signal(
+        strategy_id=strategy.id,
+        trading_pair="BTC/USDT",
+        signal_type=SignalType.BUY,
+        confidence=Decimal("0.8"),
+        timestamp=datetime.now(),
+    )
     assert strategy.should_execute_signal(signal)
     strategy.is_active = False
     assert not strategy.should_execute_signal(signal)
@@ -96,4 +115,4 @@ def test_strategy_generate_signals_errors() -> None:
         strategy.generate_signals("BTC/USDT")
     strategy.is_active = True
     with pytest.raises(ValueError):
-        strategy.generate_signals("ETH/USDT") 
+        strategy.generate_signals("ETH/USDT")

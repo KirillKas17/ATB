@@ -16,7 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from loguru import logger
 from infrastructure.ml_services.decision_reasoner import DecisionReasoner
 from ml.live_adaptation import LiveAdaptation
-from ml.meta_learning import MetaLearner, StrategyEvolution
+from infrastructure.ml_services.advanced_price_predictor import MetaLearner
 from ml.transformer_predictor import TransformerPredictor
 from utils.event_bus import EventBus
 

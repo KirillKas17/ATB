@@ -14,7 +14,17 @@ else:
     except ImportError:
         # Создаем заглушки для тестирования
         class Order:
-            def __init__(self, id: str, pair: str, type: str, side: str, price: float, size: float, status: str, timestamp: datetime) -> Any:
+            def __init__(
+                self,
+                id: str,
+                pair: str,
+                type: str,
+                side: str,
+                price: float,
+                size: float,
+                status: str,
+                timestamp: datetime,
+            ) -> Any:
                 self.id = id
                 self.pair = pair
                 self.type = type
@@ -23,8 +33,19 @@ else:
                 self.size = size
                 self.status = status
                 self.timestamp = timestamp
+
         class Position:
-            def __init__(self, pair: str, side: str, size: float, entry_price: float, current_price: float, pnl: float, leverage: float, entry_time: datetime) -> Any:
+            def __init__(
+                self,
+                pair: str,
+                side: str,
+                size: float,
+                entry_price: float,
+                current_price: float,
+                pnl: float,
+                leverage: float,
+                entry_time: datetime,
+            ) -> Any:
                 self.pair = pair
                 self.side = side
                 self.size = size
@@ -38,16 +59,14 @@ else:
 @pytest.fixture
 def mock_exchange() -> Any:
     exchange = AsyncMock()
-    exchange.fetch_balance = AsyncMock(
+    exchange.get_balance = Mock(
         return_value={
             "BTC": {"free": 1.0, "used": 0.0, "total": 1.0},
             "USDT": {"free": 10000.0, "used": 0.0, "total": 10000.0},
         }
     )
-    exchange.fetch_ticker = AsyncMock(
-        return_value={"last": 50000.0, "bid": 49900.0, "ask": 50100.0, "volume": 100.0}
-    )
-    exchange.create_order = AsyncMock(
+    exchange.get_ticker = Mock(return_value={"last": 50000.0, "bid": 49900.0, "ask": 50100.0, "volume": 100.0})
+    exchange.create_order = Mock(
         return_value={
             "id": "test_order",
             "symbol": "BTC/USDT",
@@ -58,12 +77,8 @@ def mock_exchange() -> Any:
             "status": "closed",
         }
     )
-    exchange.cancel_order = AsyncMock(
-        return_value={"id": "test_order", "status": "canceled"}
-    )
-    exchange.fetch_markets = AsyncMock(
-        return_value=[{"symbol": "BTC/USDT", "active": True}]
-    )
+    exchange.cancel_order = Mock(return_value={"id": "test_order", "status": "canceled"})
+    exchange.get_markets = Mock(return_value=[{"symbol": "BTC/USDT", "active": True}])
     return exchange
 
 
@@ -89,130 +104,130 @@ def controller(mock_exchange, config) -> Any:
 
 
 @pytest.mark.asyncio
-async def test_start(controller) -> None:
-    await controller.start()
-    assert controller.state.is_running
-    assert controller.monitoring_tasks
+async def test_start_trading(controller) -> None:
+    """Тест запуска торговли"""
+    result = await controller.start_trading("manual")
+    assert result is True
+    assert controller.is_trading is True
+    assert controller.trading_mode == "manual"
 
 
 @pytest.mark.asyncio
-async def test_stop(controller) -> None:
-    await controller.start()
-    await controller.stop()
-    assert not controller.state.is_running
-    assert not controller.monitoring_tasks
+async def test_stop_trading(controller) -> None:
+    """Тест остановки торговли"""
+    await controller.start_trading("manual")
+    result = await controller.stop_trading()
+    assert result is True
+    assert controller.is_trading is False
 
 
 @pytest.mark.asyncio
-async def test_load_config(controller) -> None:
-    await controller._load_config()
-    assert controller._validate_config() is True
+async def test_get_trading_status(controller) -> None:
+    """Тест получения статуса торговли"""
+    result = await controller.get_trading_status()
+    
+    assert "is_trading" in result
+    assert "trading_mode" in result
+    assert "open_positions" in result
+    assert "account_balance" in result
+    assert "total_pnl" in result
+    assert "timestamp" in result
 
 
 @pytest.mark.asyncio
-async def test_init_trading_pairs(controller) -> None:
-    await controller._init_trading_pairs()
-    assert "BTC/USDT" in controller.trading_pairs
+async def test_place_trade(controller) -> None:
+    """Тест размещения торговой операции"""
+    result = await controller.place_trade("BTC/USDT", "buy", 0.1)
+    
+    assert "success" in result
+    assert "order" in result or "errors" in result
 
 
 @pytest.mark.asyncio
-async def test_start_monitoring(controller) -> None:
-    await controller._start_monitoring()
-    assert controller.monitoring_tasks
-    assert len(controller.monitoring_tasks) == 3
+async def test_close_position(controller) -> None:
+    """Тест закрытия позиции"""
+    # Мокаем get_position чтобы вернуть позицию
+    position_data = {
+        "symbol": "BTC/USDT",
+        "side": "buy",
+        "size": 0.1,
+        "entry_price": 50000.0
+    }
+    
+    with patch.object(controller.position_controller, 'get_position', return_value=position_data):
+        with patch.object(controller.position_controller, 'close_position', return_value={"id": "123", "status": "closed"}):
+            result = await controller.close_position("BTC/USDT")
+            
+            assert "success" in result
+            assert result["success"] is True
 
 
 @pytest.mark.asyncio
-async def test_stop_monitoring(controller) -> None:
-    await controller._start_monitoring()
-    await controller._stop_monitoring()
-    assert not controller.monitoring_tasks
+async def test_get_risk_report(controller) -> None:
+    """Тест получения отчета о рисках"""
+    result = await controller.get_risk_report()
+    
+    assert "portfolio_risk" in result
+    assert "alerts" in result
+    assert "positions_count" in result
+    assert "timestamp" in result
 
 
 @pytest.mark.asyncio
-async def test_monitor_market_data(controller) -> None:
-    await controller._monitor_market()
-    assert hasattr(controller.market_controller, "current_state")
+async def test_execute_strategy(controller) -> None:
+    """Тест выполнения стратегии"""
+    await controller.start_trading("manual")
+    result = await controller.execute_strategy("test_strategy", "BTC/USDT", {})
+    
+    assert "success" in result
+    assert "strategy" in result
+    assert "symbol" in result
 
 
 @pytest.mark.asyncio
 async def test_monitor_positions(controller) -> None:
-    await controller._monitor_positions()
-    assert controller.position_controller.positions is not None
+    """Тест мониторинга позиций"""
+    result = await controller.monitor_positions()
+    
+    assert isinstance(result, list)
+    # Проверяем, что возвращается список действий
 
 
 @pytest.mark.asyncio
-async def test_monitor_orders(controller) -> None:
-    await controller._monitor_orders()
-    assert controller.order_controller.active_orders is not None
+async def test_execute_strategy_not_trading(controller) -> None:
+    """Тест выполнения стратегии когда торговля не активна"""
+    result = await controller.execute_strategy("test_strategy", "BTC/USDT", {})
+    
+    assert result["success"] is False
+    assert "Trading is not active" in result["errors"]
 
 
 @pytest.mark.asyncio
-async def test_close_all_positions(controller) -> None:
-    position = Position(
-        pair="BTC/USDT",
-        side="long",
-        size=0.1,
-        entry_price=50000.0,
-        current_price=50000.0,
-        pnl=0.0,
-        leverage=1.0,
-        entry_time=datetime.now(),
-    )
-    controller.position_controller.positions = {"BTC/USDT": position}
-
-    mock_order = Order(
-        id="test_order",
-        pair="BTC/USDT",
-        type="market",
-        side="sell",
-        price=50000.0,
-        size=0.1,
-        status="closed",
-        timestamp=datetime.now(),
-    )
-
-    async def close_position_and_remove(pair) -> Any:
-        controller.position_controller.positions.pop(pair, None)
-        return mock_order
-
-    controller.position_controller.close_position = AsyncMock(
-        side_effect=close_position_and_remove
-    )
-
-    await controller.close_all_positions()
-    assert len(controller.position_controller.positions) == 0
+async def test_close_position_not_found(controller) -> None:
+    """Тест закрытия несуществующей позиции"""
+    with patch.object(controller.position_controller, 'get_position', return_value=None):
+        result = await controller.close_position("BTC/USDT")
+        
+        assert result["success"] is False
+        assert "No position found" in result["errors"][0]
 
 
 @pytest.mark.asyncio
-async def test_cancel_all_orders(controller) -> None:
-    order = Order(
-        id="test_order",
-        pair="BTC/USDT",
-        type="limit",
-        side="buy",
-        size=0.1,
-        price=50000.0,
-        status="open",
-        timestamp=datetime.now(),
-    )
-    controller.order_controller.active_orders = {"test_order": order}
-    controller.order_controller.cancel_order = AsyncMock(return_value=True)
-    controller.exchange.cancel_order = AsyncMock(
-        return_value={
-            "id": "test_order",
-            "status": "canceled",
-            "timestamp": datetime.now().timestamp() * 1000,
-        }
-    )
-    await controller.cancel_all_orders()
-    assert len(controller.order_controller.active_orders) == 0
+async def test_place_trade_with_limit_order(controller) -> None:
+    """Тест размещения лимитного ордера"""
+    result = await controller.place_trade("BTC/USDT", "buy", 0.1, "limit", 50000.0)
+    
+    assert "success" in result
+    assert "order" in result or "errors" in result
 
 
-def test_validate_config(controller) -> None:
-    """Тест валидации конфигурации"""
-    assert controller._validate_config() is True
+def test_controller_initialization(controller) -> None:
+    """Тест инициализации контроллера"""
+    assert controller.is_trading is False
+    assert controller.trading_mode == "manual"
+    assert controller.market_controller is not None
+    assert controller.order_controller is not None
+    assert controller.position_controller is not None
+    assert controller.risk_controller is not None
 
-    # Тест с невалидной конфигурацией
-    controller.config = {}
-    assert controller._validate_config() is False
+

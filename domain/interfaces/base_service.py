@@ -7,6 +7,8 @@ from datetime import datetime
 from typing import Any, Dict, Optional, Protocol, runtime_checkable
 
 
+
+
 @runtime_checkable
 class BaseServiceProtocol(Protocol):
     """Протокол для базового сервиса."""
@@ -87,3 +89,7 @@ class BaseService(BaseServiceProtocol, ABC):
 
     def get_uptime(self) -> float:
         return (datetime.now() - self._start_time).total_seconds()
+
+
+# Алиас для обратной совместимости
+IBaseService = BaseServiceProtocol

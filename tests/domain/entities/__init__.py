@@ -11,4 +11,4 @@ Contains tests for domain entities including:
 - Position
 - Market
 - Order
-""" 
+"""

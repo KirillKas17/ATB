@@ -5,7 +5,7 @@
 from decimal import Decimal
 from typing import Any, Dict, List, Union
 
-from domain.strategies.strategy_types import (
+from domain.type_definitions.strategy_types import (
     ArbitrageParams,
     BreakoutParams,
     MarketCondition,
@@ -242,7 +242,7 @@ DEFAULT_SCALPING_CONFIG: ScalpingParams = ScalpingParams(
 DEFAULT_ARBITRAGE_CONFIG: ArbitrageParams = ArbitrageParams(
     min_spread=Decimal("0.001"),
     max_slippage=Decimal("0.0005"),
-    execution_timeout=10,
+    max_execution_time=10,
     max_hold_time=60,
     min_liquidity=Decimal("10000"),
     max_order_size=Decimal("1000"),

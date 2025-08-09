@@ -1,6 +1,7 @@
 """
 Интеграционные тесты для стратегий.
 """
+
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from datetime import datetime, timedelta
@@ -15,25 +16,39 @@ from domain.strategies.base_strategies import (
     MeanReversionStrategy,
     BreakoutStrategy,
     ScalpingStrategy,
-    ArbitrageStrategy
+    ArbitrageStrategy,
 )
-from domain.strategies.strategy_types import (
-    StrategyCategory, RiskProfile, Timeframe, StrategyConfig,
-    TrendFollowingParams, MeanReversionParams, BreakoutParams,
-    ScalpingParams, ArbitrageParams
+from domain.type_definitions.strategy_types import (
+    StrategyCategory,
+    RiskProfile,
+    Timeframe,
+    StrategyConfig,
+    TrendFollowingParams,
+    MeanReversionParams,
+    BreakoutParams,
+    ScalpingParams,
+    ArbitrageParams,
 )
 from domain.strategies.exceptions import (
-    StrategyFactoryError, StrategyCreationError, StrategyValidationError,
-    StrategyRegistryError, StrategyNotFoundError, StrategyDuplicateError
+    StrategyFactoryError,
+    StrategyCreationError,
+    StrategyValidationError,
+    StrategyRegistryError,
+    StrategyNotFoundError,
+    StrategyDuplicateError,
 )
 from domain.strategies.utils import StrategyUtils
 from domain.strategies.validators import StrategyValidator
+
+
 class TestStrategyFactoryIntegration:
     """Интеграционные тесты для фабрики стратегий."""
+
     @pytest.fixture
     def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать фабрику стратегий."""
         return StrategyFactory()
+
     @pytest.fixture
     def sample_market_data(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать тестовые рыночные данные."""
@@ -48,8 +63,9 @@ class TestStrategyFactoryIntegration:
             bid=Price(Decimal("50490"), Currency.USDT),
             ask=Price(Decimal("50510"), Currency.USDT),
             bid_volume=Volume(Decimal("500"), Currency.USDT),
-            ask_volume=Volume(Decimal("500"), Currency.USDT)
+            ask_volume=Volume(Decimal("500"), Currency.USDT),
         )
+
     def test_strategy_registration_and_creation(self, factory) -> None:
         """Тест регистрации и создания стратегий."""
         # Регистрируем стратегии
@@ -65,24 +81,21 @@ class TestStrategyFactoryIntegration:
             supported_pairs=["BTC/USDT", "ETH/USDT"],
             min_confidence=Decimal("0.3"),
             max_confidence=Decimal("1.0"),
-            risk_levels=["low", "medium", "high"]
+            risk_levels=["low", "medium", "high"],
         )
         # Создаем стратегию
         strategy = factory.create_strategy(
             name="trend_following_test",
             trading_pairs=["BTC/USDT"],
-            parameters={
-                "short_period": 10,
-                "long_period": 20,
-                "rsi_period": 14
-            },
+            parameters={"short_period": 10, "long_period": 20, "rsi_period": 14},
             risk_level="medium",
-            confidence_threshold=Decimal("0.6")
+            confidence_threshold=Decimal("0.6"),
         )
         assert isinstance(strategy, TrendFollowingStrategy)
         assert strategy.get_strategy_type() == StrategyType.TREND_FOLLOWING
         assert len(strategy.get_trading_pairs()) == 1
         assert strategy.get_trading_pairs()[0] == TradingPair("BTC/USDT")
+
     def test_strategy_creation_with_invalid_params(self, factory) -> None:
         """Тест создания стратегии с некорректными параметрами."""
         factory.register_strategy(
@@ -91,16 +104,12 @@ class TestStrategyFactoryIntegration:
             strategy_type=StrategyType.TREND_FOLLOWING,
             description="Test strategy",
             version="1.0.0",
-            author="Test Author"
+            author="Test Author",
         )
         # Попытка создания с некорректными параметрами
         with pytest.raises(StrategyCreationError):
-            factory.create_strategy(
-                name="trend_following_test",
-                trading_pairs=[],
-                parameters={},
-                risk_level="invalid"
-            )
+            factory.create_strategy(name="trend_following_test", trading_pairs=[], parameters={}, risk_level="invalid")
+
     def test_strategy_factory_statistics(self, factory) -> None:
         """Тест статистики фабрики."""
         # Регистрируем несколько стратегий
@@ -111,18 +120,22 @@ class TestStrategyFactoryIntegration:
                 strategy_type=StrategyType.TREND_FOLLOWING,
                 description=f"Strategy {i}",
                 version="1.0.0",
-                author="Test Author"
+                author="Test Author",
             )
         stats = factory.get_factory_stats()
         assert stats["total_strategies"] == 3
         assert "trend_following" in stats["type_distribution"]
         assert stats["type_distribution"]["trend_following"] == 3
+
+
 class TestStrategyRegistryIntegration:
     """Интеграционные тесты для реестра стратегий."""
+
     @pytest.fixture
     def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реестр стратегий."""
         return StrategyRegistry()
+
     @pytest.fixture
     def sample_strategy(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать тестовую стратегию."""
@@ -131,22 +144,16 @@ class TestStrategyRegistryIntegration:
             name="Test Strategy",
             strategy_type=StrategyType.TREND_FOLLOWING,
             trading_pairs=["BTC/USDT", "ETH/USDT"],
-            parameters={
-                "short_period": 10,
-                "long_period": 20,
-                "rsi_period": 14
-            },
+            parameters={"short_period": 10, "long_period": 20, "rsi_period": 14},
             risk_level=RiskLevel(Decimal("0.5")),
-            confidence_threshold=ConfidenceLevel(Decimal("0.6"))
+            confidence_threshold=ConfidenceLevel(Decimal("0.6")),
         )
+
     def test_strategy_registration_and_retrieval(self, registry, sample_strategy) -> None:
         """Тест регистрации и получения стратегии."""
         # Регистрируем стратегию
         strategy_id = registry.register_strategy(
-            strategy=sample_strategy,
-            name="Test Strategy",
-            tags=["trend", "test"],
-            priority=1
+            strategy=sample_strategy, name="Test Strategy", tags=["trend", "test"], priority=1
         )
         # Получаем стратегию
         retrieved_strategy = registry.get_strategy(strategy_id)
@@ -159,6 +166,7 @@ class TestStrategyRegistryIntegration:
         assert metadata.strategy_type == StrategyType.TREND_FOLLOWING
         assert "trend" in metadata.tags
         assert metadata.priority == 1
+
     def test_strategy_search_and_filtering(self, registry) -> None:
         """Тест поиска и фильтрации стратегий."""
         # Создаем и регистрируем несколько стратегий
@@ -171,13 +179,10 @@ class TestStrategyRegistryIntegration:
                 trading_pairs=[f"PAIR{i}/USDT"],
                 parameters={"param": i},
                 risk_level=RiskLevel(Decimal("0.5")),
-                confidence_threshold=ConfidenceLevel(Decimal("0.6"))
+                confidence_threshold=ConfidenceLevel(Decimal("0.6")),
             )
             strategy_id = registry.register_strategy(
-                strategy=strategy,
-                name=f"Strategy {i}",
-                tags=[f"tag{i}"],
-                priority=i
+                strategy=strategy, name=f"Strategy {i}", tags=[f"tag{i}"], priority=i
             )
             strategies.append((strategy_id, strategy))
         # Активируем некоторые стратегии
@@ -200,28 +205,19 @@ class TestStrategyRegistryIntegration:
             name_pattern="Strategy",
             strategy_type=StrategyType.TREND_FOLLOWING,
             status=StrategyStatus.ACTIVE,
-            active_only=True
+            active_only=True,
         )
         assert len(search_results) == 2
+
     def test_strategy_performance_tracking(self, registry, sample_strategy) -> None:
         """Тест отслеживания производительности стратегии."""
-        strategy_id = registry.register_strategy(
-            strategy=sample_strategy,
-            name="Performance Test Strategy"
-        )
+        strategy_id = registry.register_strategy(strategy=sample_strategy, name="Performance Test Strategy")
         # Обновляем производительность
         registry.update_strategy_performance(
-            strategy_id=strategy_id,
-            execution_time=0.5,
-            success=True,
-            pnl=Decimal("100.0")
+            strategy_id=strategy_id, execution_time=0.5, success=True, pnl=Decimal("100.0")
         )
         registry.update_strategy_performance(
-            strategy_id=strategy_id,
-            execution_time=0.3,
-            success=False,
-            pnl=Decimal("-50.0"),
-            error_message="Test error"
+            strategy_id=strategy_id, execution_time=0.3, success=False, pnl=Decimal("-50.0"), error_message="Test error"
         )
         # Проверяем статистику
         metadata = registry.get_strategy_metadata(strategy_id)
@@ -230,6 +226,7 @@ class TestStrategyRegistryIntegration:
         assert metadata.total_pnl == Decimal("50.0")
         assert metadata.error_count == 1
         assert metadata.last_error == "Test error"
+
     def test_registry_statistics(self, registry) -> None:
         """Тест статистики реестра."""
         # Создаем и регистрируем стратегии с разными статусами
@@ -241,7 +238,7 @@ class TestStrategyRegistryIntegration:
                 trading_pairs=["BTC/USDT"],
                 parameters={},
                 risk_level=RiskLevel(Decimal("0.5")),
-                confidence_threshold=ConfidenceLevel(Decimal("0.6"))
+                confidence_threshold=ConfidenceLevel(Decimal("0.6")),
             )
             strategy_id = registry.register_strategy(strategy=strategy)
             # Устанавливаем разные статусы
@@ -259,16 +256,21 @@ class TestStrategyRegistryIntegration:
         assert stats["paused_strategies"] == 2
         assert stats["stopped_strategies"] == 2
         assert stats["error_strategies"] == 3
+
+
 class TestStrategyWorkflowIntegration:
     """Интеграционные тесты для полного workflow стратегий."""
+
     @pytest.fixture
     def factory(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать фабрику стратегий."""
         return get_strategy_factory()
+
     @pytest.fixture
     def registry(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать реестр стратегий."""
         return get_strategy_registry()
+
     @pytest.fixture
     def market_data_series(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать серию рыночных данных."""
@@ -289,10 +291,11 @@ class TestStrategyWorkflowIntegration:
                 bid=Price(current_price - Decimal("5"), Currency.USDT),
                 ask=Price(current_price + Decimal("5"), Currency.USDT),
                 bid_volume=Volume(Decimal("500"), Currency.USDT),
-                ask_volume=Volume(Decimal("500"), Currency.USDT)
+                ask_volume=Volume(Decimal("500"), Currency.USDT),
             )
             data_series.append(data)
         return data_series
+
     def test_complete_strategy_lifecycle(self, factory, registry, market_data_series) -> None:
         """Тест полного жизненного цикла стратегии."""
         # 1. Регистрируем стратегию в фабрике
@@ -304,26 +307,19 @@ class TestStrategyWorkflowIntegration:
             version="1.0.0",
             author="Test Author",
             required_parameters=["short_period", "long_period"],
-            supported_pairs=["BTC/USDT"]
+            supported_pairs=["BTC/USDT"],
         )
         # 2. Создаем стратегию через фабрику
         strategy = factory.create_strategy(
             name="lifecycle_test_strategy",
             trading_pairs=["BTC/USDT"],
-            parameters={
-                "short_period": 5,
-                "long_period": 10,
-                "rsi_period": 14
-            },
+            parameters={"short_period": 5, "long_period": 10, "rsi_period": 14},
             risk_level="medium",
-            confidence_threshold=Decimal("0.6")
+            confidence_threshold=Decimal("0.6"),
         )
         # 3. Регистрируем стратегию в реестре
         strategy_id = registry.register_strategy(
-            strategy=strategy,
-            name="Lifecycle Test Strategy",
-            tags=["test", "lifecycle"],
-            priority=1
+            strategy=strategy, name="Lifecycle Test Strategy", tags=["test", "lifecycle"], priority=1
         )
         # 4. Активируем стратегию
         strategy.activate()
@@ -340,15 +336,11 @@ class TestStrategyWorkflowIntegration:
                         strategy_id=strategy_id,
                         execution_time=0.1,
                         success=True,
-                        pnl=Decimal("10.0") if signal.signal_type == SignalType.BUY else Decimal("-5.0")
+                        pnl=Decimal("10.0") if signal.signal_type == SignalType.BUY else Decimal("-5.0"),
                     )
             except Exception as e:
                 registry.update_strategy_performance(
-                    strategy_id=strategy_id,
-                    execution_time=0.1,
-                    success=False,
-                    pnl=Decimal("0.0"),
-                    error_message=str(e)
+                    strategy_id=strategy_id, execution_time=0.1, success=False, pnl=Decimal("0.0"), error_message=str(e)
                 )
         # 6. Проверяем результаты
         assert len(signals) > 0, "Должны быть сгенерированы сигналы"
@@ -362,6 +354,7 @@ class TestStrategyWorkflowIntegration:
         factory_stats = factory.get_factory_stats()
         assert factory_stats["total_strategies"] > 0
         assert factory_stats["successful_creations"] > 0
+
     def test_multiple_strategy_types_integration(self, factory, registry, market_data_series) -> None:
         """Тест интеграции нескольких типов стратегий."""
         # Регистрируем разные типы стратегий
@@ -370,7 +363,7 @@ class TestStrategyWorkflowIntegration:
             (MeanReversionStrategy, StrategyType.MEAN_REVERSION, "mean_reversion"),
             (BreakoutStrategy, StrategyType.BREAKOUT, "breakout"),
             (ScalpingStrategy, StrategyType.SCALPING, "scalping"),
-            (ArbitrageStrategy, StrategyType.ARBITRAGE, "arbitrage")
+            (ArbitrageStrategy, StrategyType.ARBITRAGE, "arbitrage"),
         ]
         created_strategies = []
         for strategy_class, strategy_type, name in strategy_types:
@@ -382,7 +375,7 @@ class TestStrategyWorkflowIntegration:
                 description=f"Test {name} strategy",
                 version="1.0.0",
                 author="Test Author",
-                supported_pairs=["BTC/USDT"]
+                supported_pairs=["BTC/USDT"],
             )
             # Создаем стратегию
             strategy = factory.create_strategy(
@@ -390,13 +383,11 @@ class TestStrategyWorkflowIntegration:
                 trading_pairs=["BTC/USDT"],
                 parameters={},
                 risk_level="medium",
-                confidence_threshold=Decimal("0.6")
+                confidence_threshold=Decimal("0.6"),
             )
             # Регистрируем в реестре
             strategy_id = registry.register_strategy(
-                strategy=strategy,
-                name=f"{name.title()} Test Strategy",
-                tags=[name, "test"]
+                strategy=strategy, name=f"{name.title()} Test Strategy", tags=[name, "test"]
             )
             created_strategies.append((strategy_id, strategy, strategy_type))
         # Активируем все стратегии
@@ -411,21 +402,14 @@ class TestStrategyWorkflowIntegration:
                 signal = strategy.generate_signal(test_data)
                 # Обновляем производительность
                 registry.update_strategy_performance(
-                    strategy_id=strategy_id,
-                    execution_time=0.1,
-                    success=True,
-                    pnl=Decimal("5.0")
+                    strategy_id=strategy_id, execution_time=0.1, success=True, pnl=Decimal("5.0")
                 )
                 if signal:
                     assert signal.strategy_id == strategy.get_strategy_id()
                     assert signal.trading_pair == "BTC/USDT"
             except Exception as e:
                 registry.update_strategy_performance(
-                    strategy_id=strategy_id,
-                    execution_time=0.1,
-                    success=False,
-                    pnl=Decimal("0.0"),
-                    error_message=str(e)
+                    strategy_id=strategy_id, execution_time=0.1, success=False, pnl=Decimal("0.0"), error_message=str(e)
                 )
         # Проверяем статистику
         registry_stats = registry.get_registry_stats()
@@ -434,6 +418,7 @@ class TestStrategyWorkflowIntegration:
         # Проверяем распределение по типам
         type_distribution = registry_stats["strategy_type_distribution"]
         assert len(type_distribution) == len(strategy_types)
+
     def test_strategy_error_handling_integration(self, factory, registry) -> None:
         """Тест обработки ошибок в интеграции."""
         # Создаем стратегию с некорректными параметрами
@@ -443,22 +428,19 @@ class TestStrategyWorkflowIntegration:
             strategy_type=StrategyType.TREND_FOLLOWING,
             description="Error test strategy",
             version="1.0.0",
-            author="Test Author"
+            author="Test Author",
         )
         # Попытка создания с ошибкой
         with pytest.raises(StrategyCreationError):
             factory.create_strategy(
-                name="error_test_strategy",
-                trading_pairs=[],  # Пустой список
-                parameters={},
-                risk_level="invalid"
+                name="error_test_strategy", trading_pairs=[], parameters={}, risk_level="invalid"  # Пустой список
             )
         # Создаем корректную стратегию
         strategy = factory.create_strategy(
             name="error_test_strategy",
             trading_pairs=["BTC/USDT"],
             parameters={"short_period": 10, "long_period": 20},
-            risk_level="medium"
+            risk_level="medium",
         )
         strategy_id = registry.register_strategy(strategy=strategy)
         # Симулируем ошибку выполнения
@@ -467,7 +449,7 @@ class TestStrategyWorkflowIntegration:
             execution_time=0.1,
             success=False,
             pnl=Decimal("0.0"),
-            error_message="Simulated error"
+            error_message="Simulated error",
         )
         # Проверяем, что ошибка зафиксирована
         metadata = registry.get_strategy_metadata(strategy_id)
@@ -476,16 +458,21 @@ class TestStrategyWorkflowIntegration:
         # Проверяем статистику ошибок
         registry_stats = registry.get_registry_stats()
         assert registry_stats["failed_executions"] > 0
+
+
 class TestStrategyUtilsIntegration:
     """Интеграционные тесты для утилит стратегий."""
+
     @pytest.fixture
     def utils(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать утилиты стратегий."""
         return StrategyUtils()
+
     @pytest.fixture
     def validator(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Создать валидатор стратегий."""
         return StrategyValidator()
+
     def test_strategy_validation_integration(self, validator) -> None:
         """Тест интеграции валидации стратегий."""
         # Тестируем валидацию конфигурации
@@ -493,13 +480,9 @@ class TestStrategyUtilsIntegration:
             "name": "Test Strategy",
             "strategy_type": "trend_following",
             "trading_pairs": ["BTC/USDT"],
-            "parameters": {
-                "short_period": 10,
-                "long_period": 20,
-                "rsi_period": 14
-            },
+            "parameters": {"short_period": 10, "long_period": 20, "rsi_period": 14},
             "risk_level": "medium",
-            "confidence_threshold": 0.6
+            "confidence_threshold": 0.6,
         }
         errors = validator.validate_strategy_config(config)
         assert len(errors) == 0, f"Validation errors: {errors}"
@@ -508,13 +491,11 @@ class TestStrategyUtilsIntegration:
             "name": "",
             "strategy_type": "invalid_type",
             "trading_pairs": [],
-            "parameters": {
-                "short_period": -1,
-                "long_period": 0
-            }
+            "parameters": {"short_period": -1, "long_period": 0},
         }
         errors = validator.validate_strategy_config(invalid_config)
         assert len(errors) > 0, "Should have validation errors"
+
     def test_strategy_utils_integration(self, utils) -> None:
         """Тест интеграции утилит стратегий."""
         # Создаем тестовые данные
@@ -536,5 +517,7 @@ class TestStrategyUtilsIntegration:
         assert "current_volatility" in volatility_analysis
         assert "volatility_trend" in volatility_analysis
         assert "regime" in volatility_analysis
+
+
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

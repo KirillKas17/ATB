@@ -35,7 +35,7 @@ class TestTrade:
             price=Price(value=Decimal("50000"), currency=usdt_currency),
             volume=Volume(value=Decimal("1.0"), currency=btc_currency),
             executed_at=Timestamp(value=datetime.now()),
-            fee=Money(Decimal("25"), usdt_currency)
+            fee=Money(Decimal("25"), usdt_currency),
         )
 
         assert trade.id == "trade_001"
@@ -57,7 +57,7 @@ class TestTrade:
                 price=Price(value=Decimal("50000"), currency=usdt_currency),
                 volume=Volume(value=Decimal("1.0"), currency=btc_currency),
                 executed_at=Timestamp(value=datetime.now()),
-                fee=Money(Decimal("25"), usdt_currency)
+                fee=Money(Decimal("25"), usdt_currency),
             )
 
     def test_invalid_side_validation(self, btc_currency, usdt_currency) -> None:
@@ -70,7 +70,7 @@ class TestTrade:
                 price=Price(value=Decimal("50000"), currency=usdt_currency),
                 volume=Volume(value=Decimal("1.0"), currency=btc_currency),
                 executed_at=Timestamp(value=datetime.now()),
-                fee=Money(Decimal("25"), usdt_currency)
+                fee=Money(Decimal("25"), usdt_currency),
             )
 
     def test_notional_value_calculation(self, btc_currency, usdt_currency) -> None:
@@ -82,11 +82,11 @@ class TestTrade:
             price=Price(value=Decimal("50000"), currency=usdt_currency),
             volume=Volume(value=Decimal("1.0"), currency=btc_currency),
             executed_at=Timestamp(value=datetime.now()),
-            fee=Money(Decimal("25"), usdt_currency)
+            fee=Money(Decimal("25"), usdt_currency),
         )
-        
+
         notional = trade.notional_value
-        
+
         expected_value = Decimal("50000") * Decimal("1.0")
         assert notional.value == expected_value
         assert notional.currency == "USDT"
@@ -100,9 +100,9 @@ class TestTrade:
             price=Price(value=Decimal("50000"), currency=usdt_currency),
             volume=Volume(value=Decimal("1.0"), currency=btc_currency),
             executed_at=Timestamp(value=datetime.now()),
-            fee=Money(Decimal("25"), usdt_currency)
+            fee=Money(Decimal("25"), usdt_currency),
         )
-        
+
         assert trade.is_buy is True
         assert trade.is_sell is False
 
@@ -115,8 +115,8 @@ class TestTrade:
             price=Price(value=Decimal("51000"), currency=usdt_currency),
             volume=Volume(value=Decimal("1.0"), currency=btc_currency),
             executed_at=Timestamp(value=datetime.now()),
-            fee=Money(Decimal("25.5"), usdt_currency)
+            fee=Money(Decimal("25.5"), usdt_currency),
         )
-        
+
         assert trade.is_buy is False
         assert trade.is_sell is True

@@ -28,17 +28,13 @@ class TestMarket:
             is_active=True,
             created_at=datetime(2024, 1, 1, 12, 0, 0),
             updated_at=datetime(2024, 1, 1, 12, 0, 0),
-            metadata={"source": "binance", "exchange": "binance", "extra": {"test": "value"}}
+            metadata={"source": "binance", "exchange": "binance", "extra": {"test": "value"}},
         )
 
     @pytest.fixture
     def inactive_market(self) -> Market:
         """Неактивный рынок."""
-        return Market(
-            symbol="ETH/USD",
-            name="Ethereum/US Dollar",
-            is_active=False
-        )
+        return Market(symbol="ETH/USD", name="Ethereum/US Dollar", is_active=False)
 
     def test_market_creation(self, sample_market):
         """Тест создания рынка."""
@@ -55,7 +51,7 @@ class TestMarket:
     def test_market_defaults(self):
         """Тест значений по умолчанию."""
         market = Market()
-        
+
         assert market.symbol == ""
         assert market.name == ""
         assert market.is_active is True
@@ -66,7 +62,7 @@ class TestMarket:
     def test_market_with_custom_id(self):
         """Тест создания рынка с пользовательским ID."""
         market = Market(id="custom-id", symbol="BTC/USD")
-        
+
         assert market.id == "custom-id"
         assert market.symbol == "BTC/USD"
 
@@ -79,7 +75,7 @@ class TestMarket:
     def test_to_dict(self, sample_market):
         """Тест преобразования в словарь."""
         result = sample_market.to_dict()
-        
+
         assert result["id"] == "test-market-1"
         assert result["symbol"] == "BTC/USD"
         assert result["name"] == "Bitcoin/US Dollar"
@@ -99,11 +95,11 @@ class TestMarket:
             "is_active": False,
             "created_at": "2024-01-01T12:00:00",
             "updated_at": "2024-01-01T12:00:00",
-            "metadata": {"source": "coinbase", "exchange": "coinbase", "extra": {"test": "value2"}}
+            "metadata": {"source": "coinbase", "exchange": "coinbase", "extra": {"test": "value2"}},
         }
-        
+
         market = Market.from_dict(data)
-        
+
         assert market.id == "test-market-2"
         assert market.symbol == "ETH/USD"
         assert market.name == "Ethereum/US Dollar"
@@ -116,13 +112,10 @@ class TestMarket:
 
     def test_from_dict_with_optional_fields(self):
         """Тест создания из словаря с опциональными полями."""
-        data = {
-            "symbol": "ADA/USD",
-            "name": "Cardano/US Dollar"
-        }
-        
+        data = {"symbol": "ADA/USD", "name": "Cardano/US Dollar"}
+
         market = Market.from_dict(data)
-        
+
         assert market.symbol == "ADA/USD"
         assert market.name == "Cardano/US Dollar"
         assert market.is_active is True  # значение по умолчанию
@@ -132,13 +125,10 @@ class TestMarket:
 
     def test_from_dict_with_missing_timestamps(self):
         """Тест создания из словаря с отсутствующими временными метками."""
-        data = {
-            "symbol": "DOT/USD",
-            "name": "Polkadot/US Dollar"
-        }
-        
+        data = {"symbol": "DOT/USD", "name": "Polkadot/US Dollar"}
+
         market = Market.from_dict(data)
-        
+
         assert market.symbol == "DOT/USD"
         assert market.name == "Polkadot/US Dollar"
         assert isinstance(market.created_at, datetime)
@@ -146,14 +136,10 @@ class TestMarket:
 
     def test_from_dict_with_string_boolean(self):
         """Тест создания из словаря со строковым булевым значением."""
-        data = {
-            "symbol": "LINK/USD",
-            "name": "Chainlink/US Dollar",
-            "is_active": "false"
-        }
-        
+        data = {"symbol": "LINK/USD", "name": "Chainlink/US Dollar", "is_active": "false"}
+
         market = Market.from_dict(data)
-        
+
         assert market.symbol == "LINK/USD"
         assert market.name == "Chainlink/US Dollar"
         assert market.is_active == "false"  # остается строкой
@@ -162,7 +148,7 @@ class TestMarket:
         """Тест генерации уникальных ID."""
         market1 = Market()
         market2 = Market()
-        
+
         assert market1.id != market2.id
         assert isinstance(market1.id, str)
         assert isinstance(market2.id, str)
@@ -172,7 +158,7 @@ class TestMarket:
         market1 = Market(id="same-id", symbol="BTC/USD")
         market2 = Market(id="same-id", symbol="BTC/USD")
         market3 = Market(id="different-id", symbol="BTC/USD")
-        
+
         # Рынки с одинаковым ID должны быть равны
         assert market1.id == market2.id
         # Рынки с разным ID должны быть разными
@@ -181,7 +167,7 @@ class TestMarket:
     def test_market_metadata_immutability(self):
         """Тест неизменяемости метаданных."""
         market = Market(symbol="BTC/USD")
-        
+
         # Метаданные должны быть словарем
         assert isinstance(market.metadata, dict)
         assert "source" in market.metadata
@@ -191,27 +177,28 @@ class TestMarket:
     def test_market_timestamp_consistency(self):
         """Тест консистентности временных меток."""
         market = Market(symbol="BTC/USD")
-        
+
         # Временные метки должны быть datetime объектами
         assert isinstance(market.created_at, datetime)
         assert isinstance(market.updated_at, datetime)
-        
+
         # updated_at не должен быть раньше created_at
         assert market.updated_at >= market.created_at
 
     def test_protocol_compliance(self, sample_market):
         """Тест соответствия протоколу MarketProtocol."""
         from domain.market.market_protocols import MarketProtocol
+
         assert isinstance(sample_market, MarketProtocol)
 
     def test_market_serialization_roundtrip(self, sample_market):
         """Тест полного цикла сериализации и десериализации."""
         # Преобразуем в словарь
         market_dict = sample_market.to_dict()
-        
+
         # Создаем новый объект из словаря
         restored_market = Market.from_dict(market_dict)
-        
+
         # Проверяем что все поля восстановлены
         assert restored_market.id == sample_market.id
         assert restored_market.symbol == sample_market.symbol
@@ -224,7 +211,7 @@ class TestMarket:
     def test_market_with_minimal_data(self):
         """Тест создания рынка с минимальными данными."""
         market = Market(symbol="XRP/USD")
-        
+
         assert market.symbol == "XRP/USD"
         assert market.name == ""
         assert market.is_active is True
@@ -235,7 +222,7 @@ class TestMarket:
         """Тест создания рынка с полными данными."""
         created_at = datetime(2024, 1, 1, 10, 0, 0)
         updated_at = datetime(2024, 1, 1, 12, 0, 0)
-        
+
         market = Market(
             id="full-market",
             symbol="SOL/USD",
@@ -246,13 +233,10 @@ class TestMarket:
             metadata={
                 "source": "kraken",
                 "exchange": "kraken",
-                "extra": {
-                    "market_cap": 1000000000,
-                    "volume_24h": 50000000
-                }
-            }
+                "extra": {"market_cap": 1000000000, "volume_24h": 50000000},
+            },
         )
-        
+
         assert market.id == "full-market"
         assert market.symbol == "SOL/USD"
         assert market.name == "Solana/US Dollar"
@@ -273,14 +257,14 @@ class TestMarketIntegration:
             Market(symbol="BTC/USD", name="Bitcoin/US Dollar"),
             Market(symbol="ETH/USD", name="Ethereum/US Dollar"),
             Market(symbol="ADA/USD", name="Cardano/US Dollar"),
-            Market(symbol="DOT/USD", name="Polkadot/US Dollar")
+            Market(symbol="DOT/USD", name="Polkadot/US Dollar"),
         ]
-        
+
         assert len(markets) == 4
         assert all(isinstance(market, Market) for market in markets)
         assert all(market.is_active is True for market in markets)
         assert all(isinstance(market.created_at, datetime) for market in markets)
-        
+
         # Проверяем уникальность ID
         ids = [market.id for market in markets]
         assert len(set(ids)) == len(ids)
@@ -288,18 +272,14 @@ class TestMarketIntegration:
     def test_market_lifecycle(self):
         """Тест жизненного цикла рынка."""
         # Создание активного рынка
-        market = Market(
-            symbol="MATIC/USD",
-            name="Polygon/US Dollar",
-            is_active=True
-        )
-        
+        market = Market(symbol="MATIC/USD", name="Polygon/US Dollar", is_active=True)
+
         assert market.is_active is True
-        
+
         # Деактивация рынка
         market.is_active = False
         assert market.is_active is False
-        
+
         # Обновление временной метки
         old_updated_at = market.updated_at
         market.updated_at = datetime.now()
@@ -308,21 +288,17 @@ class TestMarketIntegration:
     def test_market_data_consistency(self):
         """Тест консистентности данных рынка."""
         # Создаем рынок с определенными данными
-        market = Market(
-            symbol="AVAX/USD",
-            name="Avalanche/US Dollar",
-            is_active=True
-        )
-        
+        market = Market(symbol="AVAX/USD", name="Avalanche/US Dollar", is_active=True)
+
         # Проверяем консистентность
         assert market.symbol == "AVAX/USD"
         assert market.name == "Avalanche/US Dollar"
         assert market.is_active is True
-        
+
         # Сериализуем и десериализуем
         market_dict = market.to_dict()
         restored_market = Market.from_dict(market_dict)
-        
+
         # Проверяем что данные сохранились
         assert restored_market.symbol == market.symbol
         assert restored_market.name == market.name
@@ -331,21 +307,21 @@ class TestMarketIntegration:
     def test_market_metadata_operations(self):
         """Тест операций с метаданными рынка."""
         market = Market(symbol="FTM/USD")
-        
+
         # Проверяем структуру метаданных по умолчанию
         assert "source" in market.metadata
         assert "exchange" in market.metadata
         assert "extra" in market.metadata
-        
+
         # Добавляем пользовательские метаданные
         market.metadata["extra"]["custom_field"] = "custom_value"
         market.metadata["source"] = "custom_source"
-        
+
         # Проверяем что метаданные сохранились
         assert market.metadata["extra"]["custom_field"] == "custom_value"
         assert market.metadata["source"] == "custom_source"
-        
+
         # Сериализуем и проверяем
         market_dict = market.to_dict()
         assert market_dict["metadata"]["extra"]["custom_field"] == "custom_value"
-        assert market_dict["metadata"]["source"] == "custom_source" 
+        assert market_dict["metadata"]["source"] == "custom_source"

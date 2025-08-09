@@ -27,26 +27,102 @@ from .visualization import TradingVisualizer
 
 # Настройка логирования
 logger = logging.getLogger(__name__)
-# Импорт библиотек для технического анализа (опционально)
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class DecisionReport:
+    """Отчет о принятом решении."""
+    
+    decision: AggregatedSignal
+    market_regime: str
+    confidence: float
+    explanation: str
+    timestamp: datetime
+    metadata: Dict[str, Any]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "decision": self.decision.to_dict() if hasattr(self.decision, 'to_dict') else str(self.decision),
+            "market_regime": self.market_regime,
+            "confidence": self.confidence,
+            "explanation": self.explanation,
+            "timestamp": self.timestamp.isoformat(),
+            "metadata": self.metadata
+        }
+
+
+@dataclass
+class TradeDecision:
+    """Торговое решение."""
+    
+    action: ActionType
+    symbol: str
+    quantity: float
+    price: float
+    confidence: float
+    reasoning: str
+    timestamp: datetime
+    metadata: Dict[str, Any] = None
+    
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь."""
+        return {
+            "action": self.action.value if hasattr(self.action, 'value') else str(self.action),
+            "symbol": self.symbol,
+            "quantity": self.quantity,
+            "price": self.price,
+            "confidence": self.confidence,
+            "reasoning": self.reasoning,
+            "timestamp": self.timestamp.isoformat(),
+            "metadata": self.metadata
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TradeDecision":
+        """Создание из словаря."""
+        return cls(
+            action=ActionType(data["action"]) if isinstance(data["action"], str) else data["action"],
+            symbol=data["symbol"],
+            quantity=data["quantity"],
+            price=data["price"],
+            confidence=data["confidence"],
+            reasoning=data["reasoning"],
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+            metadata=data.get("metadata", {})
+        )
+
+# Импорт библиотек для технического анализа
 try:
     import ta
+    TA_AVAILABLE = True
 except ImportError:
-    ta = None
+    TA_AVAILABLE = False
     logger.warning("Библиотека 'ta' не установлена. Некоторые индикаторы будут недоступны.")
-# Импорт библиотек для визуализации (опционально)
+
+# Импорт библиотек для визуализации
 try:
-    pass
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    PLOT_AVAILABLE = True
 except ImportError:
-    plt = None
-    sns = None
+    PLOT_AVAILABLE = False
     logger.warning("Библиотеки matplotlib/seaborn не установлены. Визуализация будет недоступна.")
-# Импорт библиотек для объяснений (опционально)
+
+# Импорт библиотек для объяснений
 try:
     import lime
     import shap
+    EXPLAIN_AVAILABLE = True
 except ImportError:
-    shap = None
-    lime = None
+    EXPLAIN_AVAILABLE = False
     logger.warning("Библиотеки SHAP/LIME не установлены. Объяснения будут упрощенными.")
 class DecisionReasoner:
     """Основной класс для принятия торговых решений"""

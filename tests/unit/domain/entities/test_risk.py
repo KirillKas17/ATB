@@ -16,17 +16,14 @@ from typing import Dict, Any, List
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
-from domain.entities.risk import (
-    RiskProfile, RiskMetrics, RiskManager,
-    RiskLevel, RiskType, RiskMetricsProtocol
-)
+from domain.entities.risk import RiskProfile, RiskMetrics, RiskManager, RiskLevel, RiskType, RiskMetricsProtocol
 from domain.value_objects.currency import Currency
 from domain.value_objects.money import Money
 
 
 class TestRiskProfile:
     """Тесты для RiskProfile."""
-    
+
     @pytest.fixture
     def sample_data(self) -> Dict[str, Any]:
         """Тестовые данные."""
@@ -44,18 +41,18 @@ class TestRiskProfile:
             "max_drawdown": Decimal("0.15"),  # 15%
             "position_sizing_method": "kelly",
             "stop_loss_method": "atr",
-            "metadata": {"strategy": "conservative"}
+            "metadata": {"strategy": "conservative"},
         }
-    
+
     @pytest.fixture
     def risk_profile(self, sample_data) -> RiskProfile:
         """Создает тестовый профиль риска."""
         return RiskProfile(**sample_data)
-    
+
     def test_creation(self, sample_data):
         """Тест создания профиля риска."""
         profile = RiskProfile(**sample_data)
-        
+
         assert profile.id == sample_data["id"]
         assert profile.name == sample_data["name"]
         assert profile.risk_level == sample_data["risk_level"]
@@ -70,11 +67,11 @@ class TestRiskProfile:
         assert profile.position_sizing_method == sample_data["position_sizing_method"]
         assert profile.stop_loss_method == sample_data["stop_loss_method"]
         assert profile.metadata == sample_data["metadata"]
-    
+
     def test_default_creation(self):
         """Тест создания профиля риска с дефолтными значениями."""
         profile = RiskProfile()
-        
+
         assert isinstance(profile.id, uuid4().__class__)
         assert profile.name == ""
         assert profile.risk_level == RiskLevel.MEDIUM
@@ -89,47 +86,47 @@ class TestRiskProfile:
         assert profile.position_sizing_method == "kelly"
         assert profile.stop_loss_method == "atr"
         assert profile.metadata == {}
-    
+
     def test_is_risk_level_acceptable(self, risk_profile):
         """Тест проверки приемлемости уровня риска."""
         # Приемлемый риск
         assert risk_profile.is_risk_level_acceptable(Decimal("0.005")) is True
         assert risk_profile.is_risk_level_acceptable(Decimal("0.01")) is True
-        
+
         # Неприемлемый риск
         assert risk_profile.is_risk_level_acceptable(Decimal("0.015")) is False
         assert risk_profile.is_risk_level_acceptable(Decimal("0.02")) is False
-    
+
     def test_is_daily_loss_acceptable(self, risk_profile):
         """Тест проверки приемлемости дневного убытка."""
         # Приемлемый убыток
         assert risk_profile.is_daily_loss_acceptable(Decimal("0.02")) is True
         assert risk_profile.is_daily_loss_acceptable(Decimal("0.03")) is True
-        
+
         # Неприемлемый убыток
         assert risk_profile.is_daily_loss_acceptable(Decimal("0.04")) is False
         assert risk_profile.is_daily_loss_acceptable(Decimal("0.05")) is False
-    
+
     def test_is_weekly_loss_acceptable(self, risk_profile):
         """Тест проверки приемлемости недельного убытка."""
         # Приемлемый убыток
         assert risk_profile.is_weekly_loss_acceptable(Decimal("0.08")) is True
         assert risk_profile.is_weekly_loss_acceptable(Decimal("0.10")) is True
-        
+
         # Неприемлемый убыток
         assert risk_profile.is_weekly_loss_acceptable(Decimal("0.12")) is False
         assert risk_profile.is_weekly_loss_acceptable(Decimal("0.15")) is False
-    
+
     def test_is_portfolio_risk_acceptable(self, risk_profile):
         """Тест проверки приемлемости риска портфеля."""
         # Приемлемый риск
         assert risk_profile.is_portfolio_risk_acceptable(Decimal("0.03")) is True
         assert risk_profile.is_portfolio_risk_acceptable(Decimal("0.05")) is True
-        
+
         # Неприемлемый риск
         assert risk_profile.is_portfolio_risk_acceptable(Decimal("0.06")) is False
         assert risk_profile.is_portfolio_risk_acceptable(Decimal("0.08")) is False
-    
+
     def test_is_correlation_acceptable(self, risk_profile):
         """Тест проверки приемлемости корреляции."""
         # Приемлемая корреляция
@@ -137,45 +134,45 @@ class TestRiskProfile:
         assert risk_profile.is_correlation_acceptable(Decimal("0.5")) is True
         assert risk_profile.is_correlation_acceptable(Decimal("-0.3")) is True
         assert risk_profile.is_correlation_acceptable(Decimal("-0.5")) is True
-        
+
         # Неприемлемая корреляция
         assert risk_profile.is_correlation_acceptable(Decimal("0.6")) is False
         assert risk_profile.is_correlation_acceptable(Decimal("-0.6")) is False
-    
+
     def test_is_leverage_acceptable(self, risk_profile):
         """Тест проверки приемлемости кредитного плеча."""
         # Приемлемое плечо
         assert risk_profile.is_leverage_acceptable(Decimal("1.5")) is True
         assert risk_profile.is_leverage_acceptable(Decimal("2.0")) is True
-        
+
         # Неприемлемое плечо
         assert risk_profile.is_leverage_acceptable(Decimal("2.5")) is False
         assert risk_profile.is_leverage_acceptable(Decimal("3.0")) is False
-    
+
     def test_is_risk_reward_acceptable(self, risk_profile):
         """Тест проверки приемлемости соотношения риск/доходность."""
         # Приемлемое соотношение
         assert risk_profile.is_risk_reward_acceptable(Decimal("2.5")) is True
         assert risk_profile.is_risk_reward_acceptable(Decimal("3.0")) is True
-        
+
         # Неприемлемое соотношение
         assert risk_profile.is_risk_reward_acceptable(Decimal("1.0")) is False
         assert risk_profile.is_risk_reward_acceptable(Decimal("1.5")) is False
-    
+
     def test_is_drawdown_acceptable(self, risk_profile):
         """Тест проверки приемлемости просадки."""
         # Приемлемая просадка
         assert risk_profile.is_drawdown_acceptable(Decimal("0.10")) is True
         assert risk_profile.is_drawdown_acceptable(Decimal("0.15")) is True
-        
+
         # Неприемлемая просадка
         assert risk_profile.is_drawdown_acceptable(Decimal("0.18")) is False
         assert risk_profile.is_drawdown_acceptable(Decimal("0.20")) is False
-    
+
     def test_to_dict(self, risk_profile):
         """Тест сериализации в словарь."""
         data = risk_profile.to_dict()
-        
+
         assert data["id"] == str(risk_profile.id)
         assert data["name"] == risk_profile.name
         assert data["risk_level"] == risk_profile.risk_level.value
@@ -192,12 +189,12 @@ class TestRiskProfile:
         assert "created_at" in data
         assert "updated_at" in data
         assert data["metadata"] == str(risk_profile.metadata)
-    
+
     def test_from_dict(self, risk_profile):
         """Тест десериализации из словаря."""
         data = risk_profile.to_dict()
         new_profile = RiskProfile.from_dict(data)
-        
+
         assert new_profile.id == risk_profile.id
         assert new_profile.name == risk_profile.name
         assert new_profile.risk_level == risk_profile.risk_level
@@ -212,7 +209,7 @@ class TestRiskProfile:
         assert new_profile.position_sizing_method == risk_profile.position_sizing_method
         assert new_profile.stop_loss_method == risk_profile.stop_loss_method
         assert new_profile.metadata == risk_profile.metadata
-    
+
     def test_risk_level_enum(self):
         """Тест enum RiskLevel."""
         assert RiskLevel.VERY_LOW.value == "very_low"
@@ -221,7 +218,7 @@ class TestRiskProfile:
         assert RiskLevel.HIGH.value == "high"
         assert RiskLevel.VERY_HIGH.value == "very_high"
         assert RiskLevel.EXTREME.value == "extreme"
-    
+
     def test_risk_type_enum(self):
         """Тест enum RiskType."""
         assert RiskType.MARKET_RISK.value == "market_risk"
@@ -234,7 +231,7 @@ class TestRiskProfile:
 
 class TestRiskMetrics:
     """Тесты для RiskMetrics."""
-    
+
     @pytest.fixture
     def sample_data(self) -> Dict[str, Any]:
         """Тестовые данные."""
@@ -267,14 +264,14 @@ class TestRiskMetrics:
             "herfindahl_index": Decimal("0.25"),
             "stress_test_score": Decimal("0.7"),
             "scenario_analysis_score": Decimal("0.8"),
-            "metadata": {"source": "risk_engine"}
+            "metadata": {"source": "risk_engine"},
         }
-    
+
     @pytest.fixture
     def risk_metrics(self, sample_data) -> RiskMetrics:
         """Создает тестовые метрики риска."""
         return RiskMetrics(**sample_data)
-    
+
     @pytest.fixture
     def risk_profile(self) -> RiskProfile:
         """Создает тестовый профиль риска."""
@@ -286,13 +283,13 @@ class TestRiskMetrics:
             max_correlation=Decimal("0.7"),
             max_leverage=Decimal("3.0"),
             min_risk_reward_ratio=Decimal("1.5"),
-            max_drawdown=Decimal("0.20")
+            max_drawdown=Decimal("0.20"),
         )
-    
+
     def test_creation(self, sample_data):
         """Тест создания метрик риска."""
         metrics = RiskMetrics(**sample_data)
-        
+
         assert metrics.id == sample_data["id"]
         assert metrics.timestamp == sample_data["timestamp"]
         assert metrics.portfolio_value == sample_data["portfolio_value"]
@@ -322,11 +319,11 @@ class TestRiskMetrics:
         assert metrics.stress_test_score == sample_data["stress_test_score"]
         assert metrics.scenario_analysis_score == sample_data["scenario_analysis_score"]
         assert metrics.metadata == sample_data["metadata"]
-    
+
     def test_default_creation(self):
         """Тест создания метрик риска с дефолтными значениями."""
         metrics = RiskMetrics()
-        
+
         assert isinstance(metrics.id, uuid4().__class__)
         assert isinstance(metrics.timestamp, datetime)
         assert metrics.portfolio_value.amount == Decimal("0")
@@ -356,37 +353,37 @@ class TestRiskMetrics:
         assert metrics.stress_test_score == Decimal("0")
         assert metrics.scenario_analysis_score == Decimal("0")
         assert metrics.metadata == {}
-    
+
     def test_is_portfolio_healthy(self, risk_metrics, risk_profile):
         """Тест проверки здоровья портфеля."""
         # Здоровый портфель
         assert risk_metrics.is_portfolio_healthy(risk_profile) is True
-        
+
         # Нездоровый портфель - высокий риск
         risk_metrics.portfolio_risk = Decimal("0.15")
         assert risk_metrics.is_portfolio_healthy(risk_profile) is False
-        
+
         # Нездоровый портфель - высокая просадка
         risk_metrics.portfolio_risk = Decimal("0.05")
         risk_metrics.current_drawdown = Decimal("0.25")
         assert risk_metrics.is_portfolio_healthy(risk_profile) is False
-    
+
     def test_get_risk_score(self, risk_metrics):
         """Тест расчета оценки риска."""
         risk_score = risk_metrics.get_risk_score()
-        
+
         # Проверяем, что оценка риска в разумных пределах
         assert isinstance(risk_score, Decimal)
         assert Decimal("0") <= risk_score <= Decimal("1")
-        
+
         # Тест с высокими рисками
         risk_metrics.portfolio_risk = Decimal("0.3")
         risk_metrics.current_drawdown = Decimal("0.4")
         risk_metrics.portfolio_volatility = Decimal("0.5")
-        
+
         high_risk_score = risk_metrics.get_risk_score()
         assert high_risk_score > risk_score
-    
+
     def test_get_risk_level(self, risk_metrics):
         """Тест определения уровня риска."""
         # Низкий риск
@@ -394,23 +391,23 @@ class TestRiskMetrics:
         risk_metrics.current_drawdown = Decimal("0.05")
         risk_level = risk_metrics.get_risk_level()
         assert risk_level in [RiskLevel.VERY_LOW, RiskLevel.LOW]
-        
+
         # Средний риск
         risk_metrics.portfolio_risk = Decimal("0.08")
         risk_metrics.current_drawdown = Decimal("0.12")
         risk_level = risk_metrics.get_risk_level()
         assert risk_level == RiskLevel.MEDIUM
-        
+
         # Высокий риск
         risk_metrics.portfolio_risk = Decimal("0.15")
         risk_metrics.current_drawdown = Decimal("0.25")
         risk_level = risk_metrics.get_risk_level()
         assert risk_level in [RiskLevel.HIGH, RiskLevel.VERY_HIGH, RiskLevel.EXTREME]
-    
+
     def test_to_dict(self, risk_metrics):
         """Тест сериализации в словарь."""
         data = risk_metrics.to_dict()
-        
+
         assert data["id"] == str(risk_metrics.id)
         assert "timestamp" in data
         assert data["portfolio_value"] == str(risk_metrics.portfolio_value.amount)
@@ -440,12 +437,12 @@ class TestRiskMetrics:
         assert data["stress_test_score"] == str(risk_metrics.stress_test_score)
         assert data["scenario_analysis_score"] == str(risk_metrics.scenario_analysis_score)
         assert data["metadata"] == str(risk_metrics.metadata)
-    
+
     def test_from_dict(self, risk_metrics):
         """Тест десериализации из словаря."""
         data = risk_metrics.to_dict()
         new_metrics = RiskMetrics.from_dict(data)
-        
+
         assert new_metrics.id == risk_metrics.id
         assert new_metrics.portfolio_value.amount == risk_metrics.portfolio_value.amount
         assert new_metrics.portfolio_risk == risk_metrics.portfolio_risk
@@ -474,14 +471,14 @@ class TestRiskMetrics:
         assert new_metrics.stress_test_score == risk_metrics.stress_test_score
         assert new_metrics.scenario_analysis_score == risk_metrics.scenario_analysis_score
         assert new_metrics.metadata == risk_metrics.metadata
-    
+
     def test_risk_metrics_protocol_compliance(self, risk_metrics):
         """Тест соответствия протоколу RiskMetricsProtocol."""
         assert isinstance(risk_metrics, RiskMetricsProtocol)
-        
+
         risk_score = risk_metrics.get_risk_score()
         assert isinstance(risk_score, Decimal)
-        
+
         risk_profile = RiskProfile()
         is_healthy = risk_metrics.is_portfolio_healthy(risk_profile)
         assert isinstance(is_healthy, bool)
@@ -489,7 +486,7 @@ class TestRiskMetrics:
 
 class TestRiskManager:
     """Тесты для RiskManager."""
-    
+
     @pytest.fixture
     def risk_profile(self) -> RiskProfile:
         """Создает тестовый профиль риска."""
@@ -503,14 +500,14 @@ class TestRiskManager:
             max_correlation=Decimal("0.7"),
             max_leverage=Decimal("3.0"),
             min_risk_reward_ratio=Decimal("1.5"),
-            max_drawdown=Decimal("0.20")
+            max_drawdown=Decimal("0.20"),
         )
-    
+
     @pytest.fixture
     def risk_manager(self, risk_profile) -> RiskManager:
         """Создает тестовый менеджер рисков."""
         return RiskManager(risk_profile, "Test Risk Manager")
-    
+
     @pytest.fixture
     def risk_metrics(self) -> RiskMetrics:
         """Создает тестовые метрики риска."""
@@ -533,121 +530,121 @@ class TestRiskManager:
             concentration_ratio=Decimal("0.4"),
             herfindahl_index=Decimal("0.25"),
             stress_test_score=Decimal("0.7"),
-            scenario_analysis_score=Decimal("0.8")
+            scenario_analysis_score=Decimal("0.8"),
         )
-    
+
     def test_creation(self, risk_profile):
         """Тест создания менеджера рисков."""
         manager = RiskManager(risk_profile, "Test Manager")
-        
+
         assert manager.risk_profile == risk_profile
         assert manager.name == "Test Manager"
         assert manager.current_metrics is None
         assert manager.risk_alerts == []
         assert manager.is_active is True
-    
+
     def test_update_metrics(self, risk_manager, risk_metrics):
         """Тест обновления метрик."""
         risk_manager.update_metrics(risk_metrics)
-        
+
         assert risk_manager.current_metrics == risk_metrics
         assert risk_manager.last_update is not None
-    
+
     def test_validate_trade_acceptable(self, risk_manager, risk_metrics):
         """Тест валидации приемлемой сделки."""
         risk_manager.update_metrics(risk_metrics)
-        
+
         trade_value = Money(Decimal("1000"), Currency.USD)
         portfolio_value = Money(Decimal("100000"), Currency.USD)
-        
+
         is_valid = risk_manager.validate_trade(trade_value, portfolio_value)
         assert is_valid is True
-    
+
     def test_validate_trade_unacceptable(self, risk_manager, risk_metrics):
         """Тест валидации неприемлемой сделки."""
         risk_manager.update_metrics(risk_metrics)
-        
+
         # Слишком большая сделка (5% от портфеля)
         trade_value = Money(Decimal("5000"), Currency.USD)
         portfolio_value = Money(Decimal("100000"), Currency.USD)
-        
+
         is_valid = risk_manager.validate_trade(trade_value, portfolio_value)
         assert is_valid is False
-    
+
     def test_validate_trade_no_metrics(self, risk_manager):
         """Тест валидации сделки без метрик."""
         trade_value = Money(Decimal("1000"), Currency.USD)
         portfolio_value = Money(Decimal("100000"), Currency.USD)
-        
+
         is_valid = risk_manager.validate_trade(trade_value, portfolio_value)
         assert is_valid is False
-    
+
     def test_get_position_size_kelly(self, risk_manager):
         """Тест расчета размера позиции методом Келли."""
         risk_manager.risk_profile.position_sizing_method = "kelly"
-        
+
         available_capital = Money(Decimal("100000"), Currency.USD)
         risk_per_trade = Decimal("0.02")
-        
+
         position_size = risk_manager.get_position_size(available_capital, risk_per_trade)
-        
+
         assert isinstance(position_size, Money)
         assert position_size.amount > Decimal("0")
         assert position_size.amount <= available_capital.amount
-    
+
     def test_get_position_size_fixed(self, risk_manager):
         """Тест расчета размера позиции фиксированным методом."""
         risk_manager.risk_profile.position_sizing_method = "fixed"
-        
+
         available_capital = Money(Decimal("100000"), Currency.USD)
         risk_per_trade = Decimal("0.02")
-        
+
         position_size = risk_manager.get_position_size(available_capital, risk_per_trade)
-        
+
         assert isinstance(position_size, Money)
         assert position_size.amount > Decimal("0")
         assert position_size.amount <= available_capital.amount
-    
+
     def test_get_position_size_volatility(self, risk_manager):
         """Тест расчета размера позиции методом волатильности."""
         risk_manager.risk_profile.position_sizing_method = "volatility"
-        
+
         available_capital = Money(Decimal("100000"), Currency.USD)
         risk_per_trade = Decimal("0.02")
-        
+
         position_size = risk_manager.get_position_size(available_capital, risk_per_trade)
-        
+
         assert isinstance(position_size, Money)
         assert position_size.amount > Decimal("0")
         assert position_size.amount <= available_capital.amount
-    
+
     def test_should_stop_trading_healthy(self, risk_manager, risk_metrics):
         """Тест проверки необходимости остановки торговли - здоровый портфель."""
         risk_manager.update_metrics(risk_metrics)
-        
+
         should_stop = risk_manager.should_stop_trading()
         assert should_stop is False
-    
+
     def test_should_stop_trading_unhealthy(self, risk_manager, risk_metrics):
         """Тест проверки необходимости остановки торговли - нездоровый портфель."""
         # Устанавливаем высокие риски
         risk_metrics.portfolio_risk = Decimal("0.3")
         risk_metrics.current_drawdown = Decimal("0.4")
         risk_manager.update_metrics(risk_metrics)
-        
+
         should_stop = risk_manager.should_stop_trading()
         assert should_stop is True
-    
+
     def test_should_stop_trading_no_metrics(self, risk_manager):
         """Тест проверки необходимости остановки торговли без метрик."""
         should_stop = risk_manager.should_stop_trading()
         assert should_stop is True
-    
+
     def test_get_risk_alerts_empty(self, risk_manager):
         """Тест получения предупреждений о рисках - пустой список."""
         alerts = risk_manager.get_risk_alerts()
         assert alerts == []
-    
+
     def test_get_risk_alerts_with_alerts(self, risk_manager, risk_metrics):
         """Тест получения предупреждений о рисках - с предупреждениями."""
         # Устанавливаем высокие риски для генерации предупреждений
@@ -655,28 +652,28 @@ class TestRiskManager:
         risk_metrics.current_drawdown = Decimal("0.4")
         risk_metrics.max_correlation = Decimal("0.8")
         risk_manager.update_metrics(risk_metrics)
-        
+
         alerts = risk_manager.get_risk_alerts()
         assert len(alerts) > 0
         assert all(isinstance(alert, str) for alert in alerts)
-    
+
     def test_to_dict(self, risk_manager):
         """Тест сериализации в словарь."""
         data = risk_manager.to_dict()
-        
+
         assert data["name"] == risk_manager.name
         assert data["is_active"] == risk_manager.is_active
         assert "risk_profile" in data
         assert "current_metrics" in data
         assert "risk_alerts" in data
         assert "last_update" in data
-    
+
     def test_from_dict(self, risk_manager):
         """Тест десериализации из словаря."""
         data = risk_manager.to_dict()
         new_manager = RiskManager.from_dict(data)
-        
+
         assert new_manager.name == risk_manager.name
         assert new_manager.is_active == risk_manager.is_active
         assert new_manager.risk_profile.name == risk_manager.risk_profile.name
-        assert new_manager.risk_profile.risk_level == risk_manager.risk_profile.risk_level 
+        assert new_manager.risk_profile.risk_level == risk_manager.risk_profile.risk_level

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class OrderController:
     """Контроллер для управления ордерами."""
 
-    def __init__(self, exchange: Exchange, config: Dict[str, Any]):
+    def __init__(self, exchange: Exchange, config: Dict[str, Any]) -> None:
         """Инициализация контроллера.
         
         Args:

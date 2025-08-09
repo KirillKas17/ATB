@@ -6,11 +6,8 @@ import time
 import pytest
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
-from application.filters.orderbook_filter import (FilterConfig,
-                                                  OrderBookPreFilter)
-from domain.intelligence.noise_analyzer import (NoiseAnalysisResult,
-                                                NoiseAnalyzer,
-                                                OrderBookSnapshot)
+from application.filters.orderbook_filter import FilterConfig, OrderBookPreFilter
+from domain.intelligence.noise_analyzer import NoiseAnalysisResult, NoiseAnalyzer, OrderBookSnapshot
 from domain.value_objects.price import Price
 from domain.value_objects.timestamp import Timestamp
 from domain.value_objects.volume import Volume

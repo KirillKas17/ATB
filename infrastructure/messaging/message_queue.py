@@ -51,7 +51,7 @@ class MessageQueue(MessageQueueProtocol):
     - Потокобезопасность
     """
 
-    def __init__(self, config: Optional[MessageQueueConfig] = None):
+    def __init__(self, config: Optional[MessageQueueConfig] = None) -> None:
         """
         Инициализация MessageQueue.
         Args:

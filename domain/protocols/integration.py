@@ -62,7 +62,7 @@ from domain.type_definitions import (
     QueryOptions,
 )
 from domain.entities.signal import Signal
-from domain.protocols.strategy_protocol import MarketRegime
+from domain.protocols.market_analysis_protocol import MarketRegime
 from domain.type_definitions.protocol_types import (
     PatternDetectionResult,
     SignalFilterDict,

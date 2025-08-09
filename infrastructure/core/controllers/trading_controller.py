@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class TradingController:
     """Главный контроллер для управления торговыми операциями."""
 
-    def __init__(self, exchange: Exchange, config: Dict[str, Any]):
+    def __init__(self, exchange: Exchange, config: Dict[str, Any]) -> None:
         """Инициализация контроллера.
         
         Args:

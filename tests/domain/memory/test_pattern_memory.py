@@ -1,6 +1,7 @@
 """
 Тесты для PatternMemory
 """
+
 import pytest
 from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
@@ -21,8 +22,11 @@ from domain.memory.pattern_memory import (
 )
 from domain.intelligence.market_pattern_recognizer import PatternType
 from domain.value_objects.timestamp import Timestamp
+
+
 class TestMarketFeatures:
     """Тесты для MarketFeatures"""
+
     @pytest.fixture
     def sample_features(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцовых рыночных характеристик"""
@@ -48,8 +52,9 @@ class TestMarketFeatures:
             correlation=0.8,
             whale_signal=0.6,
             mm_signal=0.4,
-            external_sync=True
+            external_sync=True,
         )
+
     def test_market_features_creation(self, sample_features) -> None:
         """Тест создания MarketFeatures"""
         assert sample_features.price == 50000.0
@@ -58,6 +63,7 @@ class TestMarketFeatures:
         assert sample_features.spread == 1.0
         assert sample_features.whale_signal == 0.6
         assert sample_features.external_sync is True
+
     def test_market_features_to_vector(self, sample_features) -> None:
         """Тест преобразования в вектор"""
         vector = sample_features.to_vector()
@@ -65,9 +71,12 @@ class TestMarketFeatures:
         assert len(vector) == 16  # Количество характеристик в векторе
         assert vector[0] == 0.001  # price_change_1m
         assert vector[1] == 0.005  # price_change_5m
-        assert vector[15] == 0.4   # mm_signal
+        assert vector[15] == 0.4  # mm_signal
+
+
 class TestPatternSnapshot:
     """Тесты для PatternSnapshot"""
+
     @pytest.fixture
     def sample_snapshot(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцового снимка паттерна"""
@@ -93,7 +102,7 @@ class TestPatternSnapshot:
             correlation=0.8,
             whale_signal=0.6,
             mm_signal=0.4,
-            external_sync=True
+            external_sync=True,
         )
         return PatternSnapshot(
             pattern_id="pattern_001",
@@ -104,8 +113,9 @@ class TestPatternSnapshot:
             strength=2.5,
             direction="up",
             features=features,
-            metadata={"strategy": "momentum", "timeframe": "1m"}
+            metadata={"strategy": "momentum", "timeframe": "1m"},
         )
+
     def test_pattern_snapshot_creation(self, sample_snapshot) -> None:
         """Тест создания PatternSnapshot"""
         assert sample_snapshot.pattern_id == "pattern_001"
@@ -115,6 +125,7 @@ class TestPatternSnapshot:
         assert sample_snapshot.strength == 2.5
         assert sample_snapshot.direction == "up"
         assert sample_snapshot.metadata["strategy"] == "momentum"
+
     def test_pattern_snapshot_to_dict(self, sample_snapshot) -> None:
         """Тест преобразования в словарь"""
         result = sample_snapshot.to_dict()
@@ -126,6 +137,7 @@ class TestPatternSnapshot:
         assert result["direction"] == "up"
         assert result["features"]["price"] == 50000.0
         assert result["metadata"]["strategy"] == "momentum"
+
     def test_pattern_snapshot_from_dict(self, sample_snapshot) -> None:
         """Тест создания из словаря"""
         data = sample_snapshot.to_dict()
@@ -135,8 +147,11 @@ class TestPatternSnapshot:
         assert snapshot.pattern_type == PatternType.WHALE_ABSORPTION
         assert snapshot.confidence == 0.85
         assert snapshot.features.price == 50000.0
+
+
 class TestPatternOutcome:
     """Тесты для PatternOutcome"""
+
     @pytest.fixture
     def sample_outcome(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцового исхода паттерна"""
@@ -154,8 +169,9 @@ class TestPatternOutcome:
             volatility_during=0.025,
             volume_profile="increasing",
             market_regime="trending",
-            metadata={"strategy": "momentum", "risk_level": "medium"}
+            metadata={"strategy": "momentum", "risk_level": "medium"},
         )
+
     def test_pattern_outcome_creation(self, sample_outcome) -> None:
         """Тест создания PatternOutcome"""
         assert sample_outcome.pattern_id == "pattern_001"
@@ -167,6 +183,7 @@ class TestPatternOutcome:
         assert sample_outcome.max_profit_percent == 3.2
         assert sample_outcome.volume_profile == "increasing"
         assert sample_outcome.market_regime == "trending"
+
     def test_pattern_outcome_to_dict(self, sample_outcome) -> None:
         """Тест преобразования в словарь"""
         result = sample_outcome.to_dict()
@@ -178,6 +195,7 @@ class TestPatternOutcome:
         assert result["duration_minutes"] == 30
         assert result["volume_profile"] == "increasing"
         assert result["market_regime"] == "trending"
+
     def test_pattern_outcome_from_dict(self, sample_outcome) -> None:
         """Тест создания из словаря"""
         data = sample_outcome.to_dict()
@@ -187,8 +205,11 @@ class TestPatternOutcome:
         assert outcome.outcome_type == OutcomeType.PROFITABLE
         assert outcome.price_change_percent == 2.5
         assert outcome.volume_profile == "increasing"
+
+
 class TestPredictionResult:
     """Тесты для PredictionResult"""
+
     @pytest.fixture
     def sample_prediction(self: "TestEvolvableMarketMakerAgent") -> Any:
         """Фикстура для образцового прогноза"""
@@ -204,8 +225,9 @@ class TestPredictionResult:
             success_rate=0.73,
             avg_return=1.8,
             avg_duration=28,
-            metadata={"strategy": "momentum", "timeframe": "1m"}
+            metadata={"strategy": "momentum", "timeframe": "1m"},
         )
+
     def test_prediction_result_creation(self, sample_prediction) -> None:
         """Тест создания PredictionResult"""
         assert sample_prediction.pattern_id == "pattern_001"
@@ -215,6 +237,7 @@ class TestPredictionResult:
         assert sample_prediction.predicted_return_percent == 2.0
         assert sample_prediction.similar_cases_count == 15
         assert sample_prediction.success_rate == 0.73
+
     def test_prediction_result_to_dict(self, sample_prediction) -> None:
         """Тест преобразования в словарь"""
         result = sample_prediction.to_dict()
@@ -225,6 +248,8 @@ class TestPredictionResult:
         assert result["predicted_return_percent"] == 2.0
         assert result["similar_cases_count"] == 15
         assert result["success_rate"] == 0.73
+
+
 class TestPatternMemory:
     """Тесты для PatternMemory."""
 
@@ -232,10 +257,7 @@ class TestPatternMemory:
     def pattern_memory(self, tmp_path) -> Any:
         """Создать экземпляр PatternMemory для тестов."""
         return PatternMemory(
-            storage_path=tmp_path / "pattern_memory",
-            max_patterns=1000,
-            similarity_threshold=0.8,
-            cleanup_days=30
+            storage_path=tmp_path / "pattern_memory", max_patterns=1000, similarity_threshold=0.8, cleanup_days=30
         )
 
     @pytest.fixture
@@ -263,7 +285,7 @@ class TestPatternMemory:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
 
     def test_pattern_memory_initialization(self, pattern_memory) -> None:
@@ -282,7 +304,7 @@ class TestPatternMemory:
             strength=0.7,
             direction="up",
             features=sample_features,
-            metadata={}
+            metadata={},
         )
         success = pattern_memory.save_snapshot(snapshot)
         assert success
@@ -306,7 +328,7 @@ class TestPatternMemory:
             volatility_during=0.05,
             volume_profile="increasing",
             market_regime="trending",
-            metadata={}
+            metadata={},
         )
         success = pattern_memory.save_outcome(outcome)
         assert success
@@ -338,7 +360,7 @@ class TestPatternMemory:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
         features2 = MarketFeatures(
             price=101.0,
@@ -362,7 +384,7 @@ class TestPatternMemory:
             correlation=0.801,
             whale_signal=0.201,
             mm_signal=0.101,
-            external_sync=True
+            external_sync=True,
         )
         similarity = pattern_memory.calculate_similarity(features1, features2)
         assert 0.0 <= similarity <= 1.0
@@ -401,7 +423,7 @@ class TestPatternMemory:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
         snapshot = PatternSnapshot(
             pattern_id="test1",
@@ -412,7 +434,7 @@ class TestPatternMemory:
             strength=0.7,
             direction="up",
             features=features,
-            metadata={"test": "data"}
+            metadata={"test": "data"},
         )
         # Сохраняем снимок
         success = pattern_memory.save_pattern_data("test1", snapshot)
@@ -447,7 +469,7 @@ class TestPatternMemory:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
         snapshot = PatternSnapshot(
             pattern_id="test1",
@@ -458,7 +480,7 @@ class TestPatternMemory:
             strength=0.7,
             direction="up",
             features=features,
-            metadata={}
+            metadata={},
         )
         outcome = PatternOutcome(
             pattern_id="test1",
@@ -474,7 +496,7 @@ class TestPatternMemory:
             volatility_during=0.05,
             volume_profile="increasing",
             market_regime="trending",
-            metadata={}
+            metadata={},
         )
         # Сохраняем данные
         pattern_memory.save_pattern_data("test1", snapshot)
@@ -520,7 +542,7 @@ class TestPatternMemory:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
         old_snapshot = PatternSnapshot(
             pattern_id="old_test",
@@ -531,7 +553,7 @@ class TestPatternMemory:
             strength=0.7,
             direction="up",
             features=features,
-            metadata={}
+            metadata={},
         )
         pattern_memory.save_pattern_data("old_test", old_snapshot)
         # Очищаем старые данные
@@ -544,22 +566,28 @@ class TestPatternMemory:
 
 class TestOutcomeType:
     """Тесты для OutcomeType"""
+
     def test_outcome_type_values(self: "TestOutcomeType") -> None:
         """Тест значений типов исходов"""
         assert OutcomeType.PROFITABLE.value == "profitable"
         assert OutcomeType.UNPROFITABLE.value == "unprofitable"
         assert OutcomeType.NEUTRAL.value == "neutral"
         assert OutcomeType.UNKNOWN.value == "unknown"
+
     def test_outcome_type_comparison(self: "TestOutcomeType") -> None:
         """Тест сравнения типов исходов"""
         assert OutcomeType.PROFITABLE != OutcomeType.UNPROFITABLE
         assert OutcomeType.PROFITABLE == OutcomeType.PROFITABLE
+
+
 class TestPatternMatcher:
     """Тесты для PatternMatcher."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.config = PatternMemoryConfig()
         self.matcher = PatternMatcher(self.config)
+
     def test_calculate_similarity(self: "TestPatternMatcher") -> None:
         """Тест вычисления сходства."""
         vector1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
@@ -567,17 +595,20 @@ class TestPatternMatcher:
         similarity = self.matcher.calculate_similarity(vector1, vector2)
         assert 0.0 <= similarity <= 1.0
         assert similarity > 0.8  # Должно быть высокое сходство
+
     def test_calculate_similarity_identical_vectors(self: "TestPatternMatcher") -> None:
         """Тест сходства идентичных векторов."""
         vector = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         similarity = self.matcher.calculate_similarity(vector, vector)
         assert similarity == 1.0
+
     def test_calculate_similarity_opposite_vectors(self: "TestPatternMatcher") -> None:
         """Тест сходства противоположных векторов."""
         vector1 = np.array([1.0, 2.0, 3.0])
         vector2 = np.array([-1.0, -2.0, -3.0])
         similarity = self.matcher.calculate_similarity(vector1, vector2)
         assert similarity < 0.5  # Должно быть низкое сходство
+
     def test_find_similar_patterns(self: "TestPatternMatcher") -> None:
         """Тест поиска похожих паттернов."""
         current_features = MarketFeatures(
@@ -602,7 +633,7 @@ class TestPatternMatcher:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
         snapshots = [
             PatternSnapshot(
@@ -614,14 +645,13 @@ class TestPatternMatcher:
                 strength=0.7,
                 direction="up",
                 features=current_features,
-                metadata={}
+                metadata={},
             )
         ]
-        similar_patterns = self.matcher.find_similar_patterns(
-            current_features, snapshots, similarity_threshold=0.5
-        )
+        similar_patterns = self.matcher.find_similar_patterns(current_features, snapshots, similarity_threshold=0.5)
         assert len(similar_patterns) == 1
         assert similar_patterns[0][1] > 0.5  # Сходство должно быть выше порога
+
     def test_calculate_confidence_boost(self: "TestPatternMatcher") -> None:
         """Тест вычисления повышения уверенности."""
         snapshot = PatternSnapshot(
@@ -633,11 +663,12 @@ class TestPatternMatcher:
             strength=0.7,
             direction="up",
             features=Mock(),
-            metadata={}
+            metadata={},
         )
         boost = self.matcher.calculate_confidence_boost(0.9, snapshot)
         assert 0.0 <= boost <= 1.0
         assert boost > 0.5  # Должно быть значительное повышение
+
     def test_calculate_signal_strength(self: "TestPatternMatcher") -> None:
         """Тест вычисления силы сигнала."""
         snapshot = PatternSnapshot(
@@ -649,17 +680,21 @@ class TestPatternMatcher:
             strength=0.7,
             direction="up",
             features=Mock(),
-            metadata={}
+            metadata={},
         )
         strength = self.matcher.calculate_signal_strength(snapshot)
         assert -1.0 <= strength <= 1.0
         assert strength > 0.0  # Должен быть положительный сигнал
+
+
 class TestPatternPredictor:
     """Тесты для PatternPredictor."""
+
     def setup_method(self) -> Any:
         """Настройка перед каждым тестом."""
         self.config = PatternMemoryConfig()
         self.predictor = PatternPredictor(self.config)
+
     def test_calculate_predicted_return(self: "TestPatternPredictor") -> None:
         """Тест вычисления прогнозируемой доходности."""
         outcomes = [
@@ -677,7 +712,7 @@ class TestPatternPredictor:
                 volatility_during=0.05,
                 volume_profile="increasing",
                 market_regime="trending",
-                metadata={}
+                metadata={},
             ),
             PatternOutcome(
                 pattern_id="test2",
@@ -693,11 +728,12 @@ class TestPatternPredictor:
                 volatility_during=0.03,
                 volume_profile="stable",
                 market_regime="trending",
-                metadata={}
-            )
+                metadata={},
+            ),
         ]
         predicted_return = self.predictor.calculate_predicted_return(outcomes)
         assert predicted_return == 1.5  # Среднее значение
+
     def test_calculate_predicted_duration(self: "TestPatternPredictor") -> None:
         """Тест вычисления прогнозируемой длительности."""
         outcomes = [
@@ -715,7 +751,7 @@ class TestPatternPredictor:
                 volatility_during=0.05,
                 volume_profile="increasing",
                 market_regime="trending",
-                metadata={}
+                metadata={},
             ),
             PatternOutcome(
                 pattern_id="test2",
@@ -731,11 +767,12 @@ class TestPatternPredictor:
                 volatility_during=0.03,
                 volume_profile="stable",
                 market_regime="trending",
-                metadata={}
-            )
+                metadata={},
+            ),
         ]
         predicted_duration = self.predictor.calculate_predicted_duration(outcomes)
         assert predicted_duration == 25  # Среднее значение
+
     def test_calculate_success_rate(self: "TestPatternPredictor") -> None:
         """Тест вычисления успешности."""
         outcomes = [
@@ -753,7 +790,7 @@ class TestPatternPredictor:
                 volatility_during=0.05,
                 volume_profile="increasing",
                 market_regime="trending",
-                metadata={}
+                metadata={},
             ),
             PatternOutcome(
                 pattern_id="test2",
@@ -769,11 +806,12 @@ class TestPatternPredictor:
                 volatility_during=0.03,
                 volume_profile="decreasing",
                 market_regime="volatile",
-                metadata={}
-            )
+                metadata={},
+            ),
         ]
         success_rate = self.predictor._calculate_success_rate(outcomes)
         assert success_rate == 0.5  # 50% успешность
+
     def test_generate_prediction(self: "TestPatternPredictor") -> None:
         """Тест генерации прогноза."""
         features = MarketFeatures(
@@ -798,7 +836,7 @@ class TestPatternPredictor:
             correlation=0.8,
             whale_signal=0.2,
             mm_signal=0.1,
-            external_sync=True
+            external_sync=True,
         )
         snapshot = PatternSnapshot(
             pattern_id="test1",
@@ -809,7 +847,7 @@ class TestPatternPredictor:
             strength=0.7,
             direction="up",
             features=features,
-            metadata={}
+            metadata={},
         )
         outcome = PatternOutcome(
             pattern_id="test1",
@@ -825,16 +863,13 @@ class TestPatternPredictor:
             volatility_during=0.05,
             volume_profile="increasing",
             market_regime="trending",
-            metadata={}
+            metadata={},
         )
         similar_cases = [(snapshot, 0.9)]
         outcomes = [outcome]
-        prediction = self.predictor.generate_prediction(
-            similar_cases, outcomes, features, "BTCUSDT"
-        )
+        prediction = self.predictor.generate_prediction(similar_cases, outcomes, features, "BTCUSDT")
         assert prediction is not None
         assert prediction.symbol == "BTCUSDT"
         assert prediction.confidence > 0.0
         assert prediction.similar_cases_count == 1
         assert prediction.success_rate == 1.0
- 

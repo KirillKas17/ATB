@@ -8,12 +8,13 @@ from domain.services.ml_predictor import MLPredictor
 from domain.services.technical_analysis import DefaultTechnicalAnalysisService
 from domain.services.correlation_chain import CorrelationChain
 from domain.services.signal_service import DefaultSignalService
-from domain.services.strategy_service import DefaultStrategyService
+from domain.services.strategy_service import StrategyService
 from domain.services.pattern_discovery import PatternDiscovery
 from domain.services.risk_analysis import DefaultRiskAnalysisService
 
-    @pytest.mark.asyncio
-    async def test_domain_services_integration() -> None:
+
+@pytest.mark.asyncio
+async def test_domain_services_integration() -> None:
     locator = get_service_locator()
     # Проверяем, что все сервисы доступны через DI
     assert isinstance(locator.get_service(MarketMetricsService), MarketMetricsService)
@@ -36,4 +37,4 @@ from domain.services.risk_analysis import DefaultRiskAnalysisService
 
     # Проверка обработки ошибок
     with pytest.raises(Exception):
-        service.calculate_metrics([])  # Пустой вход должен вызвать ошибку или вернуть пустой результат 
+        service.calculate_metrics([])  # Пустой вход должен вызвать ошибку или вернуть пустой результат

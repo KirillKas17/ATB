@@ -40,7 +40,7 @@ class ReversalConfig:
 class ReversalStrategy(BaseStrategy):
     """Стратегия разворота тренда"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], ReversalConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], ReversalConfig]] = None) -> None:
         if isinstance(config, ReversalConfig):
             super().__init__(asdict(config))
             self._config = config

@@ -85,7 +85,7 @@ class RegimeConfig:
 class RegimeAdaptiveStrategy(BaseStrategy):
     """Адаптивная стратегия, меняющая параметры в зависимости от режима рынка (расширенная)"""
 
-    def __init__(self, config: Optional[Union[Dict[str, Any], RegimeConfig]] = None):
+    def __init__(self, config: Optional[Union[Dict[str, Any], RegimeConfig]] = None) -> None:
         """
         Инициализация стратегии.
         Args:

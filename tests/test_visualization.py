@@ -4,7 +4,8 @@ from shared.numpy_utils import np
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 from shared.visualization import (plot_cvd_and_delta_volume, plot_fuzzy_zones,
                                   plot_whale_activity)
-    @pytest.fixture
+
+@pytest.fixture
 def price_data() -> Any:
     """Фикстура для ценовых данных"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")
@@ -18,14 +19,15 @@ def price_data() -> Any:
         },
         index=dates,
     )
-    @pytest.fixture
+@pytest.fixture
 def zones() -> Any:
     """Фикстура для зон поддержки/сопротивления"""
     return {
         "support": [(49000, 0.8), (48500, 0.6)],
         "resistance": [(51000, 0.7), (51500, 0.5)],
     }
-    @pytest.fixture
+
+@pytest.fixture
 def trade_data() -> Any:
     """Фикстура для данных о сделках"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")
@@ -46,14 +48,16 @@ def trade_data() -> Any:
     df.loc[df.index[20], "volume"] = 600
     df.loc[df.index[30], "volume"] = 700
     return df
-    @pytest.fixture
+
+@pytest.fixture
 def volume_data() -> Any:
     """Фикстура для данных об объемах"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")
     cvd = pd.Series(np.cumsum(np.random.normal(0, 100, 100)), index=dates)
     delta = pd.Series(np.random.normal(0, 50, 100), index=dates)
     return cvd, delta
-    @pytest.fixture
+
+@pytest.fixture
 def mock_market_data() -> Any:
     """Фикстура с тестовыми рыночными данными"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")
@@ -68,7 +72,8 @@ def mock_market_data() -> Any:
         index=dates,
     )
     return data
-    @pytest.fixture
+
+@pytest.fixture
 def mock_trades() -> Any:
     """Фикстура с тестовыми сделками"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")
@@ -90,7 +95,8 @@ def mock_trades() -> Any:
             "pnl": -5,
         },
     ]
-    @pytest.fixture
+
+@pytest.fixture
 def mock_indicators() -> Any:
     """Фикстура с тестовыми индикаторами"""
     dates = pd.date_range(start="2024-01-01", periods=100, freq="h")

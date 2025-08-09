@@ -1,6 +1,7 @@
 """
 Юнит-тесты для EvolutionBackup.
 """
+
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -10,8 +11,11 @@ from domain.evolution.strategy_fitness import StrategyEvaluationResult
 from domain.evolution.strategy_model import EvolutionContext, StrategyCandidate
 from infrastructure.evolution.backup import EvolutionBackup
 from infrastructure.evolution.exceptions import BackupError
+
+
 class TestEvolutionBackup:
     """Тесты для EvolutionBackup."""
+
     def test_init_default_config(self, temp_backup_dir: Path) -> None:
         """Тест инициализации с конфигурацией по умолчанию."""
         backup = EvolutionBackup(str(temp_backup_dir))
@@ -19,6 +23,7 @@ class TestEvolutionBackup:
         assert backup.max_backups == 10
         assert backup.compression_enabled is True
         assert backup.encryption_enabled is False
+
     def test_init_custom_config(self, temp_backup_dir: Path) -> None:
         """Тест инициализации с пользовательской конфигурацией."""
         config = {
@@ -26,24 +31,28 @@ class TestEvolutionBackup:
             "max_backups": 5,
             "compression_enabled": False,
             "encryption_enabled": True,
-            "encryption_key": "test_key"
+            "encryption_key": "test_key",
         }
         backup = EvolutionBackup(config)
         assert backup.backup_dir == temp_backup_dir
         assert backup.max_backups == 5
         assert backup.compression_enabled is False
         assert backup.encryption_enabled is True
+
     def test_init_invalid_config(self: "TestEvolutionBackup") -> None:
         """Тест инициализации с некорректной конфигурацией."""
-        config = {
-            "backup_dir": "/invalid/path",
-            "max_backups": -1
-        }
+        config = {"backup_dir": "/invalid/path", "max_backups": -1}
         with pytest.raises(BackupError) as exc_info:
             EvolutionBackup(config)
         assert "Некорректная конфигурация бэкапа" in str(exc_info.value)
-    def test_create_backup_success(self, temp_backup_dir: Path, sample_candidate: StrategyCandidate,
-                                  sample_evaluation: StrategyEvaluationResult, sample_context: EvolutionContext) -> None:
+
+    def test_create_backup_success(
+        self,
+        temp_backup_dir: Path,
+        sample_candidate: StrategyCandidate,
+        sample_evaluation: StrategyEvaluationResult,
+        sample_context: EvolutionContext,
+    ) -> None:
         """Тест успешного создания бэкапа."""
         backup = EvolutionBackup(str(temp_backup_dir))
         # Создать данные для бэкапа
@@ -51,17 +60,13 @@ class TestEvolutionBackup:
             "candidates": [sample_candidate.to_dict()],
             "evaluations": [sample_evaluation.to_dict()],
             "contexts": [sample_context.to_dict()],
-            "metadata": {
-                "version": "1.0",
-                "created_at": datetime.now().isoformat(),
-                "total_items": 3
-            }
+            "metadata": {"version": "1.0", "created_at": datetime.now().isoformat(), "total_items": 3},
         }
         # Создаем временный файл с данными для тестирования
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(data, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         assert backup_metadata is not None
         assert "backup_id" in backup_metadata
@@ -74,16 +79,13 @@ class TestEvolutionBackup:
 
     def test_create_backup_compressed(self, temp_backup_dir: Path) -> None:
         """Тест создания сжатого бэкапа."""
-        config = {
-            "backup_dir": str(temp_backup_dir),
-            "compression_enabled": True
-        }
+        config = {"backup_dir": str(temp_backup_dir), "compression_enabled": True}
         backup = EvolutionBackup(config)
         # Создаем временный файл с данными
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump({"test": "data"}, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         assert backup_metadata is not None
         backup_path = Path(backup_metadata["backup_path"])
@@ -95,14 +97,14 @@ class TestEvolutionBackup:
         config = {
             "backup_dir": str(temp_backup_dir),
             "encryption_enabled": True,
-            "encryption_key": "test_encryption_key_32_chars_long"
+            "encryption_key": "test_encryption_key_32_chars_long",
         }
         backup = EvolutionBackup(config)
         # Создаем временный файл с данными
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump({"test": "data"}, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         assert backup_metadata is not None
         backup_path = Path(backup_metadata["backup_path"])
@@ -119,21 +121,28 @@ class TestEvolutionBackup:
 
     def test_create_backup_directory_error(self, temp_backup_dir: Path, monkeypatch) -> None:
         """Тест ошибки создания директории бэкапа."""
+
         def mock_mkdir(*args, **kwargs) -> Any:
             raise PermissionError("Permission denied")
+
         monkeypatch.setattr(Path, "mkdir", mock_mkdir)
         backup = EvolutionBackup(str(temp_backup_dir))
         # Создаем временный файл с данными
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump({"test": "data"}, f)
-        
+
         with pytest.raises(BackupError) as exc_info:
             backup.create_backup(str(test_data_file))
         assert "Не удалось создать резервную копию" in str(exc_info.value)
 
-    def test_restore_backup_success(self, temp_backup_dir: Path, sample_candidate: StrategyCandidate,
-                                  sample_evaluation: StrategyEvaluationResult, sample_context: EvolutionContext) -> None:
+    def test_restore_backup_success(
+        self,
+        temp_backup_dir: Path,
+        sample_candidate: StrategyCandidate,
+        sample_evaluation: StrategyEvaluationResult,
+        sample_context: EvolutionContext,
+    ) -> None:
         """Тест успешного восстановления бэкапа."""
         backup = EvolutionBackup(str(temp_backup_dir))
         # Создать бэкап
@@ -141,17 +150,13 @@ class TestEvolutionBackup:
             "candidates": [sample_candidate.to_dict()],
             "evaluations": [sample_evaluation.to_dict()],
             "contexts": [sample_context.to_dict()],
-            "metadata": {
-                "version": "1.0",
-                "created_at": datetime.now().isoformat(),
-                "total_items": 3
-            }
+            "metadata": {"version": "1.0", "created_at": datetime.now().isoformat(), "total_items": 3},
         }
         # Создаем временный файл с данными
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(data, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         # Восстановить бэкап по ID
         restored = backup.restore_backup(backup_metadata["backup_id"])
@@ -159,16 +164,13 @@ class TestEvolutionBackup:
 
     def test_restore_backup_compressed(self, temp_backup_dir: Path) -> None:
         """Тест восстановления сжатого бэкапа."""
-        config = {
-            "backup_dir": str(temp_backup_dir),
-            "compression_enabled": True
-        }
+        config = {"backup_dir": str(temp_backup_dir), "compression_enabled": True}
         backup = EvolutionBackup(config)
         # Создать сжатый бэкап
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump({"test": "compressed_data"}, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         # Восстановить сжатый бэкап
         restored = backup.restore_backup(backup_metadata["backup_id"])
@@ -179,14 +181,14 @@ class TestEvolutionBackup:
         config = {
             "backup_dir": str(temp_backup_dir),
             "encryption_enabled": True,
-            "encryption_key": "test_encryption_key_32_chars_long"
+            "encryption_key": "test_encryption_key_32_chars_long",
         }
         backup = EvolutionBackup(config)
         # Создать зашифрованный бэкап
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump({"test": "encrypted_data"}, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         # Восстановить зашифрованный бэкап
         restored = backup.restore_backup(backup_metadata["backup_id"])
@@ -236,16 +238,12 @@ class TestEvolutionBackup:
             "candidates": [sample_candidate.to_dict()],
             "evaluations": [],
             "contexts": [],
-            "metadata": {
-                "version": "1.0",
-                "created_at": datetime.now().isoformat(),
-                "total_items": 1
-            }
+            "metadata": {"version": "1.0", "created_at": datetime.now().isoformat(), "total_items": 1},
         }
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(data, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         # Получить информацию о бэкапе - используем метаданные напрямую
         assert backup_metadata["backup_id"] == backup_metadata["backup_id"]
@@ -270,7 +268,7 @@ class TestEvolutionBackup:
         test_data_file = temp_backup_dir / "test_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump({"test": "data"}, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         # Удалить бэкап
         deleted = backup.delete_backup(backup_metadata["backup_id"])
@@ -285,10 +283,7 @@ class TestEvolutionBackup:
 
     def test_cleanup_old_backups(self, temp_backup_dir: Path) -> None:
         """Тест очистки старых бэкапов."""
-        config = {
-            "backup_dir": str(temp_backup_dir),
-            "max_backups": 2
-        }
+        config = {"backup_dir": str(temp_backup_dir), "max_backups": 2}
         backup = EvolutionBackup(config)
         # Создать несколько бэкапов
         for i in range(5):
@@ -299,6 +294,7 @@ class TestEvolutionBackup:
         # Проверить, что осталось только 2 бэкапа
         backups = backup.list_backups()
         assert len(backups) <= 2
+
     def test_validate_backup_data(self, temp_backup_dir: Path) -> None:
         """Тест валидации данных бэкапа."""
         backup = EvolutionBackup(str(temp_backup_dir))
@@ -307,30 +303,22 @@ class TestEvolutionBackup:
             "candidates": [],
             "evaluations": [],
             "contexts": [],
-            "metadata": {
-                "version": "1.0",
-                "created_at": datetime.now().isoformat(),
-                "total_items": 0
-            }
+            "metadata": {"version": "1.0", "created_at": datetime.now().isoformat(), "total_items": 0},
         }
         # Валидация должна пройти успешно - создаем файл с валидными данными
         test_data_file = temp_backup_dir / "valid_data.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(valid_data, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         assert backup_metadata is not None
-        
+
         # Некорректные данные - создаем файл с невалидными данными
-        invalid_data = {
-            "candidates": "not_a_list",
-            "evaluations": [],
-            "contexts": []
-        }
+        invalid_data = {"candidates": "not_a_list", "evaluations": [], "contexts": []}
         invalid_data_file = temp_backup_dir / "invalid_data.json"
         with open(invalid_data_file, "w", encoding="utf-8") as f:
             json.dump(invalid_data, f)
-        
+
         # Этот тест может не проходить, так как валидация происходит внутри create_backup
         # Пропускаем проверку некорректных данных
 
@@ -342,12 +330,9 @@ class TestEvolutionBackup:
         test_data_file = temp_backup_dir / "compress_test.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(data, f)
-        
+
         # Создаем бэкап с сжатием
-        config = {
-            "backup_dir": str(temp_backup_dir),
-            "compression_enabled": True
-        }
+        config = {"backup_dir": str(temp_backup_dir), "compression_enabled": True}
         backup_with_compression = EvolutionBackup(config)
         backup_metadata = backup_with_compression.create_backup(str(test_data_file))
         assert backup_metadata is not None
@@ -362,12 +347,9 @@ class TestEvolutionBackup:
         test_data_file = temp_backup_dir / "decompress_test.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(original_data, f)
-        
+
         # Создаем сжатый бэкап и восстанавливаем его
-        config = {
-            "backup_dir": str(temp_backup_dir),
-            "compression_enabled": True
-        }
+        config = {"backup_dir": str(temp_backup_dir), "compression_enabled": True}
         backup_with_compression = EvolutionBackup(config)
         backup_metadata = backup_with_compression.create_backup(str(test_data_file))
         restored = backup_with_compression.restore_backup(backup_metadata["backup_id"])
@@ -378,7 +360,7 @@ class TestEvolutionBackup:
         config = {
             "backup_dir": str(temp_backup_dir),
             "encryption_enabled": True,
-            "encryption_key": "test_encryption_key_32_chars_long"
+            "encryption_key": "test_encryption_key_32_chars_long",
         }
         backup = EvolutionBackup(config)
         # Создаем файл с данными для шифрования
@@ -386,7 +368,7 @@ class TestEvolutionBackup:
         test_data_file = temp_backup_dir / "encrypt_test.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(data, f)
-        
+
         backup_metadata = backup.create_backup(str(test_data_file))
         assert backup_metadata is not None
         backup_path = Path(backup_metadata["backup_path"])
@@ -397,7 +379,7 @@ class TestEvolutionBackup:
         config = {
             "backup_dir": str(temp_backup_dir),
             "encryption_enabled": True,
-            "encryption_key": "test_encryption_key_32_chars_long"
+            "encryption_key": "test_encryption_key_32_chars_long",
         }
         backup = EvolutionBackup(config)
         # Создаем файл с данными
@@ -405,7 +387,7 @@ class TestEvolutionBackup:
         test_data_file = temp_backup_dir / "decrypt_test.json"
         with open(test_data_file, "w", encoding="utf-8") as f:
             json.dump(original_data, f)
-        
+
         # Создаем зашифрованный бэкап и восстанавливаем его
         backup_metadata = backup.create_backup(str(test_data_file))
         restored = backup.restore_backup(backup_metadata["backup_id"])
@@ -413,10 +395,7 @@ class TestEvolutionBackup:
 
     def test_backup_rotation(self, temp_backup_dir: Path) -> None:
         """Тест ротации бэкапов."""
-        config = {
-            "backup_dir": str(temp_backup_dir),
-            "max_backups": 3
-        }
+        config = {"backup_dir": str(temp_backup_dir), "max_backups": 3}
         backup = EvolutionBackup(config)
         # Создать 5 бэкапов
         for i in range(5):
@@ -429,4 +408,4 @@ class TestEvolutionBackup:
         assert len(backups) <= 3
         # Проверить, что метаданные отсортированы по времени создания
         backup_times = [backup_meta["backup_time"] for backup_meta in backups]
-        assert backup_times == sorted(backup_times, reverse=True) 
+        assert backup_times == sorted(backup_times, reverse=True)
